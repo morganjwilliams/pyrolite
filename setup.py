@@ -25,7 +25,6 @@ setup(name='pyrolite',
                         'matplotlib',
                         'periodictable',
                         'xlrd',
-                        'regex'
                         ],
 
       extras_require={'dev': ['versioneer',
