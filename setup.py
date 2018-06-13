@@ -2,8 +2,8 @@ from setuptools import setup
 import versioneer
 
 setup(name='pyrolite',
-      description="Tools for geochemical data analysis."
-      long_description=open('README.md').read()
+      description="Tools for geochemical data analysis.",
+      long_description=open('README.md').read(),
       version=versioneer.get_version(),
       url='https://github.com/morgan.j.williams/pyrochem.git',
       author='Morgan Williams',
@@ -25,6 +25,7 @@ setup(name='pyrolite',
                         'matplotlib',
                         'periodictable',
                         'xlrd',
+                        'regex'
                         ],
       license='MIT',
       cmdclass=versioneer.get_cmdclass()
