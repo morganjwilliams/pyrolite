@@ -9,8 +9,8 @@ def close(X: np.ndarray):
         return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
     else:
         return np.divide(X, np.sum(X, axis=0))
-    
-    
+
+
 def compositional_mean(df, weights=[], **kwargs):
     """
     Implements an aggregation using a weighted mean.
@@ -21,7 +21,7 @@ def compositional_mean(df, weights=[], **kwargs):
     if not weights:
         weights = np.ones(len(df.index.values))
     weights = np.array(weights)/np.nansum(weights)
-    
+
     logmean = alr(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
     mean.loc[non_nan_cols] = inv_alr(logmean.T.squeeze()) # this renormalises by default
     return mean
@@ -33,7 +33,7 @@ def nan_weighted_mean(values:np.ndarray, weights=[],):
     if flter.any():
         if not len(weights): weights = np.ones((1, arr.shape[0]))
         weights = np.array(weights)/np.sum(weights, axis=0) # 1D weights
-        c_weights = weights.copy()    
+        c_weights = weights.copy()
         flter = flter.reshape((1, *flter.shape))
         c_weights = c_weights[flter] / c_weights[flter].sum()
         mean = values[flter.squeeze()] @ c_weights
@@ -48,20 +48,20 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
     """
     Implements an aggregation using a weighted mean, but accounts
     for nans. Requires at least one non-nan column for alr mean.
-    
+
     When used for internal standardisation, there should be only a single
     common element - this would be used by default as the divisor here.
-    
+
     When used for multiple-standardisation, the [specified] or first common
     element will be used.
     """
-    
+
     if not len(weights): weights = np.ones((1, arr.shape[0]))
     weights = np.array(weights)/np.sum(weights) # 1D weights
 
     if ind is None: ind = np.nonzero(~np.isnan(arr).any(axis=0))[0]
     logvals = np.log(np.divide(arr, arr[:, ind].squeeze()[:, np.newaxis]))
-    
+
     mean = np.nan * np.ones(arr.shape[1:])
     for ix in range(logvals.shape[1]):
         if arr.ndim == 2:
@@ -69,11 +69,11 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
         elif arr.ndim == 3:
             for iy in range(logvals.shape[2]):
                 mean[ix, iy] = nan_weighted_mean(logvals[:, ix, iy], weights=weights)
-        
+
     mean = np.exp(mean.squeeze())
     if renorm: mean /= np.nansum(mean)
     return mean
-    
+
 
 def cross_ratios(df: pd.DataFrame):
     """
@@ -119,7 +119,7 @@ def standardise_aggregate(df: pd.DataFrame,
         potential_int_stds = df.count()[df.count()==df.count().max()].index.values
         assert len(potential_int_stds) == 1
         int_std = potential_int_stds[0]
-    
+
     non_nan_cols = df.dropna(axis=1, how='all').columns
     assert len(non_nan_cols)
     ser = pd.Series(nan_weighted_compositional_mean(df.values,
@@ -132,7 +132,7 @@ def standardise_aggregate(df: pd.DataFrame,
 
 
 def complex_standardise_aggregate(df, fix_int_std=None, renorm=True, fixed_record_idx=0):
-    
+
     if fix_int_std is None:
         # create a n x d x d matrix for aggregating ratios
         ratios = cross_ratios(df)
@@ -149,7 +149,7 @@ def complex_standardise_aggregate(df, fix_int_std=None, renorm=True, fixed_recor
     else:
         # fallback to internal standardisation
         return standardise_aggregate(df, int_std=fix_int_std, fixed_record_idx=fixed_record_idx, renorm=renorm)
-    
+
 
 def nancov(X, method='replace'):
     """
@@ -205,19 +205,19 @@ def renormalise(df: pd.DataFrame, components:list=[]):
 
 def additive_log_ratio(X: np.ndarray, ind: int=-1):
     """Additive log ratio transform. """
-    
+
     Y = X.copy()
     assert Y.ndim in [1, 2]
     dimensions = Y.shape[Y.ndim-1]
     if ind < 0: ind += dimensions
-    
+
     if Y.ndim == 2:
         Y = np.divide(Y, Y[:, ind][:, np.newaxis])
         Y = np.log(Y[:, [i for i in range(dimensions) if not i==ind]])
     else:
         Y = np.divide(X, X[ind])
         Y = np.log(Y[[i for i in range(dimensions) if not i==ind]])
-        
+
     return Y
 
 def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
@@ -225,16 +225,16 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
     Inverse additive log ratio transform.
     """
     assert Y.ndim in [1, 2]
-    
+
     X = Y.copy()
     dimensions = X.shape[X.ndim-1]
     idx = np.arange(0, dimensions+1)
-    
+
     if ind != -1:
-        idx = np.array(list(idx[idx < ind]) + 
-                       [-1] + 
+        idx = np.array(list(idx[idx < ind]) +
+                       [-1] +
                        list(idx[idx >= ind+1]-1))
-    
+
     # Add a zero-column and reorder columns
     if Y.ndim == 2:
         X = np.concatenate((X, np.zeros((X.shape[0], 1))), axis=1)
@@ -242,7 +242,7 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
     else:
         X = np.append(X, np.array([0]))
         X = X[idx]
-    
+
     # Inverse log and closure operations
     X = np.exp(X)
     X = close(X)

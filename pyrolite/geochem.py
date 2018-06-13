@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import mpmath
 import periodictable as pt
-from compositions import renormalise
-from text_utilities import titlecase
+from .compositions import renormalise
+from .text_utilities import titlecase
 import matplotlib.pyplot as plt
 import ternary
 
