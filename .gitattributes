@@ -1,0 +1,2 @@
+pyrochem/_version.py export-subst
+pyrolite/_version.py export-subst
