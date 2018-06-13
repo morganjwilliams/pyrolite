@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import versioneer
 
 setup(name='pyrolite',
       description="Tools for geochemical data analysis.",
       long_description=open('README.md').read(),
       version=versioneer.get_version(),
-      url='https://github.com/morgan.j.williams/pyrochem.git',
+      url='https://github.com/morgan.j.williams/pyrolite',
       author='Morgan Williams',
       author_email='morgan.williams@csiro.au',
       classifiers=[
@@ -16,7 +16,7 @@ setup(name='pyrolite',
         'Topic :: Scientific/Engineering',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-      packages=['pyrolite'],
+      packages=find_packages(exclude=['test*']),
       install_requires=['pathlib',
                         'numpy',
                         'scipy',
@@ -27,6 +27,18 @@ setup(name='pyrolite',
                         'xlrd',
                         'regex'
                         ],
-      license='MIT',
+
+      extras_require={'dev': ['versioneer',
+                              'nbstripout',
+                              'nbdime']},
+
+      tests_require=['pytest',
+                     'pytest-runner',
+                     'pytest-cov',
+                     'coverage'],
+
+      test_suite="test",
+      package_data={'pyrolite': ['data/*']},
+      license='CSIRO Modifed MIT/BSD',
       cmdclass=versioneer.get_cmdclass()
 )

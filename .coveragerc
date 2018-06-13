@@ -1,0 +1,8 @@
+[run]
+omit =
+    # Omit test and data files
+    test/*
+    **/data
+
+    # Ignore _version.py
+    */_version.py
