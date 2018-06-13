@@ -25,7 +25,7 @@ setup(name='pyrolite',
                         'matplotlib',
                         'periodictable',
                         'xlrd',
-                        're'
+                        'regex'
                         ],
       license='MIT',
       cmdclass=versioneer.get_cmdclass()
