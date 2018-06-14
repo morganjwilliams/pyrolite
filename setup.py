@@ -25,7 +25,8 @@ setup(name='pyrolite',
                         'matplotlib',
                         'periodictable',
                         'xlrd',
-                        'mpmath'
+                        'mpmath',
+                        'python-ternary'
                         ],
 
       extras_require={'dev': ['versioneer',
