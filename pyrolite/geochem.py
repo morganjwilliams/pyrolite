@@ -44,22 +44,6 @@ def get_cations(oxide, exclude=['O']):
     return cations
 
 
-def test_weightmolar_reversal(df, components):
-    """
-    Tests reversability of the wt-mol conversions.
-    Examines differences between dataframes, and asserts that any discrepency
-    is explained by np.nan components (and hence not actual differences).
-    """
-    wt_testdf = to_weight(to_molecular(df.loc[:, components]))
-    assert np.isnan(
-                    to_weight(
-                    to_molecular(df.loc[:, components])
-                    ).as_matrix()[~np.isclose(wt_testdf.as_matrix(),
-                                  df.loc[:, components].as_matrix())
-                                 ]
-                   ).all()
-
-
 def common_elements(cutoff=93, output='formula'):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
@@ -90,6 +74,9 @@ def common_oxides(elements: list=[], output='formula',
     """
     Creates a list of oxides based on a list of elements.
     Output options are 'formula', or strings.
+
+    Note: currently return FeOT and LOI even for element lists
+    not including iron or water - potential upgrade!
     """
     if not elements:
         elements = [el for el in common_elements()
@@ -140,15 +127,16 @@ def oxide_conversion(oxin, oxout):
     outatoms =  {k: v for (k, v) in oxout.atoms.items() if not k.__str__()=='O'}
     assert len(inatoms) == len(outatoms) == 1  # Assertion of simple oxide
     cation_coefficient = list(outatoms.values())[0] / list(inatoms.values())[0]
-    def swap(dfser: pd.Series, molecular=False):
+    def convert_series(dfser: pd.Series, molecular=False):
+        """Convert series from {} to {}""".format(oxin, oxout)
         if not molecular:
-            swapped = dfser * cation_coefficient \
+            factor = dfser * cation_coefficient \
                         * oxout.mass / oxin.mass
         else:
-            swapped = dfser * cation_coefficient
-        return swapped
+            factor = dfser * cation_coefficient
+        return factor
 
-    return swap
+    return convert_series
 
 
 def recalculate_redox(df: pd.DataFrame,
@@ -159,6 +147,12 @@ def recalculate_redox(df: pd.DataFrame,
     Recalculates abundances of redox-sensitive components (particularly Fe),
     and normalises a dataframe to contain only one oxide species for a given
     element.
+
+    Consider reimplementing total suffix as a lambda formatting function
+    to deal with cases of prefixes, capitalisation etc.
+
+    Automatic generation of multiple redox species from dataframes
+    would also be a natural improvement.
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -192,10 +186,15 @@ def recalculate_redox(df: pd.DataFrame,
         return dfc
 
 
-def aggregate_cation(df, cation, form='oxide', unit_scale=None):
+def aggregate_cation(df: pd.DataFrame,
+                     cation,
+                     form='oxide',
+                     unit_scale=None):
     """
     Aggregates cation information from oxide and elemental components to a single series.
     Allows scaling (e.g. from ppm to wt% - a factor of 10,000).
+
+    Needs to also implement a 'molecular' version.
     """
     elstr = cation.__str__()
     oxstr = [o for o in df.columns if o in simple_oxides(elstr, output='str')][0]
@@ -231,7 +230,6 @@ def add_ratio(df: pd.DataFrame,
     """
     Add a ratio of components A and B, given in the form of string 'A/B'.
     Returned series be assigned an alias name.
-
     """
     num, den = ratio.split('/')
     name = [ratio if not alias else alias][0]
@@ -272,6 +270,7 @@ def lambdas(REE, degrees=2, constructor=mpmath.chebyu):
     lambs = [lambda x: constructor(deg, x) for deg in range(degrees)]
     print(lambs)
     mpmath.plot(lambs,[-1,1])
+
 
 def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style):
     """

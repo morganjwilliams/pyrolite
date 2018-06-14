@@ -43,7 +43,7 @@ class RefComp:
         self.data = pd.read_csv(filename, **kwargs)
         self.data = self.data.set_index('var')
         self.original_data = self.data.copy() # preserve unaltered record
-        self.add_oxides()
+        #self.add_oxides()
         self.collect_vars()
         self.set_units()
 

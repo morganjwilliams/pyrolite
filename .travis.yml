@@ -1,6 +1,7 @@
 language: python
 python:
   - "3.6"
+  - "3.7"
 
 install:
   # Install test requirements seperately
@@ -16,4 +17,4 @@ script:
   - python setup.py test
 
 after_success:
-- codecov
+  - codecov
