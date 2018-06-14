@@ -16,5 +16,5 @@ before_script: # configure a headless display to test plot generation
 script:
   - pytest --cov-report term --cov-report html --cov-config .coveragerc --cov=pyrolite test
 
-after_success:
-  - coveralls
+after_script:
+  coveralls
