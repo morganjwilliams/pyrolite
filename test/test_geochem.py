@@ -1,4 +1,5 @@
 import unittest
+import pandas as pd
 from pyrolite.geochem import *
 
 class TestToMolecular(unittest.TestCase):
@@ -37,26 +38,71 @@ class TestWeightMolarReversal(unittest.TestCase):
     """Tests the reversability of weight-molar unit transformations."""
 
     def setUp(self):
+        self.df = pd.DataFrame({'MgO':20.0, 'SiO2':30.0, 'K2O':5.0, 'Na2O':2.0},
+                               index=[0])
+        self.components = ['MgO', 'SiO2', 'K2O']
 
-        pass
-
-    def test_weightmolar_reversal(self):
+    def test_weightmolar_reversal_renormFalse(self):
         """
         Tests reversability of the wt-mol conversions.
         Examines differences between dataframes, and
         asserts that any discrepency is explained by np.nan components
         (and hence not actual differences).
         """
-        df = self.df
-        components = self.components
-        wt_testdf = to_weight(to_molecular(df.loc[:, components]))
-        self.assertTrue(np.isnan(
-                        to_weight(
-                        to_molecular(df.loc[:, components])
-                        ).as_matrix()[~np.isclose(wt_testdf.as_matrix(),
-                                      df.loc[:, components].as_matrix())
-                                     ]
-                       ).all())
+        wt_testdf = to_weight(to_molecular(self.df.loc[:, self.components],
+                                          renorm=False),
+                              renorm=False)
+        # Where values are not close, it's because of nans
+        whereclose = np.isclose(wt_testdf.values,
+                                self.df.loc[:, self.components].values)
+        self.assertTrue(np.isnan(wt_testdf.values[~whereclose]).all())
+
+    def test_weightmolar_reversal_renormTrue(self):
+        """
+        Tests reversability of the wt-mol conversions.
+        Examines differences between dataframes, and
+        asserts that any discrepency is explained by np.nan components
+        (and hence not actual differences).
+        """
+        wt_testdf = to_weight(to_molecular(self.df.loc[:, self.components],
+                                          renorm=True),
+                              renorm=True)
+        # Where values are not close, it's because of nans
+        whereclose = np.isclose(wt_testdf.values,
+                                renormalise(self.df.loc[:,
+                                            self.components]).values)
+        self.assertTrue(np.isnan(wt_testdf.values[~whereclose]).all())
+
+    def test_molarweight_reversal_renormTrue(self):
+        """
+        Tests reversability of the mol-wt conversions.
+        Examines differences between dataframes, and
+        asserts that any discrepency is explained by np.nan components
+        (and hence not actual differences).
+        """
+        mol_testdf = to_molecular(to_weight(self.df.loc[:, self.components],
+                                          renorm=True),
+                              renorm=True)
+        # Where values are not close, it's because of nans
+        whereclose = np.isclose(mol_testdf.values,
+                                renormalise(self.df.loc[:,
+                                            self.components]).values)
+        self.assertTrue(np.isnan(mol_testdf.values[~whereclose]).all())
+
+    def test_molarweight_reversal_renormFalse(self):
+        """
+        Tests reversability of the mol-wt conversions.
+        Examines differences between dataframes, and
+        asserts that any discrepency is explained by np.nan components
+        (and hence not actual differences).
+        """
+        mol_testdf = to_molecular(to_weight(self.df.loc[:, self.components],
+                                          renorm=False),
+                              renorm=False)
+        # Where values are not close, it's because of nans
+        whereclose = np.isclose(mol_testdf.values,
+                                self.df.loc[:,self.components].values)
+        self.assertTrue(np.isnan(mol_testdf.values[~whereclose]).all())
 
 
 class TestGetCations(unittest.TestCase):
@@ -124,11 +170,6 @@ class TestSimpleOxides(unittest.TestCase):
 
     def test_one(self):
         """Check the function returns oxides for one element in."""
-        pass
-
-    @unittest.expectedFailure
-    def test_multiple(self):
-        """Check the function raises for muliple elements in."""
         pass
 
 

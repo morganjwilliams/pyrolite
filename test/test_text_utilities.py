@@ -24,14 +24,32 @@ class TestTitlecase(unittest.TestCase):
                        'Titlecase']:
             # String content doesnt change
             self.assertEqual(titlecase(string).lower(),  string.lower())
-            self.assertEqual(titlecase(string), string[0].upper() + string[1:])
+            # Single word capitalisation
+            self.assertEqual(titlecase(string), string[0].upper() + \
+                                                string[1:].lower())
 
     def test_multi_word(self):
         """Check multiword case operates correctly."""
-        pass
+        for string in ['lower case', 'UPPER CASE', 'Camel Case',
+                       'Title case']:
+            # String content doesnt change
+            self.assertEqual(titlecase(string).lower(),
+                            string.lower().replace(" ", ""))
+
+            expected =  ''.join([st[0].upper() + st[1:].lower()
+                                 for st in string.split(' ')])
+            self.assertEqual(titlecase(string), expected)
 
     def test_split_delimiters(self):
         """Check split delimiters operate correctly."""
+        for string in ['lower case', 'lower-case', 'lower_case',
+                       'lower\tcase', 'lower\ncase']:
+            # extras: 'lower/case', 'lower\case', 'lower&case',
+            self.assertEqual(titlecase(string).lower(), 'lowercase')
+
+
+    def test_initial_space(self):
+        """Check that strings are stripped effectively."""
         pass
 
     def test_join_characters(self):

@@ -4,7 +4,11 @@ from pyrolite.compositions import *
 class TestClose(unittest.TestCase):
     """Tests array closure operator."""
 
-    def test_closure(self):
+    def test_closure_1D(self):
+        """Checks that the closure operator works."""
+        pass
+
+    def test_closure_2D(self):
         """Checks that the closure operator works."""
         pass
 
@@ -32,7 +36,7 @@ class TestCompositionalMean(unittest.TestCase):
     def test_contrasting(self):
         """Checks results on multiple contrasting records."""
         # This should fail for this function
-        pass
+        self.assertTrue(False)
 
     def test_mean(self):
         """Checks whether the mean is accurate."""
