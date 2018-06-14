@@ -14,7 +14,7 @@ before_script: # configure a headless display to test plot generation
   - sleep 3 # give xvfb some time to start
 
 script:
-  - python setup.py test
+  - pytest --cov-report term --cov-report html --cov-config .coveragerc --cov=pyrolite test
 
 after_success:
   - coveralls

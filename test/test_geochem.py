@@ -36,13 +36,19 @@ class TestToWeight(unittest.TestCase):
 class TestWeightMolarReversal(unittest.TestCase):
     """Tests the reversability of weight-molar unit transformations."""
 
-    def test_weightmolar_reversal(self, df, components):
+    def setUp(self):
+
+        pass
+
+    def test_weightmolar_reversal(self):
         """
         Tests reversability of the wt-mol conversions.
         Examines differences between dataframes, and
         asserts that any discrepency is explained by np.nan components
         (and hence not actual differences).
         """
+        df = self.df
+        components = self.components
         wt_testdf = to_weight(to_molecular(df.loc[:, components]))
         self.assertTrue(np.isnan(
                         to_weight(

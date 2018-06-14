@@ -20,7 +20,11 @@ class TestTitlecase(unittest.TestCase):
 
     def test_single_word(self):
         """Check single word cases operate correctly."""
-        pass
+        for string in ['lowercase', 'UPPERCASE', 'CamelCase',
+                       'Titlecase']:
+            # String content doesnt change
+            self.assertEqual(titlecase(string).lower(),  string.lower())
+            self.assertEqual(titlecase(string), string[0].upper() + string[1:])
 
     def test_multi_word(self):
         """Check multiword case operates correctly."""
