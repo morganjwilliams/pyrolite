@@ -185,7 +185,7 @@ def nancov(X, method='replace'):
         return cov
 
 
-def renormalise(df: pd.DataFrame, components:list=[]):
+def renormalise(df: pd.DataFrame, components:list=[], scale=100.):
     """
     Renormalises compositional data to ensure closure.
     A subset of components can be used for flexibility.
@@ -194,12 +194,12 @@ def renormalise(df: pd.DataFrame, components:list=[]):
     dfc = df.copy()
     if components:
         cmpnts = [c for c in components if c in dfc.columns]
-        dfc.loc[:, cmpnts] =  100. * dfc.loc[:, cmpnts].divide(
+        dfc.loc[:, cmpnts] =  scale * dfc.loc[:, cmpnts].divide(
                               dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan),
                                                                axis=0)
         return dfc
     else:
-        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100), axis=0) * 100.
+        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100), axis=0) * scale
         return dfc
 
 

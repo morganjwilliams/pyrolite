@@ -328,7 +328,7 @@ class TestDevolatilise(unittest.TestCase):
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
-        df = pd.DataFrame(data=self.one_row)
+        df = pd.DataFrame(data=self.two_rows)
         df.columns =  self.cols
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
@@ -338,6 +338,8 @@ class TestDevolatilise(unittest.TestCase):
                 # For renorm = True, values will not be the same
                 # For renorm = False, values should be the same
                 self.assertTrue(equality != renorm)
+                if renorm:
+                    self.assertTrue((devdf.sum(axis=1) == 100.).all())
 
     def test_exclude_precise(self):
         """Checks that exclusion occurrs correctly."""
@@ -384,7 +386,6 @@ class TestOxideConversion(unittest.TestCase):
             with self.subTest(oxin=oxin, oxout=oxout):
                 f =  oxide_conversion(oxin, oxout)
                 doc = f.__doc__
-                print(doc)
                 self.assertTrue((str(oxin) in doc) and (str(oxin) in doc))
                 self.assertTrue(f'{oxin} to {oxout}' in doc)
 
@@ -445,9 +446,9 @@ class TestRecalculateRedox(unittest.TestCase):
 
     def setUp(self):
         self.cols = 'FeO', 'Fe2O3', 'Fe2O3T'
-        self.one_row = np.array([[0.5, 0.3, 0.2]])
-        self.two_rows = np.array([[0.5, 0.3, 0.2],
-                                  [0.5, 0.3, 0.2]])
+        self.one_row = np.array([[0.5, 0.3, 0.1]])
+        self.two_rows = np.array([[0.5, 0.3, 0.1],
+                                  [0.5, 0.3, 0.1]])
 
     def test_none(self):
         """Check the function copes with no records."""
@@ -478,7 +479,17 @@ class TestRecalculateRedox(unittest.TestCase):
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
-        pass
+        df = pd.DataFrame(self.two_rows, columns=self.cols)
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                reddf = recalculate_redox(df, renorm=renorm)
+                if renorm:
+                    self.assertTrue((reddf.sum(axis=1) == 100.).all())
+                else:
+                    c = [i for i in reddf.columns if i in df.columns]
+                    equality = (reddf.loc[:, c].values == df.loc[:, c].values)
+                    self.assertTrue(equality.all())
+
 
     def test_total_suffix(self):
         """Checks that different suffixes can be used."""
@@ -572,6 +583,9 @@ class TestMultipleCationInclusion(unittest.TestCase):
 class TestAddRatio(unittest.TestCase):
     """Tests the ratio addition."""
 
+    def setUp(self):
+        self.df = pd.DataFrame(columns=['Si', 'Mg', 'MgO', 'CaO'])
+
     def test_none(self):
         """Check the ratio addition copes with no records."""
         pass
@@ -587,7 +601,12 @@ class TestAddRatio(unittest.TestCase):
     @unittest.expectedFailure
     def test_invalid_ratios(self):
         """Check the addition fails for invalid pairs."""
-        pass
+        for ratio in ['Ca/Si', # Ca not present
+                      'K.Na', # Invalid format
+                      'Mg/Si/MgO' # multiple delimiters
+                      ]:
+              with self.subTest(ratio=ratio):
+                  add_ratio(self.df, ratio=ratio)
 
     def test_alias(self):
         """Check that aliases can be used."""
@@ -632,6 +651,11 @@ class TestAddMgNo(unittest.TestCase):
 class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
 
+    def setUp(self):
+        REE = REE_elements(output='string')
+        self.df = pd.DataFrame({k: v for k,v in zip(REE,
+                                np.random.rand(len(REE), 10))})
+
     def test_none(self):
         """Test generation of plot with no data."""
         pass
@@ -674,12 +698,16 @@ class TestSpiderplot(unittest.TestCase):
 
     def test_irrellevant_style_options(self):
         """Test stability under additional kwargs."""
-        pass
+        style = {'thingwhichisnotacolor': 'notacolor', 'irrelevant': 'red'}
+        print(common_elements(output='str'))
+        print(self.df.columns)
+        self.assertTrue(spiderplot(self.df, **style) is None)
 
     @unittest.expectedFailure
     def test_invalid_style_options(self):
         """Test stability under invalid style values."""
-        pass
+        style = {'color': 'notacolor', 'marker': 'red'}
+        spiderplot(self.df, **style)
 
 class TestTernaryplot(unittest.TestCase):
     """Tests the Ternaryplot functionality."""

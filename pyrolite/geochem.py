@@ -6,6 +6,7 @@ from .compositions import renormalise
 from .text_utilities import titlecase
 import matplotlib.pyplot as plt
 import ternary
+import warnings
 
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
@@ -325,7 +326,7 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
         assert plot or fill
     except:
         raise AssertionError('Please select to either plot values or fill between ranges.')
-    sty = style.copy()
+    sty = {}
     # Some default values
     sty['marker'] = style.get('marker') or 'D'
     sty['color'] = style.get('color') or style.get('c') or None
@@ -333,8 +334,9 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
     if sty['color'] is None:
         del sty['color']
 
-
-    components = components or [el for el in common_elements(output='str') if el in df.columns]
+    components = components or [el for el in common_elements(output='str')
+                                if el in df.columns]
+    assert len(components) != 0
     c_indexes = np.arange(len(components))
 
     ax = ax or plt.subplots(1, figsize=(len(components)*0.25, 4))[1]
@@ -362,6 +364,11 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
     ax.set_xticklabels(components, rotation=60)
     ax.set_yscale('log')
     ax.set_xlabel('Element')
+
+    unused_keys = [i for i in style if i not in list(sty.keys()) + \
+                  ['alpha', 'a', 'c', 'color', 'marker']]
+    if len(unused_keys):
+        warnings.warn(f'Styling not yet implemented for :{unused_keys}')
 
 
 def ternaryplot(df, ax=None, components=None, **kwargs):
