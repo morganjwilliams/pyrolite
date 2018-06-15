@@ -1,5 +1,6 @@
 import unittest
 import pandas as pd
+import numpy as np
 from pyrolite.geochem import *
 
 class TestToMolecular(unittest.TestCase):
@@ -110,15 +111,33 @@ class TestGetCations(unittest.TestCase):
 
     def test_none(self):
         """Check the function works for no cations."""
-        pass
+        for cationstring in ['O', 'O2', '',]:
+            with self.subTest(cationstring=cationstring):
+                self.assertTrue(len(get_cations(cationstring))==0)
 
     def test_single(self):
         """Check the function works for a single cation."""
-        pass
+        for cationstring in ['SiO2', 'MgO', 'Si',]:
+            with self.subTest(cationstring=cationstring):
+                self.assertTrue(len(get_cations(cationstring))==1)
 
     def test_multiple(self):
         """Check the function works for multiple cations."""
-        pass
+        for cationstring in ["MgSiO2","MgSO4", "CaCO3",
+                             "Na2Mg3Al2Si8O22(OH)2",]:
+            with self.subTest(cationstring=cationstring):
+                self.assertTrue(len(get_cations(cationstring))>1)
+
+    def test_exclude(self):
+        """Checks that the exclude function works."""
+        for ox, excl in [('MgO', ['O']),
+                         ('MgO', []),
+                         ('MgSO4', ['O', 'S']),
+                         ('MgSO4', ['S']),
+                         ("Mg(OH)2", ['O', 'H']),
+                         ("Mg(OH)2", ['H'])]:
+            with self.subTest(ox=ox, excl=excl):
+                self.assertTrue(len(get_cations(ox, exclude=excl))==1)
 
 
 class TestCommonElements(unittest.TestCase):
@@ -126,51 +145,92 @@ class TestCommonElements(unittest.TestCase):
 
     def test_cutoff(self):
         """Check the function works normal cutoff Z numbers."""
-        pass
+        for cutoff in [1, 15, 34, 63, 93]:
+            with self.subTest(cutoff=cutoff):
+                self.assertTrue(common_elements(cutoff=cutoff)[-1].number==cutoff)
 
     def test_high_cutoff(self):
         """Check the function works silly high cutoff Z numbers."""
-        pass
+        for cutoff in [119, 1000, 10000]:
+            with self.subTest(cutoff=cutoff):
+                self.assertTrue(len(common_elements(cutoff=cutoff))<130)
+                self.assertTrue(common_elements(cutoff=cutoff)[-1].number<cutoff)
 
     def test_formula_output(self):
         """Check the function produces formula output."""
-        pass
+        for el in common_elements(cutoff=10, output='formula'):
+            with self.subTest(el=el):
+                self.assertIs(type(el), type(pt.elements[0]))
 
     def test_string_output(self):
         """Check the function produces string output."""
-        pass
+        for el in common_elements(cutoff=10, output='string'):
+            with self.subTest(el=el):
+                self.assertIs(type(el), str)
 
 
 class TestREEElements(unittest.TestCase):
     """Tests the REE element generator."""
 
+    def setUp(self):
+        self.min_z = 57
+        self.max_z = 71
+
     def test_complete(self):
         """Check all REE are present."""
-        pass
+        REE = REE_elements(output='formula')
+        ns = [el.number for el in REE]
+        for n in range(self.min_z, self.max_z + 1):
+            with self.subTest(n=n):
+                self.assertTrue(n in ns)
 
     def test_precise(self):
         """Check that only the REE are returned."""
-        pass
+        REE = REE_elements(output='formula')
+        ns = [el.number for el in REE]
+        self.assertTrue(min(ns) == self.min_z)
+        self.assertTrue(max(ns) == self.max_z)
 
     def test_formula_output(self):
         """Check the function produces formula output."""
-        pass
+        for el in REE_elements(output='formula'):
+            with self.subTest(el=el):
+                self.assertIs(type(el), type(pt.elements[0]))
 
     def test_string_output(self):
         """Check the function produces string output."""
+        for el in REE_elements(output='string'):
+            with self.subTest(el=el):
+                self.assertIs(type(el), str)
+
+    def test_include_extras(self):
+        """Check the ability to add extra elements such as Y."""
         pass
 
 
 class TestSimpleOxides(unittest.TestCase):
     """Tests the simple oxide generator."""
 
+    @unittest.expectedFailure
     def test_none(self):
         """Check the function returns no oxides for no elements in."""
-        pass
+        simple_oxides('', output='formula')
 
     def test_one(self):
         """Check the function returns oxides for one element in."""
-        pass
+        self.assertTrue(len(simple_oxides('Si', output='formula'))>=1)
+
+    def test_formula_output(self):
+        """Check the function produces formula output."""
+        for ox in simple_oxides('Si', output='formula'):
+            with self.subTest(ox=ox):
+                self.assertIs(type(ox), type(pt.formula('SiO2')))
+
+    def test_string_output(self):
+        """Check the function produces string output."""
+        for ox in simple_oxides('Si', output='string'):
+            with self.subTest(ox=ox):
+                self.assertIs(type(ox), str)
 
 
 class TestCommonOxides(unittest.TestCase):
@@ -178,105 +238,235 @@ class TestCommonOxides(unittest.TestCase):
 
     def test_none(self):
         """Check the function returns no oxides for no elements in."""
-        pass
+        # When not passed elements, this function uses elements up to Uranium
+        # to generate oxides instead.
+        out = common_oxides(elements=[], output='formula')
+        self.assertTrue(len(out) != 1)
 
     def test_one(self):
         """Check the function returns oxides for one element in."""
-        pass
+        els = ['Si']
+        out = common_oxides(elements=els, output='formula')
+        self.assertTrue(len(out) >= 1)
+        for ox in out:
+            with self.subTest(ox=ox):
+                # All oxides are from elements contained in the list
+                self.assertIn(get_cations(ox)[0].__str__(), els)
 
     def test_multiple(self):
         """Check the function returns oxides for muliple elements in."""
-        pass
+        els = ['Si', 'Mg', 'Ca']
+        out = common_oxides(elements=els, output='formula')
+        self.assertTrue(len(out) >= len(els))
+        for ox in out:
+            with self.subTest(ox=ox):
+                # All oxides are from elements contained in the list
+                self.assertIn(get_cations(ox)[0].__str__(), els)
+
+    @unittest.expectedFailure
+    def test_invalid_elements(self):
+        """Check the function fails for invalid input."""
+        not_els = [['SiO2'], ['notanelement'], ['Ci']]
+        for els in not_els:
+            with self.subTest(els=els):
+                common_oxides(elements=els, output='formula')
 
     def test_formula_output(self):
         """Check the function produces formula output."""
-        pass
+        for ox in common_oxides(output='formula'):
+            with self.subTest(ox=ox):
+                self.assertIs(type(ox), type(pt.formula('SiO2')))
 
     def test_string_output(self):
         """Check the function produces string output."""
-        pass
+        for ox in common_oxides(output='string'):
+            with self.subTest(ox=ox):
+                self.assertIs(type(ox), str)
 
     def test_addition(self):
         """Checks the addition functionality."""
         pass
 
-    # As stands, unless addition == [], extras will be returned
+    # As stands, unless addition == [], for string output extras are returned
     def test_precise(self):
         """Check that only relevant oxides are returned."""
-        pass
+        for els in [['Li'], ['Ca', 'Ti'], ['Li', 'Mg', 'K']]:
+            with self.subTest(els=els):
+                for ox in common_oxides(elements=els, output='formula'):
+                    # All oxides are from elements contained in the list
+                    self.assertIn(get_cations(ox)[0].__str__(), els)
 
 
 class TestDevolatilise(unittest.TestCase):
     """Tests the devolatilisation transformation."""
 
+    def setUp(self):
+        self.cols = ['SiO2', 'K2O', 'H2O', 'H2O_PLUS','LOI']
+        self.one_row = np.array([[40., 3., 5., 0.1, 7.]])
+        self.two_rows = np.array([[40., 3., 5., 0.1, 7.],
+                                  [40., 3., 5., 0.1, 7.]])
+
     def test_none(self):
         """Check the function copes with no records."""
-        pass
+        df = pd.DataFrame(data=None, columns=self.cols)
+        out = devolatilise(df)
+        self.assertTrue(out is not None)
+        self.assertIs(type(out), pd.DataFrame)
+        self.assertEqual(out.index.size, 0)
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        pass
+        df = pd.DataFrame(data=self.one_row)
+        df.columns =  self.cols
+        self.assertEqual(devolatilise(df).index.size, 1)
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        pass
+        df = pd.DataFrame(data=self.two_rows)
+        df.columns =  self.cols
+        self.assertEqual(devolatilise(df).index.size, self.two_rows.shape[0])
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
-        pass
+        df = pd.DataFrame(data=self.one_row)
+        df.columns =  self.cols
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                devdf = devolatilise(df, renorm=renorm)
+                equality = (devdf.values == \
+                            df.loc[:, devdf.columns].values).all()
+                # For renorm = True, values will not be the same
+                # For renorm = False, values should be the same
+                self.assertTrue(equality != renorm)
 
     def test_exclude_precise(self):
         """Checks that exclusion occurrs correctly."""
+        exclude = ['H2O', 'H2O_PLUS', 'H2O_MINUS', 'CO2', 'LOI']
+        df = pd.DataFrame(data=self.one_row)
+        df.columns =  self.cols
+        devdf = devolatilise(df, exclude=exclude)
         # There should be all those which weren't excluded
-
-        # There should be no things which where included
-
-        # There should be nothing else
-        pass
+        self.assertTrue(np.array([i in devdf.columns for i in [i for i in df.columns if i not in exclude]]).all())
+        # There should be no new things which where unexpected included
+        self.assertTrue(np.array([i in df.columns for i in devdf.columns]).all())
 
 
 class TestOxideConversion(unittest.TestCase):
     """Tests the pandas oxide conversion function generator."""
 
+    def test_string_input(self):
+        """Check that the function accepts string formatted inputs."""
+        oxin, oxout = 'Fe', 'FeO'
+        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
+
+    def test_formula_input(self):
+        """Check that the function accepts formula formatted inputs."""
+        oxin, oxout = pt.formula('Fe'), pt.formula('FeO')
+        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
+
+    def test_different_inputs(self):
+        """Check that the function accepts two different formats of inputs."""
+        oxin, oxout = pt.formula('Fe'), 'FeO'
+        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
+
     def test_function_generation(self):
         """Check that a vaild function is returned."""
-        pass
+        oxin, oxout = 'Fe', 'FeO'
+        f =  oxide_conversion(oxin, oxout)
+        self.assertTrue(callable(f))
 
     def test_function_docstring(self):
         """Check the function docstring includes the oxide info."""
-        pass
+        oxin, oxout = pt.formula('Fe'), pt.formula('FeO')
+        for oxin, oxout in [(pt.formula('Fe'), pt.formula('FeO')),
+                            ('Fe', 'FeO'),
+                            (pt.formula('Fe'), 'FeO')]:
+            with self.subTest(oxin=oxin, oxout=oxout):
+                f =  oxide_conversion(oxin, oxout)
+                doc = f.__doc__
+                print(doc)
+                self.assertTrue((str(oxin) in doc) and (str(oxin) in doc))
+                self.assertTrue(f'{oxin} to {oxout}' in doc)
 
     def test_same(self):
         """Check the function retains unit for the same in-out."""
-        pass
+        oxin, oxout = 'FeO', 'FeO'
+        ser = pd.Series([1., 1.])
+        f = oxide_conversion(oxin, oxout)
+        self.assertTrue((f(ser) == ser).all())
+
+    def test_multiple_cations(self):
+        """Check the function works for multiple-cation simple oxides."""
+        oxin, oxout = 'FeO', 'Fe2O3'
+        ser = pd.Series([1., 1.])
+        f = oxide_conversion(oxin, oxout)
+        # Add oxygen, gains mass
+        self.assertTrue((f(ser) >= ser).all())
 
     def test_oxidise(self):
         """Check the function works for oxidation."""
-        pass
+        oxin, oxout = 'FeO', 'Fe'
+        ser = pd.Series([1., 1.])
+        f =  oxide_conversion(oxin, oxout)
+        # Lose oxygen, gains mass
+        self.assertTrue((f(ser) <= ser).all())
 
     def test_reduce(self):
         """Check the function works for reduction."""
-        pass
+        oxin, oxout = 'Fe', 'FeO'
+        ser = pd.Series([1., 1.])
+        f =  oxide_conversion(oxin, oxout)
+        # Add oxygen, gains mass
+        self.assertTrue((f(ser) >= ser).all())
 
     def test_molecular(self):
         """Check that the generated function can convert molecular data."""
-        pass
+        oxin, oxout = 'Fe', 'FeO'
+        ser = pd.Series([1., 1.])
+        f =  oxide_conversion(oxin, oxout)
+        # Same number of atoms in each = should be same
+        self.assertTrue((f(ser, molecular=True) == ser).all())
+
+        oxin, oxout = 'Fe', 'Fe2O3'
+        ser = pd.Series([1., 1.])
+        f =  oxide_conversion(oxin, oxout)
+        # Twice number of atoms in Fe2O3, should be half the moles of Fe2O3
+        self.assertTrue((f(ser, molecular=True) == (0.5 * ser)).all())
+
+    @unittest.expectedFailure
+    def test_different_cations(self):
+        """Check that the function fails on receiving different elements."""
+        oxin, oxout = 'Fe', 'NiO'
+        f =  oxide_conversion(oxin, oxout)
 
 
 class TestRecalculateRedox(unittest.TestCase):
     """Tests the pandas dataframe redox conversion."""
 
+    def setUp(self):
+        self.cols = 'FeO', 'Fe2O3', 'Fe2O3T'
+        self.one_row = np.array([[0.5, 0.3, 0.2]])
+        self.two_rows = np.array([[0.5, 0.3, 0.2],
+                                  [0.5, 0.3, 0.2]])
+
     def test_none(self):
         """Check the function copes with no records."""
-        pass
+        df = pd.DataFrame(columns=self.cols )
+        self.assertTrue(recalculate_redox(df) is not None)
+        self.assertIs(type(recalculate_redox(df)), pd.DataFrame)
+        self.assertEqual(recalculate_redox(df).index.size, 0)
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        pass
+        df = pd.DataFrame(self.one_row, columns=self.cols)
+        self.assertEqual(recalculate_redox(df).index.size,
+                         self.one_row.shape[0])
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        pass
+        df = pd.DataFrame(self.two_rows, columns=self.cols)
+        self.assertEqual(recalculate_redox(df).index.size,
+                         self.two_rows.shape[0])
 
     def test_to_oxidised(self):
         """Check the oxidised form is returned when called."""

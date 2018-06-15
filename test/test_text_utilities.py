@@ -1,6 +1,7 @@
 import unittest
 
 from pyrolite.text_utilities import quoted_string, titlecase
+import numpy as np
 
 class TestQuotedString(unittest.TestCase):
     """Tests for quoted string utility."""
@@ -12,7 +13,19 @@ class TestQuotedString(unittest.TestCase):
                         "singlephrase", "double phrase", "tri ple phrase",
                         """singlephrase""", """double phrase""",
                         """tri ple phrase"""]:
-            quoted_string(string)
+
+            with self.subTest(string=string):
+
+                quotes = ["'", '"']
+                stringcontent = ''.join(i for i in quoted_string(string)
+                                        if i not in quotes)
+                # Check same content
+                self.assertEqual(stringcontent, ''.join(i for i in string))
+
+                contains = [[s in q for s in quoted_string(string)]
+                            for q in quotes]
+                # Check there's at least two of the same quotes.
+                self.assertTrue((np.array(contains).sum()>=2).any())
 
 
 class TestTitlecase(unittest.TestCase):
@@ -22,31 +35,39 @@ class TestTitlecase(unittest.TestCase):
         """Check single word cases operate correctly."""
         for string in ['lowercase', 'UPPERCASE', 'CamelCase',
                        'Titlecase']:
-            # String content doesnt change
-            self.assertEqual(titlecase(string).lower(),  string.lower())
-            # Single word capitalisation
-            self.assertEqual(titlecase(string), string[0].upper() + \
-                                                string[1:].lower())
+            with self.subTest(string=string):
+                # String content doesnt change
+                self.assertEqual(titlecase(string).lower(),  string.lower())
+                # Single word capitalisation
+                self.assertEqual(titlecase(string), string[0].upper() + \
+                                                    string[1:].lower())
 
     def test_multi_word(self):
         """Check multiword case operates correctly."""
         for string in ['lower case', 'UPPER CASE', 'Camel Case',
                        'Title case']:
-            # String content doesnt change
-            self.assertEqual(titlecase(string).lower(),
-                            string.lower().replace(" ", ""))
+            with self.subTest(string=string):
+                # String content doesnt change
+                self.assertEqual(titlecase(string).lower(),
+                                string.lower().replace(" ", ""))
 
-            expected =  ''.join([st[0].upper() + st[1:].lower()
-                                 for st in string.split(' ')])
-            self.assertEqual(titlecase(string), expected)
+                expected =  ''.join([st[0].upper() + st[1:].lower()
+                                     for st in string.split(' ')])
+                self.assertEqual(titlecase(string), expected)
 
-    def test_split_delimiters(self):
+    def test_valid_split_delimiters(self):
         """Check split delimiters operate correctly."""
         for string in ['lower case', 'lower-case', 'lower_case',
                        'lower\tcase', 'lower\ncase']:
-            # extras: 'lower/case', 'lower\case', 'lower&case',
-            self.assertEqual(titlecase(string).lower(), 'lowercase')
+            with self.subTest(string=string):
+                self.assertEqual(titlecase(string).lower(), 'lowercase')
 
+    @unittest.expectedFailure
+    def test_invalid_split_delimiters(self):
+        """Check split delimiters operate correctly."""
+        for string in ['lower/case', 'lower\case', 'lower&case']:
+            with self.subTest(string=string):
+                self.assertEqual(titlecase(string).lower(), 'lowercase')
 
     def test_initial_space(self):
         """Check that strings are stripped effectively."""

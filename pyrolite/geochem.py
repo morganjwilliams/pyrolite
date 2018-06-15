@@ -35,37 +35,43 @@ def to_weight(df: pd.DataFrame, renorm=True):
         return df.multiply(MWs)
 
 
-def get_cations(oxide, exclude=['O']):
+def get_cations(oxide:str, exclude=[]):
     """
     Returns the principal cations in an oxide component.
+
+    Todo: Consider implementing periodictable style return.
     """
+    if 'O' not in exclude:
+        exclude += ['O']
     atms = pt.formula(oxide).atoms
     cations = [el for el in atms.keys() if not el.__str__() in exclude]
     return cations
 
 
-def common_elements(cutoff=93, output='formula'):
+def common_elements(cutoff=92, output='formula'):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
     Output options are 'formula', or strings.
     """
     elements = [el for el in pt.elements
-                if not (el.__str__() == 'n' or el.number>=cutoff)]
+                if not (el.__str__() == 'n' or el.number>cutoff)]
     if not output == 'formula':
         elements = [el.__str__() for el in elements]
     return elements
 
 
-def REE_elements(output='formula'):
+def REE_elements(output='formula', include_extras=False):
     """
     Provides the list of Rare Earth Elements
     Output options are 'formula', or strings.
+
+    Todo: add include extras such as Y.
     """
     elements = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd',
             'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
-    if not output == 'formula':
+    if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
-        elements = [el.__str__() for el in elements]
+        #elements = [el.__str__() for el in elements]
     return elements
 
 
@@ -77,14 +83,20 @@ def common_oxides(elements: list=[], output='formula',
 
     Note: currently return FeOT and LOI even for element lists
     not including iron or water - potential upgrade!
+
+    Todo: element verification
     """
     if not elements:
-        elements = [el for el in common_elements()
+        elements = [el for el in common_elements(output='formula')
                     if not el.__str__() == 'O']  # Exclude oxygen
+    else:
+        # Check that all elements input are indeed elements..
+        pass
+
     oxides = [ox for el in elements
-              for ox in simple_oxides(el)] + addition
-    if not output == 'formula':
-        oxides = [ox.__str__() for ox in oxides]
+              for ox in simple_oxides(el, output=output)]
+    if output != 'formula':
+        oxides = [ox.__str__() for ox in oxides] + addition
     return oxides
 
 
@@ -93,10 +105,12 @@ def simple_oxides(cation, output='formula'):
     Creates a list of oxides for a cationic element
     (oxide of ions with c=1+ and above).
     """
-    if not isinstance(cation, pt.core.Element):
-        catstr = titlecase(cation)  # edge case of lowercase str such as 'cs'
-        cation = getattr(pt, catstr)
-
+    try:
+        if not isinstance(cation, pt.core.Element):
+            catstr = titlecase(cation)  # edge case of lowercase str such as 'cs'
+            cation = getattr(pt, catstr)
+    except AttributeError:
+         raise Exception("You must select a cation to obtain oxides.")
     ions = [c for c in cation.ions if c > 0]  # Use only positive charges
     oxides = [pt.formula(f'{cation}{1}O{c//2}') if not c%2
               else pt.formula(f'{cation}{2}O{c}') for c in ions]
@@ -123,19 +137,31 @@ def oxide_conversion(oxin, oxout):
     Generates a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
     """
-    inatoms = {k: v for (k, v) in oxin.atoms.items() if not k.__str__()=='O'}
-    outatoms =  {k: v for (k, v) in oxout.atoms.items() if not k.__str__()=='O'}
-    assert len(inatoms) == len(outatoms) == 1  # Assertion of simple oxide
-    cation_coefficient = list(outatoms.values())[0] / list(inatoms.values())[0]
-    def convert_series(dfser: pd.Series, molecular=False):
-        """Convert series from {} to {}""".format(oxin, oxout)
-        if not molecular:
-            factor = dfser * cation_coefficient \
-                        * oxout.mass / oxin.mass
-        else:
-            factor = dfser * cation_coefficient
-        return factor
+    if not (isinstance(oxin, pt.formulas.Formula)
+            or isinstance(oxin, pt.core.Element)):
+        oxin = pt.formula(oxin)
 
+    if not (isinstance(oxout, pt.formulas.Formula)
+            or isinstance(oxout, pt.core.Element)):
+        oxout = pt.formula(oxout)
+
+    inatoms = {k: v for (k, v) in oxin.atoms.items() if not k.__str__()=='O'}
+    in_els = inatoms.keys()
+    outatoms =  {k: v for (k, v) in oxout.atoms.items() if not k.__str__()=='O'}
+    out_els = outatoms.keys()
+    assert len(inatoms) == len(outatoms) == 1  # Assertion of simple oxide
+    assert in_els == out_els  # Need to be dealilng with the same element!
+    # Moles of product vs. moles of reactant
+    cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
+    def convert_series(dfser: pd.Series, molecular=False):
+        if molecular:
+            factor = cation_coefficient
+        else:
+            factor = cation_coefficient * oxout.mass / oxin.mass
+        converted = dfser * factor
+        return converted
+    doc = f"""Convert series from {str(oxin)} to {str(oxout)}"""
+    convert_series.__doc__ = doc
     return convert_series
 
 
