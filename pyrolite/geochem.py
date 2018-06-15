@@ -229,12 +229,14 @@ def aggregate_cation(df: pd.DataFrame,
 
     if form == 'oxide':
         if unit_scale is None: unit_scale = 1/10000 # ppm to Wt%
+        assert unit_scale > 0
         convert_function = oxide_conversion(ox, el)
         conv_values = convert_function(df.loc[:, elstr]).values * unit_scale
         df.loc[:, oxstr] = np.nansum(np.vstack((df.loc[:, oxstr].values, conv_values)), axis=0)
         df = df.loc[:, [i for i in df.columns if not i == elstr]]
     elif form == 'element':
         if unit_scale is None: unit_scale = 10000 # Wt% to ppm
+        assert unit_scale > 0
         convert_function = oxide_conversion(el, ox)
         conv_values = convert_function(df.loc[:, oxstr]).values * unit_scale
         df.loc[:, elstr] += np.nansum(np.vstack((df.loc[:, elstr].values, conv_values)), axis=0)
@@ -289,7 +291,6 @@ def add_MgNo(df: pd.DataFrame,
             df['Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
 
-
 def lambdas(REE, degrees=2, constructor=mpmath.chebyu):
     """
     Defaults to the  Chebyshev polynomials of the second kind.
@@ -299,7 +300,7 @@ def lambdas(REE, degrees=2, constructor=mpmath.chebyu):
     mpmath.plot(lambs,[-1,1])
 
 
-def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style):
+def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **kwargs):
     """
     Plots spidergrams for trace elements data.
     By using separate lines and scatterplots, values between two null-valued
@@ -328,9 +329,9 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
         raise AssertionError('Please select to either plot values or fill between ranges.')
     sty = {}
     # Some default values
-    sty['marker'] = style.get('marker') or 'D'
-    sty['color'] = style.get('color') or style.get('c') or None
-    sty['alpha'] = style.get('alpha') or style.get('a') or 1.
+    sty['marker'] = kwargs.get('marker') or 'D'
+    sty['color'] = kwargs.get('color') or kwargs.get('c') or None
+    sty['alpha'] = kwargs.get('alpha') or kwargs.get('a') or 1.
     if sty['color'] is None:
         del sty['color']
 
@@ -346,7 +347,7 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
                      df[components].T.values.astype(np.float),
                      **sty)
 
-        sty['s'] = style.get('markersize') or style.get('s') or 5.
+        sty['s'] = kwargs.get('markersize') or kwargs.get('s') or 5.
         if sty.get('color') is None:
             sty['color'] = ls[0].get_color()
         sc = ax.scatter(np.tile(c_indexes, (df[components].index.size,1)).T,
@@ -365,7 +366,7 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
     ax.set_yscale('log')
     ax.set_xlabel('Element')
 
-    unused_keys = [i for i in style if i not in list(sty.keys()) + \
+    unused_keys = [i for i in kwargs if i not in list(sty.keys()) + \
                   ['alpha', 'a', 'c', 'color', 'marker']]
     if len(unused_keys):
         warnings.warn(f'Styling not yet implemented for:{unused_keys}')
@@ -387,7 +388,8 @@ def ternaryplot(df, ax=None, components=None, **kwargs):
     """
 
     try:
-        assert (len(df.columns)==3) or (len(components)==3)
+        if not len(df.columns)==3:
+            assert len(components)==3
         components = components or df.columns.values
     except:
         raise AssertionError('Please either suggest three elements or a 3-element dataframe.')
@@ -409,7 +411,8 @@ def ternaryplot(df, ax=None, components=None, **kwargs):
     tax = getattr(ax, 'tax', None) or ternary.figure(ax=ax, scale=scale)[1]
     ax.tax = tax
     points = df.loc[:, components].div(df.loc[:, components].sum(axis=1), axis=0).values * scale
-    sc = tax.scatter(points, **sty)
+    if points.any():
+        tax.scatter(points, **sty)
 
     if sty['label'] is not None:
         tax.legend(frameon=False,)

@@ -446,48 +446,51 @@ class TestRecalculateRedox(unittest.TestCase):
 
     def setUp(self):
         self.cols = 'FeO', 'Fe2O3', 'Fe2O3T'
-        self.one_row = np.array([[0.5, 0.3, 0.1]])
         self.two_rows = np.array([[0.5, 0.3, 0.1],
                                   [0.5, 0.3, 0.1]])
+        self.df = pd.DataFrame(self.two_rows, columns=self.cols)
 
     def test_none(self):
         """Check the function copes with no records."""
-        df = pd.DataFrame(columns=self.cols )
-        self.assertTrue(recalculate_redox(df) is not None)
-        self.assertIs(type(recalculate_redox(df)), pd.DataFrame)
-        self.assertEqual(recalculate_redox(df).index.size, 0)
+        df = self.df.head(0)
+        out = recalculate_redox(df)
+        self.assertTrue(out is not None)
+        self.assertIs(type(out), pd.DataFrame)
+        self.assertEqual(out.index.size, 0)
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        df = pd.DataFrame(self.one_row, columns=self.cols)
+        df = self.df.head(1)
         self.assertEqual(recalculate_redox(df).index.size,
-                         self.one_row.shape[0])
+                         df.index.size)
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        df = pd.DataFrame(self.two_rows, columns=self.cols)
+        df = self.df
         self.assertEqual(recalculate_redox(df).index.size,
-                         self.two_rows.shape[0])
+                         df.index.size)
 
     def test_to_oxidised(self):
         """Check the oxidised form is returned when called."""
-        pass
+        df = self.df
+        recalculate_redox(df, to_oxidised=True)
 
     def test_to_reduced(self):
         """Check the reduced form is returned when called."""
-        pass
+        df = self.df
+        recalculate_redox(df, to_oxidised=False)
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
-        df = pd.DataFrame(self.two_rows, columns=self.cols)
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
-                reddf = recalculate_redox(df, renorm=renorm)
+                reddf = recalculate_redox(self.df, renorm=renorm)
                 if renorm:
                     self.assertTrue((reddf.sum(axis=1) == 100.).all())
                 else:
-                    c = [i for i in reddf.columns if i in df.columns]
-                    equality = (reddf.loc[:, c].values == df.loc[:, c].values)
+                    c = [i for i in reddf.columns if i in self.df.columns]
+                    equality = (reddf.loc[:, c].values ==
+                                self.df.loc[:, c].values)
                     self.assertTrue(equality.all())
 
 
@@ -502,68 +505,102 @@ class TestRecalculateRedox(unittest.TestCase):
 class TestAggregateCation(unittest.TestCase):
     """Tests the pandas dataframe cation aggregation transformation."""
 
+    def setUp(self):
+        self.cols = ['MgO', 'FeO', 'Fe2O3', 'Mg', 'Fe', 'FeOT']
+        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
+                                np.random.rand(len(self.cols), 10))})
+
     def test_none(self):
         """Check the transformation copes with no records."""
-        pass
+        df = self.df.head(0)
+        for cation in ['Mg', 'Fe']:
+            with self.subTest(cation=cation):
+                aggregate_cation(df, cation)
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        pass
+        df = self.df.head(1)
+        for cation in ['Mg', 'Fe']:
+            with self.subTest(cation=cation):
+                aggregate_cation(df, cation)
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        pass
-
-    def test_different_cations(self):
-        """Checks multiple cations can be accomdated."""
-
-        # use subtests per cation
-        pass
+        df = self.df
+        for cation in ['Mg', 'Fe']:
+            with self.subTest(cation=cation):
+                aggregate_cation(df, cation)
 
     def test_oxide_return(self):
         """Checks that oxide forms are returned."""
-
+        df = self.df.head(1)
+        cation='Mg'
+        aggregate_cation(df, cation, form='oxide')
         # Check presence
 
         # Check absence of others
 
         # Check preciseness
 
-        # Check no additional features added
-
-        pass
+        # Check no additional features
 
     def test_element_return(self):
         """Checks that element forms are returned."""
-
+        df = self.df.head(1)
+        cation='Mg'
+        aggregate_cation(df, cation, form='element')
         # Check presence
 
         # Check absence of others
 
         # Check preciseness
 
-        # Check no additional features added
-
-        pass
+        # Check no additional features
 
     def check_unit_scale(self):
         """Checks that the unit scales are used."""
+        df = self.df.head(1)
+        cation='Mg'
+        for unit_scale in [0.1, 10, 10000]:
+            with self.subTest(unit_scale=unit_scale):
+                aggregate_cation(df, cation, unit_scale=unit_scale)
 
 
 class TestMultipleCationInclusion(unittest.TestCase):
     """Tests the pandas dataframe multiple inclusion checking."""
 
+    def setUp(self):
+        self.cols = ['MgO', 'FeO', 'Fe2O3', 'Mg', 'Fe', 'FeOT']
+        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
+                                np.random.rand(len(self.cols), 10))})
+
     def test_none(self):
         """Check the function copes with no records."""
-        pass
+        # Note that this function runs from columns - doesn't need records
+        df = self.df.head(0)
+        self.assertTrue(len(
+                        check_multiple_cation_inclusion(df)
+                        )>0)
+        self.assertTrue(all([i.__str__() in ['Mg', 'Fe'] for i in
+                        check_multiple_cation_inclusion(df)]))
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        pass
+        df = self.df.head(1)
+        self.assertTrue(len(
+                        check_multiple_cation_inclusion(df)
+                        )>0)
+        self.assertTrue(all([i.__str__() in ['Mg', 'Fe'] for i in
+                        check_multiple_cation_inclusion(df)]))
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        pass
+        df = self.df
+        self.assertTrue(len(
+                        check_multiple_cation_inclusion(df)
+                        )>0)
+        self.assertTrue(all([i.__str__() in ['Mg', 'Fe'] for i in
+                        check_multiple_cation_inclusion(df)]))
 
     def test_exclusion(self):
         """Checks that exclusions are properly handled."""
@@ -620,13 +657,25 @@ class TestAddRatio(unittest.TestCase):
 class TestAddMgNo(unittest.TestCase):
     """Tests the MgNo addition."""
 
+    def setUp(self):
+        self.cols = ['MgO', 'FeO', 'Fe2O3', 'Mg', 'Fe', 'FeOT']
+        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
+                                np.random.rand(len(self.cols), 10))})
+
     def test_none(self):
         """Check the ratio addition copes with no records."""
-        pass
+        df = self.df.head(0)
+        add_MgNo(self.df)
 
     def test_one(self):
         """Check the ratio addition for one record."""
-        pass
+        df = self.df.head(1)
+        add_MgNo(self.df)
+
+    def test_multiple(self):
+        """Check the ratio addition for multiple records."""
+        df = self.df.head(1)
+        add_MgNo(self.df)
 
     def test_weight_oxides(self):
         """Check accuracy of weight oxide data."""
@@ -692,6 +741,11 @@ class TestSpiderplot(unittest.TestCase):
         """Test fill functionality is available."""
         pass
 
+    @unittest.expectedFailure
+    def test_noplot_nofill(self):
+        """Test failure on no-plot no-fill options."""
+        spiderplot(self.df, plot=False, fill=False)
+
     def test_valid_style(self):
         """Test valid styling options."""
         pass
@@ -710,17 +764,33 @@ class TestSpiderplot(unittest.TestCase):
 class TestTernaryplot(unittest.TestCase):
     """Tests the Ternaryplot functionality."""
 
+    def setUp(self):
+        self.cols = ['MgO', 'CaO', 'SiO2']
+        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
+                                np.random.rand(len(self.cols), 10))})
+
     def test_none(self):
         """Test generation of plot with no data."""
-        pass
+        df = pd.DataFrame(columns=self.cols)
+        out = ternaryplot(df)
+        self.assertEqual(type(out),
+                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
+
 
     def test_one(self):
         """Test generation of plot with one record."""
-        pass
+        df = self.df.head(1)
+        out = ternaryplot(df)
+        self.assertEqual(type(out),
+                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
 
     def test_multiple(self):
         """Test generation of plot with multiple records."""
-        pass
+        df = self.df.loc[:, :]
+        print(df.columns)
+        out = ternaryplot(df)
+        self.assertEqual(type(out),
+                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
 
     def test_tax_returned(self):
         """Check that the axis item returned is a ternary axis."""
