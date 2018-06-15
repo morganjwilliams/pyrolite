@@ -699,9 +699,7 @@ class TestSpiderplot(unittest.TestCase):
     def test_irrellevant_style_options(self):
         """Test stability under additional kwargs."""
         style = {'thingwhichisnotacolor': 'notacolor', 'irrelevant': 'red'}
-        print(common_elements(output='str'))
-        print(self.df.columns)
-        self.assertTrue(spiderplot(self.df, **style) is None)
+        self.assertWarns(UserWarning, spiderplot(self.df, **style))
 
     @unittest.expectedFailure
     def test_invalid_style_options(self):

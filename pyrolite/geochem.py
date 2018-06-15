@@ -368,7 +368,7 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **style
     unused_keys = [i for i in style if i not in list(sty.keys()) + \
                   ['alpha', 'a', 'c', 'color', 'marker']]
     if len(unused_keys):
-        warnings.warn(f'Styling not yet implemented for :{unused_keys}')
+        warnings.warn(f'Styling not yet implemented for:{unused_keys}')
 
 
 def ternaryplot(df, ax=None, components=None, **kwargs):
