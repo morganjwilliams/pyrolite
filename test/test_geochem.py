@@ -43,67 +43,33 @@ class TestWeightMolarReversal(unittest.TestCase):
                                index=[0])
         self.components = ['MgO', 'SiO2', 'K2O']
 
-    def test_weightmolar_reversal_renormFalse(self):
+    def test_weightmolar_reversal(self):
         """
         Tests reversability of the wt-mol conversions.
         Examines differences between dataframes, and
         asserts that any discrepency is explained by np.nan components
         (and hence not actual differences).
         """
-        wt_testdf = to_weight(to_molecular(self.df.loc[:, self.components],
-                                          renorm=False),
-                              renorm=False)
-        # Where values are not close, it's because of nans
-        whereclose = np.isclose(wt_testdf.values,
-                                self.df.loc[:, self.components].values)
-        self.assertTrue(np.isnan(wt_testdf.values[~whereclose]).all())
+        renorm = False
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                M = to_molecular(self.df.loc[:, self.components],
+                                                  renorm=renorm)
+                W = to_weight(self.df.loc[:, self.components],
+                                                  renorm=renorm)
 
-    def test_weightmolar_reversal_renormTrue(self):
-        """
-        Tests reversability of the wt-mol conversions.
-        Examines differences between dataframes, and
-        asserts that any discrepency is explained by np.nan components
-        (and hence not actual differences).
-        """
-        wt_testdf = to_weight(to_molecular(self.df.loc[:, self.components],
-                                          renorm=True),
-                              renorm=True)
-        # Where values are not close, it's because of nans
-        whereclose = np.isclose(wt_testdf.values,
-                                renormalise(self.df.loc[:,
-                                            self.components]).values)
-        self.assertTrue(np.isnan(wt_testdf.values[~whereclose]).all())
+                W_M = to_weight(M, renorm=renorm)
+                M_W = to_molecular(W, renorm=renorm)
 
-    def test_molarweight_reversal_renormTrue(self):
-        """
-        Tests reversability of the mol-wt conversions.
-        Examines differences between dataframes, and
-        asserts that any discrepency is explained by np.nan components
-        (and hence not actual differences).
-        """
-        mol_testdf = to_molecular(to_weight(self.df.loc[:, self.components],
-                                          renorm=True),
-                              renorm=True)
-        # Where values are not close, it's because of nans
-        whereclose = np.isclose(mol_testdf.values,
-                                renormalise(self.df.loc[:,
-                                            self.components]).values)
-        self.assertTrue(np.isnan(mol_testdf.values[~whereclose]).all())
+                # Where values are not close, it's because of nans
+                original = self.df.loc[:, self.components]
+                if renorm:
+                    original = renormalise(original, components=self.components)
+                W_M_close = np.isclose(W_M.values, original.values)
+                self.assertTrue(np.isnan(W_M.values[~W_M_close]).all())
 
-    def test_molarweight_reversal_renormFalse(self):
-        """
-        Tests reversability of the mol-wt conversions.
-        Examines differences between dataframes, and
-        asserts that any discrepency is explained by np.nan components
-        (and hence not actual differences).
-        """
-        mol_testdf = to_molecular(to_weight(self.df.loc[:, self.components],
-                                          renorm=False),
-                              renorm=False)
-        # Where values are not close, it's because of nans
-        whereclose = np.isclose(mol_testdf.values,
-                                self.df.loc[:,self.components].values)
-        self.assertTrue(np.isnan(mol_testdf.values[~whereclose]).all())
+                M_W_close = np.isclose(M_W.values, original.values)
+                self.assertTrue(np.isnan(M_W.values[~M_W_close]).all())
 
 
 class TestGetCations(unittest.TestCase):
@@ -169,8 +135,8 @@ class TestCommonElements(unittest.TestCase):
                 self.assertIs(type(el), str)
 
 
-class TestREEElements(unittest.TestCase):
-    """Tests the REE element generator."""
+class TestREE(unittest.TestCase):
+    """Tests the Rare Earth Element generator."""
 
     def setUp(self):
         self.min_z = 57
@@ -178,28 +144,28 @@ class TestREEElements(unittest.TestCase):
 
     def test_complete(self):
         """Check all REE are present."""
-        REE = REE_elements(output='formula')
-        ns = [el.number for el in REE]
+        reels = REE(output='formula')
+        ns = [el.number for el in reels]
         for n in range(self.min_z, self.max_z + 1):
             with self.subTest(n=n):
                 self.assertTrue(n in ns)
 
     def test_precise(self):
         """Check that only the REE are returned."""
-        REE = REE_elements(output='formula')
-        ns = [el.number for el in REE]
+        reels = REE(output='formula')
+        ns = [el.number for el in reels]
         self.assertTrue(min(ns) == self.min_z)
         self.assertTrue(max(ns) == self.max_z)
 
     def test_formula_output(self):
         """Check the function produces formula output."""
-        for el in REE_elements(output='formula'):
+        for el in REE(output='formula'):
             with self.subTest(el=el):
                 self.assertIs(type(el), type(pt.elements[0]))
 
     def test_string_output(self):
         """Check the function produces string output."""
-        for el in REE_elements(output='string'):
+        for el in REE(output='string'):
             with self.subTest(el=el):
                 self.assertIs(type(el), str)
 
@@ -516,6 +482,7 @@ class TestAggregateCation(unittest.TestCase):
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggregate_cation(df, cation)
+                # Check that only one form is returned
 
     def test_one(self):
         """Check the transformation functions for one record."""
@@ -523,6 +490,7 @@ class TestAggregateCation(unittest.TestCase):
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggregate_cation(df, cation)
+                # Check that only one form is returned
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
@@ -530,6 +498,7 @@ class TestAggregateCation(unittest.TestCase):
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggregate_cation(df, cation)
+                # Check that only one form is returned
 
     def test_oxide_return(self):
         """Checks that oxide forms are returned."""
@@ -696,110 +665,6 @@ class TestAddMgNo(unittest.TestCase):
     def test_Fe_components(self):
         """Check that the function works for multiple component Fe."""
         pass
-
-class TestSpiderplot(unittest.TestCase):
-    """Tests the Spiderplot functionality."""
-
-    def setUp(self):
-        REE = REE_elements(output='string')
-        self.df = pd.DataFrame({k: v for k,v in zip(REE,
-                                np.random.rand(len(REE), 10))})
-
-    def test_none(self):
-        """Test generation of plot with no data."""
-        pass
-
-    def test_one(self):
-        """Test generation of plot with one record."""
-        pass
-
-    def test_multiple(self):
-        """Test generation of plot with multiple records."""
-        pass
-
-    def test_no_axis_specified(self):
-        """Test generation of plot without axis specified."""
-        pass
-
-    def test_axis_specified(self):
-        """Test generation of plot with axis specified."""
-        pass
-
-    def test_no_components_specified(self):
-        """Test generation of plot with no components specified."""
-        pass
-
-    def test_components_specified(self):
-        """Test generation of plot with components specified."""
-        pass
-
-    def test_plot_off(self):
-        """Test plot generation with plot off."""
-        pass
-
-    def test_fill(self):
-        """Test fill functionality is available."""
-        pass
-
-    @unittest.expectedFailure
-    def test_noplot_nofill(self):
-        """Test failure on no-plot no-fill options."""
-        spiderplot(self.df, plot=False, fill=False)
-
-    def test_valid_style(self):
-        """Test valid styling options."""
-        pass
-
-    def test_irrellevant_style_options(self):
-        """Test stability under additional kwargs."""
-        style = {'thingwhichisnotacolor': 'notacolor', 'irrelevant': 'red'}
-        self.assertWarns(UserWarning, spiderplot(self.df, **style))
-
-    @unittest.expectedFailure
-    def test_invalid_style_options(self):
-        """Test stability under invalid style values."""
-        style = {'color': 'notacolor', 'marker': 'red'}
-        spiderplot(self.df, **style)
-
-class TestTernaryplot(unittest.TestCase):
-    """Tests the Ternaryplot functionality."""
-
-    def setUp(self):
-        self.cols = ['MgO', 'CaO', 'SiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-
-    def test_none(self):
-        """Test generation of plot with no data."""
-        df = pd.DataFrame(columns=self.cols)
-        out = ternaryplot(df)
-        self.assertEqual(type(out),
-                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
-
-
-    def test_one(self):
-        """Test generation of plot with one record."""
-        df = self.df.head(1)
-        out = ternaryplot(df)
-        self.assertEqual(type(out),
-                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
-
-    def test_multiple(self):
-        """Test generation of plot with multiple records."""
-        df = self.df.loc[:, :]
-        print(df.columns)
-        out = ternaryplot(df)
-        self.assertEqual(type(out),
-                         ternary.ternary_axes_subplot.TernaryAxesSubplot)
-
-    def test_tax_returned(self):
-        """Check that the axis item returned is a ternary axis."""
-        pass
-
-    def test_overplotting(self):
-        """Test use of the plot for multiple rounds of plotting."""
-        pass
-
 
 if __name__ == '__main__':
     unittest.main()
