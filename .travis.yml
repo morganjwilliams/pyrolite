@@ -1,10 +1,11 @@
 language: python
 python:
-  - "3.6"
+  - "3.6" # 3.7 not currently installable
 
 install:
   # Install test requirements seperately
-  - pip install -q pytest pytest-runner pytest-cov coverage codecov
+  - pip install -q pytest pytest-runner pytest-cov coverage
+  - pip install coveralls
   - python setup.py install
 
 before_script: # configure a headless display to test plot generation
@@ -16,4 +17,4 @@ script:
   - python setup.py test
 
 after_success:
-- codecov
+  - coveralls

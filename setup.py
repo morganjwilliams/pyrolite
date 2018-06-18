@@ -25,17 +25,20 @@ setup(name='pyrolite',
                         'matplotlib',
                         'periodictable',
                         'xlrd',
-                        'regex'
+                        'mpmath',
+                        'python-ternary'
                         ],
 
       extras_require={'dev': ['versioneer',
                               'nbstripout',
-                              'nbdime']},
+                              'nbdime',
+                              'twine']},
 
       tests_require=['pytest',
                      'pytest-runner',
                      'pytest-cov',
-                     'coverage'],
+                     'coverage',
+                     'coveralls'],
 
       test_suite="test",
       package_data={'pyrolite': ['data/*']},
