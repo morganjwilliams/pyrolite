@@ -108,3 +108,7 @@ class TestTernaryplot(unittest.TestCase):
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""
         pass
+
+
+if __name__ == '__main__':
+    unittest.main()
