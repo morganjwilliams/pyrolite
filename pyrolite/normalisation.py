@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import warnings
 from .compositions import *
 
 
@@ -15,7 +16,7 @@ RELMASSS_UNITS = {
                   }
 
 
-def scale_function(in_unit, target_unit='ppm'):
+def scale_multiplier(in_unit, target_unit='ppm'):
     """
     Provides the scale difference between to mass units.
 
@@ -25,13 +26,18 @@ def scale_function(in_unit, target_unit='ppm'):
         Units to be converted from
     target_unit: target mass unit, ppm
         Units to scale to.
+
+    Todo: implement different inputs - string, list, pandas series
     """
-    if not pd.isna(in_unit):
-        return RELMASSS_UNITS[in_unit.lower()] / \
-               RELMASSS_UNITS[target_unit.lower()]
+    if not pd.isna(in_unit) and \
+        (in_unit in RELMASSS_UNITS.keys()) and \
+        (target_unit in RELMASSS_UNITS.keys()):
+        scale = RELMASSS_UNITS[in_unit.lower()] / RELMASSS_UNITS[target_unit.lower()]
     else:
-        raise NotImplementedError("Unit not known.")
-        return 1.
+        unknown = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
+        warnings.warn("Units not known: {}".format(unknown))
+        scale = 1.
+    return scale
 
 
 class RefComp:
@@ -47,7 +53,7 @@ class RefComp:
         self.collect_vars()
         self.set_units()
 
-    def aggregate_oxides(self):
+    def aggregate_oxides(self, form='oxide'):
         """
         Compositional models typically include elements in both oxide and
         elemental form, typically divided into 'majors' and 'traces'.
@@ -61,6 +67,11 @@ class RefComp:
         element-oxide tables, and another is to force working in one format
         (i.e. Al2O3 (wt%) --> Al (ppm))
         """
+        # identify cations to be aggregated
+
+        # for cation in cations:
+        #    scale function
+        #    aggregate_cation(df: pd.DataFrame, cation, form=form, unit_scale=None)
         raise NotImplementedError('This issue has yet to be addressed.')
 
     def collect_vars(self,
@@ -79,7 +90,7 @@ class RefComp:
 
     def set_units(self, to='ppm'):
         self.data.loc[self.vars, 'scale'] = \
-            self.data.loc[self.vars, 'units'].apply(scale_function,
+            self.data.loc[self.vars, 'units'].apply(scale_multiplier,
                                                     target_unit=to)
 
     def normalize(self, df, aux_cols=["LOD","2SE"]):
@@ -133,8 +144,8 @@ def build_reference_db(directory=None, formats=['csv'], **kwargs):
         Currently only csv will work.
     """
     curr_dir = os.path.realpath(__file__)
-    directory = directory or (Path(os.path.realpath(__file__)).parent / \
-                             "../data/refcomp").resolve()
+    directory = directory or (Path(curr_dir).parent / \
+                             "data" / "refcomp").resolve()
 
     assert directory.exists() and directory.is_dir()
 

@@ -1,6 +1,12 @@
 from setuptools import setup, find_packages
 import versioneer
 
+tests_require = ['pytest',
+                 'pytest-runner',
+                 'pytest-cov',
+                 'coverage',
+                 'coveralls']
+
 setup(name='pyrolite',
       description="Tools for geochemical data analysis.",
       long_description=open('README.md').read(),
@@ -32,14 +38,9 @@ setup(name='pyrolite',
       extras_require={'dev': ['versioneer',
                               'nbstripout',
                               'nbdime',
-                              'twine']},
+                              'twine'] + tests_require},
 
-      tests_require=['pytest',
-                     'pytest-runner',
-                     'pytest-cov',
-                     'coverage',
-                     'coveralls'],
-
+      tests_require=tests_require,
       test_suite="test",
       package_data={'pyrolite': ['data/*']},
       license='CSIRO Modifed MIT/BSD',

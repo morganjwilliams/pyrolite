@@ -1,6 +1,6 @@
-name: pyrolite-env
+name: pyrolite
 channels:
-  - defaults
+  - conda-forge
 dependencies:
   - certifi=2018.4.16=py36_0
   - pip=10.0.1=py36_0
