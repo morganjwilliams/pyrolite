@@ -230,14 +230,18 @@ def aggregate_cation(df: pd.DataFrame,
         assert unit_scale > 0
         convert_function = oxide_conversion(ox, el)
         conv_values = convert_function(df.loc[:, elstr]).values * unit_scale
-        df.loc[:, oxstr] = np.nansum(np.vstack((df.loc[:, oxstr].values, conv_values)), axis=0)
+        df.loc[:, oxstr] = np.nansum(np.vstack((df.loc[:, oxstr].values,
+                                                conv_values)),
+                                     axis=0)
         df = df.loc[:, [i for i in df.columns if not i == elstr]]
     elif form == 'element':
         if unit_scale is None: unit_scale = 10000 # Wt% to ppm
         assert unit_scale > 0
         convert_function = oxide_conversion(el, ox)
         conv_values = convert_function(df.loc[:, oxstr]).values * unit_scale
-        df.loc[:, elstr] += np.nansum(np.vstack((df.loc[:, elstr].values, conv_values)), axis=0)
+        df.loc[:, elstr] = np.nansum(np.vstack((df.loc[:, elstr].values,
+                                                conv_values)),
+                                     axis=0)
         df = df.loc[:, [i for i in df.columns if not i == oxstr]]
 
     return df

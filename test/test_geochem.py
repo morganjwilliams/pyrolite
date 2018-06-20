@@ -481,7 +481,7 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df.head(0)
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
-                aggregate_cation(df, cation)
+                aggdf = aggregate_cation(df, cation)
                 # Check that only one form is returned
 
     def test_one(self):
@@ -489,7 +489,7 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df.head(1)
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
-                aggregate_cation(df, cation)
+                aggdf = aggregate_cation(df, cation)
                 # Check that only one form is returned
 
     def test_multiple(self):
@@ -497,14 +497,14 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
-                aggregate_cation(df, cation)
+                aggdf = aggregate_cation(df, cation)
                 # Check that only one form is returned
 
     def test_oxide_return(self):
         """Checks that oxide forms are returned."""
         df = self.df.head(1)
         cation='Mg'
-        aggregate_cation(df, cation, form='oxide')
+        aggdf = aggregate_cation(df, cation, form='oxide')
         # Check presence
 
         # Check absence of others
@@ -517,7 +517,7 @@ class TestAggregateCation(unittest.TestCase):
         """Checks that element forms are returned."""
         df = self.df.head(1)
         cation='Mg'
-        aggregate_cation(df, cation, form='element')
+        aggdf = aggregate_cation(df, cation, form='element')
         # Check presence
 
         # Check absence of others
@@ -532,7 +532,7 @@ class TestAggregateCation(unittest.TestCase):
         cation='Mg'
         for unit_scale in [0.1, 10, 10000]:
             with self.subTest(unit_scale=unit_scale):
-                aggregate_cation(df, cation, unit_scale=unit_scale)
+                aggdf = aggregate_cation(df, cation, unit_scale=unit_scale)
 
 
 class TestMultipleCationInclusion(unittest.TestCase):

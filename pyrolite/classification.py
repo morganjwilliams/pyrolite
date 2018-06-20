@@ -1,14 +1,13 @@
 import os
 import sys
-import logging
 from pathlib import Path
+import pickle
+import numpy as np
+import pandas as pd
+from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
-import numpy as np
-import pandas as pd
-import pickle
-from sklearn.externals import joblib
 
 class ClassifierModel(object):
 
@@ -70,7 +69,7 @@ class SimpleDeterministicClassifer(object):
         if self.parent:
             self.clsf_modelname = self.parent.clsf_modelname
             self.modeldir = self.parent.diskname.resolve()
-            af = self.modeldir / f'{self.clsf_modelname}.allfields'
+            af = self.modeldir / f'{self.clsf_modelname}.modelfields'
             if af.exists() and af.is_file():
                 #logger.info(f'''Loading {self.clsf_modelname} classifer fields from "allfile".''')
                 loadup = joblib.load(af)
@@ -78,7 +77,7 @@ class SimpleDeterministicClassifer(object):
                 self.fields = {c: loadup[c] for ix, c in enumerate(self.fclasses)}
             else:
                 #logger.info(f'Loading {self.clsf_modelname} classifer fields from files.')
-                fieldfiles = self.modeldir.glob(f'{self.clsf_modelname}.*')
+                fieldfiles = self.modeldir.glob(f'{self.clsf_modelname}.*.modelfield')
                 loadup = [joblib.load(f) for f in fieldfiles]
                 self.fclasses =  [f.suffix.replace('.', "") for f in loadup]
                 self.fields = {c: loadup[ix] for ix, c in enumerate(self.fclasses)}
@@ -101,14 +100,14 @@ class SimpleDeterministicClassifer(object):
         #ax.add_collection(PatchCollection(pgns), autolim=True)
 
     def predict(self, df: pd.DataFrame, cols:list=['x', 'y']):
-        points = df.loc[:,cols].values
+        points = df.loc[:, cols].values
         polys = [Polygon(self.fields[c]['poly'], closed=True)
                  for c in self.fclasses] # if self.fields[c]['poly']
-
         indexes = np.array([p.contains_points(points) for p in polys]).T
-        notfound = np.logical_not(indexes.sum(axis=1))
+        notfound = np.logical_not(indexes.sum(axis=-1))
         out = pd.Series(index=df.index)
-        outlist = list(map(lambda ix: self.fclasses[ix], np.argmax(indexes, axis=1)))
+        outlist = list(map(lambda ix: self.fclasses[ix],
+                          np.argmax(indexes, axis=-1)))
         out.loc[:] = outlist
         out.loc[(notfound)] = 'none'
         return out
@@ -143,7 +142,6 @@ class Geochemistry(object):
             super().__init__(*args, deterministic=True, **kwargs)
 
         def build_clsf(self):
-
             return PeralkalinityClassifier(self)
 
     class TAS(ClassifierModel):
@@ -152,12 +150,6 @@ class Geochemistry(object):
             super().__init__(*args, deterministic=True, **kwargs)
 
         def build_clsf(self):
-            # fields are functions which define ranges where they are invalid
-            # Encode Field Names
-            #   LabelBinarizer
-            # Create Field
-            # Ensure non-valid entries are classified as nan/invalid
-            # Build
             return SimpleDeterministicClassifer(self)
 
         def add_to_axes(self, ax=None, **kwargs):
@@ -173,8 +165,7 @@ class Geochemistry(object):
 
 class Petrology(object):
 
-
-    class apahnitic(ClassifierModel):
+    class aphanitic(ClassifierModel):
         """
         QAPF Diagram
         """

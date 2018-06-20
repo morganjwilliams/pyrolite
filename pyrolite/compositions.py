@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import scipy
 from sklearn.base import TransformerMixin
-
+import logging
+import warnings
+log = logging.getLogger(__name__)
 
 def close(X: np.ndarray):
     if X.ndim == 2:
@@ -27,21 +29,53 @@ def compositional_mean(df, weights=[], **kwargs):
     return mean
 
 
-def nan_weighted_mean(values:np.ndarray, weights=[],):
-    mean = np.nan
-    flter = ~np.isnan(values)
-    if flter.any():
-        if not len(weights): weights = np.ones((1, arr.shape[0]))
-        weights = np.array(weights)/np.sum(weights, axis=0) # 1D weights
-        c_weights = weights.copy()
-        flter = flter.reshape((1, *flter.shape))
-        c_weights = c_weights[flter] / c_weights[flter].sum()
-        mean = values[flter.squeeze()] @ c_weights
+def nan_weighted_mean(arr:np.ndarray, weights=None,):
+    if weights is None:
+        weights = weights or weights_from_array(arr)
+
+    #if arr.ndim == 1: arr = arr.reshape((1, *arr.shape))
+    #if weights.ndim == 1: weights = weights.reshape((*weights.shape, 1))
+
+    if np.isnan(arr).any():
+        mean = np.nanmean(arr, axis=0)
+        if not (weights == weights[0]).all():  # if weights needed
+            for c in np.arange(arr.shape[1]):
+                nonnan_idx = np.nonzero(~np.isnan(arr[:, c]))
+                if len(nonnan_idx[0]):  # if there are any non-nan elements
+                    c_weights = weights.copy()
+                    c_weights = c_weights[nonnan_idx] / \
+                                c_weights[nonnan_idx].sum()
+                    mean[c] = arr[:, c][nonnan_idx] @ c_weights
+    else:
+        mean = arr.T @ weights
+        mean = mean.T.squeeze()
+    mean = mean.reshape(arr.shape[1:]) # this should be compatible
     return mean
 
 
+def get_nonnan_column(arr:np.ndarray):
+    """Returns the first column without nans in it."""
+    if len(arr.shape)==1:
+        arr = arr.reshape((1, *arr.shape))
+    inds = np.arange(arr.shape[1])
+    wherenonnan = ~np.isnan(arr).any(axis=0)
+    ind = inds[wherenonnan][0]
+    return ind
+
+
+def weights_from_array(arr:np.ndarray):
+    """
+    Returns a set of equal weights for components
+    along the first axis of an array.
+    """
+    wts = np.ones((arr.shape[0]))
+    wts = wts/np.sum(wts)
+    wts = wts.T
+    return wts
+
+
 def nan_weighted_compositional_mean(arr: np.ndarray,
-                                    weights=[],
+                                    weights=None,
                                     ind=None,
                                     renorm=True,
                                     **kwargs):
@@ -54,25 +88,43 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
 
     When used for multiple-standardisation, the [specified] or first common
     element will be used.
+
+    Input array has analyses along the first axis.
     """
+    if arr.ndim == 1: #if it's a single row
+        return arr
+    else:
+        if weights is None:
+            weights = weights_from_array(arr)
+        else:
+            weights = np.array(weights)/np.sum(weights, axis=-1)
 
-    if not len(weights): weights = np.ones((1, arr.shape[0]))
-    weights = np.array(weights)/np.sum(weights) # 1D weights
+        if weights.ndim == 1:
+            weights = weights.reshape((*weights.shape, 1))
 
-    if ind is None: ind = np.nonzero(~np.isnan(arr).any(axis=0))[0]
-    logvals = np.log(np.divide(arr, arr[:, ind].squeeze()[:, np.newaxis]))
+        if ind is None:  # take the first column which has no nans
+            ind = get_nonnan_column(arr)
 
-    mean = np.nan * np.ones(arr.shape[1:])
-    for ix in range(logvals.shape[1]):
-        if arr.ndim == 2:
-            mean[ix] = nan_weighted_mean(logvals[:, ix], weights=weights)
-        elif arr.ndim == 3:
-            for iy in range(logvals.shape[2]):
-                mean[ix, iy] = nan_weighted_mean(logvals[:, ix, iy], weights=weights)
+        if arr.ndim < 3 and arr.shape[0] == 1:
+            div = arr[:, ind].squeeze() # check this
+        else:
+            div = arr[:, ind].squeeze()[:, np.newaxis]
 
-    mean = np.exp(mean.squeeze())
-    if renorm: mean /= np.nansum(mean)
-    return mean
+        logvals = np.log(np.divide(arr, div))
+        mean = np.nan * np.ones(arr.shape[1:])
+
+        for ix in np.arange(logvals.shape[1]): # for each column
+            if arr.ndim == 2:
+                mean[ix] = nan_weighted_mean(logvals[:, ix],
+                                             weights=weights)
+            elif arr.ndim == 3:
+                for iy in range(logvals.shape[2]):
+                    mean[ix, iy] = nan_weighted_mean(logvals[:, ix, iy],
+                                                     weights=weights)
+
+        mean = np.exp(mean.squeeze())
+        if renorm: mean /= np.nansum(mean)
+        return mean
 
 
 def cross_ratios(df: pd.DataFrame):
@@ -114,21 +166,30 @@ def standardise_aggregate(df: pd.DataFrame,
     Note: this changes the closure parameter, and is generally intended to integrate
     major and trace element records.
     """
-    if int_std is None:
-        # Get the 'internal standard column'
-        potential_int_stds = df.count()[df.count()==df.count().max()].index.values
-        assert len(potential_int_stds) == 1
-        int_std = potential_int_stds[0]
+    if df.index.size == 1: # catch single records
+        return df
+    else:
+        if int_std is None:
+            # Get the 'internal standard column'
+            potential_int_stds = df.count()[df.count()==df.count().max()].index.values
+            assert len(potential_int_stds) > 0
+            int_std = potential_int_stds[0]
+            if len(potential_int_stds) > 1:
+                warnings.warn(f'Multiple int. stds possible. Using {int_std}')
 
-    non_nan_cols = df.dropna(axis=1, how='all').columns
-    assert len(non_nan_cols)
-    ser = pd.Series(nan_weighted_compositional_mean(df.values,
-                                           ind=list(df.columns).index(int_std),
-                                           renorm=False),
-                    index=df.columns)
-    ser = ser * df.loc[df.index[fixed_record_idx], int_std]
-    if renorm: ser /= np.nansum(ser.values)
-    return ser
+        non_nan_cols = df.dropna(axis=1, how='all').columns
+        assert len(non_nan_cols)
+        mean = nan_weighted_compositional_mean(df.values,
+                                        ind=list(df.columns).index(int_std),
+                                        renorm=False)
+        log.debug(df.columns)
+        ser = pd.Series(mean, index=df.columns)
+
+        ser = ser * df.loc[df.index[fixed_record_idx], int_std]
+        if renorm: ser /= np.nansum(ser.values)
+        log.debug(mean)
+        log.debug(ser)
+        return ser
 
 
 def complex_standardise_aggregate(df, fix_int_std=None, renorm=True, fixed_record_idx=0):
