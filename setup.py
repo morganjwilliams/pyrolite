@@ -42,7 +42,8 @@ setup(name='pyrolite',
 
       tests_require=tests_require,
       test_suite="test",
-      package_data={'pyrolite': ['data/*']},
+      #package_data={'pyrolite': ['data/*']},
+      include_package_data=True,
       license='CSIRO Modifed MIT/BSD',
       cmdclass=versioneer.get_cmdclass()
 )
