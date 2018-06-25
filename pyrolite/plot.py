@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import ternary
-from .pdutil import to_frame
+from .util.pandas import to_frame
 from .geochem import common_elements
 
 def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):

@@ -3,7 +3,7 @@ import numpy as np
 import mpmath
 import periodictable as pt
 from .compositions import renormalise
-from .textutil import titlecase
+from .util.text import titlecase
 import matplotlib.pyplot as plt
 
 
