@@ -1,7 +1,8 @@
-import os
+import os, sys
+from pathlib import Path
+import platform
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import warnings
 from .compositions import *
 
@@ -128,7 +129,7 @@ class RefComp:
         return f"Model of {self.Reservoir} ({self.Reference})"
 
 
-def build_reference_db(directory=None, formats=['csv'], **kwargs):
+def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
     """
     Build all reference models in a given directory.
 
@@ -143,9 +144,13 @@ def build_reference_db(directory=None, formats=['csv'], **kwargs):
         List of potential data formats to draw from.
         Currently only csv will work.
     """
+    if platform.system() =='Windows':
+        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+
     curr_dir = os.path.realpath(__file__)
-    directory = directory or (Path(curr_dir).parent / \
-                             "data" / "refcomp").resolve()
+    module_dir = Path(sys.modules['pyrolite'].__file__).parent
+    directory = directory or \
+                (Path(module_dir) / "data" / "refcomp").resolve()
 
     assert directory.exists() and directory.is_dir()
 

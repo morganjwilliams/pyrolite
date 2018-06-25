@@ -88,7 +88,7 @@ class TestRefcomp(unittest.TestCase):
         self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
                                 np.random.rand(len(self.cols), 10))})
 
-    def test_construction(self):
+    def test_construction_with_dir(self):
         """Checks the model can build."""
         files = [x for x in self.dir.iterdir() if x.is_file()]
         for f in files:
@@ -125,7 +125,7 @@ class TestRefcomp(unittest.TestCase):
         # Test that type isn't changed
         self.assertTrue(type(norm) == type(self.df))
 
-class TestReferenceDB(unittest.TestCase):
+class TestReferenceCompositions(unittest.TestCase):
     """Tests the formation of a reference dictionary from a directory."""
 
     def setUp(self):
@@ -133,12 +133,12 @@ class TestReferenceDB(unittest.TestCase):
 
     def test_build(self):
         """Checks that the dictionary constructs."""
-        refdb = build_reference_db(**self.build_kwargs)
+        refdb = ReferenceCompositions(**self.build_kwargs)
         self.assertTrue(type(refdb) == dict)
 
     def test_content(self):
         """Checks that the dictionary structure is correct."""
-        refdb = build_reference_db(**self.build_kwargs)
+        refdb = ReferenceCompositions(**self.build_kwargs)
         for k, v in refdb.items():
             self.assertTrue(type(v) == RefComp)
 

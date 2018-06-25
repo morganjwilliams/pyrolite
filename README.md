@@ -13,3 +13,41 @@ Maintainer: Morgan Williams (morgan.williams _at_ csiro.au)
 ## License
 
 [CSIRO Modified BSD/MIT License](https://raw.githubusercontent.com/morganjwilliams/pyrolite/master/LICENSE)
+
+## Usage Examples
+
+### Elements and Oxides
+
+#### Index Generators
+
+All Elements up to U
+```python
+>>> import pyrolite.common_elements as ce
+>>> ce()  # periodictable.core.Element return
+[H, He, Li, Be, ...,  Th, Pa, U]
+>>> ce(output='str')  # string return
+['H', 'He', 'Li', 'Be', ...,  'Th', 'Pa', 'U']
+```
+Oxides for Elements with Positive Charges (up to U)
+```python
+>>> import pyrolite.common_oxides as co
+>>> co()  # periodictable.formulas.Formula return
+[H, He, Li, Be, ...,  Th, Pa, U]
+>>> co(output='str')  # string return
+['H2O', 'He2O', 'HeO', 'Li2O', 'Be2O', 'BeO', 'B2O', 'BO', 'B2O3', ...,
+'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3']
+```
+REE Elements
+```python
+>>> from pyrolite.geochem import REE as ree
+>>> ree(output='str')
+['La', 'Ce', 'Pr', 'Nd', 'Pm', ..., 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
+```
+
+### Compositional Data
+
+
+### Normalisation
+
+
+### Classification

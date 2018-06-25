@@ -1,3 +1,4 @@
 include versioneer.py
 include pyrolite/_version.py
 include LICENSE
+recursive-include pyrolite/data *
