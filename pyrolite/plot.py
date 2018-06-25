@@ -3,10 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import ternary
-from pyrolite.geochem import common_elements
+from .pdutil import to_frame
+from .geochem import common_elements
 
-
-def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **kwargs):
+def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):
     """
     Plots spidergrams for trace elements data.
     By using separate lines and scatterplots, values between two null-valued
@@ -33,6 +33,16 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **kwarg
         assert plot or fill
     except:
         raise AssertionError('Please select to either plot values or fill between ranges.')
+
+    df = to_frame(df)
+
+    if components is None:
+        components = [el for el in common_elements(output='str')
+                      if el in df.columns]
+
+    assert len(components) != 0
+    c_indexes = np.arange(len(components))
+
     sty = {}
     # Some default values
     sty['marker'] = kwargs.get('marker') or 'D'
@@ -41,30 +51,27 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **kwarg
     if sty['color'] is None:
         del sty['color']
 
-    components = components or [el for el in common_elements(output='str')
-                                if el in df.columns]
-    assert len(components) != 0
-    c_indexes = np.arange(len(components))
-
     ax = ax or plt.subplots(1, figsize=(len(components)*0.25, 4))[1]
 
     if plot:
         ls = ax.plot(c_indexes,
-                     df[components].T.values.astype(np.float),
+                     df.loc[:, components].T.values.astype(np.float),
                      **sty)
 
         sty['s'] = kwargs.get('markersize') or kwargs.get('s') or 5.
         if sty.get('color') is None:
             sty['color'] = ls[0].get_color()
-        sc = ax.scatter(np.tile(c_indexes, (df[components].index.size,1)).T,
-                        df[components].T.values.astype(np.float), **sty)
+        sc = ax.scatter(np.tile(c_indexes, (df.loc[:, components].index.size,1)).T,
+                        df.loc[:, components].T.values.astype(np.float),
+                        **sty)
 
     for s_item in ['marker', 's']:
         if s_item in sty:
             del sty[s_item]
 
     if fill:
-        mins, maxs = df[components].min(axis=0), df[components].max(axis=0)
+        mins = df.loc[:, components].min(axis=0)
+        maxs = df.loc[:, components].max(axis=0)
         ax.fill_between(c_indexes, mins, maxs, **sty)
 
     ax.set_xticks(c_indexes)
@@ -77,8 +84,10 @@ def spiderplot(df, ax=None, components:list=None, plot=True, fill=False, **kwarg
     if len(unused_keys):
         warnings.warn(f'Styling not yet implemented for:{unused_keys}')
 
+    return ax
 
-def ternaryplot(df, ax=None, components=None, **kwargs):
+
+def ternaryplot(df, components:list=None, ax=None, **kwargs):
     """
     Plots scatter ternary diagrams, using a wrapper around the
     python-ternary library (gh.com/marcharper/python-ternary).
@@ -92,6 +101,7 @@ def ternaryplot(df, ax=None, components=None, **kwargs):
     components: list, None
         Elements or compositional components to plot.
     """
+    df = to_frame(df)
 
     try:
         if not len(df.columns)==3:

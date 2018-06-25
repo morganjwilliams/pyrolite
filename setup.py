@@ -7,9 +7,13 @@ tests_require = ['pytest',
                  'coverage',
                  'coveralls']
 
+with open('README.md', 'r') as src:
+    LONG_DESCRIPTION = src.read()
+
 setup(name='pyrolite',
       description="Tools for geochemical data analysis.",
-      long_description=open('README.md').read(),
+      long_description=LONG_DESCRIPTION,
+      long_description_content_type='text/markdown',
       version=versioneer.get_version(),
       url='https://github.com/morgan.j.williams/pyrolite',
       author='Morgan Williams',
@@ -34,7 +38,6 @@ setup(name='pyrolite',
                         'mpmath',
                         'python-ternary'
                         ],
-
       extras_require={'dev': ['versioneer',
                               'nbstripout',
                               'nbdime',
@@ -43,6 +46,7 @@ setup(name='pyrolite',
       tests_require=tests_require,
       test_suite="test",
       package_data={'pyrolite': ['data/*']},
+      include_package_data=True,
       license='CSIRO Modifed MIT/BSD',
       cmdclass=versioneer.get_cmdclass()
 )

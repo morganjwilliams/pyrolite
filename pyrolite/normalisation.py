@@ -1,9 +1,11 @@
-import os
+import os, sys
+from pathlib import Path
+import platform
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import warnings
 from .compositions import *
+from .pdutil import to_frame
 
 
 RELMASSS_UNITS = {
@@ -89,27 +91,32 @@ class RefComp:
                                 floatvars].apply(pd.to_numeric, errors='coerce')
 
     def set_units(self, to='ppm'):
-        self.data.loc[self.vars, 'scale'] = \
-            self.data.loc[self.vars, 'units'].apply(scale_multiplier,
-                                                    target_unit=to)
+        v = self.vars
+        self.data.loc[v, 'scale'] = \
+                            self.data.loc[v, 'units'].apply(scale_multiplier,
+                                                            target_unit=to)
+        self.data.loc[v, 'units'] = to
+        self.data.loc[v, 'value'] *= self.data.loc[v, 'scale'].values
 
     def normalize(self, df, aux_cols=["LOD","2SE"]):
         """
         Normalize the values within a dataframe to the refererence composition.
         Here we create indexes for normalisation of values and any auxilary
         values (e.g. uncertainty).
-        """
-        dfc = df.copy()
-        cols = [v for v in self.vars if v in df.columns]
-        mdl_ix = cols.copy()
-        df_cols = cols.copy()
-        for c in aux_cols:
-            df_cols += [v+c for v in cols if v+c in dfc.columns]
-            mdl_ix += [v for v in cols if v+c in dfc.columns]
 
-        dfc.loc[:, df_cols] = np.divide(dfc.loc[:, df_cols].values,
-                                        self.data.loc[mdl_ix, 'value'].values *\
-                                        self.data.loc[mdl_ix, 'scale'].values)
+        ## TODO: Implement uncertainty propagation
+        """
+        dfc = to_frame(df.copy())
+
+        cols = [v for v in self.vars if v in dfc.columns]
+        #mdl_ix = cols.copy()
+        #df_cols = cols.copy()
+        #for c in aux_cols:
+        #    df_cols += [v+c for v in cols if v+c in dfc.columns]
+        #    mdl_ix += [v for v in cols if v+c in dfc.columns]
+
+        divisor = self.data.loc[cols, 'value'].values
+        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
         return dfc
 
     def __getattr__(self, var):
@@ -128,7 +135,7 @@ class RefComp:
         return f"Model of {self.Reservoir} ({self.Reference})"
 
 
-def build_reference_db(directory=None, formats=['csv'], **kwargs):
+def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
     """
     Build all reference models in a given directory.
 
@@ -143,9 +150,13 @@ def build_reference_db(directory=None, formats=['csv'], **kwargs):
         List of potential data formats to draw from.
         Currently only csv will work.
     """
+    if platform.system() =='Windows':
+        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+
     curr_dir = os.path.realpath(__file__)
-    directory = directory or (Path(curr_dir).parent / \
-                             "data" / "refcomp").resolve()
+    module_dir = Path(sys.modules['pyrolite'].__file__).parent
+    directory = directory or \
+                (Path(module_dir) / "data" / "refcomp").resolve()
 
     assert directory.exists() and directory.is_dir()
 

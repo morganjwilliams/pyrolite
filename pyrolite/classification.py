@@ -158,6 +158,8 @@ class Geochemistry(object):
             self.clsf.add_to_axes(ax=ax, **kwargs)
             ax.set_xlim((35, 85))
             ax.set_ylim((0, 20))
+            ax.set_ylabel('$Na_2O + K_2O$')
+            ax.set_xlabel('$SiO_2$')
 
         def classify(self, df:pd.DataFrame):
             return self.clsf.predict(df, cols=['SiO2', 'TotalAlkali'])

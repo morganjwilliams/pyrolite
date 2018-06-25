@@ -7,6 +7,34 @@ from .textutil import titlecase
 import matplotlib.pyplot as plt
 
 
+def ischem(s):
+    """
+    Checks if a string corresponds to chemical component.
+    Here simply checking whether it is a common element or oxide.
+
+    TODO: Implement checking for other compounds, e.g. carbonates.
+    """
+
+    chems = [e.upper() for e in common_oxides(output='str') + common_elements(output='str')]
+    return s.upper() in chems
+
+
+def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
+    """
+    Converts a list of strings containing come chemical compounds to
+    appropriate case.
+    """
+      # accomodate single string passed
+    if not type(strings) in [list, pd.core.indexes.base.Index]:
+        strings = [strings]
+    trans = {e.upper(): e for e in common_oxides(output='str') + \
+                                   common_elements(output='str')}
+    strings = [trans[h.upper()]
+               if h.upper() in trans else h
+               for h in strings]
+    return strings
+
+
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
     Converts mass quantities to molar quantities of the same order.
