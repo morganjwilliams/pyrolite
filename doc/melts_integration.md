@@ -3,6 +3,18 @@
 
 alphaMELTS programs are installed, instantiated and updated using the Perl script `run_alphamelts.command`, `install.command` and `update.command` files, which are together the source of the Perl dependency for Melts. Perl can optionally be installed using conda (`conda install perl`), which will provide a much more reproducible environment than binary distributions from the [Perl website](http://www.perl.org/get.html).
 
+
+### Melts (doesn't need to) Install
+
+The melts install process serves only to make the executables findable, but each of the functions can be achieved directly with the executables.
+The  `install.command` script makes shortcuts to the MELTS program, and tries to add the folder to the user's `PATH` environment variable. The installed link files are executable batch file (`.bat`) wrappers around the alphaMELTS scripts. Once the path is set, they should be findable with `where`: e.g. `where alphamelts` should return `<install_dir>\alphamelts.bat`.
+
+TODO: provide a similar function by writing the location information to a simple text file.
+
+### Input Files
+
+The `file_format.command` script is principally used to fix incorrect line endings in input files. It is used in the manner of `file_format.command <melts_file_1.melts, ..., melts_file_n.melts>` or alternatively on all files as `file_format.command *.melts`.
+
 Melts files (`.melts`) are simply text data files with the following format:
 ```
 Title: Allan et al. 1989 (see Ghiorso 1997)
@@ -20,19 +32,6 @@ dp/dt: 0.00
 log fo2 Path: None
 Mode: Fractionate Solids
 ```
-
-
-### Melts (doesn't need to) Install
-
-The melts install process serves only to make the executables findable, but each of the functions can be achieved directly with the executables.
-The  `install.command` script makes shortcuts to the MELTS program, and tries to add the folder to the user's `PATH` environment variable. The installed link files are executable batch file (`.bat`) wrappers around the alphaMELTS scripts. Once the path is set, they should be findable with `where`: e.g. `where alphamelts` should return `<install_dir>\alphamelts.bat`.
-
-TODO: provide a similar function by writing the location information to a simple text file.
-
-### Input Files
-
-The `file_format.command` script is principally used to fix incorrect line endings in input files. It is used in the manner of `file_format.command <melts_file_1.melts, ..., melts_file_n.melts>` or alternatively on all files as `file_format.command *.melts`.
-
 
 #### Settings File
 
