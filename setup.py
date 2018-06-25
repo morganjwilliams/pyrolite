@@ -36,7 +36,10 @@ setup(name='pyrolite',
                         'periodictable',
                         'xlrd',
                         'mpmath',
-                        'python-ternary'
+                        'python-ternary',
+                        'owslib',
+                        'geojson',
+                        'requests'
                         ],
       extras_require={'dev': ['versioneer',
                               'nbstripout',
