@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import warnings
 from .compositions import *
+from .pdutil import to_frame
 
 
 RELMASSS_UNITS = {
@@ -90,27 +91,32 @@ class RefComp:
                                 floatvars].apply(pd.to_numeric, errors='coerce')
 
     def set_units(self, to='ppm'):
-        self.data.loc[self.vars, 'scale'] = \
-            self.data.loc[self.vars, 'units'].apply(scale_multiplier,
-                                                    target_unit=to)
+        v = self.vars
+        self.data.loc[v, 'scale'] = \
+                            self.data.loc[v, 'units'].apply(scale_multiplier,
+                                                            target_unit=to)
+        self.data.loc[v, 'units'] = to
+        self.data.loc[v, 'value'] *= self.data.loc[v, 'scale'].values
 
     def normalize(self, df, aux_cols=["LOD","2SE"]):
         """
         Normalize the values within a dataframe to the refererence composition.
         Here we create indexes for normalisation of values and any auxilary
         values (e.g. uncertainty).
-        """
-        dfc = df.copy()
-        cols = [v for v in self.vars if v in df.columns]
-        mdl_ix = cols.copy()
-        df_cols = cols.copy()
-        for c in aux_cols:
-            df_cols += [v+c for v in cols if v+c in dfc.columns]
-            mdl_ix += [v for v in cols if v+c in dfc.columns]
 
-        dfc.loc[:, df_cols] = np.divide(dfc.loc[:, df_cols].values,
-                                        self.data.loc[mdl_ix, 'value'].values *\
-                                        self.data.loc[mdl_ix, 'scale'].values)
+        ## TODO: Implement uncertainty propagation
+        """
+        dfc = to_frame(df.copy())
+
+        cols = [v for v in self.vars if v in dfc.columns]
+        #mdl_ix = cols.copy()
+        #df_cols = cols.copy()
+        #for c in aux_cols:
+        #    df_cols += [v+c for v in cols if v+c in dfc.columns]
+        #    mdl_ix += [v for v in cols if v+c in dfc.columns]
+
+        divisor = self.data.loc[cols, 'value'].values
+        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
         return dfc
 
     def __getattr__(self, var):
