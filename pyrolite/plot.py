@@ -6,6 +6,9 @@ import ternary
 from .util.pandas import to_frame
 from .geochem import common_elements
 
+DEFAULT_CONT_COLORMAP = 'viridis'
+DEFAULT_DISC_COLORMAP = 'tab10'
+
 def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):
     """
     Plots spidergrams for trace elements data.
@@ -17,10 +20,10 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     ----------
     df: pandas DataFrame
         Dataframe from which to draw data.
-    ax: Matplotlib AxesSubplot, None
-        The subplot to draw on.
     components: list, None
         Elements or compositional components to plot.
+    ax: Matplotlib AxesSubplot, None
+        The subplot to draw on.
     plot: boolean, True
         Whether to plot lines and markers.
     fill:
@@ -28,7 +31,7 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     style:
         Styling keyword arguments to pass to matplotlib.
     """
-
+    kwargs = kwargs.copy()
     try:
         assert plot or fill
     except:
@@ -45,9 +48,9 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
 
     sty = {}
     # Some default values
-    sty['marker'] = kwargs.get('marker') or 'D'
-    sty['color'] = kwargs.get('color') or kwargs.get('c') or None
-    sty['alpha'] = kwargs.get('alpha') or kwargs.get('a') or 1.
+    sty['marker'] = kwargs.pop('marker', None) or 'D'
+    sty['color'] = kwargs.pop('color', None) or kwargs.pop('c', None)
+    sty['alpha'] = kwargs.pop('alpha', None) or kwargs.pop('a', None) or 1.
     if sty['color'] is None:
         del sty['color']
 
@@ -79,8 +82,7 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     ax.set_yscale('log')
     ax.set_xlabel('Element')
 
-    unused_keys = [i for i in kwargs if i not in list(sty.keys()) + \
-                  ['alpha', 'a', 'c', 'color', 'marker']]
+    unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
         warnings.warn(f'Styling not yet implemented for:{unused_keys}')
 
@@ -96,31 +98,34 @@ def ternaryplot(df, components:list=None, ax=None, **kwargs):
     ----------
     df: pandas DataFrame
         Dataframe from which to draw data.
-    ax: Matplotlib AxesSubplot, None
-        The subplot to draw on.
     components: list, None
         Elements or compositional components to plot.
+    ax: Matplotlib AxesSubplot, None
+        The subplot to draw on.
     """
+    kwargs = kwargs.copy()
     df = to_frame(df)
 
     try:
-        if not len(df.columns)==3:
-            assert len(components)==3
-        components = components or df.columns.values
+        if not df.columns.size == 3:
+            assert len(components) == 3
+
+        if components is None:
+            components = df.columns.values
     except:
         raise AssertionError('Please either suggest three elements or a 3-element dataframe.')
 
     # Some default values
-    scale = kwargs.get('scale') or 100.
-    figsize = kwargs.get('size') or 8.
-    gridsize = kwargs.get('gridsize') or 10.
-    fontsize = kwargs.get('fontsize') or 12.
+    scale = kwargs.pop('scale', None) or 100.
+    figsize = kwargs.pop('size', None) or 8.
+    gridsize = kwargs.pop('gridsize', None) or 10.
+    fontsize = kwargs.pop('fontsize', None) or 12.
 
     sty = {}
-    sty['marker'] = kwargs.get('marker') or 'D'
-    sty['color'] = kwargs.get('color') or kwargs.get('c') or '0.5'
-    sty['label'] = kwargs.get('label') or None
-    sty['alpha'] = kwargs.get('alpha') or kwargs.get('a') or 1.
+    sty['marker'] = kwargs.pop('marker', None) or 'D'
+    sty['color'] = kwargs.pop('color', None) or kwargs.pop('c', None) or '0.5'
+    sty['label'] = kwargs.pop('label', None) or None
+    sty['alpha'] = kwargs.pop('alpha', None) or kwargs.pop('a', None) or 1.
 
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
     d1 = ax.__dict__.copy()
