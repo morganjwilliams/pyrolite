@@ -15,6 +15,9 @@ dev_require = ['versioneer',
 db_require = ['pyodbc',
               'psycopg2']
 
+spatial_require = ['owslib',  # this needs pyproj -> C compiler
+                   'geojson']
+
 with open('README.md', 'r') as src:
     LONG_DESCRIPTION = src.read()
 
@@ -45,11 +48,10 @@ setup(name='pyrolite',
                         'xlrd',
                         'mpmath',
                         'python-ternary',
-                        'owslib',
-                        'geojson',
                         'requests'
                         ],
       extras_require={'dev': dev_require + tests_require,
+                      'spatial': spatial_require,
                       'db': db_require},
 
       tests_require=tests_require,
