@@ -14,8 +14,8 @@ def MELTS_env():
         version = env.str('VERSION', 'pMELTS') # MELTS, pMELTS
         mode = env.str('MODE', 'isentropic')  # ‘geothermal’, ‘isenthalpic’, ‘isentropic’, ‘isobaric’, ‘isochoric’, ‘isothermal’, ‘PTpath’
 
-        _maxP = [30000, 40000][env('VERSION') != 'MELTS'])  # in degC
-        _minP = [1, 10000][env('VERSION') != 'MELTS'])  # in degC
+        _maxP = [30000, 40000][env('VERSION') != 'MELTS']  # in degC
+        _minP = [1, 10000][env('VERSION') != 'MELTS']  # in degC
         min_P = env('MINP', _minP)
         max_P = env.float('MAXP', _maxP)
 
@@ -54,7 +54,7 @@ def MELTS_env():
         # MgNo_target = env.float('MGNUMBER_TARGET')  #overrides MgO_target
 
         # assimilate = env('ASSIMILATE')
-        
+
         # use_old_garnet = env('OLD_GARNET')  #any
         # use_old_biotite = env('OLD_BIOTITE')  # any
         # use_am2_amph = env('2_AMPH')  # any
