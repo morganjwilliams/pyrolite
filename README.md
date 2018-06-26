@@ -91,7 +91,7 @@ A selection of reference compositions are included:
 ```python
 >>> CH = refcomp['Chondrite_PON']
 >>> PM = refcomp['PM_PON']
->>> reels = ree(output='str')
+>>> reels = REE(output='str')
 >>> CH[reels]
       value  unc_2sigma units
 var                           

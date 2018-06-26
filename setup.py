@@ -7,6 +7,14 @@ tests_require = ['pytest',
                  'coverage',
                  'coveralls']
 
+dev_require = ['versioneer',
+               'nbstripout',
+               'nbdime',
+               'twine']
+
+db_require = ['pyodbc',
+              'psycopg2']
+
 with open('README.md', 'r') as src:
     LONG_DESCRIPTION = src.read()
 
@@ -41,10 +49,8 @@ setup(name='pyrolite',
                         'geojson',
                         'requests'
                         ],
-      extras_require={'dev': ['versioneer',
-                              'nbstripout',
-                              'nbdime',
-                              'twine'] + tests_require},
+      extras_require={'dev': dev_require + tests_require,
+                      'db': db_require},
 
       tests_require=tests_require,
       test_suite="test",
