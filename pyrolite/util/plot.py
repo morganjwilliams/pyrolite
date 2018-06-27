@@ -15,7 +15,7 @@ import matplotlib.axes as Maxes
 from matplotlib.transforms import Bbox
 
 
-def colorbar(mappable, **kwargs):
+def add_colorbar(mappable, **kwargs):
     """
     http://joseph-long.com/writing/colorbars/
     """
@@ -24,6 +24,32 @@ def colorbar(mappable, **kwargs):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     return fig.colorbar(mappable, cax=cax, **kwargs)
+
+
+def ABC_to_tern_xy(ABC):
+    (A, B, C) = ABC
+    T = A+B+C
+    A_n, B_n, C_n = np.divide(A, T), np.divide(B, T), np.divide(C, T)
+    xdata = 100.*((C_n/np.sin(np.pi/3)+A_n/np.tan(np.pi/3.))*np.sin(np.pi/3.))
+    ydata = 100.*(2./(3.**0.5))*A_n*np.sin(np.pi/3.)
+    return xdata, ydata
+
+
+def tern_heatmapcoords(data, scale=10, bins=10):
+    x, y = ABC_to_tern_xy(data)
+    xydata = np.vstack((x, y))
+    k = kde.gaussian_kde(xydata)
+
+    tridata = dict()
+    print(scale, bins)
+    step = scale // bins
+    for i in np.arange(0, scale+1, step):
+        for j in np.arange(0, scale+1-i, step):
+            datacoord = i, j
+            #datacoord = i+0.5*step, j+0.5*step
+            tridata[(i, j)] = np.float(k(np.vstack(datacoord)))
+
+    return tridata
 
 
 def proxy_rect(**kwargs):
@@ -163,8 +189,8 @@ def save_figure(figure,
     Save a figure at a specified location in a number of formats.
     """
     default_config = dict(dpi=600,
-                        bbox_inches='tight',
-                        transparent=True)
+                          bbox_inches='tight',
+                          transparent=True)
     config = default_config.copy()
     config.update(kwargs)
     for fmt in save_fmts:
