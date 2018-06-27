@@ -1,3 +1,4 @@
+from types import MethodType
 import numpy as np
 import pandas as pd
 import scipy
@@ -39,13 +40,13 @@ def nan_weighted_mean(arr:np.ndarray, weights=None,):
     if np.isnan(arr).any():
         mean = np.nanmean(arr, axis=0)
         if not (weights == weights[0]).all():  # if weights needed
-            for c in np.arange(arr.shape[1]):
-                nonnan_idx = np.nonzero(~np.isnan(arr[:, c]))
-                if len(nonnan_idx[0]):  # if there are any non-nan elements
-                    c_weights = weights.copy()
-                    c_weights = c_weights[nonnan_idx] / \
-                                c_weights[nonnan_idx].sum()
-                    mean[c] = arr[:, c][nonnan_idx] @ c_weights
+            cs = np.arange(arr.shape[1])
+            nonnan_idx = np.nonzero(~np.isnan(arr[:, cs]))
+            if len(nonnan_idx[0]):  # if there are any non-nan elements
+                c_weights = weights.copy()
+                c_weights = c_weights[nonnan_idx] / \
+                            c_weights[nonnan_idx].sum()
+                mean[c] = arr[:, cs][nonnan_idx] @ c_weights
     else:
         mean = arr.T @ weights
         mean = mean.T.squeeze()
@@ -113,14 +114,15 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
         logvals = np.log(np.divide(arr, div))
         mean = np.nan * np.ones(arr.shape[1:])
 
-        for ix in np.arange(logvals.shape[1]): # for each column
-            if arr.ndim == 2:
-                mean[ix] = nan_weighted_mean(logvals[:, ix],
-                                             weights=weights)
-            elif arr.ndim == 3:
-                for iy in range(logvals.shape[2]):
-                    mean[ix, iy] = nan_weighted_mean(logvals[:, ix, iy],
-                                                     weights=weights)
+        ixs = np.arange(logvals.shape[1])
+        if arr.ndim == 2:
+            indexes = ixs
+        elif arr.ndim == 3:
+            iys = np.arange(logvals.shape[2])
+            indexes = np.ixs_(ixs, iys)
+
+        mean[indexes] = nan_weighted_mean(logvals[:, indexes],
+                                          weights=weights)
 
         mean = np.exp(mean.squeeze())
         if renorm: mean /= np.nansum(mean)
@@ -173,6 +175,7 @@ def standardise_aggregate(df: pd.DataFrame,
             # Get the 'internal standard column'
             potential_int_stds = df.count()[df.count()==df.count().max()].index.values
             assert len(potential_int_stds) > 0
+            # Use an internal standard
             int_std = potential_int_stds[0]
             if len(potential_int_stds) > 1:
                 warnings.warn(f'Multiple int. stds possible. Using {int_std}')
@@ -182,13 +185,10 @@ def standardise_aggregate(df: pd.DataFrame,
         mean = nan_weighted_compositional_mean(df.values,
                                         ind=list(df.columns).index(int_std),
                                         renorm=False)
-        log.debug(df.columns)
         ser = pd.Series(mean, index=df.columns)
 
         ser = ser * df.loc[df.index[fixed_record_idx], int_std]
         if renorm: ser /= np.nansum(ser.values)
-        log.debug(mean)
-        log.debug(ser)
         return ser
 
 
@@ -209,7 +209,10 @@ def complex_standardise_aggregate(df, fix_int_std=None, renorm=True, fixed_recor
         return mean
     else:
         # fallback to internal standardisation
-        return standardise_aggregate(df, int_std=fix_int_std, fixed_record_idx=fixed_record_idx, renorm=renorm)
+        return standardise_aggregate(df,
+                                     int_std=fix_int_std,
+                                     fixed_record_idx=fixed_record_idx,
+                                     renorm=renorm)
 
 
 def nancov(X, method='replace'):

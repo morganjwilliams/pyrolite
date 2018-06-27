@@ -10,3 +10,6 @@ def flatten_dict(d):
                 yield key, value
 
     return dict(items())
+
+def swap_item(list: list, pull: str, push: str):
+    return [push if i == pull else i for i in list]

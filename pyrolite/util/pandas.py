@@ -1,9 +1,22 @@
+from types import MethodType
 import pandas as pd
 import hashlib
 
 
-def swap_item(list: list, pull: str, push: str):
-    return [push if i == pull else i for i in list]
+def column_ordered_append(df1, df2, **kwargs):
+    outcols = list(df1.columns) + [i for i in df2.columns
+                                   if not i in df1.columns]
+    return df1.append(df2,  **kwargs).reindex(columns=outcols)
+
+
+def accumulate(dfs):
+    acc = None
+    for df in dfs:
+        if acc is None:
+            acc = df
+        else:
+            acc = column_ordered_append(acc, df, ignore_index=False)
+    return acc
 
 
 def to_frame(df):
@@ -19,11 +32,14 @@ def to_frame(df):
 
     return df
 
+
 def to_numeric(df: pd.DataFrame,
                exclude: list = [],
                errors: str = 'coerce'):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
+
+    Could be reimplemented to operate per-column for better memory performance.
     """
     num_headers = tuple([i for i in df.columns if i not in exclude])
     df.loc[:, num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
@@ -40,11 +56,6 @@ def concat_columns(df, columns, astype=str, **kwargs):
         else:
             out += df.loc[:, c].astype(astype)
     return out
-
-
-def column_ordered_append(df1, df2, **kwargs):
-    outcols = list(df1.columns) + list(i for i in df2.columns if not i in df1.columns)
-    return df1.append(df2,  **kwargs).reindex(columns=outcols)
 
 
 def uniques_from_concat(df, cols, hashit=True):

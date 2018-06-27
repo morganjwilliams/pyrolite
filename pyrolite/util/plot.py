@@ -1,4 +1,5 @@
 import os
+from types import MethodType
 from pathlib import Path
 
 import numpy as np
