@@ -244,8 +244,9 @@ def aggregate_cation(df: pd.DataFrame,
                      form='oxide',
                      unit_scale=None):
     """
-    Aggregates cation information from oxide and elemental components to a single series.
-    Allows scaling (e.g. from ppm to wt% - a factor of 10,000).
+    Aggregates cation information from oxide and elemental components
+    to a single series. Allows scaling (e.g. from ppm to wt% - a factor
+    of 10,000).
 
     Needs to also implement a 'molecular' version.
     """
@@ -276,10 +277,13 @@ def aggregate_cation(df: pd.DataFrame,
 
 
 def check_multiple_cation_inclusion(df, exclude=['LOI', 'FeOT', 'Fe2O3T']):
-    major_components = [i for i in common_oxides(output='str') if i in df.columns]
-    elements_as_majors = [get_cations(oxide)[0] for oxide in major_components if not oxide in exclude]
-    elements_as_traces = [c for c in common_elements(output='formula') if c.__str__() in df.columns]
-    return [el for el in elements_as_majors if el in elements_as_traces]
+    major_components = [i for i in common_oxides(output='str')
+                        if i in df.columns]
+    elements_as_majors = [get_cations(oxide)[0] for oxide in major_components
+                          if not oxide in exclude]
+    elements_as_traces = [c for c in common_elements(output='str')
+                          if c.__str__() in df.columns]
+    return set([el for el in elements_as_majors if el in elements_as_traces])
 
 
 def add_ratio(df: pd.DataFrame,
