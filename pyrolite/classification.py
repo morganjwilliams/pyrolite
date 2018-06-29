@@ -119,11 +119,11 @@ class PeralkalinityClassifier(object):
 
     def predict(self, df: pd.DataFrame):
         TotalAlkali = df.Na2O + df.K2O
-        perkalkaline_where = (df.Al2O3 < (TotalAlkali + df.CaO)) * \
+        perkalkaline_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & \
                              (TotalAlkali > df.Al2O3)
-        metaluminous_where = (df.Al2O3 > (TotalAlkali + df.CaO)) * \
+        metaluminous_where = (df.Al2O3 > (TotalAlkali + df.CaO)) & \
                               (TotalAlkali < df.Al2O3)
-        peraluminous_where = (df.Al2O3 < (TotalAlkali + df.CaO)) * \
+        peraluminous_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & \
                               (TotalAlkali < df.Al2O3)
         out = pd.Series(index=df.index)
         out.loc[peraluminous_where] = 'Peraluminous'

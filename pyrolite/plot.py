@@ -1,6 +1,6 @@
 import warnings
 import pandas as pd
-from scipy.stats import gaussian_kde
+from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
 import ternary
@@ -218,75 +218,77 @@ def densityplot(df,
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
     exp = (coverage_scale-1)/2
     data = df.loc[:, components].values
+    if data.any():
+        if len(components) == 2:  # binary
+            x, y = data.T
+            xmin, xmax = np.nanmin(x)*(1-exp), np.nanmax(x)*(1+exp) # 120% range
+            ymin, ymax = np.nanmin(y)*(1-exp), np.nanmax(y)*(1+exp) # 120% range
+            xstep = (xmax-xmin) / nbins
+            ystep = (ymax-ymin) / nbins
 
-    if len(components) == 2:  # binary
-        x, y = data.T
-        xmin, xmax = np.nanmin(x)*(1-exp), np.nanmax(x)*(1+exp) # 120% range
-        ymin, ymax = np.nanmin(y)*(1-exp), np.nanmax(y)*(1+exp) # 120% range
-        xstep = (xmax-xmin) / nbins
-        ystep = (ymax-ymin) / nbins
-
-        extent = (xmin, xmax, ymin, ymax)
-        if mode == 'hexbin':
-            hex_extent = (xmin - xstep, xmax + xstep,
-                          ymin - ystep, ymax + ystep)
-            mappable = ax.hexbin(x, y,
-                                 gridsize=nbins,
-                                 cmap=cmap,
-                                 extent=hex_extent,
-                                 **kwargs)
-            cbarlabel = 'Frequency'
-        elif mode == 'hist2d':
-            xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
-            ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
-            h, xe, ye, im = ax.hist2d(x, y,
-                                      bins=[xe, ye],
-                                      cmap=cmap,
-                                      **kwargs)
-            mappable = im
-            cbarlabel = 'Frequency'
-        elif mode == 'density':
-            shading = kwargs.pop('shading', None) or 'gouraud'
-            k = gaussian_kde(data.T)
-            xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
-            zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-
-            mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
+            extent = (xmin, xmax, ymin, ymax)
+            if mode == 'hexbin':
+                hex_extent = (xmin - xstep, xmax + xstep,
+                              ymin - ystep, ymax + ystep)
+                mappable = ax.hexbin(x, y,
+                                     gridsize=nbins,
                                      cmap=cmap,
-                                     shading=shading,
+                                     extent=hex_extent,
                                      **kwargs)
+                cbarlabel = 'Frequency'
+            elif mode == 'hist2d':
+                xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
+                ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
+                h, xe, ye, im = ax.hist2d(x, y,
+                                          bins=[xe, ye],
+                                          cmap=cmap,
+                                          **kwargs)
+                mappable = im
+                cbarlabel = 'Frequency'
+            elif mode == 'density':
+                shading = kwargs.pop('shading', None) or 'gouraud'
+                k = gaussian_kde(data.T)
+                xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
+                zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
-            ax.contour(xi, yi, zi.reshape(xi.shape),
-                       extent=extent,
-                       linewidths=linewidths,
-                       linestyles=linestyles,
-                       **kwargs)
-            cbarlabel = 'Kernel Density Estimate'
+                mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
+                                         cmap=cmap,
+                                         shading=shading,
+                                         **kwargs)
 
-        if colorbar:
-            add_colorbar(mappable, label=cbarlabel, **kwargs)
+                ax.contour(xi, yi, zi.reshape(xi.shape),
+                           extent=extent,
+                           linewidths=linewidths,
+                           linestyles=linestyles,
+                           **kwargs)
+                cbarlabel = 'Kernel Density Estimate'
 
-        ax.axis(extent)
+            if colorbar:
+                add_colorbar(mappable, label=cbarlabel, **kwargs)
 
-        ax.set_xlabel(components[0], fontsize=fontsize)
-        ax.set_ylabel(components[1], fontsize=fontsize)
+            ax.axis(extent)
 
-    elif len(components) == 3:  # ternary
-        scale = kwargs.pop('scale', None) or 100
-        empty_df = pd.DataFrame(columns=df.columns)
-        heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
-        tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+            ax.set_xlabel(components[0], fontsize=fontsize)
+            ax.set_ylabel(components[1], fontsize=fontsize)
 
-        """ Plot coords
-        tax.scatter(np.array([[x for (x, y) in heatmapdata.keys()],
-                              [y for (x, y) in heatmapdata.keys()],
-                              [100-(x+y) for (x, y) in heatmapdata.keys()]]).T,
-                    zorder=2)
-        """
-        if mode == 'hexbin':
-            style = 'hexagonal'
+        elif len(components) == 3:  # ternary
+            scale = kwargs.pop('scale', None) or 100
+            empty_df = pd.DataFrame(columns=df.columns)
+            heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
+            tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+            ax = tax.ax
+
+            """ Plot coords
+            tax.scatter(np.array([[x for (x, y) in heatmapdata.keys()],
+                                  [y for (x, y) in heatmapdata.keys()],
+                                  [100-(x+y) for (x, y) in heatmapdata.keys()]]).T,
+                        zorder=2)
+            """
+            if mode == 'hexbin':
+                style = 'hexagonal'
+            else:
+                style = 'triangular'
+            tax.heatmap(heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs)
         else:
-            style = 'triangular'
-        tax.heatmap(heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs)
-    else:
-        pass
+            pass
+    return ax

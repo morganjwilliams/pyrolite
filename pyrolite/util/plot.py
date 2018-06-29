@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import interpolate
-from scipy.stats import gaussian_kde
+from scipy.stats.kde import gaussian_kde
 from scipy.spatial import ConvexHull
 
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ import matplotlib.colors as colors
 import matplotlib.lines as mlines
 import matplotlib.patches as patches
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.axes as Maxes
+import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
 
 
@@ -36,7 +36,7 @@ def add_legend_items(ax):
             handles.append(handle)
             labels.append(label)
 
-            
+
 def add_colorbar(mappable, **kwargs):
     """
     http://joseph-long.com/writing/colorbars/
@@ -236,7 +236,7 @@ def save_axes(axes,
     """
     # Check if axes is a single axis or list of axes
 
-    if isinstance(axes, Maxes.Axes):
+    if isinstance(axes, matax.Axes):
         extent = get_full_extent(axes, pad=pad)
         figure = axes.figure
     else:
