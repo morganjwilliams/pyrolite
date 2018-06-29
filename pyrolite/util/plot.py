@@ -17,6 +17,26 @@ import matplotlib.axes as Maxes
 from matplotlib.transforms import Bbox
 
 
+# Todo: generate hybrid items for legends
+
+def add_legend_items(ax):
+
+    handles_original = []
+    handles_original += (ax.lines + ax.patches +
+                         ax.collections + ax.containers)
+    # support parasite axes:
+    if hasattr(ax, 'parasites'):
+        for axx in ax.parasites:
+            handles_original += (axx.lines + axx.patches +
+                                 axx.collections + axx.containers)
+    handles, labels = [], []
+    for handle in handles_original:
+        label = handle.get_label()
+        if (label and not label.startswith('_')):
+            handles.append(handle)
+            labels.append(label)
+
+            
 def add_colorbar(mappable, **kwargs):
     """
     http://joseph-long.com/writing/colorbars/
