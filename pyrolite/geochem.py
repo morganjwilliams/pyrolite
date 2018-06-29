@@ -277,11 +277,16 @@ def aggregate_cation(df: pd.DataFrame,
 
 
 def check_multiple_cation_inclusion(df, exclude=['LOI', 'FeOT', 'Fe2O3T']):
+    """
+    Returns cations which are present in both oxide and elemental form.
+
+    Todo: Options for output (string/formula).
+    """
     major_components = [i for i in common_oxides(output='str')
                         if i in df.columns]
     elements_as_majors = [get_cations(oxide)[0] for oxide in major_components
                           if not oxide in exclude]
-    elements_as_traces = [c for c in common_elements(output='str')
+    elements_as_traces = [c for c in common_elements(output='formula')
                           if c.__str__() in df.columns]
     return set([el for el in elements_as_majors if el in elements_as_traces])
 

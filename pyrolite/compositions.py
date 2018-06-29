@@ -14,20 +14,25 @@ def close(X: np.ndarray):
         return np.divide(X, np.sum(X, axis=0))
 
 
-def compositional_mean(df, weights=[], **kwargs):
-    """
-    Implements an aggregation using a weighted mean.
-    """
-    non_nan_cols = df.dropna(axis=1, how='all').columns
-    assert not df.loc[:, non_nan_cols].isna().values.any()
-    mean = df.iloc[0, :].copy()
-    if not weights:
-        weights = np.ones(len(df.index.values))
-    weights = np.array(weights)/np.nansum(weights)
+def get_nonnan_column(arr:np.ndarray):
+    """Returns the first column without nans in it."""
+    if len(arr.shape)==1:
+        arr = arr.reshape((1, *arr.shape))
+    inds = np.arange(arr.shape[1])
+    wherenonnan = ~np.isnan(arr).any(axis=0)
+    ind = inds[wherenonnan][0]
+    return ind
 
-    logmean = alr(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
-    mean.loc[non_nan_cols] = inv_alr(logmean.T.squeeze()) # this renormalises by default
-    return mean
+
+def weights_from_array(arr:np.ndarray):
+    """
+    Returns a set of equal weights for components
+    along the first axis of an array.
+    """
+    wts = np.ones((arr.shape[0]))
+    wts = wts/np.sum(wts)
+    wts = wts.T
+    return wts
 
 
 def nan_weighted_mean(arr:np.ndarray, weights=None,):
@@ -54,25 +59,20 @@ def nan_weighted_mean(arr:np.ndarray, weights=None,):
     return mean
 
 
-def get_nonnan_column(arr:np.ndarray):
-    """Returns the first column without nans in it."""
-    if len(arr.shape)==1:
-        arr = arr.reshape((1, *arr.shape))
-    inds = np.arange(arr.shape[1])
-    wherenonnan = ~np.isnan(arr).any(axis=0)
-    ind = inds[wherenonnan][0]
-    return ind
-
-
-def weights_from_array(arr:np.ndarray):
+def compositional_mean(df, weights=[], **kwargs):
     """
-    Returns a set of equal weights for components
-    along the first axis of an array.
+    Implements an aggregation using a weighted mean.
     """
-    wts = np.ones((arr.shape[0]))
-    wts = wts/np.sum(wts)
-    wts = wts.T
-    return wts
+    non_nan_cols = df.dropna(axis=1, how='all').columns
+    assert not df.loc[:, non_nan_cols].isna().values.any()
+    mean = df.iloc[0, :].copy()
+    if not weights:
+        weights = np.ones(len(df.index.values))
+    weights = np.array(weights)/np.nansum(weights)
+
+    logmean = alr(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
+    mean.loc[non_nan_cols] = inv_alr(logmean.T.squeeze()) # this renormalises by default
+    return mean
 
 
 def nan_weighted_compositional_mean(arr: np.ndarray,
@@ -131,19 +131,50 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
 
 def cross_ratios(df: pd.DataFrame):
     """
-    Takes ratios of values across a a dataframe to create a square array,
-    such that columns are denominators and the row indexes the numerators.
-    Returns an array arrays (one per dataframe record).
+    Takes ratios of values across a a dataframe,
+    such that columns are denominators and the row indexes the numerators,
+    to create a square array. Returns one array per record.
     """
     ratios = np.ones((len(df.index), len(df.columns), len(df.columns)))
-    for idx in df.index:
-        row_vals = df.loc[idx, :].values
+    for idx in range(df.index.size):
+        row_vals = df.iloc[idx, :].values
         r1 = row_vals.T[:, np.newaxis] @ np.ones_like(row_vals)[np.newaxis, :]
         ratios[idx] = r1 / r1.T
     return ratios
 
 
+def np_cross_ratios(arr: np.ndarray, debug=False):
+    """
+    Takes ratios of values across an array to create a square array,
+    such that columns are numerators and the row indexes the denominators.
+    Returns an array arrays (one per record).
+    """
+    arr[arr <= 0] = np.nan
+    if arr.ndim == 1:
+        index_length = 1
+        arr = arr.reshape((1, *arr.shape))
+    else:
+        index_length = arr.shape[0]
+    dims = arr.shape[-1]
+    ratios = np.ones((index_length, dims, dims))
+    for idx in range(index_length):
+        row_vals = arr[idx, :]
+        r1 = row_vals.T[:, np.newaxis] @ np.ones_like(row_vals)[np.newaxis, :]
+        ratios[idx] = r1.T / r1
+
+    if debug:
+        try:
+            diags = ratios[:, np.arange(dims), np.arange(dims)]
+            assert np.allclose(ratios[:, np.arange(dims), np.arange(dims)], 1.) # check all diags are 1.
+        except:
+            assert np.allclose(diags[~np.isnan(diags)], 1.) # check all diags are 1. or nan
+
+    return ratios
+
 def impute_ratios(ratios: pd.DataFrame):
+    """
+    Pandas version of ratio matrix imputation.
+    """
     for IS in ratios.columns:
         ser = ratios.loc[:,  IS]
         if ser.isnull().any():
@@ -155,6 +186,30 @@ def impute_ratios(ratios: pd.DataFrame):
                 non_null_ISratios = ratios.loc[non_null_idxs, IS] # e.g. Ti/SiO2 ratios
                 predicted_ratios = inverse_ratios * non_null_ISratios
                 ratios.loc[null, IS] = np.exp(np.nanmean(np.log(predicted_ratios)))
+    return ratios
+
+
+def np_impute_ratios(ratios: np.ndarray):
+    """
+    Numpy version of ratio matrix imputation.
+    """
+    finite = np.isfinite(ratios)
+    not_finite = ~finite
+    if not_finite.any():
+        where_not_finite = np.argwhere(not_finite)
+        _ixs, _iys = where_not_finite.T
+        ixs = _ixs[~(_ixs==_iys)]
+        iys = _iys[~(_ixs==_iys)]
+        where_not_finite = np.stack((ixs, iys)).T
+        excludes = np.empty((ixs.size, ratios.shape[0]-2)).astype(int)
+        indicies = np.arange(ratios.shape[0]).astype(int)
+        for enm_ix in np.arange(ixs.size):
+            excludes[enm_ix] = np.setdiff1d(indicies, where_not_finite[enm_ix])
+
+        for enm_ix in np.arange(ixs.size):
+            ex = excludes[enm_ix]
+            ix, iy = where_not_finite[enm_ix].T
+            ratios[ix, iy] = np.nanmean(ratios[ix, ex] + ratios[ex, iy])
     return ratios
 
 
@@ -192,25 +247,62 @@ def standardise_aggregate(df: pd.DataFrame,
         return ser
 
 
-def complex_standardise_aggregate(df, fix_int_std=None, renorm=True, fixed_record_idx=0):
+def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_idx=0):
 
-    if fix_int_std is None:
+    if int_std is None:
         # create a n x d x d matrix for aggregating ratios
-        ratios = cross_ratios(df)
+        non_nan_cols = df.dropna(axis=1, how='all').columns
+        ratios = cross_ratios(df.loc[:, non_nan_cols])
         mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios), axis=0)),
                                    columns=df.columns,
                                    index=df.columns)
         # Filling in the null values in a ratio matrix
         mean_ratios = impute_ratios(mean_ratios)
-        # Here all internal standards are equal, we simply pick the first.
-        IS = df.columns[0]
+        # We simply pick the first non-nan column.
+
+        IS = non_nan_cols[0]
         mean = np.exp(np.mean(np.log(mean_ratios/mean_ratios.loc[IS, :]), axis=1))
         mean /= np.nansum(mean.values) # This needs to be renormalised to make logical sense
         return mean
     else:
         # fallback to internal standardisation
         return standardise_aggregate(df,
-                                     int_std=fix_int_std,
+                                     int_std=int_std,
+                                     fixed_record_idx=fixed_record_idx,
+                                     renorm=renorm)
+
+
+def np_complex_standardise_aggregate(df,
+                                     int_std=None,
+                                     renorm=True,
+                                     fixed_record_idx=0):
+    """
+    Numpy version of complex internal standardisation.
+    """
+
+    if int_std is None:
+        # create a n x d x d matrix for aggregating ratios
+        non_nan_cols = df.dropna(axis=1, how='all').columns
+        assert len(non_nan_cols) > 0
+        ratios = np_cross_ratios(df.loc[:, non_nan_cols].values)
+        mean_logratios = np.nanmean(np.log(ratios), axis=0)
+        # Filling in the null values in a ratio matrix
+        imputed_log_ratios = np_impute_ratios(mean_logratios)
+        # We simply pick the first non-nan column.
+        IS = 0
+        div_log_ratios = imputed_log_ratios[:, IS] - imputed_log_ratios
+        comp_abund = np.exp(np.nanmean(div_log_ratios, axis=1))
+        comp_abund /= np.nansum(comp_abund)
+        out = np.ones((1, len(df.columns))) * np.nan
+        inds = np.array([ix for ix, i in zip(range(df.columns.size),
+                                             df.columns)
+                         if i in non_nan_cols])
+        out[:, inds] = comp_abund
+        return pd.Series(out.squeeze(), index=df.columns)
+    else:
+        # fallback to internal standardisation
+        return standardise_aggregate(df,
+                                     int_std=int_std,
                                      fixed_record_idx=fixed_record_idx,
                                      renorm=renorm)
 
