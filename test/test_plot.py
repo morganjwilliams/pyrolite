@@ -121,9 +121,10 @@ class TestDensityplot(unittest.TestCase):
                          [-1, 2, -1],
                          [-0.5, -1, 2]])
         bidata = multivariate_normal(data[:2], cov[:2, :2], 2000)
-
+        bidata[0, 1] = np.nan
         self.bidf = pd.DataFrame(bidata, columns=self.cols[:2])
         tridata = multivariate_normal(data, cov, 2000)
+        bidata[0, 1] = np.nan
         self.tridf = pd.DataFrame(tridata, columns=self.cols)
 
     def test_none(self):
