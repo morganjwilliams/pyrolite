@@ -1,6 +1,17 @@
 language: python
+
+os:
+  - linux
+  - osx
+
 python:
-  - "3.6" # 3.7 not currently installable
+  - "3.6"
+  - "3.7"
+
+matrix:
+  allow_failures:
+    - os: osx
+    - python: "3.7"
 
 install:
   # Install test requirements seperately

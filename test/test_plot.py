@@ -1,10 +1,13 @@
 import unittest
 import pandas as pd
 import numpy as np
+from numpy.random import multivariate_normal
 import ternary
+import matplotlib
+import matplotlib.axes as matax
 
 from pyrolite.geochem import REE, common_elements
-from pyrolite.plot import ternaryplot, spiderplot
+from pyrolite.plot import ternaryplot, spiderplot, densityplot
 
 
 class TestSpiderplot(unittest.TestCase):
@@ -54,7 +57,8 @@ class TestSpiderplot(unittest.TestCase):
     @unittest.expectedFailure
     def test_noplot_nofill(self):
         """Test failure on no-plot no-fill options."""
-        spiderplot(self.df, plot=False, fill=False)
+        out = spiderplot(self.df, plot=False, fill=False)
+        self.assertTrue(isinstance(out, Maxes.Axes))
 
     def test_valid_style(self):
         """Test valid styling options."""
@@ -102,9 +106,59 @@ class TestTernaryplot(unittest.TestCase):
         self.assertEqual(type(out),
                          ternary.ternary_axes_subplot.TernaryAxesSubplot)
 
-    def test_tax_returned(self):
-        """Check that the axis item returned is a ternary axis."""
+    def test_overplotting(self):
+        """Test use of the plot for multiple rounds of plotting."""
         pass
+
+
+class TestDensityplot(unittest.TestCase):
+    """Tests the Ternaryplot functionality."""
+
+    def setUp(self):
+        self.cols = ['MgO', 'SiO2', 'CaO']
+        data = np.array([0.5, 0.4, 0.3])
+        cov =   np.array([[1, 0, 0.3],
+                         [0, 1, 0.3],
+                         [0.5, 0.4, 1]])
+        bidata = multivariate_normal(data[:2], cov[:2, :2], 2000)
+
+        self.bidf = pd.DataFrame(bidata, columns=self.cols[:2])
+        tridata = multivariate_normal(data, cov, 2000)
+        self.tridf = pd.DataFrame(tridata, columns=self.cols)
+
+    def test_none(self):
+        """Test generation of plot with no data."""
+        for df in [pd.DataFrame(columns=self.cols)]:
+            with self.subTest(df=df):
+                out = densityplot(df)
+                self.assertTrue(isinstance(out, matax.Axes))
+
+
+    def test_one(self):
+        """Test generation of plot with one record."""
+
+        for df in [self.bidf.head(1), self.tridf.head(1)]:
+            with self.subTest(df=df):
+                out = densityplot(self.bidf)
+                self.assertTrue(isinstance(out, matax.Axes))
+
+    def test_multiple(self):
+        """Test generation of plot with multiple records."""
+        for df in [self.bidf, self.tridf]:
+            with self.subTest(df=df):
+                out = densityplot(df)
+                self.assertTrue(isinstance(out, matax.Axes))
+
+
+    def test_modes(self):
+        """Tests different ploting modes."""
+        for df in [self.bidf, self.tridf]:
+            with self.subTest(df=df):
+                for mode in ['density', 'hist2d', 'hexbin']:
+                    with self.subTest(mode=mode):
+                        out = densityplot(df, mode=mode)
+                        self.assertTrue(isinstance(out, matax.Axes))
+
 
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""
