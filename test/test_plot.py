@@ -112,18 +112,19 @@ class TestTernaryplot(unittest.TestCase):
 
 
 class TestDensityplot(unittest.TestCase):
-    """Tests the Ternaryplot functionality."""
+    """Tests the Densityplot functionality."""
 
     def setUp(self):
         self.cols = ['MgO', 'SiO2', 'CaO']
         data = np.array([0.5, 0.4, 0.3])
-        cov =   np.array([[1, 0, 0.3],
-                         [0, 1, 0.3],
-                         [0.5, 0.4, 1]])
+        cov =   np.array([[2, -1, -0.5],
+                         [-1, 2, -1],
+                         [-0.5, -1, 2]])
         bidata = multivariate_normal(data[:2], cov[:2, :2], 2000)
-
+        bidata[0, 1] = np.nan
         self.bidf = pd.DataFrame(bidata, columns=self.cols[:2])
         tridata = multivariate_normal(data, cov, 2000)
+        bidata[0, 1] = np.nan
         self.tridf = pd.DataFrame(tridata, columns=self.cols)
 
     def test_none(self):

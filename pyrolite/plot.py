@@ -247,7 +247,9 @@ def densityplot(df,
                 cbarlabel = 'Frequency'
             elif mode == 'density':
                 shading = kwargs.pop('shading', None) or 'gouraud'
-                k = gaussian_kde(data.T)
+                # Can't have nans or infs
+                kdedata = data.T[:, ~(np.isnan(data.T).sum(axis=0)>0)]
+                k = gaussian_kde(kdedata)
                 xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
                 zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
@@ -291,4 +293,5 @@ def densityplot(df,
             tax.heatmap(heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs)
         else:
             pass
+    plt.tight_layout()
     return ax
