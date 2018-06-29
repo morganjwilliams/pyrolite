@@ -2,7 +2,6 @@ from types import MethodType
 import pandas as pd
 import hashlib
 
-
 def column_ordered_append(df1, df2, **kwargs):
     outcols = list(df1.columns) + [i for i in df2.columns
                                    if not i in df1.columns]

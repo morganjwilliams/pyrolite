@@ -6,3 +6,4 @@ del get_versions
 
 # http://docs.python-guide.org/en/latest/writing/logging/
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.captureWarnings(True)

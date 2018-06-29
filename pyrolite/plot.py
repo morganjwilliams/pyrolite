@@ -11,6 +11,7 @@ from .geochem import common_elements
 DEFAULT_CONT_COLORMAP = 'viridis'
 DEFAULT_DISC_COLORMAP = 'tab10'
 
+
 def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):
     """
     Plots spidergrams for trace elements data.
@@ -50,15 +51,28 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
 
     sty = {}
     # Some default values
-    sty['marker'] = kwargs.pop('marker', None) or 'D'
+
+
     sty['color'] = kwargs.pop('color', None) or kwargs.pop('c', None)
     sty['alpha'] = kwargs.pop('alpha', None) or kwargs.pop('a', None) or 1.
     if sty['color'] is None:
         del sty['color']
 
-    ax = ax or plt.subplots(1, figsize=(len(components)*0.25, 4))[1]
+    ax = ax or plt.subplots(1, figsize=(len(components)*0.3, 4))[1]
 
+    if fill:
+        mins = df.loc[:, components].min(axis=0)
+        maxs = df.loc[:, components].max(axis=0)
+        plycol = ax.fill_between(c_indexes, mins, maxs, **sty)
+        # Use the first (typically only) element for color
+        sty['color'] = sty.pop('color', None) or plycol.get_facecolor()[0]
+
+    sty['marker'] = kwargs.pop('marker', None) or 'D'
     if plot:
+        # Use the default color cycling to provide a single color
+        if 'color' not in sty.keys():
+            sty['color'] = next(ax._get_lines.prop_cycler)['color']
+
         ls = ax.plot(c_indexes,
                      df.loc[:, components].T.values.astype(np.float),
                      **sty)
@@ -66,18 +80,11 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
         sty['s'] = kwargs.get('markersize') or kwargs.get('s') or 5.
         if sty.get('color') is None:
             sty['color'] = ls[0].get_color()
+
+        sty['label'] = kwargs.pop('label', None)
         sc = ax.scatter(np.tile(c_indexes, (df.loc[:, components].index.size,1)).T,
                         df.loc[:, components].T.values.astype(np.float),
                         **sty)
-
-    for s_item in ['marker', 's']:
-        if s_item in sty:
-            del sty[s_item]
-
-    if fill:
-        mins = df.loc[:, components].min(axis=0)
-        maxs = df.loc[:, components].max(axis=0)
-        ax.fill_between(c_indexes, mins, maxs, **sty)
 
     ax.set_xticks(c_indexes)
     ax.set_xticklabels(components, rotation=60)
@@ -126,7 +133,7 @@ def ternaryplot(df, components:list=None, ax=None, **kwargs):
     sty = {}
     sty['marker'] = kwargs.pop('marker', None) or 'D'
     sty['color'] = kwargs.pop('color', None) or kwargs.pop('c', None) or '0.5'
-    sty['label'] = kwargs.pop('label', None) or None
+    sty['label'] = kwargs.pop('label', None)
     sty['alpha'] = kwargs.pop('alpha', None) or kwargs.pop('a', None) or 1.
 
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]

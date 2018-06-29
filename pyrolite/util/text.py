@@ -18,6 +18,7 @@ def titlecase(s,
     and omitted abbreviations which retain their capitalization.
     TODO: Option for retaining original CamelCase.
     """
+    # Check if abbrv in string, in which case it'll need to be split first?
     words = re.split(split_on, s)
     out=[]
     first = words[0]
@@ -26,5 +27,11 @@ def titlecase(s,
 
     out.append(first)
     for word in words[1:]:
-        out.append(word if word in exceptions+abbrv else word.capitalize())
+        if word in exceptions+abbrv:
+            pass
+        elif word.upper() in abbrv:
+            word = word.upper()
+        else:
+            word = word.capitalize()
+        out.append(word)
     return delim.join(out)
