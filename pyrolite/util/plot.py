@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import interpolate
+from scipy.stats import gaussian_kde
 from scipy.spatial import ConvexHull
 
 import matplotlib.pyplot as plt
@@ -39,10 +40,9 @@ def ABC_to_tern_xy(ABC):
 def tern_heatmapcoords(data, scale=10, bins=10):
     x, y = ABC_to_tern_xy(data)
     xydata = np.vstack((x, y))
-    k = kde.gaussian_kde(xydata)
+    k = gaussian_kde(xydata)
 
     tridata = dict()
-    print(scale, bins)
     step = scale // bins
     for i in np.arange(0, scale+1, step):
         for j in np.arange(0, scale+1-i, step):

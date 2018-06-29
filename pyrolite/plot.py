@@ -1,6 +1,6 @@
 import warnings
 import pandas as pd
-from scipy.stats import kde
+from scipy.stats import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
 import ternary
@@ -247,7 +247,7 @@ def densityplot(df,
             cbarlabel = 'Frequency'
         elif mode == 'density':
             shading = kwargs.pop('shading', None) or 'gouraud'
-            k = kde.gaussian_kde(data.T)
+            k = gaussian_kde(data.T)
             xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
             zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
