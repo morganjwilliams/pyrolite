@@ -1,5 +1,6 @@
 # `pyrolite`
-
+[![PyPI](https://img.shields.io/pypi/v/pyrolite.svg)](https://pypi.python.org/pypi/pyrolite/)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/morganjwilliams)
 ## Install
 
 ```bash
@@ -7,7 +8,7 @@ pip install pyrolite
 ```
 
 ## Build Status
-[![PyPI](https://img.shields.io/pypi/v/pyrolite.svg)](https://pypi.python.org/pypi/pyrolite/)
+
 
 **License**:  [CSIRO Modified BSD/MIT License](https://raw.githubusercontent.com/morganjwilliams/pyrolite/master/LICENSE)
 
@@ -90,7 +91,7 @@ A selection of reference compositions are included:
 ```python
 >>> CH = refcomp['Chondrite_PON']
 >>> PM = refcomp['PM_PON']
->>> reels = ree(output='str')
+>>> reels = REE(output='str')
 >>> CH[reels]
       value  unc_2sigma units
 var                           

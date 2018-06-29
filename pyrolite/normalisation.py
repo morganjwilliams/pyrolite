@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import warnings
 from .compositions import *
-from .pdutil import to_frame
+from .util.pandas import to_frame
 
 
 RELMASSS_UNITS = {
