@@ -54,6 +54,7 @@ class RefComp:
         #self.add_oxides()
         self.collect_vars()
         self.set_units()
+        # self.aggregate_oxides() yet to be implemented
 
     def aggregate_oxides(self, form='oxide'):
         """
@@ -132,7 +133,7 @@ class RefComp:
         return self.data.loc[vars, ['value', 'unc_2sigma', 'units']]
 
     def __repr__(self):
-        return f"Model of {self.Reservoir} ({self.Reference})"
+        return "Model of "+self.Reservoir+" ("+self.Reference+")"
 
 
 def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):

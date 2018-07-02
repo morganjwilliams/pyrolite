@@ -91,7 +91,7 @@ def df_from_csvs(csvs, dropna=True, **kwargs):
     cols = []
     dfs = []
     for ix, t in enumerate(csvs):
-        print(f'Reading {t}')
+        print('Reading ' + t)
         dfs.append(pd.read_csv(t, **kwargs))
         cols = cols + [i for i in dfs[-1].columns if i not in cols]
 

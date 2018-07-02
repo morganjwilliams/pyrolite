@@ -353,7 +353,7 @@ class TestOxideConversion(unittest.TestCase):
                 f =  oxide_conversion(oxin, oxout)
                 doc = f.__doc__
                 self.assertTrue((str(oxin) in doc) and (str(oxin) in doc))
-                self.assertTrue(f'{oxin} to {oxout}' in doc)
+                self.assertTrue('{} to {}'.format(oxin, oxout) in doc)
 
     def test_same(self):
         """Check the function retains unit for the same in-out."""

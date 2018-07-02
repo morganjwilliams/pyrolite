@@ -159,7 +159,6 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = nan_weighted_compositional_mean(df.values, renorm=renorm)
-                #log.debug(f'{out, df.values}')
                 if renorm:
                     self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
                     self.assertTrue(np.allclose(out,
@@ -171,7 +170,6 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = nan_weighted_compositional_mean(df.values, renorm=renorm)
-                #log.debug(f'{out, df.values}')
                 if renorm:
                     self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
 
@@ -259,32 +257,75 @@ class TestStandardiseAggregate(unittest.TestCase):
                 dfvals = df.values[~np.isnan(df.values)]
                 self.assertTrue(np.allclose(outvals, dfvals))
 
-    def test_multiple(self):
-        """Checks results on multiple records."""
+    def test_multiple_with_IS(self):
+        """
+        Checks results on multiple records with internal standard specifed.
+        """
+        df = self.mdf
+        fixed_record_idx = 0
+        int_std = 'SiO2'
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
+
+    def test_multiple_without_IS(self):
+        """
+        Checks results on multiple records without internal standard specifed.
+        """
         df = self.mdf
         fixed_record_idx = 0
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
-                out = standardise_aggregate(df, renorm=renorm,
+                out = standardise_aggregate(df,
+                                            renorm=renorm,
                                             fixed_record_idx=fixed_record_idx)
                 if not renorm:
-                    self.assertTrue(np.allclose(out['SiO2'],
-                                    df.loc[df.index[fixed_record_idx],
-                                           ['SiO2']]))
+                    self.assertTrue(np.isclose(out.values,
+                                    df.iloc[fixed_record_idx, :].values).any()
+                                            )
 
-    def test_contrasting(self):
+    def test_contrasting_with_IS(self):
         """Checks results on multiple contrasting records."""
         # This should succeed for records which differ by all-but-one element
         df = self.df
         fixed_record_idx = 0
+        int_std = 'SiO2'
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
-                out = standardise_aggregate(df, renorm=renorm,
+                out = standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
                                             fixed_record_idx=fixed_record_idx)
                 if not renorm:
-                    self.assertTrue(np.allclose(out['SiO2'],
-                                    df.loc[df.index[fixed_record_idx],
-                                           ['SiO2']]))
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
+
+    def test_contrasting_without_IS(self):
+        """
+        Checks results on multiple contrasting records
+        without internal standard specifed.
+        """
+        df = self.df
+        fixed_record_idx = 0
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = standardise_aggregate(df,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.isclose(out.values,
+                                    df.iloc[fixed_record_idx, :].values).any()
+                                            )
 
     def test_closure(self):
         """Checks whether closure is preserved when renormalisation is used."""

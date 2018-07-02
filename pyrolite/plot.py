@@ -93,7 +93,7 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
-        warnings.warn(f'Styling not yet implemented for:{unused_keys}')
+        warnings.warn('Styling not yet implemented for:{}'.format(unused_keys))
 
     return ax
 
@@ -279,13 +279,6 @@ def densityplot(df,
             heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
             tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
             ax = tax.ax
-
-            """ Plot coords
-            tax.scatter(np.array([[x for (x, y) in heatmapdata.keys()],
-                                  [y for (x, y) in heatmapdata.keys()],
-                                  [100-(x+y) for (x, y) in heatmapdata.keys()]]).T,
-                        zorder=2)
-            """
             if mode == 'hexbin':
                 style = 'hexagonal'
             else:

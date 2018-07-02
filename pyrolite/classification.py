@@ -12,12 +12,12 @@ from matplotlib.collections import PatchCollection
 class ClassifierModel(object):
 
     def __init__(self, rebuild=False, deterministic=False):
-        self.clsf_modelname = f"{type(self).__name__}"
+        self.clsf_modelname = str(type(self).__name__)
         if __name__ == '__main__':
             modeldir = Path(os.getcwd()) / 'models'
         else:
             modeldir = Path(__file__).resolve().parent / 'data' / 'models'
-        self.diskname =  modeldir /  f'{self.clsf_modelname}'
+        self.diskname =  modeldir /  str(self.clsf_modelname)
         self.deterministic = deterministic
         self.clsf = None
         # Try load classifer
@@ -67,9 +67,9 @@ class SimpleDeterministicClassifer(object):
 
     def load_fields(self):
         if self.parent:
-            self.clsf_modelname = self.parent.clsf_modelname
+            self.clsf_modelname = str(self.parent.clsf_modelname)
             self.modeldir = self.parent.diskname.resolve()
-            af = self.modeldir / f'{self.clsf_modelname}.modelfields'
+            af = self.modeldir / str(self.clsf_modelname+'.modelfields')
             if af.exists() and af.is_file():
                 #logger.info(f'''Loading {self.clsf_modelname} classifer fields from "allfile".''')
                 loadup = joblib.load(af)
@@ -77,7 +77,7 @@ class SimpleDeterministicClassifer(object):
                 self.fields = {c: loadup[c] for ix, c in enumerate(self.fclasses)}
             else:
                 #logger.info(f'Loading {self.clsf_modelname} classifer fields from files.')
-                fieldfiles = self.modeldir.glob(f'{self.clsf_modelname}.*.modelfield')
+                fieldfiles = self.modeldir.glob(self.clsf_modelname+'.*.modelfield')
                 loadup = [joblib.load(f) for f in fieldfiles]
                 self.fclasses =  [f.suffix.replace('.', "") for f in loadup]
                 self.fields = {c: loadup[ix] for ix, c in enumerate(self.fclasses)}
