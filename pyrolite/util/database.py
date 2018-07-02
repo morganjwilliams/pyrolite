@@ -24,7 +24,7 @@ def check_access_driver():
 
 def bitness():
     bitness = struct.calcsize("P") * 8
-    return f'{bitness} bit'
+    return '{} bit'.format(bitness)
 
 @contextmanager
 def open_db_connection(connection_params,

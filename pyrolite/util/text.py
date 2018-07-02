@@ -2,7 +2,7 @@ import re
 
 def quoted_string(s):
     #if " " in s or '-' in s or '_' in s:
-    s = f'''"{s}"'''
+    s = '''"{}"'''.format(s)
     return s
 
 

@@ -14,21 +14,18 @@ class TestTAS(unittest.TestCase):
                                 np.random.rand(len(self.cols), 10))})
         self.df.loc[:, 'TotalAlkali'] = self.df.Na2O + self.df.K2O
 
-    def test_classifer_build(self):
-        cm = Geochemistry.TAS(rebuild=False)
-
     def test_classifer_rebuild(self):
         cm = Geochemistry.TAS(rebuild=True)
 
     def test_classifer_plot(self):
-        cm = Geochemistry.TAS(rebuild=False)
+        cm = Geochemistry.TAS(rebuild=True)
         fig, ax = plt.subplots(1)
         cm.add_to_axes(ax=ax, alpha=0.4, color='k')
 
     def test_classifer_classify(self):
         df = self.df
         df = renormalise(df)
-        cm = Geochemistry.TAS(rebuild=False)
+        cm = Geochemistry.TAS(rebuild=True)
         df.loc[:, 'TAS'] = cm.classify(df)
 
 
@@ -41,16 +38,13 @@ class TestPeralkalinity(unittest.TestCase):
         self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
                                 np.random.rand(len(self.cols), 10))})
 
-    def test_classifer_build(self):
-        cm = Geochemistry.peralkalinity(rebuild=False)
-
     def test_classifer_rebuild(self):
         cm = Geochemistry.peralkalinity(rebuild=True)
 
     def test_classifer_classify(self):
         df = self.df
         df = renormalise(df)
-        cm = Geochemistry.peralkalinity(rebuild=False)
+        cm = Geochemistry.peralkalinity(rebuild=True)
         df.loc[:, 'Peralk'] = cm.classify(df)
 
 class TestApahnitic(unittest.TestCase):
@@ -58,9 +52,6 @@ class TestApahnitic(unittest.TestCase):
 
     def setUp(self):
         pass
-
-    def test_classifer_build(self):
-        cm = Petrology.aphanitic(rebuild=False)
 
     def test_classifer_rebuild(self):
         cm = Petrology.aphanitic(rebuild=True)
@@ -70,9 +61,6 @@ class TestPhaneritic(unittest.TestCase):
 
     def setUp(self):
         pass
-
-    def test_classifer_build(self):
-        cm = Petrology.phaneritic(rebuild=False)
 
     def test_classifer_rebuild(self):
         cm = Petrology.phaneritic(rebuild=True)
@@ -84,9 +72,6 @@ class TestGabbroic(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_classifer_build(self):
-        cm = Petrology.gabbroic(rebuild=False)
-
     def test_classifer_rebuild(self):
         cm = Petrology.gabbroic(rebuild=True)
 
@@ -96,9 +81,6 @@ class TestUltramafic(unittest.TestCase):
 
     def setUp(self):
         pass
-
-    def test_classifer_build(self):
-        cm = Petrology.ultramafic(rebuild=False)
 
     def test_classifer_rebuild(self):
         cm = Petrology.ultramafic(rebuild=True)

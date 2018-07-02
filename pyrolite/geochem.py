@@ -139,8 +139,13 @@ def simple_oxides(cation, output='formula'):
     except AttributeError:
          raise Exception("You must select a cation to obtain oxides.")
     ions = [c for c in cation.ions if c > 0]  # Use only positive charges
-    oxides = [pt.formula(f'{cation}{1}O{c//2}') if not c%2
-              else pt.formula(f'{cation}{2}O{c}') for c in ions]
+
+    # for 3.6+, could use f'{cation}{1}O{c//2}',  f'{cation}{2}O{c}'
+    oxides = [str(cation)+str(1)+'O'+str(c//2)
+              if not c%2 else
+              str(cation)+str(2)+'O'+str(c)
+              for c in ions]
+    oxides = [pt.formula(ox) for ox in oxides]
     if not output == 'formula':
         oxides = [ox.__str__() for ox in oxides]
     return oxides
@@ -187,7 +192,7 @@ def oxide_conversion(oxin, oxout):
             factor = cation_coefficient * oxout.mass / oxin.mass
         converted = dfser * factor
         return converted
-    doc = f"""Convert series from {str(oxin)} to {str(oxout)}"""
+    doc = "Convert series from "+str(oxin)+" to "+str(oxout)
     convert_series.__doc__ = doc
     return convert_series
 
@@ -212,9 +217,9 @@ def recalculate_redox(df: pd.DataFrame,
     FeO = pt.formula("FeO")
     Fe2O3 = pt.formula("Fe2O3")
     dfc = df.copy()
-    ox_species = ['Fe2O3', f"Fe2O3{total_suffix}"]
+    ox_species = ['Fe2O3', "Fe2O3"+total_suffix]
     ox_in_df = [i for i in ox_species if i in dfc.columns]
-    red_species = ['FeO', f"FeO{total_suffix}"]
+    red_species = ['FeO', "FeO"+total_suffix]
     red_in_df = [i for i in red_species if i in dfc.columns]
     if to_oxidised:
         oxFe = oxide_conversion(FeO, Fe2O3)

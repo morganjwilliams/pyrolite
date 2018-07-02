@@ -92,6 +92,7 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
 
     Input array has analyses along the first axis.
     """
+    print(ind)
     if arr.ndim == 1: #if it's a single row
         return arr
     else:
@@ -233,16 +234,19 @@ def standardise_aggregate(df: pd.DataFrame,
             # Use an internal standard
             int_std = potential_int_stds[0]
             if len(potential_int_stds) > 1:
-                warnings.warn(f'Multiple int. stds possible. Using {int_std}')
+                warnings.warn('Multiple int. stds possible. Using '+ str(int_std))
 
         non_nan_cols = df.dropna(axis=1, how='all').columns
         assert len(non_nan_cols)
         mean = nan_weighted_compositional_mean(df.values,
-                                        ind=list(df.columns).index(int_std),
-                                        renorm=False)
+                                               ind=df.columns.get_loc(int_std),
+                                               renorm=False)
         ser = pd.Series(mean, index=df.columns)
-
-        ser = ser * df.loc[df.index[fixed_record_idx], int_std]
+        print(df.columns, df.columns.get_loc(int_std))
+        multiplier = df.iloc[fixed_record_idx, df.columns.get_loc(int_std)] /\
+                     ser[int_std]
+        ser *= multiplier
+        print(ser)
         if renorm: ser /= np.nansum(ser.values)
         return ser
 
