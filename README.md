@@ -131,6 +131,8 @@ This classifier can be quickly added to a bivariate plot, assuming you have data
 >>> import pandas as pd
 >>> import matplotlib.pyplot as plt
 >>>
+>>> df['TotalAlkali'] = df['Na2O'] + df['K2O']
+>>>
 >>> fig, ax = plt.subplots(1, figsize=(6, 4))
 >>> cm.add_to_axes(ax, facecolor='0.9', edgecolor='k',
 >>>                linewidth=0.5, zorder=-1)
