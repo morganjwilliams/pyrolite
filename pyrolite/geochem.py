@@ -103,7 +103,8 @@ def REE(output='formula', include_extras=False):
 
 
 def common_oxides(elements: list=[], output='formula',
-                  addition: list=['FeOT', 'Fe2O3T', 'LOI']):
+                  addition: list=['FeOT', 'Fe2O3T', 'LOI'],
+                  exclude=['O', 'He', 'Ne', 'Ar', 'Kr', 'Xe']):
     """
     Creates a list of oxides based on a list of elements.
     Output options are 'formula', or strings.
@@ -115,7 +116,7 @@ def common_oxides(elements: list=[], output='formula',
     """
     if not elements:
         elements = [el for el in common_elements(output='formula')
-                    if not el.__str__() == 'O']  # Exclude oxygen
+                    if not el.__str__() in exclude]
     else:
         # Check that all elements input are indeed elements..
         pass

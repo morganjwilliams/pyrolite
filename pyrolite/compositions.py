@@ -290,7 +290,8 @@ def np_complex_standardise_aggregate(df,
         # Filling in the null values in a ratio matrix
         imputed_log_ratios = np_impute_ratios(mean_logratios)
         # We simply pick the first non-nan column.
-        IS = 0
+        #IS = 0
+        IS = np.argmax(np.count_nonzero(~np.isnan(imputed_log_ratios), axis=0))
         div_log_ratios = imputed_log_ratios[:, IS] - imputed_log_ratios
         comp_abund = np.exp(np.nanmean(div_log_ratios, axis=1))
         comp_abund /= np.nansum(comp_abund)
