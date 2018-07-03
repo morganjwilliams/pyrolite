@@ -31,10 +31,12 @@ def scale_multiplier(in_unit, target_unit='ppm'):
 
     Todo: implement different inputs - string, list, pandas series
     """
+    in_unit = in_unit.lower()
+    target_unit = target_unit.lower()
     if not pd.isna(in_unit) and \
         (in_unit in RELMASSS_UNITS.keys()) and \
         (target_unit in RELMASSS_UNITS.keys()):
-        scale = RELMASSS_UNITS[in_unit.lower()] / RELMASSS_UNITS[target_unit.lower()]
+        scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
         unknown = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
         warnings.warn("Units not known: {}".format(unknown))
