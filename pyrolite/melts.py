@@ -3,27 +3,13 @@ import re
 import platform
 import subprocess
 import requests
-import json
-from xml.etree import ElementTree
-from xmljson import parker as parker
+from xml.etree import ElementTree as ET
+import xmljson
 import dicttoxml
 from environs import Env
-from xml.dom.minidom import parseString
 
 
-def urlify(s):
-
-     # Remove all newlines
-     s = re.sub(r"""[\n]""", '', s)
-
-     # Replace all runs of whitespace with a single dash
-     #s = re.sub(r"\s+", '', s)
-
-     return s
-
-
-default_data = dict(MELTSinput = dict(
-                        initialize={"SiO2": 48.68,
+default_data = dict(initialize={"SiO2": 48.68,
                                     "TiO2": 1.01,
                                     "Al2O3": 17.64,
                                     "Fe2O3": 0.89,
@@ -42,33 +28,51 @@ default_data = dict(MELTSinput = dict(
                         title='TestREST',
                         constraints={"setTP": {"initialT": 1200,
                                                "initialP": 1000}
-                                               })
+                                               }
                     )
 
 
-default_data = default_data['MELTSinput']
 
-
-def melts_webquery(jsondata):
-    xmldata = dicttoxml.dicttoxml(jsondata,
+def melts_query(data_dict, url_sfx='Compute'):
+    url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
+    xmldata = dicttoxml.dicttoxml(data_dict,
                                   custom_root='MELTSinput',
                                   root=True,
                                   attr_type=False)
     headers = {"content-type": "text/xml",
                "data-type": "xml"}
-    url = "http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/Compute"
-    s = requests.Session()
     resp = requests.post(url, data=xmldata, headers=headers)
     resp.raise_for_status()
-
-    result = parker.data(ElementTree.fromstring(resp.text))
-
-    assert 'Success' in result['status']
-
+    result = xmljson.parker.data(ET.fromstring(resp.text))
     return result
 
 
-ret = melts_webquery(default_data)
+def melts_compute(data_dict):
+    url_sfx = "Compute"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    assert 'Success' in result['status']
+    return result
+
+
+def melts_oxides(data_dict):
+    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
+    data_dict = {'modelSelection': model}
+    url_sfx = "Oxides"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    return result['Oxide']
+
+
+def melts_phases(data_dict):
+    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
+    data_dict = {'modelSelection': model}
+    url_sfx = "Phases"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    return result['Phase']
+
+
+melts_phases(default_data)
+ret = melts_query(default_data)
+
 ret
 
 class MeltsSystem:

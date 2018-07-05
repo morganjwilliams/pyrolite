@@ -8,8 +8,9 @@ The MELTS WS Compute web service can be found at [http://thermofit.ofm-research.
 
 ```python
 
-requests.POST(contentType='text/xml',
-              dataType='xml',
+requests.POST(url,
+              headers={"content-type": "text/xml",
+                       "data-type": "xml"},
               data=<insertXMLinputstring>)
 ```
 
