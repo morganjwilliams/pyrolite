@@ -1,8 +1,6 @@
 ## Melts Web Services
 
-
-Some information can be found here: [website](http://melts.ofm-research.org/web-services.html).
-
+These services provide the ability to conduct melting and fractionation computations using whole-rock major element compositions. Some information can be found here: [website](http://melts.ofm-research.org/web-services.html).
 
 ### Input
 
@@ -37,28 +35,43 @@ The xml input has the general structure:
   </MELTSinput>
 ```
 
-Or for json:
-```json
-{
-"initialize": { "SiO2": "48.68",
-                "TiO2": "1.01",
-                "H2O": "0.20" },
-"calculationMode": "equilibrate",
-"title": "Enter a title for the run",
-"constraints": {"setTP": { "initialT": "1200",
-                           "initialP": "1000" }
-                         }
-}
-```
-
 The web service has a memory: "The web service remembers the state of the calculation as long as cookies are enabled on the client side and repeated calls to the service do not specify an "initialize" block in the input XML. Each call to the web service that contains an <initialize/> tag will reinitialize the server state, discarding results of previous calculations."
 
+#### Parameters
+This information is principally from the [XML schema](http://melts.ofm-research.org/WebServices/MELTSinput.xsd) and [documentation](http://melts.ofm-research.org/WebServices/MELTSinput_Schema_Generated_Docs/MELTSinput.html) on the melts website.
+* `initialize`
+  * `modelSelection`
+    * *`MELTS_v1.0.x`* |, *`MELTS_v1.1.x`* | *`MELTS_v1.2.x`* | *`pMELTS_v5.6.1`*
+    * all compositional variables
+* `fractionateOnly`: *`fractionateSolids`*, *`fractionateFluids`*, *`fractionateLiquids`*  (choose 1-2)
+
+* `constraints` (choose one; thermoengine also has SV)
+  * These modes are available:
+    1. *`setTP`* temperature-pressure
+    2. *`setTV`* temperature-volume
+    3. *`setHP`* enthalpy-pressure
+    4. *`setSP`* entropy-pressure
+  * `initial<var>` must be set
+  * Optional: `final<var>`, `inc<var>`, `d<var2>d<var1>`
+  * `fo2Path`: *`none`* | *`fmq`* | *`coh`* | *`nno`* | *`iw`* | *`hm`*
+
+* `fractionationMode`: *`fractionateNone`*, *`fractionateSolids`*, *`fractionateFluids`*, *`fractionateLiquids`* (choose 0-2)
+
+* `multLiquids`: `True` | `False`
+* `suppressPhase`: `str`
+* `assimilant`
+  * `temperature`
+  * `increments`: `int`
+  * `mass`
+  * `units`: `vol` | `wt`s
+  * `phase` (any number)
+    * `amorphous` | `solid` | `liquid` (with properties..)
 
 ### Output
 
 "The output from the web service is in an XML string, structured according to the schema. If you prefer to work with output in JSON format, you can use a Javascript function to convert the XML to JSON (as shown in the example referenced below), or you can make the conversion in whatever language or platform you use to access the web service, such as Python or R.""
 
-Potential JSON outputs are shown below:
+The (format-modified) output is shown below:
 ```JSON
 { "status":"Success: Equilibrate",
   "sessionID":"552291051.596800.1804289383",

@@ -1,67 +1,95 @@
-import sys
-import platform
-import os
-import subprocess
-from environs import Env
-import json
-import requests
-import dicttoxml
+import os, sys
 import re
+import platform
+import subprocess
+import requests
+import json
+from xml.etree import ElementTree
+from xmljson import parker as parker
+import dicttoxml
+from environs import Env
 from xml.dom.minidom import parseString
+
 
 def urlify(s):
 
-     # Remove all non-word characters (everything except numbers and letters)
+     # Remove all newlines
      s = re.sub(r"""[\n]""", '', s)
 
      # Replace all runs of whitespace with a single dash
-     s = re.sub(r"\s+", '', s)
+     #s = re.sub(r"\s+", '', s)
 
      return s
 
-def melts_webquery():
 
-    default_data = dict(MELTSinput = dict(
-                            initialize={"SiO2": "48.68",
-                                        "TiO2": "1.01",
-                                        "Al2O3": "17.64",
-                                        "Fe2O3": "0.89",
-                                        "Cr2O3": "0.0425",
-                                        "FeO": "7.59",
-                                        "MnO": "0.0",
-                                        "MgO": "9.10",
-                                        "NiO": "0.0",
-                                        "CoO": "0.0",
-                                        "CaO": "12.45",
-                                        "Na2O": "2.65",
-                                        "K2O": "0.03",
-                                        "P2O5": "0.08",
-                                        "H2O": "0.20" },
-                            calculationMode='equilibrate',
-                            title='TestREST',
-                            constraints={"setTP": {"initialT": "1200",
-                                                   "initialP": "1000" }
-                                                   })
-                        )
-    dataxml = dicttoxml.dicttoxml(default_data,
-                                  #custom_root='MELTSinput',
+default_data = dict(MELTSinput = dict(
+                        initialize={"SiO2": 48.68,
+                                    "TiO2": 1.01,
+                                    "Al2O3": 17.64,
+                                    "Fe2O3": 0.89,
+                                    "Cr2O3": 0.0425,
+                                    "FeO": 7.59,
+                                    "MnO": 0.0,
+                                    "MgO": 9.10,
+                                    "NiO": 0.0,
+                                    "CoO": 0.0,
+                                    "CaO": 12.45,
+                                    "Na2O": 2.65,
+                                    "K2O": 0.03,
+                                    "P2O5": 0.08,
+                                    "H2O": 0.20 },
+                        calculationMode='findLiquidus',
+                        title='TestREST',
+                        constraints={"setTP": {"initialT": 1200,
+                                               "initialP": 1000}
+                                               })
+                    )
+
+
+default_data = default_data['MELTSinput']
+
+
+def melts_webquery(jsondata):
+    xmldata = dicttoxml.dicttoxml(jsondata,
+                                  custom_root='MELTSinput',
                                   root=True,
-                                  attr_type=False
-                                  )#.decode("UTF-8")
-    dom = parseString(dataxml)
-    print(dom.toprettyxml())
-    payload = dict(data=dataxml,
-                   contentType="text/xml",
-                   dataType="xml")
-
+                                  attr_type=False)
+    headers = {"content-type": "text/xml",
+               "data-type": "xml"}
     url = "http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/Compute"
-    resp = requests.post(url, params=payload)
-    print(resp.url)
+    s = requests.Session()
+    resp = requests.post(url, data=xmldata, headers=headers)
     resp.raise_for_status()
-    raw = resp.content
-    print(raw)
 
-melts_webquery()
+    result = parker.data(ElementTree.fromstring(resp.text))
+
+    assert 'Success' in result['status']
+
+    return result
+
+
+ret = melts_webquery(default_data)
+ret
+
+class MeltsSystem:
+
+    def __init__(self, composition):
+
+        self.composition = composition
+        self.liquid = None
+        self.solid = None
+        self.potentialSolid = None
+        self.parameters = None
+
+    def equilirate(self):
+        method = 'equilirate'
+
+    def findLiquidus(self):
+        method = 'findLiquidus'
+
+    def findWetLiquidus(self):
+        method = 'findWetLiquidus'
+
 
 def MELTS_env():
     env = Env()
