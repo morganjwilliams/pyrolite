@@ -254,15 +254,17 @@ def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_id
         # create a n x d x d matrix for aggregating ratios
         non_nan_cols = df.dropna(axis=1, how='all').columns
         ratios = cross_ratios(df.loc[:, non_nan_cols])
+        # Average across record matricies
         mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios), axis=0)),
                                    columns=df.columns,
                                    index=df.columns)
         # Filling in the null values in a ratio matrix
-        mean_ratios = impute_ratios(mean_ratios)
+        imputed_ratios = impute_ratios(mean_ratios)
         # We simply pick the first non-nan column.
-
         IS = non_nan_cols[0]
-        mean = np.exp(np.mean(np.log(mean_ratios/mean_ratios.loc[IS, :]), axis=1))
+        mean = np.exp(np.mean(np.log(imputed_ratios/imputed_ratios.loc[IS, :]),
+                              axis=1)
+                              )
         mean /= np.nansum(mean.values) # This needs to be renormalised to make logical sense
         return mean
     else:
@@ -286,13 +288,15 @@ def np_complex_standardise_aggregate(df,
         non_nan_cols = df.dropna(axis=1, how='all').columns
         assert len(non_nan_cols) > 0
         ratios = np_cross_ratios(df.loc[:, non_nan_cols].values)
+        # Take the mean across the cross-ratio matricies
         mean_logratios = np.nanmean(np.log(ratios), axis=0)
         # Filling in the null values in a ratio matrix
         imputed_log_ratios = np_impute_ratios(mean_logratios)
         # We simply pick the first non-nan column.
         #IS = 0
         IS = np.argmax(np.count_nonzero(~np.isnan(imputed_log_ratios), axis=0))
-        div_log_ratios = imputed_log_ratios[:, IS] - imputed_log_ratios
+        # Convert to a composition by subtracting a row and taking negative
+        div_log_ratios = -(imputed_log_ratios - imputed_log_ratios[IS, :])
         comp_abund = np.exp(np.nanmean(div_log_ratios, axis=1))
         comp_abund /= np.nansum(comp_abund)
         out = np.ones((1, len(df.columns))) * np.nan
