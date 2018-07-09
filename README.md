@@ -63,7 +63,8 @@ df = pd.DataFrame({'label':'basalt', 'ID': 19076,
 Index(['label', 'ID', 'mgo', 'SIO2', 'cs', 'TiO2'], dtype='object')
 ```
 ```python
-from pyrolite.textutil import titlecase, tochem
+from pyrolite.textutil import titlecase
+from pyrolite.geochem import tochem
 
 >>> df.columns = [titlecase(h, abbrv=['ID']) for h in df.columns]
 Index(['Label', 'ID', 'Mgo', 'Sio2', 'Cs', 'Tio2'], dtype='object')
