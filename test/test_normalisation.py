@@ -125,6 +125,7 @@ class TestRefcomp(unittest.TestCase):
         # Test that type isn't changed
         self.assertTrue(type(norm) == type(self.df))
 
+
 class TestReferenceCompositions(unittest.TestCase):
     """Tests the formation of a reference dictionary from a directory."""
 

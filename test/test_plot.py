@@ -160,6 +160,16 @@ class TestDensityplot(unittest.TestCase):
                         out = densityplot(df, mode=mode)
                         self.assertTrue(isinstance(out, matax.Axes))
 
+    def test_bivariate_logscale(self):
+        """Tests logscale for different ploting modes using bivariate data."""
+        df = self.bidf
+        for logspace in [True, False]:
+            with self.subTest(logspace=logspace):
+                for mode in ['density', 'hist2d', 'hexbin']:
+                    with self.subTest(mode=mode):
+                        out = densityplot(df, mode=mode)
+                        self.assertTrue(isinstance(out, matax.Axes))
+
 
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""

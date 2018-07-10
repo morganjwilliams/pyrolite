@@ -1,5 +1,7 @@
-from multiprocessing import Process, Pool
+from pathos.multiprocessing import ProcessingPool as Pool
 
+# Note : Using pathos multiprocessing which leverages dill over standard
+# pickle, which has a hard time serializing even simple objects
 
 def func_wrapper(arg):
     func, kwargs = arg
@@ -13,7 +15,6 @@ def multiprocess(func, param_sets):
     """
     jobs = [(func, params) for params in param_sets]
     with Pool(processes=len(jobs)) as p:
-        # This is already an async map within multiprocessing
         results = p.map(func_wrapper, jobs)
 
     return results
