@@ -1,6 +1,8 @@
 from types import MethodType
 import pandas as pd
 import hashlib
+from pathlib import Path
+
 
 def column_ordered_append(df1, df2, **kwargs):
     outcols = list(df1.columns) + [i for i in df2.columns
@@ -113,6 +115,8 @@ def sparse_pickle_df(df: pd.DataFrame, filename, suffix='.pkl'):
     """
     Converts dataframe to sparse dataframe before pickling to disk.
     """
+    if isinstance(filename, str):
+        filename = Path(filename)
     df.to_sparse().to_pickle(filename.with_suffix(suffix))
 
 
@@ -120,6 +124,8 @@ def load_sparse_pickle_df(filename, suffix='.pkl', keep_sparse=False):
     """
     Loads sparse dataframe from disk, with optional densification.
     """
+    if isinstance(filename, str):
+        filename = Path(filename)
     if keep_sparse:
         return pd.read_pickle(filename.with_suffix(suffix))
     else:
