@@ -32,32 +32,25 @@ def weights_from_array(arr:np.ndarray):
     """
     wts = np.ones((arr.shape[0]))
     wts = wts/np.sum(wts)
-    wts = wts.T
+    wts = wts
     return wts
 
 
 def nan_weighted_mean(arr:np.ndarray, weights=None,):
     if weights is None:
-        weights = weights or weights_from_array(arr)
-
-    #if arr.ndim == 1: arr = arr.reshape((1, *arr.shape))
-    #if weights.ndim == 1: weights = weights.reshape((*weights.shape, 1))
-
-    if np.isnan(arr).any():
-        mean = np.nanmean(arr, axis=0)
-        if not (weights == weights[0]).all():  # if weights needed
-            cs = np.arange(arr.shape[1])
-            nonnan_idx = np.nonzero(~np.isnan(arr[:, cs]))
-            if len(nonnan_idx[0]):  # if there are any non-nan elements
-                c_weights = weights.copy()
-                c_weights = c_weights[nonnan_idx] / \
-                            c_weights[nonnan_idx].sum()
-                mean[c] = arr[:, cs][nonnan_idx] @ c_weights
+        weights = weights_from_array(arr)
+    weights = np.array(weights)/np.nansum(weights)
+    
+    mask = (np.isnan(arr) + np.isinf(arr)) > 0
+    if not mask.any():
+        return np.average(arr,
+                          weights=weights,
+                          axis=0)
     else:
-        mean = arr.T @ weights
-        mean = mean.T.squeeze()
-    mean = mean.reshape(arr.shape[1:]) # this should be compatible
-    return mean
+        return np.ma.average(np.ma.array(arr, mask=mask),
+                             weights=weights,
+                             axis=0)
+
 
 
 def compositional_mean(df, weights=[], **kwargs):
@@ -100,9 +93,6 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
             weights = weights_from_array(arr)
         else:
             weights = np.array(weights)/np.sum(weights, axis=-1)
-
-        if weights.ndim == 1:
-            weights = weights.reshape((*weights.shape, 1))
 
         if ind is None:  # take the first column which has no nans
             ind = get_nonnan_column(arr)
