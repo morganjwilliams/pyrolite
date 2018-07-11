@@ -39,13 +39,11 @@ def to_numeric(df: pd.DataFrame,
                errors: str = 'coerce'):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
-
-    Could be reimplemented to operate per-column for better memory performance.
     """
-    num_headers = tuple([i for i in df.columns if i not in exclude])
-    df.loc[:, num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
-                                                          axis=0,
-                                                          errors=errors)
+    num_headers = [i for i in df.columns if i not in exclude]
+    df[num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
+                                                   axis=1, # across cols
+                                                   errors=errors)
     return df
 
 

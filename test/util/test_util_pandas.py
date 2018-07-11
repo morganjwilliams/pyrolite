@@ -5,6 +5,14 @@ import numpy as np
 from pyrolite.util.pandas import *
 from pathlib import Path
 
+def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
+            index_length=10):
+    return pd.DataFrame({k: v for k,v in zip(cols,
+                         np.random.rand(len(cols), index_length))})
+
+def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
+    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
+
 
 class TestColumnOrderedAppend(unittest.TestCase):
 
@@ -21,44 +29,78 @@ class TestColumnOrderedAppend(unittest.TestCase):
 class TestAccumulate(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.df0 = test_df()
+        self.others = [test_df()]*4
 
     def test_column_order(self):
-        pass
+        result = accumulate([self.df0]+self.others)
+        self.assertTrue(all(result.columns == self.df0.columns))
 
     def test_index_preservation(self):
-        pass
+        result = accumulate([self.df0]+self.others)
+        # The range index should just be repeated 5 times, not reset
+        self.assertTrue(all([res==exp for (res, exp) in
+                             zip(list(result.index.values),
+                                 list(np.tile(self.df0.index.values, 5)))]
+                            ))
 
 
 class TestToFrame(unittest.TestCase):
 
     def setUp(self):
-        self.ser = pd.Series()
-        self.df = pd.Series()
+        self.ser = test_ser()
+        self.df = test_df()
 
-    def test_column_order(self):
-        pass
+    def test_df_column_order(self):
+        result = to_frame(self.df)
+        self.assertTrue(all(result.columns == self.df.columns))
 
-    def test_index_preservation(self):
-        pass
+    def test_ser_column_order(self):
+        result = to_frame(self.ser)
+        self.assertTrue(all(result.columns == self.ser.index))
+
+    def test_df_index_preservation(self):
+        result = to_frame(self.df)
+        self.assertTrue(all(result.index == self.df.index))
 
     def test_series_conversion(self):
         result = to_frame(self.ser)
         self.assertTrue(isinstance(result, pd.DataFrame))
 
 
-
-
 class TestToNumeric(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.df = test_df().applymap(str)
+
+    def test_numeric(self):
+        df = self.df
+        result = to_numeric(df)
+        self.assertTrue((result.dtypes == 'float64').all())
 
     def test_exclude(self):
-        pass
+        df = self.df
+        exclude = ['TiO2']
+        num_columns = [c for c in df.columns if c not in exclude]
+        result = to_numeric(df, exclude=exclude)
+
+        self.assertTrue((result.loc[:, exclude].dtypes != 'float64').all())
+        self.assertTrue((result.loc[:, num_columns].dtypes == 'float64').all())
 
     def test_error_methods(self):
-        pass
+        df = self.df
+        df.loc[0, 'SiO2'] = 'Low'
+        for method in ['ignore', 'raise', 'coerce']:
+            with self.subTest(method=method):
+                try:
+                    result = to_numeric(df, errors=method)
+                    self.assertTrue(method in ['ignore', 'coerce'])
+                    if method == 'ignore':
+                        self.assertTrue(result.loc[0, 'SiO2'] == 'Low')
+                    else:
+                        self.assertTrue(pd.isnull(result.loc[0, 'SiO2']))
+                except:
+                    self.assertTrue(method=='raise')
 
 
 class TestConcatColumns(unittest.TestCase):
