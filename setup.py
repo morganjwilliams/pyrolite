@@ -48,8 +48,7 @@ setup(name='pyrolite',
                         'xlrd',
                         'mpmath',
                         'python-ternary',
-                        'requests',
-                        'pathos'
+                        'requests'
                         ],
       extras_require={'dev': dev_require + tests_require,
                       'spatial': spatial_require,

@@ -1,4 +1,7 @@
-from pathos.multiprocessing import ProcessingPool as Pool
+try:
+    from pathos.multiprocessing import ProcessingPool as Pool
+except ImportError:
+    from multiprocessing import Pool
 
 # Note : Using pathos multiprocessing which leverages dill over standard
 # pickle, which has a hard time serializing even simple objects
