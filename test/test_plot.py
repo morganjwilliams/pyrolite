@@ -4,11 +4,14 @@ import numpy as np
 from numpy.random import multivariate_normal
 import ternary
 import matplotlib
+import matplotlib.pyplot as plt
 import matplotlib.axes as matax
 
 from pyrolite.geochem import REE, common_elements
 from pyrolite.plot import ternaryplot, spiderplot, densityplot
 
+import logging
+logging.getLogger(__name__)
 
 class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
@@ -59,22 +62,30 @@ class TestSpiderplot(unittest.TestCase):
         """Test failure on no-plot no-fill options."""
         out = spiderplot(self.df, plot=False, fill=False)
         self.assertTrue(isinstance(out, Maxes.Axes))
+        plt.close('all')
 
     def test_valid_style(self):
         """Test valid styling options."""
         pass
 
-    def test_irrellevant_style_options(self):
+    def test_log_on_irrellevant_style_options(self):
         """Test stability under additional kwargs."""
         style = {'thingwhichisnotacolor': 'notacolor', 'irrelevant': 'red'}
-        with self.assertWarns(UserWarning):
+        with self.assertLogs(level='INFO') as cm:
+            #with self.assertWarns(UserWarning):
             ax = spiderplot(self.df, **style)
+
+        plt.close('all')
 
     @unittest.expectedFailure
     def test_invalid_style_options(self):
         """Test stability under invalid style values."""
         style = {'color': 'notacolor', 'marker': 'red'}
         spiderplot(self.df, **style)
+        plt.close('all')
+
+    def tearDown(self):
+        plt.close('all')
 
 class TestTernaryplot(unittest.TestCase):
     """Tests the Ternaryplot functionality."""
@@ -90,7 +101,7 @@ class TestTernaryplot(unittest.TestCase):
         out = ternaryplot(df)
         self.assertEqual(type(out),
                          ternary.ternary_axes_subplot.TernaryAxesSubplot)
-
+        plt.close('all')
 
     def test_one(self):
         """Test generation of plot with one record."""
@@ -98,6 +109,7 @@ class TestTernaryplot(unittest.TestCase):
         out = ternaryplot(df)
         self.assertEqual(type(out),
                          ternary.ternary_axes_subplot.TernaryAxesSubplot)
+        plt.close('all')
 
     def test_multiple(self):
         """Test generation of plot with multiple records."""
@@ -105,10 +117,14 @@ class TestTernaryplot(unittest.TestCase):
         out = ternaryplot(df)
         self.assertEqual(type(out),
                          ternary.ternary_axes_subplot.TernaryAxesSubplot)
+        plt.close('all')
 
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""
         pass
+
+    def tearDown(self):
+        plt.close('all')
 
 
 class TestDensityplot(unittest.TestCase):
@@ -133,6 +149,7 @@ class TestDensityplot(unittest.TestCase):
             with self.subTest(df=df):
                 out = densityplot(df)
                 self.assertTrue(isinstance(out, matax.Axes))
+                plt.close('all')
 
 
     def test_one(self):
@@ -142,6 +159,7 @@ class TestDensityplot(unittest.TestCase):
             with self.subTest(df=df):
                 out = densityplot(self.bidf)
                 self.assertTrue(isinstance(out, matax.Axes))
+                plt.close('all')
 
     def test_multiple(self):
         """Test generation of plot with multiple records."""
@@ -149,6 +167,7 @@ class TestDensityplot(unittest.TestCase):
             with self.subTest(df=df):
                 out = densityplot(df)
                 self.assertTrue(isinstance(out, matax.Axes))
+                plt.close('all')
 
 
     def test_modes(self):
@@ -159,12 +178,26 @@ class TestDensityplot(unittest.TestCase):
                     with self.subTest(mode=mode):
                         out = densityplot(df, mode=mode)
                         self.assertTrue(isinstance(out, matax.Axes))
+                        plt.close('all')
+
+    def test_bivariate_logscale(self):
+        """Tests logscale for different ploting modes using bivariate data."""
+        df = self.bidf
+        for logspace in [True, False]:
+            with self.subTest(logspace=logspace):
+                for mode in ['density', 'hist2d', 'hexbin']:
+                    with self.subTest(mode=mode):
+                        out = densityplot(df, mode=mode)
+                        self.assertTrue(isinstance(out, matax.Axes))
+                        plt.close('all')
 
 
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""
         pass
 
+    def tearDown(self):
+        plt.close('all')
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,8 +4,9 @@ import pandas as pd
 import scipy
 from sklearn.base import TransformerMixin
 import logging
-import warnings
-log = logging.getLogger(__name__)
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def close(X: np.ndarray):
     if X.ndim == 2:
@@ -31,32 +32,25 @@ def weights_from_array(arr:np.ndarray):
     """
     wts = np.ones((arr.shape[0]))
     wts = wts/np.sum(wts)
-    wts = wts.T
+    wts = wts
     return wts
 
 
 def nan_weighted_mean(arr:np.ndarray, weights=None,):
     if weights is None:
-        weights = weights or weights_from_array(arr)
-
-    #if arr.ndim == 1: arr = arr.reshape((1, *arr.shape))
-    #if weights.ndim == 1: weights = weights.reshape((*weights.shape, 1))
-
-    if np.isnan(arr).any():
-        mean = np.nanmean(arr, axis=0)
-        if not (weights == weights[0]).all():  # if weights needed
-            cs = np.arange(arr.shape[1])
-            nonnan_idx = np.nonzero(~np.isnan(arr[:, cs]))
-            if len(nonnan_idx[0]):  # if there are any non-nan elements
-                c_weights = weights.copy()
-                c_weights = c_weights[nonnan_idx] / \
-                            c_weights[nonnan_idx].sum()
-                mean[c] = arr[:, cs][nonnan_idx] @ c_weights
+        weights = weights_from_array(arr)
+    weights = np.array(weights)/np.nansum(weights)
+    
+    mask = (np.isnan(arr) + np.isinf(arr)) > 0
+    if not mask.any():
+        return np.average(arr,
+                          weights=weights,
+                          axis=0)
     else:
-        mean = arr.T @ weights
-        mean = mean.T.squeeze()
-    mean = mean.reshape(arr.shape[1:]) # this should be compatible
-    return mean
+        return np.ma.average(np.ma.array(arr, mask=mask),
+                             weights=weights,
+                             axis=0)
+
 
 
 def compositional_mean(df, weights=[], **kwargs):
@@ -92,7 +86,6 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
 
     Input array has analyses along the first axis.
     """
-    print(ind)
     if arr.ndim == 1: #if it's a single row
         return arr
     else:
@@ -100,9 +93,6 @@ def nan_weighted_compositional_mean(arr: np.ndarray,
             weights = weights_from_array(arr)
         else:
             weights = np.array(weights)/np.sum(weights, axis=-1)
-
-        if weights.ndim == 1:
-            weights = weights.reshape((*weights.shape, 1))
 
         if ind is None:  # take the first column which has no nans
             ind = get_nonnan_column(arr)
@@ -234,7 +224,7 @@ def standardise_aggregate(df: pd.DataFrame,
             # Use an internal standard
             int_std = potential_int_stds[0]
             if len(potential_int_stds) > 1:
-                warnings.warn('Multiple int. stds possible. Using '+ str(int_std))
+                logging.info('Multiple int. stds possible. Using '+str(int_std))
 
         non_nan_cols = df.dropna(axis=1, how='all').columns
         assert len(non_nan_cols)
@@ -242,11 +232,9 @@ def standardise_aggregate(df: pd.DataFrame,
                                                ind=df.columns.get_loc(int_std),
                                                renorm=False)
         ser = pd.Series(mean, index=df.columns)
-        print(df.columns, df.columns.get_loc(int_std))
         multiplier = df.iloc[fixed_record_idx, df.columns.get_loc(int_std)] /\
                      ser[int_std]
         ser *= multiplier
-        print(ser)
         if renorm: ser /= np.nansum(ser.values)
         return ser
 
@@ -257,15 +245,17 @@ def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_id
         # create a n x d x d matrix for aggregating ratios
         non_nan_cols = df.dropna(axis=1, how='all').columns
         ratios = cross_ratios(df.loc[:, non_nan_cols])
+        # Average across record matricies
         mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios), axis=0)),
                                    columns=df.columns,
                                    index=df.columns)
         # Filling in the null values in a ratio matrix
-        mean_ratios = impute_ratios(mean_ratios)
+        imputed_ratios = impute_ratios(mean_ratios)
         # We simply pick the first non-nan column.
-
         IS = non_nan_cols[0]
-        mean = np.exp(np.mean(np.log(mean_ratios/mean_ratios.loc[IS, :]), axis=1))
+        mean = np.exp(np.mean(np.log(imputed_ratios/imputed_ratios.loc[IS, :]),
+                              axis=1)
+                              )
         mean /= np.nansum(mean.values) # This needs to be renormalised to make logical sense
         return mean
     else:
@@ -289,12 +279,15 @@ def np_complex_standardise_aggregate(df,
         non_nan_cols = df.dropna(axis=1, how='all').columns
         assert len(non_nan_cols) > 0
         ratios = np_cross_ratios(df.loc[:, non_nan_cols].values)
+        # Take the mean across the cross-ratio matricies
         mean_logratios = np.nanmean(np.log(ratios), axis=0)
         # Filling in the null values in a ratio matrix
         imputed_log_ratios = np_impute_ratios(mean_logratios)
         # We simply pick the first non-nan column.
-        IS = 0
-        div_log_ratios = imputed_log_ratios[:, IS] - imputed_log_ratios
+        #IS = 0
+        IS = np.argmax(np.count_nonzero(~np.isnan(imputed_log_ratios), axis=0))
+        # Convert to a composition by subtracting a row and taking negative
+        div_log_ratios = -(imputed_log_ratios - imputed_log_ratios[IS, :])
         comp_abund = np.exp(np.nanmean(div_log_ratios, axis=1))
         comp_abund /= np.nansum(comp_abund)
         out = np.ones((1, len(df.columns))) * np.nan

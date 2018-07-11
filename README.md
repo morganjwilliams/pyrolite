@@ -63,7 +63,8 @@ df = pd.DataFrame({'label':'basalt', 'ID': 19076,
 Index(['label', 'ID', 'mgo', 'SIO2', 'cs', 'TiO2'], dtype='object')
 ```
 ```python
-from pyrolite.textutil import titlecase, tochem
+from pyrolite.textutil import titlecase
+from pyrolite.geochem import tochem
 
 >>> df.columns = [titlecase(h, abbrv=['ID']) for h in df.columns]
 Index(['Label', 'ID', 'Mgo', 'Sio2', 'Cs', 'Tio2'], dtype='object')
@@ -130,6 +131,8 @@ This classifier can be quickly added to a bivariate plot, assuming you have data
 ```python
 >>> import pandas as pd
 >>> import matplotlib.pyplot as plt
+>>>
+>>> df['TotalAlkali'] = df['Na2O'] + df['K2O']
 >>>
 >>> fig, ax = plt.subplots(1, figsize=(6, 4))
 >>> cm.add_to_axes(ax, facecolor='0.9', edgecolor='k',

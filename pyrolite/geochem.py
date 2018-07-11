@@ -5,7 +5,10 @@ import periodictable as pt
 from .compositions import renormalise
 from .util.text import titlecase
 import matplotlib.pyplot as plt
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def ischem(s):
     """
@@ -103,7 +106,8 @@ def REE(output='formula', include_extras=False):
 
 
 def common_oxides(elements: list=[], output='formula',
-                  addition: list=['FeOT', 'Fe2O3T', 'LOI']):
+                  addition: list=['FeOT', 'Fe2O3T', 'LOI'],
+                  exclude=['O', 'He', 'Ne', 'Ar', 'Kr', 'Xe']):
     """
     Creates a list of oxides based on a list of elements.
     Output options are 'formula', or strings.
@@ -115,7 +119,7 @@ def common_oxides(elements: list=[], output='formula',
     """
     if not elements:
         elements = [el for el in common_elements(output='formula')
-                    if not el.__str__() == 'O']  # Exclude oxygen
+                    if not el.__str__() in exclude]
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -264,19 +268,25 @@ def aggregate_cation(df: pd.DataFrame,
         assert unit_scale > 0
         convert_function = oxide_conversion(ox, el)
         conv_values = convert_function(df.loc[:, elstr]).values * unit_scale
-        df.loc[:, oxstr] = np.nansum(np.vstack((df.loc[:, oxstr].values,
-                                                conv_values)),
-                                     axis=0)
-        df = df.loc[:, [i for i in df.columns if not i == elstr]]
+        totals = np.nansum(np.vstack((df.loc[:, oxstr].values, conv_values)),
+                           axis=0)
+        totals[np.isclose(totals, 0)] = np.nan
+        df.loc[:, oxstr] = totals
+        df = df.drop(columns=[elstr])
+        assert elstr not in df.columns
+
     elif form == 'element':
         if unit_scale is None: unit_scale = 10000 # Wt% to ppm
         assert unit_scale > 0
         convert_function = oxide_conversion(el, ox)
         conv_values = convert_function(df.loc[:, oxstr]).values * unit_scale
-        df.loc[:, elstr] = np.nansum(np.vstack((df.loc[:, elstr].values,
-                                                conv_values)),
-                                     axis=0)
-        df = df.loc[:, [i for i in df.columns if not i == oxstr]]
+        totals = np.nansum(np.vstack((df.loc[:, elstr].values, conv_values)),
+                           axis=0)
+        totals[np.isclose(totals, 0)] = np.nan
+        df.loc[:, elstr] = totals
+
+        df = df.drop(columns=[oxstr])
+        assert oxstr not in df.columns
 
     return df
 

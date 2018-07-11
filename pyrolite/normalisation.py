@@ -3,10 +3,12 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-import warnings
 from .compositions import *
-from .util.pandas import to_frame
+from .util.pandas import to_frame, to_numeric
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 RELMASSS_UNITS = {
                   '%': 10**-2,
@@ -31,13 +33,15 @@ def scale_multiplier(in_unit, target_unit='ppm'):
 
     Todo: implement different inputs - string, list, pandas series
     """
+    in_unit = str(in_unit).lower()
+    target_unit = str(target_unit).lower()
     if not pd.isna(in_unit) and \
         (in_unit in RELMASSS_UNITS.keys()) and \
         (target_unit in RELMASSS_UNITS.keys()):
-        scale = RELMASSS_UNITS[in_unit.lower()] / RELMASSS_UNITS[target_unit.lower()]
+        scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
-        unknown = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
-        warnings.warn("Units not known: {}".format(unknown))
+        unkn = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
+        logger.warning("Units not known: {}. Defaulting to unity.".format(unkn))
         scale = 1.
     return scale
 
@@ -86,10 +90,12 @@ class RefComp:
                                 'unc_2sigma',
                                 'constraint_value']):
         self.vars = [i for i in self.data.index
-                    if (not pd.isna(self.data.loc[i, 'value']))
-                        and (i not in headers)]
-        self.data.loc[self.vars, floatvars] = self.data.loc[self.vars,
-                                floatvars].apply(pd.to_numeric, errors='coerce')
+                     if (not pd.isna(self.data.loc[i, 'value']))
+                         and (i not in headers)]
+        self.data.loc[self.vars,
+                      floatvars] = to_numeric(self.data.loc[self.vars,
+                                                            floatvars],
+                                               errors='coerce')
 
     def set_units(self, to='ppm'):
         v = self.vars
@@ -97,7 +103,8 @@ class RefComp:
                             self.data.loc[v, 'units'].apply(scale_multiplier,
                                                             target_unit=to)
         self.data.loc[v, 'units'] = to
-        self.data.loc[v, 'value'] *= self.data.loc[v, 'scale'].values
+        self.data.loc[v, 'value'] = self.data.loc[v, 'value'] * \
+                                    self.data.loc[v, 'scale'].astype(np.float)
 
     def normalize(self, df, aux_cols=["LOD","2SE"]):
         """
@@ -109,7 +116,7 @@ class RefComp:
         """
         dfc = to_frame(df.copy())
 
-        cols = [v for v in self.vars if v in dfc.columns]
+        cols = [c for c in dfc.columns if c in self.vars]
         #mdl_ix = cols.copy()
         #df_cols = cols.copy()
         #for c in aux_cols:
@@ -117,7 +124,8 @@ class RefComp:
         #    mdl_ix += [v for v in cols if v+c in dfc.columns]
 
         divisor = self.data.loc[cols, 'value'].values
-        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
+        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values,
+                                     divisor)
         return dfc
 
     def __getattr__(self, var):

@@ -1,4 +1,8 @@
 import re
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def quoted_string(s):
     #if " " in s or '-' in s or '_' in s:

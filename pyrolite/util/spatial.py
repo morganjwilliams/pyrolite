@@ -1,5 +1,9 @@
 import numpy as np
+import itertools
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def piecewise(segment_ranges:list, segments=2, output_fmt=np.float):
     """
@@ -11,7 +15,7 @@ def piecewise(segment_ranges:list, segments=2, output_fmt=np.float):
         segments = list(np.ones(len(segment_ranges)) * segments)
     else:
         pass
-    seg_width = [(max([x1, x2]) - min([x1, x2])) / segments[ix]
+    seg_width = [(x2 - x1) / segments[ix]  # can have negative steps
                  for ix, (x1, x2) in enumerate(segment_ranges)]
     separators = [np.linspace(x1, x2, segments[ix]+1)[:-1]
                   for ix, (x1, x2) in enumerate(segment_ranges)]
@@ -25,6 +29,8 @@ def piecewise(segment_ranges:list, segments=2, output_fmt=np.float):
 
 def spatiotemporal_split(segments=4,
                          nan_lims=[np.nan, np.nan],
+                         #usebounds=False,
+                         #order=['minx', 'miny', 'maxx', 'maxy'],
                          **kwargs):
     """
     Creates spatiotemporal grid using piecewise function and arbitrary
@@ -51,6 +57,10 @@ def spatiotemporal_split(segments=4,
 
         items = {k: v for (k, v) in items.items()
                  if not np.isnan(v)}
+        #if usebounds:
+        #    bounds = NSEW_2_bounds(items, order=order)
+        #    yield bounds
+        #else:
         yield items
 
 

@@ -1,6 +1,11 @@
 from types import MethodType
 import pandas as pd
 import hashlib
+from pathlib import Path
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def column_ordered_append(df1, df2, **kwargs):
     outcols = list(df1.columns) + [i for i in df2.columns
@@ -37,13 +42,11 @@ def to_numeric(df: pd.DataFrame,
                errors: str = 'coerce'):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
-
-    Could be reimplemented to operate per-column for better memory performance.
     """
-    num_headers = tuple([i for i in df.columns if i not in exclude])
-    df.loc[:, num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
-                                                          axis=0,
-                                                          errors=errors)
+    num_headers = [i for i in df.columns if i not in exclude]
+    df[num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
+                                                   axis=1, # across cols
+                                                   errors=errors)
     return df
 
 
@@ -113,6 +116,8 @@ def sparse_pickle_df(df: pd.DataFrame, filename, suffix='.pkl'):
     """
     Converts dataframe to sparse dataframe before pickling to disk.
     """
+    if isinstance(filename, str):
+        filename = Path(filename)
     df.to_sparse().to_pickle(filename.with_suffix(suffix))
 
 
@@ -120,6 +125,8 @@ def load_sparse_pickle_df(filename, suffix='.pkl', keep_sparse=False):
     """
     Loads sparse dataframe from disk, with optional densification.
     """
+    if isinstance(filename, str):
+        filename = Path(filename)
     if keep_sparse:
         return pd.read_pickle(filename.with_suffix(suffix))
     else:

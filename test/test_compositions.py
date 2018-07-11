@@ -4,6 +4,13 @@ from pyrolite.compositions import *
 import logging
 log = logging.getLogger(__name__)
 
+
+def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
+            index_length=10):
+    return pd.DataFrame({k: v for k,v in zip(cols,
+                         np.random.rand(len(cols), index_length))})
+
+
 class TestClose(unittest.TestCase):
     """Tests array closure operator."""
 
@@ -36,8 +43,7 @@ class TestCompositionalMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
+        self.df = test_df(cols=self.cols)
 
     def test_1D(self):
         """Checks results on single records."""
@@ -80,8 +86,7 @@ class TestWeightsFromArray(unittest.TestCase):
 
     def setUp(self):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
+        self.df = test_df(cols=self.cols)
 
     def test_single(self):
         """Checks results on single records."""
@@ -101,8 +106,7 @@ class TestGetNonNanColumn(unittest.TestCase):
 
     def setUp(self):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
+        self.df = test_df(cols=self.cols)
         nans = 10
         self.df.iloc[np.random.randint(1, 10, size=nans),
                 np.random.randint(1, len(self.cols), size=nans)] = np.nan
@@ -126,8 +130,7 @@ class TestNANWeightedMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
+        self.df = test_df(cols=self.cols)
 
     def test_single(self):
         """Checks results on single records."""
@@ -141,6 +144,42 @@ class TestNANWeightedMean(unittest.TestCase):
         out = nan_weighted_mean(df.values)
         self.assertTrue(np.allclose(out, np.mean(df.values, axis=0)))
 
+    def test_multiple_equal_weights(self):
+        """Checks results on multiple records with equal weights."""
+        df = self.df
+        weights = np.array([1./ len(df.index)] * len(df.index))
+        out = nan_weighted_mean(df.values, weights=weights)
+        self.assertTrue(np.allclose(out, np.average(df.values,
+                                                    weights=weights,
+                                                    axis=0))
+                                                    )
+
+    def test_multiple_unequal_weights(self):
+        """Checks results on multiple records with unequal weights."""
+        df = self.df
+        weights = np.random.rand(1, df.index.size).squeeze()
+        out = nan_weighted_mean(df.values, weights=weights)
+        check = np.average(df.values.T, weights=weights, axis=1)
+        self.assertTrue(np.allclose(out, np.average(df.values,
+                                                    weights=weights,
+                                                    axis=0))
+                                                    )
+
+    def test_multiple_unequal_weights_withnan(self):
+        """
+        Checks results on multiple records with unequal weights,
+        where the data includes some null data.
+        """
+        df = self.df
+        df.iloc[0, :] = np.nan # make one record nan
+        # Some non-negative weights
+
+        weights = np.random.rand(1, df.index.size).squeeze()
+        weights = np.array(weights)/np.nansum(weights)
+        out = nan_weighted_mean(df.values, weights=weights)
+        check = np.average(df.iloc[1:, :].values, weights=weights[1:], axis=0)
+        self.assertTrue(np.allclose(out, check))
+
 
 
 class TestNANWeightedCompositionalMean(unittest.TestCase):
@@ -148,8 +187,7 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
+        self.df = test_df(cols=self.cols)
         self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
 
     def test_single(self):
@@ -196,8 +234,7 @@ class TestCrossRatios(unittest.TestCase):
         self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
         self.d = len(self.cols)
         self.n = 10
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), self.n))})
+        self.df = test_df(cols=self.cols, index_length=self.n)
 
     def test_single(self):
         """Checks results on single record."""
@@ -341,6 +378,9 @@ class TestStandardiseAggregate(unittest.TestCase):
 
 class TestComplexStandardiseAggregate(unittest.TestCase):
     """Tests pandas complex internal standardisation aggregation method."""
+
+    def setUp(self):
+        pass
 
     def test_single(self):
         """Checks results on single records."""

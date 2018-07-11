@@ -1,12 +1,16 @@
-import warnings
 import pandas as pd
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
 import numpy as np
 import ternary
 from .util.pandas import to_frame
+from .util.general import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
 from .geochem import common_elements
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 DEFAULT_CONT_COLORMAP = 'viridis'
 DEFAULT_DISC_COLORMAP = 'tab10'
@@ -93,7 +97,7 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
-        warnings.warn('Styling not yet implemented for:{}'.format(unused_keys))
+        logger.info('Styling not yet implemented for:{}'.format(unused_keys))
 
     return ax
 
@@ -175,11 +179,15 @@ def densityplot(df,
                 ax=None,
                 mode='density',
                 coverage_scale=1.1,
+                logspace=False,
                 **kwargs):
     """
     Plots density plot diagrams.
 
     Should work for either binary components (X-Y) or in a ternary plot.
+
+    Todo:
+        Split logscales for x and y (currently only for log-log)
 
     Parameters
     ----------
@@ -221,24 +229,47 @@ def densityplot(df,
     if data.any():
         if len(components) == 2:  # binary
             x, y = data.T
-            xmin, xmax = np.nanmin(x)*(1-exp), np.nanmax(x)*(1+exp) # 120% range
-            ymin, ymax = np.nanmin(y)*(1-exp), np.nanmax(y)*(1+exp) # 120% range
+            xmin, xmax = on_finite(x, np.min)*(1.-exp), \
+                         on_finite(x, np.max)*(1.+exp) # 120% range
+            ymin, ymax = on_finite(y, np.min)*(1.-exp), \
+                         on_finite(y, np.max)*(1.+exp) # 120% range
             xstep = (xmax-xmin) / nbins
             ystep = (ymax-ymin) / nbins
 
             extent = (xmin, xmax, ymin, ymax)
             if mode == 'hexbin':
-                hex_extent = (xmin - xstep, xmax + xstep,
-                              ymin - ystep, ymax + ystep)
-                mappable = ax.hexbin(x, y,
-                                     gridsize=nbins,
-                                     cmap=cmap,
-                                     extent=hex_extent,
-                                     **kwargs)
+                if logspace:
+                    # extent values are exponents (i.e. 3 -> 10**3)
+                    hex_extent = (np.log(xmin - xstep), np.log(xmax + xstep),
+                                  np.log(ymin - ystep), np.log(ymax + ystep))
+                    mappable = ax.hexbin(x, y,
+                                         gridsize=nbins,
+                                         cmap=cmap,
+                                         extent=hex_extent,
+                                         xscale='log',
+                                         yscale='log',
+                                         **kwargs)
+                else:
+                    hex_extent = (xmin - xstep, xmax + xstep,
+                                  ymin - ystep, ymax + ystep)
+                    mappable = ax.hexbin(x, y,
+                                         gridsize=nbins,
+                                         cmap=cmap,
+                                         extent=hex_extent,
+                                         **kwargs)
                 cbarlabel = 'Frequency'
             elif mode == 'hist2d':
-                xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
-                ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
+                if logspace:
+                    assert (xmin-xstep > 0.) and (ymin-ystep > 0.)
+                    xe = np.logspace(np.log(xmin-xstep),
+                                     np.log(xmax+xstep),
+                                     nbins+1)
+                    ye = np.logspace(np.log(ymin-ystep),
+                                     np.log(ymax+ystep),
+                                     nbins+1)
+                else:
+                    xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
+                    ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
                 h, xe, ye, im = ax.hist2d(x, y,
                                           bins=[xe, ye],
                                           cmap=cmap,
@@ -248,10 +279,25 @@ def densityplot(df,
             elif mode == 'density':
                 shading = kwargs.pop('shading', None) or 'gouraud'
                 # Can't have nans or infs
-                kdedata = data.T[:, ~(np.isnan(data.T).sum(axis=0)>0)]
-                k = gaussian_kde(kdedata)
-                xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
-                zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+                kdedata = data.T
+                kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
+
+                if logspace:
+                    assert xmin > 0. and ymin > 0.
+                    # Generate grid in logspace
+                    _xs = np.linspace(np.log(xmin), np.log(xmax), nbins+1)
+                    _ys = np.linspace(np.log(ymin), np.log(ymax), nbins+1)
+                    xi, yi = np.meshgrid(_xs, _ys)
+                    # Generate KDE in logspace
+                    k = gaussian_kde(np.log(kdedata))
+                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
+                    # Revert coordinates bacl to non-log space
+                    xi, yi = np.exp(xi), np.exp(yi)
+                    assert np.isfinite(xi).all() and np.isfinite(yi).all()
+                else:
+                    xi, yi = np.mgrid[xmin:xmax:nbins*1j, ymin:ymax:nbins*1j]
+                    k = gaussian_kde(kdedata)
+                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
                 mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
                                          cmap=cmap,
