@@ -2,7 +2,10 @@ from types import MethodType
 import pandas as pd
 import hashlib
 from pathlib import Path
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def column_ordered_append(df1, df2, **kwargs):
     outcols = list(df1.columns) + [i for i in df2.columns

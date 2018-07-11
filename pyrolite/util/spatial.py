@@ -1,5 +1,9 @@
 import numpy as np
 import itertools
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def piecewise(segment_ranges:list, segments=2, output_fmt=np.float):
     """

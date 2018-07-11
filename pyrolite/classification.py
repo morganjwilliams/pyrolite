@@ -8,6 +8,11 @@ from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
+
 
 class ClassifierModel(object):
 

@@ -3,10 +3,12 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-import warnings
 from .compositions import *
 from .util.pandas import to_frame, to_numeric
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 RELMASSS_UNITS = {
                   '%': 10**-2,
@@ -38,8 +40,8 @@ def scale_multiplier(in_unit, target_unit='ppm'):
         (target_unit in RELMASSS_UNITS.keys()):
         scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
-        unknown = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
-        warnings.warn("Units not known: {}".format(unknown))
+        unkn = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
+        logger.warning("Units not known: {}. Defaulting to unity.".format(unkn))
         scale = 1.
     return scale
 

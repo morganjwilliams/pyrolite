@@ -14,8 +14,13 @@ from sqlite3 import OperationalError as SQLOperationalError
 from pyodbc import DatabaseError as PyODBCDatabaseError
 from pyodbc import ProgrammingError as PyODBCProgrammingError
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-
+import logging
 from .text import *
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
+
+
 
 
 def check_access_driver():

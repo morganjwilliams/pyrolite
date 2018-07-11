@@ -3,6 +3,11 @@ try:
 except ImportError:
     from multiprocessing import Pool
 
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
+
 # Note : Using pathos multiprocessing which leverages dill over standard
 # pickle, which has a hard time serializing even simple objects
 

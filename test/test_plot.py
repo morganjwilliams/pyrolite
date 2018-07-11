@@ -10,6 +10,8 @@ import matplotlib.axes as matax
 from pyrolite.geochem import REE, common_elements
 from pyrolite.plot import ternaryplot, spiderplot, densityplot
 
+import logging
+logging.getLogger(__name__)
 
 class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
@@ -66,10 +68,11 @@ class TestSpiderplot(unittest.TestCase):
         """Test valid styling options."""
         pass
 
-    def test_irrellevant_style_options(self):
+    def test_log_on_irrellevant_style_options(self):
         """Test stability under additional kwargs."""
         style = {'thingwhichisnotacolor': 'notacolor', 'irrelevant': 'red'}
-        with self.assertWarns(UserWarning):
+        with self.assertLogs(level='INFO') as cm:
+            #with self.assertWarns(UserWarning):
             ax = spiderplot(self.df, **style)
 
         plt.close('all')

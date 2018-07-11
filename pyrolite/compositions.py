@@ -4,8 +4,9 @@ import pandas as pd
 import scipy
 from sklearn.base import TransformerMixin
 import logging
-import warnings
-log = logging.getLogger(__name__)
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def close(X: np.ndarray):
     if X.ndim == 2:
@@ -233,7 +234,7 @@ def standardise_aggregate(df: pd.DataFrame,
             # Use an internal standard
             int_std = potential_int_stds[0]
             if len(potential_int_stds) > 1:
-                warnings.warn('Multiple int. stds possible. Using '+ str(int_std))
+                logging.info('Multiple int. stds possible. Using '+str(int_std))
 
         non_nan_cols = df.dropna(axis=1, how='all').columns
         assert len(non_nan_cols)

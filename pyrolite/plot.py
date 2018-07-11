@@ -1,4 +1,3 @@
-import warnings
 import pandas as pd
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
@@ -8,6 +7,10 @@ from .util.pandas import to_frame
 from .util.general import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
 from .geochem import common_elements
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 DEFAULT_CONT_COLORMAP = 'viridis'
 DEFAULT_DISC_COLORMAP = 'tab10'
@@ -94,7 +97,7 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
-        warnings.warn('Styling not yet implemented for:{}'.format(unused_keys))
+        logger.info('Styling not yet implemented for:{}'.format(unused_keys))
 
     return ax
 

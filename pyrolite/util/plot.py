@@ -1,13 +1,11 @@
 import os
 from types import MethodType
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 from scipy import interpolate
 from scipy.stats.kde import gaussian_kde
 from scipy.spatial import ConvexHull
-
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.lines as mlines
@@ -15,7 +13,10 @@ import matplotlib.patches as patches
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 # Todo: generate hybrid items for legends
 

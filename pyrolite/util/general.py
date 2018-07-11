@@ -1,33 +1,61 @@
+from collections import Mapping
+from itertools import chain
+import operator
 import numpy as np
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 
-def flatten_dict(d, climb=False):
+_FLAG_FIRST = object()
+
+
+def flatten_dict(d, climb=False, safemode=False):
     """
-    Flattens a nested dictionary.
+    Flattens a nested dictionary containing only string keys.
+
+    This will work for dictionaries which don't have two equivalent
+    keys at the same level. If you're worried about his, use safemode=True.
+
+    Partially taken from https://stackoverflow.com/a/6043835.
 
     Parameters
     ----------
     climb: True | False
         Whether to keep trunk or leaf-values, for items with the same key.
     """
-    def _items():
-        for key, value in d.items():
-            if isinstance(value, dict):
-                for subkey, subvalue in flatten_dict(value).items():
-                    sk = subkey # key + "." + subkey
-                    sv = subvalue
-                    yield  sk, sv
+    lift = lambda x: (x, )
+    join = operator.add
+    results = []
+    def visit(subdict, results, partialKey):
+        for k, v in subdict.items():
+            if partialKey == _FLAG_FIRST:
+                newKey = lift(k)
             else:
-                yield key, value
+                newKey = join(partialKey, lift(k))
+            if isinstance(v, Mapping):
+                visit(v, results, newKey)
+            else:
+                results.append((newKey, v))
 
+    visit(d, results, _FLAG_FIRST)
 
-    if climb:
-        # We prioritise trunk values
-        items = list(_items())
+    if safemode:
+        pick_key = lambda keys: keys
+    else:
+        pick_key = lambda keys: keys[-1]
+
+    sort = map(lambda x: x[:2],
+               sorted([(pick_key(k), v, len(k)) for k, v in results],
+                      key=lambda x: x[-1]) ) # sorted by depth
+
+    if not climb:
+        # We go down the tree, and prioritise the trunk values
+        items = sort
     else:
         # We prioritise the leaf values
-        items = reversed(list(_items()))
-    # By reversing the order, items lower in the dictionary are presereved
+        items = [i for i in sort][::-1]
     return dict(items)
 
 

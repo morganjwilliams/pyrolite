@@ -5,7 +5,10 @@ import periodictable as pt
 from .compositions import renormalise
 from .util.text import titlecase
 import matplotlib.pyplot as plt
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 def ischem(s):
     """
