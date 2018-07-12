@@ -5,10 +5,12 @@ import numpy as np
 from pyrolite.util.pandas import *
 from pathlib import Path
 
+
 def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
             index_length=10):
     return pd.DataFrame({k: v for k,v in zip(cols,
                          np.random.rand(len(cols), index_length))})
+
 
 def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
     return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})

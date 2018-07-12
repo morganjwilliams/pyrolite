@@ -8,7 +8,7 @@ from .util.pandas import to_frame, to_numeric
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 RELMASSS_UNITS = {
                   '%': 10**-2,

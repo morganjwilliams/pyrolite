@@ -6,7 +6,7 @@ from sklearn.base import TransformerMixin
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 def close(X: np.ndarray):
     if X.ndim == 2:
@@ -40,7 +40,7 @@ def nan_weighted_mean(arr:np.ndarray, weights=None,):
     if weights is None:
         weights = weights_from_array(arr)
     weights = np.array(weights)/np.nansum(weights)
-    
+
     mask = (np.isnan(arr) + np.isinf(arr)) > 0
     if not mask.any():
         return np.average(arr,

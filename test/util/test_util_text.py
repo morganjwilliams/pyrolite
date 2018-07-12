@@ -1,7 +1,7 @@
 import unittest
-
 from pyrolite.util.text import quoted_string, titlecase
 import numpy as np
+
 
 class TestQuotedString(unittest.TestCase):
     """Tests for quoted string utility."""
