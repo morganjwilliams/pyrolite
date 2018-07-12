@@ -226,7 +226,10 @@ def densityplot(df,
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
     exp = (coverage_scale-1)/2
     data = df.loc[:, components].values
+
     if data.any():
+        # Data can't be plotted if there's any nans, so we can exclude these
+        data = data[(np.isfinite(data).all(axis=1)), :]
         if len(components) == 2:  # binary
             x, y = data.T
             xmin, xmax = on_finite(x, np.min)*(1.-exp), \
@@ -278,9 +281,9 @@ def densityplot(df,
                 cbarlabel = 'Frequency'
             elif mode == 'density':
                 shading = kwargs.pop('shading', None) or 'gouraud'
-                # Can't have nans or infs
                 kdedata = data.T
-                kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
+                # Can't have nans or infs
+                #kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
 
                 if logspace:
                     assert xmin > 0. and ymin > 0.

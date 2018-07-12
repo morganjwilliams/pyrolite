@@ -138,7 +138,7 @@ def np_cross_ratios(arr: np.ndarray, debug=False):
     """
     Takes ratios of values across an array to create a square array,
     such that columns are numerators and the row indexes the denominators.
-    Returns an array arrays (one per record).
+    Returns an array of arrays (one per record).
     """
     arr[arr <= 0] = np.nan
     if arr.ndim == 1:
@@ -156,11 +156,14 @@ def np_cross_ratios(arr: np.ndarray, debug=False):
     if debug:
         try:
             diags = ratios[:, np.arange(dims), np.arange(dims)]
-            assert np.allclose(ratios[:, np.arange(dims), np.arange(dims)], 1.) # check all diags are 1.
+             # check all diags are 1.
+            assert np.allclose(diags, 1.)
         except:
-            assert np.allclose(diags[~np.isnan(diags)], 1.) # check all diags are 1. or nan
+             # check all diags are 1. or nan
+            assert np.allclose(diags[~np.isnan(diags)], 1.)
 
     return ratios
+
 
 def impute_ratios(ratios: pd.DataFrame):
     """
@@ -188,9 +191,10 @@ def np_impute_ratios(ratios: np.ndarray):
     not_finite = ~finite
     if not_finite.any():
         where_not_finite = np.argwhere(not_finite)
+        print(where_not_finite)
         _ixs, _iys = where_not_finite.T
-        ixs = _ixs[~(_ixs==_iys)]
-        iys = _iys[~(_ixs==_iys)]
+        ixs = _ixs[~(_ixs == _iys)]
+        iys = _iys[~(_ixs == _iys)]
         where_not_finite = np.stack((ixs, iys)).T
         excludes = np.empty((ixs.size, ratios.shape[0]-2)).astype(int)
         indicies = np.arange(ratios.shape[0]).astype(int)
@@ -239,7 +243,10 @@ def standardise_aggregate(df: pd.DataFrame,
         return ser
 
 
-def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_idx=0):
+def complex_standardise_aggregate(df,
+                                  int_std=None, # fallback parameters
+                                  renorm=True,
+                                  fixed_record_idx=0):
 
     if int_std is None:
         # create a n x d x d matrix for aggregating ratios
@@ -247,8 +254,8 @@ def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_id
         ratios = cross_ratios(df.loc[:, non_nan_cols])
         # Average across record matricies
         mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios), axis=0)),
-                                   columns=df.columns,
-                                   index=df.columns)
+                                   columns=non_nan_cols,
+                                   index=non_nan_cols)
         # Filling in the null values in a ratio matrix
         imputed_ratios = impute_ratios(mean_ratios)
         # We simply pick the first non-nan column.
@@ -256,8 +263,12 @@ def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_id
         mean = np.exp(np.mean(np.log(imputed_ratios/imputed_ratios.loc[IS, :]),
                               axis=1)
                               )
-        mean /= np.nansum(mean.values) # This needs to be renormalised to make logical sense
-        return mean
+         # This needs to be renormalised to make logical sense
+        mean /= np.nansum(mean.values)
+
+        out = np.ones((1, len(df.columns))) * np.nan
+        out[:, [list(df.columns).index(c) for c in non_nan_cols]] = mean
+        return pd.Series(out.squeeze(), index=df.columns)
     else:
         # fallback to internal standardisation
         return standardise_aggregate(df,
@@ -267,7 +278,7 @@ def complex_standardise_aggregate(df, int_std=None, renorm=True, fixed_record_id
 
 
 def np_complex_standardise_aggregate(df,
-                                     int_std=None,
+                                     int_std=None, # fallback parameters
                                      renorm=True,
                                      fixed_record_idx=0):
     """
@@ -291,9 +302,7 @@ def np_complex_standardise_aggregate(df,
         comp_abund = np.exp(np.nanmean(div_log_ratios, axis=1))
         comp_abund /= np.nansum(comp_abund)
         out = np.ones((1, len(df.columns))) * np.nan
-        inds = np.array([ix for ix, i in zip(range(df.columns.size),
-                                             df.columns)
-                         if i in non_nan_cols])
+        inds = np.array([list(df.columns).index(c) for c in non_nan_cols])
         out[:, inds] = comp_abund
         return pd.Series(out.squeeze(), index=df.columns)
     else:

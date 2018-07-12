@@ -272,7 +272,7 @@ def aggregate_cation(df: pd.DataFrame,
                            axis=0)
         totals[np.isclose(totals, 0)] = np.nan
         df.loc[:, oxstr] = totals
-        df = df.drop(columns=[elstr])
+        df.drop(columns=[elstr], inplace=True)
         assert elstr not in df.columns
 
     elif form == 'element':
@@ -285,7 +285,7 @@ def aggregate_cation(df: pd.DataFrame,
         totals[np.isclose(totals, 0)] = np.nan
         df.loc[:, elstr] = totals
 
-        df = df.drop(columns=[oxstr])
+        df.drop(columns=[oxstr], inplace=True)
         assert oxstr not in df.columns
 
     return df
@@ -315,6 +315,8 @@ def add_ratio(df: pd.DataFrame,
     Returned series be assigned an alias name.
     """
     num, den = ratio.split('/')
+    assert num in df.columns
+    assert den in df.columns
     name = [ratio if not alias else alias][0]
     conv = convert(df.loc[:, [num, den]])
     conv.loc[(conv[den]==0.), den] = np.nan # avoid inf
@@ -329,20 +331,20 @@ def add_MgNo(df: pd.DataFrame,
     if not molecularIn:
         if components:
             # Iron is split into species
-            df['Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
+            df.loc[:, 'Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
                        (df['MgO'] / pt.formula('MgO').mass + df['FeO'] / pt.formula('FeO').mass)
         else:
             # Total iron is used
             assert 'FeOT' in df.columns
-            df['Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
+            df.loc[:, 'Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
                        (df['MgO'] / pt.formula('MgO').mass + df['FeOT'] / pt.formula('FeO').mass)
     else:
         if not elemental:
             # Molecular Oxides
-            df['Mg#'] = df['MgO'] / (df['MgO'] + df['FeO'])
+            df.loc[:, 'Mg#'] = df['MgO'] / (df['MgO'] + df['FeO'])
         else:
             # Molecular Elemental
-            df['Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
+            df.loc[:, 'Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
 
 def lambdas(REE, degrees=2, constructor=mpmath.chebyu):

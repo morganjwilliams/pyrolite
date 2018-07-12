@@ -54,14 +54,14 @@ class TestCompositionalMean(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single records."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         out = compositional_mean(df)
         # Check closure
         self.assertTrue(np.allclose(np.sum(out.values, axis=-1), 1.))
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         out = compositional_mean(df)
         # Check closure
         self.assertTrue(np.allclose(np.sum(out.values, axis=-1), 1.))
@@ -90,13 +90,13 @@ class TestWeightsFromArray(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single records."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         out = weights_from_array(df.values)
         self.assertTrue(out.size == 1)
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         out = weights_from_array(df.values)
         self.assertTrue(out.size == df.index.size)
 
@@ -113,13 +113,13 @@ class TestGetNonNanColumn(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single records."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         out = get_nonnan_column(df.values)
         self.assertTrue(out == 0)
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         out = get_nonnan_column(df.values)
         self.assertTrue(out == 0)
 
@@ -134,19 +134,19 @@ class TestNANWeightedMean(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single records."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         out = nan_weighted_mean(df.values)
         self.assertTrue(np.allclose(out, df.values))
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         out = nan_weighted_mean(df.values)
         self.assertTrue(np.allclose(out, np.mean(df.values, axis=0)))
 
     def test_multiple_equal_weights(self):
         """Checks results on multiple records with equal weights."""
-        df = self.df
+        df = self.df.copy()
         weights = np.array([1./ len(df.index)] * len(df.index))
         out = nan_weighted_mean(df.values, weights=weights)
         self.assertTrue(np.allclose(out, np.average(df.values,
@@ -156,7 +156,7 @@ class TestNANWeightedMean(unittest.TestCase):
 
     def test_multiple_unequal_weights(self):
         """Checks results on multiple records with unequal weights."""
-        df = self.df
+        df = self.df.copy()
         weights = np.random.rand(1, df.index.size).squeeze()
         out = nan_weighted_mean(df.values, weights=weights)
         check = np.average(df.values.T, weights=weights, axis=1)
@@ -170,7 +170,7 @@ class TestNANWeightedMean(unittest.TestCase):
         Checks results on multiple records with unequal weights,
         where the data includes some null data.
         """
-        df = self.df
+        df = self.df.copy()
         df.iloc[0, :] = np.nan # make one record nan
         # Some non-negative weights
 
@@ -193,7 +193,7 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
     def test_single(self):
         """Checks results on single records."""
         # Should not change result, once closure is considered
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = nan_weighted_compositional_mean(df.values, renorm=renorm)
@@ -204,7 +204,7 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = nan_weighted_compositional_mean(df.values, renorm=renorm)
@@ -218,9 +218,9 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
         # Create some nans to imitate contrasting analysis sets
         df.iloc[np.random.randint(1, 10, size=2),
                 np.random.randint(1, len(self.cols), size=2)] = np.nan
-        #out = nan_weighted_compositional_mean(df.values)
+        out = nan_weighted_compositional_mean(df.values)
         # Check closure
-        #self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
+        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
 
     def test_mean(self):
         """Checks whether the mean is accurate."""
@@ -238,36 +238,111 @@ class TestCrossRatios(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single record."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         n = df.index.size
         out = cross_ratios(df)
-        self.assertTrue((out > 0).all())
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
         self.assertTrue(out.shape == (n, self.d, self.d))
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        df = self.df
+        df = self.df.copy()
         n = df.index.size
         out = cross_ratios(df)
-        self.assertTrue((out > 0).all())
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
         self.assertTrue(out.shape == (n, self.d, self.d))
 
-    @unittest.expectedFailure
     def test_contrasting(self):
         """Checks results on multiple contrasting records."""
-        # This should fail for this function
         df = self.df.copy()
         n = df.index.size
         # Create some nans to imitate contrasting analysis sets
         df.iloc[np.random.randint(1, self.n, size=2),
                 np.random.randint(1, self.d, size=2)] = np.nan
         out = cross_ratios(df)
-        self.assertTrue((out > 0).all())
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
         self.assertTrue(out.shape == (n, self.d, self.d))
 
-    def test_mean(self):
-        """Checks whether the mean is accurate."""
-        pass
+
+class TestNPCrossRatios(unittest.TestCase):
+    """Tests numpy cross ratios utility."""
+
+    def setUp(self):
+        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.d = len(self.cols)
+        self.n = 10
+        self.df = test_df(cols=self.cols, index_length=self.n)
+
+    def test_single(self):
+        """Checks results on single record."""
+        df = self.df.head(1).copy()
+        n = df.index.size
+        arr = df.values
+        out = np_cross_ratios(arr)
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
+        self.assertTrue(out.shape == (n, self.d, self.d))
+
+    def test_multiple(self):
+        """Checks results on multiple records."""
+        df = self.df.copy()
+        n = df.index.size
+        arr = df.values
+        out = np_cross_ratios(arr)
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
+        self.assertTrue(out.shape == (n, self.d, self.d))
+
+    def test_contrasting(self):
+        """Checks results on multiple contrasting records."""
+        df = self.df.copy()
+        n = df.index.size
+        # Create some nans to imitate contrasting analysis sets
+        df.iloc[np.random.randint(1, self.n, size=2),
+                np.random.randint(1, self.d, size=2)] = np.nan
+        arr = df.values
+        out = np_cross_ratios(arr)
+        self.assertTrue(np.isfinite(out).any())
+        self.assertTrue((out[np.isfinite(out)] > 0).all())
+        self.assertTrue(out.shape == (n, self.d, self.d))
+
+
+class TestPDImputeRatios(unittest.TestCase):
+
+    def setUp(self):
+        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.d = len(self.cols)
+        self.n = 10
+        self.df = test_df(cols=self.cols, index_length=self.n)
+
+    def test_imputation(self):
+        """Checks results on single record."""
+        df = self.df.head(1).copy()
+        n = df.index.size
+        df.iloc[:, np.random.randint(1, self.d, size=1)] = np.nan
+        imputed = impute_ratios(df)
+
+
+class TestNPImputeRatios(unittest.TestCase):
+
+    def setUp(self):
+        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.d = len(self.cols)
+        self.n = 10
+        self.df = test_df(cols=self.cols, index_length=self.n)
+
+    def test_imputation(self):
+        """Checks results on single record."""
+        df = self.df.head(1).copy()
+        n = df.index.size
+        df.iloc[:, np.random.randint(1, self.d, size=1)] = np.nan
+        arr = df.values # single array
+        ratios = np_cross_ratios(arr)[0]
+        imputed = np_impute_ratios(ratios)
+
 
 class TestStandardiseAggregate(unittest.TestCase):
     """Tests pandas internal standardisation aggregation method."""
@@ -286,7 +361,7 @@ class TestStandardiseAggregate(unittest.TestCase):
 
     def test_single(self):
         """Checks results on single records."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = standardise_aggregate(df, renorm=renorm)
@@ -298,7 +373,7 @@ class TestStandardiseAggregate(unittest.TestCase):
         """
         Checks results on multiple records with internal standard specifed.
         """
-        df = self.mdf
+        df = self.mdf.copy()
         fixed_record_idx = 0
         int_std = 'SiO2'
         for renorm in [True, False]:
@@ -364,51 +439,160 @@ class TestStandardiseAggregate(unittest.TestCase):
                                     df.iloc[fixed_record_idx, :].values).any()
                                             )
 
-    def test_closure(self):
-        """Checks whether closure is preserved when renormalisation is used."""
-        pass
-
-    def test_internal_standards(self):
-        """Checks multiple internal standards work."""
-        pass
-
-    def test_fixed_record(self):
-        """Checks whether assignment of fixed records works."""
-
-
 class TestComplexStandardiseAggregate(unittest.TestCase):
     """Tests pandas complex internal standardisation aggregation method."""
 
     def setUp(self):
-        pass
+        self.mcols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.mdf = pd.DataFrame({k: v for k,v in zip(self.mcols,
+                                np.random.rand(len(self.mcols), 10))})
+        self.mdf = self.mdf.apply(lambda x: x/np.sum(x), axis='columns')
+
+        self.tcols = ['SiO2', 'Ni', 'Cr', 'Sn']
+        self.tdf = pd.DataFrame({k: v for k,v in zip(self.tcols,
+                                np.random.rand(len(self.tcols), 10))})
+
+        self.df = self.mdf.append(self.tdf, ignore_index=True, sort=False)
 
     def test_single(self):
         """Checks results on single records."""
-        pass
+        df = self.df.head(1).copy()
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = complex_standardise_aggregate(df, renorm=renorm)
+                outvals = out.values[~np.isnan(out.values)]
+                dfvals = df.values[~np.isnan(df.values)]
+                self.assertTrue(np.allclose(outvals, dfvals))
 
-    def test_multiple(self):
-        """Checks results on multiple records."""
-        pass
+    def test_multiple_with_IS(self):
+        """
+        Checks results on multiple records with internal standard specifed.
+        """
+        df = self.mdf.copy()
+        fixed_record_idx = 0
+        int_std = 'SiO2'
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = complex_standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
 
-    def test_complex(self):
+    def test_multiple_without_IS(self):
+        """
+        Checks results on multiple records without internal standard specifed.
+        """
+        df = self.mdf
+        out = complex_standardise_aggregate(df)
+
+    def test_contrasting_with_IS(self):
         """Checks results on multiple contrasting records."""
-        # This currently needs better imputation methods.
-        pass
+        # This should succeed for records which differ by all-but-one element
+        df = self.df
+        fixed_record_idx = 0
+        int_std = 'SiO2'
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = complex_standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
 
-    def test_simple(self):
-        """Check fallback to standardise aggregate."""
-        pass
+    def test_contrasting_without_IS(self):
+        """
+        Checks results on multiple contrasting records
+        without internal standard specifed.
+        """
+        df = self.df
+        out = complex_standardise_aggregate(df)
 
-    def test_closure(self):
-        """Checks whether closure is preserved when renormalisation is used."""
-        pass
 
-    def test_fixed_internal_standards(self):
-        """Checks multiple internal standards work."""
-        pass
+class TestNPComplexStandardiseAggregate(unittest.TestCase):
+    """Tests numpy complex internal standardisation aggregation method."""
 
-    def test_fixed_record(self):
-        """Checks whether assignment of fixed records works."""
+    def setUp(self):
+        self.mcols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.mdf = pd.DataFrame({k: v for k,v in zip(self.mcols,
+                                np.random.rand(len(self.mcols), 10))})
+        self.mdf = self.mdf.apply(lambda x: x/np.sum(x), axis='columns')
+
+        self.tcols = ['SiO2', 'Ni', 'Cr', 'Sn']
+        self.tdf = pd.DataFrame({k: v for k,v in zip(self.tcols,
+                                np.random.rand(len(self.tcols), 10))})
+
+        self.df = self.mdf.append(self.tdf, ignore_index=True, sort=False)
+
+    def test_single(self):
+        """Checks results on single records."""
+        df = self.df.head(1).copy()
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = np_complex_standardise_aggregate(df, renorm=renorm)
+                outvals = out[~np.isnan(out.values)]
+                dfvals = df.values[~np.isnan(df.values)]
+                self.assertTrue(np.allclose(outvals, dfvals))
+
+    def test_multiple_with_IS(self):
+        """
+        Checks results on multiple records with internal standard specifed.
+        """
+        df = self.mdf.copy()
+        fixed_record_idx = 0
+        int_std = 'SiO2'
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = np_complex_standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
+
+    def test_multiple_without_IS(self):
+        """
+        Checks results on multiple records without internal standard specifed.
+        """
+        df = self.mdf
+        out = np_complex_standardise_aggregate(df)
+
+    def test_contrasting_with_IS(self):
+        """Checks results on multiple contrasting records."""
+        # This should succeed for records which differ by all-but-one element
+        df = self.df
+        fixed_record_idx = 0
+        int_std = 'SiO2'
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                out = np_complex_standardise_aggregate(df,
+                                            int_std=int_std,
+                                            renorm=renorm,
+                                            fixed_record_idx=fixed_record_idx)
+                if not renorm:
+                    self.assertTrue(np.allclose(out[int_std],
+                                    df.iloc[fixed_record_idx,
+                                            df.columns.get_loc(int_std)])
+                                            )
+
+    def test_contrasting_without_IS(self):
+        """
+        Checks results on multiple contrasting records
+        without internal standard specifed.
+        """
+        df = self.df
+        out = np_complex_standardise_aggregate(df)
 
 
 class TestNaNCov(unittest.TestCase):

@@ -478,7 +478,7 @@ class TestAggregateCation(unittest.TestCase):
 
     def test_none(self):
         """Check the transformation copes with no records."""
-        df = self.df.head(0)
+        df = self.df.head(0).copy()
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggdf = aggregate_cation(df, cation)
@@ -486,7 +486,7 @@ class TestAggregateCation(unittest.TestCase):
 
     def test_one(self):
         """Check the transformation functions for one record."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggdf = aggregate_cation(df, cation)
@@ -494,7 +494,7 @@ class TestAggregateCation(unittest.TestCase):
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
-        df = self.df
+        df = self.df.copy()
         for cation in ['Mg', 'Fe']:
             with self.subTest(cation=cation):
                 aggdf = aggregate_cation(df, cation)
@@ -502,7 +502,7 @@ class TestAggregateCation(unittest.TestCase):
 
     def test_oxide_return(self):
         """Checks that oxide forms are returned."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         cation='Mg'
         aggdf = aggregate_cation(df, cation, form='oxide')
         # Check presence
@@ -515,7 +515,7 @@ class TestAggregateCation(unittest.TestCase):
 
     def test_element_return(self):
         """Checks that element forms are returned."""
-        df = self.df.head(1)
+        df = self.df.head(1).copy()
         cation='Mg'
         aggdf = aggregate_cation(df, cation, form='element')
         # Check presence
@@ -607,12 +607,13 @@ class TestAddRatio(unittest.TestCase):
     @unittest.expectedFailure
     def test_invalid_ratios(self):
         """Check the addition fails for invalid pairs."""
+        df = self.df.copy()
         for ratio in ['Ca/Si', # Ca not present
                       'K.Na', # Invalid format
                       'Mg/Si/MgO' # multiple delimiters
                       ]:
               with self.subTest(ratio=ratio):
-                  add_ratio(self.df, ratio=ratio)
+                  add_ratio(df, ratio=ratio)
 
     def test_alias(self):
         """Check that aliases can be used."""
@@ -633,18 +634,18 @@ class TestAddMgNo(unittest.TestCase):
 
     def test_none(self):
         """Check the ratio addition copes with no records."""
-        df = self.df.head(0)
-        add_MgNo(self.df)
+        df = self.df.head(0).copy()
+        add_MgNo(df)
 
     def test_one(self):
         """Check the ratio addition for one record."""
-        df = self.df.head(1)
-        add_MgNo(self.df)
+        df = self.df.head(1).copy()
+        add_MgNo(df)
 
     def test_multiple(self):
         """Check the ratio addition for multiple records."""
-        df = self.df.head(1)
-        add_MgNo(self.df)
+        df = self.df.copy()
+        add_MgNo(df)
 
     def test_weight_oxides(self):
         """Check accuracy of weight oxide data."""

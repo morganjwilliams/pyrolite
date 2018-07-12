@@ -170,7 +170,7 @@ class TestDensityplot(unittest.TestCase):
                 plt.close('all')
 
 
-    def test_modes(self):
+    def test_modes(self): #
         """Tests different ploting modes."""
         for df in [self.bidf, self.tridf]:
             with self.subTest(df=df):
@@ -180,7 +180,7 @@ class TestDensityplot(unittest.TestCase):
                         self.assertTrue(isinstance(out, matax.Axes))
                         plt.close('all')
 
-    def test_bivariate_logscale(self):
+    def test_bivariate_logscale(self): #
         """Tests logscale for different ploting modes using bivariate data."""
         df = self.bidf
         for logspace in [True, False]:
