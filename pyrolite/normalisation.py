@@ -128,15 +128,28 @@ class RefComp:
                                      divisor)
         return dfc
 
+    def ratio(self, ratio):
+        """Calculates an elemental ratio."""
+        try:
+            assert "/" in ratio
+            num, den = ratio.split('/')
+            return self.data.loc[num, 'value'] / self.data.loc[den, 'value']
+        except:
+            return np.nan
+
     def __getattr__(self, var):
         """
         Allow access to model values via attribute e.g. Model.Si
         """
-        return self.data.loc[var, 'value']
+        if var in self.data.index:
+            return self.data.loc[var, 'value']
+        else:
+            return np.nan
 
     def __getitem__(self, vars):
         """
-        Allow access to model values via [] indexing e.g. Model['Si', 'Cr']
+        Allow access to model values via [] indexing e.g. Model['Si', 'Cr'].
+        Currently not implemented for ratios.
         """
         return self.data.loc[vars, ['value', 'unc_2sigma', 'units']]
 

@@ -44,9 +44,9 @@ def to_numeric(df: pd.DataFrame,
     Takes all non-metadata columns and converts to numeric type where possible.
     """
     num_headers = [i for i in df.columns if i not in exclude]
-    df[num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
-                                                   axis=1, # across cols
-                                                   errors=errors)
+    df[num_headers] = df[num_headers].apply(pd.to_numeric,
+                                            axis=1, # across cols
+                                            errors=errors)
     return df
 
 
@@ -94,17 +94,11 @@ def df_from_csvs(csvs, dropna=True, **kwargs):
     cols = []
     dfs = []
     for ix, t in enumerate(csvs):
-        print('Reading ' + t)
         dfs.append(pd.read_csv(t, **kwargs))
         cols = cols + [i for i in dfs[-1].columns if i not in cols]
 
-    DF = pd.DataFrame(columns=cols)  # Initialise DataFrame
-    DF = pd.concat([DF] + dfs, axis=0).reset_index(drop=True)  # Reset Index
-    del dfs
-    DF = DF.reindex(columns=cols)  # Reset Columns
-    if dropna:
-        DF = DF.dropna('columns', how='all')
-    return DF
+    df = accumulate(dfs)
+    return df
 
 
 def pickle_from_csvs(targets, out_filename, sep='\t', suffix='.pkl'):

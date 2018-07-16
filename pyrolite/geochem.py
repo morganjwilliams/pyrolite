@@ -321,6 +321,7 @@ def add_ratio(df: pd.DataFrame,
     conv = convert(df.loc[:, [num, den]])
     conv.loc[(conv[den]==0.), den] = np.nan # avoid inf
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
+    return df
 
 
 def add_MgNo(df: pd.DataFrame,
