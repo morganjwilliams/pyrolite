@@ -2,12 +2,18 @@ import os, sys
 import re
 import platform
 import subprocess
+try:
+    from winpty import PTY as pty
+except:
+    import pty
 import requests
 from xml.etree import ElementTree as ET
 import xmljson
 import dicttoxml
 from environs import Env
-
+import zipfile
+import io
+from pathlib import Path
 
 default_data = dict(initialize={"SiO2": 48.68,
                                     "TiO2": 1.01,
@@ -62,7 +68,7 @@ def melts_oxides(data_dict):
     return result['Oxide']
 
 
-def melts_phases(data_dict):
+def ses(data_dict):
     model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
     data_dict = {'modelSelection': model}
     url_sfx = "Phases"
@@ -70,10 +76,6 @@ def melts_phases(data_dict):
     return result['Phase']
 
 
-melts_phases(default_data)
-ret = melts_query(default_data)
-
-ret
 
 class MeltsSystem:
 
@@ -150,7 +152,7 @@ def MELTS_env():
 
     env.dump()
 
-MELTS_env()
+#MELTS_env()
 
 def locate_melts():
 
@@ -169,26 +171,125 @@ def locate_melts():
     return system
 
 
-def install_melts(directory):
+def extract_zip(zipfile, output_dir):
+    """Extracts a zipfile without the uppermost folder."""
+    output_dir = Path(str(output_dir))
+    if zipfile.testzip() is None:
+        for m in zipfile.namelist():
+            fldr, name = re.split('/', m, maxsplit=1)
+            if name:
+                content = zipfile.open(m, 'r').read()
+                with open(output_dir / name, 'wb') as out:
+                    out.write(content)
 
+def check_perl():
+    try:
+        p = subprocess.check_output("which perl")
+        returncode = 0
+    except subprocess.CalledProcessError as e:
+        output = e.output
+        returncode = e.returncode
+
+    return returncode == 0
+
+
+
+def download_melts(directory,
+                   update=True):
+    """
+    1. Download melts zip file.
+    2. Check install folder doens't have current installation
+    3. If it does, and update is True - overwrite
+    """
+
+    system = platform.system()
+    release = platform.release()
+    version = platform.version()
+    bits, linkage = platform.architecture()
+    bits = bits[:2]
+
+    zipsource = "https://magmasource.caltech.edu/alphamelts/zipfiles/"
+    if system =='Linux':
+        if ('Microsoft' in release) or ('Microsoft' in version):
+           url = zipsource + "wsl_alphamelts_1-8.zip"
+        else:
+           url = zipsource + "linux_alphamelts_1-8.zip"
+
+    elif system == 'Darwin':
+        url = zipsource + "macosx_alphamelts_1-8.zip"
+    elif system == 'Windows':
+        url = zipsource + "windows_alphamelts_1-8.zip"
+        install_file =  'alphamelts_win{}.exe'.format(bits)
+    else:
+        raise NotImplementedError(f'System unknown: {system}')
 
     # Set install directory for .bat files
-    install_dir = '.'
+    directory = Path(directory)
+    if directory:
+        install_dir = directory
+    else:
+        install_dir = '.'
 
-    # Export links
+    if not install_dir.exists():
+        install_dir.mkdir(parents=True)
+
+    # check if installed
+
+    r = requests.get(url, stream=True)
+    if r.ok:
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        extract_zip(z, install_dir)
+
+def install_melts(directory,
+                  update=True,
+                  native=True):
+    """
+    1. Check melts has been downloaded
+    2. If not, download
+    3. Install melts
+    """
+    directory = Path(directory)
+    if (directory / 'install.command').exists():
+        pass
+    else:
+        download_melts(directory)
 
     # export to path
-    if install_dir not in sys.path:
-        sys.path.append(install_dir)
+    #if directory not in sys.path:
+    #    sys.path.append(directory)
 
-    p = subprocess.run([exe_path],
-                       input=stdin,
-                       stdout=subprocess.PIPE,
-                       universal_newlines=True)
+    for sub in ['links', 'eg']:
+        subdir = (directory / sub)
+        if not subdir.exists():
+            subdir.mkdir()
 
+    if check_perl() and (not native):
+        print('Installing..')
+        # run install.command with perl
+        install_filename = directory / 'install.command'
+        args = ["perl", str(install_filename)]
+        inputs = [str(d) for d in [directory,
+                                   directory / 'links',
+                                   '', # use examples folder
+                                   '', # use default settings
+                                   'y', # continue
+                                   '' # return to finish
+                                   ]]
+        p = subprocess.run(args,
+                           input='\n'.join(inputs).encode('ascii'),
+                           stdout=subprocess.PIPE)
 
-locate_melts()
-    #if sys.platform
+        # 1. full path for installation directory
+        # 2. full path of directory to put links in
+        # 3. full path of directory to put examples in
+        # 4. full or relative path of the default settings file
+        # 5. path is not in PATH - will try to add (here we've added it
+        # temporarily, so this shouldnt fire?)
+        # 6. Return to finish
+        for line in p.stdout.decode('UTF-8').split('\r\n'):
+            print(line)
+        if p.returncode != 0:
+            raise Error
 
 
 def parse_melts_mineral_composition(composition_str):
@@ -205,3 +306,12 @@ def amoeba():
 
     # set ALPHAMELTS_FRACTIONATE_TARGET
     subprocess.run()
+
+
+if __name__ == '__main__':
+    install_melts(r'C:/test_melts/', native=False)
+
+    #melts_phases(default_data)
+    #ret = melts_query(default_data)
+
+    #ret
