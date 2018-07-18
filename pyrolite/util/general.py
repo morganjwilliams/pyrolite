@@ -1,8 +1,13 @@
+import os, sys
 from collections import Mapping
 from itertools import chain
 import operator
 import numpy as np
 import logging
+import shutil
+from pathlib import Path
+import zipfile
+import re
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
@@ -16,7 +21,7 @@ def flatten_dict(d, climb=False, safemode=False):
     Flattens a nested dictionary containing only string keys.
 
     This will work for dictionaries which don't have two equivalent
-    keys at the same level. If you're worried about his, use safemode=True.
+    keys at the same level. If you're worried about this, use safemode=True.
 
     Partially taken from https://stackoverflow.com/a/6043835.
 
@@ -69,3 +74,42 @@ def on_finite(arr, f):
     """
     ma = np.isfinite(arr)
     return f(arr[ma])
+
+
+def copy_file(src, dst, ext=None):
+    src = Path(src)
+    dst = Path(dst)
+    if ext is not None:
+        src = src.with_suffix(ext)
+        dst = dst.with_suffix(ext)
+    print('Copying from {} to {}'.format(src, dst))
+    with open(src, 'rb') as fin:
+        with open(dst, 'wb') as fout:
+            shutil.copyfileobj(fin, fout)
+
+
+def remove_tempdir(directory):
+    directory = Path(directory)
+    if directory.exists():
+        temp_files = []
+        for x in directory.iterdir():
+            if x.is_file():
+                temp_files.append(x)
+            elif x.is_dir():
+                remove_tempdir(x)
+        for t in temp_files:
+            os.remove(t)
+        os.rmdir(directory)
+    assert not directory.exists()
+
+
+def extract_zip(zipfile, output_dir):
+    """Extracts a zipfile without the uppermost folder."""
+    output_dir = Path(output_dir)
+    if zipfile.testzip() is None:
+        for m in zipfile.namelist():
+            fldr, name = re.split('/', m, maxsplit=1)
+            if name:
+                content = zipfile.open(m, 'r').read()
+                with open(output_dir / name, 'wb') as out:
+                    out.write(content)

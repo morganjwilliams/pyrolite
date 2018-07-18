@@ -1,4 +1,4 @@
-import os
+import os, time
 import unittest
 import pandas as pd
 import numpy as np
@@ -160,8 +160,11 @@ class TestSparsePickleDF(unittest.TestCase):
                 self.assertTrue(cond)
 
     def tearDown(self):
-        # Delete temporary files
-        os.remove(self.filename)
+        try:
+            os.remove(self.filename)
+        except PermissionError:
+            time.sleep(2)
+            os.remove(self.filename)
 
 
 class TestLoadSparsePickleDF(unittest.TestCase):
@@ -184,7 +187,11 @@ class TestLoadSparsePickleDF(unittest.TestCase):
                     if keep_sparse:
                         self.assertTrue(isinstance(df, pd.SparseDataFrame))
         finally:
-            os.remove(self.filename)
+            try:
+                os.remove(self.filename)
+            except PermissionError:
+                time.sleep(2)
+                os.remove(self.filename)
 
 if __name__ == '__main__':
     unittest.main()

@@ -49,7 +49,9 @@ setup(name='pyrolite',
                         'mpmath',
                         'python-ternary',
                         'requests',
-                        'dicttoxml'
+                        'dicttoxml',
+                        'xmljson',
+                        'environs'
                         ],
       extras_require={'dev': dev_require + tests_require,
                       'spatial': spatial_require,
