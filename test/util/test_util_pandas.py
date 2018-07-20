@@ -133,7 +133,6 @@ class TestToNumeric(unittest.TestCase):
         exclude = ['TiO2']
         num_columns = [c for c in df.columns if c not in exclude]
         result = to_numeric(df, exclude=exclude)
-        print(result)
         self.assertTrue((result.loc[:, exclude].dtypes != 'float64').all())
         self.assertTrue((result.loc[:, num_columns].dtypes == 'float64').all())
 

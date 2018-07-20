@@ -86,9 +86,8 @@ def to_numeric(df: pd.DataFrame,
     Takes all non-metadata columns and converts to numeric type where possible.
     """
     num_headers = [i for i in df.columns.unique() if i not in exclude]
-    df.loc[:, num_headers] = df.loc[:, num_headers].apply(pd.to_numeric,
-                                                          axis=1, # across cols
-                                                          errors=errors)
+    for c in num_headers:
+        df.loc[:, c] = pd.to_numeric(df.loc[:, c], errors=errors)
     return df
 
 
