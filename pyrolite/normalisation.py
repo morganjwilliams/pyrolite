@@ -4,7 +4,7 @@ import platform
 import pandas as pd
 import numpy as np
 from .compositions import *
-from .util.pandas import to_frame, to_numeric
+from .util.pd import to_frame, to_numeric
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

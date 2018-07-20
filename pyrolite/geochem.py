@@ -2,10 +2,12 @@ import pandas as pd
 import numpy as np
 import mpmath
 import periodictable as pt
-from .compositions import renormalise
-from .util.text import titlecase
 import matplotlib.pyplot as plt
 import logging
+
+from .compositions import renormalise
+from .util.text import titlecase
+from .util.pd import to_frame
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -45,6 +47,7 @@ def to_molecular(df: pd.DataFrame, renorm=True):
     mass% --> mol%
     mass-ppm --> mol-ppm
     """
+    df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
          return renormalise(df.div(MWs))
@@ -59,6 +62,7 @@ def to_weight(df: pd.DataFrame, renorm=True):
     mol% --> mass%
     mol-ppm --> mass-ppm
     """
+    df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
         return renormalise(df.multiply(MWs))

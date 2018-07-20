@@ -8,6 +8,7 @@ import xmljson
 import dicttoxml
 from environs import Env
 import zipfile
+import logging
 
 from .general import copy_file, extract_zip, remove_tempdir
 

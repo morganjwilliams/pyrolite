@@ -4,6 +4,10 @@ import pandas as pd
 
 from .util.melts import *
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
+
 class MeltsSystem:
 
     def __init__(self, composition):

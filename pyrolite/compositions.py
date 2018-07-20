@@ -8,6 +8,7 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+
 def close(X: np.ndarray):
     if X.ndim == 2:
         return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])

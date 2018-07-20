@@ -2,7 +2,7 @@ import os, time
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.util.pandas import *
+from pyrolite.util.pd import *
 from pathlib import Path
 
 
@@ -14,6 +14,54 @@ def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
 
 def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
     return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
+
+
+class TestPandasUnitsPatch(unittest.TestCase):
+
+    @unittest.expectedFailure
+    def test_classes(self):
+        """
+        Check patching hasn't occurred to start with.
+        """
+        for cls in [pd.DataFrame, pd.Series]:
+            with self.subTest(cls=cls):
+                for prop in [units, # units property
+                             set_units, # set_units method
+                             ]:
+                    with self.subTest(prop=prop):
+                        clsp = getattr(cls, prop)
+                        instp = getattr(cls(), prop)
+
+    def test_patch(self):
+        """
+        Check that the units attribute exists after patching.
+        """
+        patch_pandas_units()
+        for cls in [pd.DataFrame, pd.Series]:
+            with self.subTest(cls=cls):
+                for prop in ['units', # units property
+                             'set_units', # set_units method
+                             ]:
+                    with self.subTest(prop=prop):
+                        clsp = getattr(cls, prop)
+                        instp = getattr(cls(), prop)
+
+    def test_set_units(self):
+        """
+        Check that the set_units method works after patching.
+        """
+        patch_pandas_units()
+        test_units = 'Wt%'
+        for cls in [pd.DataFrame, pd.Series]:
+            with self.subTest(cls=cls):
+                instance = cls()
+                instance.set_units('Wt%')
+                equiv = (instance.units == test_units)
+                if not isinstance(equiv, bool):
+                    equiv = equiv.all()
+                    self.assertTrue(isinstance(instance.units, pd.Series))
+
+                self.assertTrue(equiv)
 
 
 class TestColumnOrderedAppend(unittest.TestCase):
@@ -85,7 +133,7 @@ class TestToNumeric(unittest.TestCase):
         exclude = ['TiO2']
         num_columns = [c for c in df.columns if c not in exclude]
         result = to_numeric(df, exclude=exclude)
-
+        print(result)
         self.assertTrue((result.loc[:, exclude].dtypes != 'float64').all())
         self.assertTrue((result.loc[:, num_columns].dtypes == 'float64').all())
 
