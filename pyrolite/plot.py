@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 import ternary
-from .util.pandas import to_frame
+from .util.pd import to_frame
 from .util.general import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
 from .geochem import common_elements

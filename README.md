@@ -29,7 +29,7 @@ Note: Examples for compositional data yet to come.
 
 All Elements up to U
 ```python
->>> import pyrolite.common_elements as ce
+>>> import pyrolite.geochem.common_elements as ce
 >>> ce()  # periodictable.core.Element return
 [H, He, Li, Be, ...,  Th, Pa, U]
 >>> ce(output='str')  # string return
@@ -37,7 +37,7 @@ All Elements up to U
 ```
 Oxides for Elements with Positive Charges (up to U)
 ```python
->>> import pyrolite.common_oxides as co
+>>> import pyrolite.geochem.common_oxides as co
 >>> co()  # periodictable.formulas.Formula return
 [H, He, Li, Be, ...,  Th, Pa, U]
 >>> co(output='str')  # string return
@@ -63,7 +63,7 @@ df = pd.DataFrame({'label':'basalt', 'ID': 19076,
 Index(['label', 'ID', 'mgo', 'SIO2', 'cs', 'TiO2'], dtype='object')
 ```
 ```python
-from pyrolite.textutil import titlecase
+from pyrolite.util.text import titlecase
 from pyrolite.geochem import tochem
 
 >>> df.columns = [titlecase(h, abbrv=['ID']) for h in df.columns]

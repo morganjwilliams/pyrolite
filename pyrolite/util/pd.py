@@ -1,11 +1,53 @@
-from types import MethodType
 import pandas as pd
 import hashlib
 from pathlib import Path
+import numpy as np
 import logging
+import inspect
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
+
+def patch_pandas_units():
+    """
+    Patches pandas dataframes and series to have units values.
+    Todo: implement auto-assign of pandas units at __init__
+    """
+
+    def set_units(df:pd.DataFrame, units):
+        """
+        Monkey patch to add units to a dataframe.
+        """
+
+        if isinstance(df, pd.DataFrame):
+            if isinstance(units, str):
+                units = np.array([units])
+            units = pd.Series(units, name='units')
+        elif isinstance(df, pd.Series):
+            assert isinstance(units, str)
+            pass
+        setattr(df, 'units', units)
+
+
+    """
+    def init_wrapper(func, *args, **kwargs):
+
+        def init_wrapped(*args, **kwargs):
+            func(*args, **kwargs)
+
+        units = kwargs.pop('units', None)
+        if units is not None:
+            if isinstance(args[0], pd.DataFrame):
+                df = args[0]
+                df.set_units(units)
+        return init_wrapped
+    """
+
+    for cls in [pd.DataFrame, pd.Series]:
+        setattr(cls, 'units', None)
+        setattr(cls, set_units.__name__, set_units)
+        #setattr(cls, '__init__', init_wrapper(cls.__init__))
+
 
 def column_ordered_append(df1, df2, **kwargs):
     outcols = list(df1.columns) + [i for i in df2.columns
@@ -43,10 +85,9 @@ def to_numeric(df: pd.DataFrame,
     """
     Takes all non-metadata columns and converts to numeric type where possible.
     """
-    num_headers = [i for i in df.columns if i not in exclude]
-    df[num_headers] = df[num_headers].apply(pd.to_numeric,
-                                            axis=1, # across cols
-                                            errors=errors)
+    num_headers = [i for i in df.columns.unique() if i not in exclude]
+    for c in num_headers:
+        df.loc[:, c] = pd.to_numeric(df.loc[:, c], errors=errors)
     return df
 
 
