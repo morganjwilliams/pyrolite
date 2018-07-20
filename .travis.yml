@@ -2,7 +2,6 @@ language: python
 
 os:
   - linux
-  - osx
 
 python:
   - "3.5"
@@ -11,7 +10,6 @@ python:
 
 matrix:
   allow_failures:
-    - os: osx
     - python: "3.7"
 
 install:

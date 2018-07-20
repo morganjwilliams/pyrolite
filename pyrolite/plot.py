@@ -1,18 +1,19 @@
 import pandas as pd
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 import ternary
-from .util.pandas import to_frame
+from .util.pd import to_frame
 from .util.general import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
 from .geochem import common_elements
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
-DEFAULT_CONT_COLORMAP = 'viridis'
+DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = 'tab10'
 
 
@@ -180,6 +181,7 @@ def densityplot(df,
                 mode='density',
                 coverage_scale=1.1,
                 logspace=False,
+                contour=False,
                 **kwargs):
     """
     Plots density plot diagrams.
@@ -220,13 +222,20 @@ def densityplot(df,
 
     colorbar = kwargs.pop('colorbar', False)
 
+    ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
+    background_color = ax.patch.get_facecolor()
     nbins = kwargs.pop('bins', 20)
     cmap = kwargs.pop('cmap', DEFAULT_CONT_COLORMAP)
+    if isinstance(cmap, str):
+        cmap = plt.get_cmap(cmap)
+    cmap.set_under(color=background_color)
 
-    ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
     exp = (coverage_scale-1)/2
     data = df.loc[:, components].values
+
     if data.any():
+        # Data can't be plotted if there's any nans, so we can exclude these
+        data = data[(np.isfinite(data).all(axis=1)), :]
         if len(components) == 2:  # binary
             x, y = data.T
             xmin, xmax = on_finite(x, np.min)*(1.-exp), \
@@ -237,7 +246,9 @@ def densityplot(df,
             ystep = (ymax-ymin) / nbins
 
             extent = (xmin, xmax, ymin, ymax)
+
             if mode == 'hexbin':
+                vmin = kwargs.pop('vmin', 0)
                 if logspace:
                     # extent values are exponents (i.e. 3 -> 10**3)
                     hex_extent = (np.log(xmin - xstep), np.log(xmax + xstep),
@@ -258,7 +269,9 @@ def densityplot(df,
                                          extent=hex_extent,
                                          **kwargs)
                 cbarlabel = 'Frequency'
+
             elif mode == 'hist2d':
+                vmin = kwargs.pop('vmin', 0)
                 if logspace:
                     assert (xmin-xstep > 0.) and (ymin-ystep > 0.)
                     xe = np.logspace(np.log(xmin-xstep),
@@ -276,11 +289,12 @@ def densityplot(df,
                                           **kwargs)
                 mappable = im
                 cbarlabel = 'Frequency'
+
             elif mode == 'density':
-                shading = kwargs.pop('shading', None) or 'gouraud'
-                # Can't have nans or infs
+                shading = kwargs.pop('shading', None) or 'flat'
                 kdedata = data.T
-                kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
+                # Can't have nans or infs
+                #kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
 
                 if logspace:
                     assert xmin > 0. and ymin > 0.
@@ -299,16 +313,42 @@ def densityplot(df,
                     k = gaussian_kde(kdedata)
                     zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
-                mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
-                                         cmap=cmap,
-                                         shading=shading,
-                                         **kwargs)
 
-                ax.contour(xi, yi, zi.reshape(xi.shape),
-                           extent=extent,
-                           linewidths=linewidths,
-                           linestyles=linestyles,
-                           **kwargs)
+                vmin = kwargs.pop('vmin', 0.02 * np.nanmax(zi)) # 1% max height
+                if contour:
+                    levels = kwargs.pop('levels', None)
+
+                    if levels is None:
+                        levels = MaxNLocator(nbins=10).tick_values(zi.min(),
+                                                                   zi.max())
+                    elif isinstance(levels, int):
+                        levels = MaxNLocator(nbins=levels).tick_values(zi.min(),
+                                                                       zi.max())
+
+                    mappable = ax.contourf(xi, yi, zi.reshape(xi.shape),
+                                           extent=extent,
+                                           levels=levels,
+                                           vmin=vmin,
+                                           **kwargs)
+
+                    ax.contour(xi, yi, zi.reshape(xi.shape),
+                               extent=extent,
+                               linewidths=linewidths,
+                               linestyles=linestyles,
+                               vmin=vmin,
+                               **kwargs)
+                else:
+                    # updated to pcolor to avoid quadmesh issues with alpha
+                    mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
+                                             cmap=cmap,
+                                             shading=shading,
+                                             vmin=vmin,
+                                             **kwargs)
+                    mappable.set_edgecolor(background_color)
+                    mappable.set_linestyle('None')
+                    mappable.set_lw(0.)
+
+
                 cbarlabel = 'Kernel Density Estimate'
 
             if colorbar:

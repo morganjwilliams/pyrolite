@@ -11,7 +11,7 @@ from matplotlib.collections import PatchCollection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class ClassifierModel(object):

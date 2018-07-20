@@ -21,8 +21,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
 
-
-
 def check_access_driver():
     return [x for x in pyodbc.drivers()
             if x.startswith('Microsoft Access Driver')]

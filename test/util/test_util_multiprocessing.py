@@ -4,6 +4,7 @@ import numpy as np
 from pyrolite.util.multiprocessing import multiprocess, func_wrapper
 import platform
 
+
 def arbitary_function(**kwargs):
     """A function which will return what is passed."""
     return kwargs

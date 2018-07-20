@@ -2,13 +2,15 @@ import pandas as pd
 import numpy as np
 import mpmath
 import periodictable as pt
-from .compositions import renormalise
-from .util.text import titlecase
 import matplotlib.pyplot as plt
 import logging
 
+from .compositions import renormalise
+from .util.text import titlecase
+from .util.pd import to_frame
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 def ischem(s):
     """
@@ -45,6 +47,7 @@ def to_molecular(df: pd.DataFrame, renorm=True):
     mass% --> mol%
     mass-ppm --> mol-ppm
     """
+    df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
          return renormalise(df.div(MWs))
@@ -59,6 +62,7 @@ def to_weight(df: pd.DataFrame, renorm=True):
     mol% --> mass%
     mol-ppm --> mass-ppm
     """
+    df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
         return renormalise(df.multiply(MWs))
@@ -272,7 +276,7 @@ def aggregate_cation(df: pd.DataFrame,
                            axis=0)
         totals[np.isclose(totals, 0)] = np.nan
         df.loc[:, oxstr] = totals
-        df = df.drop(columns=[elstr])
+        df.drop(columns=[elstr], inplace=True)
         assert elstr not in df.columns
 
     elif form == 'element':
@@ -285,7 +289,7 @@ def aggregate_cation(df: pd.DataFrame,
         totals[np.isclose(totals, 0)] = np.nan
         df.loc[:, elstr] = totals
 
-        df = df.drop(columns=[oxstr])
+        df.drop(columns=[oxstr], inplace=True)
         assert oxstr not in df.columns
 
     return df
@@ -315,10 +319,13 @@ def add_ratio(df: pd.DataFrame,
     Returned series be assigned an alias name.
     """
     num, den = ratio.split('/')
+    assert num in df.columns
+    assert den in df.columns
     name = [ratio if not alias else alias][0]
     conv = convert(df.loc[:, [num, den]])
     conv.loc[(conv[den]==0.), den] = np.nan # avoid inf
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
+    return df
 
 
 def add_MgNo(df: pd.DataFrame,
@@ -329,20 +336,20 @@ def add_MgNo(df: pd.DataFrame,
     if not molecularIn:
         if components:
             # Iron is split into species
-            df['Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
+            df.loc[:, 'Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
                        (df['MgO'] / pt.formula('MgO').mass + df['FeO'] / pt.formula('FeO').mass)
         else:
             # Total iron is used
             assert 'FeOT' in df.columns
-            df['Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
+            df.loc[:, 'Mg#'] = df['MgO'] / pt.formula('MgO').mass / \
                        (df['MgO'] / pt.formula('MgO').mass + df['FeOT'] / pt.formula('FeO').mass)
     else:
         if not elemental:
             # Molecular Oxides
-            df['Mg#'] = df['MgO'] / (df['MgO'] + df['FeO'])
+            df.loc[:, 'Mg#'] = df['MgO'] / (df['MgO'] + df['FeO'])
         else:
             # Molecular Elemental
-            df['Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
+            df.loc[:, 'Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
 
 def lambdas(REE, degrees=2, constructor=mpmath.chebyu):

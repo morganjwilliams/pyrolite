@@ -105,3 +105,5 @@ venv.bak/
 
 # classifier model builds
 *.clsf.gz
+
+doc/examples/scratch\.py
