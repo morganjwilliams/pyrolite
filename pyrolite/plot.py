@@ -360,7 +360,7 @@ def densityplot(df,
             ax.set_ylabel(components[1], fontsize=fontsize)
 
         elif len(components) == 3:  # ternary
-            scale = kwargs.pop('scale', None) or 100
+            scale = kwargs.pop('scale', None) or 100.
             empty_df = pd.DataFrame(columns=df.columns)
             heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
             tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
