@@ -4,6 +4,8 @@ import requests
 import re
 import logging
 
+from pyrolite.util.text import titlecase
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
