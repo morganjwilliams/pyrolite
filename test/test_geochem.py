@@ -2,6 +2,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.geochem import *
+from pyrolite.normalisation import ReferenceCompositions
 
 class TestToMolecular(unittest.TestCase):
     """Tests pandas molecular conversion operator."""
@@ -666,6 +667,46 @@ class TestAddMgNo(unittest.TestCase):
     def test_Fe_components(self):
         """Check that the function works for multiple component Fe."""
         pass
+
+class TestLambdaLnREE(unittest.TestCase):
+
+    def setUp(self):
+        self.rc = ReferenceCompositions()
+        els = [i for i in REE() if not str(i)=='Pm']
+        vals = [self.rc['Chondrite_PON'][el] for el in els]
+        self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
+        self.df.loc[1, :] = self.df.loc[0, :]
+
+        self.default_degree = 5
+
+    def test_exclude(self):
+        """
+        Tests the ability to generate lambdas from different element sets.
+        """
+        for exclude in [[], ['Pm'], ['Pm', 'Eu'], ['Pm', 'Eu', 'Ce']]:
+            with self.subTest(exclude=exclude):
+                ret = lambda_lnREE(self.df, exclude=exclude)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_degree(self):
+        """
+        Tests the ability to generate lambdas of different degree.
+        """
+        for degree in range(1, 6):
+            with self.subTest(degree=degree):
+                ret = lambda_lnREE(self.df, degree=degree)
+                self.assertTrue(ret.columns.size == degree)
+
+    def test_norm_to(self):
+        """
+        Tests the ability to generate lambdas using different normalisationsself."""
+        for norm_to in self.rc.keys():
+            data = self.rc[norm_to][self.df.columns]['value']
+            if not pd.isnull(data).any():
+                with self.subTest(norm_to=norm_to):
+                    ret = lambda_lnREE(self.df, norm_to=norm_to)
+                    self.assertTrue(ret.columns.size == self.default_degree)
+
 
 if __name__ == '__main__':
     unittest.main()

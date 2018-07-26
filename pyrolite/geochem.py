@@ -366,30 +366,38 @@ def add_MgNo(df: pd.DataFrame,
             # Molecular Elemental
             df.loc[:, 'Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
+
 def lambda_lnREE(df,
                  norm_to='Chondrite_PON',
                  exclude=['Pm', 'Eu'],
-                 params='default',
+                 params=None,
                  degree=5):
-
+    """
+    Calculates lambda coefficients for a given set of REE data, normalised
+    to a specific composition. Lambda factors are given for the
+    radii vs. ln(REE/NORM) polynomical combination.
+    """
     ree = [i for i in REE() if not str(i) in exclude and
            (str(i) in df.columns or i in df.columns)] # no promethium
     radii = np.array(get_radii(ree))
 
-    params = OP_constants(radii, degree=degree)
+    if params is None:
+        params = OP_constants(radii, degree=degree)
 
     col_indexes = [i for i in df.columns if str(i) not in exclude]
 
     if isinstance(norm_to, str):
         norm = ReferenceCompositions()[norm_to]
         norm_abund = np.array([norm[str(el)].value for el in ree])
-    elif isinstance(norm_to, list):
-        norm_abund = np.array(norm)
+    else: # list, iterable, pd.Index etc
+        norm_abund = np.array([i for i in norm])
 
     assert len(norm_abund) == len(ree)
 
     labels = [chr(955) + str(d) for d in range(degree)]
-    return pd.DataFrame([lambdas(np.log(df.loc[idx, col_indexes] / norm_abund),
+    norm_df = df.loc[:, col_indexes] / norm_abund
+    norm_df = norm_df.applymap(np.log)
+    return pd.DataFrame([lambdas(norm_df.loc[idx, :],
                                  xs=radii,
                                  params=params,
                                  degree=degree)

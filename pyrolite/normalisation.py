@@ -141,6 +141,8 @@ class RefComp:
         """
         Allow access to model values via attribute e.g. Model.Si
         """
+        if not isinstance(var, str):
+            var = str(var)
         if var in self.data.index:
             return self.data.loc[var, 'value']
         else:
@@ -151,6 +153,12 @@ class RefComp:
         Allow access to model values via [] indexing e.g. Model['Si', 'Cr'].
         Currently not implemented for ratios.
         """
+        if isinstance(vars, list) or \
+           isinstance(vars, pd.Index) or \
+           isinstance(vars, np.ndarray):
+            vars = [v if isinstance(v, str) else str(v) for v in vars]
+        elif not isinstance(vars, str):
+            vars = str(vars)
         return self.data.loc[vars, ['value', 'unc_2sigma', 'units']]
 
     def __repr__(self):
