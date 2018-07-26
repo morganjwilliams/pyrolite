@@ -1,8 +1,9 @@
 import os, sys
 import re
 import pandas as pd
-
+import logging
 from .util.melts import *
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

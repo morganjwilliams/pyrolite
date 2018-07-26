@@ -3,14 +3,28 @@ import numpy as np
 import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
-import logging
 
 from .compositions import renormalise
+from .normalisation import ReferenceCompositions
 from .util.text import titlecase
 from .util.pd import to_frame
+from .util.math import OP_constants, lambdas, lambda_poly, weighted_comb, \
+                       expand_lambdas
+import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+# radii needed for REE lambdas
+
+def get_radii(el):
+    """Convenience function for ionic radii."""
+    if isinstance(el, list):
+        return [get_radii(e) for e in el]
+    elif not isinstance(el, str):
+        el = str(el)
+    return _RADII[el]
+
 
 def ischem(s):
     """
@@ -102,8 +116,9 @@ def REE(output='formula', include_extras=False):
 
     Todo: add include extras such as Y.
     """
-    elements = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd',
-            'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
+    elements = ['La', 'Ce', 'Pr', 'Nd', 'Pm',
+                'Sm', 'Eu', 'Gd', 'Tb', 'Dy',
+                'Ho', 'Er', 'Tm', 'Yb', 'Lu']
     if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
     return elements
@@ -351,11 +366,37 @@ def add_MgNo(df: pd.DataFrame,
             # Molecular Elemental
             df.loc[:, 'Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
+def lambda_lnREE(df,
+                 norm_to='Chondrite_PON',
+                 exclude=['Pm', 'Eu'],
+                 params='default',
+                 degree=5):
 
-def lambdas(REE, degrees=2, constructor=mpmath.chebyu):
-    """
-    Defaults to the  Chebyshev polynomials of the second kind.
-    """
-    lambs = [lambda x: constructor(deg, x) for deg in range(degrees)]
-    print(lambs)
-    mpmath.plot(lambs,[-1,1])
+    ree = [i for i in REE() if not str(i) in exclude and
+           (str(i) in df.columns or i in df.columns)] # no promethium
+    radii = np.array(get_radii(ree))
+
+    params = OP_constants(radii, degree=degree)
+
+    col_indexes = [i for i in df.columns if str(i) not in exclude]
+
+    if isinstance(norm_to, str):
+        norm = ReferenceCompositions()[norm_to]
+        norm_abund = np.array([norm[str(el)].value for el in ree])
+    elif isinstance(norm_to, list):
+        norm_abund = np.array(norm)
+
+    assert len(norm_abund) == len(ree)
+
+    labels = [chr(955) + str(d) for d in range(degree)]
+    return pd.DataFrame([lambdas(np.log(df.loc[idx, col_indexes] / norm_abund),
+                                 xs=radii,
+                                 params=params,
+                                 degree=degree)
+                         for idx in df.index],
+                       columns=labels)
+
+_RADII = {str(k): v for (k, v) in zip(REE(), [1.160, 1.143, 1.126, 1.109,
+                                         1.093, 1.079, 1.066, 1.053,
+                                         1.040, 1.027, 1.015, 1.004,
+                                         0.994, 0.985, 0.977])}
