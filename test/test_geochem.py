@@ -4,6 +4,57 @@ import numpy as np
 from pyrolite.geochem import *
 from pyrolite.normalisation import ReferenceCompositions
 
+
+class TestGetRadii(unittest.TestCase):
+    """Checks the radii getter."""
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_ree_radii(self):
+        radii = get_radii(self.ree[0])
+        self.assertTrue(isinstance(radii, float))
+
+    def test_ree_radii_list(self):
+        radii = get_radii(self.ree)
+        self.assertTrue(isinstance(radii, list))
+
+
+class TestIsChem(unittest.TestCase):
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_ischem_str(self):
+        ret = ischem(self.ree[0])
+        self.assertTrue(isinstance(ret, bool))
+        self.assertTrue(ret)
+
+    def test_notchem_str(self):
+        ret = ischem("Notachemical")
+        self.assertTrue(isinstance(ret, bool))
+        self.assertFalse(ret)
+
+    def test_ischem_list(self):
+        ret = ischem(self.ree)
+        self.assertTrue(isinstance(ret, list))
+        self.assertTrue(all([isinstance(i, bool) for i in ret]))
+
+class TestToChem(unittest.TestCase):
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_tochem_str(self):
+        ret = tochem(self.ree[0])
+
+    def test_tonotchem_str(self):
+        ret = tochem(["Notachemical"])
+
+    def test_tochem_list(self):
+        ret = tochem(self.ree)
+
+
 class TestToMolecular(unittest.TestCase):
     """Tests pandas molecular conversion operator."""
 

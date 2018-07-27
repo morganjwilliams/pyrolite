@@ -15,7 +15,6 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-# radii needed for REE lambdas
 
 def get_radii(el):
     """Convenience function for ionic radii."""
@@ -33,9 +32,12 @@ def ischem(s):
 
     TODO: Implement checking for other compounds, e.g. carbonates.
     """
-
-    chems = [e.upper() for e in common_oxides(output='str') + common_elements(output='str')]
-    return s.upper() in chems
+    chems = common_oxides(output='str') + common_elements(output='str')
+    chems = [e.upper() for e in chems]
+    if isinstance(s, list):
+        return [str(st).upper() in chems for st in s]
+    else:
+        return str(s).upper() in chems
 
 
 def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
@@ -43,13 +45,13 @@ def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
     Converts a list of strings containing come chemical compounds to
     appropriate case.
     """
-      # accomodate single string passed
+     # accomodate single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
         strings = [strings]
-    trans = {e.upper(): e for e in common_oxides(output='str') + \
-                                   common_elements(output='str')}
-    strings = [trans[h.upper()]
-               if h.upper() in trans else h
+    chems = common_oxides(output='str') + common_elements(output='str')
+    trans = {str(e).upper(): str(e) for e in chems}
+    strings = [trans[str(h).upper()]
+               if str(h).upper() in trans else h
                for h in strings]
     return strings
 
