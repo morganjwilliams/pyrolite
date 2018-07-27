@@ -3,12 +3,12 @@ import numpy as np
 import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
-
+import functools
 from .compositions import renormalise
 from .normalisation import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
-from .util.math import OP_constants, lambdas, lambda_poly, weighted_comb
+from .util.math import OP_constants, lambdas, lambda_poly
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -378,7 +378,7 @@ def lambda_lnREE(df,
     to a specific composition. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
     """
-    ree = [i for i in REE() if not str(i) in exclude and
+    ree = [i for i in REE() if (not str(i) in exclude) and
            (str(i) in df.columns or i in df.columns)] # no promethium
     radii = np.array(get_radii(ree))
 
@@ -387,7 +387,8 @@ def lambda_lnREE(df,
     else:
         degree = len(params)
 
-    col_indexes = [i for i in df.columns if str(i) not in exclude]
+    col_indexes = [i for i in df.columns if i in ree
+                   or i in map(str, ree)]
 
     if isinstance(norm_to, str):
         norm = ReferenceCompositions()[norm_to]
@@ -400,14 +401,21 @@ def lambda_lnREE(df,
     assert len(norm_abund) == len(ree)
 
     labels = [chr(955) + str(d) for d in range(degree)]
-    norm_df = df.loc[:, col_indexes] / norm_abund
+
+    norm_df = df.loc[:, col_indexes]
+    norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:, col_indexes].values,
+                                            norm_abund)
     norm_df = norm_df.applymap(np.log)
-    return pd.DataFrame([lambdas(norm_df.loc[idx, :].values,
-                                 xs=radii,
-                                 params=params,
-                                 degree=degree)
-                         for idx in df.index],
-                       columns=labels)
+    lambda_partial = functools.partial(lambdas,
+                                       xs=radii,
+                                       params=params,
+                                       degree=degree)
+    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial, 1,
+                                                norm_df.values),
+                            index=df.index,
+                            columns=labels)
+    return lambdadf
+
 
 _RADII = {str(k): v for (k, v) in zip(REE(), [1.160, 1.143, 1.126, 1.109,
                                          1.093, 1.079, 1.066, 1.053,

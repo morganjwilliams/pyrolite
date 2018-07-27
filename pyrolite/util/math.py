@@ -67,8 +67,10 @@ def lambda_poly(x, ps):
     return result.astype(np.float)
 
 
-def weighted_comb(ls, arrs):
-    return ls @ arrs
+def lambda_min_func(ls, ys, arrs, power=1.):
+    cost = np.abs(np.dot(ls, arrs) - ys)**power
+    cost[np.isnan(cost)] = 0.
+    return cost
 
 
 def lambdas(arr:np.ndarray,
@@ -76,7 +78,8 @@ def lambdas(arr:np.ndarray,
             params=None,
             degree=5,
             costf_power=1.,
-            residuals=False):
+            residuals=False,
+            min_func=lambda_min_func):
     """
     Parameterises values based on linear combination of orthagonal polynomials
     over a given set of x values.
@@ -84,14 +87,9 @@ def lambdas(arr:np.ndarray,
     if params is None:
         params = OP_constants(xs, degree=degree)
 
-    def min_func(ls, ys, arrs, power=1.):
-        cost = np.abs(ys - weighted_comb(ls, arrs))**power#.sum(axis=0)
-        cost[np.isnan(cost)] = 0.
-        return cost
-
     fs = np.array([lambda_poly(xs, pset) for pset in params])
 
-    guess = np.zeros(degree)#np.logspace(0, -2, degree)
+    guess = np.zeros(degree)
     result = optimize.least_squares(min_func,
                                     guess,
                                     args=(arr, fs, costf_power)) # , method='Nelder-Mead'
@@ -115,6 +113,6 @@ def lambda_poly_func(lambdas:np.ndarray,
 
     def lambda_poly_f(xarr):
         arrs = np.array([lambda_poly(xarr, pset) for pset in params])
-        return np.apply_along_axis(weighted_comb, 1, lambdas, arrs)
+        return np.dot(lambdas, arrs)
 
     return lambda_poly_f
