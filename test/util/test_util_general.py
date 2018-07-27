@@ -1,6 +1,7 @@
 import unittest
 from pyrolite.util.general import *
 
+
 class TestFlattenDict(unittest.TestCase):
     """Tests flatten_dict utility function."""
 
@@ -43,7 +44,36 @@ class TestSwapItem(unittest.TestCase):
                 self.assertTrue(len(result) == len(L))
                 self.assertTrue(result[L.index(pull)] == push)
 
-#swap_item
+
+class TestCopyFile(unittest.TestCase):
+    """Tests copy_file utility function."""
+
+    def setUp(self):
+        pass
+
+    def test_simple(self):
+        pass
+
+
+class TestRemoveTempdir(unittest.TestCase):
+    """Tests remove_tempdir utility function."""
+
+    def setUp(self):
+        pass
+
+    def test_simple(self):
+        pass
+
+
+class TestExtractZip(unittest.TestCase):
+    """Tests extract_zip utility function."""
+
+    def setUp(self):
+        pass
+
+    def test_simple(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

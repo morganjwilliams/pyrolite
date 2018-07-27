@@ -727,7 +727,6 @@ class TestLambdaLnREE(unittest.TestCase):
         vals = [self.rc['Chondrite_PON'][el] for el in els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
         self.df.loc[1, :] = self.df.loc[0, :]
-
         self.default_degree = 5
 
     def test_exclude(self):

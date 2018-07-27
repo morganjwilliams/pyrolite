@@ -5,11 +5,10 @@ import periodictable as pt
 import matplotlib.pyplot as plt
 
 from .compositions import renormalise
-from .normalisation import ReferenceCompositions
+from .normalisation import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
-from .util.math import OP_constants, lambdas, lambda_poly, weighted_comb, \
-                       expand_lambdas
+from .util.math import OP_constants, lambdas, lambda_poly, weighted_comb
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -385,21 +384,25 @@ def lambda_lnREE(df,
 
     if params is None:
         params = OP_constants(radii, degree=degree)
+    else:
+        degree = len(params)
 
     col_indexes = [i for i in df.columns if str(i) not in exclude]
 
     if isinstance(norm_to, str):
         norm = ReferenceCompositions()[norm_to]
         norm_abund = np.array([norm[str(el)].value for el in ree])
+    elif isinstance(norm_to, RefComp):
+        norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
     else: # list, iterable, pd.Index etc
-        norm_abund = np.array([i for i in norm])
+        norm_abund = np.array([i for i in norm_abund])
 
     assert len(norm_abund) == len(ree)
 
     labels = [chr(955) + str(d) for d in range(degree)]
     norm_df = df.loc[:, col_indexes] / norm_abund
     norm_df = norm_df.applymap(np.log)
-    return pd.DataFrame([lambdas(norm_df.loc[idx, :],
+    return pd.DataFrame([lambdas(norm_df.loc[idx, :].values,
                                  xs=radii,
                                  params=params,
                                  degree=degree)

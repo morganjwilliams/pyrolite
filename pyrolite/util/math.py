@@ -32,7 +32,7 @@ def OP_constants(xs, degree=3, tol=10**-14):
     params = []
     for d in range(degree):
         ps = symbols('{}0:{}'.format(chr(945+d),d))
-        logger.debug(print('Generating {} DIM {} equations for {}.'.format(d, d, ps)))
+        logger.debug('Generating {} DIM {} equations for {}.'.format(d, d, ps))
         if d:
             eqs = []
             for _deg in range(d):
@@ -71,29 +71,50 @@ def weighted_comb(ls, arrs):
     return ls @ arrs
 
 
-def lambdas(arr:np.ndarray, xs=np.array([]), params=None, degree=5):
+def lambdas(arr:np.ndarray,
+            xs=np.array([]),
+            params=None,
+            degree=5,
+            costf_power=1.,
+            residuals=False):
     """
     Parameterises values based on linear combination of orthagonal polynomials
     over a given set of x values.
     """
-    params = params or OP_constants(xs, degree=degree)
+    if params is None:
+        params = OP_constants(xs, degree=degree)
 
-    def min_func(ls, ys, arrs):
-        return np.abs(ys - weighted_comb(ls, arrs)).sum(axis=0)
+    def min_func(ls, ys, arrs, power=1.):
+        cost = np.abs(ys - weighted_comb(ls, arrs))**power#.sum(axis=0)
+        cost[np.isnan(cost)] = 0.
+        return cost
 
     fs = np.array([lambda_poly(xs, pset) for pset in params])
 
-    guess = np.logspace(0, -2, degree)
-    result = optimize.minimize(min_func, guess,
-                               args=(arr, fs), method='Nelder-Mead')
-    return result.x
+    guess = np.zeros(degree)#np.logspace(0, -2, degree)
+    result = optimize.least_squares(min_func,
+                                    guess,
+                                    args=(arr, fs, costf_power)) # , method='Nelder-Mead'
+    if residuals:
+        return result.x, result.fun
+    else:
+        return result.x
 
 
-def expand_lambdas(lambdas:np.ndarray, xs=np.array([]), params=None, degree=5):
+def lambda_poly_func(lambdas:np.ndarray,
+                     pxs:np.ndarray,
+                     params=None,
+                     degree=5):
     """
     Expansion of lambda parameters back to a higher dimensional space.
+
+    Returns a function.
     """
     if params is None:
-        params = OP_constants(xs, degree=degree)
-    arrs = np.array([lambda_poly(xs, pset) for pset in params])
-    return np.apply_along_axis(weighted_comb, 1, lambdas, arrs)
+        params = OP_constants(pxs, degree=degree)
+
+    def lambda_poly_f(xarr):
+        arrs = np.array([lambda_poly(xarr, pset) for pset in params])
+        return np.apply_along_axis(weighted_comb, 1, lambdas, arrs)
+
+    return lambda_poly_f

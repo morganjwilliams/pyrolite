@@ -86,5 +86,17 @@ class TestOPConstants(unittest.TestCase):
                         self.assertTrue(np.allclose(a, b, rtol=test_tol))
 
 
+class TestLambdaPolyFunc(unittest.TestCase):
+    """Checks the generation of lambda polynomial functions."""
+
+    def setUp(self):
+        self.lambdas = np.array([0.1, 1., 10., 100.])
+        self.xs = np.linspace(0.9, 1.1, 5)
+
+    def test_function_generation(self):
+        ret = lambda_poly_func(self.lambdas, self.xs)
+        self.assertTrue(callable(ret))
+
+
 if __name__ == '__main__':
     unittest.main()
