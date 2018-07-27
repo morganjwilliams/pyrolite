@@ -538,9 +538,9 @@ class TestNPComplexStandardiseAggregate(unittest.TestCase):
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
                 out = np_complex_standardise_aggregate(df, renorm=renorm)
-                outvals = out[~np.isnan(out.values)]
-                dfvals = df.values[~np.isnan(df.values)]
-                self.assertTrue(np.allclose(outvals, dfvals))
+                outvals = out#[~np.isnan(out.values)]
+                dfvals = df.values#[~np.isnan(df.values)]
+                self.assertTrue(np.allclose(outvals, dfvals, equal_nan=True))
 
     def test_multiple_with_IS(self):
         """

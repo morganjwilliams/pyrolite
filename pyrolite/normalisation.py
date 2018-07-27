@@ -182,6 +182,8 @@ def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
     """
     if platform.system() =='Windows':
         kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+    else:
+        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
 
     curr_dir = os.path.realpath(__file__)
     module_dir = Path(sys.modules['pyrolite'].__file__).parent
