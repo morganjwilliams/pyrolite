@@ -181,14 +181,19 @@ class TestCommonElements(unittest.TestCase):
         """Check the function works normal cutoff Z numbers."""
         for cutoff in [1, 15, 34, 63, 93]:
             with self.subTest(cutoff=cutoff):
-                self.assertTrue(common_elements(cutoff=cutoff)[-1].number==cutoff)
+                self.assertTrue(common_elements(output='formula',
+                                                cutoff=cutoff
+                                                )[-1].number==cutoff)
 
     def test_high_cutoff(self):
         """Check the function works silly high cutoff Z numbers."""
         for cutoff in [119, 1000, 10000]:
             with self.subTest(cutoff=cutoff):
-                self.assertTrue(len(common_elements(cutoff=cutoff))<130)
-                self.assertTrue(common_elements(cutoff=cutoff)[-1].number<cutoff)
+                self.assertTrue(len(common_elements(output='formula',
+                                                    cutoff=cutoff))<130)
+                self.assertTrue(common_elements(output='formula',
+                                                cutoff=cutoff
+                                                )[-1].number<cutoff)
 
     def test_formula_output(self):
         """Check the function produces formula output."""

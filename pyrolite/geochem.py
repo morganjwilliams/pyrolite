@@ -31,7 +31,7 @@ def ischem(s):
 
     TODO: Implement checking for other compounds, e.g. carbonates.
     """
-    chems = common_oxides(output='str') + common_elements(output='str')
+    chems = common_oxides() + common_elements()
     chems = [e.upper() for e in chems]
     if isinstance(s, list):
         return [str(st).upper() in chems for st in s]
@@ -47,7 +47,7 @@ def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
      # accomodate single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
         strings = [strings]
-    chems = common_oxides(output='str') + common_elements(output='str')
+    chems = common_oxides() + common_elements()
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()]
                if str(h).upper() in trans else h
@@ -98,19 +98,19 @@ def get_cations(oxide:str, exclude=[]):
     return cations
 
 
-def common_elements(cutoff=92, output='formula'):
+def common_elements(cutoff=92, output='string'):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
     Output options are 'formula', or strings.
     """
     elements = [el for el in pt.elements
-                if not (el.__str__() == 'n' or el.number>cutoff)]
+                if not (str(el) == 'n' or el.number>cutoff)]
     if not output == 'formula':
-        elements = [el.__str__() for el in elements]
+        elements = [str(el) for el in elements]
     return elements
 
 
-def REE(output='formula', include_extras=False):
+def REE(output='string', include_extras=False):
     """
     Provides the list of Rare Earth Elements
     Output options are 'formula', or strings.
@@ -125,7 +125,7 @@ def REE(output='formula', include_extras=False):
     return elements
 
 
-def common_oxides(elements: list=[], output='formula',
+def common_oxides(elements: list=[], output='string',
                   addition: list=['FeOT', 'Fe2O3T', 'LOI'],
                   exclude=['O', 'He', 'Ne', 'Ar', 'Kr', 'Xe']):
     """
@@ -139,7 +139,7 @@ def common_oxides(elements: list=[], output='formula',
     """
     if not elements:
         elements = [el for el in common_elements(output='formula')
-                    if not el.__str__() in exclude]
+                    if not str(el) in exclude]
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -147,11 +147,11 @@ def common_oxides(elements: list=[], output='formula',
     oxides = [ox for el in elements
               for ox in simple_oxides(el, output=output)]
     if output != 'formula':
-        oxides = [ox.__str__() for ox in oxides] + addition
+        oxides = [str(ox) for ox in oxides] + addition
     return oxides
 
 
-def simple_oxides(cation, output='formula'):
+def simple_oxides(cation, output='string'):
     """
     Creates a list of oxides for a cationic element
     (oxide of ions with c=1+ and above).
@@ -171,7 +171,7 @@ def simple_oxides(cation, output='formula'):
               for c in ions]
     oxides = [pt.formula(ox) for ox in oxides]
     if not output == 'formula':
-        oxides = [ox.__str__() for ox in oxides]
+        oxides = [str(ox) for ox in oxides]
     return oxides
 
 
@@ -280,7 +280,7 @@ def aggregate_cation(df: pd.DataFrame,
     Needs to also implement a 'molecular' version.
     """
     elstr = cation.__str__()
-    oxstr = [o for o in df.columns if o in simple_oxides(elstr, output='str')][0]
+    oxstr = [o for o in df.columns if o in simple_oxides(elstr)][0]
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
     if form == 'oxide':
@@ -317,12 +317,11 @@ def check_multiple_cation_inclusion(df, exclude=['LOI', 'FeOT', 'Fe2O3T']):
 
     Todo: Options for output (string/formula).
     """
-    major_components = [i for i in common_oxides(output='str')
-                        if i in df.columns]
+    major_components = [i for i in common_oxides() if i in df.columns]
     elements_as_majors = [get_cations(oxide)[0] for oxide in major_components
                           if not oxide in exclude]
     elements_as_traces = [c for c in common_elements(output='formula')
-                          if c.__str__() in df.columns]
+                          if str(c) in df.columns]
     return set([el for el in elements_as_majors if el in elements_as_traces])
 
 

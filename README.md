@@ -30,24 +30,24 @@ Note: Examples for compositional data yet to come.
 All Elements up to U
 ```python
 >>> import pyrolite.geochem.common_elements as ce
->>> ce()  # periodictable.core.Element return
-[H, He, Li, Be, ...,  Th, Pa, U]
->>> ce(output='str')  # string return
+>>> ce()  # string return
 ['H', 'He', 'Li', 'Be', ...,  'Th', 'Pa', 'U']
+>>> ce(output='formula')  # periodictable.core.Element return
+[H, He, Li, Be, ...,  Th, Pa, U]
 ```
 Oxides for Elements with Positive Charges (up to U)
 ```python
 >>> import pyrolite.geochem.common_oxides as co
->>> co()  # periodictable.formulas.Formula return
-[H, He, Li, Be, ...,  Th, Pa, U]
->>> co(output='str')  # string return
+>>> co()  # string return
 ['H2O', 'He2O', 'HeO', 'Li2O', 'Be2O', 'BeO', 'B2O', 'BO', 'B2O3', ...,
 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3']
+>>> co()  # periodictable.formulas.Formula return
+[H, He, Li, Be, ...,  Th, Pa, U]
 ```
 REE Elements
 ```python
 >>> from pyrolite.geochem import REE
->>> REE(output='str')
+>>> REE()
 ['La', 'Ce', 'Pr', 'Nd', 'Pm', ..., 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
 ```
 
@@ -92,8 +92,7 @@ A selection of reference compositions are included:
 ```python
 >>> CH = refcomp['Chondrite_PON']
 >>> PM = refcomp['PM_PON']
->>> reels = REE(output='str')
->>> CH[reels]
+>>> CH[REE()]
       value  unc_2sigma units
 var                           
 La    0.2414    0.014484   ppm
@@ -111,8 +110,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> CH = refcomp['Chondrite_PON']
 >>> DMM = refcomp['DMM_WH']
 >>>
->>> reels = ree(output='str')
->>> df = DMM.data.loc[reels, ['value']]
+>>> df = DMM.data.loc[REE(), ['value']]
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
