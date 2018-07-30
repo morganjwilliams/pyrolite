@@ -14,6 +14,7 @@ from .general import copy_file, extract_zip, remove_tempdir
 
 
 def check_perl():
+    """Checks whether perl is installed on the system."""
     try:
         p = subprocess.check_output("which perl")
         returncode = 0
@@ -26,10 +27,16 @@ def check_perl():
 
 def download_melts(directory):
     """
-    1. Download melts zip file.
-    todo:
+    Download and extract melts zip file to a given directory.
+
+    TODO:
     #2. Check install folder doens't have current installation
     #3. If it does, and update is True - overwrite
+
+    Parameters
+    ----------
+    directory : str | pathlib.Path
+        Directory into which to extract melts.
     """
 
     system = platform.system()
@@ -76,7 +83,20 @@ def install_melts(install_dir,
                   temp_dir=Path("~").expanduser()/'temp'/'temp_melts',
                   keep_tempdir=False):
     """
-
+    Parameters
+    ----------
+    install_dir : str | pathlib.Path
+        Directory into which to install melts executable.
+    link_dir : str | pathlib.Path, None
+        Directory into which to deposit melts links.
+    eg_dir : str | pathlib.Path
+        Directory into which to deposit melts examples.
+    native : bool, True
+        Whether to install using perl scripts (windows).
+    temp_dir : str | pathlib.Path, $USER$/temp/temp_melts
+        Temporary directory for melts file download and install.
+    keep_tempdir : bool, False
+        Whether to cache tempoary files and preserve the temporary directory.
     """
     system = platform.system()
     release = platform.release()
@@ -175,8 +195,6 @@ def install_melts(install_dir,
                     with open(b, 'w') as fout:
                         fout.write(batdata[b.stem]) # dummy bats
 
-
-
                 files_to_copy +=  [(link_dir, bats)]
 
                 #regs = ['command', 'command_auto_file', 'path', 'perl']
@@ -201,6 +219,16 @@ def install_melts(install_dir,
 
 
 def melts_query(data_dict, url_sfx='Compute'):
+    """
+    Execute query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the web query.
+    url_sfx : str, Compute
+        URL suffix to denote specific web service (Compute | Oxides | Phases).
+    """
     url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
     xmldata = dicttoxml.dicttoxml(data_dict,
                                   custom_root='MELTSinput',
@@ -215,6 +243,14 @@ def melts_query(data_dict, url_sfx='Compute'):
 
 
 def melts_compute(data_dict):
+    """
+    Execute 'Compute' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Compute web query.
+    """
     url_sfx = "Compute"
     result = melts_query(data_dict, url_sfx=url_sfx)
     assert 'Success' in result['status']
@@ -222,6 +258,14 @@ def melts_compute(data_dict):
 
 
 def melts_oxides(data_dict):
+    """
+    Execute 'Oxides' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Oxides web query.
+    """
     model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
     data_dict = {'modelSelection': model}
     url_sfx = "Oxides"
@@ -230,6 +274,14 @@ def melts_oxides(data_dict):
 
 
 def melts_phases(data_dict):
+    """
+    Execute 'Phases' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Phases web query.
+    """
     model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
     data_dict = {'modelSelection': model}
     url_sfx = "Phases"

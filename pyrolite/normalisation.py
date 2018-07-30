@@ -41,7 +41,7 @@ def scale_multiplier(in_unit, target_unit='ppm'):
         scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
         unkn = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
-        logger.warning("Units not known: {}. Defaulting to unity.".format(unkn))
+        logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
         scale = 1.
     return scale
 
@@ -141,6 +141,8 @@ class RefComp:
         """
         Allow access to model values via attribute e.g. Model.Si
         """
+        if not isinstance(var, str):
+            var = str(var)
         if var in self.data.index:
             return self.data.loc[var, 'value']
         else:
@@ -151,6 +153,12 @@ class RefComp:
         Allow access to model values via [] indexing e.g. Model['Si', 'Cr'].
         Currently not implemented for ratios.
         """
+        if isinstance(vars, list) or \
+           isinstance(vars, pd.Index) or \
+           isinstance(vars, np.ndarray):
+            vars = [v if isinstance(v, str) else str(v) for v in vars]
+        elif not isinstance(vars, str):
+            vars = str(vars)
         return self.data.loc[vars, ['value', 'unc_2sigma', 'units']]
 
     def __repr__(self):
@@ -173,6 +181,8 @@ def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
         Currently only csv will work.
     """
     if platform.system() =='Windows':
+        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+    else:
         kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
 
     curr_dir = os.path.realpath(__file__)

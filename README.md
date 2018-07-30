@@ -30,24 +30,24 @@ Note: Examples for compositional data yet to come.
 All Elements up to U
 ```python
 >>> import pyrolite.geochem.common_elements as ce
->>> ce()  # periodictable.core.Element return
-[H, He, Li, Be, ...,  Th, Pa, U]
->>> ce(output='str')  # string return
+>>> ce()  # string return
 ['H', 'He', 'Li', 'Be', ...,  'Th', 'Pa', 'U']
+>>> ce(output='formula')  # periodictable.core.Element return
+[H, He, Li, Be, ...,  Th, Pa, U]
 ```
 Oxides for Elements with Positive Charges (up to U)
 ```python
 >>> import pyrolite.geochem.common_oxides as co
->>> co()  # periodictable.formulas.Formula return
-[H, He, Li, Be, ...,  Th, Pa, U]
->>> co(output='str')  # string return
+>>> co()  # string return
 ['H2O', 'He2O', 'HeO', 'Li2O', 'Be2O', 'BeO', 'B2O', 'BO', 'B2O3', ...,
 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3']
+>>> co()  # periodictable.formulas.Formula return
+[H, He, Li, Be, ...,  Th, Pa, U]
 ```
 REE Elements
 ```python
 >>> from pyrolite.geochem import REE
->>> REE(output='str')
+>>> REE()
 ['La', 'Ce', 'Pr', 'Nd', 'Pm', ..., 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
 ```
 
@@ -92,8 +92,7 @@ A selection of reference compositions are included:
 ```python
 >>> CH = refcomp['Chondrite_PON']
 >>> PM = refcomp['PM_PON']
->>> reels = REE(output='str')
->>> CH[reels]
+>>> CH[REE()]
       value  unc_2sigma units
 var                           
 La    0.2414    0.014484   ppm
@@ -111,10 +110,44 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> CH = refcomp['Chondrite_PON']
 >>> DMM = refcomp['DMM_WH']
 >>>
->>> reels = ree(output='str')
->>> df = DMM.data.loc[reels, ['value']]
+>>> df = DMM.data.loc[REE(), ['value']]
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
+
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
+
+### Data Density Plots
+
+Log-spaced data density plots can be useful to visualise geochemical data density:
+```python
+>>> from pyrolite.plot import densityplot
+>>> # with a dataframe <df> containing columns Nb/Yb and Th/Yb
+>>> densityplot(df, components=['Nb/Yb', 'Th/Yb'], bins=100, logspace=True)
+```
+Below is an example of ocean island basalt data
+([GEOROC](http://georoc.mpch-mainz.gwdg.de/georoc/) compilation), plotted in a
+'Pearce' discrimination diagram:
+
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
+
+More on these discrimination diagrams: [Pearce, J.A., 2008. Geochemical fingerprinting of oceanic basalts with applications to ophiolite classification and the search for Archean oceanic crust. Lithos 100, 14–48.](https://doi.org/10.1016/j.lithos.2007.06.016)
+
+
+### Dimensional Reduction using Orthagonal Polynomials ('Lambdas')
+
+Derivation of weight values for deconstructing a smooth function into orthagonal
+polynomial components (e.g. for the REE):
+```python
+>>> from pyrolite.geochem import lambda_lnREE
+>>> refc = 'Chondrite_PON'
+>>> # with a dataframe <df> containing REE data in columns La, ..., Lu
+>>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
+```
+
+![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/LambdaExample.png)
+
+For more on using orthagonal polynomials to describe geochemical pattern data, see: [O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth Element Patterns in Basalts. J Petrology 57, 1463–1508.](https://doi.org/10.1093/petrology/egw047)
+
 
 ### Classification
 

@@ -40,7 +40,18 @@ def add_legend_items(ax):
 
 def add_colorbar(mappable, **kwargs):
     """
-    http://joseph-long.com/writing/colorbars/
+    Adds a colorbar to a given mappable object.
+
+    Source: http://joseph-long.com/writing/colorbars/
+
+    Parameters
+    ----------
+    mappable :
+        The Image, ContourSet, etc. to which the colorbar applies.
+
+    Returns
+    ----------
+    colorbar: matplotlib.colorbar.Colorbar
     """
     ax = mappable.axes
     fig = ax.figure
@@ -75,10 +86,24 @@ def tern_heatmapcoords(data, scale=10, bins=10):
 
 
 def proxy_rect(**kwargs):
+    """
+    Generates a legend proxy for a filled region.
+
+    Returns
+    ----------
+    rect: matplotlib.patches.Rectangle
+    """
     return patches.Rectangle((0, 0), 1, 1, **kwargs)
 
 
 def proxy_line(**kwargs):
+    """
+    Generates a legend proxy for a line region.
+
+    Returns
+    ----------
+    line: matplotlib.lines.Line2D
+    """
     return mlines.Line2D(range(1), range(1), **kwargs)
 
 
@@ -122,19 +147,20 @@ def vector_to_line(mu:np.array,
     return line
 
 
-def plot_2dhull(ax, data, splines=False,  s=0, **plotkwargs):
+def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     """
     Plots a 2D convex hull around an array of xy data points.
     """
     chull = ConvexHull(data, incremental=True)
     x, y = data[chull.vertices].T
     if not splines:
-        ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
+        lines = ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
     else:
         #https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
         tck, u = interpolate.splprep([x, y], per=True, s=s)
         xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
-        ax.plot(xi, yi, **plotkwargs)
+        lines = ax.plot(xi, yi, **plotkwargs)
+    return lines
 
 
 def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):

@@ -34,7 +34,7 @@ class TestDownload(unittest.TestCase):
         d, r = userdir.drive / userdir.root
         self.temp_dir = d / 'test_melts_temp'
 
-    def check_perl_install(self):
+    def check_download(self):
         """Tries to download MELTS file to a specific directory."""
         download_melts(self.temp_dir)
 
@@ -95,7 +95,6 @@ class TestWebService(unittest.TestCase):
 
     def test_melts_compute(self):
         """Tests the MELTS-compute web service."""
-        print(self.dict)
         result = melts_compute(self.dict)
 
     def test_melts_oxides(self):

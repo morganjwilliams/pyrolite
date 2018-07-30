@@ -133,8 +133,9 @@ class TestToNumeric(unittest.TestCase):
         exclude = ['TiO2']
         num_columns = [c for c in df.columns if c not in exclude]
         result = to_numeric(df, exclude=exclude)
-        self.assertTrue((result.loc[:, exclude].dtypes != 'float64').all())
-        self.assertTrue((result.loc[:, num_columns].dtypes == 'float64').all())
+        print(result, result.dtypes)
+        self.assertTrue((result[exclude].dtypes != 'float64').all())
+        self.assertTrue((result[num_columns].dtypes == 'float64').all())
 
     def test_error_methods(self):
         df = self.df
@@ -148,7 +149,7 @@ class TestToNumeric(unittest.TestCase):
                         self.assertTrue(result.loc[0, 'SiO2'] == 'Low')
                     else:
                         self.assertTrue(pd.isnull(result.loc[0, 'SiO2']))
-                except:
+                except ValueError: # should raise with can't parse 'low'
                     self.assertTrue(method=='raise')
 
 

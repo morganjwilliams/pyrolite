@@ -2,37 +2,105 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.geochem import *
+from pyrolite.normalisation import ReferenceCompositions
+
+
+def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
+            index_length=10):
+    return pd.DataFrame({k: v for k,v in zip(cols,
+                         np.random.rand(len(cols), index_length))})
+
+
+def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
+    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
+
+
+class TestGetRadii(unittest.TestCase):
+    """Checks the radii getter."""
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_ree_radii(self):
+        radii = get_radii(self.ree[0])
+        self.assertTrue(isinstance(radii, float))
+
+    def test_ree_radii_list(self):
+        radii = get_radii(self.ree)
+        self.assertTrue(isinstance(radii, list))
+
+
+class TestIsChem(unittest.TestCase):
+    """Checks the 'is a chem' function."""
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_ischem_str(self):
+        ret = ischem(self.ree[0])
+        self.assertTrue(isinstance(ret, bool))
+        self.assertTrue(ret)
+
+    def test_notchem_str(self):
+        ret = ischem("Notachemical")
+        self.assertTrue(isinstance(ret, bool))
+        self.assertFalse(ret)
+
+    def test_ischem_list(self):
+        ret = ischem(self.ree)
+        self.assertTrue(isinstance(ret, list))
+        self.assertTrue(all([isinstance(i, bool) for i in ret]))
+
+class TestToChem(unittest.TestCase):
+    """Checks the 'transform to chem' function."""
+
+    def setUp(self):
+        self.ree = REE()
+
+    def test_tochem_str(self):
+        ret = tochem([self.ree[0]])
+        self.assertTrue(ret == [str(self.ree[0])])
+
+    def test_tonotchem_str(self):
+        ret = tochem(["Notachemical"])
+        self.assertTrue(ret == ["Notachemical"])
+
+    def test_tochem_list(self):
+        ret = tochem(self.ree)
+        self.assertTrue(ret == list(map(str, self.ree)))
+
 
 class TestToMolecular(unittest.TestCase):
     """Tests pandas molecular conversion operator."""
 
-    def test_closure(self):
-        """Checks that the closure operator works."""
-        pass
+    def setUp(self):
+        self.df = test_df()
 
     def test_single(self):
         """Checks results on single records."""
-        pass
+        ret = to_molecular(self.df.head(1))
+        self.assertTrue((ret != self.df.head(1)).all().all())
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        pass
-
+        ret = to_molecular(self.df)
+        self.assertTrue((ret != self.df).all().all())
 
 class TestToWeight(unittest.TestCase):
     """Tests pandas weight conversion operator."""
 
-    def test_closure(self):
-        """Checks that the closure operator works."""
-        pass
+    def setUp(self):
+        self.df = test_df()
 
     def test_single(self):
         """Checks results on single records."""
-        pass
+        ret = to_weight(self.df.head(1))
+        self.assertTrue((ret != self.df.head(1)).all().all())
 
     def test_multiple(self):
         """Checks results on multiple records."""
-        pass
+        ret = to_weight(self.df)
+        self.assertTrue((ret != self.df).all().all())
 
 
 class TestWeightMolarReversal(unittest.TestCase):
@@ -113,14 +181,19 @@ class TestCommonElements(unittest.TestCase):
         """Check the function works normal cutoff Z numbers."""
         for cutoff in [1, 15, 34, 63, 93]:
             with self.subTest(cutoff=cutoff):
-                self.assertTrue(common_elements(cutoff=cutoff)[-1].number==cutoff)
+                self.assertTrue(common_elements(output='formula',
+                                                cutoff=cutoff
+                                                )[-1].number==cutoff)
 
     def test_high_cutoff(self):
         """Check the function works silly high cutoff Z numbers."""
         for cutoff in [119, 1000, 10000]:
             with self.subTest(cutoff=cutoff):
-                self.assertTrue(len(common_elements(cutoff=cutoff))<130)
-                self.assertTrue(common_elements(cutoff=cutoff)[-1].number<cutoff)
+                self.assertTrue(len(common_elements(output='formula',
+                                                    cutoff=cutoff))<130)
+                self.assertTrue(common_elements(output='formula',
+                                                cutoff=cutoff
+                                                )[-1].number<cutoff)
 
     def test_formula_output(self):
         """Check the function produces formula output."""
@@ -666,6 +739,50 @@ class TestAddMgNo(unittest.TestCase):
     def test_Fe_components(self):
         """Check that the function works for multiple component Fe."""
         pass
+
+class TestLambdaLnREE(unittest.TestCase):
+
+    def setUp(self):
+        self.rc = ReferenceCompositions()
+        els = [i for i in REE() if not str(i)=='Pm']
+        vals = [self.rc['Chondrite_PON'][el] for el in els]
+        self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
+        self.df.loc[1, :] = self.df.loc[0, :]
+        self.default_degree = 5
+
+    def test_exclude(self):
+        """
+        Tests the ability to generate lambdas from different element sets.
+        """
+        for exclude in [
+                        [],
+                        ['Pm'],
+                        ['Pm', 'Eu'],
+                        #['Pm', 'Eu', 'Ce']
+                        ]:
+            with self.subTest(exclude=exclude):
+                ret = lambda_lnREE(self.df, exclude=exclude)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_degree(self):
+        """
+        Tests the ability to generate lambdas of different degree.
+        """
+        for degree in range(1, 6):
+            with self.subTest(degree=degree):
+                ret = lambda_lnREE(self.df, degree=degree)
+                self.assertTrue(ret.columns.size == degree)
+
+    def test_norm_to(self):
+        """
+        Tests the ability to generate lambdas using different normalisationsself."""
+        for norm_to in self.rc.keys():
+            data = self.rc[norm_to][self.df.columns]['value']
+            if not pd.isnull(data).any():
+                with self.subTest(norm_to=norm_to):
+                    ret = lambda_lnREE(self.df, norm_to=norm_to)
+                    self.assertTrue(ret.columns.size == self.default_degree)
+
 
 if __name__ == '__main__':
     unittest.main()

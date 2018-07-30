@@ -26,7 +26,7 @@ class TestMultiprocess(unittest.TestCase):
     def test_construct(self):
         test_params = [dict(test_kwarg1=0,), dict(test_kwarg2=1,)]
         if (__name__ == '__main__') or platform.system() != 'Windows':
-            # bug with multiprocessing on Windows
+            # bug with multiprocessing testing on Windows
             results = multiprocess(arbitary_function, test_params)
             self.assertEqual(results, test_params)
 

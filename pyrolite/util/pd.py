@@ -85,9 +85,11 @@ def to_numeric(df: pd.DataFrame,
     """
     Takes all non-metadata columns and converts to numeric type where possible.
     """
-    num_headers = [i for i in df.columns.unique() if i not in exclude]
-    for c in num_headers:
-        df.loc[:, c] = pd.to_numeric(df.loc[:, c], errors=errors)
+    numeric_headers = [i for i in df.columns.unique() if i not in exclude]
+    # won't work with .loc on LHS
+    # https://stackoverflow.com/a/46629514
+    df[numeric_headers] = df[numeric_headers].apply(pd.to_numeric,
+                                                    errors=errors)
     return df
 
 

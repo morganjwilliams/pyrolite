@@ -3,14 +3,26 @@ import numpy as np
 import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
-import logging
-
+import functools
 from .compositions import renormalise
+from .normalisation import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
+from .util.math import OP_constants, lambdas, lambda_poly
+import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def get_radii(el):
+    """Convenience function for ionic radii."""
+    if isinstance(el, list):
+        return [get_radii(e) for e in el]
+    elif not isinstance(el, str):
+        el = str(el)
+    return _RADII[el]
+
 
 def ischem(s):
     """
@@ -19,9 +31,12 @@ def ischem(s):
 
     TODO: Implement checking for other compounds, e.g. carbonates.
     """
-
-    chems = [e.upper() for e in common_oxides(output='str') + common_elements(output='str')]
-    return s.upper() in chems
+    chems = common_oxides() + common_elements()
+    chems = [e.upper() for e in chems]
+    if isinstance(s, list):
+        return [str(st).upper() in chems for st in s]
+    else:
+        return str(s).upper() in chems
 
 
 def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
@@ -29,13 +44,13 @@ def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
     Converts a list of strings containing come chemical compounds to
     appropriate case.
     """
-      # accomodate single string passed
+     # accomodate single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
         strings = [strings]
-    trans = {e.upper(): e for e in common_oxides(output='str') + \
-                                   common_elements(output='str')}
-    strings = [trans[h.upper()]
-               if h.upper() in trans else h
+    chems = common_oxides() + common_elements()
+    trans = {str(e).upper(): str(e) for e in chems}
+    strings = [trans[str(h).upper()]
+               if str(h).upper() in trans else h
                for h in strings]
     return strings
 
@@ -83,33 +98,34 @@ def get_cations(oxide:str, exclude=[]):
     return cations
 
 
-def common_elements(cutoff=92, output='formula'):
+def common_elements(cutoff=92, output='string'):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
     Output options are 'formula', or strings.
     """
     elements = [el for el in pt.elements
-                if not (el.__str__() == 'n' or el.number>cutoff)]
+                if not (str(el) == 'n' or el.number>cutoff)]
     if not output == 'formula':
-        elements = [el.__str__() for el in elements]
+        elements = [str(el) for el in elements]
     return elements
 
 
-def REE(output='formula', include_extras=False):
+def REE(output='string', include_extras=False):
     """
     Provides the list of Rare Earth Elements
     Output options are 'formula', or strings.
 
     Todo: add include extras such as Y.
     """
-    elements = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd',
-            'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
+    elements = ['La', 'Ce', 'Pr', 'Nd', 'Pm',
+                'Sm', 'Eu', 'Gd', 'Tb', 'Dy',
+                'Ho', 'Er', 'Tm', 'Yb', 'Lu']
     if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
     return elements
 
 
-def common_oxides(elements: list=[], output='formula',
+def common_oxides(elements: list=[], output='string',
                   addition: list=['FeOT', 'Fe2O3T', 'LOI'],
                   exclude=['O', 'He', 'Ne', 'Ar', 'Kr', 'Xe']):
     """
@@ -123,7 +139,7 @@ def common_oxides(elements: list=[], output='formula',
     """
     if not elements:
         elements = [el for el in common_elements(output='formula')
-                    if not el.__str__() in exclude]
+                    if not str(el) in exclude]
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -131,11 +147,11 @@ def common_oxides(elements: list=[], output='formula',
     oxides = [ox for el in elements
               for ox in simple_oxides(el, output=output)]
     if output != 'formula':
-        oxides = [ox.__str__() for ox in oxides] + addition
+        oxides = [str(ox) for ox in oxides] + addition
     return oxides
 
 
-def simple_oxides(cation, output='formula'):
+def simple_oxides(cation, output='string'):
     """
     Creates a list of oxides for a cationic element
     (oxide of ions with c=1+ and above).
@@ -155,7 +171,7 @@ def simple_oxides(cation, output='formula'):
               for c in ions]
     oxides = [pt.formula(ox) for ox in oxides]
     if not output == 'formula':
-        oxides = [ox.__str__() for ox in oxides]
+        oxides = [str(ox) for ox in oxides]
     return oxides
 
 
@@ -264,7 +280,7 @@ def aggregate_cation(df: pd.DataFrame,
     Needs to also implement a 'molecular' version.
     """
     elstr = cation.__str__()
-    oxstr = [o for o in df.columns if o in simple_oxides(elstr, output='str')][0]
+    oxstr = [o for o in df.columns if o in simple_oxides(elstr)][0]
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
     if form == 'oxide':
@@ -301,12 +317,11 @@ def check_multiple_cation_inclusion(df, exclude=['LOI', 'FeOT', 'Fe2O3T']):
 
     Todo: Options for output (string/formula).
     """
-    major_components = [i for i in common_oxides(output='str')
-                        if i in df.columns]
+    major_components = [i for i in common_oxides() if i in df.columns]
     elements_as_majors = [get_cations(oxide)[0] for oxide in major_components
                           if not oxide in exclude]
     elements_as_traces = [c for c in common_elements(output='formula')
-                          if c.__str__() in df.columns]
+                          if str(c) in df.columns]
     return set([el for el in elements_as_majors if el in elements_as_traces])
 
 
@@ -352,10 +367,56 @@ def add_MgNo(df: pd.DataFrame,
             df.loc[:, 'Mg#'] = df['Mg'] / (df['Mg'] + df['Fe'])
 
 
-def lambdas(REE, degrees=2, constructor=mpmath.chebyu):
+def lambda_lnREE(df,
+                 norm_to='Chondrite_PON',
+                 exclude=['Pm', 'Eu'],
+                 params=None,
+                 degree=5):
     """
-    Defaults to the  Chebyshev polynomials of the second kind.
+    Calculates lambda coefficients for a given set of REE data, normalised
+    to a specific composition. Lambda factors are given for the
+    radii vs. ln(REE/NORM) polynomical combination.
     """
-    lambs = [lambda x: constructor(deg, x) for deg in range(degrees)]
-    print(lambs)
-    mpmath.plot(lambs,[-1,1])
+    ree = [i for i in REE() if (not str(i) in exclude) and
+           (str(i) in df.columns or i in df.columns)] # no promethium
+    radii = np.array(get_radii(ree))
+
+    if params is None:
+        params = OP_constants(radii, degree=degree)
+    else:
+        degree = len(params)
+
+    col_indexes = [i for i in df.columns if i in ree
+                   or i in map(str, ree)]
+
+    if isinstance(norm_to, str):
+        norm = ReferenceCompositions()[norm_to]
+        norm_abund = np.array([norm[str(el)].value for el in ree])
+    elif isinstance(norm_to, RefComp):
+        norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
+    else: # list, iterable, pd.Index etc
+        norm_abund = np.array([i for i in norm_abund])
+
+    assert len(norm_abund) == len(ree)
+
+    labels = [chr(955) + str(d) for d in range(degree)]
+
+    norm_df = df.loc[:, col_indexes]
+    norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:, col_indexes].values,
+                                            norm_abund)
+    norm_df = norm_df.applymap(np.log)
+    lambda_partial = functools.partial(lambdas,
+                                       xs=radii,
+                                       params=params,
+                                       degree=degree)
+    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial, 1,
+                                                norm_df.values),
+                            index=df.index,
+                            columns=labels)
+    return lambdadf
+
+
+_RADII = {str(k): v for (k, v) in zip(REE(), [1.160, 1.143, 1.126, 1.109,
+                                         1.093, 1.079, 1.066, 1.053,
+                                         1.040, 1.027, 1.015, 1.004,
+                                         0.994, 0.985, 0.977])}

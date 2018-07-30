@@ -68,14 +68,6 @@ def swap_item(list: list, pull: str, push: str):
     return [push if i == pull else i for i in list]
 
 
-def on_finite(arr, f):
-    """
-    Calls a function on an array ignoring np.nan and +/- np.inf.
-    """
-    ma = np.isfinite(arr)
-    return f(arr[ma])
-
-
 def copy_file(src, dst, ext=None):
     src = Path(src)
     dst = Path(dst)
@@ -98,8 +90,8 @@ def remove_tempdir(directory):
             elif x.is_dir():
                 remove_tempdir(x)
         for t in temp_files:
-            os.remove(t)
-        os.rmdir(directory)
+            os.remove(str(t))
+        os.rmdir(str(directory))
     assert not directory.exists()
 
 
