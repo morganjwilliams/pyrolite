@@ -90,8 +90,8 @@ def remove_tempdir(directory):
             elif x.is_dir():
                 remove_tempdir(x)
         for t in temp_files:
-            os.remove(t)
-        os.rmdir(directory)
+            os.remove(str(t))
+        os.rmdir(str(directory))
     assert not directory.exists()
 
 
