@@ -4,6 +4,8 @@ import pandas as pd
 import logging
 from .util.melts import *
 
+from .util.pd import to_frame
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -20,7 +22,7 @@ class MeltsSystem:
         self.parameters = None
 
     def equilirate(self):
-        method = 'equilirate'
+        method = 'equilibrate'
 
     def findLiquidus(self):
         method = 'findLiquidus'
@@ -37,8 +39,8 @@ def MELTS_env():
         version = env.str('VERSION', 'pMELTS') # MELTS, pMELTS
         mode = env.str('MODE', 'isentropic')  # ‘geothermal’, ‘isenthalpic’, ‘isentropic’, ‘isobaric’, ‘isochoric’, ‘isothermal’, ‘PTpath’
 
-        _maxP = [30000, 40000][env('VERSION') != 'MELTS']  # in degC
-        _minP = [1, 10000][env('VERSION') != 'MELTS']  # in degC
+        _maxP = [30000, 40000][version != 'MELTS']  # in degC
+        _minP = [1, 10000][version != 'MELTS']  # in degC
         min_P = env('MINP', _minP)
         max_P = env.float('MAXP', _maxP)
 
@@ -82,33 +84,37 @@ def MELTS_env():
         # use_old_biotite = env('OLD_BIOTITE')  # any
         # use_am2_amph = env('2_AMPH')  # any
 
-    env.dump()
+    return env.dump()
 
 
-def parse_melts_mineral_composition(composition_str):
+def from_melts_cstr(composition_str):
+    """Parses melts composition strings to dictionaries."""
+    regex = r"""(?P<el>[a-zA-Z'^.]+)(?P<num>[^a-zA-Z]+)"""
+    result = re.findall(regex, composition_str)
+    convert_element = lambda s: re.sub(r"""[\']+""",
+                                       str(s.count("""'"""))+'+',
+                                       s)
+    return {convert_element(el): float(val) for (el, val) in result}
 
-    """e.g. for spinel: Fe''0.18Mg0.83Fe'''0.04Al1.43Cr0.52Ti0.01O4"""
-
-    """Fe''0.18Mg0.83Fe'''0.04Al1.43Cr0.52Ti0.01O4"""
 
 def to_meltsfile(src):
 
     if isinstance(src, pd.DataFrame):
         pass
-        'Initial'
-        # majors --> Initial Composition: SiO2 45.7
-        'Composition'
-        # traces --> Initial Trace: Sm 0.2
-        'Trace'
-        # temperature, pressure --> Initial Temperature: 1500.0
-        # temperature, pressure --> Final Temperature: 2000.0
-        # temperature, pressure --> Increment Temperature: 3.00
-        # dp/dt: 0.00
-        # log fo2 Path: None
-        # Log fO2 Delta: 0.0
-        # Mode: Fractionate Solids
-
-
-
     elif isinstance(src, pd.Series):
-        pass
+        src = to_frame(src)
+
+
+    'Initial'
+    # majors --> Initial Composition: SiO2 45.7
+    'Composition'
+    # traces --> Initial Trace: Sm 0.2
+    'Trace'
+    # temperature, pressure --> Initial Temperature: 1500.0
+    # temperature, pressure --> Final Temperature: 2000.0
+    # temperature, pressure --> Increment Temperature: 3.00
+    # dp/dt: 0.00
+    # log fo2 Path: None
+    # Log fO2 Delta: 0.0
+    # Mode: Fractionate Solids
+    pass

@@ -45,7 +45,7 @@ class TestOPConstants(unittest.TestCase):
     def test_degree(self):
         """Tests generation of different degree polynomial parameters."""
 
-        max_degree = 6
+        max_degree = 5
         expected = OP_constants(self.xs, degree=max_degree)
         for degree in range(1, max_degree):
             with self.subTest(degree=degree):
@@ -69,7 +69,7 @@ class TestOPConstants(unittest.TestCase):
         hightol_result = OP_constants(self.xs,
                                       degree=self.default_degree,
                                       tol=10**-16)
-        for pow in np.linspace(np.log(eps*100.), -5, 5):
+        for pow in np.linspace(np.log(eps*1000.), -5, 3):
             tol = np.exp(pow)
             with self.subTest(tol=tol):
                 ret = OP_constants(self.xs,
@@ -82,8 +82,8 @@ class TestOPConstants(unittest.TestCase):
                         test_tol = tol * np.exp(len(ps)+1)
                         a = np.array(list(ps), dtype=float)
                         b = np.array(list(hightol_result[ix]), dtype=float)
-                        # (abs(a)-abs(b)) / ((abs(a)+abs(b))/2 * test_tol)
-                        self.assertTrue(np.allclose(a, b, rtol=test_tol))
+                        print( (abs(a)-abs(b)) / ((abs(a)+abs(b))/2)  - test_tol)
+                        self.assertTrue(np.allclose(a, b, atol=test_tol))
 
 
 class TestLambdaPolyFunc(unittest.TestCase):
