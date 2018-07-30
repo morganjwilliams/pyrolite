@@ -114,7 +114,26 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
-### Dimensional Reduction using Orthagonal Polynomials: "lambdas"
+![SpiderPlotExample](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png)
+
+### Data Density Plots
+
+Log-spaced data density plots can be useful to visualise geochemical data density:
+```python
+>>> from pyrolite.plot import densityplot
+>>> # with a dataframe <df> containing columns Nb/Yb and Th/Yb
+>>> densityplot(df, components=['Nb/Yb', 'Th/Yb'], bins=100, logspace=True)
+```
+Below is an example of ocean island basalt data
+([GEOROC](http://georoc.mpch-mainz.gwdg.de/georoc/) compilation), plotted in a
+'Pearce' discrimination diagram:
+
+![Ocean Island Basalt Nb/Yb vs Th/Yb](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png)
+
+More on these discrimination diagrams: [Pearce, J.A., 2008. Geochemical fingerprinting of oceanic basalts with applications to ophiolite classification and the search for Archean oceanic crust. Lithos 100, 14–48.](https://doi.org/10.1016/j.lithos.2007.06.016)
+
+
+### Dimensional Reduction using Orthagonal Polynomials ('Lambdas')
 
 Derivation of weight values for deconstructing a smooth function into orthagonal
 polynomial components (e.g. for the REE):
@@ -124,7 +143,10 @@ polynomial components (e.g. for the REE):
 >>> # with a dataframe <df> containing REE data in columns La, ..., Lu
 >>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
 ```
+
 ![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/LambdaExample.png)
+
+For more on using orthagonal polynomials to describe geochemical pattern data, see: [O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth Element Patterns in Basalts. J Petrology 57, 1463–1508.](https://doi.org/10.1093/petrology/egw047)
 
 
 ### Classification
