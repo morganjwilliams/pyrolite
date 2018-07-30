@@ -114,7 +114,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
-![SpiderPlotExample](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png)
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
 
 ### Data Density Plots
 
@@ -128,7 +128,7 @@ Below is an example of ocean island basalt data
 ([GEOROC](http://georoc.mpch-mainz.gwdg.de/georoc/) compilation), plotted in a
 'Pearce' discrimination diagram:
 
-![Ocean Island Basalt Nb/Yb vs Th/Yb](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png)
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
 
 More on these discrimination diagrams: [Pearce, J.A., 2008. Geochemical fingerprinting of oceanic basalts with applications to ophiolite classification and the search for Archean oceanic crust. Lithos 100, 14–48.](https://doi.org/10.1016/j.lithos.2007.06.016)
 
