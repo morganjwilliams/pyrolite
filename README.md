@@ -124,7 +124,7 @@ polynomial components (e.g. for the REE):
 >>> # with a dataframe <df> containing REE data in columns La, ..., Lu
 >>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
 ```
-![Orthagonal Polynomial Example](https://github.com/morganjwilliams/pyrolite/raw/develop/doc/examples/LambdaExamples.png)
+![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/LambdaExample.png)
 
 
 ### Classification
