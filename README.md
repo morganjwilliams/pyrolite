@@ -114,6 +114,19 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
+### Dimensional Reduction using Orthagonal Polynomials: "lambdas"
+
+Derivation of weight values for deconstructing a smooth function into orthagonal
+polynomial components (e.g. for the REE):
+```python
+>>> from pyrolite.geochem import lambda_lnREE
+>>> refc = 'Chondrite_PON'
+>>> # with a dataframe <df> containing REE data in columns La, ..., Lu
+>>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
+```
+![Orthagonal Polynomial Example](https://github.com/morganjwilliams/pyrolite/raw/develop/doc/examples/LambdaExamples.png)
+
+
 ### Classification
 
 Some simple discrimination methods are implemented, including the Total Alkali-Silica (TAS) classification:
