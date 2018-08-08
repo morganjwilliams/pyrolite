@@ -9,8 +9,8 @@ import dicttoxml
 import zipfile
 import logging
 import shutil
-from .general import copy_file, extract_zip, remove_tempdir, \
-                     environment_manager, validate_update_envvar
+from .general import copy_file, extract_zip, remove_tempdir, internet_connection
+from .env import environment_manager, validate_update_envvar
 from .text import remove_prefix
 from pyrolite.data.melts.env import MELTS_environment_variables
 
@@ -66,13 +66,13 @@ class MELTS_Env(object):
         """Export environment configuration to a dictionary."""
         keys = [k for k in self.spec.keys()]
         pkeys = [self.prefix+k for k in keys]
-        values = [os.environ.get(p, None) for p in pkeys]
+        values = [os.getenv(p) for p in pkeys]
         types = [self.spec[k]['type']
                  if self.spec[k].get('type', None) is not None else str
                  for k in keys]
 
         # Evironment variable are always imported as strings
-        _env = [(k, t(os.environ[p])) if v and v not in [None, 'None']
+        _env = [(k, t(v)) if v and v not in [None, 'None']
                 else (k, None)
                 for k, p, v, t in zip(keys, pkeys, values, types)]
         return {k: v for k, v in _env}
@@ -137,42 +137,45 @@ def download_melts(directory):
     directory : str | pathlib.Path
         Directory into which to extract melts.
     """
+    try:
+        assert internet_connection()
+        system = platform.system()
+        release = platform.release()
+        version = platform.version()
+        bits, linkage = platform.architecture()
+        bits = bits[:2]
 
-    system = platform.system()
-    release = platform.release()
-    version = platform.version()
-    bits, linkage = platform.architecture()
-    bits = bits[:2]
+        zipsource = "https://magmasource.caltech.edu/alphamelts/zipfiles/"
+        if system =='Linux':
+            if ('Microsoft' in release) or ('Microsoft' in version):
+               url = zipsource + "wsl_alphamelts_1-8.zip"
+            else:
+               url = zipsource + "linux_alphamelts_1-8.zip"
 
-    zipsource = "https://magmasource.caltech.edu/alphamelts/zipfiles/"
-    if system =='Linux':
-        if ('Microsoft' in release) or ('Microsoft' in version):
-           url = zipsource + "wsl_alphamelts_1-8.zip"
+        elif system == 'Darwin':
+            url = zipsource + "macosx_alphamelts_1-8.zip"
+        elif system == 'Windows':
+            url = zipsource + "windows_alphamelts_1-8.zip"
+            install_file =  'alphamelts_win{}.exe'.format(bits)
         else:
-           url = zipsource + "linux_alphamelts_1-8.zip"
+            raise NotImplementedError('System unknown: {}'.format(system))
 
-    elif system == 'Darwin':
-        url = zipsource + "macosx_alphamelts_1-8.zip"
-    elif system == 'Windows':
-        url = zipsource + "windows_alphamelts_1-8.zip"
-        install_file =  'alphamelts_win{}.exe'.format(bits)
-    else:
-        raise NotImplementedError('System unknown: {}'.format(system))
+        # Set install directory for .bat files
+        directory = Path(directory)
+        if directory:
+            install_dir = directory
+        else:
+            install_dir = '.'
 
-    # Set install directory for .bat files
-    directory = Path(directory)
-    if directory:
-        install_dir = directory
-    else:
-        install_dir = '.'
+        if not install_dir.exists():
+            install_dir.mkdir(parents=True)
 
-    if not install_dir.exists():
-        install_dir.mkdir(parents=True)
-
-    r = requests.get(url, stream=True)
-    if r.ok:
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        extract_zip(z, install_dir)
+        r = requests.get(url, stream=True)
+        if r.ok:
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            extract_zip(z, install_dir)
+    except AssertionError:
+        raise AssertionError('Need an internet connection to download.')
 
 
 def install_melts(install_dir,
@@ -328,17 +331,21 @@ def melts_query(data_dict, url_sfx='Compute'):
     url_sfx : str, Compute
         URL suffix to denote specific web service (Compute | Oxides | Phases).
     """
-    url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
-    xmldata = dicttoxml.dicttoxml(data_dict,
-                                  custom_root='MELTSinput',
-                                  root=True,
-                                  attr_type=False)
-    headers = {"content-type": "text/xml",
-               "data-type": "xml"}
-    resp = requests.post(url, data=xmldata, headers=headers)
-    resp.raise_for_status()
-    result = xmljson.parker.data(ET.fromstring(resp.text))
-    return result
+    try:
+        assert internet_connection()
+        url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
+        xmldata = dicttoxml.dicttoxml(data_dict,
+                                      custom_root='MELTSinput',
+                                      root=True,
+                                      attr_type=False)
+        headers = {"content-type": "text/xml",
+                   "data-type": "xml"}
+        resp = requests.post(url, data=xmldata, headers=headers)
+        resp.raise_for_status()
+        result = xmljson.parker.data(ET.fromstring(resp.text))
+        return result
+    except AssertionError:
+        raise AssertionError('Must be connected to the internet to run query.')
 
 
 def melts_compute(data_dict):

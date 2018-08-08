@@ -1,8 +1,7 @@
 import unittest
+import numpy as np
 from pyrolite.util.text import quoted_string, titlecase, to_width, \
                                remove_prefix, normalise_whitespace
-import numpy as np
-
 
 class TestRemovePrefix(unittest.TestCase):
 

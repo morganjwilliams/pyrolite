@@ -1,23 +1,15 @@
-from .util.melts import *
-from .util.pd import to_frame
-
 import os, sys
 import re
 import pandas as pd
 import logging
+from .util.melts import *
+from .util.pd import to_frame
 from pyrolite.geochem import common_oxides, common_elements
-
 from pyrolite.util.melts import MELTS_Env
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-ENV = MELTS_Env()
-
-ENV.DELTAP = 10.
-print(os.environ['ALPHAMELTS_DELTAP'])
 
 
 class MeltsSystem:

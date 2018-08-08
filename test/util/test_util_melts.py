@@ -1,9 +1,9 @@
 import unittest
 from pathlib import Path
 from collections import OrderedDict
-from pyrolite.util.general import remove_tempdir
 from pyrolite.util.melts import *
 from pyrolite.data.melts.env import MELTS_environment_variables
+from pyrolite.util.general import remove_tempdir, internet_connection
 
 
 def get_default_datadict():
@@ -30,6 +30,74 @@ def get_default_datadict():
     return d
 
 
+@unittest.skipIf(not internet_connection(), "Needs internet connection.")
+class TestDownload(unittest.TestCase):
+    """Tests the melts download process."""
+
+    def setUp(self):
+        userdir = Path("~").expanduser()
+        d, r = userdir.drive,  userdir.root
+        self.temp_dir = Path(d) / r / 'test_melts_temp'
+
+    def check_download(self):
+        """Tries to download MELTS files to a specific directory."""
+        download_melts(self.temp_dir)
+        alphafiles = self.temp_dir.glob("alphamelts*") # .exe on windows
+        self.assertTrue(len(alphafiles))
+
+    def tearDown(self):
+        remove_tempdir(self.temp_dir)
+
+
+class TestInstall(unittest.TestCase):
+    """Tests the melts install process."""
+
+    def setUp(self):
+        userdir = Path("~").expanduser()
+        d, r = userdir.drive,  userdir.root
+        self.temp_dir = Path(d) / r / 'test_melts_temp'
+        self.dir = Path(d) / r / 'test_melts_install'
+
+    @unittest.skipIf(not check_perl(), "Perl is not installed.")
+    def test_perl_install(self):
+        """Uses subprocess to call the perl installation method."""
+        userdir = Path("~").expanduser()
+        d, r = userdir.drive,  userdir.root
+        self.temp_dir = Path(d) / r / 'test_melts_temp'
+        self.dir = Path(d) / r / 'test_melts_install'
+        for keeptemp in [False, True]:
+            with self.subTest(keeptemp=keeptemp):
+                install_melts(self.dir,
+                              native=False,
+                              temp_dir=self.temp_dir,
+                              keep_tempdir=keeptemp)
+                self.assertTrue((self.dir / 'examples').exists())
+                self.assertTrue((self.dir / 'file_format.command').exists())
+                if keeptemp:
+                    self.assertTrue(self.temp_dir.exists() & \
+                                    self.temp_dir.is_dir())
+
+    def test_native_install(self):
+        """
+        Performs the equivalent actions to the perl install script in python.
+        """
+        for keeptemp in [False, True]:
+           with self.subTest(keeptemp=keeptemp):
+               install_melts(self.dir,
+                             native=True,
+                             temp_dir=self.temp_dir,
+                             keep_tempdir=keeptemp)
+               self.assertTrue((self.dir / 'examples').exists())
+               self.assertTrue((self.dir / 'file_format.command').exists())
+               if keeptemp:
+                   self.assertTrue(self.temp_dir.exists() & \
+                                   self.temp_dir.is_dir())
+
+    def tearDown(self):
+        remove_tempdir(self.dir)
+        remove_tempdir(self.temp_dir)
+
+
 class TestMELTSEnv(unittest.TestCase):
 
     def setUp(self):
@@ -54,7 +122,6 @@ class TestMELTSEnv(unittest.TestCase):
             with self.subTest(var=var):
                 for value in [1., 10., 100., 10.]:
                     setattr(menv, var, value)
-                    print(var, value, os.environ[test_var])
                     self.assertTrue(test_var in os.environ)
                     self.assertTrue(type(value)(os.environ[test_var])==value)
 
@@ -73,72 +140,14 @@ class TestMELTSEnv(unittest.TestCase):
                 _var = remove_prefix(var, self.prefix)
                 default = self.env_vars[_var].get('default', None)
                 if default is not None:
-                    self.assertTrue(type(default)(os.environ[test_var])\
-                                    ==default)
+                    self.assertTrue(type(default)(
+                                    os.environ[test_var]
+                                    )==default)
                 else:
                     self.assertTrue(test_var not in os.environ)
 
 
-class TestDownload(unittest.TestCase):
-
-    def setUp(self):
-        userdir = Path("~").expanduser()
-        d, r = userdir.drive / userdir.root
-        self.temp_dir = d / 'test_melts_temp'
-
-    def check_download(self):
-        """Tries to download MELTS file to a specific directory."""
-        download_melts(self.temp_dir)
-
-    def tearDown(self):
-        remove_tempdir(self.temp_dir)
-
-
-class TestInstall(unittest.TestCase):
-
-    def setUp(self):
-        userdir = Path("~").expanduser()
-        d, r = userdir.drive / userdir.root
-        self.temp_dir = d / 'test_melts_temp'
-        self.dir = d / 'test_melts_install'
-
-    def check_perl_install(self):
-        """Uses subprocess to call the perl installation method."""
-        if not check_perl():
-            pass
-        else:
-            for keeptemp in [False, True]:
-                with self.subTest(keeptemp=keeptemp):
-                    install_melts(self.dir,
-                                  native=False,
-                                  keep_tempdir=keeptemp)
-                    self.assertTrue((self.dir / examples).exists())
-                    self.assertTrue((self.dir / 'file_format.command').exists())
-                    if keeptemp:
-                        self.assertTrue(self.temp_dir.exists() & \
-                                        self.temp_dir.is_dir())
-
-    def check_native_install(self):
-        """
-        Performs the equivalent actions to the perl install script in python.
-        """
-        for keeptemp in [False, True]:
-           with self.subTest(keeptemp=keeptemp):
-               install_melts(self.dir,
-                             native=True,
-                             keep_tempdir=keeptemp)
-               self.assertTrue((self.dir / examples).exists())
-               self.assertTrue((self.dir / 'file_format.command').exists())
-               if keeptemp:
-                   self.assertTrue(self.temp_dir.exists() & \
-                                   self.temp_dir.is_dir())
-
-
-    def tearDown(self):
-        remove_tempdir(self.dir)
-        remove_tempdir(self.temp_dir)
-
-
+@unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestWebService(unittest.TestCase):
     """Tests the current MELTS webservice interactivity with default data."""
 
