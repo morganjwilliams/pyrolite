@@ -6,16 +6,16 @@ import requests
 from xml.etree import ElementTree as ET
 import xmljson
 import dicttoxml
-from environs import Env
 import zipfile
 import logging
 import shutil
-
 from .general import copy_file, extract_zip, remove_tempdir, \
                      environment_manager, validate_update_envvar
 from .text import remove_prefix
-
 from pyrolite.data.melts.env import MELTS_environment_variables
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def output_formatter(value):

@@ -1,6 +1,8 @@
 import unittest
-from pyrolite.util.text import quoted_string, titlecase
+from pyrolite.util.text import quoted_string, titlecase, to_width, \
+                               remove_prefix, normalise_whitespace
 import numpy as np
+
 
 class TestRemovePrefix(unittest.TestCase):
 
@@ -47,9 +49,9 @@ class TestToWidth(unittest.TestCase):
             with self.subTest(width=width):
                 out = to_width(s, width=width)
                 w = len(out.splitlines()[0])
-                self.assertTrue(w < width)
+                self.assertTrue(w <= width)
                 self.assertTrue(w >= width-len(s))
-                
+
 
 class TestQuotedString(unittest.TestCase):
     """Tests for quoted string utility."""
