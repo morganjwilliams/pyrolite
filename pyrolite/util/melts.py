@@ -115,11 +115,13 @@ def run_wds_command(command):
 def check_perl():
     """Checks whether perl is installed on the system."""
     try:
-        p = subprocess.check_output("which perl")
+        p = subprocess.check_output("perl -v")
         returncode = 0
     except subprocess.CalledProcessError as e:
         output = e.output
         returncode = e.returncode
+    except FileNotFoundError:
+        returncode = 1.
 
     return returncode == 0
 
