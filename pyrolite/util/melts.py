@@ -248,7 +248,7 @@ def install_melts(install_dir,
             Melts gets confused with the directory structure...
             and creates .bat files which point to the wrong place
             """
-            install_source = os.path.join(temp_dir, 'install.command')
+            install_source = os.path.join(str(temp_dir), 'install.command')
             args = ["perl", install_source]
 
             # [C:\Users\<>\Documents\bin]
@@ -296,7 +296,7 @@ def install_melts(install_dir,
                 batdata['alphamelts'] = '''@echo off\n"{}"'''.format(
                                             install_dir / alphafile.name)
                 for b in bats:
-                    with open(b, 'w') as fout:
+                    with open(str(b), 'w') as fout:
                         fout.write(batdata[b.stem]) # dummy bats
 
                 files_to_copy +=  [(link_dir, bats)]

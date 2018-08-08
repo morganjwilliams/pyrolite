@@ -88,8 +88,8 @@ def copy_file(src, dst, ext=None):
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
     print('Copying from {} to {}'.format(src, dst))
-    with open(src, 'rb') as fin:
-        with open(dst, 'wb') as fout:
+    with open(str(src), 'rb') as fin:
+        with open(str(dst), 'wb') as fout:
             shutil.copyfileobj(fin, fout)
 
 
@@ -116,5 +116,5 @@ def extract_zip(zipfile, output_dir):
             fldr, name = re.split('/', m, maxsplit=1)
             if name:
                 content = zipfile.open(m, 'r').read()
-                with open(output_dir / name, 'wb') as out:
+                with open(str(output_dir / name), 'wb') as out:
                     out.write(content)
