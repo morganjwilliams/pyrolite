@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 from pyrolite.melts import *
 
-
 def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
             index_length=10):
     return pd.DataFrame({k: v for k,v in zip(cols,
@@ -19,7 +18,9 @@ class TestMELTSEnv(unittest.TestCase):
         pass
 
     def test_env(self):
-        env = MELTS_env()
+        env = MELTS_Env()
+
+        # check that some defaults are set.
 
 
 
@@ -35,13 +36,14 @@ class TestParseMELTSComposition(unittest.TestCase):
         self.assertTrue(np.isclose(ret['Fe2+'], 0.18))
 
 
-class TestMELTSSystem(unittest.TestCase):
+class TestMELTSEnv(unittest.TestCase):
 
     def setUp(self):
-        self.ser = test_ser()
+        pass
 
-    def test_system_build(self):
-        ret = MeltsSystem(self.ser)
+    def test_env_build(self):
+        menv = MENV()
+        self.assertTrue('ALPHAMELTS_MINP' in os.environ)
 
 
 class TestToMELTSFile(unittest.TestCase):

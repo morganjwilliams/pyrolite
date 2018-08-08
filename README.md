@@ -116,6 +116,8 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 
 <img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
 
+More reference compositions will soon be included (e.g. Sun and McDonough, 1989).
+
 ### Data Density Plots
 
 Log-spaced data density plots can be useful to visualise geochemical data density:

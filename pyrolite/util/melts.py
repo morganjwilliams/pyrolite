@@ -9,8 +9,107 @@ import dicttoxml
 from environs import Env
 import zipfile
 import logging
+import shutil
 
-from .general import copy_file, extract_zip, remove_tempdir
+from .general import copy_file, extract_zip, remove_tempdir, \
+                     environment_manager, validate_update_envvar
+from .text import remove_prefix
+
+from pyrolite.data.melts.env import MELTS_environment_variables
+
+
+def output_formatter(value):
+    """Output formatter for environment variable values."""
+    if value and (value is not None):
+        return str(value)
+    else:
+        return ''
+
+
+class MELTS_Env(object):
+
+    def __init__(self,
+                 prefix='ALPHAMELTS_',
+                 variable_model=MELTS_environment_variables):
+        super()
+        self.prefix = prefix
+        self.spec = variable_model
+        self.force_active = False
+        self.output_formatter = output_formatter
+        self.export_default_env(init=True)
+
+    def export_default_env(self, init=False):
+        """
+        Parse any environment variables which are already set.
+        Rest environment variables after substituding defaults for unset
+        variables.
+        """
+        _dump = self.dump()
+
+        for var, template in self.spec.items():
+            _spec = template
+            name = self.prefix + var
+            is_already_set = (name in os.environ) or \
+                             (var in _dump.keys())
+            if not is_already_set and _spec['set']:
+                setting = True  # should be set by default
+            elif is_already_set and _spec['set']:
+                setting = True  # set, should be set by default
+            elif is_already_set and not _spec['set']:
+                setting = True # set, not set by default
+            elif not is_already_set and not _spec['set']:
+                setting = False  # not set, should not be set
+
+            if setting: setattr(self, var, None)
+
+    def dump(self):
+        """Export environment configuration to a dictionary."""
+        keys = [k for k in self.spec.keys()]
+        pkeys = [self.prefix+k for k in keys]
+        values = [os.environ.get(p, None) for p in pkeys]
+        types = [self.spec[k]['type']
+                 if self.spec[k].get('type', None) is not None else str
+                 for k in keys]
+
+        # Evironment variable are always imported as strings
+        _env = [(k, t(os.environ[p])) if v and v not in [None, 'None']
+                else (k, None)
+                for k, p, v, t in zip(keys, pkeys, values, types)]
+        return {k: v for k, v in _env}
+
+
+    def __setattr__(self, name, value):
+        """
+        Custom setattr to set environment variables.
+
+        Setting attributes with or without the specified prefix should set
+        the appropriate prefixed environment variable.
+        """
+
+        if hasattr(self, 'spec'):
+            prefix = getattr(self, 'prefix', '')
+            dump = self.dump()
+            name = remove_prefix(name, prefix)
+            if name in self.spec:
+                validate_update_envvar(name,
+                                       value=value,
+                                       prefix=self.prefix,
+                                       force_active=self.force_active,
+                                       variable_model=self.spec,
+                                       formatter=self.output_formatter)
+            else: # other object attributes
+                self.__dict__[name]=value
+        else:
+            self.__dict__[name]=value
+
+
+def run_wds_command(command):
+    """
+    Run a command within command prompt on Windows.
+
+    Here can be used to run alphamelts by specifing 'alphamelts'.
+    """
+    os.system("start /wait cmd /c {}".format(command))
 
 
 def check_perl():
@@ -162,7 +261,7 @@ def install_melts(install_dir,
             assert p.returncode == 0
 
             # copy files from tempdir to install_dir
-            regs = ['command', 'command_auto_file', 'path', 'perl']
+            regs = []#'command', 'command_auto_file', 'path', 'perl']
             comms = ['column_pick', 'file_format', 'run_alphamelts']
             for (prefixes, ext) in [(regs, '.reg'),
                                     (comms, '.command')]:

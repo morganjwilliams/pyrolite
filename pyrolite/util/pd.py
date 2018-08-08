@@ -55,13 +55,16 @@ def column_ordered_append(df1, df2, **kwargs):
     return df1.append(df2,  **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs):
+def accumulate(dfs, ignore_index=False):
+    """
+    Accumulate an iterable containing pandas dataframes to a single frame.
+    """
     acc = None
     for df in dfs:
         if acc is None:
             acc = df
         else:
-            acc = column_ordered_append(acc, df, ignore_index=False)
+            acc = column_ordered_append(acc, df, ignore_index=ignore_index)
     return acc
 
 
@@ -116,7 +119,7 @@ def uniques_from_concat(df, cols, hashit=True):
     return concat_columns(df, cols, dtype='category').apply(fmt)
 
 
-def df_from_csvs(csvs, dropna=True, **kwargs):
+def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     """
     Takes a list of .csv filenames and converts to a single DataFrame.
     Combines columns across dataframes, preserving order of the first entered.
@@ -140,7 +143,7 @@ def df_from_csvs(csvs, dropna=True, **kwargs):
         dfs.append(pd.read_csv(t, **kwargs))
         cols = cols + [i for i in dfs[-1].columns if i not in cols]
 
-    df = accumulate(dfs)
+    df = accumulate(dfs, ignore_index=ignore_index)
     return df
 
 

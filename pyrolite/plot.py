@@ -223,7 +223,7 @@ def densityplot(df,
     colorbar = kwargs.pop('colorbar', False)
 
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
-    background_color = ax.patch.get_facecolor()
+    background_color = ax.patch.get_facecolor() # consider alpha here
     nbins = kwargs.pop('bins', 20)
     cmap = kwargs.pop('cmap', DEFAULT_CONT_COLORMAP)
     if isinstance(cmap, str):
@@ -283,8 +283,11 @@ def densityplot(df,
                 else:
                     xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
                     ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
+
+                range = [[extent[0], extent[1]],[extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(x, y,
                                           bins=[xe, ye],
+                                          range=range,
                                           cmap=cmap,
                                           **kwargs)
                 mappable = im
@@ -314,7 +317,7 @@ def densityplot(df,
                     zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
 
-                vmin = kwargs.pop('vmin', 0.02 * np.nanmax(zi)) # 1% max height
+                vmin = kwargs.pop('vmin', 0.02 * np.nanmax(zi)) # 2% max height
                 if contour:
                     levels = kwargs.pop('levels', None)
 
@@ -338,7 +341,6 @@ def densityplot(df,
                                vmin=vmin,
                                **kwargs)
                 else:
-                    # updated to pcolor to avoid quadmesh issues with alpha
                     mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
                                              cmap=cmap,
                                              shading=shading,

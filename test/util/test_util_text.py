@@ -2,6 +2,54 @@ import unittest
 from pyrolite.util.text import quoted_string, titlecase
 import numpy as np
 
+class TestRemovePrefix(unittest.TestCase):
+
+    def test_prefix_present(self):
+        pass
+
+    def test_prefix_notpresent(self):
+        #
+        #for prefix in ['A_A_', 'B_', 'C_']:
+        #    with
+
+        #self.assertFalse(s.startswith(prefix))
+        pass
+
+    def test_double_prefix(self):
+        """Should just remove one prefix."""
+
+        pass
+
+
+class TestNormaliseWhitespace(unittest.TestCase):
+
+    def test_whitepace_removal(self):
+
+
+        pass
+
+    def test_whitespace_preservation(self):
+
+        pass
+
+
+class TestToWidth(unittest.TestCase):
+
+    def test_width_spec(self):
+        """
+        Check that the output width is as specifed.
+        For strings including whitespace, it should
+        preserve word structure.
+        """
+
+        s = "*- "*100
+        for width in [1, 10, 79]:
+            with self.subTest(width=width):
+                out = to_width(s, width=width)
+                w = len(out.splitlines()[0])
+                self.assertTrue(w < width)
+                self.assertTrue(w >= width-len(s))
+                
 
 class TestQuotedString(unittest.TestCase):
     """Tests for quoted string utility."""
