@@ -36,8 +36,11 @@ class TestDownload(unittest.TestCase):
 
     def setUp(self):
         userdir = Path("~").expanduser()
-        d, r = userdir.drive,  userdir.root
-        self.temp_dir = Path(d) / r / 'test_melts_temp'
+        root = Path(userdir.drive) / userdir.root
+        if root/'tmp' in root.iterdir():
+            self.temp_dir = root / 'tmp' / 'test_melts_temp'
+        else:
+            self.temp_dir = root / 'test_melts_temp'
 
     def check_download(self):
         """Tries to download MELTS files to a specific directory."""
@@ -54,9 +57,13 @@ class TestInstall(unittest.TestCase):
 
     def setUp(self):
         userdir = Path("~").expanduser()
-        d, r = userdir.drive,  userdir.root
-        self.temp_dir = Path(d) / r / 'test_melts_temp'
-        self.dir = Path(d) / r / 'test_melts_install'
+        root = Path(userdir.drive) / userdir.root
+        if root/'tmp' in root.iterdir():
+            self.temp_dir = root / 'tmp' / 'test_melts_temp'
+            self.dir = root / 'tmp' / 'test_melts_install'
+        else:
+            self.temp_dir = root / 'test_melts_temp'
+            self.dir = root / 'test_melts_install'
 
     @unittest.skipIf(not check_perl(), "Perl is not installed.")
     def test_perl_install(self):
