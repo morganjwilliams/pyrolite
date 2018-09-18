@@ -11,7 +11,10 @@ dev_require = ['versioneer',
                'nbstripout',
                'nbdime',
                'twine',
-               'sphinx_rtd_theme']
+               'sphinx_rtd_theme',
+               'sphinx-autodoc-annotation',
+               #'mock',
+               ]
 
 db_require = ['pyodbc',
               'psycopg2']
