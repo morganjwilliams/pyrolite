@@ -8,7 +8,7 @@ from .compositions import renormalise
 from .normalisation import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
-from .util.math import OP_constants, lambdas, lambda_poly
+from .util.math import *
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -98,19 +98,30 @@ def get_cations(oxide:str, exclude=[]):
     return cations
 
 
-def common_elements(cutoff=92, output='string'):
+def common_elements(cutoff=92,
+                    output='string',
+                    order=None):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
-    Output options are 'formula', or strings.
+    Output options are 'formula', or 'string'.
+
+    Todo: implement ordering for e.g. incompatibility.
     """
     elements = [el for el in pt.elements
                 if not (str(el) == 'n' or el.number>cutoff)]
+
+    if order is not None:
+        sort_function = order
+        elements = elements.sort(key=sort_function)
+
     if not output == 'formula':
         elements = [str(el) for el in elements]
+
     return elements
 
 
-def REE(output='string', include_extras=False):
+def REE(output='string',
+        include_extras=False):
     """
     Provides the list of Rare Earth Elements
     Output options are 'formula', or strings.
@@ -123,7 +134,6 @@ def REE(output='string', include_extras=False):
     if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
     return elements
-
 
 def common_oxides(elements: list=[], output='string',
                   addition: list=['FeOT', 'Fe2O3T', 'LOI'],
@@ -371,7 +381,8 @@ def lambda_lnREE(df,
                  norm_to='Chondrite_PON',
                  exclude=['Pm', 'Eu'],
                  params=None,
-                 degree=5):
+                 degree=5,
+                 append=[]):
     """
     Calculates lambda coefficients for a given set of REE data, normalised
     to a specific composition. Lambda factors are given for the
@@ -409,10 +420,22 @@ def lambda_lnREE(df,
                                        xs=radii,
                                        params=params,
                                        degree=degree)
-    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial, 1,
+    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial,
+                                                1, # apply along rows
                                                 norm_df.values),
                             index=df.index,
                             columns=labels)
+    if append:
+
+        # append the smooth f(radii) function to the dataframe
+        func_partial = functools.partial(lambda_poly_func,
+                                         pxs=radii,
+                                         params=params,
+                                         degree=degree)
+        if 'function' in append:
+            lambdadf['lambda_poly_func'] = np.apply_along_axis(func_partial,
+                                                               1,
+                                                               lambdadf.values)
     return lambdadf
 
 

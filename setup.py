@@ -10,7 +10,8 @@ tests_require = ['pytest',
 dev_require = ['versioneer',
                'nbstripout',
                'nbdime',
-               'twine']
+               'twine',
+               'sphinx_rtd_theme']
 
 db_require = ['pyodbc',
               'psycopg2']

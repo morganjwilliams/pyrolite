@@ -18,7 +18,27 @@ logger = logging.getLogger(__name__)
 
 _FLAG_FIRST = object()
 
+
+def iscollection(obj):
+    """Checks whether an object is an interable collection"""
+
+    for ty in [list, np.ndarray, set, tuple, dict]:
+        if isinstance(obj, ty):
+            return True
+
+    return False
+
+
 def internet_connection(target="www.google.com"):
+    """
+    Tests for an active internet connection, based on an optionally specified
+    target.
+
+    Parameters
+    ----------
+    target: url
+        URL to check connectivity, defaults to www.google.com
+    """
     conn = httplib.HTTPConnection(target, timeout=5)
     try:
         conn.request("HEAD", "/")
@@ -40,8 +60,11 @@ def flatten_dict(d, climb=False, safemode=False):
 
     Parameters
     ----------
-    climb: True | False
+    climb: True | False, False
         Whether to keep trunk or leaf-values, for items with the same key.
+    safemode: True | False, False
+        Whether to keep all keys as a tuple index, to avoid issues with
+        conflicts.
     """
     lift = lambda x: (x, )
     join = operator.add
@@ -78,10 +101,32 @@ def flatten_dict(d, climb=False, safemode=False):
 
 
 def swap_item(list: list, pull: str, push: str):
+    """
+    Swap a specified item in a list for another.
+
+    Parameters
+    ----------
+    list: List to replace item within.
+    pull: Item to replace in the list.
+    push: Item to add into the list.
+    """
     return [push if i == pull else i for i in list]
 
 
 def copy_file(src, dst, ext=None):
+    """
+    Copy a file from one place to another.
+    Uses the full filepath including name.
+
+    Parameters
+    ----------
+    src: str | Path
+        Source filepath.
+    dst: str | Path
+        Destination filepath.
+    ext: extension, None
+        Optional file extension specification.
+    """
     src = Path(src)
     dst = Path(dst)
     if ext is not None:
@@ -93,7 +138,16 @@ def copy_file(src, dst, ext=None):
             shutil.copyfileobj(fin, fout)
 
 
+
 def remove_tempdir(directory):
+    """
+    Remove a specific directory, contained files and sub-directories.
+
+    Parameters
+    ----------
+    directory: str, Path
+        Path to directory.
+    """
     directory = Path(directory)
     if directory.exists():
         temp_files = []
@@ -108,8 +162,18 @@ def remove_tempdir(directory):
     assert not directory.exists()
 
 
+
 def extract_zip(zipfile, output_dir):
-    """Extracts a zipfile without the uppermost folder."""
+    """
+    Extracts a zipfile without the uppermost folder.
+
+    Parameters
+    ----------
+    zipfile: zipfile object
+        Zipfile object to extract.
+    output_dir: str | Path
+        Directory to extract files to.
+    """
     output_dir = Path(output_dir)
     if zipfile.testzip() is None:
         for m in zipfile.namelist():

@@ -38,7 +38,8 @@ def add_legend_items(ax):
             labels.append(label)
 
 
-def add_colorbar(mappable, **kwargs):
+def add_colorbar(mappable,
+                 **kwargs):
     """
     Adds a colorbar to a given mappable object.
 
@@ -53,10 +54,20 @@ def add_colorbar(mappable, **kwargs):
     ----------
     colorbar: matplotlib.colorbar.Colorbar
     """
-    ax = mappable.axes
+    ax = kwargs.get('ax', None)
+    if hasattr(mappable, 'axes'):
+        ax = ax or mappable.axes
+    elif hasattr(mappable, 'ax'):
+        ax = ax or mappable.ax
+
+
+    position = kwargs.pop('position', 'right')
+    size = kwargs.pop('size', '5%')
+    pad = kwargs.pop('pad', 0.05)
+
     fig = ax.figure
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cax = divider.append_axes(position, size=size, pad=pad)
     return fig.colorbar(mappable, cax=cax, **kwargs)
 
 
@@ -70,6 +81,7 @@ def ABC_to_tern_xy(ABC):
 
 
 def tern_heatmapcoords(data, scale=10, bins=10):
+    # this appears to cause problems for ternary density diagrams
     x, y = ABC_to_tern_xy(data)
     xydata = np.vstack((x, y))
     k = gaussian_kde(xydata)

@@ -59,9 +59,19 @@ def OP_constants(xs, degree=3, tol=10**-14):
 
 
 def lambda_poly(x, ps):
-    """Polynomial lambda_n(x) given parameters ps with len(ps) = n"""
-    result = np.ones(len(x))
+    """
+    Polynomial lambda_n(x) given parameters ps with len(ps) = n.
 
+    Parameters:
+    -----------
+    x: np.ndarray
+        X values to calculate the function at.
+    ps: tuple
+        Parameter set tuple. E.g. parameters (a, b) from f(x) = (x-a)(x-b).
+    """
+    if not isinstance(x, np.ndarray):
+        x = np.array(x)
+    result = np.ones(len(x))
     for p in ps:
         result = result * (x - p)
     return result.astype(np.float)
@@ -100,18 +110,44 @@ def lambdas(arr:np.ndarray,
 
 
 def lambda_poly_func(lambdas:np.ndarray,
-                     pxs:np.ndarray,
                      params=None,
+                     pxs=None,
                      degree=5):
     """
-    Expansion of lambda parameters back to a higher dimensional space.
+    Expansion of lambda parameters back to the original space. Returns a
+    function which evaluates the sum of the orthaogonal polynomials at given
+    x values.
 
-    Returns a function.
+    Parameters:
+    ------------
+    lambdas: np.ndarray
+        Lambda values to weight combination of polynomials.
+    params: list of tuples
+        Parameters for the orthagonal polynomial decomposition.
+    pxs: np.ndarray
+        x values used to construct the lambda values.*
+    degree: int
+        Degree of the orthagonal polynomial decomposition.*
+
+    * (only needed if parameters are not supplied)
     """
-    if params is None:
+    if params is None and pxs is not None:
         params = OP_constants(pxs, degree=degree)
+    elif params is None and pxs is None:
+        msg = """Must provide either x values to construct parameters,
+                 or the parameters themselves."""
+        raise AssertionError(msg)
 
     def lambda_poly_f(xarr):
+        """
+        Calculates the sum of decomposed polynomial components
+        at given x values.
+
+        Parameters:
+        -----------
+        xarr: np.ndarray
+            X values at which to evaluate the function.
+        """
         arrs = np.array([lambda_poly(xarr, pset) for pset in params])
         return np.dot(lambdas, arrs)
 
