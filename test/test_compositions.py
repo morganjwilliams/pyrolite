@@ -1,14 +1,9 @@
 import unittest
 import numpy as np
 from pyrolite.compositions import *
+from pyrolite.util.pd import test_df
 import logging
 log = logging.getLogger(__name__)
-
-
-def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
-            index_length=10):
-    return pd.DataFrame({k: v for k,v in zip(cols,
-                         np.random.rand(len(cols), index_length))})
 
 
 class TestClose(unittest.TestCase):

@@ -2,17 +2,8 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.geochem import *
+from pyrolite.util.pd import test_df, test_ser
 from pyrolite.normalisation import ReferenceCompositions
-
-
-def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
-            index_length=10):
-    return pd.DataFrame({k: v for k,v in zip(cols,
-                         np.random.rand(len(cols), index_length))})
-
-
-def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
-    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
 
 
 class TestGetRadii(unittest.TestCase):

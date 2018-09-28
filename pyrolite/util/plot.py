@@ -262,7 +262,7 @@ def save_figure(figure,
                        **config)
 
 
-def save_axes(axes,
+def save_axes(ax,
               save_at='',
               name='fig',
               save_fmts=['png'],
@@ -275,13 +275,13 @@ def save_axes(axes,
     """
     # Check if axes is a single axis or list of axes
 
-    if isinstance(axes, matax.Axes):
-        extent = get_full_extent(axes, pad=pad)
-        figure = axes.figure
+    if isinstance(ax, matax.Axes):
+        extent = get_full_extent(ax, pad=pad)
+        figure = ax.figure
     else:
         extent_items = []
-        for ax in axes:
-            extent_items.append(get_full_extent(ax, pad=pad))
+        for a in ax:
+            extent_items.append(get_full_extent(a, pad=pad))
         figure = axes[0].figure
         extent = Bbox.union([item for item in extent_items])
     save_figure(figure,
@@ -296,7 +296,9 @@ def save_axes(axes,
 def get_full_extent(ax, pad=0.0):
     """Get the full extent of an axes, including axes labels, tick labels, and
     titles. Text objects are first drawn to define the extents."""
-    ax.figure.canvas.draw()
+    fig = ax.figure
+    fig.canvas.draw()
+    renderer = fig.canvas.renderer
     items = []
     items += [ax]
 
@@ -311,6 +313,6 @@ def get_full_extent(ax, pad=0.0):
         if np.array([len(i.get_text()) > 0 for i in t_lb]).any():
             items += t_lb
 
-    bbox = Bbox.union([item.get_window_extent() for item in items])
+    bbox = Bbox.union([item.get_window_extent(renderer) for item in items])
     full_extent = bbox.expanded(1.0 + pad, 1.0 + pad)
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())

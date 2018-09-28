@@ -49,7 +49,36 @@ def patch_pandas_units():
         #setattr(cls, '__init__', init_wrapper(cls.__init__))
 
 
+def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
+            index_length=10):
+    """
+    Creates a pandas.DataFrame with random data.
+    """
+    return pd.DataFrame({k: v for k,v in zip(cols,
+                         np.random.rand(len(cols), index_length))})
+
+
+def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
+    """
+    Creates a pandas.Series with random data.
+    """
+    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
+
+
 def column_ordered_append(df1, df2, **kwargs):
+    """
+    Appends one dataframe to another, preserving the column order of the
+    first and appending new columns on the right. Also accepts and passes on
+    standard keyword arguments for pd.DataFrame.append.
+
+    Parameters
+    ------------
+    df1: pd.DataFrame
+        The dataframe for which columns order is preserved in the output.
+    df2: pd.DataFrame
+        The dataframe for which new columns are appended to the output.
+
+    """
     outcols = list(df1.columns) + [i for i in df2.columns
                                    if not i in df1.columns]
     return df1.append(df2,  **kwargs).reindex(columns=outcols)
