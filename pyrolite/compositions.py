@@ -319,6 +319,17 @@ def nancov(X, method='replace'):
     Generates a covariance matrix excluding nan-components.
     Done on a column-column/pairwise basis.
     The result Y may not be a positive definite matrix.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Input array for which to derive a covariance matrix.
+    method: str, 'row_exclude' | 'replace'
+        Method for calculating covariance matrix.
+        'row_exclude' removes all rows  which contain np.nan before calculating
+        the covariance matrix. 'replace' instead replaces the np.nan values with
+         the mean before calculating the covariance.
+
     """
     if method=='rowexclude':
         Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
@@ -351,8 +362,17 @@ def nancov(X, method='replace'):
 def renormalise(df: pd.DataFrame, components:list=[], scale=100.):
     """
     Renormalises compositional data to ensure closure.
-    A subset of components can be used for flexibility.
-    For data which sums to 0, 100 is returned - e.g. for TE-only datasets
+
+    Parameters:
+    ------------
+    df: pd.DataFrame
+        Dataframe to renomalise.
+    components: list
+        Option subcompositon to renormalise to 100. Useful for the use case
+        where compostional data and non-compositional data are stored in the
+        same dataframe.
+    scale: float, 100.
+        Closure parameter. Typically either 100 or 1.
     """
     dfc = df.copy()
     if components:
@@ -362,12 +382,21 @@ def renormalise(df: pd.DataFrame, components:list=[], scale=100.):
                                                                axis=0)
         return dfc
     else:
-        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100), axis=0) * scale
+        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.), axis=0) * scale
         return dfc
 
 
 def additive_log_ratio(X: np.ndarray, ind: int=-1):
-    """Additive log ratio transform. """
+    """
+    Inverse Additive Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array on which to perform the inverse transformation.
+    ind: int
+        Index of column used as denominator.
+    """
 
     Y = X.copy()
     assert Y.ndim in [1, 2]
@@ -385,7 +414,14 @@ def additive_log_ratio(X: np.ndarray, ind: int=-1):
 
 def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
     """
-    Inverse additive log ratio transform.
+    Inverse Centred Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array on which to perform the inverse transformation.
+    ind: int
+        Index of column used as denominator.
     """
     assert Y.ndim in [1, 2]
 
@@ -413,14 +449,42 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
 
 
 def alr(*args, **kwargs):
+    """
+    Short form of Additive Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the inverse transformation.
+    ind: int
+        Index of column used as denominator.
+    """
     return additive_log_ratio(*args, **kwargs)
 
 
 def inv_alr(*args, **kwargs):
+    """
+    Short form of Inverse Additive Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the inverse transformation.
+    ind: int
+        Index of column used as denominator.
+    """
     return inverse_additive_log_ratio(*args, **kwargs)
 
 
 def clr(X: np.ndarray):
+    """
+    Centred Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array on which to perform the transformation.
+    """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
     Y -= 1/X.shape[1] * np.nansum(Y, axis=1)[:, np.newaxis]
@@ -428,18 +492,45 @@ def clr(X: np.ndarray):
 
 
 def inv_clr(Y: np.ndarray):
-    X = np.exp(Y)  # Inverse of log operation
-    X = np.divide(X, np.nansum(X, axis=1)[:, np.newaxis])  #Closure operation
+    """
+    Inverse Centred Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the inverse transformation.
+    """
+    # Inverse of log operation
+    X = np.exp(Y)
+    # Closure operation
+    X = np.divide(X, np.nansum(X, axis=1)[:, np.newaxis])
     return X
 
 
 def orthagonal_basis(X: np.ndarray):
+    """
+    Generate a set of orthagonal basis vectors.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array from which the size of the set is derived.
+    """
     D = X.shape[1]
-    H = scipy.linalg.helmert(D, full=False)  # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
+    # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
+    H = scipy.linalg.helmert(D, full=False)
     return H[::-1]
 
 
 def ilr(X: np.ndarray):
+    """
+    Isotmetric Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array on which to perform the transformation.
+    """
     d = X.shape[1]
     Y = clr(X)
     psi = orthagonal_basis(X)  # Get a basis
@@ -449,6 +540,14 @@ def ilr(X: np.ndarray):
 
 
 def inv_ilr(Y: np.ndarray, X: np.ndarray=None):
+    """
+    Inverse Isometric Log Ratio transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the inverse transformation.
+    """
     psi = orthagonal_basis(X)
     C = Y @ psi
     X = inv_clr(C)  # Inverse log operation
@@ -456,6 +555,10 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray=None):
 
 
 class LinearTransform(TransformerMixin):
+    """
+    Linear Transformer for scikit-learn like use.
+    """
+
     def __init__(self, **kwargs):
         self.kpairs = kwargs
         self.label = 'Crude'
@@ -473,6 +576,10 @@ class LinearTransform(TransformerMixin):
 
 
 class ALRTransform(TransformerMixin):
+    """
+    Additive Log Ratio Transformer for scikit-learn like use.
+    """
+
     def __init__(self, **kwargs):
         self.kpairs = kwargs
         self.label = 'ALR'
@@ -490,6 +597,10 @@ class ALRTransform(TransformerMixin):
 
 
 class CLRTransform(TransformerMixin):
+    """
+    Centred Log Ratio Transformer for scikit-learn like use.
+    """
+
     def __init__(self, **kwargs):
         self.kpairs = kwargs
         self.label = 'CLR'
@@ -507,6 +618,10 @@ class CLRTransform(TransformerMixin):
 
 
 class ILRTransform(TransformerMixin):
+    """
+    Isometric Log Ratio Transformer for scikit-learn like use.
+    """
+
     def __init__(self, **kwargs):
         self.kpairs = kwargs
         self.label = 'ILR'

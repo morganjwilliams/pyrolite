@@ -3,7 +3,8 @@ from pathlib import Path
 from collections import OrderedDict
 from pyrolite.util.melts import *
 from pyrolite.data.melts.env import MELTS_environment_variables
-from pyrolite.util.general import remove_tempdir, internet_connection
+from pyrolite.util.general import remove_tempdir, internet_connection, \
+                                  check_perl
 
 
 def get_default_datadict():
@@ -65,6 +66,9 @@ class TestInstall(unittest.TestCase):
             self.temp_dir = root / 'temp' / 'test_melts_temp'
             self.dir = root / 'temp' /'test_melts_install'
 
+        ## create these folders if they don't exist
+
+
     @unittest.skipIf(not check_perl(), "Perl is not installed.")
     def test_perl_install(self):
         """Uses subprocess to call the perl installation method."""
@@ -88,6 +92,7 @@ class TestInstall(unittest.TestCase):
         """
         Performs the equivalent actions to the perl install script in python.
         """
+
         for keeptemp in [False, True]:
            with self.subTest(keeptemp=keeptemp):
                install_melts(self.dir,

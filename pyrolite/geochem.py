@@ -352,11 +352,11 @@ def add_ratio(df: pd.DataFrame,
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
     return df
 
-
 def add_MgNo(df: pd.DataFrame,
              molecularIn=False,
              elemental=False,
              components=False):
+
 
     if not molecularIn:
         if components:
@@ -440,6 +440,6 @@ def lambda_lnREE(df,
 
 
 _RADII = {str(k): v for (k, v) in zip(REE(), [1.160, 1.143, 1.126, 1.109,
-                                         1.093, 1.079, 1.066, 1.053,
-                                         1.040, 1.027, 1.015, 1.004,
-                                         0.994, 0.985, 0.977])}
+                                              1.093, 1.079, 1.066, 1.053,
+                                              1.040, 1.027, 1.015, 1.004,
+                                              0.994, 0.985, 0.977])}

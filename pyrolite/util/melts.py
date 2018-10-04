@@ -9,7 +9,8 @@ import dicttoxml
 import zipfile
 import logging
 import shutil
-from .general import copy_file, extract_zip, remove_tempdir, internet_connection
+from .general import copy_file, extract_zip, remove_tempdir, \
+                     internet_connection, check_perl
 from .env import environment_manager, validate_update_envvar
 from .text import remove_prefix
 from pyrolite.data.melts.env import MELTS_environment_variables
@@ -41,7 +42,7 @@ class MELTS_Env(object):
     def export_default_env(self, init=False):
         """
         Parse any environment variables which are already set.
-        Rest environment variables after substituding defaults for unset
+        Reset environment variables after substituding defaults for unset
         variables.
         """
         _dump = self.dump()
@@ -62,7 +63,7 @@ class MELTS_Env(object):
 
             if setting: setattr(self, var, None)
 
-    def dump(self):
+    def dump(self, unset_variables=True):
         """Export environment configuration to a dictionary."""
         keys = [k for k in self.spec.keys()]
         pkeys = [self.prefix+k for k in keys]
@@ -75,6 +76,8 @@ class MELTS_Env(object):
         _env = [(k, t(v)) if v and v not in [None, 'None']
                 else (k, None)
                 for k, p, v, t in zip(keys, pkeys, values, types)]
+        if not unset_variables:
+            _env = [e for e in _env if e[1] is not None]
         return {k: v for k, v in _env}
 
 
@@ -102,6 +105,12 @@ class MELTS_Env(object):
         else:
             self.__dict__[name]=value
 
+    def __repr__(self):
+        """Returns the class and all set variables."""
+        return "{}({})".format(self.__class__.__name__,
+                               self.dump(unset_variables=False)
+                               ).replace(',', ',\n\t\t')
+
 
 def run_wds_command(command):
     """
@@ -112,18 +121,85 @@ def run_wds_command(command):
     os.system("start /wait cmd /c {}".format(command))
 
 
-def check_perl():
-    """Checks whether perl is installed on the system."""
-    try:
-        p = subprocess.check_output("perl -v")
-        returncode = 0
-    except subprocess.CalledProcessError as e:
-        output = e.output
-        returncode = e.returncode
-    except FileNotFoundError:
-        returncode = 1.
+#### MELTS Web Service ################
 
-    return returncode == 0
+
+def melts_query(data_dict, url_sfx='Compute'):
+    """
+    Execute query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the web query.
+    url_sfx : str, Compute
+        URL suffix to denote specific web service (Compute | Oxides | Phases).
+    """
+    try:
+        assert internet_connection()
+        url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
+        xmldata = dicttoxml.dicttoxml(data_dict,
+                                      custom_root='MELTSinput',
+                                      root=True,
+                                      attr_type=False)
+        headers = {"content-type": "text/xml",
+                   "data-type": "xml"}
+        resp = requests.post(url, data=xmldata, headers=headers)
+        resp.raise_for_status()
+        result = xmljson.parker.data(ET.fromstring(resp.text))
+        return result
+    except AssertionError:
+        raise AssertionError('Must be connected to the internet to run query.')
+
+
+def melts_compute(data_dict):
+    """
+    Execute 'Compute' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Compute web query.
+    """
+    url_sfx = "Compute"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    assert 'Success' in result['status']
+    return result
+
+
+def melts_oxides(data_dict):
+    """
+    Execute 'Oxides' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Oxides web query.
+    """
+    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
+    data_dict = {'modelSelection': model}
+    url_sfx = "Oxides"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    return result['Oxide']
+
+
+def melts_phases(data_dict):
+    """
+    Execute 'Phases' query against the MELTS web services.
+
+    Parameters
+    ----------
+    data_dict : dict
+        Dictionary containing data to be sent to the Phases web query.
+    """
+    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
+    data_dict = {'modelSelection': model}
+    url_sfx = "Phases"
+    result = melts_query(data_dict, url_sfx=url_sfx)
+    return result['Phase']
+
+
+####### Download and Installation #########################
 
 
 def download_melts(directory):
@@ -273,6 +349,7 @@ def install_melts(install_dir,
                 for prefix in prefixes:
                     temp_regpath = (temp_dir / prefix).with_suffix(ext)
                     install_regpath = install_dir / temp_regpath.name
+
                     shutil.copy(str(temp_regpath), str(install_regpath))
         elif native:
 
@@ -284,8 +361,25 @@ def install_melts(install_dir,
             comms = [(temp_dir / i).with_suffix('.command') for i in comms]
 
             files_to_copy = []
+
+            # getting the executable file
             if system == 'Windows':
                 alphafile =  temp_dir / 'alphamelts_win{}.exe'.format(bits)
+            elif system == 'Linux':
+                if ('Microsoft' in release) or ('Microsoft' in version):
+                   alphafile =  temp_dir / 'alphamelts_wsl'
+                else:
+                   alphafile =  temp_dir / 'alphamelts_linux{}'.format(bits)
+            elif system == 'Darwin':
+                alphafile =  temp_dir / 'alphamelts_macosx{}'.format(bits)
+
+            # getting files to copy
+
+            files_to_copy += [(eg_dir, egs),
+                              (install_dir, comms),
+                              (install_dir, [alphafile])]
+
+            if system == 'Windows':
                 bats = comms + [temp_dir / 'alphamelts']
                 bats = [i.with_suffix('.bat')  for i in bats]
                 batdata = {}
@@ -303,15 +397,6 @@ def install_melts(install_dir,
 
                 #regs = ['command', 'command_auto_file', 'path', 'perl']
 
-            elif system == 'Linux':
-                alphafile =  temp_dir / 'alphamelts_linux{}'.format(bits)
-            elif system == 'Darwin':
-                alphafile =  temp_dir / 'alphamelts_macosx{}'.format(bits)
-
-
-            files_to_copy += [(eg_dir, egs),
-                              (install_dir, comms),
-                              (install_dir, [alphafile])]
             for (target, files) in files_to_copy:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
@@ -320,78 +405,3 @@ def install_melts(install_dir,
     finally:
         if not keep_tempdir:
             remove_tempdir(temp_dir)
-
-
-def melts_query(data_dict, url_sfx='Compute'):
-    """
-    Execute query against the MELTS web services.
-
-    Parameters
-    ----------
-    data_dict : dict
-        Dictionary containing data to be sent to the web query.
-    url_sfx : str, Compute
-        URL suffix to denote specific web service (Compute | Oxides | Phases).
-    """
-    try:
-        assert internet_connection()
-        url = 'http://thermofit.ofm-research.org:8080/multiMELTSWSBxApp/' + url_sfx
-        xmldata = dicttoxml.dicttoxml(data_dict,
-                                      custom_root='MELTSinput',
-                                      root=True,
-                                      attr_type=False)
-        headers = {"content-type": "text/xml",
-                   "data-type": "xml"}
-        resp = requests.post(url, data=xmldata, headers=headers)
-        resp.raise_for_status()
-        result = xmljson.parker.data(ET.fromstring(resp.text))
-        return result
-    except AssertionError:
-        raise AssertionError('Must be connected to the internet to run query.')
-
-
-def melts_compute(data_dict):
-    """
-    Execute 'Compute' query against the MELTS web services.
-
-    Parameters
-    ----------
-    data_dict : dict
-        Dictionary containing data to be sent to the Compute web query.
-    """
-    url_sfx = "Compute"
-    result = melts_query(data_dict, url_sfx=url_sfx)
-    assert 'Success' in result['status']
-    return result
-
-
-def melts_oxides(data_dict):
-    """
-    Execute 'Oxides' query against the MELTS web services.
-
-    Parameters
-    ----------
-    data_dict : dict
-        Dictionary containing data to be sent to the Oxides web query.
-    """
-    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
-    data_dict = {'modelSelection': model}
-    url_sfx = "Oxides"
-    result = melts_query(data_dict, url_sfx=url_sfx)
-    return result['Oxide']
-
-
-def melts_phases(data_dict):
-    """
-    Execute 'Phases' query against the MELTS web services.
-
-    Parameters
-    ----------
-    data_dict : dict
-        Dictionary containing data to be sent to the Phases web query.
-    """
-    model = data_dict['initialize'].pop('modelSelection', 'MELTS_v1.0.x')
-    data_dict = {'modelSelection': model}
-    url_sfx = "Phases"
-    result = melts_query(data_dict, url_sfx=url_sfx)
-    return result['Phase']

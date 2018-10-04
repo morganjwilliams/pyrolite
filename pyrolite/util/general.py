@@ -1,32 +1,24 @@
 import os, sys
-from collections import Mapping
-from itertools import chain
-import operator
-import numpy as np
-import logging
+import subprocess
 import shutil
-from pathlib import Path
 import zipfile
 import re
+from itertools import chain
+import operator
+from collections import Mapping
+from pathlib import Path
+import numpy as np
+import logging
 try:
     import httplib
 except:
     import http.client as httplib
 
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 _FLAG_FIRST = object()
-
-
-def iscollection(obj):
-    """Checks whether an object is an interable collection"""
-
-    for ty in [list, np.ndarray, set, tuple, dict]:
-        if isinstance(obj, ty):
-            return True
-
-    return False
 
 
 def internet_connection(target="www.google.com"):
@@ -47,6 +39,30 @@ def internet_connection(target="www.google.com"):
     except:
         conn.close()
         return False
+
+
+def iscollection(obj):
+    """Checks whether an object is an interable collection"""
+
+    for ty in [list, np.ndarray, set, tuple, dict]:
+        if isinstance(obj, ty):
+            return True
+
+    return False
+
+
+def check_perl():
+    """Checks whether perl is installed on the system."""
+    try:
+        p = subprocess.check_output("perl -v")
+        returncode = 0
+    except subprocess.CalledProcessError as e:
+        output = e.output
+        returncode = e.returncode
+    except FileNotFoundError:
+        returncode = 1.
+
+    return returncode == 0
 
 
 def flatten_dict(d, climb=False, safemode=False):

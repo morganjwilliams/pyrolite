@@ -299,8 +299,8 @@ def get_full_extent(ax, pad=0.0):
     fig = ax.figure
     fig.canvas.draw()
     renderer = fig.canvas.renderer
-    items = []
-    items += [ax]
+
+    items = [ax]
 
     if len(ax.get_title()):
         items += [ax.title]
