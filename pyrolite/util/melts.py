@@ -1,19 +1,16 @@
-import os, sys, platform
-import subprocess
+import os, sys, platform, subprocess, shutil
 from pathlib import Path
-import io
-import requests
 from xml.etree import ElementTree as ET
-import xmljson
-import dicttoxml
-import zipfile
-import logging
-import shutil
+import io, re, xmljson, dicttoxml, zipfile, requests, logging
+import pandas as pd
+import numpy as np
+from .pd import to_frame, to_ser
 from .general import copy_file, extract_zip, remove_tempdir, \
                      internet_connection, check_perl
 from .env import environment_manager, validate_update_envvar
 from .text import remove_prefix
-from pyrolite.data.melts.env import MELTS_environment_variables
+from ..geochem import common_oxides, common_elements
+from ..data.melts.env import MELTS_environment_variables
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -119,6 +116,76 @@ def run_wds_command(command):
     Here can be used to run alphamelts by specifing 'alphamelts'.
     """
     os.system("start /wait cmd /c {}".format(command))
+
+
+def from_melts_cstr(composition_str):
+    """Parses melts composition strings to dictionaries."""
+    regex = r"""(?P<el>[a-zA-Z'^.]+)(?P<num>[^a-zA-Z]+)"""
+    result = re.findall(regex, composition_str)
+    convert_element = lambda s: re.sub(r"""[\']+""",
+                                       str(s.count("""'"""))+'+',
+                                       s)
+    return {convert_element(el): float(val) for (el, val) in result}
+
+
+def to_meltsfile(ser, linesep=os.linesep, **kwargs):
+    """
+    Converts a series to a MELTSfile text representation. It requires 'title'
+    and 'initial composition' lines, major elements to be represented as oxides
+    in Wt% and trace elements in µg/g.
+    """
+    lines = []
+    # majors -->  SiO2 45.7
+    ser = to_ser(ser)
+    assert ('Title' in ser.index) or ('title' in ser.index)
+    if 'Title' in ser.index:
+        lines.append('Title: {}'.format(ser.Title))
+    else:
+        lines.append('Title: {}'.format(ser.title))
+    # output majors to Wt% values, may need to reorder them?
+    majors = [i for i in ser.index if i in common_oxides()]
+    for k, v in zip(majors, ser.loc[majors].values):
+        if not pd.isnull(v): # no NaN data in MELTS files
+            lines.append('Initial Composition: {} {}'.format(k, v))
+
+    # traces --> Initial Trace: Sm 0.2
+
+    # output traces to ppm values
+    traces = [i for i in ser.index if i in common_elements()]
+    for k, v in zip(traces, ser.loc[traces].values):
+        if not pd.isnull(v.any()): # no NaN data in MELTS files
+            lines.append('Initial Trace: {} {}'.format(k, v))
+    # output valid kwargs
+    valid = ['Mode',
+             'Temperature',
+             'Pressure',
+             'dp/dt',
+             'log fo2 Path',
+             'Log fO2 Delta']
+
+    # potentially pass these as tuples (start, stop, increment)
+    # temperature, pressure --> Initial Temperature: 1500.0
+    # temperature, pressure --> Final Temperature: 2000.0
+    # temperature, pressure --> Increment Temperature: 3.00
+
+    # dp/dt: 0.00
+    # log fo2 Path: None
+    # Log fO2 Delta: 0.0
+    # Mode: Fractionate Solids
+    return linesep.join(lines)
+
+
+def to_meltsfiles(df, linesep=os.linesep, **kwargs):
+    """
+    Creates a number of melts files from a dataframe.
+    """
+
+    # Type checking such that series will be passed directly to MELTSfiles
+    if isinstance(df, pd.DataFrame):
+        return [to_meltsfile(df.iloc[ix, :], linesep=os.linesep, **kwargs)
+                for ix in range(df.index.size)]
+    elif isinstance(df, pd.Series):
+        return [to_meltsfile(df, linesep=os.linesep, **kwargs)]
 
 
 #### MELTS Web Service ################

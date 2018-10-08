@@ -141,5 +141,31 @@ class TestTitlecase(unittest.TestCase):
     def test_original_camelcase(self):
         """Check whether original camelcase is preserved."""
 
+
+class TestParseEntry(unittest.TestCase):
+    """Tests the regex parser for data munging string --> value conversion."""
+
+    def setUp(self):
+        pass
+
+    def test_single_entry(self):
+        pass
+
+    def test_multiple_groups(self):
+        pass
+
+    def test_multiple_entries(self):
+        pass
+
+    def test_delimiters(self):
+        pass
+
+    def test_error_values(self):
+        pass
+
+    def test_values_only(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()

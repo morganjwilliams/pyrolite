@@ -8,46 +8,6 @@ import inspect
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
-def patch_pandas_units():
-    """
-    Patches pandas dataframes and series to have units values.
-    Todo: implement auto-assign of pandas units at __init__
-    """
-
-    def set_units(df:pd.DataFrame, units):
-        """
-        Monkey patch to add units to a dataframe.
-        """
-
-        if isinstance(df, pd.DataFrame):
-            if isinstance(units, str):
-                units = np.array([units])
-            units = pd.Series(units, name='units')
-        elif isinstance(df, pd.Series):
-            assert isinstance(units, str)
-            pass
-        setattr(df, 'units', units)
-
-
-    """
-    def init_wrapper(func, *args, **kwargs):
-
-        def init_wrapped(*args, **kwargs):
-            func(*args, **kwargs)
-
-        units = kwargs.pop('units', None)
-        if units is not None:
-            if isinstance(args[0], pd.DataFrame):
-                df = args[0]
-                df.set_units(units)
-        return init_wrapped
-    """
-
-    for cls in [pd.DataFrame, pd.Series]:
-        setattr(cls, 'units', None)
-        setattr(cls, set_units.__name__, set_units)
-        #setattr(cls, '__init__', init_wrapper(cls.__init__))
-
 
 def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
             index_length=10):
@@ -109,6 +69,22 @@ def to_frame(df):
             df = df.T
 
     return df
+
+
+def to_ser(df):
+    """
+    Simple utility for converting single column pandas dataframes to series.
+    """
+    if type(df) == pd.DataFrame:
+        assert (df.columns.size == 1) or (df.index.size == 1), \
+              """Can't convert DataFrame to Series:
+              either columns or index need to have size 1."""
+        if df.columns.size == 1:
+            return df.iloc[:, 0]
+        else:
+            return df.iloc[0, :]
+    else:
+        return df
 
 
 def to_numeric(df: pd.DataFrame,

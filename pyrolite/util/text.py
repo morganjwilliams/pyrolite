@@ -60,3 +60,54 @@ def titlecase(s,
             word = word.capitalize()
         out.append(word)
     return delim.join(out)
+
+
+def parse_entry(entry,
+                regex,
+                delimiter=',',
+                values_only=True,
+                errors=None):
+    """
+    Parses an arbitrary string data entry to return
+    values based on a regular expression containing
+    named fields including 'value' (and any others).
+
+    Parameters
+    -----------------------
+    entry: str
+        String entry which to search for the regex pattern.
+    regex: str
+        Regular expression to compile and use to search the
+        entry for a value.
+    delimiter: str, ','
+        Optional delimiter to split the string in case of multiple
+        inclusion.
+    values_only: bool, True,
+        Option to return only values (single or list), or to instead
+        return the dictionary corresponding to the matches.
+    errors: int|float|np.nan|None, None
+        Error value to denote 'no match'.
+    """
+    pattern = re.compile(regex)
+    matches = []
+    for _l in entry.split(delimiter):
+        _m = pattern.match(_l)
+        if _m:
+            _d = dict(value=_m.group('value'))
+            # Add other groups
+            _d.update({k: _m.group(k)
+                       for (k, ind) in pattern.groupindex.items()
+                       if not k=='value'})
+
+        else:
+            _d = dict(value=None)
+            # Add other groups
+            _d.update({k: None
+                       for (k, ind) in pattern.groupindex.items()
+                       if not k=='value'})
+        matches.append(_d)
+    if values_only:
+        matches = [m['value'] for m in matches]
+        if len(matches)==1:
+            return matches[0]
+    return matches

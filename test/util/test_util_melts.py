@@ -5,7 +5,7 @@ from pyrolite.util.melts import *
 from pyrolite.data.melts.env import MELTS_environment_variables
 from pyrolite.util.general import remove_tempdir, internet_connection, \
                                   check_perl
-
+from pyrolite.util.pd import test_df, test_ser
 
 def get_default_datadict():
     d = OrderedDict()
@@ -29,6 +29,103 @@ def get_default_datadict():
     d['constraints'] = {"setTP": {"initialT": 1200,
                                   "initialP": 1000}}
     return d
+
+
+class TestParseMELTSComposition(unittest.TestCase):
+
+    def setUp(self):
+        self.cstring = """Fe''0.18Mg0.83Fe'''0.04Al1.43Cr0.52Ti0.01O4"""
+
+    def test_parse(self):
+        ret = from_melts_cstr(self.cstring)
+        self.assertTrue(isinstance(ret, dict))
+        self.assertTrue('Fe2+' in ret.keys())
+        self.assertTrue(np.isclose(ret['Fe2+'], 0.18))
+
+
+class TestToMELTSFiles(unittest.TestCase):
+
+    def setUp(self):
+        self.df = test_df()
+        self.df.loc[:, 'Title'] = ['Title {}'.format(x)
+                                    for x in self.df.index.values]
+        self.ser = test_ser()
+        self.ser.loc['Title'] = 'Test_title'
+
+    def test_series_to_melts_file(self):
+        ret = to_meltsfiles(self.ser)
+
+    def test_df_to_melts_files(self):
+        ret = to_meltsfiles(self.df)
+
+
+class TestMELTSEnv(unittest.TestCase):
+
+    def setUp(self):
+        self.prefix = 'ALPHAMELTS_'
+        self.env_vars = MELTS_environment_variables
+
+    def test_env_build(self):
+        """Tests the environment setup with the default config."""
+        menv = MELTS_Env(prefix=self.prefix,
+                         variable_model=self.env_vars)
+        test_var = 'ALPHAMELTS_MINP'
+        self.assertTrue(test_var in os.environ)
+
+    def test_valid_setattr(self):
+        """Tests that environment variables can be set."""
+
+        menv = MELTS_Env(prefix=self.prefix,
+                         variable_model=self.env_vars)
+        test_var = 'ALPHAMELTS_MINP'
+        for var in [test_var,
+                  remove_prefix(test_var, self.prefix)]:
+            with self.subTest(var=var):
+                for value in [1., 10., 100., 10.]:
+                    setattr(menv, var, value)
+                    self.assertTrue(test_var in os.environ)
+                    self.assertTrue(type(value)(os.environ[test_var])==value)
+
+    def test_reset(self):
+        """
+        Tests that environment variables can be reset to default/removed
+        by setting to None.
+        """
+        menv = MELTS_Env(prefix=self.prefix,
+                         variable_model=self.env_vars)
+        test_var = 'ALPHAMELTS_OLD_GARNET'
+        for var in [test_var, remove_prefix(test_var, self.prefix)]:
+            with self.subTest(var=var):
+                setattr(menv, var, True) # set
+                setattr(menv, var, None) # reset to default/remove
+                _var = remove_prefix(var, self.prefix)
+                default = self.env_vars[_var].get('default', None)
+                if default is not None:
+                    self.assertTrue(type(default)(
+                                    os.environ[test_var]
+                                    )==default)
+                else:
+                    self.assertTrue(test_var not in os.environ)
+
+
+@unittest.skipIf(not internet_connection(), "Needs internet connection.")
+class TestWebService(unittest.TestCase):
+    """Tests the current MELTS webservice interactivity with default data."""
+
+    def setUp(self):
+        self.dict = get_default_datadict()
+
+    def test_melts_compute(self):
+        """Tests the MELTS-compute web service."""
+        result = melts_compute(self.dict)
+
+    def test_melts_oxides(self):
+        """Tests the MELTS-oxides web service."""
+        result = melts_oxides(self.dict)
+
+    def test_melts_phases(self):
+        """Tests the MELTS-phases web service."""
+        result = melts_phases(self.dict)
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
@@ -108,75 +205,6 @@ class TestInstall(unittest.TestCase):
     def tearDown(self):
         remove_tempdir(self.dir)
         remove_tempdir(self.temp_dir)
-
-
-class TestMELTSEnv(unittest.TestCase):
-
-    def setUp(self):
-        self.prefix = 'ALPHAMELTS_'
-        self.env_vars = MELTS_environment_variables
-
-    def test_env_build(self):
-        """Tests the environment setup with the default config."""
-        menv = MELTS_Env(prefix=self.prefix,
-                         variable_model=self.env_vars)
-        test_var = 'ALPHAMELTS_MINP'
-        self.assertTrue(test_var in os.environ)
-
-    def test_valid_setattr(self):
-        """Tests that environment variables can be set."""
-
-        menv = MELTS_Env(prefix=self.prefix,
-                         variable_model=self.env_vars)
-        test_var = 'ALPHAMELTS_MINP'
-        for var in [test_var,
-                  remove_prefix(test_var, self.prefix)]:
-            with self.subTest(var=var):
-                for value in [1., 10., 100., 10.]:
-                    setattr(menv, var, value)
-                    self.assertTrue(test_var in os.environ)
-                    self.assertTrue(type(value)(os.environ[test_var])==value)
-
-    def test_reset(self):
-        """
-        Tests that environment variables can be reset to default/removed
-        by setting to None.
-        """
-        menv = MELTS_Env(prefix=self.prefix,
-                         variable_model=self.env_vars)
-        test_var = 'ALPHAMELTS_OLD_GARNET'
-        for var in [test_var, remove_prefix(test_var, self.prefix)]:
-            with self.subTest(var=var):
-                setattr(menv, var, True) # set
-                setattr(menv, var, None) # reset to default/remove
-                _var = remove_prefix(var, self.prefix)
-                default = self.env_vars[_var].get('default', None)
-                if default is not None:
-                    self.assertTrue(type(default)(
-                                    os.environ[test_var]
-                                    )==default)
-                else:
-                    self.assertTrue(test_var not in os.environ)
-
-
-@unittest.skipIf(not internet_connection(), "Needs internet connection.")
-class TestWebService(unittest.TestCase):
-    """Tests the current MELTS webservice interactivity with default data."""
-
-    def setUp(self):
-        self.dict = get_default_datadict()
-
-    def test_melts_compute(self):
-        """Tests the MELTS-compute web service."""
-        result = melts_compute(self.dict)
-
-    def test_melts_oxides(self):
-        """Tests the MELTS-oxides web service."""
-        result = melts_oxides(self.dict)
-
-    def test_melts_phases(self):
-        """Tests the MELTS-phases web service."""
-        result = melts_phases(self.dict)
 
 
 if __name__ == '__main__':
