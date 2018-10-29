@@ -4,7 +4,7 @@ from collections import OrderedDict
 from pyrolite.util.melts import *
 from pyrolite.data.melts.env import MELTS_environment_variables
 from pyrolite.util.general import remove_tempdir, internet_connection, \
-                                  check_perl
+                                  check_perl, temp_path
 from pyrolite.util.pd import test_df, test_ser
 
 def get_default_datadict():
@@ -133,12 +133,7 @@ class TestDownload(unittest.TestCase):
     """Tests the melts download process."""
 
     def setUp(self):
-        userdir = Path("~").expanduser()
-        root = Path(userdir.drive) / userdir.root
-        if root/'tmp' in root.iterdir(): #.nix
-            self.temp_dir = root / 'tmp' / 'test_melts_temp'
-        else:
-            self.temp_dir = root / 'temp' / 'test_melts_temp'
+        self.temp_dir = temp_path() / 'test_melts_temp'
 
     def check_download(self):
         """Tries to download MELTS files to a specific directory."""
@@ -154,16 +149,8 @@ class TestInstall(unittest.TestCase):
     """Tests the melts install process."""
 
     def setUp(self):
-        userdir = Path("~").expanduser()
-        root = Path(userdir.drive) / userdir.root
-        if root/'tmp' in root.iterdir(): #.nix
-            self.temp_dir = root / 'tmp' / 'test_melts_temp'
-            self.dir = root / 'tmp' / 'test_melts_install'
-        else:
-            self.temp_dir = root / 'temp' / 'test_melts_temp'
-            self.dir = root / 'temp' /'test_melts_install'
-
-        ## create these folders if they don't exist
+        self.temp_dir = temp_path() / 'test_melts_temp'
+        self.dir = temp_path() / 'test_melts_install'
 
 
     @unittest.skipIf(not check_perl(), "Perl is not installed.")

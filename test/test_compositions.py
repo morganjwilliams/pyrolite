@@ -305,40 +305,6 @@ class TestNPCrossRatios(unittest.TestCase):
         self.assertTrue(out.shape == (n, self.d, self.d))
 
 
-class TestPDImputeRatios(unittest.TestCase):
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.d = len(self.cols)
-        self.n = 10
-        self.df = test_df(cols=self.cols, index_length=self.n)
-
-    def test_imputation(self):
-        """Checks results on single record."""
-        df = self.df.head(1).copy()
-        n = df.index.size
-        df.iloc[:, np.random.randint(1, self.d, size=1)] = np.nan
-        imputed = impute_ratios(df)
-
-
-class TestNPImputeRatios(unittest.TestCase):
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.d = len(self.cols)
-        self.n = 10
-        self.df = test_df(cols=self.cols, index_length=self.n)
-
-    def test_imputation(self):
-        """Checks results on single record."""
-        df = self.df.head(1).copy()
-        n = df.index.size
-        df.iloc[:, np.random.randint(1, self.d, size=1)] = np.nan
-        arr = df.values # single array
-        ratios = np_cross_ratios(arr)[0]
-        imputed = np_impute_ratios(ratios)
-
-
 class TestStandardiseAggregate(unittest.TestCase):
     """Tests pandas internal standardisation aggregation method."""
 

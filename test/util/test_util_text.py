@@ -167,5 +167,18 @@ class TestParseEntry(unittest.TestCase):
         pass
 
 
+class TestSplitRecords(unittest.TestCase):
+    """Tests the regex parser for poorly formatted records."""
+
+    def setUp(self):
+        pass
+
+    def test_single_entry(self):
+        pass
+
+    def test_delimiters(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()

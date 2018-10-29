@@ -5,6 +5,8 @@ import numpy as np
 import logging
 import inspect
 
+from .general import pathify
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
@@ -87,17 +89,21 @@ def to_ser(df):
         return df
 
 
-def to_numeric(df: pd.DataFrame,
+def to_numeric(df,
                exclude: list = [],
                errors: str = 'coerce'):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
     """
-    numeric_headers = [i for i in df.columns.unique() if i not in exclude]
-    # won't work with .loc on LHS
-    # https://stackoverflow.com/a/46629514
-    df[numeric_headers] = df[numeric_headers].apply(pd.to_numeric,
-                                                    errors=errors)
+
+    if isinstance(df, pd.DataFrame):
+        numeric_headers = [i for i in df.columns.unique() if i not in exclude]
+        # won't work with .loc on LHS
+        # https://stackoverflow.com/a/46629514
+        df[numeric_headers] = df[numeric_headers].apply(pd.to_numeric,
+                                                        errors=errors)
+    elif isinstance(df, pd.Series):
+        df = df.apply(pd.to_numeric, errors=errors)
     return df
 
 
@@ -161,18 +167,14 @@ def sparse_pickle_df(df: pd.DataFrame, filename, suffix='.pkl'):
     """
     Converts dataframe to sparse dataframe before pickling to disk.
     """
-    if isinstance(filename, str):
-        filename = Path(filename)
-    df.to_sparse().to_pickle(filename.with_suffix(suffix))
+    df.to_sparse().to_pickle(pathify(filename).with_suffix(suffix))
 
 
 def load_sparse_pickle_df(filename, suffix='.pkl', keep_sparse=False):
     """
     Loads sparse dataframe from disk, with optional densification.
     """
-    if isinstance(filename, str):
-        filename = Path(filename)
     if keep_sparse:
-        return pd.read_pickle(filename.with_suffix(suffix))
+        return pd.read_pickle(pathify(filename).with_suffix(suffix))
     else:
-        return pd.read_pickle(filename.with_suffix(suffix)).to_dense()
+        return pd.read_pickle(pathify(filename).with_suffix(suffix)).to_dense()

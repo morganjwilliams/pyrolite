@@ -39,6 +39,12 @@ def ischem(s):
         return str(s).upper() in chems
 
 
+# todo:
+#def guess_units(s: pd.Series):
+#
+#    if s.min() >= 0 and s.max() <= 100.:
+
+
 def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
     """
     Converts a list of strings containing come chemical compounds to
@@ -134,6 +140,7 @@ def REE(output='string',
     if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
     return elements
+    
 
 def common_oxides(elements: list=[], output='string',
                   addition: list=['FeOT', 'Fe2O3T', 'LOI'],

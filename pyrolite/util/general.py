@@ -2,6 +2,7 @@ import os, sys
 import subprocess
 import shutil
 import zipfile
+import inspect
 import re
 from itertools import chain
 import operator
@@ -13,12 +14,33 @@ try:
     import httplib
 except:
     import http.client as httplib
+import pyrolite # required for introspection/data folder
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 _FLAG_FIRST = object()
+
+
+def pyrolite_datafolder(subfolder=None):
+    """Returns the path of the pyrolite data folder."""
+    pth = Path(inspect.getfile(pyrolite)).parent / "data"
+    if subfolder:
+        pth /= subfolder
+    return pth
+
+
+def pathify(path):
+    """Converts strings to pathlib.Path objects."""
+    if not isinstance(path, Path):
+        path = Path(path)
+    return path
+    
+
+def urlify(url):
+    """Strip a string to return a valid URL."""
+    return url.strip().replace(" ", "_")
 
 
 def internet_connection(target="www.google.com"):
@@ -39,6 +61,16 @@ def internet_connection(target="www.google.com"):
     except:
         conn.close()
         return False
+
+
+def temp_path():
+    """Return the path of a temporary directory."""
+    userdir = Path("~").expanduser()
+    root = Path(userdir.drive) / userdir.root
+    if root/'tmp' in root.iterdir(): #.nix
+        return root / 'tmp'
+    else:
+        return root / 'temp'
 
 
 def iscollection(obj):
