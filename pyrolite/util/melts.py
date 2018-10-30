@@ -472,3 +472,23 @@ def install_melts(install_dir,
     finally:
         if not keep_tempdir:
             remove_tempdir(temp_dir)
+
+
+class MeltsSystem:
+
+    def __init__(self, composition):
+
+        self.composition = composition
+        self.liquid = None
+        self.solid = None
+        self.potentialSolid = None
+        self.parameters = None
+
+    def equilirate(self):
+        method = 'equilibrate'
+
+    def findLiquidus(self):
+        method = 'findLiquidus'
+
+    def findWetLiquidus(self):
+        method = 'findWetLiquidus'

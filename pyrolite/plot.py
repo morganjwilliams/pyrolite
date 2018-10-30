@@ -18,7 +18,12 @@ DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = 'tab10'
 
 
-def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):
+def spiderplot(df,
+               components:list=None,
+               ax=None,
+               plot=True,
+               fill=False,
+               **kwargs):
     """
     Plots spidergrams for trace elements data. Additional keyword arguments are
     passed to matplotlib.
@@ -44,7 +49,8 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     try:
         assert plot or fill
     except:
-        raise AssertionError('Please select to either plot values or fill between ranges.')
+        msg = 'Please select to either plot values or fill between ranges.'
+        raise AssertionError(msg)
 
     df = to_frame(df)
 
@@ -141,7 +147,10 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     return ax
 
 
-def ternaryplot(df, components:list=None, ax=None, **kwargs):
+def ternaryplot(df,
+                components:list=None,
+                ax=None,
+                **kwargs):
     """
     Plots scatter ternary diagrams, using a wrapper around the
     python-ternary library (gh.com/marcharper/python-ternary).
@@ -189,7 +198,10 @@ def ternaryplot(df, components:list=None, ax=None, **kwargs):
 
     # Set attribute for future reference
     ax.tax = tax
-    points = df.loc[:, components].div(df.loc[:, components].sum(axis=1), axis=0).values * scale
+    points = df.loc[:, components].div(
+                                       df.loc[:, components].sum(axis=1),
+                                       axis=0).values * \
+                                       scale
     if points.any():
         tax.scatter(points, **sty)
 
@@ -406,13 +418,20 @@ def densityplot(df,
             scale = kwargs.pop('scale', None) or 100.
             empty_df = pd.DataFrame(columns=df.columns)
             heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
-            tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+            tax = ternaryplot(empty_df,
+                              ax=ax,
+                              components=components,
+                              scale=scale)
             ax = tax.ax
             if mode == 'hexbin':
                 style = 'hexagonal'
             else:
                 style = 'triangular'
-            tax.heatmap(heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs)
+            tax.heatmap(heatmapdata,
+                        scale=scale,
+                        style=style,
+                        colorbar=colorbar,
+                        **kwargs)
         else:
             pass
     plt.tight_layout()
