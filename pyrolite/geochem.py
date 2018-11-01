@@ -140,7 +140,7 @@ def REE(output='string',
     if output == 'formula':
         elements = [getattr(pt, el) for el in elements]
     return elements
-    
+
 
 def common_oxides(elements: list=[], output='string',
                   addition: list=['FeOT', 'Fe2O3T', 'LOI'],
@@ -407,22 +407,27 @@ def lambda_lnREE(df,
     col_indexes = [i for i in df.columns if i in ree
                    or i in map(str, ree)]
 
-    if isinstance(norm_to, str):
-        norm = ReferenceCompositions()[norm_to]
-        norm_abund = np.array([norm[str(el)].value for el in ree])
-    elif isinstance(norm_to, RefComp):
-        norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
-    else: # list, iterable, pd.Index etc
-        norm_abund = np.array([i for i in norm_abund])
-
-    assert len(norm_abund) == len(ree)
+    norm_df = df.loc[:, col_indexes] # initialize normdf
 
     labels = [chr(955) + str(d) for d in range(degree)]
 
-    norm_df = df.loc[:, col_indexes]
-    norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:, col_indexes].values,
-                                            norm_abund)
+    if norm_to is not None: # None = already normalised data
+        if isinstance(norm_to, str):
+            norm = ReferenceCompositions()[norm_to]
+            norm_abund = np.array([norm[str(el)].value for el in ree])
+        elif isinstance(norm_to, RefComp):
+            norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
+        else: # list, iterable, pd.Index etc
+            norm_abund = np.array([i for i in norm_abund])
+
+            assert len(norm_abund) == len(ree)
+
+
+        norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:,
+                                                            col_indexes].values,
+                                                norm_abund)
     norm_df = norm_df.applymap(np.log)
+
     lambda_partial = functools.partial(lambdas,
                                        xs=radii,
                                        params=params,
