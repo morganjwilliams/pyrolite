@@ -82,7 +82,7 @@ class TestOPConstants(unittest.TestCase):
                         test_tol = tol * np.exp(len(ps)+1)
                         a = np.array(list(ps), dtype=float)
                         b = np.array(list(hightol_result[ix]), dtype=float)
-                        print( (abs(a)-abs(b)) / ((abs(a)+abs(b))/2)  - test_tol)
+                        #print( (abs(a)-abs(b)) / ((abs(a)+abs(b))/2)  - test_tol)
                         self.assertTrue(np.allclose(a, b, atol=test_tol))
 
 

@@ -736,7 +736,7 @@ class TestLambdaLnREE(unittest.TestCase):
     def setUp(self):
         self.rc = ReferenceCompositions()
         els = [i for i in REE() if not str(i)=='Pm']
-        vals = [self.rc['Chondrite_PON'][el] for el in els]
+        vals = [self.rc['Chondrite_PON'][el].value for el in els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
         self.df.loc[1, :] = self.df.loc[0, :]
         self.default_degree = 5
