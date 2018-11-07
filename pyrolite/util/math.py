@@ -94,19 +94,25 @@ def lambdas(arr:np.ndarray,
     Parameterises values based on linear combination of orthagonal polynomials
     over a given set of x values.
     """
-    if params is None:
-        params = OP_constants(xs, degree=degree)
-
-    fs = np.array([lambda_poly(xs, pset) for pset in params])
-
-    guess = np.zeros(degree)
-    result = optimize.least_squares(min_func,
-                                    guess,
-                                    args=(arr, fs, costf_power)) # , method='Nelder-Mead'
-    if residuals:
-        return result.x, result.fun
+    if np.isnan(arr).any(): # With missing data, the method can't be used.
+        x = np.nan * np.ones(degree)
+        res = np.nan * np.ones(degree)
     else:
-        return result.x
+        if params is None:
+            params = OP_constants(xs, degree=degree)
+
+        fs = np.array([lambda_poly(xs, pset) for pset in params])
+
+        guess = np.zeros(degree)
+        result = optimize.least_squares(min_func,
+                                        guess, # , method='Nelder-Mead'
+                                        args=(arr, fs, costf_power))
+        x = result.x
+        res = result.fun
+    if residuals:
+        return x, res
+    else:
+        return x
 
 
 def lambda_poly_func(lambdas:np.ndarray,

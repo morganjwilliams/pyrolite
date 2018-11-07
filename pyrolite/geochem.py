@@ -395,8 +395,9 @@ def lambda_lnREE(df,
     to a specific composition. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
     """
+    non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [i for i in REE() if (not str(i) in exclude) and
-           (str(i) in df.columns or i in df.columns)] # no promethium
+           (str(i) in non_null_cols or i in non_null_cols)] # no promethium
     radii = np.array(get_radii(ree))
 
     if params is None:
