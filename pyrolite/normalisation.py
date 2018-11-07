@@ -129,6 +129,24 @@ class RefComp:
                                      divisor)
         return dfc
 
+    def denormalize(self, df, aux_cols=["LOD","2SE"]):
+        """
+        Unnormalize the values within a dataframe back to true composition.
+        """
+        dfc = to_frame(df.copy())
+
+        cols = [c for c in dfc.columns if c in self.vars]
+        _cols = set(cols)
+        if len(cols) != len(_cols):
+            msg = 'Duplicated columns in dataframe.'
+            logger.warn(msg)
+        cols = list(_cols)
+
+        multiplier = self.data.loc[cols, 'value'].values
+
+        dfc.loc[:, cols] *= multiplier
+        return dfc
+
     def ratio(self, ratio):
         """Calculates an elemental ratio."""
         try:

@@ -404,10 +404,7 @@ def lambda_lnREE(df,
     else:
         degree = len(params)
 
-    col_indexes = [i for i in df.columns if i in ree
-                   or i in map(str, ree)]
-
-    norm_df = df.loc[:, col_indexes] # initialize normdf
+    norm_df = df.loc[:, ree] # initialize normdf
 
     labels = [chr(955) + str(d) for d in range(degree)]
 
@@ -416,16 +413,14 @@ def lambda_lnREE(df,
             norm = ReferenceCompositions()[norm_to]
             norm_abund = np.array([norm[str(el)].value for el in ree])
         elif isinstance(norm_to, RefComp):
-            norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
+            norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
         else: # list, iterable, pd.Index etc
             norm_abund = np.array([i for i in norm_abund])
 
             assert len(norm_abund) == len(ree)
 
 
-        norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:,
-                                                            col_indexes].values,
-                                                norm_abund)
+        norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
     norm_df = norm_df.applymap(np.log)
 
     lambda_partial = functools.partial(lambdas,
@@ -437,6 +432,7 @@ def lambda_lnREE(df,
                                                 norm_df.values),
                             index=df.index,
                             columns=labels)
+    lambdadf.loc[(lambdadf == 0).all(axis=1), :] = np.nan
     if append:
 
         # append the smooth f(radii) function to the dataframe

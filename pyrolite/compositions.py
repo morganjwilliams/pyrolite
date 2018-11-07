@@ -174,9 +174,9 @@ def standardise_aggregate(df: pd.DataFrame,
                           renorm=True,
                           **kwargs):
     """
-    Performs internal standardisation and aggregates dissimilar geochemical records.
-    Note: this changes the closure parameter, and is generally intended to integrate
-    major and trace element records.
+    Performs internal standardisation and aggregates dissimilar geochemical
+    records. Note: this changes the closure parameter, and is generally intended
+    to integrate major and trace element records.
     """
     if df.index.size == 1: # catch single records
         return df
@@ -370,6 +370,7 @@ def additive_log_ratio(X: np.ndarray, ind: int=-1):
         Y = np.log(Y[[i for i in range(dimensions) if not i==ind]])
 
     return Y
+
 
 def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
     """
