@@ -2,7 +2,7 @@ import numpy as np
 from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
 from functools import partial
-from scipy import optimize
+from scipy import optimize, linalg
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -10,12 +10,78 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def on_finite(arr, f):
+def orthagonal_basis(X: np.ndarray):
     """
-    Calls a function on an array ignoring np.nan and +/- np.inf.
+    Generate a set of orthagonal basis vectors.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array from which the size of the set is derived.
     """
-    ma = np.isfinite(arr)
-    return f(arr[ma])
+    D = X.shape[1]
+    # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
+    H = linalg.helmert(D, full=False)
+    return H[::-1]
+
+
+def on_finite(X, f):
+    """
+    Calls a function on an array ignoring np.nan and +/- np.inf. Note that the
+    shape of the output may be different to that of the input.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Array on which to perform the function.
+    """
+    ma = np.isfinite(X)
+    return f(X[ma])
+
+
+def nancov(X, method='replace'):
+    """
+    Generates a covariance matrix excluding nan-components.
+    Done on a column-column/pairwise basis.
+    The result Y may not be a positive definite matrix.
+
+    Parameters:
+    ---------------
+    X: np.ndarray
+        Input array for which to derive a covariance matrix.
+    method: str, 'row_exclude' | 'replace'
+        Method for calculating covariance matrix.
+        'row_exclude' removes all rows  which contain np.nan before calculating
+        the covariance matrix. 'replace' instead replaces the np.nan values with
+         the mean before calculating the covariance.
+
+    """
+    if method=='rowexclude':
+        Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
+        #assert Xnanfree.shape[1] > Xnanfree.shape[0]
+        #(1/m)X^T*X
+        return np.cov(Xnanfree)
+    else:
+        X = np.array(X, ndmin=2, dtype=float)
+        X -= np.nanmean(X, axis=0)#[:, np.newaxis]
+        cov = np.empty((X.shape[1], X.shape[1]))
+        cols = range(X.shape[1])
+        for n in cols:
+            for m in [i for i in cols if i>=n] :
+                fn = np.isfinite(X[:, n])
+                fm = np.isfinite(X[:, m])
+                if method=='replace':
+                    X[~fn, n] = 0
+                    X[~fm, m] = 0
+                    fact = fn.shape[0] - 1
+                    c= np.dot(X[:, n], X[:, m])/fact
+                else:
+                    f = fn & fm
+                    fact = f.shape[0] - 1
+                    c = np.dot(X[f, n], X[f, m])/fact
+                cov[n, m] = c
+                cov[m, n] = c
+        return cov
 
 
 def OP_constants(xs, degree=3, tol=10**-14):

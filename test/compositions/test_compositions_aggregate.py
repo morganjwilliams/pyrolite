@@ -1,36 +1,9 @@
 import unittest
 import numpy as np
-from pyrolite.compositions import *
+from pyrolite.compositions.aggregate import *
 from pyrolite.util.pd import test_df
+
 import logging
-log = logging.getLogger(__name__)
-
-
-class TestClose(unittest.TestCase):
-    """Tests array closure operator."""
-
-    def setUp(self):
-        self.X1_1R =  np.ones((1)) * 0.2
-        self.X1_10R =  np.ones((10, 1)) * 0.2
-        self.X10_1R = np.ones((10)) * 0.2
-        self.X10_10R = np.ones((10, 10)) * 0.2
-
-    def test_closure_1D(self):
-        """Checks that the closure operator works for records of 1 dimension."""
-        for X in [self.X1_1R, self.X1_10R]:
-            with self.subTest(X=X):
-                out = close(X)
-                self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
-
-    def test_single(self):
-        """Checks results on single records."""
-        out = close(self.X10_1R)
-        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
-
-    def test_multiple(self):
-        """Checks results on multiple records."""
-        out = close(self.X10_10R)
-        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
 
 
 class TestCompositionalMean(unittest.TestCase):
@@ -96,7 +69,7 @@ class TestWeightsFromArray(unittest.TestCase):
         self.assertTrue(out.size == df.index.size)
 
 
-class TestGetNonNanColumn(unittest.TestCase):
+class TestGetFullColumn(unittest.TestCase):
     """Tests the nan-column checking function for numpy arrays."""
 
     def setUp(self):
@@ -109,13 +82,13 @@ class TestGetNonNanColumn(unittest.TestCase):
     def test_single(self):
         """Checks results on single records."""
         df = self.df.head(1).copy()
-        out = get_nonnan_column(df.values)
+        out = get_full_column(df.values)
         self.assertTrue(out == 0)
 
     def test_multiple(self):
         """Checks results on multiple records."""
         df = self.df.copy()
-        out = get_nonnan_column(df.values)
+        out = get_full_column(df.values)
         self.assertTrue(out == 0)
 
 
@@ -554,217 +527,6 @@ class TestNPComplexStandardiseAggregate(unittest.TestCase):
         """
         df = self.df
         out = np_complex_standardise_aggregate(df)
-
-
-class TestNaNCov(unittest.TestCase):
-    """Tests the numpy nan covariance matrix utility."""
-
-    def setUp(self):
-        self.X = np.random.rand(1000, 10)
-
-    def test_simple(self):
-        """Checks whether non-nan covariances are correct."""
-        X = np.vstack((np.arange(10), -np.arange(10))).T
-        out = nancov(X)
-        target = np.eye(2) + -1. * np.eye(2)[::-1, :]
-        self.assertTrue(np.allclose(out/out[0][0], target))
-
-    def test_replace_method(self):
-        """Checks whether the replacement method works."""
-        pass
-
-    def test_rowexclude_method(self):
-        """Checks whether the traditional row-exclude method works."""
-        pass
-
-    def test_one_column_partial_nan(self):
-        """Checks whether a single column containing NaN is processed."""
-        pass
-
-    def test_all_column_partial_nan(self):
-        """Checks whether all columns containing NaNs is processed."""
-        pass
-
-    def test_one_column_all_nan(self):
-        """Checks whether a single column all-NaN is processed."""
-        pass
-
-    def test_all_column_all_nan(self):
-        """Checks whether all columns all-NaNs is processed."""
-        pass
-
-
-class TestRenormalise(unittest.TestCase):
-    """Tests the pandas renormalise utility."""
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.d = len(self.cols)
-        self.n = 10
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(self.d, self.n))})
-
-    def test_closure(self):
-        """Checks whether closure is achieved."""
-        df = self.df
-        out = renormalise(df)
-        self.assertTrue(np.allclose(out.sum(axis=1).values, 100.))
-
-    def test_components_selection(self):
-        """Checks partial closure for different sets of components."""
-        pass
-
-
-class TestALR(unittest.TestCase):
-    """Test the numpy additive log ratio transformation."""
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
-
-    def test_single(self):
-        """Checks whether the function works on a single record."""
-        df = self.df.head(1)
-        out = alr(df.values)
-
-    def test_multiple(self):
-        """Checks whether the function works on multiple records."""
-        df = self.df
-        out = alr(df.values)
-
-    def test_isomorphism_single(self):
-        """Checks that the function is reversible for a record."""
-        df = self.df.head(1)
-        out = alr(df.values)
-        inv = inv_alr(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_isomorphism_multiple(self):
-        """Checks that the function is reversible for multiple records."""
-        df = self.df
-        out = alr(df.values)
-        inv = inv_alr(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-
-class TestCLR(unittest.TestCase):
-    """Test the centred log ratio transformation."""
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
-
-    def test_single(self):
-        """Checks whether the function works on a single record."""
-        df = self.df.head(1)
-        out = clr(df.values)
-
-    def test_multiple(self):
-        """Checks whether the function works on multiple records."""
-        df = self.df
-        out = clr(df.values)
-
-    def test_isomorphism_single(self):
-        """Checks that the function is reversible for a record."""
-        df = self.df.head(1)
-        out = clr(df.values)
-        inv = inv_clr(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_isomorphism_multiple(self):
-        """Checks that the function is reversible for multiple records."""
-        df = self.df
-        out = clr(df.values)
-        inv = inv_clr(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-
-class TestOrthagonalBasis(unittest.TestCase):
-    """Test the orthagonal basis generator for ILR transformation."""
-
-    def test_orthagonal_basis(self):
-        """Checks orthagonality of the transformation basis."""
-        pass
-
-
-class TestILR(unittest.TestCase):
-    """Test the isometric log ratio transformation."""
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
-
-    def test_single(self):
-        """Checks whether the function works on a single record."""
-        df = self.df.head(1)
-        out = ilr(df.values)
-
-    def test_multiple(self):
-        """Checks whether the function works on multiple records."""
-        df = self.df
-        out = ilr(df.values)
-
-    def test_isomorphism_single(self):
-        """Checks that the function is reversible for a record."""
-        df = self.df.head(1)
-        out = ilr(df.values)
-        inv = inv_ilr(out, X=df.values)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_isomorphism_multiple(self):
-        """Checks that the function is reversible for multiple records."""
-        df = self.df
-        out = ilr(df.values)
-        inv = inv_ilr(out, X=df.values)
-        self.assertTrue(np.allclose(inv, df.values))
-
-
-class TestLogTransformers(unittest.TestCase):
-    """Checks the scikit-learn transformer classes."""
-
-    def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
-
-    def test_linear_transformer(self):
-        """Test the linear transfomer."""
-        df = self.df
-        tmr = LinearTransform()
-        out = tmr.transform(df.values)
-        inv = tmr.inverse_transform(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_ALR_transformer(self):
-        """Test the isometric log ratio transfomer."""
-        df = self.df
-        tmr = ALRTransform()
-        out = tmr.transform(df.values)
-        inv = tmr.inverse_transform(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_CLR_transformer(self):
-        """Test the isometric log ratio transfomer."""
-        df = self.df
-        tmr = CLRTransform()
-        out = tmr.transform(df.values)
-        inv = tmr.inverse_transform(out)
-        self.assertTrue(np.allclose(inv, df.values))
-
-    def test_ILR_transformer(self):
-        """Test the isometric log ratio transfomer."""
-        df = self.df
-        tmr = ILRTransform()
-        out = tmr.transform(df.values)
-        inv = tmr.inverse_transform(out)
-        self.assertTrue(np.allclose(inv, df.values))
 
 
 if __name__ == '__main__':

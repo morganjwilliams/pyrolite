@@ -422,6 +422,7 @@ def lambda_lnREE(df,
 
 
         norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
+
     norm_df = norm_df.applymap(np.log)
 
     lambda_partial = functools.partial(lambdas,

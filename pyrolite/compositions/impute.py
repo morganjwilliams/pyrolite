@@ -1,10 +1,26 @@
 import numpy as np
 import pandas as pd
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def impute_ratios(ratios: pd.DataFrame):
     """
-    Pandas version of ratio matrix imputation.
+    Imputation function utilizing pandas which is used to fill out the
+    aggregated ratio matrix via chained ratio multiplication akin to
+    internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
+
+    Parameters:
+    ---------------
+    ratios: pd.DataFrame
+        Dataframe of ratios to impute.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame of imputed ratios.
     """
     for IS in ratios.columns:
         ser = ratios.loc[:,  IS]
@@ -22,13 +38,24 @@ def impute_ratios(ratios: pd.DataFrame):
 
 def np_impute_ratios(ratios: np.ndarray):
     """
-    Numpy version of ratio matrix imputation.
+    Imputation function utilizing numpy which is used to fill out the
+    aggregated ratio matrix via chained ratio multiplication akin to
+    internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
+
+    Parameters:
+    ---------------
+    ratios: np.ndarray
+        Array of ratios to impute.
+
+    Returns
+    -------
+    np.ndarray
+        Array of imputed ratios.
     """
     finite = np.isfinite(ratios)
     not_finite = ~finite
     if not_finite.any():
         where_not_finite = np.argwhere(not_finite)
-        print(where_not_finite)
         _ixs, _iys = where_not_finite.T
         ixs = _ixs[~(_ixs == _iys)]
         iys = _iys[~(_ixs == _iys)]

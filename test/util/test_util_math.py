@@ -27,6 +27,52 @@ class TestOnFinite(unittest.TestCase):
                 self.assertTrue(np.isclose(result, f(arr[:2])))
 
 
+class TestNaNCov(unittest.TestCase):
+    """Tests the numpy nan covariance matrix utility."""
+
+    def setUp(self):
+        self.X = np.random.rand(1000, 10)
+
+    def test_simple(self):
+        """Checks whether non-nan covariances are correct."""
+        X = np.vstack((np.arange(10), -np.arange(10))).T
+        out = nancov(X)
+        target = np.eye(2) + -1. * np.eye(2)[::-1, :]
+        self.assertTrue(np.allclose(out/out[0][0], target))
+
+    def test_replace_method(self):
+        """Checks whether the replacement method works."""
+        pass
+
+    def test_rowexclude_method(self):
+        """Checks whether the traditional row-exclude method works."""
+        pass
+
+    def test_one_column_partial_nan(self):
+        """Checks whether a single column containing NaN is processed."""
+        pass
+
+    def test_all_column_partial_nan(self):
+        """Checks whether all columns containing NaNs is processed."""
+        pass
+
+    def test_one_column_all_nan(self):
+        """Checks whether a single column all-NaN is processed."""
+        pass
+
+    def test_all_column_all_nan(self):
+        """Checks whether all columns all-NaNs is processed."""
+        pass
+
+
+class TestOrthagonalBasis(unittest.TestCase):
+    """Test the orthagonal basis generator for ILR transformation."""
+
+    def test_orthagonal_basis(self):
+        """Checks orthagonality of the transformation basis."""
+        pass
+
+        
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
 
