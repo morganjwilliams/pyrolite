@@ -4,8 +4,8 @@ import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
 import functools
-from .compositions import renormalise
-from .normalisation import ReferenceCompositions, RefComp
+from .comp import renormalise
+from .norm import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
 from .util.math import *

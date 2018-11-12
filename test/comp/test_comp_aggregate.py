@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.compositions.aggregate import *
+from pyrolite.comp.aggregate import *
 from pyrolite.util.pd import test_df
 
 import logging

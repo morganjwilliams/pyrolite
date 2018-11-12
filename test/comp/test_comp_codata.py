@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.compositions.codata import *
+from pyrolite.comp.codata import *
 from pyrolite.util.pd import test_df
 import logging
 log = logging.getLogger(__name__)

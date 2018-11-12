@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 import pandas as pd
 from pyrolite.util.pd import test_df, test_ser
-from pyrolite.compositions.aggregate import np_cross_ratios
-from pyrolite.compositions.impute import *
+from pyrolite.comp.aggregate import np_cross_ratios
+from pyrolite.comp.impute import *
 
 
 class TestPDImputeRatios(unittest.TestCase):

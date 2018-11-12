@@ -1,6 +1,6 @@
 import unittest
 import pyrolite
-from pyrolite.normalisation import *
+from pyrolite.norm import *
 
 
 class TestScaleFunction(unittest.TestCase):
@@ -75,12 +75,10 @@ class TestRefcomp(unittest.TestCase):
 
     def setUp(self):
         self.build_kwargs = dict(encoding='cp1252')
-        pyrodir = os.path.realpath(pyrolite.normalisation.__file__)
+        pyrodir = os.path.realpath(pyrolite.__file__)
         self.dir = (Path(pyrodir).parent /  "data" / "refcomp").resolve()
         assert self.dir.is_dir()
         self.files = [x for x in self.dir.iterdir() if x.is_file()]
-
-        print(self.dir, self.files)
         self.CHfile = [f for f in self.files
                        if 'CH_PalmeONeill2014' in str(f)][0]
 

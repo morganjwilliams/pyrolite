@@ -1,6 +1,6 @@
 import unittest
 from pyrolite.classification import *
-from pyrolite.compositions import renormalise
+from pyrolite.comp import renormalise
 
 
 class TestTAS(unittest.TestCase):

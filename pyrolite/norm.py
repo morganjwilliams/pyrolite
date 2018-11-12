@@ -3,7 +3,7 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-from .compositions import *
+from .comp import *
 from .util.pd import to_frame, to_numeric
 import logging
 

@@ -1,11 +1,9 @@
 import os, sys
-import subprocess
-import shutil
-import zipfile
-import inspect
 import re
-from itertools import chain
+import subprocess, shutil
 import operator
+import inspect
+import zipfile
 from collections import Mapping
 from pathlib import Path
 import numpy as np
@@ -36,7 +34,7 @@ def pathify(path):
     if not isinstance(path, Path):
         path = Path(path)
     return path
-    
+
 
 def urlify(url):
     """Strip a string to return a valid URL."""

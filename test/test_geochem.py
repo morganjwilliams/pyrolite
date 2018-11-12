@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from pyrolite.geochem import *
 from pyrolite.util.pd import test_df, test_ser
-from pyrolite.normalisation import ReferenceCompositions
+from pyrolite.norm import ReferenceCompositions
 
 
 class TestGetRadii(unittest.TestCase):

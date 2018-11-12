@@ -72,13 +72,13 @@ class TestOrthagonalBasis(unittest.TestCase):
         """Checks orthagonality of the transformation basis."""
         pass
 
-        
+
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
 
     def setUp(self):
         self.xs = np.array(get_radii(REE()))
-        self.default_degree = 5
+        self.default_degree = 4
 
     def test_xs(self):
         """Tests operation on different x arrays."""
@@ -91,7 +91,7 @@ class TestOPConstants(unittest.TestCase):
     def test_degree(self):
         """Tests generation of different degree polynomial parameters."""
 
-        max_degree = 5
+        max_degree = 4
         expected = OP_constants(self.xs, degree=max_degree)
         for degree in range(1, max_degree):
             with self.subTest(degree=degree):

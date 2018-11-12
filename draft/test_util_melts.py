@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 from collections import OrderedDict
-from pyrolite.util.melts import *
+from .melts import *
 from pyrolite.data.melts.env import MELTS_environment_variables
 from pyrolite.util.general import remove_tempdir, internet_connection, \
                                   check_perl, temp_path

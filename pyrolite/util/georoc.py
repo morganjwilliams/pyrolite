@@ -4,11 +4,11 @@ import requests
 import re
 import logging
 
-from pyrolite.util.pd import *
-from pyrolite.util.text import titlecase, parse_entry, split_records
-from pyrolite.util.general import temp_path, urlify, pyrolite_datafolder, \
+from ..util.pd import *
+from ..util.text import titlecase, parse_entry, split_records
+from ..util.general import temp_path, urlify, pyrolite_datafolder, \
                                   pathify
-from pyrolite.geochem import tochem, check_multiple_cation_inclusion, \
+from ..geochem import tochem, check_multiple_cation_inclusion, \
                              aggregate_cation
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

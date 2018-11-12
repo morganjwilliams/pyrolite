@@ -1,14 +1,15 @@
 import unittest
+from pathlib import Path
 import pandas as pd
 import numpy as np
+import matplotlib
 import matplotlib.axes as matax
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+from pyrolite.comp import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
-from sklearn.decomposition import PCA
-from pyrolite.compositions import close
-import matplotlib
-from pathlib import Path
 
 
 class TestAddColorbar(unittest.TestCase):
@@ -162,7 +163,7 @@ class TestSaveUtilities(unittest.TestCase):
 
     def tearDown(self):
         plt.close('all')
-        
+
 
 class TestSaveFunctions(unittest.TestCase):
     """
