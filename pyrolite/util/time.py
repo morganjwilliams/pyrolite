@@ -1,41 +1,87 @@
 import pandas as pd
 import numpy as np
-from pyrolite.util.general import pyrolite_datafolder
-from pyrolite.util.pd import to_frame, to_numeric
-from pyrolite.util.text import titlecase, string_variations
+from .general import pyrolite_datafolder
+from .pd import to_frame, to_numeric
+from .text import titlecase, string_variations
 
 
 __DATA__ = pyrolite_datafolder(subfolder='timescale') / \
             'geotimescale_spans.csv'
 
 
-def listify(df, ):
+def listify(df, axis=1):
     """
     Consdense text information across columns into a single list.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe (or slice of dataframe) to condense along axis.
+    axis: {1, 0}
+        Axis to condense along.
     """
-    _df = df.copy().apply(list, axis=1)
-    return _df
+    return df.copy().apply(list, axis=axis)
 
 
-def age_name(agenamelist, ambiguous_names=['Lower',
-                                    'Middle',
-                                    'Upper',
-                                    'Stage']):
+def age_name(agenamelist,
+             prefixes=['Lower', 'Middle', 'Upper'],
+             suffixes=['Stage', 'Series']
+             ):
     """
     Condenses an agename list to a specific agename, given a subset of
     ambiguous_names.
+
+    Parameters
+    ----------
+    agenamelist: list
+        List of name components (i.e. [Eon, Era, Period, Epoch])
+    prefixes: list
+        Name components which occur prior to the higher order classification
+        (e.g. Upper Triassic).
+    suffixes: list
+        Name components which occur after the higher order classification
+        (e.g. Cambrian Series 2).
     """
+    ambiguous_names= prefixes + suffixes
+
     nameguess = agenamelist[-1]
     nn_nameguess = ''.join([i for i in nameguess if not i.isdigit()]).strip()
+    hit = [s for s in ambiguous_names
+           if any(i == nn_nameguess for i in string_variations(s))][0:1]
 
-    if any([i == nn_nameguess for i in string_variations(ambiguous_names)]):
-        return ' '.join(agenamelist[:-2])
+    if hit:
+        indexstart = len(agenamelist)-1
+        outname = [agenamelist[indexstart]]
+        out_index_previous = 0
+        ambiguous_name = True
+        while ambiguous_name:
+            hitphrase = hit[0]
+            indexstart -=1
+            nextup = agenamelist[indexstart]
+            if hitphrase in prefixes:
+                # insert the higher order component after the previous one
+                outname.insert(out_index_previous+1, nextup)
+                out_index_previous += 1
+            else:
+                # insert the higher order component before the previous one
+                outname.insert(out_index_previous-1, nextup)
+                out_index_previous -= 1
+
+            _nn_nextupguess = ''.join([i for i in nextup if not i.isdigit()]
+                                      ).strip()
+            hit = [s for s in ambiguous_names
+                   if any(i == _nn_nextupguess for i in string_variations(s))
+                   ][0:1]
+            if not hit:
+                ambiguous_name = False
+        return " ".join(outname)
     else:
         return nameguess
 
 
 def timescale_reference_frame(filename=__DATA__,
-                              info_cols=['Start', 'End', 'Aliases']):
+                              info_cols=['Start', 'End', 'Aliases']
+                              ):
     """
     Rearrange the text-based timescale dataframe. Utility function for
     timescale class.
