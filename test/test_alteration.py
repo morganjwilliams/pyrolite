@@ -16,6 +16,7 @@ class TestCIA(unittest.TestCase):
         df = self.df
         df.loc[:, 'CIA'] = CIA(df)
 
+
 class TestCIW(unittest.TestCase):
     """Tests the chemical index of weathering measure."""
 
@@ -28,6 +29,7 @@ class TestCIW(unittest.TestCase):
     def test_CIW(self):
         df = self.df
         df.loc[:, 'CIW'] = CIW(df)
+
 
 class TestPIA(unittest.TestCase):
     """Tests the plagioclase index of alteration measure."""

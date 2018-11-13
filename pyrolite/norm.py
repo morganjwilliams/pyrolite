@@ -3,7 +3,7 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-from .compositions import *
+from .comp import *
 from .util.pd import to_frame, to_numeric
 import logging
 
@@ -24,14 +24,14 @@ def scale_multiplier(in_unit, target_unit='ppm'):
     """
     Provides the scale difference between to mass units.
 
+    Todo: implement different inputs - string, list, pandas series
+
     Parameters
     ----------
     in_unit: current units
         Units to be converted from
     target_unit: target mass unit, ppm
         Units to scale to.
-
-    Todo: implement different inputs - string, list, pandas series
     """
     in_unit = str(in_unit).lower()
     target_unit = str(target_unit).lower()
@@ -117,15 +117,34 @@ class RefComp:
         dfc = to_frame(df.copy())
 
         cols = [c for c in dfc.columns if c in self.vars]
-        #mdl_ix = cols.copy()
-        #df_cols = cols.copy()
-        #for c in aux_cols:
-        #    df_cols += [v+c for v in cols if v+c in dfc.columns]
-        #    mdl_ix += [v for v in cols if v+c in dfc.columns]
+        _cols = set(cols)
+        if len(cols) != len(_cols):
+            msg = 'Duplicated columns in dataframe.'
+            logger.warn(msg)
+        cols = list(_cols)
 
         divisor = self.data.loc[cols, 'value'].values
+
         dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values,
                                      divisor)
+        return dfc
+
+    def denormalize(self, df, aux_cols=["LOD","2SE"]):
+        """
+        Unnormalize the values within a dataframe back to true composition.
+        """
+        dfc = to_frame(df.copy())
+
+        cols = [c for c in dfc.columns if c in self.vars]
+        _cols = set(cols)
+        if len(cols) != len(_cols):
+            msg = 'Duplicated columns in dataframe.'
+            logger.warn(msg)
+        cols = list(_cols)
+
+        multiplier = self.data.loc[cols, 'value'].values
+
+        dfc.loc[:, cols] *= multiplier
         return dfc
 
     def ratio(self, ratio):

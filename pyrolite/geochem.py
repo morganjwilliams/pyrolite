@@ -4,11 +4,11 @@ import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
 import functools
-from .compositions import renormalise
-from .normalisation import ReferenceCompositions, RefComp
+from .comp import renormalise
+from .norm import ReferenceCompositions, RefComp
 from .util.text import titlecase
 from .util.pd import to_frame
-from .util.math import OP_constants, lambdas, lambda_poly
+from .util.math import *
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -37,6 +37,12 @@ def ischem(s):
         return [str(st).upper() in chems for st in s]
     else:
         return str(s).upper() in chems
+
+
+# todo:
+#def guess_units(s: pd.Series):
+#
+#    if s.min() >= 0 and s.max() <= 100.:
 
 
 def tochem(strings:list, abbrv=['ID', 'IGSN'], split_on='[\s_]+'):
@@ -98,19 +104,30 @@ def get_cations(oxide:str, exclude=[]):
     return cations
 
 
-def common_elements(cutoff=92, output='string'):
+def common_elements(cutoff=92,
+                    output='string',
+                    order=None):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
-    Output options are 'formula', or strings.
+    Output options are 'formula', or 'string'.
+
+    Todo: implement ordering for e.g. incompatibility.
     """
     elements = [el for el in pt.elements
                 if not (str(el) == 'n' or el.number>cutoff)]
+
+    if order is not None:
+        sort_function = order
+        elements = elements.sort(key=sort_function)
+
     if not output == 'formula':
         elements = [str(el) for el in elements]
+
     return elements
 
 
-def REE(output='string', include_extras=False):
+def REE(output='string',
+        include_extras=False):
     """
     Provides the list of Rare Earth Elements
     Output options are 'formula', or strings.
@@ -342,11 +359,11 @@ def add_ratio(df: pd.DataFrame,
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
     return df
 
-
 def add_MgNo(df: pd.DataFrame,
              molecularIn=False,
              elemental=False,
              components=False):
+
 
     if not molecularIn:
         if components:
@@ -371,14 +388,16 @@ def lambda_lnREE(df,
                  norm_to='Chondrite_PON',
                  exclude=['Pm', 'Eu'],
                  params=None,
-                 degree=5):
+                 degree=5,
+                 append=[]):
     """
     Calculates lambda coefficients for a given set of REE data, normalised
     to a specific composition. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
     """
+    non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [i for i in REE() if (not str(i) in exclude) and
-           (str(i) in df.columns or i in df.columns)] # no promethium
+           (str(i) in non_null_cols or i in non_null_cols)] # no promethium
     radii = np.array(get_radii(ree))
 
     if params is None:
@@ -386,37 +405,51 @@ def lambda_lnREE(df,
     else:
         degree = len(params)
 
-    col_indexes = [i for i in df.columns if i in ree
-                   or i in map(str, ree)]
-
-    if isinstance(norm_to, str):
-        norm = ReferenceCompositions()[norm_to]
-        norm_abund = np.array([norm[str(el)].value for el in ree])
-    elif isinstance(norm_to, RefComp):
-        norm_abund = np.array([getattr(norm_to, str(e)) for e in col_indexes])
-    else: # list, iterable, pd.Index etc
-        norm_abund = np.array([i for i in norm_abund])
-
-    assert len(norm_abund) == len(ree)
+    norm_df = df.loc[:, ree] # initialize normdf
 
     labels = [chr(955) + str(d) for d in range(degree)]
 
-    norm_df = df.loc[:, col_indexes]
-    norm_df.loc[:, col_indexes] = np.divide(norm_df.loc[:, col_indexes].values,
-                                            norm_abund)
+    if norm_to is not None: # None = already normalised data
+        if isinstance(norm_to, str):
+            norm = ReferenceCompositions()[norm_to]
+            norm_abund = np.array([norm[str(el)].value for el in ree])
+        elif isinstance(norm_to, RefComp):
+            norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
+        else: # list, iterable, pd.Index etc
+            norm_abund = np.array([i for i in norm_abund])
+
+            assert len(norm_abund) == len(ree)
+
+
+        norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
+
     norm_df = norm_df.applymap(np.log)
+
     lambda_partial = functools.partial(lambdas,
                                        xs=radii,
                                        params=params,
                                        degree=degree)
-    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial, 1,
+    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial,
+                                                1, # apply along rows
                                                 norm_df.values),
                             index=df.index,
                             columns=labels)
+    lambdadf.loc[(lambdadf == 0).all(axis=1), :] = np.nan
+    if append:
+
+        # append the smooth f(radii) function to the dataframe
+        func_partial = functools.partial(lambda_poly_func,
+                                         pxs=radii,
+                                         params=params,
+                                         degree=degree)
+        if 'function' in append:
+            lambdadf['lambda_poly_func'] = np.apply_along_axis(func_partial,
+                                                               1,
+                                                               lambdadf.values)
     return lambdadf
 
 
 _RADII = {str(k): v for (k, v) in zip(REE(), [1.160, 1.143, 1.126, 1.109,
-                                         1.093, 1.079, 1.066, 1.053,
-                                         1.040, 1.027, 1.015, 1.004,
-                                         0.994, 0.985, 0.977])}
+                                              1.093, 1.079, 1.066, 1.053,
+                                              1.040, 1.027, 1.015, 1.004,
+                                              0.994, 0.985, 0.977])}

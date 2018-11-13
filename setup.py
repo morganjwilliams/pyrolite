@@ -10,7 +10,11 @@ tests_require = ['pytest',
 dev_require = ['versioneer',
                'nbstripout',
                'nbdime',
-               'twine']
+               'twine',
+               'sphinx_rtd_theme',
+               'sphinx-autodoc-annotation',
+               #'mock',
+               ]
 
 db_require = ['pyodbc',
               'psycopg2']
@@ -26,7 +30,7 @@ setup(name='pyrolite',
       long_description=LONG_DESCRIPTION,
       long_description_content_type='text/markdown',
       version=versioneer.get_version(),
-      url='https://github.com/morgan.j.williams/pyrolite',
+      url='https://github.com/morganjwilliams/pyrolite',
       author='Morgan Williams',
       author_email='morgan.williams@csiro.au',
       classifiers=[
@@ -52,7 +56,6 @@ setup(name='pyrolite',
                         'requests',
                         'dicttoxml',
                         'xmljson',
-                        'environs'
                         ],
       extras_require={'dev': dev_require + tests_require,
                       'spatial': spatial_require,

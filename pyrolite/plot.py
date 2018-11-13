@@ -7,6 +7,7 @@ import ternary
 from .util.pd import to_frame
 from .util.math import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
+from .util.general import iscollection
 from .geochem import common_elements
 import logging
 
@@ -17,12 +18,19 @@ DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = 'tab10'
 
 
-def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwargs):
+def spiderplot(df,
+               components:list=None,
+               ax=None,
+               plot=True,
+               fill=False,
+               **kwargs):
     """
-    Plots spidergrams for trace elements data.
-    By using separate lines and scatterplots, values between two null-valued
+    Plots spidergrams for trace elements data. Additional keyword arguments are
+    passed to matplotlib.
+
+    By using separate lines and scatterplots, values between two missing
     items are still presented. Might be able to speed up the lines
-    with a matplotlib.collections.LineCollection
+    with a matplotlib.collections.LineCollection.
 
     Parameters
     ----------
@@ -36,14 +44,13 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
         Whether to plot lines and markers.
     fill:
         Whether to add a patch representing the full range.
-    style:
-        Styling keyword arguments to pass to matplotlib.
     """
     kwargs = kwargs.copy()
     try:
         assert plot or fill
     except:
-        raise AssertionError('Please select to either plot values or fill between ranges.')
+        msg = 'Please select to either plot values or fill between ranges.'
+        raise AssertionError(msg)
 
     df = to_frame(df)
 
@@ -55,13 +62,34 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     c_indexes = np.arange(len(components))
 
     sty = {}
-    # Some default values
 
 
-    sty['color'] = kwargs.pop('color', None) or kwargs.pop('c', None)
-    sty['alpha'] = kwargs.pop('alpha', None) or kwargs.pop('a', None) or 1.
-    if sty['color'] is None:
-        del sty['color']
+    # Color ----------------------------------------------------------
+
+    variable_colors=False
+    color = kwargs.get('color') or kwargs.get('c')
+    norm = kwargs.pop('norm', None)
+    if color is not None:
+        if iscollection(color):
+            sty['c'] = color
+            variable_colors=True
+        else:
+            sty['color'] = color
+
+    _c = sty.pop('c', None)
+
+    cmap = kwargs.get('cmap', None)
+    if isinstance(cmap, str):
+        cmap = plt.get_cmap(cmap)
+
+    if (_c is not None) and (cmap is not None):
+        if norm is not None:
+            _c = [norm(c) for c in _c]
+        _c = [cmap(c) for c in _c]
+
+    sty['alpha'] = kwargs.get('alpha') or kwargs.get('a') or 1.
+
+    # ---------------------------------------------------------------------
 
     ax = ax or plt.subplots(1, figsize=(len(components)*0.3, 4))[1]
 
@@ -70,24 +98,40 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
         maxs = df.loc[:, components].max(axis=0)
         plycol = ax.fill_between(c_indexes, mins, maxs, **sty)
         # Use the first (typically only) element for color
-        sty['color'] = sty.pop('color', None) or plycol.get_facecolor()[0]
+        if (sty.get('color') is None) and (sty.get('c') is None):
+            sty['color'] = plycol.get_facecolor()[0]
 
-    sty['marker'] = kwargs.pop('marker', None) or 'D'
+    sty['marker'] = kwargs.get('marker', None) or 'D'
+
+    # Use the default color cycling to provide a single color
+    if sty.get('color') is None and _c is None:
+        sty['color'] = next(ax._get_lines.prop_cycler)['color']
+
     if plot:
-        # Use the default color cycling to provide a single color
-        if 'color' not in sty.keys():
-            sty['color'] = next(ax._get_lines.prop_cycler)['color']
-
         ls = ax.plot(c_indexes,
                      df.loc[:, components].T.values.astype(np.float),
                      **sty)
+        if variable_colors:
+            for l, c in zip(ls, _c):
+                l.set_color(c)
 
         sty['s'] = kwargs.get('markersize') or kwargs.get('s') or 5.
-        if sty.get('color') is None:
+        if (sty.get('color') is None) and (_c is None):
             sty['color'] = ls[0].get_color()
 
         sty['label'] = kwargs.pop('label', None)
-        sc = ax.scatter(np.tile(c_indexes, (df.loc[:, components].index.size,1)).T,
+        # For the scatter, the number of points > the number of series
+        # Need to check if this is the case, and create equivalent
+
+        if _c is not None:
+            cshape = np.array(_c).shape
+            if cshape != df.loc[:, components].shape:
+                # expand it across the columns
+                _c = np.tile(_c, (len(components), 1))
+
+        sc = ax.scatter(np.tile(c_indexes,
+                                (df.loc[:, components].index.size, 1)
+                                ).T,
                         df.loc[:, components].T.values.astype(np.float),
                         **sty)
 
@@ -103,10 +147,14 @@ def spiderplot(df, components:list=None, ax=None, plot=True, fill=False, **kwarg
     return ax
 
 
-def ternaryplot(df, components:list=None, ax=None, **kwargs):
+def ternaryplot(df,
+                components:list=None,
+                ax=None,
+                **kwargs):
     """
     Plots scatter ternary diagrams, using a wrapper around the
     python-ternary library (gh.com/marcharper/python-ternary).
+    Additional keyword arguments arepassed to matplotlib.
 
     Parameters
     ----------
@@ -127,7 +175,8 @@ def ternaryplot(df, components:list=None, ax=None, **kwargs):
         if components is None:
             components = df.columns.values
     except:
-        raise AssertionError('Please either suggest three elements or a 3-element dataframe.')
+        msg = 'Suggest components or provide a slice of the dataframe.'
+        raise AssertionError(msg)
 
     # Some default values
     scale = kwargs.pop('scale', None) or 100.
@@ -149,7 +198,10 @@ def ternaryplot(df, components:list=None, ax=None, **kwargs):
 
     # Set attribute for future reference
     ax.tax = tax
-    points = df.loc[:, components].div(df.loc[:, components].sum(axis=1), axis=0).values * scale
+    points = df.loc[:, components].div(
+                                       df.loc[:, components].sum(axis=1),
+                                       axis=0).values * \
+                                       scale
     if points.any():
         tax.scatter(points, **sty)
 
@@ -184,9 +236,9 @@ def densityplot(df,
                 contour=False,
                 **kwargs):
     """
-    Plots density plot diagrams.
-
-    Should work for either binary components (X-Y) or in a ternary plot.
+    Plots density plot diagrams. Should work for either binary components (X-Y)
+    or in a ternary plot. Some additional keyword arguments are passed to
+    matplotlib.
 
     Todo:
         Split logscales for x and y (currently only for log-log)
@@ -213,7 +265,8 @@ def densityplot(df,
         if components is None:
             components = df.columns.values
     except:
-        raise AssertionError('Please suggest elements or provide a slice of the dataframe.')
+        msg = 'Suggest components or provide a slice of the dataframe.'
+        raise AssertionError(msg)
 
     figsize = kwargs.pop('figsize', 8.)
     fontsize = kwargs.pop('fontsize', 12.)
@@ -223,7 +276,7 @@ def densityplot(df,
     colorbar = kwargs.pop('colorbar', False)
 
     ax = ax or plt.subplots(1, figsize=(figsize, figsize* 3**0.5 * 0.5))[1]
-    background_color = ax.patch.get_facecolor()
+    background_color = ax.patch.get_facecolor() # consider alpha here
     nbins = kwargs.pop('bins', 20)
     cmap = kwargs.pop('cmap', DEFAULT_CONT_COLORMAP)
     if isinstance(cmap, str):
@@ -283,8 +336,11 @@ def densityplot(df,
                 else:
                     xe = np.linspace(xmin-xstep, xmax+xstep, nbins+1)
                     ye = np.linspace(ymin-ystep, ymax+ystep, nbins+1)
+
+                range = [[extent[0], extent[1]],[extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(x, y,
                                           bins=[xe, ye],
+                                          range=range,
                                           cmap=cmap,
                                           **kwargs)
                 mappable = im
@@ -314,7 +370,7 @@ def densityplot(df,
                     zi = k(np.vstack([xi.flatten(), yi.flatten()]))
 
 
-                vmin = kwargs.pop('vmin', 0.02 * np.nanmax(zi)) # 1% max height
+                vmin = kwargs.pop('vmin', 0.02 * np.nanmax(zi)) # 2% max height
                 if contour:
                     levels = kwargs.pop('levels', None)
 
@@ -338,7 +394,6 @@ def densityplot(df,
                                vmin=vmin,
                                **kwargs)
                 else:
-                    # updated to pcolor to avoid quadmesh issues with alpha
                     mappable = ax.pcolormesh(xi, yi, zi.reshape(xi.shape),
                                              cmap=cmap,
                                              shading=shading,
@@ -363,13 +418,20 @@ def densityplot(df,
             scale = kwargs.pop('scale', None) or 100.
             empty_df = pd.DataFrame(columns=df.columns)
             heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
-            tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+            tax = ternaryplot(empty_df,
+                              ax=ax,
+                              components=components,
+                              scale=scale)
             ax = tax.ax
             if mode == 'hexbin':
                 style = 'hexagonal'
             else:
                 style = 'triangular'
-            tax.heatmap(heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs)
+            tax.heatmap(heatmapdata,
+                        scale=scale,
+                        style=style,
+                        colorbar=colorbar,
+                        **kwargs)
         else:
             pass
     plt.tight_layout()

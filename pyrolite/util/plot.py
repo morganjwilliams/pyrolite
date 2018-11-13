@@ -38,7 +38,8 @@ def add_legend_items(ax):
             labels.append(label)
 
 
-def add_colorbar(mappable, **kwargs):
+def add_colorbar(mappable,
+                 **kwargs):
     """
     Adds a colorbar to a given mappable object.
 
@@ -53,10 +54,20 @@ def add_colorbar(mappable, **kwargs):
     ----------
     colorbar: matplotlib.colorbar.Colorbar
     """
-    ax = mappable.axes
+    ax = kwargs.get('ax', None)
+    if hasattr(mappable, 'axes'):
+        ax = ax or mappable.axes
+    elif hasattr(mappable, 'ax'):
+        ax = ax or mappable.ax
+
+
+    position = kwargs.pop('position', 'right')
+    size = kwargs.pop('size', '5%')
+    pad = kwargs.pop('pad', 0.05)
+
     fig = ax.figure
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cax = divider.append_axes(position, size=size, pad=pad)
     return fig.colorbar(mappable, cax=cax, **kwargs)
 
 
@@ -70,6 +81,7 @@ def ABC_to_tern_xy(ABC):
 
 
 def tern_heatmapcoords(data, scale=10, bins=10):
+    # this appears to cause problems for ternary density diagrams
     x, y = ABC_to_tern_xy(data)
     xydata = np.vstack((x, y))
     k = gaussian_kde(xydata)
@@ -250,7 +262,7 @@ def save_figure(figure,
                        **config)
 
 
-def save_axes(axes,
+def save_axes(ax,
               save_at='',
               name='fig',
               save_fmts=['png'],
@@ -263,13 +275,13 @@ def save_axes(axes,
     """
     # Check if axes is a single axis or list of axes
 
-    if isinstance(axes, matax.Axes):
-        extent = get_full_extent(axes, pad=pad)
-        figure = axes.figure
+    if isinstance(ax, matax.Axes):
+        extent = get_full_extent(ax, pad=pad)
+        figure = ax.figure
     else:
         extent_items = []
-        for ax in axes:
-            extent_items.append(get_full_extent(ax, pad=pad))
+        for a in ax:
+            extent_items.append(get_full_extent(a, pad=pad))
         figure = axes[0].figure
         extent = Bbox.union([item for item in extent_items])
     save_figure(figure,
@@ -284,9 +296,11 @@ def save_axes(axes,
 def get_full_extent(ax, pad=0.0):
     """Get the full extent of an axes, including axes labels, tick labels, and
     titles. Text objects are first drawn to define the extents."""
-    ax.figure.canvas.draw()
-    items = []
-    items += [ax]
+    fig = ax.figure
+    fig.canvas.draw()
+    renderer = fig.canvas.renderer
+
+    items = [ax]
 
     if len(ax.get_title()):
         items += [ax.title]
@@ -299,6 +313,6 @@ def get_full_extent(ax, pad=0.0):
         if np.array([len(i.get_text()) > 0 for i in t_lb]).any():
             items += t_lb
 
-    bbox = Bbox.union([item.get_window_extent() for item in items])
+    bbox = Bbox.union([item.get_window_extent(renderer) for item in items])
     full_extent = bbox.expanded(1.0 + pad, 1.0 + pad)
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())

@@ -1,5 +1,43 @@
 import unittest
+from pathlib import Path
 from pyrolite.util.general import *
+
+
+class TestUrlify(unittest.TestCase):
+    """
+    Tests the urlify utility function.
+    """
+    def test_strip(self):
+        for s in ['A B', 'A_B', 'A  ', 'A B C D']:
+            with self.subTest(s=s):
+                self.assertFalse(' ' in urlify(s))
+
+
+class TestTempPath(unittest.TestCase):
+    """
+    Tests the temporary directory utility function.
+    """
+
+    def test_is_dir(self):
+        self.assertTrue(temp_path().is_dir())
+
+
+class TestIscollection(unittest.TestCase):
+    """Tests iscollection utility function."""
+
+    def setUp(self):
+        self.collections = [[1, 2], np.array([1, 2]), set([1, 2]), (1, 2)]
+        self.notcollections = 'a', 'aa', 1, 1.2
+
+    def test_collections(self):
+        for obj in self.collections:
+            with self.subTest(obj=obj):
+                self.assertTrue(iscollection(obj))
+
+    def test_not_collections(self):
+        for obj in self.notcollections:
+            with self.subTest(obj=obj):
+                self.assertFalse(iscollection(obj))
 
 
 class TestFlattenDict(unittest.TestCase):
@@ -43,6 +81,14 @@ class TestSwapItem(unittest.TestCase):
                 result = swap_item(L, pull, push)
                 self.assertTrue(len(result) == len(L))
                 self.assertTrue(result[L.index(pull)] == push)
+
+
+class TestCheckPerl(unittest.TestCase):
+    """Tests the check for a working perl installation."""
+
+    def test_check_perl(self):
+        val = check_perl()
+        self.assertTrue(isinstance(val, bool))
 
 
 class TestCopyFile(unittest.TestCase):

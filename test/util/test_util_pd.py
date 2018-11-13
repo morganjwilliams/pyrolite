@@ -6,64 +6,6 @@ from pyrolite.util.pd import *
 from pathlib import Path
 
 
-def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
-            index_length=10):
-    return pd.DataFrame({k: v for k,v in zip(cols,
-                         np.random.rand(len(cols), index_length))})
-
-
-def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
-    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
-
-
-class TestPandasUnitsPatch(unittest.TestCase):
-
-    @unittest.expectedFailure
-    def test_classes(self):
-        """
-        Check patching hasn't occurred to start with.
-        """
-        for cls in [pd.DataFrame, pd.Series]:
-            with self.subTest(cls=cls):
-                for prop in [units, # units property
-                             set_units, # set_units method
-                             ]:
-                    with self.subTest(prop=prop):
-                        clsp = getattr(cls, prop)
-                        instp = getattr(cls(), prop)
-
-    def test_patch(self):
-        """
-        Check that the units attribute exists after patching.
-        """
-        patch_pandas_units()
-        for cls in [pd.DataFrame, pd.Series]:
-            with self.subTest(cls=cls):
-                for prop in ['units', # units property
-                             'set_units', # set_units method
-                             ]:
-                    with self.subTest(prop=prop):
-                        clsp = getattr(cls, prop)
-                        instp = getattr(cls(), prop)
-
-    def test_set_units(self):
-        """
-        Check that the set_units method works after patching.
-        """
-        patch_pandas_units()
-        test_units = 'Wt%'
-        for cls in [pd.DataFrame, pd.Series]:
-            with self.subTest(cls=cls):
-                instance = cls()
-                instance.set_units('Wt%')
-                equiv = (instance.units == test_units)
-                if not isinstance(equiv, bool):
-                    equiv = equiv.all()
-                    self.assertTrue(isinstance(instance.units, pd.Series))
-
-                self.assertTrue(equiv)
-
-
 class TestColumnOrderedAppend(unittest.TestCase):
 
     def setUp(self):
@@ -96,6 +38,7 @@ class TestAccumulate(unittest.TestCase):
 
 
 class TestToFrame(unittest.TestCase):
+    """Test the 'to_frame' utility dataframe conversion function."""
 
     def setUp(self):
         self.ser = test_ser()
@@ -116,6 +59,18 @@ class TestToFrame(unittest.TestCase):
     def test_series_conversion(self):
         result = to_frame(self.ser)
         self.assertTrue(isinstance(result, pd.DataFrame))
+
+
+class TestToSer(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_single_column(self):
+        pass
+
+    def test_assertion_error_mulitcolumn(self):
+        pass
 
 
 class TestToNumeric(unittest.TestCase):
