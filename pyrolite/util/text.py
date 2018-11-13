@@ -63,8 +63,44 @@ def titlecase(s,
     return delim.join(out)
 
 
+def string_variations(names):
+    """
+    Returns equilvaent string variations based on an input set of strings.
+
+    Parameters
+    ----------
+    names: {list, str}
+        String or list of strings to generate name variations of.
+
+    Returns
+    --------
+    set
+        Set of unique string variations.
+    """
+    vars = set()
+    # convert input to list if singular
+    if isinstance(names, str):
+        names = [names]
+
+    for n in names:
+        vars = vars.union({n,
+                           n.lower(),
+                           n.upper(),
+                           n.strip(),
+                           n.strip().lower(),
+                           n.strip().upper(),
+                           n.replace('-', ''),
+                           n.replace('-', '').lower(),
+                           n.replace('-', '').upper(),
+                           n.replace(' ', '_'),
+                           n.replace(' ', '_').lower(),
+                           n.replace(' ', '_').upper(),
+                           })
+    return vars
+
+
 def parse_entry(entry,
-                regex,
+                regex=r"(\s)*?(?P<value>[\.\w]+)(\s)*?",
                 delimiter=',',
                 values_only=True,
                 errors=None,

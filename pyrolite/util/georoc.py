@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from functools import partial
 import requests
 import re
 import logging
@@ -35,7 +36,21 @@ __GEOROC_contents = {
 
 
 __compilation_lists = pyrolite_datafolder(subfolder='georoc')
+
+
 # -----------------------------
+
+def parse_values(ser, **kwargs):
+    """
+    Wrapper for parse_entry for GEOROC formatted values.
+
+    Parameters
+    -------------
+    ser: pd.Series
+        String series formated as sequences of 'VALUE [NUMERIC_CITATION]'.
+    """
+    f = partial(parse_entry, regex=_GEOROC_value_rx,  **kwargs)
+    return ser.apply(f)
 
 
 def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
@@ -172,5 +187,37 @@ def ingest_pickled_georoc_frame(path):
 
     # text fields to parse
     _parse = ['Age']
+
+    return df
+
+
+def georoc_munge(df, dateformat='Y/M/D'):
+    """
+    Collection of munging functions for GEROROC data.
+    """
+    _parse = parse_value
+    df.loc[:, 'GeolAge'] = (df.loc[:,
+                                  'Geol.'].apply(_parse).replace('None', '') + \
+                            df.Age.apply(_parse))
+
+    num_cols = ['ElevationMin', 'ElevationMax',
+                'LatitudeMin', 'LatitudeMax',
+                'LongitudeMin', 'LongitudeMax',
+                'Min.Age(yrs.)', 'Max.Age(yrs.)',
+                'EruptionDay', 'EruptionMonth', 'EruptionYear']
+
+    df.loc[:, num_cols] = to_numeric(df.loc[:, num_cols].applymap(_parse))
+
+    def intstr(val):
+        """Checks for invalid values and returns a string."""
+        if np.isnan(val):
+            return ''
+        else:
+            return str(int(val))
+
+    #to_numeric(df.loc[:, 'Min.Age(yrs.)'].apply(parse_entry, args=[_GEOROC_value_rx])).unique()
+
+    df.loc[:, 'Lat'] = (df.LatitudeMax + df.LatitudeMin) / 2.
+    df.loc[:, 'Long'] = (df.LongitudeMax + df.LongitudeMin) / 2.
 
     return df

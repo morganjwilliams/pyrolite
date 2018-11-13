@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
 from pyrolite.util.text import quoted_string, titlecase, to_width, \
-                               remove_prefix, normalise_whitespace
+                               remove_prefix, normalise_whitespace, \
+                               string_variations
 
 class TestRemovePrefix(unittest.TestCase):
 
@@ -165,6 +166,19 @@ class TestParseEntry(unittest.TestCase):
 
     def test_values_only(self):
         pass
+
+
+class TestStringVariations(unittest.TestCase):
+
+    def setUp(self):
+        self.single = 'single'
+        self.multiple = ['Multiple-a', 'multiple-b']
+
+    def test_single(self):
+        string_variations(self.single)
+
+    def test_multiple(self):
+        string_variations(self.multiple)
 
 
 class TestSplitRecords(unittest.TestCase):
