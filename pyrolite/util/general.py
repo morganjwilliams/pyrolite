@@ -7,6 +7,7 @@ import zipfile
 from collections import Mapping
 from pathlib import Path
 import numpy as np
+import pandas as pd
 import logging
 try:
     import httplib
@@ -74,7 +75,7 @@ def temp_path():
 def iscollection(obj):
     """Checks whether an object is an interable collection"""
 
-    for ty in [list, np.ndarray, set, tuple, dict]:
+    for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
         if isinstance(obj, ty):
             return True
 

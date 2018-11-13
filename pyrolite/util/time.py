@@ -3,6 +3,12 @@ import numpy as np
 from .general import pyrolite_datafolder
 from .pd import to_frame, to_numeric
 from .text import titlecase, string_variations
+from .general import iscollection
+
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 
 __DATA__ = pyrolite_datafolder(subfolder='timescale') / \
@@ -160,21 +166,45 @@ class Timescale(object):
         """
         Converts a text-based age to the corresponding age range (in Ma).
 
+        String-based entries return (max_age, min_age). Collection-based entries
+        return a list of tuples.
+
         Parameters
         ------------
         entry: str
-            String name for geological age range.
+            String name, or series of string names, for geological age range.
 
-
-        Returns
-        ------------
-        tuple
-            Tuple representation of min_age, max_age for the entry.
         """
+        if isinstance(entry, str):
+            if (entry is None) or (entry == "None") or (entry == "none"):
+                return (np.nan, np.nan)
+            elif entry.replace(".", '').isnumeric():
+                # check if the text is actually numeric
+                return (float(entry), float(entry))
+            else:
+                # check whether it corresponds to any of the named aliases
+                matches = self.data.Aliases.apply(lambda x: entry in x).values
+                if matches.any():
+                    if matches.sum() > 1:
+                        logger.warn('Multiple age matches for {}'.format(entry))
+                    return tuple(self.data.loc[matches, ['Start', 'End']].values[0])
+                else:
+                    logger.info('No age matches for {}'.format(entry))
+                    return (np.nan, np.nan)
+        elif iscollection(entry):
+            values = np.array(entry)
+            """
+            outvals = list(map(self.text2age, values))
+            """
+            nans = (values=="None") | (values=="none") | \
+                   ([i is None for i in values])
+            outvals = np.nan * np.ones((values.size, 2))
+            outvals[~nans] = list(map(self.text2age, values[~nans]))
+            return outvals
+        else:
+            logger.info('Could not ages in the forom of {}'.format(type(entry)))
+            return  (np.nan, np.nan)
 
-        indexer = self.data.Aliases.apply(lambda x: entry in x)
-
-        return tuple(self.data.loc[indexer, ['Start', 'End']].values[0])
 
 
     def named_age(self, age, level='Period'):
