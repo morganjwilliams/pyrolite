@@ -12,7 +12,7 @@ def piecewise(segment_ranges:list, segments=2, output_fmt=np.float):
     """
     outf = np.vectorize(output_fmt)
     if type(segments)==np.int:
-        segments = list(np.ones(len(segment_ranges)) * segments)
+        segments = list(np.ones(len(segment_ranges), dtype=np.int) * segments)
     else:
         pass
     seg_width = [(x2 - x1) / segments[ix]  # can have negative steps

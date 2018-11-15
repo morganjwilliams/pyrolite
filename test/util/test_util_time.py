@@ -75,6 +75,13 @@ class TestTimescale(unittest.TestCase):
                 for time in v:
                     self.assertTrue(np.isnan(time))
 
+    def test_text2age_collection(self):
+        """Test that unknown ages return np.nan"""
+        ages = self.ts.data.loc[self.ts.data.Level=='Period', 'Name'].unique()
+        ages = pd.Series(ages)
+        v = self.ts.text2age(ages)
+        self.assertFalse(pd.isnull(v).any())
+
 
 class TestTimescaleReferenceFrame(unittest.TestCase):
     """
@@ -87,6 +94,21 @@ class TestTimescaleReferenceFrame(unittest.TestCase):
     def test_frame_build(self):
         data = pyrotime.timescale_reference_frame(self.filename)
 
+import logging
+import pyrolite.util.time as pyrotime
+logger = logging.getLogger('pyrolite.util.time')
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+ts = pyrotime.Timescale()
+
+eg = ['Cretaceous', 'CRETACEOUS']
+
+ts.text2age(eg)
 
 if __name__ == "__main__":
     unittest.main()

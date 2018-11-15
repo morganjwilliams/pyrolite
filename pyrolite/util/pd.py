@@ -89,22 +89,16 @@ def to_ser(df):
         return df
 
 
-def to_numeric(df,
-               exclude: list = [],
-               errors: str = 'coerce'):
+def to_numeric(df, errors: str = 'coerce'):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
-    """
 
-    if isinstance(df, pd.DataFrame):
-        numeric_headers = [i for i in df.columns.unique() if i not in exclude]
-        # won't work with .loc on LHS
-        # https://stackoverflow.com/a/46629514
-        df[numeric_headers] = df[numeric_headers].apply(pd.to_numeric,
-                                                        errors=errors)
-    elif isinstance(df, pd.Series):
-        df = df.apply(pd.to_numeric, errors=errors)
-    return df
+    Notes
+    -----
+    Avoid using .loc or .iloc on the LHS to make sure that data dtypes
+    are propagated.
+    """
+    return df.apply(pd.to_numeric, errors=errors)
 
 
 def concat_columns(df, columns, astype=str, **kwargs):

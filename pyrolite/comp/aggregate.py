@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import warnings
 from .codata import alr, inv_alr
 from .impute import *
 
@@ -196,7 +197,11 @@ def np_cross_ratios(X: np.ndarray, debug=False):
         A 3D array of ratios.
     """
     X = X.copy()
-    X[X <= 0] = np.nan
+    with warnings.catch_warnings():
+        # can get invalid values which raise RuntimeWarnings
+        # consider changing to np.errstate
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        X[X <= 0] = np.nan
     if X.ndim == 1:
         index_length = 1
         X = X.reshape((1, *X.shape))
@@ -305,9 +310,15 @@ def complex_standardise_aggregate(df,
         non_nan_cols = df.dropna(axis=1, how='all').columns
         ratios = cross_ratios(df.loc[:, non_nan_cols])
         # Average across record matricies
-        mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios), axis=0)),
-                                   columns=non_nan_cols,
-                                   index=non_nan_cols)
+        with warnings.catch_warnings():
+            # can get empty arrays which raise RuntimeWarnings
+            # consider changing to np.errstate
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            mean_ratios = pd.DataFrame(np.exp(np.nanmean(np.log(ratios),
+                                                         axis=0)
+                                                         ),
+                                       columns=non_nan_cols,
+                                       index=non_nan_cols)
         # Filling in the null values in a ratio matrix
         imputed_ratios = impute_ratios(mean_ratios)
         # We simply pick the first non-nan column.
@@ -363,7 +374,11 @@ def np_complex_standardise_aggregate(df,
         assert len(non_nan_cols) > 0
         ratios = np_cross_ratios(df.loc[:, non_nan_cols].values)
         # Take the mean across the cross-ratio matricies
-        mean_logratios = np.nanmean(np.log(ratios), axis=0)
+        with warnings.catch_warnings():
+            # can get empty arrays which raise RuntimeWarnings
+            # consider changing to np.errstate
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            mean_logratios = np.nanmean(np.log(ratios), axis=0)
         # Filling in the null values in a ratio matrix
         imputed_log_ratios = np_impute_ratios(mean_logratios)
         # We simply pick the first non-nan column.

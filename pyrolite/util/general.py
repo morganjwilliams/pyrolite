@@ -22,6 +22,19 @@ logger = logging.getLogger(__name__)
 _FLAG_FIRST = object()
 
 
+def stream_log(package_name, level='INFO'):
+    """
+    Stream the log from a specific package or subpackage.
+    """
+    logger = logging.getLogger(package_name)
+    ch = logging.StreamHandler()
+    fmt = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(fmt)
+    logger.addHandler(ch)
+    logger.setLevel(getattr(logging, level))
+    return logger
+
+
 def pyrolite_datafolder(subfolder=None):
     """Returns the path of the pyrolite data folder."""
     pth = Path(inspect.getfile(pyrolite)).parent / "data"

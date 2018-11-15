@@ -2,6 +2,7 @@ import re
 import textwrap
 import numpy as np
 import logging
+from sortedcontainers import SortedSet
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -63,7 +64,15 @@ def titlecase(s,
     return delim.join(out)
 
 
-def string_variations(names):
+def string_variations(names,
+                      preprocess=['lower', 'strip'],
+                      swaps=[(' ', '_'),
+                             (' ', '_'),
+                             ('-', ' '),
+                             ('_', ' '),
+                             ('-', ''),
+                             ('_', ''),
+                             ]):
     """
     Returns equilvaent string variations based on an input set of strings.
 
@@ -71,31 +80,30 @@ def string_variations(names):
     ----------
     names: {list, str}
         String or list of strings to generate name variations of.
+    preprocess: list
+        List of preprocessing string functions to apply before generating
+        variations.
+    swaps: list
+        List of tuples for str.replace(out, in).
 
     Returns
     --------
-    set
-        Set of unique string variations.
+    SortedSet
+        Sorted set of unique string variations.
     """
-    vars = set()
+    vars = SortedSet()
     # convert input to list if singular
     if isinstance(names, str):
         names = [names]
 
+    swapout = [s[0] for s in swaps]
     for n in names:
-        vars = vars.union({n,
-                           n.lower(),
-                           n.upper(),
-                           n.strip(),
-                           n.strip().lower(),
-                           n.strip().upper(),
-                           n.replace('-', ''),
-                           n.replace('-', '').lower(),
-                           n.replace('-', '').upper(),
-                           n.replace(' ', '_'),
-                           n.replace(' ', '_').lower(),
-                           n.replace(' ', '_').upper(),
-                           })
+        n = str(n)
+        for p in preprocess:
+            n = getattr(n, p)()
+        vars.add(n)
+        if any([s in n for s in swapout]):
+            vars = vars.union([n.replace(*s) for s in swaps])
     return vars
 
 
@@ -103,6 +111,7 @@ def parse_entry(entry,
                 regex=r"(\s)*?(?P<value>[\.\w]+)(\s)*?",
                 delimiter=',',
                 values_only=True,
+                first_only=True,
                 errors=None,
                 replace_nan='None'):
     """
@@ -122,16 +131,24 @@ def parse_entry(entry,
     delimiter: str, ','
         Optional delimiter to split the string in case of multiple
         inclusion.
-    values_only: bool, True,
+    values_only: bool, True
         Option to return only values (single or list), or to instead
         return the dictionary corresponding to the matches.
+    first_only: bool, True
+        Option to return only the first match, or else all matches.
     errors: int|float|np.nan|None, None
         Error value to denote 'no match'.
     """
+
     if isinstance(entry, str):
         pattern = re.compile(regex)
         matches = []
-        for _l in entry.split(delimiter):
+        if not delimiter or (delimiter is None):
+            subparts = [entry]
+        else:
+            subparts = entry.split(delimiter)
+
+        for _l in subparts:
             _m = pattern.match(_l)
             if _m:
                 _d = dict(value=_m.group('value'))
@@ -147,10 +164,13 @@ def parse_entry(entry,
                            for (k, ind) in pattern.groupindex.items()
                            if not k=='value'})
             matches.append(_d)
+
         if values_only:
             matches = [m['value'] for m in matches]
-            if len(matches)==1:
-                return matches[0]
+
+        if first_only:
+            return matches[0]
+
         return matches
     else:
         if entry is None:
@@ -159,7 +179,7 @@ def parse_entry(entry,
             if np.isnan(entry):
                 entry = replace_nan
 
-        if values_only:
+        if first_only:
             return entry
         else:
             return [entry]

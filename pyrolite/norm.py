@@ -92,10 +92,8 @@ class RefComp:
         self.vars = [i for i in self.data.index
                      if (not pd.isna(self.data.loc[i, 'value']))
                          and (i not in headers)]
-        self.data.loc[self.vars,
-                      floatvars] = to_numeric(self.data.loc[self.vars,
-                                                            floatvars],
-                                               errors='coerce')
+        self.data.loc[self.vars, floatvars] = \
+                    self.data.loc[self.vars, floatvars].apply(to_numeric)
 
     def set_units(self, to='ppm'):
         v = self.vars

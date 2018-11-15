@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from sortedcollections import SortedSet
 from pyrolite.util.text import quoted_string, titlecase, to_width, \
                                remove_prefix, normalise_whitespace, \
                                string_variations
@@ -175,10 +176,19 @@ class TestStringVariations(unittest.TestCase):
         self.multiple = ['Multiple-a', 'multiple-b']
 
     def test_single(self):
-        string_variations(self.single)
+        self.assertEqual(string_variations(self.single),
+                         string_variations([self.single]))
+
+    def test_sorted_set_return(self):
+        self.assertIsInstance(string_variations(self.single), SortedSet)
+
+    def test_preprocess(self):
+        for ps in [['lower'], ['upper'], ['upper', 'lower']]:
+            string_variations(self.single, preprocess=ps)
 
     def test_multiple(self):
         string_variations(self.multiple)
+
 
 
 class TestSplitRecords(unittest.TestCase):

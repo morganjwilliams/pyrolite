@@ -49,11 +49,14 @@ def age_name(agenamelist,
         (e.g. Cambrian Series 2).
     """
     ambiguous_names= prefixes + suffixes
-
+    ambig_vars = [s.lower().strip() for s in ambiguous_names]
     nameguess = agenamelist[-1]
+    # Process e.g. Stage 1 => Stage
     nn_nameguess = ''.join([i for i in nameguess if not i.isdigit()]).strip()
-    hit = [s for s in ambiguous_names
-           if any(i == nn_nameguess for i in string_variations(s))][0:1]
+
+    # check if the name guess corresponds to any of the ambiguous names
+    hit = [ambiguous_names[ix] for ix, vars in enumerate(ambig_vars)
+           if nn_nameguess.lower().strip() in vars][0:1]
 
     if hit:
         indexstart = len(agenamelist)-1
@@ -62,7 +65,7 @@ def age_name(agenamelist,
         ambiguous_name = True
         while ambiguous_name:
             hitphrase = hit[0]
-            indexstart -=1
+            indexstart -= 1
             nextup = agenamelist[indexstart]
             if hitphrase in prefixes:
                 # insert the higher order component after the previous one
@@ -75,9 +78,8 @@ def age_name(agenamelist,
 
             _nn_nextupguess = ''.join([i for i in nextup if not i.isdigit()]
                                       ).strip()
-            hit = [s for s in ambiguous_names
-                   if any(i == _nn_nextupguess for i in string_variations(s))
-                   ][0:1]
+            hit = [ambiguous_names[ix] for ix, vars in enumerate(ambig_vars)
+                   if _nn_nextupguess.lower().strip() in vars][0:1]
             if not hit:
                 ambiguous_name = False
         return " ".join(outname)
@@ -106,18 +108,14 @@ def timescale_reference_frame(filename=__DATA__,
     """
 
     df =  pd.read_csv(filename)
-    df.loc[:, ['Start', 'End']] = to_numeric(df.loc[:, ['Start', 'End']])
+    df.loc[:, ['Start', 'End']] = df.loc[:, ['Start', 'End']].apply(to_numeric)
     _df = df.copy()
     grps = [i for i in _df.columns if not i in info_cols]
-    condensed = _df.loc[:,
-                        [i for i in _df.columns if not i in info_cols]
-                         ].applymap(lambda x: x if not pd.isnull(x) else '')
-
-    level = condensed.apply(lambda x: grps[[ix for ix, v in enumerate(x)
+    condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]
+                        ].fillna(value='')
+    _df['Level'] = condensed.apply(lambda x: grps[[ix for ix, v in enumerate(x)
                                              if v][-1]],
                                   axis=1)
-    _df['Level'] = level
-
     condensed = listify(condensed).apply(lambda x: [i for i in x if i])
     _df['Name'] = condensed.apply(age_name)
     _df['Ident'] = condensed.apply('-'.join)
@@ -125,17 +123,14 @@ def timescale_reference_frame(filename=__DATA__,
     _df['Unc'] = _df.apply(lambda x:(x.Start - x.End)/2, axis=1)
 
     # Aliases
-    _df['Aliases'] = _df['Aliases'].apply(lambda x:
+    _df.Aliases = _df.Aliases.apply(lambda x:
                                         [] if pd.isnull(x)
                                         else x.split(';'))
-    _df['Aliases'] = _df.apply(lambda x: string_variations([x.Name, x.Ident] + \
-                                                         x.Aliases),
-                                         axis=1)
+    _df.Aliases = _df.apply(lambda x: [x.Name, x.Ident]+x.Aliases, axis=1)
+    _df.Aliases = _df.Aliases.apply(lambda x: [i.lower().strip() for i in x])
 
     col_order = ['Ident', 'Name', 'Level',
                  'Start', 'End', 'MeanAge', 'Unc'] + grps + ['Aliases']
-
-
 
     return _df.loc[:, col_order]
 
@@ -162,7 +157,7 @@ class Timescale(object):
                     ~self.data.loc[:, g].isnull())
             setattr(self, g+'s',  self.data.loc[fltr, :])
 
-    def text2age(self, entry):
+    def text2age(self, entry, nulls=[None, "None", "none", np.nan, 'NaN']):
         """
         Converts a text-based age to the corresponding age range (in Ma).
 
@@ -176,35 +171,44 @@ class Timescale(object):
 
         """
         if isinstance(entry, str):
-            if (entry is None) or (entry == "None") or (entry == "none"):
+            if entry in nulls:
                 return (np.nan, np.nan)
             elif entry.replace(".", '').isnumeric():
                 # check if the text is actually numeric
                 return (float(entry), float(entry))
             else:
                 # check whether it corresponds to any of the named aliases
-                matches = self.data.Aliases.apply(lambda x: entry in x).values
+                matches = self.data.Aliases.apply(lambda x:
+                                                  entry.lower().strip()
+                                                  in x).values
                 if matches.any():
                     if matches.sum() > 1:
-                        logger.warn('Multiple age matches for {}'.format(entry))
-                    return tuple(self.data.loc[matches, ['Start', 'End']].values[0])
+                        msg = 'Multiple age matches for {}'.format(entry)
+                        logger.warning(msg)
+                    return tuple(self.data.loc[matches,
+                                               ['Start', 'End']].values[0])
                 else:
                     logger.info('No age matches for {}'.format(entry))
                     return (np.nan, np.nan)
         elif iscollection(entry):
-            values = np.array(entry)
-            """
-            outvals = list(map(self.text2age, values))
             """
             nans = (values=="None") | (values=="none") | \
                    ([i is None for i in values])
             outvals = np.nan * np.ones((values.size, 2))
             outvals[~nans] = list(map(self.text2age, values[~nans]))
+            """
+            if isinstance(entry, pd.Series):
+                outvals = entry.apply(self.text2age)
+            elif isinstance(entry, pd.DataFrame):
+                outvals = entry.applymap(self.text2age)
+            else:
+                values = np.array(entry)
+                outvals = list(map(self.text2age, values))
             return outvals
         else:
-            logger.info('Could not ages in the forom of {}'.format(type(entry)))
-            return  (np.nan, np.nan)
-
+            msg = 'Could not format ages in the form of {}'.format(type(entry))
+            logger.info(msg)
+            return  np.nan
 
 
     def named_age(self, age, level='Period'):
