@@ -2,7 +2,10 @@ import re
 import textwrap
 import numpy as np
 import logging
-from sortedcontainers import SortedSet
+try:
+    from sortedcollections import SortedSet as set
+except:
+    pass
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -88,10 +91,11 @@ def string_variations(names,
 
     Returns
     --------
-    SortedSet
-        Sorted set of unique string variations.
+    set
+        Set (or SortedSet, if sortedcontainers installed) of unique string
+        variations.
     """
-    vars = SortedSet()
+    vars = set()
     # convert input to list if singular
     if isinstance(names, str):
         names = [names]
