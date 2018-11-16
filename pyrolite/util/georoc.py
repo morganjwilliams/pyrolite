@@ -167,7 +167,6 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
                 pass
 
         # Compile CSVs
-
         aggdf = df_from_csvs(resdir.glob('*.csv'), ignore_index=True)
         msg = 'Aggregated {} datasets ({} records).'.format(k, aggdf.index.size)
         logger.info(msg)
@@ -222,15 +221,15 @@ def format_GEOROC_response(content: str,
     # GEOROC Specific Data Working
     data, ref = re.split("\s?References:\s+", content)
 
-    datalines = [re.split(r'"\s?,\s?"', line)
-                 for line in data.splitlines()]
-    df = pd.DataFrame(datalines[1:])
-    df = df.applymap(lambda x: str(x).replace('"',  ""))
-    df[0] = df[0].apply(lambda x: re.findall(r"[\d]+", x))
+    datalines = [re.split(r'"\s?,\s?"', line) for line in data.splitlines()]
+    cols = [i.replace('"', "").replace(",","") for i in datalines[0]]
+    cols =[titlecase(h, abbrv=['ID']) for h in cols]
+    df = pd.DataFrame(datalines[1:], columns=cols)
     cols = list(df.columns)
-    cols[:len(datalines[0])] = [i.replace('"', "").replace(",","")
-                                for i in datalines[0]]
-    df.columns = [titlecase(h, abbrv=['ID']) for h in cols]
+    df = df.applymap(lambda x: str(x).replace('"',  ""))
+
+    # drop rows with no or null citations
+    df.Citations = df.Citations.apply(lambda x: re.findall(r"[\d]+", x))
     df = df.drop(index=df.index[~df.Citations.apply(lambda x: len(x))])
     # Drop Empty Rows
     df = df.dropna(how='all', axis=0)
@@ -238,7 +237,6 @@ def format_GEOROC_response(content: str,
     df = df.apply(parse_values, axis=1)
 
     # Translate headers and data units
-
     cols = tochem([c.replace("(wt%)", "").replace("(ppm)", "")
                          for c in df.columns])
     start = cols.index('SiO2')
@@ -246,15 +244,13 @@ def format_GEOROC_response(content: str,
     where_ppm = [(('ppm' in t) and (ix>=start and ix<=end))
                  for ix, t in enumerate(df.columns)]
 
-    # Rename columns here
+    # Rename columns
     df.columns = cols
-
     headercols = list(df.columns[:start])
     chemcols = list(df.columns[start:end])
-    # trailing are generally isotope ratios
-    trailingcols = list(df.columns[end:])
-
+    trailingcols = list(df.columns[end:])# trailing are generally isotope ratios
     # Numeric data
+
     numheaders = ['ElevationMin', 'ElevationMax',
                   'LatitudeMin', 'LatitudeMax',
                   'LongitudeMin', 'LongitudeMax',
@@ -263,25 +259,28 @@ def format_GEOROC_response(content: str,
     numeric_cols = numheaders+chemcols+trailingcols
     # can include duplicates at this stage.
     numeric_cols = [i for i in df.columns if i in numeric_cols]
-    numeric_ixs = [ix for ix, i in enumerate(df.columns)
-                   if i in numeric_cols]
+    numeric_ixs = [ix for ix, i in enumerate(df.columns) if i in numeric_cols]
     df[numeric_cols] = df.iloc[:, numeric_ixs].apply(pd.to_numeric,
-                                           errors='coerce',
-                                           axis=1)
+                                                     errors='coerce',
+                                                     axis=1)
+    # remove <0.
+    chem_ixs = [ix for ix, i in enumerate(df.columns) if i in chemcols]
+    df.iloc[:, chem_ixs] = df.iloc[:, chem_ixs].mask(df.iloc[:, chem_ixs]<=0.,
+                                                     other=np.nan)
 
     # units conversion -- convert to Wt%
     df.iloc[:, where_ppm] *= scale_multiplier('ppm', 'Wt%')
 
     # deal with duplicate columns
+    collist = list(df.columns)
     dup_chemcols = df.columns[df.columns.duplicated() & \
-                                    [i in chemcols for i in df.columns]]
-
-    for c in dup_chemcols:
+                              [i in chemcols for i in collist]]
+    for chem in dup_chemcols:
         # replace the first (non-duplicated) column with the sum
-        ix = [_ix for _ix, c in enumerate(df.columns)][0]
-        df.loc[:, ix] = df.loc[:, c].apply(np.nansum, axis=1)
+        ix = collist.index(chem)
+        df.iloc[:, ix] = df.loc[:, chem].apply(np.nansum, axis=1)
 
-    df = df.loc[:,~df.columns.duplicated()]
+    df = df.iloc[:,~df.columns.duplicated()]
 
     # Process the reference data.
     reflines = split_records(ref)
@@ -290,59 +289,20 @@ def format_GEOROC_response(content: str,
     reflines = [parse_citations(i) for i in reflines if i]
     refdf = pd.DataFrame.from_records(reflines).set_index('key',
                                                           drop=True)
-
     # Replace the reference indexes with references.
     df.Citations = df.Citations.apply(lambda lst: "; ".join(
                                 [refdf.loc[x, 'value'] for x in lst]
                                 ))
-
     return df
 
-
-def ingest_pickled_georoc_frame(path):
+def load_georoc_frame(path):
     """
     Munge GEOROC Data from pickle
     Data should be converted to numeric and units already.
     """
     df = load_sparse_pickle_df(path)
 
-    start = list(df.columns).index('Material')
-    end = list(df.columns).index('Nd143Nd144')
-    headercols = list(df.columns[:start+1])
-    chemcols = list(df.columns[start+1:end-1])
-    # trailing are generally isotope ratios
-    trailingcols = list(df.columns[end-1:])
-    # units conversion
-
-
-
-    chemcols = df.columns[start+1:end-1]
-
-    duplicate_chemcols = df.columns[df.columns.duplicated() & \
-                                    [i in chemcols for i in df.columns]]
-
-    for c in duplicate_chemcols:
-        subdf = df[c]
-        ser = subdf.apply(np.nansum, axis=1)
-        df = df.drop(columns=[c])
-        df[c] = ser
-
-    # the length of the column index has changed...
-    chemcols = chemcols.unique()
-
-    for c in chemcols:
-        df[c] = df.loc[:, c].where(df.loc[:, c] > 0., other=np.nan) # remove <0.
-
-    mulitiple_cations = check_multiple_cation_inclusion(df)
-    df = aggregate_cation(df, 'Ti', form='element')
-
-    chemcols = [i for i in chemcols if i in df.columns]
-    df[chemcols] = df[chemcols] * 10000. # everything in ppm
-
-    # text fields to parse
-
     return df
-
 
 def georoc_munge(df, dateformat='Y/M/D'):
     """
@@ -350,27 +310,10 @@ def georoc_munge(df, dateformat='Y/M/D'):
 
     Todo: GEOL + AGE = AGE
     """
-    _parse = parse_values
-    df.loc[:, 'GeolAge'] = (df.loc[:,
-                                  'Geol.'].apply(_parse).replace('None', '') + \
-                            df.Age.apply(_parse))
-
-    num_cols = ['ElevationMin', 'ElevationMax',
-                'LatitudeMin', 'LatitudeMax',
-                'LongitudeMin', 'LongitudeMax',
-                'Min.Age(yrs.)', 'Max.Age(yrs.)',
-                'EruptionDay', 'EruptionMonth', 'EruptionYear']
-
-    df.loc[:, num_cols] = to_numeric(df.loc[:, num_cols].applymap(_parse))
-
-    def intstr(val):
-        """Checks for invalid values and returns a string."""
-        if np.isnan(val):
-            return ''
-        else:
-            return str(int(val))
-
-    #to_numeric(df.loc[:, 'Min.Age(yrs.)'].apply(parse_entry, args=[_GEOROC_value_rx])).unique()
+    mulitiple_cations = check_multiple_cation_inclusion(df)
+    df = aggregate_cation(df, 'Ti', form='element')
+    df.loc[:, 'GeolAge'] = (df.loc[:, 'Geol.'].replace('None', '') + \
+                            df.Age)
 
     df.loc[:, 'Lat'] = (df.LatitudeMax + df.LatitudeMin) / 2.
     df.loc[:, 'Long'] = (df.LongitudeMax + df.LongitudeMin) / 2.
