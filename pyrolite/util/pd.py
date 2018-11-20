@@ -1,5 +1,6 @@
 import pandas as pd
 import hashlib
+from functools import partial
 from pathlib import Path
 import numpy as np
 import logging
@@ -46,12 +47,16 @@ def column_ordered_append(df1, df2, **kwargs):
     return df1.append(df2,  **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs, ignore_index=False):
+def accumulate(dfs,
+               ignore_index=False,
+               trace_source=False):
     """
     Accumulate an iterable containing pandas dataframes to a single frame.
     """
     acc = None
-    for df in dfs:
+    for ix, df in enumerate(dfs):
+        if trace_source:
+            df['src_idx'] = ix
         if acc is None:
             acc = df
         else:
@@ -99,6 +104,31 @@ def to_numeric(df, errors: str = 'coerce'):
     are propagated.
     """
     return df.apply(pd.to_numeric, errors=errors)
+
+
+def outliers(df, cols=[],
+            detect=lambda x, quantile, qntls: (
+                    (x>quantile.loc[qntls[0], x.name]) &
+                    (x<quantile.loc[qntls[1], x.name])
+                    ),
+            quantile_select=(0.02, 0.98),
+            logquantile=False,
+            exclude=False):
+    """
+    """
+    if not cols:
+        cols = df.columns
+    colfltr = (df.dtypes == np.float)&([i in cols for i in df.columns])
+    low, high = np.min(quantile_select), np.max(quantile_select)
+    if not logquantile:
+        quantile = df.loc[:, colfltr].quantile([low, high])
+    else:
+        quantile = df.loc[:, colfltr].apply(np.log).quantile([low, high])
+    whereout = df.loc[:, colfltr].apply(detect, args=(quantile, quantile_select),
+                                        axis=0).sum(axis=1) > 0
+    if not exclude:
+        whereout = np.logical_not(whereout)
+    return df.loc[whereout, colfltr]
 
 
 def concat_columns(df, columns, astype=str, **kwargs):

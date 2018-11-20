@@ -26,6 +26,21 @@ class TestAddColorbar(unittest.TestCase):
         add_colorbar(self.mappable)
 
 
+class TestModifyLegendHandles(unittest.TestCase):
+    """
+    Tests the modify_legend_handles utility function.
+    """
+
+    def setUp(self):
+        self.fig, self.ax = plt.subplots(1)
+        self.ax.plot(np.random.random(10), np.random.random(10), color='g',
+                     label='a')
+
+    def test_modify_legend_handles(self):
+        _hndls, labls = modify_legend_handles(self.ax, **{'color':'k'})
+        self.assertTrue(_hndls[0].get_color() == 'k')
+
+
 class TestABC2TernXY(unittest.TestCase):
     """
     Tests the ABC_to_tern_xy utility function.

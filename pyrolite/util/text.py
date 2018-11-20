@@ -7,7 +7,6 @@ try:
 except:
     pass
 
-
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
@@ -140,6 +139,9 @@ def parse_entry(entry,
         return the dictionary corresponding to the matches.
     first_only: bool, True
         Option to return only the first match, or else all matches.
+
+    Not yet implemented:
+
     errors: int|float|np.nan|None, None
         Error value to denote 'no match'.
     """
@@ -162,9 +164,9 @@ def parse_entry(entry,
                            if not k=='value'})
 
             else:
-                _d = dict(value=None)
+                _d = dict(value=replace_nan)
                 # Add other groups
-                _d.update({k: None
+                _d.update({k: replace_nan
                            for (k, ind) in pattern.groupindex.items()
                            if not k=='value'})
             matches.append(_d)
@@ -182,7 +184,6 @@ def parse_entry(entry,
         elif isinstance(entry, float):
             if np.isnan(entry):
                 entry = replace_nan
-
         if first_only:
             return entry
         else:

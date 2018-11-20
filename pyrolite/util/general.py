@@ -1,9 +1,11 @@
 import os, sys
 import re
+import time
 import subprocess, shutil
 import operator
 import inspect
 import zipfile
+import timeit
 from collections import Mapping
 from pathlib import Path
 import numpy as np
@@ -20,6 +22,31 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 _FLAG_FIRST = object()
+
+
+class Timewith():
+    def __init__(self, name=''):
+        self.name = name
+        self.start = time.time()
+
+    @property
+    def elapsed(self):
+        return time.time() - self.start
+
+    def checkpoint(self, name=''):
+        msg ='{timer:.3f} {checkpoint:.3f} in {elapsed:.3f} s.'.format(
+                        timer=self.name,
+                        checkpoint=name,
+                        elapsed=self.elapsed,
+                        ).strip()
+        print(msg)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.checkpoint('Finished')
+        pass
 
 
 def stream_log(package_name, level='INFO'):

@@ -731,47 +731,51 @@ class TestAddMgNo(unittest.TestCase):
         """Check that the function works for multiple component Fe."""
         pass
 
+
 class TestLambdaLnREE(unittest.TestCase):
 
     def setUp(self):
         self.rc = ReferenceCompositions()
-        els = [i for i in REE() if not str(i)=='Pm']
+        els = [i for i in REE() if not i=='Pm']
         vals = [self.rc['Chondrite_PON'][el].value for el in els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
         self.df.loc[1, :] = self.df.loc[0, :]
-        self.default_degree = 5
+        self.default_degree = 4
 
     def test_exclude(self):
         """
         Tests the ability to generate lambdas from different element sets.
         """
         for exclude in [
-                        [],
                         ['Pm'],
                         ['Pm', 'Eu'],
-                        #['Pm', 'Eu', 'Ce']
+                        ['Pm', 'Eu', 'Ce']
                         ]:
             with self.subTest(exclude=exclude):
-                ret = lambda_lnREE(self.df, exclude=exclude)
+                ret = lambda_lnREE(self.df,
+                                   exclude=exclude,
+                                   degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
 
     def test_degree(self):
         """
         Tests the ability to generate lambdas of different degree.
         """
-        for degree in range(1, 6):
+        for degree in range(1, 4):
             with self.subTest(degree=degree):
                 ret = lambda_lnREE(self.df, degree=degree)
                 self.assertTrue(ret.columns.size == degree)
 
     def test_norm_to(self):
         """
-        Tests the ability to generate lambdas using different normalisationsself."""
+        Tests the ability to generate lambdas using different normalisations."""
         for norm_to in self.rc.keys():
             data = self.rc[norm_to][self.df.columns]['value']
             if not pd.isnull(data).any():
                 with self.subTest(norm_to=norm_to):
-                    ret = lambda_lnREE(self.df, norm_to=norm_to)
+                    ret = lambda_lnREE(self.df,
+                                       norm_to=norm_to,
+                                       degree=self.default_degree)
                     self.assertTrue(ret.columns.size == self.default_degree)
 
 

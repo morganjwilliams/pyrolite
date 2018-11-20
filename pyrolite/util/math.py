@@ -7,7 +7,6 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def orthagonal_basis(X: np.ndarray):
@@ -143,17 +142,16 @@ def lambda_poly(x, ps):
     return result.astype(np.float)
 
 
-def lambda_min_func(ls, ys, arrs, power=1.):
+def lambda_min_func(ls, ys, arrs, power=2.):
     cost = np.abs(np.dot(ls, arrs) - ys)**power
-    cost[np.isnan(cost)] = 0.
+    cost[np.isnan(cost)] = 0. # can't change nans - don't penalise them
     return cost
-
 
 def lambdas(arr:np.ndarray,
             xs=np.array([]),
             params=None,
             degree=5,
-            costf_power=1.,
+            costf_power=2.,
             residuals=False,
             min_func=lambda_min_func):
     """
@@ -168,8 +166,7 @@ def lambdas(arr:np.ndarray,
             params = OP_constants(xs, degree=degree)
 
         fs = np.array([lambda_poly(xs, pset) for pset in params])
-
-        guess = np.zeros(degree)
+        guess = np.exp(np.arange(degree) + 2)
         result = optimize.least_squares(min_func,
                                         guess, # , method='Nelder-Mead'
                                         args=(arr, fs, costf_power))

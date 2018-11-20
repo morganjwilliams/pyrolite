@@ -253,8 +253,13 @@ def densityplot(df,
         The subplot to draw on.
     mode: str, 'density'
         Different modes used here: ['density', 'hexbin', 'hist2d']
-    coverage_scale: float, 1.2
+    coverage_scale: float, 1.1
         Scale the area over which the density plot is drawn.
+    logspace: {False, True}
+        Whether to use a logspaced grid. Note that values strickly >0 are
+        required.
+    contour: {False, True}
+        Whether to add density contours to the plot.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)

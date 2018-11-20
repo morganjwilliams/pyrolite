@@ -1,4 +1,5 @@
 import os
+from copy import copy
 from types import MethodType
 from pathlib import Path
 import numpy as np
@@ -36,6 +37,31 @@ def add_legend_items(ax):
         if (label and not label.startswith('_')):
             handles.append(handle)
             labels.append(label)
+
+
+def modify_legend_handles(ax, **kwargs):
+    """
+    Modify the handles of a legend based for a single axis.
+
+    Parameters
+    ----------
+    ax: matplotlib.axes.Axes
+        Axis for which to obtain modifed legend handles.
+    kwargs:
+        Keyword arguments to be passed to the handles.
+
+    Returns
+    -------
+    tuple
+        Handles, labels to be passed to a legend call.
+    """
+    hndls, labls = ax.get_legend_handles_labels()
+    _hndls = []
+    for h in hndls:
+        _h = copy(h)
+        _h.update(kwargs)
+        _hndls.append(_h)
+    return _hndls, labls
 
 
 def add_colorbar(mappable,

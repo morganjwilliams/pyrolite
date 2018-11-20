@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
-from pyrolite.util.text import quoted_string, titlecase, to_width, \
-                               remove_prefix, normalise_whitespace, \
-                               string_variations
+import pandas as pd
+from pyrolite.util.text import *
 
 class TestRemovePrefix(unittest.TestCase):
 
@@ -26,12 +25,9 @@ class TestRemovePrefix(unittest.TestCase):
 class TestNormaliseWhitespace(unittest.TestCase):
 
     def test_whitepace_removal(self):
-
-
         pass
 
     def test_whitespace_preservation(self):
-
         pass
 
 
@@ -147,25 +143,76 @@ class TestParseEntry(unittest.TestCase):
     """Tests the regex parser for data munging string --> value conversion."""
 
     def setUp(self):
-        pass
+        self.regex = r"(\s)*?(?P<value>[\w]+)(\s)*?"
 
     def test_single_entry(self):
-        pass
+        for value in ['A', ' A ', ' A  ', ' A _1',  'A .[1]']:
+            with self.subTest(value=value):
+                parsed = parse_entry(value, regex=self.regex)
+                self.assertEqual(parsed, 'A')
 
-    def test_multiple_groups(self):
-        pass
+    def test_multiple_value_return(self):
+        delimiter = ','
+        for value in ['A, B', ' A ,B ', ' A , B', ' A ,B _',  'A, B.[1]']:
+            with self.subTest(value=value):
+                parsed = parse_entry(value,
+                                     regex=self.regex,
+                                     delimiter=',',
+                                     first_only=False)
+                self.assertEqual(parsed, ['A', 'B'])
 
-    def test_multiple_entries(self):
-        pass
+
+    def test_first_only(self):
+        delimiter = ','
+        for value, fo, expect in [('A, B', True, 'A'),
+                                  ('A, B', False, ['A', 'B'])]:
+            with self.subTest(value=value, fo=fo, expect=expect):
+                parsed = parse_entry(value,
+                                     regex=self.regex,
+                                     delimiter=',',
+                                     first_only=fo)
+                self.assertEqual(parsed, expect)
 
     def test_delimiters(self):
-        pass
+        for value, delim in [('A, B', ','),
+                             ('A; B', ';'),
+                             ('A- B', '-'),
+                             ('A B', ' '),]:
+            with self.subTest(value=value, delim=delim):
+                parsed = parse_entry(value,
+                                     regex=self.regex,
+                                     delimiter=delim,
+                                     first_only=False)
+                self.assertEqual(parsed, ['A', 'B'])
 
-    def test_error_values(self):
-        pass
+    def test_replace_nan(self):
+        for null_value in [np.nan, None]:
+            for n in [np.nan, 'None', None]:
+                with self.subTest(n=n, null_value=null_value):
+                    parsed = parse_entry(null_value,
+                                         regex=self.regex,
+                                         delimiter=',',
+                                         replace_nan=n)
+                    if n is None:
+                        self.assertTrue(parsed is None)
+                    elif isinstance(n, str):
+                        self.assertTrue(parsed == n)
+                    else:
+                        self.assertTrue(np.isnan(parsed))
+
 
     def test_values_only(self):
-        pass
+        regex = r"(\s)*?(?P<value>[\w]+)(\s)*?"
+        for value, vo, expect in [('A, B', True, ['A', 'B']),
+                                  ('A, B', False, [{'value':'A'}, {'value':'B'}]),
+                                                        ]:
+            with self.subTest(value=value):
+                parsed = parse_entry(value,
+                                     regex=regex,
+                                     delimiter=',',
+                                     first_only=False,
+                                     values_only=vo)
+                self.assertEqual(parsed, expect)
 
 
 class TestStringVariations(unittest.TestCase):

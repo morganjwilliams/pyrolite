@@ -7,8 +7,8 @@ import logging
 
 from .pd import *
 from .text import titlecase, parse_entry, split_records
-from .general import temp_path, urlify, pyrolite_datafolder, \
-                                  pathify
+from .general import temp_path, urlify, pyrolite_datafolder, pathify, \
+                     iscollection
 from ..geochem import tochem, check_multiple_cation_inclusion, \
                              aggregate_cation
 from ..norm import scale_multiplier
@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 # -----------------------------
 # GEOROC INFO
 # -----------------------------
-
-__value_rx__ = r"(\s)*?(?P<value>[\.\w]+)((\s)*?\[)?(?P<key>\w*)(\])?(\s)*?"
+__value_rx__ = r"(\s)*?(?P<value>[\.,\s\w]+\b)((\s)*?\[)?(?P<key>\w*)(\])?(\s)*?"
 __cit_rx__ = r"(\s)*?(\[)?(?P<key>\w*)(\])?(\s)*?(?P<value>[\.\w]+)(\s)*?"
 __full_cit_rx__ = r"(\s)*?\[(?P<key>\w*)\](\s)*(?P<value>.+)$"
+__doi_rx__ = r"(.)*(doi(\s)*?:*)(\s)*(?P<value>\S*)"
 
 __CONTENTS__ = {
 'CFB': dict(url_suffix=r'Continental_Flood_Basalts_comp',
@@ -33,29 +33,44 @@ __CONTENTS__ = {
                         list_file="GEOROC_OceanicPlateau_Dataset_List.csv"),
 'OIB': dict(url_suffix=r'Ocean_Island_Groups_comp',
             list_file="GEOROC_OIB_Dataset_List.csv"),
-        }
+'OBFB': dict(url_suffix=r'Ocean_Basin_Flood_Basalts_comp',
+             list_file="GEOROC_OBFB_Dataset_List.csv")}
 
 
 __COMP_LISTS__ = pyrolite_datafolder(subfolder='georoc')
 
 
 # -----------------------------
-def parse_values(entry, **kwargs):
+
+def subsitute_commas(entry):
+    if iscollection(entry):
+        return [x.replace(',', ';') for x in entry]
+    else:
+        return entry.replace(',', ';')
+
+def parse_values(entry,
+                 sub=subsitute_commas,
+                 **kwargs):
     """
     Wrapper for parse_entry for GEOROC formatted values.
 
     Parameters
     -------------
-    ser: pd.Series
-        String series formated as sequences of 'VALUE [NUMERIC_CITATION]'.
+    entry: pd.Series | str
+        String series formated as sequences of 'VALUE [NUMERIC_CITATION]'
+        separated by '/'. Else a string entry itself.
+    sub: function
+        Secondary subsitution function, here used for subsitution
+        (e.g. of commas).
     """
     f = partial(parse_entry,
                 regex=__value_rx__,
+                delimiter='/',
                 **kwargs)
     if isinstance(entry, pd.Series):
-        return entry.apply(f)
+        return entry.apply(f).apply(sub)
     else:
-        return f(entry)
+        return sub(f(entry))
 
 
 def parse_citations(entry, **kwargs):
@@ -78,6 +93,30 @@ def parse_citations(entry, **kwargs):
         return f(entry)
 
 
+def parse_DOI(entry, link=True, **kwargs):
+    """
+    Wrapper for parse_entry for GEOROC formatted dois.
+
+    Parameters
+    -------------
+    ser: pd.Series
+        String series formated as sequences of 'Citation doi: DOI'.
+    """
+    f = partial(parse_entry,
+                regex=__doi_rx__,
+                values_only=True,
+                delimiter=None,
+                first_only=True,
+                replace_nan='',
+                **kwargs)
+    if isinstance(entry, pd.Series):
+        return entry.apply(lambda x: r'{}{}'.format(['', 'dx.doi.org/'][link],
+                                                    f(x))
+                                                    )
+    else:
+        return r'{}{}'.format(['', 'dx.doi.org/'][link], f(entry))
+
+
 def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
                          reservoirs=None,
                          redownload: bool=False,
@@ -92,7 +131,7 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
         Chemical abundance data are output as Wt% by default.
 
 
-    Paramaters
+    Parameters
     ----------
     output_folder: {pathlib.Path('~/Downloads/GEOROC'), :obj:`str`}
         Path to folder to store output data.
@@ -112,10 +151,10 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
 
     reservoirs = reservoirs or __CONTENTS__.keys()
 
-    for k in reservoirs:
-        resdir = output_folder / k
-        out_aggfile = output_folder / ('GEOROC_' + k)
-        v = __CONTENTS__[k]
+    for res in reservoirs:
+        resdir = output_folder / res
+        out_aggfile = output_folder / ('GEOROC_' + res)
+        v = __CONTENTS__[res]
 
         if not resdir.exists():
             resdir.mkdir(parents=True)
@@ -123,7 +162,7 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
         # Compilation List of Targets
         list_file = __COMP_LISTS__ / v['list_file']
         filenames = [i.split(',')[0].strip()
-                     for i in open(list_file).readlines()]
+                     for i in open(str(list_file)).readlines()]
 
         # URL target
         host = r'http://georoc.mpch-mainz.gwdg.de/georoc/Csv_Downloads'
@@ -145,7 +184,8 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
 
         for name, url in dataseturls:
             outfile = (resdir / name).with_suffix('')
-            msg = 'Downloading {} {} dataset to {}.'.format(k, name,
+            msg = 'Downloading {} {} dataset to {}.'.format(res,
+                                                            name,
                                                             outfile)
             logger.info(msg)
             try:
@@ -168,13 +208,14 @@ def bulk_GEOROC_download(output_folder=Path('~/Downloads/GEOROC'),
 
         # Compile CSVs
         aggdf = df_from_csvs(resdir.glob('*.csv'), ignore_index=True)
-        msg = 'Aggregated {} datasets ({} records).'.format(k, aggdf.index.size)
+        msg = 'Aggregated {} datasets ({} records).'.format(res,
+                                                            aggdf.index.size)
         logger.info(msg)
 
         # Save the compilation
         sparse_pickle_df(aggdf, out_aggfile)
 
-    logger.info('Download and aggregation for {} finished.'.format(k))
+    logger.info('Download and aggregation for {} finished.'.format(res))
 
 
 def download_GEOROC_compilation(url: str):
@@ -220,17 +261,23 @@ def format_GEOROC_response(content: str,
     """
     # GEOROC Specific Data Working
     data, ref = re.split("\s?References:\s+", content)
-
-    datalines = [re.split(r'"\s?,\s?"', line) for line in data.splitlines()]
+    datalines = [re.split(r'"\s?,\s?"', line)
+                 for line in re.split(r',\r', data)]
     cols = [i.replace('"', "").replace(",","") for i in datalines[0]]
     cols =[titlecase(h, abbrv=['ID']) for h in cols]
-    df = pd.DataFrame(datalines[1:], columns=cols)
+    start = 1
+    finish = len(datalines)
+    if datalines[-1][0].strip().startswith('Abbreviations'):
+        finish -= 1
+    df = pd.DataFrame(datalines[start:finish], columns=cols)
     cols = list(df.columns)
     df = df.applymap(lambda x: str(x).replace('"',  ""))
 
-    # drop rows with no or null citations
+    # Location names are extended with newlines
+    df.Location = df.Location.apply(lambda x: str(x).replace('\r\n',  " / "))
+
     df.Citations = df.Citations.apply(lambda x: re.findall(r"[\d]+", x))
-    df = df.drop(index=df.index[~df.Citations.apply(lambda x: len(x))])
+    #df = df.drop(index=df.index[~df.Citations.apply(lambda x: len(x))])
     # Drop Empty Rows
     df = df.dropna(how='all', axis=0)
     df = df.set_index('UniqueID', drop=True)
@@ -293,7 +340,9 @@ def format_GEOROC_response(content: str,
     df.Citations = df.Citations.apply(lambda lst: "; ".join(
                                 [refdf.loc[x, 'value'] for x in lst]
                                 ))
+    df['doi'] = df.Citations.apply(parse_DOI)
     return df
+
 
 def load_georoc_frame(path):
     """
@@ -301,12 +350,12 @@ def load_georoc_frame(path):
     Data should be converted to numeric and units already.
     """
     df = load_sparse_pickle_df(path)
-
     return df
 
-def georoc_munge(df, dateformat='Y/M/D'):
+
+def georoc_munge(df):
     """
-    Collection of munging functions for GEROROC data.
+    Collection of munging and feature adding functions for GEROROC data.
 
     Todo: GEOL + AGE = AGE
     """
@@ -317,5 +366,4 @@ def georoc_munge(df, dateformat='Y/M/D'):
 
     df.loc[:, 'Lat'] = (df.LatitudeMax + df.LatitudeMin) / 2.
     df.loc[:, 'Long'] = (df.LongitudeMax + df.LongitudeMin) / 2.
-
     return df

@@ -5,10 +5,11 @@ import periodictable as pt
 import matplotlib.pyplot as plt
 import functools
 from .comp import renormalise
-from .norm import ReferenceCompositions, RefComp
+from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .util.text import titlecase
 from .util.pd import to_frame
 from .util.math import *
+from .util.general import iscollection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -288,7 +289,7 @@ def recalculate_redox(df: pd.DataFrame,
 def aggregate_cation(df: pd.DataFrame,
                      cation,
                      form='oxide',
-                     unit_scale=None):
+                     unit_scale=scale_multiplier('Wt%', 'Wt%')):
     """
     Aggregates cation information from oxide and elemental components
     to a single series. Allows scaling (e.g. from ppm to wt% - a factor
@@ -301,7 +302,8 @@ def aggregate_cation(df: pd.DataFrame,
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
     if form == 'oxide':
-        if unit_scale is None: unit_scale = 1/10000 # ppm to Wt%
+        if unit_scale is None:
+            unit_scale = 1.
         assert unit_scale > 0
         convert_function = oxide_conversion(ox, el)
         conv_values = convert_function(df.loc[:, elstr]).values * unit_scale
@@ -311,9 +313,9 @@ def aggregate_cation(df: pd.DataFrame,
         df.loc[:, oxstr] = totals
         df.drop(columns=[elstr], inplace=True)
         assert elstr not in df.columns
-
     elif form == 'element':
-        if unit_scale is None: unit_scale = 10000 # Wt% to ppm
+        if unit_scale is None:
+            unit_scale = 1.
         assert unit_scale > 0
         convert_function = oxide_conversion(el, ox)
         conv_values = convert_function(df.loc[:, oxstr]).values * unit_scale
@@ -321,7 +323,6 @@ def aggregate_cation(df: pd.DataFrame,
                            axis=0)
         totals[np.isclose(totals, 0)] = np.nan
         df.loc[:, elstr] = totals
-
         df.drop(columns=[oxstr], inplace=True)
         assert oxstr not in df.columns
 
@@ -345,17 +346,49 @@ def check_multiple_cation_inclusion(df, exclude=['LOI', 'FeOT', 'Fe2O3T']):
 def add_ratio(df: pd.DataFrame,
               ratio:str,
               alias:str='',
+              norm_to=None,
               convert=lambda x: x):
     """
     Add a ratio of components A and B, given in the form of string 'A/B'.
     Returned series be assigned an alias name.
+
+    Parameters
+    -----------
+    df: pd.DataFrame
+        Dataframe to append ratio to.
+    ratio: str
+        String decription of ratio in the form A/B[_n].
+    alias: str
+        Alternate name for ratio to be used as column name.
+    norm_to: {None, RefComp, str}
+        Reference composition to normalise to.
+    convert:
+        Data processing function to be calculated prior to ratio.
     """
+
     num, den = ratio.split('/')
-    assert num in df.columns
-    assert den in df.columns
+    _to_norm = False
+    if den.lower().endswith('_n'):
+        den = titlecase(den.lower().replace('_n', ''))
+        _to_norm = True
+    assert titlecase(num) in df.columns
+    assert titlecase(den) in df.columns
+
+    if _to_norm or (norm_to is not None):
+        if isinstance(norm_to, str):
+            norm = ReferenceCompositions()[norm_to]
+            num_n, den_n = norm[num].value, norm[den].value
+        elif isinstance(norm_to, RefComp):
+            num_n, den_n = norm_to[num].value, norm_to[den].value
+        elif iscollection(norm_to): # list, iterable, pd.Index etc
+            num_n, den_n = norm_to
+        else:
+            norm = ReferenceCompositions()['Chondrite_PON']
+            num_n, den_n = norm[num].value, norm[den].value
+
     name = [ratio if not alias else alias][0]
     conv = convert(df.loc[:, [num, den]])
-    conv.loc[(conv[den]==0.), den] = np.nan # avoid inf
+    conv.loc[(conv[den]==0.)|(conv[num]==0.), den] = np.nan # avoid 0, inf
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
     return df
 
@@ -389,14 +422,19 @@ def lambda_lnREE(df,
                  exclude=['Pm', 'Eu'],
                  params=None,
                  degree=5,
-                 append=[]):
+                 append=[],
+                 **kwargs):
     """
     Calculates lambda coefficients for a given set of REE data, normalised
     to a specific composition. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
+
+    TODO: Operate only on valid rows.
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
-    ree = [i for i in REE() if (not str(i) in exclude) and
+    ree = [i for i in REE() if
+           i in df.columns and
+           (not str(i) in exclude) and
            (str(i) in non_null_cols or i in non_null_cols)] # no promethium
     radii = np.array(get_radii(ree))
 
@@ -405,7 +443,8 @@ def lambda_lnREE(df,
     else:
         degree = len(params)
 
-    norm_df = df.loc[:, ree] # initialize normdf
+    null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
+    norm_df = df.loc[~null_in_row, ree] # initialize normdf
 
     labels = [chr(955) + str(d) for d in range(degree)]
 
@@ -417,24 +456,24 @@ def lambda_lnREE(df,
             norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
         else: # list, iterable, pd.Index etc
             norm_abund = np.array([i for i in norm_abund])
-
             assert len(norm_abund) == len(ree)
-
 
         norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
 
-    norm_df = norm_df.applymap(np.log)
+    norm_df.loc[(norm_df <= 0.).any(axis=1), :] = np.nan # remove zero or below
+    norm_df.loc[:, ree] = norm_df.loc[:, ree].applymap(np.log)
 
+    lambdadf = pd.DataFrame(index=df.index, columns=labels)
     lambda_partial = functools.partial(lambdas,
                                        xs=radii,
                                        params=params,
-                                       degree=degree)
-    lambdadf = pd.DataFrame(np.apply_along_axis(lambda_partial,
-                                                1, # apply along rows
-                                                norm_df.values),
-                            index=df.index,
-                            columns=labels)
-    lambdadf.loc[(lambdadf == 0).all(axis=1), :] = np.nan
+                                       degree=degree,
+                                       **kwargs) # pass kwargs to lambdas
+    # apply along rows
+    lambdadf.loc[~null_in_row, labels] = np.apply_along_axis(lambda_partial,
+                                                             1,
+                                                             norm_df.values)
+    lambdadf.loc[(lambdadf == 0.).all(axis=1), :] = np.nan
     if append:
 
         # append the smooth f(radii) function to the dataframe

@@ -1,5 +1,6 @@
 import os, sys
 from contextlib import contextmanager
+from .general import iscollection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -26,7 +27,7 @@ def environment_manager(env):
 def validate_value(value, validator):
     """Validates a value based on one or a series of validator functions."""
 
-    if isinstance(validator, list) or isinstance(validator, tuple):
+    if iscollection(validator):
         return all([f(value) for f in validator if callable(f)])
     else:
         return validator(value)

@@ -98,6 +98,26 @@ class TestToNumeric(unittest.TestCase):
                 except ValueError: # should raise with can't parse 'low'
                     self.assertTrue(method=='raise')
 
+class TestOutliers(unittest.TestCase):
+
+    def setUp(self):
+        self.df = test_df()
+
+    def test_exclude(self):
+        for exclude in [True, False]:
+            with self.subTest(exclude=exclude):
+                ret = outliers(self.df, exclude=exclude)
+                self.assertEqual(ret.size > 0.5 * self.df.size, exclude)
+
+    def test_quantile(self):
+        for q in [(0.02, 0.98), (0.2, 0.8)]:
+            with self.subTest(q=q):
+                ret = outliers(self.df, quantile_select=q)
+
+    def test_logquantile(self):
+        for logquantile in [True, False]:
+            with self.subTest(logquantile=logquantile):
+                ret = outliers(self.df, logquantile=logquantile)
 
 class TestConcatColumns(unittest.TestCase):
 
