@@ -115,7 +115,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
-<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
 
 More reference compositions will soon be included (e.g. Sun and McDonough, 1989).
 
@@ -131,7 +131,7 @@ Below is an example of ocean island basalt data
 ([GEOROC](http://georoc.mpch-mainz.gwdg.de/georoc/) compilation), plotted in a
 'Pearce' discrimination diagram:
 
-<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
 
 More on these discrimination diagrams: [Pearce, J.A., 2008. Geochemical fingerprinting of oceanic basalts with applications to ophiolite classification and the search for Archean oceanic crust. Lithos 100, 14–48.](https://doi.org/10.1016/j.lithos.2007.06.016)
 
@@ -147,7 +147,7 @@ polynomial components (e.g. for the REE):
 >>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
 ```
 
-![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/LambdaExample.png)
+![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop /docs/resources/LambdaExample.png)
 
 For more on using orthagonal polynomials to describe geochemical pattern data, see: [O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth Element Patterns in Basalts. J Petrology 57, 1463–1508.](https://doi.org/10.1093/petrology/egw047)
 
