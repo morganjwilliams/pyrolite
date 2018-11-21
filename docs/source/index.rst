@@ -8,10 +8,9 @@
           Information is derived principally from docstrings.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    usage/installation
-   usage/quickstart
    usage/plotting
    usage/examples
    usage/contributing
