@@ -1,0 +1,22 @@
+Title: Allan et al. 1989 (see Ghiorso 1997)
+Initial Composition: SiO2 48.68
+Initial Composition: TiO2 1.01
+Initial Composition: Al2O3 17.64
+Initial Composition: Fe2O3 0.89
+Initial Composition: Cr2O3 0.03
+Initial Composition: FeO 7.59
+Initial Composition: MgO 9.10
+Initial Composition: CaO 12.45
+Initial Composition: Na2O 2.65
+Initial Composition: K2O 0.03
+Initial Composition: P2O5 0.08
+Initial Composition: H2O 0.20
+Initial Temperature: 1200.00
+Final Temperature: 1000.00
+Increment Temperature: 3.00
+Initial Pressure: 500.00
+Final Pressure: 500.00
+Increment Pressure: 0.00
+dp/dt: 0.00
+log fo2 Path: None
+Mode: Fractionate Solids

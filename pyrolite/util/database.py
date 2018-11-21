@@ -22,20 +22,23 @@ logger = logging.getLogger()
 
 
 def check_access_driver():
-    return [x for x in pyodbc.drivers()
-            if x.startswith('Microsoft Access Driver')]
+    return [x for x in pyodbc.drivers() if x.startswith("Microsoft Access Driver")]
+
 
 def bitness():
     bitness = struct.calcsize("P") * 8
-    return '{} bit'.format(bitness)
+    return "{} bit".format(bitness)
+
 
 @contextmanager
-def open_db_connection(connection_params,
-                       commit=False,
-                       encoding='utf-8',
-                       short_decoding='utf-8',
-                       wide_decoding='utf-16',
-                       backend=pyodbc):
+def open_db_connection(
+    connection_params,
+    commit=False,
+    encoding="utf-8",
+    short_decoding="utf-8",
+    wide_decoding="utf-16",
+    backend=pyodbc,
+):
     """
     Todo: Implement pooled connections.
     http://initd.org/psycopg/docs/pool.html
@@ -49,7 +52,7 @@ def open_db_connection(connection_params,
     else:
         raise NotImplementedError
 
-    if backend.__name__ == 'pyodbc':
+    if backend.__name__ == "pyodbc":
         connection.autocommit = False
         connection.setencoding(encoding)
         connection.setdecoding(pyodbc.SQL_CHAR, encoding=short_decoding)
@@ -78,7 +81,7 @@ def open_db_connection(connection_params,
             try:
                 cursor.execute("COMMIT;")
             except SQLOperationalError:
-                print('No active transaction to commit.')
+                print("No active transaction to commit.")
         else:
             rollback(cursor)
     finally:

@@ -7,7 +7,6 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def orthagonal_basis(X: np.ndarray):
@@ -39,7 +38,7 @@ def on_finite(X, f):
     return f(X[ma])
 
 
-def nancov(X, method='replace'):
+def nancov(X, method="replace"):
     """
     Generates a covariance matrix excluding nan-components.
     Done on a column-column/pairwise basis.
@@ -56,35 +55,35 @@ def nancov(X, method='replace'):
          the mean before calculating the covariance.
 
     """
-    if method=='rowexclude':
+    if method == "rowexclude":
         Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
-        #assert Xnanfree.shape[1] > Xnanfree.shape[0]
-        #(1/m)X^T*X
+        # assert Xnanfree.shape[1] > Xnanfree.shape[0]
+        # (1/m)X^T*X
         return np.cov(Xnanfree)
     else:
         X = np.array(X, ndmin=2, dtype=float)
-        X -= np.nanmean(X, axis=0)#[:, np.newaxis]
+        X -= np.nanmean(X, axis=0)  # [:, np.newaxis]
         cov = np.empty((X.shape[1], X.shape[1]))
         cols = range(X.shape[1])
         for n in cols:
-            for m in [i for i in cols if i>=n] :
+            for m in [i for i in cols if i >= n]:
                 fn = np.isfinite(X[:, n])
                 fm = np.isfinite(X[:, m])
-                if method=='replace':
+                if method == "replace":
                     X[~fn, n] = 0
                     X[~fm, m] = 0
                     fact = fn.shape[0] - 1
-                    c= np.dot(X[:, n], X[:, m])/fact
+                    c = np.dot(X[:, n], X[:, m]) / fact
                 else:
                     f = fn & fm
                     fact = f.shape[0] - 1
-                    c = np.dot(X[f, n], X[f, m])/fact
+                    c = np.dot(X[f, n], X[f, m]) / fact
                 cov[n, m] = c
                 cov[m, n] = c
         return cov
 
 
-def OP_constants(xs, degree=3, tol=10**-14):
+def OP_constants(xs, degree=3, tol=10 ** -14):
     """
     For constructing orthagonal polynomial functions of the general form:
     y(x) = a_0 + a_1 * (x - β) + a_2 * (x - γ_0) * (x - γ_1) + \
@@ -94,11 +93,11 @@ def OP_constants(xs, degree=3, tol=10**-14):
     These parameters are functions only of the independent variable x.
     """
     xs = np.array(xs)
-    x = var('x')
+    x = var("x")
     params = []
     for d in range(degree):
-        ps = symbols('{}0:{}'.format(chr(945+d),d))
-        logger.debug('Generating {} DIM {} equations for {}.'.format(d, d, ps))
+        ps = symbols("{}0:{}".format(chr(945 + d), d))
+        logger.debug("Generating {} DIM {} equations for {}.".format(d, d, ps))
         if d:
             eqs = []
             for _deg in range(d):
@@ -106,21 +105,21 @@ def OP_constants(xs, degree=3, tol=10**-14):
                 if _deg:
                     q = x ** _deg
                 for p in ps:
-                    q *= (x - p)
+                    q *= x - p
                 eqs.append(q)
 
             sums = []
             for q in eqs:
-                sumq = 0.
+                sumq = 0.0
                 for xi in xs:
                     sumq += q.subs(dict(x=xi))
                 sums.append(sumq)
 
-            guess = np.linspace(np.nanmin(xs), np.nanmax(xs), d+2)[1:-1]
+            guess = np.linspace(np.nanmin(xs), np.nanmax(xs), d + 2)[1:-1]
             result = nsolve(sums, ps, list(guess), tol=tol)
             params.append(tuple(result))
         else:
-            params.append(()) # first parameter
+            params.append(())  # first parameter
     return params
 
 
@@ -143,24 +142,26 @@ def lambda_poly(x, ps):
     return result.astype(np.float)
 
 
-def lambda_min_func(ls, ys, arrs, power=1.):
-    cost = np.abs(np.dot(ls, arrs) - ys)**power
-    cost[np.isnan(cost)] = 0.
+def lambda_min_func(ls, ys, arrs, power=2.0):
+    cost = np.abs(np.dot(ls, arrs) - ys) ** power
+    cost[np.isnan(cost)] = 0.0  # can't change nans - don't penalise them
     return cost
 
 
-def lambdas(arr:np.ndarray,
-            xs=np.array([]),
-            params=None,
-            degree=5,
-            costf_power=1.,
-            residuals=False,
-            min_func=lambda_min_func):
+def lambdas(
+    arr: np.ndarray,
+    xs=np.array([]),
+    params=None,
+    degree=5,
+    costf_power=2.0,
+    residuals=False,
+    min_func=lambda_min_func,
+):
     """
     Parameterises values based on linear combination of orthagonal polynomials
     over a given set of x values.
     """
-    if np.isnan(arr).any(): # With missing data, the method can't be used.
+    if np.isnan(arr).any():  # With missing data, the method can't be used.
         x = np.nan * np.ones(degree)
         res = np.nan * np.ones(degree)
     else:
@@ -168,11 +169,10 @@ def lambdas(arr:np.ndarray,
             params = OP_constants(xs, degree=degree)
 
         fs = np.array([lambda_poly(xs, pset) for pset in params])
-
-        guess = np.zeros(degree)
-        result = optimize.least_squares(min_func,
-                                        guess, # , method='Nelder-Mead'
-                                        args=(arr, fs, costf_power))
+        guess = np.exp(np.arange(degree) + 2)
+        result = optimize.least_squares(
+            min_func, guess, args=(arr, fs, costf_power)  # , method='Nelder-Mead'
+        )
         x = result.x
         res = result.fun
     if residuals:
@@ -181,10 +181,7 @@ def lambdas(arr:np.ndarray,
         return x
 
 
-def lambda_poly_func(lambdas:np.ndarray,
-                     params=None,
-                     pxs=None,
-                     degree=5):
+def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     """
     Expansion of lambda parameters back to the original space. Returns a
     function which evaluates the sum of the orthaogonal polynomials at given

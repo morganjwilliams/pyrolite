@@ -7,9 +7,8 @@ from pyrolite.comp.impute import *
 
 
 class TestPDImputeRatios(unittest.TestCase):
-
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
         self.d = len(self.cols)
         self.n = 10
         self.df = test_df(cols=self.cols, index_length=self.n)
@@ -23,9 +22,8 @@ class TestPDImputeRatios(unittest.TestCase):
 
 
 class TestNPImputeRatios(unittest.TestCase):
-
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
         self.d = len(self.cols)
         self.n = 10
         self.df = test_df(cols=self.cols, index_length=self.n)
@@ -35,10 +33,10 @@ class TestNPImputeRatios(unittest.TestCase):
         df = self.df.head(1).copy()
         n = df.index.size
         df.iloc[:, np.random.randint(1, self.d, size=1)] = np.nan
-        arr = df.values # single array
+        arr = df.values  # single array
         ratios = np_cross_ratios(arr)[0]
         imputed = np_impute_ratios(ratios)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

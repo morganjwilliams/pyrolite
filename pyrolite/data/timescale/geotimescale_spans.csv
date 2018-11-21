@@ -1,7 +1,7 @@
 Eon,Era,Period,Superepoch,Epoch,Age,End,Start,Aliases
 Phanerozoic,,,,,,0,541,
 Phanerozoic,Cenozoic,,,,,0,66,
-Phanerozoic,Cenozoic,Quaternary,,,,0,2.58,
+Phanerozoic,Cenozoic,Quaternary,,,,0,2.58,Recent
 Phanerozoic,Cenozoic,Quaternary,,Holocene,,0,0.0117,
 Phanerozoic,Cenozoic,Quaternary,,Holocene,Meghalayan,0,0.0042,Upper Holocene; Late Holocene
 Phanerozoic,Cenozoic,Quaternary,,Holocene,Northgrippian,0.0042,0.0082,Middle Holocene; Mid Holocene
@@ -78,7 +78,7 @@ Phanerozoic,Mesozoic,Triassic,,Lower,,247.2,251.902,
 Phanerozoic,Mesozoic,Triassic,,Lower,Olenekian,247.2,251.2,
 Phanerozoic,Mesozoic,Triassic,,Lower,Induan,251.2,251.902,
 Phanerozoic,Paleozoic,,,,,251.902,541,
-Phanerozoic,Paleozoic,Permian,,,,251.902,298.9,
+Phanerozoic,Paleozoic,Permian,,,,251.902,298.9,Permo
 Phanerozoic,Paleozoic,Permian,,Lopingian,,251.902,259.1,
 Phanerozoic,Paleozoic,Permian,,Lopingian,Changhsingian,251.902,254.14,
 Phanerozoic,Paleozoic,Permian,,Lopingian,Wuchiapingian,254.14,259.1,
@@ -130,7 +130,7 @@ Phanerozoic,Paleozoic,Silurian,,Llandovery,,433.4,443.8,
 Phanerozoic,Paleozoic,Silurian,,Llandovery,Telychian,433.4,438.5,
 Phanerozoic,Paleozoic,Silurian,,Llandovery,Aeronian,438.5,440.8,
 Phanerozoic,Paleozoic,Silurian,,Llandovery,Rhuddanian,440.8,443.8,
-Phanerozoic,Paleozoic,Ordivician,,,,443.8,485.4,
+Phanerozoic,Paleozoic,Ordivician,,,,443.8,485.4,Ordovician
 Phanerozoic,Paleozoic,Ordivician,,Upper,,443.8,458.4,
 Phanerozoic,Paleozoic,Ordivician,,Upper,Hirnantian,443.8,445.2,
 Phanerozoic,Paleozoic,Ordivician,,Upper,Katian,445.2,453,

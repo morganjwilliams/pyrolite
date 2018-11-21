@@ -11,16 +11,16 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 RELMASSS_UNITS = {
-                  '%': 10**-2,
-                  'wt%': 10**-2,
-                  'ppm': 10**-6,
-                  'ppb': 10**-9,
-                  'ppt': 10**-12,
-                  'ppq': 10**-15,
-                  }
+    "%": 10 ** -2,
+    "wt%": 10 ** -2,
+    "ppm": 10 ** -6,
+    "ppb": 10 ** -9,
+    "ppt": 10 ** -12,
+    "ppq": 10 ** -15,
+}
 
 
-def scale_multiplier(in_unit, target_unit='ppm'):
+def scale_multiplier(in_unit, target_unit="ppm"):
     """
     Provides the scale difference between to mass units.
 
@@ -35,14 +35,16 @@ def scale_multiplier(in_unit, target_unit='ppm'):
     """
     in_unit = str(in_unit).lower()
     target_unit = str(target_unit).lower()
-    if not pd.isna(in_unit) and \
-        (in_unit in RELMASSS_UNITS.keys()) and \
-        (target_unit in RELMASSS_UNITS.keys()):
+    if (
+        not pd.isna(in_unit)
+        and (in_unit in RELMASSS_UNITS.keys())
+        and (target_unit in RELMASSS_UNITS.keys())
+    ):
         scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
         unkn = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
         logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
-        scale = 1.
+        scale = 1.0
     return scale
 
 
@@ -53,14 +55,14 @@ class RefComp:
 
     def __init__(self, filename, **kwargs):
         self.data = pd.read_csv(filename, **kwargs)
-        self.data = self.data.set_index('var')
-        self.original_data = self.data.copy() # preserve unaltered record
-        #self.add_oxides()
+        self.data = self.data.set_index("var")
+        self.original_data = self.data.copy()  # preserve unaltered record
+        # self.add_oxides()
         self.collect_vars()
         self.set_units()
         # self.aggregate_oxides() yet to be implemented
 
-    def aggregate_oxides(self, form='oxide'):
+    def aggregate_oxides(self, form="oxide"):
         """
         Compositional models typically include elements in both oxide and
         elemental form, typically divided into 'majors' and 'traces'.
@@ -79,34 +81,33 @@ class RefComp:
         # for cation in cations:
         #    scale function
         #    aggregate_cation(df: pd.DataFrame, cation, form=form, unit_scale=None)
-        raise NotImplementedError('This issue has yet to be addressed.')
+        raise NotImplementedError("This issue has yet to be addressed.")
 
-    def collect_vars(self,
-                     headers=['Reservoir',
-                              'Reference',
-                              'ModelName',
-                              'ModelType'],
-                     floatvars=['value',
-                                'unc_2sigma',
-                                'constraint_value']):
-        self.vars = [i for i in self.data.index
-                     if (not pd.isna(self.data.loc[i, 'value']))
-                         and (i not in headers)]
-        self.data.loc[self.vars,
-                      floatvars] = to_numeric(self.data.loc[self.vars,
-                                                            floatvars],
-                                               errors='coerce')
+    def collect_vars(
+        self,
+        headers=["Reservoir", "Reference", "ModelName", "ModelType"],
+        floatvars=["value", "unc_2sigma", "constraint_value"],
+    ):
+        self.vars = [
+            i
+            for i in self.data.index
+            if (not pd.isna(self.data.loc[i, "value"])) and (i not in headers)
+        ]
+        self.data.loc[self.vars, floatvars] = self.data.loc[self.vars, floatvars].apply(
+            to_numeric
+        )
 
-    def set_units(self, to='ppm'):
+    def set_units(self, to="ppm"):
         v = self.vars
-        self.data.loc[v, 'scale'] = \
-                            self.data.loc[v, 'units'].apply(scale_multiplier,
-                                                            target_unit=to)
-        self.data.loc[v, 'units'] = to
-        self.data.loc[v, 'value'] = self.data.loc[v, 'value'] * \
-                                    self.data.loc[v, 'scale'].astype(np.float)
+        self.data.loc[v, "scale"] = self.data.loc[v, "units"].apply(
+            scale_multiplier, target_unit=to
+        )
+        self.data.loc[v, "units"] = to
+        self.data.loc[v, "value"] = self.data.loc[v, "value"] * self.data.loc[
+            v, "scale"
+        ].astype(np.float)
 
-    def normalize(self, df, aux_cols=["LOD","2SE"]):
+    def normalize(self, df, aux_cols=["LOD", "2SE"]):
         """
         Normalize the values within a dataframe to the refererence composition.
         Here we create indexes for normalisation of values and any auxilary
@@ -119,17 +120,16 @@ class RefComp:
         cols = [c for c in dfc.columns if c in self.vars]
         _cols = set(cols)
         if len(cols) != len(_cols):
-            msg = 'Duplicated columns in dataframe.'
+            msg = "Duplicated columns in dataframe."
             logger.warn(msg)
         cols = list(_cols)
 
-        divisor = self.data.loc[cols, 'value'].values
+        divisor = self.data.loc[cols, "value"].values
 
-        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values,
-                                     divisor)
+        dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
         return dfc
 
-    def denormalize(self, df, aux_cols=["LOD","2SE"]):
+    def denormalize(self, df, aux_cols=["LOD", "2SE"]):
         """
         Unnormalize the values within a dataframe back to true composition.
         """
@@ -138,11 +138,11 @@ class RefComp:
         cols = [c for c in dfc.columns if c in self.vars]
         _cols = set(cols)
         if len(cols) != len(_cols):
-            msg = 'Duplicated columns in dataframe.'
+            msg = "Duplicated columns in dataframe."
             logger.warn(msg)
         cols = list(_cols)
 
-        multiplier = self.data.loc[cols, 'value'].values
+        multiplier = self.data.loc[cols, "value"].values
 
         dfc.loc[:, cols] *= multiplier
         return dfc
@@ -151,8 +151,8 @@ class RefComp:
         """Calculates an elemental ratio."""
         try:
             assert "/" in ratio
-            num, den = ratio.split('/')
-            return self.data.loc[num, 'value'] / self.data.loc[den, 'value']
+            num, den = ratio.split("/")
+            return self.data.loc[num, "value"] / self.data.loc[den, "value"]
         except:
             return np.nan
 
@@ -163,7 +163,7 @@ class RefComp:
         if not isinstance(var, str):
             var = str(var)
         if var in self.data.index:
-            return self.data.loc[var, 'value']
+            return self.data.loc[var, "value"]
         else:
             return np.nan
 
@@ -172,19 +172,21 @@ class RefComp:
         Allow access to model values via [] indexing e.g. Model['Si', 'Cr'].
         Currently not implemented for ratios.
         """
-        if isinstance(vars, list) or \
-           isinstance(vars, pd.Index) or \
-           isinstance(vars, np.ndarray):
+        if (
+            isinstance(vars, list)
+            or isinstance(vars, pd.Index)
+            or isinstance(vars, np.ndarray)
+        ):
             vars = [v if isinstance(v, str) else str(v) for v in vars]
         elif not isinstance(vars, str):
             vars = str(vars)
-        return self.data.loc[vars, ['value', 'unc_2sigma', 'units']]
+        return self.data.loc[vars, ["value", "unc_2sigma", "units"]]
 
     def __repr__(self):
-        return "Model of "+self.Reservoir+" ("+self.Reference+")"
+        return "Model of " + self.Reservoir + " (" + self.Reference + ")"
 
 
-def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
+def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     """
     Build all reference models in a given directory.
 
@@ -199,21 +201,20 @@ def ReferenceCompositions(directory=None, formats=['csv'], **kwargs):
         List of potential data formats to draw from.
         Currently only csv will work.
     """
-    if platform.system() =='Windows':
-        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+    if platform.system() == "Windows":
+        kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
     else:
-        kwargs['encoding'] = kwargs.get('encoding', None) or 'cp1252'
+        kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
 
     curr_dir = os.path.realpath(__file__)
-    module_dir = Path(sys.modules['pyrolite'].__file__).parent
-    directory = directory or \
-                (Path(module_dir) / "data" / "refcomp").resolve()
+    module_dir = Path(sys.modules["pyrolite"].__file__).parent
+    directory = directory or (Path(module_dir) / "data" / "refcomp").resolve()
 
     assert directory.exists() and directory.is_dir()
 
     files = []
     for fmt in formats:
-        files.extend(directory.glob("./*."+fmt))
+        files.extend(directory.glob("./*." + fmt))
 
     comps = {}
     for f in files:

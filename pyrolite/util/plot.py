@@ -1,4 +1,5 @@
 import os
+from copy import copy
 from types import MethodType
 from pathlib import Path
 import numpy as np
@@ -18,28 +19,51 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
-# Todo: generate hybrid items for legends
 
 def add_legend_items(ax):
 
     handles_original = []
-    handles_original += (ax.lines + ax.patches +
-                         ax.collections + ax.containers)
+    handles_original += ax.lines + ax.patches + ax.collections + ax.containers
     # support parasite axes:
-    if hasattr(ax, 'parasites'):
+    if hasattr(ax, "parasites"):
         for axx in ax.parasites:
-            handles_original += (axx.lines + axx.patches +
-                                 axx.collections + axx.containers)
+            handles_original += (
+                axx.lines + axx.patches + axx.collections + axx.containers
+            )
     handles, labels = [], []
     for handle in handles_original:
         label = handle.get_label()
-        if (label and not label.startswith('_')):
+        if label and not label.startswith("_"):
             handles.append(handle)
             labels.append(label)
 
 
-def add_colorbar(mappable,
-                 **kwargs):
+def modify_legend_handles(ax, **kwargs):
+    """
+    Modify the handles of a legend based for a single axis.
+
+    Parameters
+    ----------
+    ax: matplotlib.axes.Axes
+        Axis for which to obtain modifed legend handles.
+    kwargs:
+        Keyword arguments to be passed to the handles.
+
+    Returns
+    -------
+    tuple
+        Handles, labels to be passed to a legend call.
+    """
+    hndls, labls = ax.get_legend_handles_labels()
+    _hndls = []
+    for h in hndls:
+        _h = copy(h)
+        _h.update(kwargs)
+        _hndls.append(_h)
+    return _hndls, labls
+
+
+def add_colorbar(mappable, **kwargs):
     """
     Adds a colorbar to a given mappable object.
 
@@ -54,16 +78,15 @@ def add_colorbar(mappable,
     ----------
     colorbar: matplotlib.colorbar.Colorbar
     """
-    ax = kwargs.get('ax', None)
-    if hasattr(mappable, 'axes'):
+    ax = kwargs.get("ax", None)
+    if hasattr(mappable, "axes"):
         ax = ax or mappable.axes
-    elif hasattr(mappable, 'ax'):
+    elif hasattr(mappable, "ax"):
         ax = ax or mappable.ax
 
-
-    position = kwargs.pop('position', 'right')
-    size = kwargs.pop('size', '5%')
-    pad = kwargs.pop('pad', 0.05)
+    position = kwargs.pop("position", "right")
+    size = kwargs.pop("size", "5%")
+    pad = kwargs.pop("pad", 0.05)
 
     fig = ax.figure
     divider = make_axes_locatable(ax)
@@ -73,10 +96,12 @@ def add_colorbar(mappable,
 
 def ABC_to_tern_xy(ABC):
     (A, B, C) = ABC
-    T = A+B+C
+    T = A + B + C
     A_n, B_n, C_n = np.divide(A, T), np.divide(B, T), np.divide(C, T)
-    xdata = 100.*((C_n/np.sin(np.pi/3)+A_n/np.tan(np.pi/3.))*np.sin(np.pi/3.))
-    ydata = 100.*(2./(3.**0.5))*A_n*np.sin(np.pi/3.)
+    xdata = 100.0 * (
+        (C_n / np.sin(np.pi / 3) + A_n / np.tan(np.pi / 3.0)) * np.sin(np.pi / 3.0)
+    )
+    ydata = 100.0 * (2.0 / (3.0 ** 0.5)) * A_n * np.sin(np.pi / 3.0)
     return xdata, ydata
 
 
@@ -88,10 +113,10 @@ def tern_heatmapcoords(data, scale=10, bins=10):
 
     tridata = dict()
     step = scale // bins
-    for i in np.arange(0, scale+1, step):
-        for j in np.arange(0, scale+1-i, step):
+    for i in np.arange(0, scale + 1, step):
+        for j in np.arange(0, scale + 1 - i, step):
             datacoord = i, j
-            #datacoord = i+0.5*step, j+0.5*step
+            # datacoord = i+0.5*step, j+0.5*step
             tridata[(i, j)] = np.float(k(np.vstack(datacoord)))
 
     return tridata
@@ -119,9 +144,7 @@ def proxy_line(**kwargs):
     return mlines.Line2D(range(1), range(1), **kwargs)
 
 
-def draw_vector(v0, v1,
-                ax=None,
-                **kwargs):
+def draw_vector(v0, v1, ax=None, **kwargs):
     """
     Plots an arrow represnting the direction and magnitue of a principal
     component on a biaxial plot.
@@ -133,18 +156,14 @@ def draw_vector(v0, v1,
     05.09-principal-component-analysis.html
     """
     ax = ax
-    arrowprops=dict(arrowstyle='->',
-                    linewidth=2,
-                    shrinkA=0, shrinkB=0)
+    arrowprops = dict(arrowstyle="->", linewidth=2, shrinkA=0, shrinkB=0)
     arrowprops.update(kwargs)
-    ax.annotate('', v1, v0, arrowprops=arrowprops)
+    ax.annotate("", v1, v0, arrowprops=arrowprops)
 
 
-def vector_to_line(mu:np.array,
-                   vector:np.array,
-                   variance:float,
-                   spans: int=4,
-                   expand: int=10):
+def vector_to_line(
+    mu: np.array, vector: np.array, variance: float, spans: int = 4, expand: int = 10
+):
     """
     Creates an array of points representing a line along a vector - typically
     for principal component analysis.
@@ -154,8 +173,8 @@ def vector_to_line(mu:np.array,
     """
     length = np.sqrt(variance)
     parts = np.linspace(-spans, spans, expand * 2 * spans + 1)
-    line =  length * np.dot(parts[:, np.newaxis], vector[np.newaxis, :]) + mu
-    line =  length * parts.reshape(parts.shape[0], 1) * vector + mu
+    line = length * np.dot(parts[:, np.newaxis], vector[np.newaxis, :]) + mu
+    line = length * parts.reshape(parts.shape[0], 1) * vector + mu
     return line
 
 
@@ -168,7 +187,7 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     if not splines:
         lines = ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
     else:
-        #https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
+        # https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
         tck, u = interpolate.splprep([x, y], per=True, s=s)
         xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
@@ -178,15 +197,15 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
 def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
     ax.scatter(xdata, ydata, **kwargs)
 
-    if hasattr(ax, 'divider'):  # Don't rebuild axes
+    if hasattr(ax, "divider"):  # Don't rebuild axes
         div = ax.divider
         nanaxx = div.nanaxx
         nanaxy = div.nanaxy
     else:  # Build axes
         ax.yaxis.set_tick_params(labelleft=False, left=False)
         ax.xaxis.set_tick_params(labelbottom=False, bottom=False)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
         div = make_axes_locatable(ax)
         ax.divider = div
@@ -195,17 +214,17 @@ def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
         div.nanaxx = nanaxx
         nanaxx.invert_yaxis()
         nanaxx.yaxis.set_visible(False)
-        nanaxx.spines['left'].set_visible(False)
-        nanaxx.spines['right'].set_visible(False)
-        nanaxx.set_facecolor('none')
+        nanaxx.spines["left"].set_visible(False)
+        nanaxx.spines["right"].set_visible(False)
+        nanaxx.set_facecolor("none")
 
         nanaxy = div.append_axes("left", NAN_AXES_WIDTH, pad=0, sharey=ax)
         div.nanaxy = nanaxy
         nanaxy.invert_xaxis()
         nanaxy.xaxis.set_visible(False)
-        nanaxy.spines['top'].set_visible(False)
-        nanaxy.spines['bottom'].set_visible(False)
-        nanaxy.set_facecolor('none')
+        nanaxy.spines["top"].set_visible(False)
+        nanaxy.spines["bottom"].set_visible(False)
+        nanaxy.set_facecolor("none")
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
     nanydata = ydata[(np.isnan(xdata) & np.isfinite(ydata))]
@@ -213,61 +232,49 @@ def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
     yminmax = np.nanmin(ydata), np.nanmax(ydata)
     no_ybins = 50
     ybinwidth = (np.nanmax(ydata) - np.nanmin(ydata)) / no_ybins
-    ybins = np.linspace(np.nanmin(ydata),
-                        np.nanmax(ydata) + ybinwidth,
-                        no_ybins)
+    ybins = np.linspace(np.nanmin(ydata), np.nanmax(ydata) + ybinwidth, no_ybins)
 
-    nanaxy.hist(nanydata, bins=ybins, orientation='horizontal',
-                **kwargs)
-    nanaxy.scatter(10*np.ones_like(nanydata) +
-                   5*np.random.randn(len(nanydata)),
-                   nanydata,
-                   zorder=-1, **kwargs)
+    nanaxy.hist(nanydata, bins=ybins, orientation="horizontal", **kwargs)
+    nanaxy.scatter(
+        10 * np.ones_like(nanydata) + 5 * np.random.randn(len(nanydata)),
+        nanydata,
+        zorder=-1,
+        **kwargs
+    )
 
     xminmax = np.nanmin(xdata), np.nanmax(xdata)
     no_xbins = 50
     xbinwidth = (np.nanmax(xdata) - np.nanmin(xdata)) / no_xbins
-    xbins = np.linspace(np.nanmin(xdata),
-                        np.nanmax(xdata) + xbinwidth,
-                        no_xbins)
+    xbins = np.linspace(np.nanmin(xdata), np.nanmax(xdata) + xbinwidth, no_xbins)
 
     nanaxx.hist(nanxdata, bins=xbins, **kwargs)
-    nanaxx.scatter(nanxdata,
-                   10*np.ones_like(nanxdata) +
-                   5*np.random.randn(len(nanxdata)),
-                   zorder=-1, **kwargs)
+    nanaxx.scatter(
+        nanxdata,
+        10 * np.ones_like(nanxdata) + 5 * np.random.randn(len(nanxdata)),
+        zorder=-1,
+        **kwargs
+    )
 
     return ax
 
-def save_figure(figure,
-                save_at='',
-                name='fig',
-                save_fmts=['png'],
-                output=False,
-                **kwargs):
+
+def save_figure(
+    figure, save_at="", name="fig", save_fmts=["png"], output=False, **kwargs
+):
     """
     Save a figure at a specified location in a number of formats.
     """
-    default_config = dict(dpi=600,
-                          bbox_inches='tight',
-                          transparent=True)
+    default_config = dict(dpi=600, bbox_inches="tight", transparent=True)
     config = default_config.copy()
     config.update(kwargs)
     for fmt in save_fmts:
-        out_filename = os.path.join(save_at, name+'.'+fmt)
+        out_filename = os.path.join(save_at, name + "." + fmt)
         if output:
-            print('Saving ' + out_filename)
-        figure.savefig(out_filename,
-                       format=fmt,
-                       **config)
+            print("Saving " + out_filename)
+        figure.savefig(out_filename, format=fmt, **config)
 
 
-def save_axes(ax,
-              save_at='',
-              name='fig',
-              save_fmts=['png'],
-              pad=0.0,
-              **kwargs):
+def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     """
     Save either a single or multiple axes (from a single figure) based on their
     extent. Uses the save_figure procedure to save at a specific location using
@@ -284,13 +291,14 @@ def save_axes(ax,
             extent_items.append(get_full_extent(a, pad=pad))
         figure = axes[0].figure
         extent = Bbox.union([item for item in extent_items])
-    save_figure(figure,
-                bbox_inches=extent,
-                save_at=save_at,
-                name=name,
-                save_fmts=save_fmts,
-                **kwargs)
-
+    save_figure(
+        figure,
+        bbox_inches=extent,
+        save_at=save_at,
+        name=name,
+        save_fmts=save_fmts,
+        **kwargs
+    )
 
 
 def get_full_extent(ax, pad=0.0):

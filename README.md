@@ -1,6 +1,21 @@
 # `pyrolite`
-[![PyPI](https://img.shields.io/pypi/v/pyrolite.svg)](https://pypi.python.org/pypi/pyrolite/)
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/morganjwilliams)
+
+<p align="left">
+  <a href="https://pypi.python.org/pypi/pyrolite/">
+    <img src="https://img.shields.io/pypi/v/pyrolite.svg" alt="PyPI"></a>
+  <a href="https://pyrolite.readthedocs.io/">
+     <img src="https://readthedocs.org/projects/pyrolite/badge/?version=latest" alt="Docs"/></a>
+  <a href="https://github.com/ambv/black">
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg"
+         alt="Code Style: Black"></a>
+  <a href="https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE" >
+    <img src="https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg"
+         alt="License: CSIRO Modified BSD/MIT License"></a>
+  <a href="https://saythanks.io/to/morganjwilliams">
+    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"
+         alt="Say Thanks"></a>
+</p>
+
 ## Install
 
 ```bash
@@ -10,15 +25,12 @@ pip install pyrolite
 ## Build Status
 
 
-**License**:  [CSIRO Modified BSD/MIT License](https://raw.githubusercontent.com/morganjwilliams/pyrolite/master/LICENSE)
-
-**Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)
-
 | **master** | **develop** |
 |:----------:|:-----------:|
 | [![Build Status](https://travis-ci.org/morganjwilliams/pyrolite.svg?branch=master)](https://travis-ci.org/morganjwilliams/pyrolite) | [![Build Status](https://travis-ci.org/morganjwilliams/pyrolite.svg?branch=develop)](https://travis-ci.org/morganjwilliams/pyrolite) |
 | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=master)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=develop)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=develop) |
-| [![Documentation Status](https://readthedocs.org/projects/pyrolite/badge/?version=master)](https://pyrolite.readthedocs.io/en/master/?badge=master) | [![Documentation Status](https://readthedocs.org/projects/pyrolite/badge/?version=master)](https://pyrolite.readthedocs.io/en/develop/?badge=develop) |
+
+**Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)
 
 ## Usage Examples
 
@@ -115,7 +127,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
 ```
 
-<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/resources/SpiderplotExample.png" alt="SpiderPlotExample" height="250px"/>
 
 More reference compositions will soon be included (e.g. Sun and McDonough, 1989).
 
@@ -131,7 +143,7 @@ Below is an example of ocean island basalt data
 ([GEOROC](http://georoc.mpch-mainz.gwdg.de/georoc/) compilation), plotted in a
 'Pearce' discrimination diagram:
 
-<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/resources/OIB_PearcePlot.png" alt="Ocean Island Basalt Nb/Yb vs Th/Yb" height="250px"/>
 
 More on these discrimination diagrams: [Pearce, J.A., 2008. Geochemical fingerprinting of oceanic basalts with applications to ophiolite classification and the search for Archean oceanic crust. Lithos 100, 14–48.](https://doi.org/10.1016/j.lithos.2007.06.016)
 
@@ -147,7 +159,7 @@ polynomial components (e.g. for the REE):
 >>> lambdas = lambda_lnREE(df, exclude=['Pm'], norm_to=refc)
 ```
 
-![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/doc/resources/LambdaExample.png)
+![Orthagonal Polynomial Example](https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop /docs/resources/LambdaExample.png)
 
 For more on using orthagonal polynomials to describe geochemical pattern data, see: [O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth Element Patterns in Basalts. J Petrology 57, 1463–1508.](https://doi.org/10.1093/petrology/egw047)
 

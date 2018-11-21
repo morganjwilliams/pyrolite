@@ -3,10 +3,15 @@ import numpy as np
 from .general import pyrolite_datafolder
 from .pd import to_frame, to_numeric
 from .text import titlecase, string_variations
+from .general import iscollection
+
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
 
 
-__DATA__ = pyrolite_datafolder(subfolder='timescale') / \
-            'geotimescale_spans.csv'
+__DATA__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_spans.csv"
 
 
 def listify(df, axis=1):
@@ -23,10 +28,9 @@ def listify(df, axis=1):
     return df.copy().apply(list, axis=axis)
 
 
-def age_name(agenamelist,
-             prefixes=['Lower', 'Middle', 'Upper'],
-             suffixes=['Stage', 'Series']
-             ):
+def age_name(
+    agenamelist, prefixes=["Lower", "Middle", "Upper"], suffixes=["Stage", "Series"]
+):
     """
     Condenses an agename list to a specific agename, given a subset of
     ambiguous_names.
@@ -42,36 +46,43 @@ def age_name(agenamelist,
         Name components which occur after the higher order classification
         (e.g. Cambrian Series 2).
     """
-    ambiguous_names= prefixes + suffixes
-
+    ambiguous_names = prefixes + suffixes
+    ambig_vars = [s.lower().strip() for s in ambiguous_names]
     nameguess = agenamelist[-1]
-    nn_nameguess = ''.join([i for i in nameguess if not i.isdigit()]).strip()
-    hit = [s for s in ambiguous_names
-           if any(i == nn_nameguess for i in string_variations(s))][0:1]
+    # Process e.g. Stage 1 => Stage
+    nn_nameguess = "".join([i for i in nameguess if not i.isdigit()]).strip()
+
+    # check if the name guess corresponds to any of the ambiguous names
+    hit = [
+        ambiguous_names[ix]
+        for ix, vars in enumerate(ambig_vars)
+        if nn_nameguess.lower().strip() in vars
+    ][0:1]
 
     if hit:
-        indexstart = len(agenamelist)-1
+        indexstart = len(agenamelist) - 1
         outname = [agenamelist[indexstart]]
         out_index_previous = 0
         ambiguous_name = True
         while ambiguous_name:
             hitphrase = hit[0]
-            indexstart -=1
+            indexstart -= 1
             nextup = agenamelist[indexstart]
             if hitphrase in prefixes:
                 # insert the higher order component after the previous one
-                outname.insert(out_index_previous+1, nextup)
+                outname.insert(out_index_previous + 1, nextup)
                 out_index_previous += 1
             else:
                 # insert the higher order component before the previous one
-                outname.insert(out_index_previous-1, nextup)
+                outname.insert(out_index_previous - 1, nextup)
                 out_index_previous -= 1
 
-            _nn_nextupguess = ''.join([i for i in nextup if not i.isdigit()]
-                                      ).strip()
-            hit = [s for s in ambiguous_names
-                   if any(i == _nn_nextupguess for i in string_variations(s))
-                   ][0:1]
+            _nn_nextupguess = "".join([i for i in nextup if not i.isdigit()]).strip()
+            hit = [
+                ambiguous_names[ix]
+                for ix, vars in enumerate(ambig_vars)
+                if _nn_nextupguess.lower().strip() in vars
+            ][0:1]
             if not hit:
                 ambiguous_name = False
         return " ".join(outname)
@@ -79,9 +90,7 @@ def age_name(agenamelist,
         return nameguess
 
 
-def timescale_reference_frame(filename=__DATA__,
-                              info_cols=['Start', 'End', 'Aliases']
-                              ):
+def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Aliases"]):
     """
     Rearrange the text-based timescale dataframe. Utility function for
     timescale class.
@@ -99,37 +108,32 @@ def timescale_reference_frame(filename=__DATA__,
         Dataframe containing timescale information.
     """
 
-    df =  pd.read_csv(filename)
-    df.loc[:, ['Start', 'End']] = to_numeric(df.loc[:, ['Start', 'End']])
+    df = pd.read_csv(filename)
+    df.loc[:, ["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(to_numeric)
     _df = df.copy()
     grps = [i for i in _df.columns if not i in info_cols]
-    condensed = _df.loc[:,
-                        [i for i in _df.columns if not i in info_cols]
-                         ].applymap(lambda x: x if not pd.isnull(x) else '')
-
-    level = condensed.apply(lambda x: grps[[ix for ix, v in enumerate(x)
-                                             if v][-1]],
-                                  axis=1)
-    _df['Level'] = level
-
+    condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]].fillna(
+        value=""
+    )
+    _df["Level"] = condensed.apply(
+        lambda x: grps[[ix for ix, v in enumerate(x) if v][-1]], axis=1
+    )
     condensed = listify(condensed).apply(lambda x: [i for i in x if i])
-    _df['Name'] = condensed.apply(age_name)
-    _df['Ident'] = condensed.apply('-'.join)
-    _df['MeanAge'] = _df.apply(lambda x:(x.Start + x.End)/2, axis=1)
-    _df['Unc'] = _df.apply(lambda x:(x.Start - x.End)/2, axis=1)
+    _df["Name"] = condensed.apply(age_name)
+    _df["Ident"] = condensed.apply("-".join)
+    _df["MeanAge"] = _df.apply(lambda x: (x.Start + x.End) / 2, axis=1)
+    _df["Unc"] = _df.apply(lambda x: (x.Start - x.End) / 2, axis=1)
 
     # Aliases
-    _df['Aliases'] = _df['Aliases'].apply(lambda x:
-                                        [] if pd.isnull(x)
-                                        else x.split(';'))
-    _df['Aliases'] = _df.apply(lambda x: string_variations([x.Name, x.Ident] + \
-                                                         x.Aliases),
-                                         axis=1)
+    _df.Aliases = _df.Aliases.apply(lambda x: [] if pd.isnull(x) else x.split(";"))
+    _df.Aliases = _df.apply(lambda x: [x.Name, x.Ident] + x.Aliases, axis=1)
+    _df.Aliases = _df.Aliases.apply(lambda x: [i.lower().strip() for i in x])
 
-    col_order = ['Ident', 'Name', 'Level',
-                 'Start', 'End', 'MeanAge', 'Unc'] + grps + ['Aliases']
-
-
+    col_order = (
+        ["Ident", "Name", "Level", "Start", "End", "MeanAge", "Unc"]
+        + grps
+        + ["Aliases"]
+    )
 
     return _df.loc[:, col_order]
 
@@ -139,8 +143,7 @@ class Timescale(object):
     Geological Timescale class to provide time-focused utility functions.
     """
 
-    def __init__(self,
-                filename=None):
+    def __init__(self, filename=None):
         if filename is None:
             self.data = timescale_reference_frame()
         else:
@@ -151,33 +154,66 @@ class Timescale(object):
 
     def build(self):
         for ix, g in enumerate(self.levels):
-            others = self.levels[ix+1:]
-            fltr = (self.data.loc[:, others].isnull().all(axis=1) &
-                    ~self.data.loc[:, g].isnull())
-            setattr(self, g+'s',  self.data.loc[fltr, :])
+            others = self.levels[ix + 1 :]
+            fltr = (
+                self.data.loc[:, others].isnull().all(axis=1)
+                & ~self.data.loc[:, g].isnull()
+            )
+            setattr(self, g + "s", self.data.loc[fltr, :])
 
-    def text2age(self, entry):
+    def text2age(self, entry, nulls=[None, "None", "none", np.nan, "NaN"]):
         """
         Converts a text-based age to the corresponding age range (in Ma).
+
+        String-based entries return (max_age, min_age). Collection-based entries
+        return a list of tuples.
 
         Parameters
         ------------
         entry: str
-            String name for geological age range.
+            String name, or series of string names, for geological age range.
 
-
-        Returns
-        ------------
-        tuple
-            Tuple representation of min_age, max_age for the entry.
         """
+        if isinstance(entry, str):
+            if entry in nulls:
+                return (np.nan, np.nan)
+            elif entry.replace(".", "").isnumeric():
+                # check if the text is actually numeric
+                return (float(entry), float(entry))
+            else:
+                # check whether it corresponds to any of the named aliases
+                matches = self.data.Aliases.apply(
+                    lambda x: entry.lower().strip() in x
+                ).values
+                if matches.any():
+                    if matches.sum() > 1:
+                        msg = "Multiple age matches for {}".format(entry)
+                        logger.warning(msg)
+                    return tuple(self.data.loc[matches, ["Start", "End"]].values[0])
+                else:
+                    logger.info("No age matches for {}".format(entry))
+                    return (np.nan, np.nan)
+        elif iscollection(entry):
+            """
+            nans = (values=="None") | (values=="none") | \
+                   ([i is None for i in values])
+            outvals = np.nan * np.ones((values.size, 2))
+            outvals[~nans] = list(map(self.text2age, values[~nans]))
+            """
+            if isinstance(entry, pd.Series):
+                outvals = entry.apply(self.text2age)
+            elif isinstance(entry, pd.DataFrame):
+                outvals = entry.applymap(self.text2age)
+            else:
+                values = np.array(entry)
+                outvals = list(map(self.text2age, values))
+            return outvals
+        else:
+            msg = "Could not format ages in the form of {}".format(type(entry))
+            logger.info(msg)
+            return np.nan
 
-        indexer = self.data.Aliases.apply(lambda x: entry in x)
-
-        return tuple(self.data.loc[indexer, ['Start', 'End']].values[0])
-
-
-    def named_age(self, age, level='Period'):
+    def named_age(self, age, level="Period"):
         """
         Converts a numeric age (in Ma) to named age at a specific level.
 
@@ -198,7 +234,7 @@ class Timescale(object):
         level = titlecase(level)
         wthn_rng = lambda x: (age <= x.Start) & (age >= x.End)
         relevant = self.data.loc[self.data.apply(wthn_rng, axis=1).values, :]
-        if level == 'Specific': # take the rightmost grouping
+        if level == "Specific":  # take the rightmost grouping
             relevant = relevant[self.levels]
             idx_rel_row = (~pd.isnull(relevant)).count(axis=1).idxmax()
             rel_row = relevant.iloc[idx_rel_row, :]

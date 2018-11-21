@@ -7,7 +7,7 @@ import matplotlib.axes as matax
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-from pyrolite.comp import close
+from pyrolite.comp.renorm import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
 
@@ -19,11 +19,24 @@ class TestAddColorbar(unittest.TestCase):
 
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
-        self.mappable = plt.imshow(np.random.random((10, 10)),
-                                   cmap=plt.cm.BuPu_r)
+        self.mappable = plt.imshow(np.random.random((10, 10)), cmap=plt.cm.BuPu_r)
 
     def test_colorbar(self):
         add_colorbar(self.mappable)
+
+
+class TestModifyLegendHandles(unittest.TestCase):
+    """
+    Tests the modify_legend_handles utility function.
+    """
+
+    def setUp(self):
+        self.fig, self.ax = plt.subplots(1)
+        self.ax.plot(np.random.random(10), np.random.random(10), color="g", label="a")
+
+    def test_modify_legend_handles(self):
+        _hndls, labls = modify_legend_handles(self.ax, **{"color": "k"})
+        self.assertTrue(_hndls[0].get_color() == "k")
 
 
 class TestABC2TernXY(unittest.TestCase):
@@ -81,8 +94,8 @@ class TestDrawVector(unittest.TestCase):
     """
 
     def setUp(self):
-        xs = 1./(np.random.randn(5)+4)
-        self.X = np.array([xs, 1-xs])
+        xs = 1.0 / (np.random.randn(5) + 4)
+        self.X = np.array([xs, 1 - xs])
         self.X = close(self.X)
 
     def test_plot(self):
@@ -95,7 +108,7 @@ class TestDrawVector(unittest.TestCase):
             draw_vector(pca.mean_[:2], pca.mean_[:2] + v, ax=ax)
 
     def tearDown(self):
-        plt.close('all')
+        plt.close("all")
 
 
 class TestVectorToLine(unittest.TestCase):
@@ -104,8 +117,8 @@ class TestVectorToLine(unittest.TestCase):
     """
 
     def setUp(self):
-        xs = 1./(np.random.randn(5)+4)
-        self.X = np.array([xs, 1-xs])
+        xs = 1.0 / (np.random.randn(5) + 4)
+        self.X = np.array([xs, 1 - xs])
         self.X = close(self.X)
 
     def test_to_line(self):
@@ -150,11 +163,10 @@ class TestNaNScatter(unittest.TestCase):
         self.assertTrue(isinstance(ax, matax.Axes))
 
     def tearDown(self):
-        plt.close('all')
+        plt.close("all")
 
 
 class TestSaveUtilities(unittest.TestCase):
-
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
 
@@ -162,7 +174,7 @@ class TestSaveUtilities(unittest.TestCase):
         extent = get_full_extent(self.ax)
 
     def tearDown(self):
-        plt.close('all')
+        plt.close("all")
 
 
 class TestSaveFunctions(unittest.TestCase):
@@ -172,20 +184,20 @@ class TestSaveFunctions(unittest.TestCase):
 
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
-        self.tempdir = Path('./testing_temp_figures')
+        self.tempdir = Path("./testing_temp_figures")
         if not self.tempdir.exists():
             self.tempdir.mkdir()
 
     def test_save_figure(self):
-        save_figure(self.fig, name='test_fig', save_at=str(self.tempdir))
+        save_figure(self.fig, name="test_fig", save_at=str(self.tempdir))
 
     def test_save_axes(self):
-        save_axes(self.ax, name='test_ax', save_at=str(self.tempdir))
+        save_axes(self.ax, name="test_ax", save_at=str(self.tempdir))
 
     def tearDown(self):
         remove_tempdir(str(self.tempdir))
-        plt.close('all')
+        plt.close("all")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

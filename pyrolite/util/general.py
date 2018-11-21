@@ -1,24 +1,64 @@
 import os, sys
 import re
+import time
 import subprocess, shutil
 import operator
 import inspect
 import zipfile
+import timeit
 from collections import Mapping
 from pathlib import Path
 import numpy as np
+import pandas as pd
 import logging
+
 try:
     import httplib
 except:
     import http.client as httplib
-import pyrolite # required for introspection/data folder
+import pyrolite  # required for introspection/data folder
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 _FLAG_FIRST = object()
+
+
+class Timewith:
+    def __init__(self, name=""):
+        self.name = name
+        self.start = time.time()
+
+    @property
+    def elapsed(self):
+        return time.time() - self.start
+
+    def checkpoint(self, name=""):
+        msg = "{timer:.3f} {checkpoint:.3f} in {elapsed:.3f} s.".format(
+            timer=self.name, checkpoint=name, elapsed=self.elapsed
+        ).strip()
+        print(msg)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.checkpoint("Finished")
+        pass
+
+
+def stream_log(package_name, level="INFO"):
+    """
+    Stream the log from a specific package or subpackage.
+    """
+    logger = logging.getLogger(package_name)
+    ch = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(fmt)
+    logger.addHandler(ch)
+    logger.setLevel(getattr(logging, level))
+    return logger
 
 
 def pyrolite_datafolder(subfolder=None):
@@ -65,16 +105,16 @@ def temp_path():
     """Return the path of a temporary directory."""
     userdir = Path("~").expanduser()
     root = Path(userdir.drive) / userdir.root
-    if root/'tmp' in root.iterdir(): #.nix
-        return root / 'tmp'
+    if root / "tmp" in root.iterdir():  # .nix
+        return root / "tmp"
     else:
-        return root / 'temp'
+        return root / "temp"
 
 
 def iscollection(obj):
     """Checks whether an object is an interable collection"""
 
-    for ty in [list, np.ndarray, set, tuple, dict]:
+    for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
         if isinstance(obj, ty):
             return True
 
@@ -90,7 +130,7 @@ def check_perl():
         output = e.output
         returncode = e.returncode
     except FileNotFoundError:
-        returncode = 1.
+        returncode = 1.0
 
     return returncode == 0
 
@@ -112,9 +152,10 @@ def flatten_dict(d, climb=False, safemode=False):
         Whether to keep all keys as a tuple index, to avoid issues with
         conflicts.
     """
-    lift = lambda x: (x, )
+    lift = lambda x: (x,)
     join = operator.add
     results = []
+
     def visit(subdict, results, partialKey):
         for k, v in subdict.items():
             if partialKey == _FLAG_FIRST:
@@ -133,9 +174,10 @@ def flatten_dict(d, climb=False, safemode=False):
     else:
         pick_key = lambda keys: keys[-1]
 
-    sort = map(lambda x: x[:2],
-               sorted([(pick_key(k), v, len(k)) for k, v in results],
-                      key=lambda x: x[-1]) ) # sorted by depth
+    sort = map(
+        lambda x: x[:2],
+        sorted([(pick_key(k), v, len(k)) for k, v in results], key=lambda x: x[-1]),
+    )  # sorted by depth
 
     if not climb:
         # We go down the tree, and prioritise the trunk values
@@ -178,11 +220,10 @@ def copy_file(src, dst, ext=None):
     if ext is not None:
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
-    print('Copying from {} to {}'.format(src, dst))
-    with open(str(src), 'rb') as fin:
-        with open(str(dst), 'wb') as fout:
+    print("Copying from {} to {}".format(src, dst))
+    with open(str(src), "rb") as fin:
+        with open(str(dst), "wb") as fout:
             shutil.copyfileobj(fin, fout)
-
 
 
 def remove_tempdir(directory):
@@ -208,7 +249,6 @@ def remove_tempdir(directory):
     assert not directory.exists()
 
 
-
 def extract_zip(zipfile, output_dir):
     """
     Extracts a zipfile without the uppermost folder.
@@ -223,8 +263,8 @@ def extract_zip(zipfile, output_dir):
     output_dir = Path(output_dir)
     if zipfile.testzip() is None:
         for m in zipfile.namelist():
-            fldr, name = re.split('/', m, maxsplit=1)
+            fldr, name = re.split("/", m, maxsplit=1)
             if name:
-                content = zipfile.open(m, 'r').read()
-                with open(str(output_dir / name), 'wb') as out:
+                content = zipfile.open(m, "r").read()
+                with open(str(output_dir / name), "wb") as out:
                     out.write(content)
