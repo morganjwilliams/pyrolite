@@ -6,6 +6,7 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+
 @contextmanager
 def environment_manager(env):
     """
@@ -33,12 +34,9 @@ def validate_value(value, validator):
         return validator(value)
 
 
-def validate_update_envvar(key,
-                           value=None,
-                           prefix='',
-                           force_active=False,
-                           variable_model={},
-                           formatter=str):
+def validate_update_envvar(
+    key, value=None, prefix="", force_active=False, variable_model={}, formatter=str
+):
     """
     Updates an environment variable after validation.
 
@@ -46,38 +44,38 @@ def validate_update_envvar(key,
 
     """
     schema = variable_model.get(key, None)
-    if schema is not None: # some potential validation
+    if schema is not None:  # some potential validation
         if value is not None:
-            if schema.get('validator', None) is not None:
-                valid = validate_value(value, schema['validator'])
-                assert valid, \
-                    'Invalid value for parameter {}: {}'.format(var, value)
+            if schema.get("validator", None) is not None:
+                valid = validate_value(value, schema["validator"])
+                assert valid, "Invalid value for parameter {}: {}".format(var, value)
 
-            if schema.get('overridden_by', None) is not None:
+            if schema.get("overridden_by", None) is not None:
                 # check for overriders
-                overriders = [prefix+k for k in schema.get('overridden_by')]
+                overriders = [prefix + k for k in schema.get("overridden_by")]
 
                 if any([over in os.environ for over in overriders]):
                     if force_active:
-                        for k in [key for key in overriders
-                                  if key in os.environ]:
+                        for k in [key for key in overriders if key in os.environ]:
                             del os.environ[key]
         else:
             # try to set to default
-            if schema.get('default', None) is not None:
-                if schema.get('dependent_on', None) is None:
-                    default = schema['default']
+            if schema.get("default", None) is not None:
+                if schema.get("dependent_on", None) is None:
+                    default = schema["default"]
                 else:
-                    conditions = {k: variable_model[k]['default']
-                                  for k in schema['dependent_on'] if
-                                  variable_model[k]['default'] is not None}
-                    default = schema['default'](conditions)
+                    conditions = {
+                        k: variable_model[k]["default"]
+                        for k in schema["dependent_on"]
+                        if variable_model[k]["default"] is not None
+                    }
+                    default = schema["default"](conditions)
                 value = default
 
     if value is not None:
-        logging.debug('EnvVar {} set to {}.'.format(prefix+key, value))
-        os.environ[prefix+key] = formatter(value)
-    else: # Remove the environment variable if it exists
-        if prefix+key in os.environ:
-            logging.debug('EnvVar {} removed.'.format(prefix+key))
-            del os.environ[prefix+key]
+        logging.debug("EnvVar {} set to {}.".format(prefix + key, value))
+        os.environ[prefix + key] = formatter(value)
+    else:  # Remove the environment variable if it exists
+        if prefix + key in os.environ:
+            logging.debug("EnvVar {} removed.".format(prefix + key))
+            del os.environ[prefix + key]

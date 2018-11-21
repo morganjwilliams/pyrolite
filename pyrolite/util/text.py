@@ -2,6 +2,7 @@ import re
 import textwrap
 import numpy as np
 import logging
+
 try:
     from sortedcollections import SortedSet as set
 except:
@@ -18,7 +19,7 @@ def to_width(multiline_string, width=79, **kwargs):
 
 def normalise_whitespace(strg):
     """Substitutes extra tabs, newlines etc. for a single space."""
-    return re.sub('\s+', ' ', strg).strip()
+    return re.sub("\s+", " ", strg).strip()
 
 
 def remove_prefix(z, prefix):
@@ -30,18 +31,19 @@ def remove_prefix(z, prefix):
 
 
 def quoted_string(s):
-    #if " " in s or '-' in s or '_' in s:
+    # if " " in s or '-' in s or '_' in s:
     s = '''"{}"'''.format(s)
     return s
 
 
-def titlecase(s,
-              exceptions=['and', 'in', 'a'],
-              abbrv=['ID', 'IGSN', 'CIA', 'CIW',
-                     'PIA', 'SAR', 'SiTiIndex', 'WIP'],
-              capitalize_first=True,
-              split_on='[\s_-]+',
-              delim=""):
+def titlecase(
+    s,
+    exceptions=["and", "in", "a"],
+    abbrv=["ID", "IGSN", "CIA", "CIW", "PIA", "SAR", "SiTiIndex", "WIP"],
+    capitalize_first=True,
+    split_on="[\s_-]+",
+    delim="",
+):
     """
     Formats strings in CamelCase, with exceptions for simple articles
     and omitted abbreviations which retain their capitalization.
@@ -49,14 +51,14 @@ def titlecase(s,
     """
     # Check if abbrv in string, in which case it'll need to be split first?
     words = re.split(split_on, s)
-    out=[]
+    out = []
     first = words[0]
     if capitalize_first and not (first in abbrv):
         first = first.capitalize()
 
     out.append(first)
     for word in words[1:]:
-        if word in exceptions+abbrv:
+        if word in exceptions + abbrv:
             pass
         elif word.upper() in abbrv:
             word = word.upper()
@@ -66,15 +68,11 @@ def titlecase(s,
     return delim.join(out)
 
 
-def string_variations(names,
-                      preprocess=['lower', 'strip'],
-                      swaps=[(' ', '_'),
-                             (' ', '_'),
-                             ('-', ' '),
-                             ('_', ' '),
-                             ('-', ''),
-                             ('_', ''),
-                             ]):
+def string_variations(
+    names,
+    preprocess=["lower", "strip"],
+    swaps=[(" ", "_"), (" ", "_"), ("-", " "), ("_", " "), ("-", ""), ("_", "")],
+):
     """
     Returns equilvaent string variations based on an input set of strings.
 
@@ -110,13 +108,15 @@ def string_variations(names,
     return vars
 
 
-def parse_entry(entry,
-                regex=r"(\s)*?(?P<value>[\.\w]+)(\s)*?",
-                delimiter=',',
-                values_only=True,
-                first_only=True,
-                errors=None,
-                replace_nan='None'):
+def parse_entry(
+    entry,
+    regex=r"(\s)*?(?P<value>[\.\w]+)(\s)*?",
+    delimiter=",",
+    values_only=True,
+    first_only=True,
+    errors=None,
+    replace_nan="None",
+):
     """
     Parses an arbitrary string data entry to return
     values based on a regular expression containing
@@ -157,22 +157,30 @@ def parse_entry(entry,
         for _l in subparts:
             _m = pattern.match(_l)
             if _m:
-                _d = dict(value=_m.group('value'))
+                _d = dict(value=_m.group("value"))
                 # Add other groups
-                _d.update({k: _m.group(k)
-                           for (k, ind) in pattern.groupindex.items()
-                           if not k=='value'})
+                _d.update(
+                    {
+                        k: _m.group(k)
+                        for (k, ind) in pattern.groupindex.items()
+                        if not k == "value"
+                    }
+                )
 
             else:
                 _d = dict(value=replace_nan)
                 # Add other groups
-                _d.update({k: replace_nan
-                           for (k, ind) in pattern.groupindex.items()
-                           if not k=='value'})
+                _d.update(
+                    {
+                        k: replace_nan
+                        for (k, ind) in pattern.groupindex.items()
+                        if not k == "value"
+                    }
+                )
             matches.append(_d)
 
         if values_only:
-            matches = [m['value'] for m in matches]
+            matches = [m["value"] for m in matches]
 
         if first_only:
             return matches[0]
@@ -190,10 +198,10 @@ def parse_entry(entry,
             return [entry]
 
 
-def split_records(data, delimiter='\r\n'):
+def split_records(data, delimiter="\r\n"):
     """
     Splits records in a csv where quotation marks are used.
     Splits on a delimiter followed by an even number of quotation marks.
     """
     # https://stackoverflow.com/a/2787979
-    return re.split(delimiter + '''(?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', data)
+    return re.split(delimiter + """(?=(?:[^'"]|'[^']*'|"[^"]*")*$)""", data)

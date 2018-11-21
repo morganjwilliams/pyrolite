@@ -12,20 +12,20 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
 
-def test_df(cols=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2'],
-            index_length=10):
+def test_df(cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10):
     """
     Creates a pandas.DataFrame with random data.
     """
-    return pd.DataFrame({k: v for k,v in zip(cols,
-                         np.random.rand(len(cols), index_length))})
+    return pd.DataFrame(
+        {k: v for k, v in zip(cols, np.random.rand(len(cols), index_length))}
+    )
 
 
-def test_ser(index=['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']):
+def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"]):
     """
     Creates a pandas.Series with random data.
     """
-    return pd.Series({k: v for k,v in zip(index, np.random.rand(len(index)))})
+    return pd.Series({k: v for k, v in zip(index, np.random.rand(len(index)))})
 
 
 def column_ordered_append(df1, df2, **kwargs):
@@ -42,21 +42,18 @@ def column_ordered_append(df1, df2, **kwargs):
         The dataframe for which new columns are appended to the output.
 
     """
-    outcols = list(df1.columns) + [i for i in df2.columns
-                                   if not i in df1.columns]
-    return df1.append(df2,  **kwargs).reindex(columns=outcols)
+    outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
+    return df1.append(df2, **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs,
-               ignore_index=False,
-               trace_source=False):
+def accumulate(dfs, ignore_index=False, trace_source=False):
     """
     Accumulate an iterable containing pandas dataframes to a single frame.
     """
     acc = None
     for ix, df in enumerate(dfs):
         if trace_source:
-            df['src_idx'] = ix
+            df["src_idx"] = ix
         if acc is None:
             acc = df
         else:
@@ -83,8 +80,9 @@ def to_ser(df):
     Simple utility for converting single column pandas dataframes to series.
     """
     if type(df) == pd.DataFrame:
-        assert (df.columns.size == 1) or (df.index.size == 1), \
-              """Can't convert DataFrame to Series:
+        assert (df.columns.size == 1) or (
+            df.index.size == 1
+        ), """Can't convert DataFrame to Series:
               either columns or index need to have size 1."""
         if df.columns.size == 1:
             return df.iloc[:, 0]
@@ -94,7 +92,7 @@ def to_ser(df):
         return df
 
 
-def to_numeric(df, errors: str = 'coerce'):
+def to_numeric(df, errors: str = "coerce"):
     """
     Takes all non-metadata columns and converts to numeric type where possible.
 
@@ -106,26 +104,32 @@ def to_numeric(df, errors: str = 'coerce'):
     return df.apply(pd.to_numeric, errors=errors)
 
 
-def outliers(df, cols=[],
-            detect=lambda x, quantile, qntls: (
-                    (x>quantile.loc[qntls[0], x.name]) &
-                    (x<quantile.loc[qntls[1], x.name])
-                    ),
-            quantile_select=(0.02, 0.98),
-            logquantile=False,
-            exclude=False):
+def outliers(
+    df,
+    cols=[],
+    detect=lambda x, quantile, qntls: (
+        (x > quantile.loc[qntls[0], x.name]) & (x < quantile.loc[qntls[1], x.name])
+    ),
+    quantile_select=(0.02, 0.98),
+    logquantile=False,
+    exclude=False,
+):
     """
     """
     if not cols:
         cols = df.columns
-    colfltr = (df.dtypes == np.float)&([i in cols for i in df.columns])
+    colfltr = (df.dtypes == np.float) & ([i in cols for i in df.columns])
     low, high = np.min(quantile_select), np.max(quantile_select)
     if not logquantile:
         quantile = df.loc[:, colfltr].quantile([low, high])
     else:
         quantile = df.loc[:, colfltr].apply(np.log).quantile([low, high])
-    whereout = df.loc[:, colfltr].apply(detect, args=(quantile, quantile_select),
-                                        axis=0).sum(axis=1) > 0
+    whereout = (
+        df.loc[:, colfltr]
+        .apply(detect, args=(quantile, quantile_select), axis=0)
+        .sum(axis=1)
+        > 0
+    )
     if not exclude:
         whereout = np.logical_not(whereout)
     return df.loc[whereout, colfltr]
@@ -147,11 +151,11 @@ def uniques_from_concat(df, cols, hashit=True):
     Optionally hashes string to standardise length of identifier.
     """
     if hashit:
-        fmt = lambda x: hashlib.md5(x.encode('UTF-8')).hexdigest()
+        fmt = lambda x: hashlib.md5(x.encode("UTF-8")).hexdigest()
     else:
-        fmt = lambda x: x.encode('UTF-8')
+        fmt = lambda x: x.encode("UTF-8")
 
-    return concat_columns(df, cols, dtype='category').apply(fmt)
+    return concat_columns(df, cols, dtype="category").apply(fmt)
 
 
 def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
@@ -182,19 +186,19 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     return df
 
 
-def pickle_from_csvs(targets, out_filename, sep='\t', suffix='.pkl'):
+def pickle_from_csvs(targets, out_filename, sep="\t", suffix=".pkl"):
     df = df_from_csvs(targets, sep=sep, low_memory=False)
     sparse_pickle_df(df, out_filename, suffix=suffix)
 
 
-def sparse_pickle_df(df: pd.DataFrame, filename, suffix='.pkl'):
+def sparse_pickle_df(df: pd.DataFrame, filename, suffix=".pkl"):
     """
     Converts dataframe to sparse dataframe before pickling to disk.
     """
     df.to_sparse().to_pickle(pathify(filename).with_suffix(suffix))
 
 
-def load_sparse_pickle_df(filename, suffix='.pkl', keep_sparse=False):
+def load_sparse_pickle_df(filename, suffix=".pkl", keep_sparse=False):
     """
     Loads sparse dataframe from disk, with optional densification.
     """

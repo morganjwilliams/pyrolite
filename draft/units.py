@@ -8,7 +8,7 @@ def patch_pandas_units():
     Todo: implement auto-assign of pandas units at __init__
     """
 
-    def set_units(df:pd.DataFrame, units):
+    def set_units(df: pd.DataFrame, units):
         """
         Monkey patch to add units to a dataframe.
         """
@@ -16,12 +16,11 @@ def patch_pandas_units():
         if isinstance(df, pd.DataFrame):
             if isinstance(units, str):
                 units = np.array([units])
-            units = pd.Series(units, name='units')
+            units = pd.Series(units, name="units")
         elif isinstance(df, pd.Series):
             assert isinstance(units, str)
             pass
-        setattr(df, 'units', units)
-
+        setattr(df, "units", units)
 
     """
     def init_wrapper(func, *args, **kwargs):
@@ -38,14 +37,12 @@ def patch_pandas_units():
     """
 
     for cls in [pd.DataFrame, pd.Series]:
-        setattr(cls, 'units', None)
+        setattr(cls, "units", None)
         setattr(cls, set_units.__name__, set_units)
-        #setattr(cls, '__init__', init_wrapper(cls.__init__))
-
+        # setattr(cls, '__init__', init_wrapper(cls.__init__))
 
 
 class TestPandasUnitsPatch(unittest.TestCase):
-
     @unittest.expectedFailure
     def test_classes(self):
         """
@@ -53,9 +50,7 @@ class TestPandasUnitsPatch(unittest.TestCase):
         """
         for cls in [pd.DataFrame, pd.Series]:
             with self.subTest(cls=cls):
-                for prop in [units, # units property
-                             set_units, # set_units method
-                             ]:
+                for prop in [units, set_units]:  # units property  # set_units method
                     with self.subTest(prop=prop):
                         clsp = getattr(cls, prop)
                         instp = getattr(cls(), prop)
@@ -67,9 +62,10 @@ class TestPandasUnitsPatch(unittest.TestCase):
         patch_pandas_units()
         for cls in [pd.DataFrame, pd.Series]:
             with self.subTest(cls=cls):
-                for prop in ['units', # units property
-                             'set_units', # set_units method
-                             ]:
+                for prop in [
+                    "units",  # units property
+                    "set_units",  # set_units method
+                ]:
                     with self.subTest(prop=prop):
                         clsp = getattr(cls, prop)
                         instp = getattr(cls(), prop)
@@ -79,12 +75,12 @@ class TestPandasUnitsPatch(unittest.TestCase):
         Check that the set_units method works after patching.
         """
         patch_pandas_units()
-        test_units = 'Wt%'
+        test_units = "Wt%"
         for cls in [pd.DataFrame, pd.Series]:
             with self.subTest(cls=cls):
                 instance = cls()
-                instance.set_units('Wt%')
-                equiv = (instance.units == test_units)
+                instance.set_units("Wt%")
+                equiv = instance.units == test_units
                 if not isinstance(equiv, bool):
                     equiv = equiv.all()
                     self.assertTrue(isinstance(instance.units, pd.Series))

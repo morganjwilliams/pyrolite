@@ -11,6 +11,7 @@ logger = logging.getLogger()
 # Note : Using pathos multiprocessing which leverages dill over standard
 # pickle, which has a hard time serializing even simple objects
 
+
 def func_wrapper(arg):
     func, kwargs = arg
     return func(**kwargs)

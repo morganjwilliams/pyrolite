@@ -3,6 +3,7 @@ import numpy as np
 from pyrolite.comp.codata import *
 from pyrolite.util.pd import test_df
 import logging
+
 log = logging.getLogger(__name__)
 
 
@@ -10,8 +11,8 @@ class TestClose(unittest.TestCase):
     """Tests array closure operator."""
 
     def setUp(self):
-        self.X1_1R =  np.ones((1)) * 0.2
-        self.X1_10R =  np.ones((10, 1)) * 0.2
+        self.X1_1R = np.ones((1)) * 0.2
+        self.X1_10R = np.ones((10, 1)) * 0.2
         self.X10_1R = np.ones((10)) * 0.2
         self.X10_10R = np.ones((10, 10)) * 0.2
 
@@ -20,34 +21,35 @@ class TestClose(unittest.TestCase):
         for X in [self.X1_1R, self.X1_10R]:
             with self.subTest(X=X):
                 out = close(X)
-                self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
+                self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.0))
 
     def test_single(self):
         """Checks results on single records."""
         out = close(self.X10_1R)
-        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
+        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.0))
 
     def test_multiple(self):
         """Checks results on multiple records."""
         out = close(self.X10_10R)
-        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.))
+        self.assertTrue(np.allclose(np.sum(out, axis=-1), 1.0))
 
 
 class TestRenormalise(unittest.TestCase):
     """Tests the pandas renormalise utility."""
 
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
         self.d = len(self.cols)
         self.n = 10
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(self.d, self.n))})
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(self.d, self.n))}
+        )
 
     def test_closure(self):
         """Checks whether closure is achieved."""
         df = self.df
         out = renormalise(df)
-        self.assertTrue(np.allclose(out.sum(axis=1).values, 100.))
+        self.assertTrue(np.allclose(out.sum(axis=1).values, 100.0))
 
     def test_components_selection(self):
         """Checks partial closure for different sets of components."""
@@ -58,10 +60,11 @@ class TestALR(unittest.TestCase):
     """Test the numpy additive log ratio transformation."""
 
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+        self.df = self.df.apply(lambda x: x / np.sum(x), axis="columns")
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -92,10 +95,11 @@ class TestCLR(unittest.TestCase):
     """Test the centred log ratio transformation."""
 
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+        self.df = self.df.apply(lambda x: x / np.sum(x), axis="columns")
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -126,10 +130,11 @@ class TestILR(unittest.TestCase):
     """Test the isometric log ratio transformation."""
 
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+        self.df = self.df.apply(lambda x: x / np.sum(x), axis="columns")
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -160,10 +165,11 @@ class TestLogTransformers(unittest.TestCase):
     """Checks the scikit-learn transformer classes."""
 
     def setUp(self):
-        self.cols = ['SiO2', 'CaO', 'MgO', 'FeO', 'TiO2']
-        self.df = pd.DataFrame({k: v for k,v in zip(self.cols,
-                                np.random.rand(len(self.cols), 10))})
-        self.df = self.df.apply(lambda x: x/np.sum(x), axis='columns')
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+        self.df = self.df.apply(lambda x: x / np.sum(x), axis="columns")
 
     def test_linear_transformer(self):
         """Test the linear transfomer."""
@@ -198,5 +204,5 @@ class TestLogTransformers(unittest.TestCase):
         self.assertTrue(np.allclose(inv, df.values))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

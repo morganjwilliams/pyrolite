@@ -15,7 +15,7 @@ def close(X: np.ndarray):
         return np.divide(X, np.sum(X, axis=0))
 
 
-def renormalise(df: pd.DataFrame, components:list=[], scale=100.):
+def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     """
     Renormalises compositional data to ensure closure.
 
@@ -33,16 +33,16 @@ def renormalise(df: pd.DataFrame, components:list=[], scale=100.):
     dfc = df.copy()
     if components:
         cmpnts = [c for c in components if c in dfc.columns]
-        dfc.loc[:, cmpnts] =  scale * dfc.loc[:, cmpnts].divide(
-                              dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan),
-                                                               axis=0)
+        dfc.loc[:, cmpnts] = scale * dfc.loc[:, cmpnts].divide(
+            dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan), axis=0
+        )
         return dfc
     else:
-        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.), axis=0) * scale
+        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.0), axis=0) * scale
         return dfc
 
 
-def additive_log_ratio(X: np.ndarray, ind: int=-1):
+def additive_log_ratio(X: np.ndarray, ind: int = -1):
     """
     Inverse Additive Log Ratio transformation.
 
@@ -56,15 +56,16 @@ def additive_log_ratio(X: np.ndarray, ind: int=-1):
 
     Y = X.copy()
     assert Y.ndim in [1, 2]
-    dimensions = Y.shape[Y.ndim-1]
-    if ind < 0: ind += dimensions
+    dimensions = Y.shape[Y.ndim - 1]
+    if ind < 0:
+        ind += dimensions
 
     if Y.ndim == 2:
         Y = np.divide(Y, Y[:, ind][:, np.newaxis])
-        Y = np.log(Y[:, [i for i in range(dimensions) if not i==ind]])
+        Y = np.log(Y[:, [i for i in range(dimensions) if not i == ind]])
     else:
         Y = np.divide(X, X[ind])
-        Y = np.log(Y[[i for i in range(dimensions) if not i==ind]])
+        Y = np.log(Y[[i for i in range(dimensions) if not i == ind]])
 
     return Y
 
@@ -83,13 +84,11 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
     assert Y.ndim in [1, 2]
 
     X = Y.copy()
-    dimensions = X.shape[X.ndim-1]
-    idx = np.arange(0, dimensions+1)
+    dimensions = X.shape[X.ndim - 1]
+    idx = np.arange(0, dimensions + 1)
 
     if ind != -1:
-        idx = np.array(list(idx[idx < ind]) +
-                       [-1] +
-                       list(idx[idx >= ind+1]-1))
+        idx = np.array(list(idx[idx < ind]) + [-1] + list(idx[idx >= ind + 1] - 1))
 
     # Add a zero-column and reorder columns
     if Y.ndim == 2:
@@ -144,7 +143,7 @@ def clr(X: np.ndarray):
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
-    Y -= 1/X.shape[1] * np.nansum(Y, axis=1)[:, np.newaxis]
+    Y -= 1 / X.shape[1] * np.nansum(Y, axis=1)[:, np.newaxis]
     return Y
 
 
@@ -176,12 +175,12 @@ def ilr(X: np.ndarray):
     d = X.shape[1]
     Y = clr(X)
     psi = orthagonal_basis(X)  # Get a basis
-    psi = orthagonal_basis(clr(X)) # trying to get right algorithm
-    assert np.allclose(psi @ psi.T, np.eye(d-1))
+    psi = orthagonal_basis(clr(X))  # trying to get right algorithm
+    assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inv_ilr(Y: np.ndarray, X: np.ndarray=None):
+def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -203,7 +202,7 @@ class LinearTransform(TransformerMixin):
 
     def __init__(self, **kwargs):
         self.kpairs = kwargs
-        self.label = 'Crude'
+        self.label = "Crude"
 
     def transform(self, X, *args):
         X = np.array(X)
@@ -224,7 +223,7 @@ class ALRTransform(TransformerMixin):
 
     def __init__(self, **kwargs):
         self.kpairs = kwargs
-        self.label = 'ALR'
+        self.label = "ALR"
 
     def transform(self, X, *args, **kwargs):
         X = np.array(X)
@@ -245,7 +244,7 @@ class CLRTransform(TransformerMixin):
 
     def __init__(self, **kwargs):
         self.kpairs = kwargs
-        self.label = 'CLR'
+        self.label = "CLR"
 
     def transform(self, X, *args, **kwargs):
         X = np.array(X)
@@ -266,7 +265,7 @@ class ILRTransform(TransformerMixin):
 
     def __init__(self, **kwargs):
         self.kpairs = kwargs
-        self.label = 'ILR'
+        self.label = "ILR"
 
     def transform(self, X, *args, **kwargs):
         X = np.array(X)

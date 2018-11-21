@@ -11,7 +11,7 @@ class TestTimescale(unittest.TestCase):
 
     def setUp(self):
         self.ts = pyrotime.Timescale()
-        self.test_ages = [0., 10., 1000., 4100.]
+        self.test_ages = [0.0, 10.0, 1000.0, 4100.0]
 
     def test_default_properties(self):
         """
@@ -19,7 +19,7 @@ class TestTimescale(unittest.TestCase):
         as pd.DataFrames.
         """
 
-        for g in ['Eons', 'Eras', 'Periods', 'Ages']:
+        for g in ["Eons", "Eras", "Periods", "Ages"]:
             with self.subTest(g=g):
                 grp = getattr(self.ts, g)
                 self.assertIsInstance(grp, pd.DataFrame)
@@ -41,7 +41,7 @@ class TestTimescale(unittest.TestCase):
     def test_named_age_levels(self):
         """"Check ages can be summarised at various levels of specificiity."""
         age = self.test_ages[1]
-        levels = ['Eon', 'Era', 'Period', 'Age', 'Specific']
+        levels = ["Eon", "Era", "Period", "Age", "Specific"]
         for l in levels:
             with self.subTest(l=l):
                 self.ts.named_age(age, level=l)
@@ -57,7 +57,7 @@ class TestTimescale(unittest.TestCase):
     def test_text2age_true_ages(self):
         """Test that all true ages return range tuples."""
         for l in self.ts.levels:
-            ages = self.ts.data.loc[self.ts.data.Level==l, 'Name'].unique()
+            ages = self.ts.data.loc[self.ts.data.Level == l, "Name"].unique()
             for a in ages:
                 with self.subTest(a=a):
                     v = self.ts.text2age(a)
@@ -68,7 +68,7 @@ class TestTimescale(unittest.TestCase):
 
     def test_text2age_false_ages(self):
         """Test that unknown ages return np.nan"""
-        ages = ['not an age', 'unknown', 'None']
+        ages = ["not an age", "unknown", "None"]
         for a in ages:
             with self.subTest(a=a):
                 v = self.ts.text2age(a)
@@ -77,7 +77,7 @@ class TestTimescale(unittest.TestCase):
 
     def test_text2age_collection(self):
         """Test that unknown ages return np.nan"""
-        ages = self.ts.data.loc[self.ts.data.Level=='Period', 'Name'].unique()
+        ages = self.ts.data.loc[self.ts.data.Level == "Period", "Name"].unique()
         ages = pd.Series(ages)
         v = self.ts.text2age(ages)
         self.assertFalse(pd.isnull(v).any())
@@ -94,19 +94,21 @@ class TestTimescaleReferenceFrame(unittest.TestCase):
     def test_frame_build(self):
         data = pyrotime.timescale_reference_frame(self.filename)
 
+
 import logging
 import pyrolite.util.time as pyrotime
-logger = logging.getLogger('pyrolite.util.time')
+
+logger = logging.getLogger("pyrolite.util.time")
 # create console handler and set level to debug
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 ts = pyrotime.Timescale()
 
-eg = ['Cretaceous', 'CRETACEOUS']
+eg = ["Cretaceous", "CRETACEOUS"]
 
 ts.text2age(eg)
 

@@ -7,10 +7,11 @@ class TestUrlify(unittest.TestCase):
     """
     Tests the urlify utility function.
     """
+
     def test_strip(self):
-        for s in ['A B', 'A_B', 'A  ', 'A B C D']:
+        for s in ["A B", "A_B", "A  ", "A B C D"]:
             with self.subTest(s=s):
-                self.assertFalse(' ' in urlify(s))
+                self.assertFalse(" " in urlify(s))
 
 
 class TestTempPath(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestIscollection(unittest.TestCase):
 
     def setUp(self):
         self.collections = [[1, 2], np.array([1, 2]), set([1, 2]), (1, 2)]
-        self.notcollections = 'a', 'aa', 1, 1.2
+        self.notcollections = "a", "aa", 1, 1.2
 
     def test_collections(self):
         for obj in self.collections:
@@ -45,13 +46,11 @@ class TestFlattenDict(unittest.TestCase):
 
     def test_simple(self):
         """Check that dictionaries are flattened."""
-        D = dict(key0=dict(key2 = 'b',
-                           key3 = dict(key4='c')),
-                 key1='a')
+        D = dict(key0=dict(key2="b", key3=dict(key4="c")), key1="a")
         result = flatten_dict(D)
         # Check the dictionary contains no dictionaries
         self.assertFalse(any([isinstance(v, dict) for v in result.values()]))
-        self.assertTrue(result['key4'] == 'c')
+        self.assertTrue(result["key4"] == "c")
 
     def test_multiple_equal_keys(self):
         """
@@ -59,14 +58,12 @@ class TestFlattenDict(unittest.TestCase):
         levels, using different climb parameters
         (priorise trunk vs leaf values).
         """
-        expected = ['a', 'c']
+        expected = ["a", "c"]
         for ix, climb in enumerate([True, False]):
             with self.subTest(climb=climb):
-                D = dict(key0=dict(key2 = 'b',
-                                   key3 = dict(key1='c')),
-                         key1='a')
+                D = dict(key0=dict(key2="b", key3=dict(key1="c")), key1="a")
                 result = flatten_dict(D, climb=climb)
-                self.assertTrue(result['key1'] == expected[ix])
+                self.assertTrue(result["key1"] == expected[ix])
 
 
 class TestSwapItem(unittest.TestCase):
@@ -74,9 +71,9 @@ class TestSwapItem(unittest.TestCase):
 
     def test_simple(self):
         """Checks that an item can be swapped."""
-        L = ['0', 1, 'a', 'd', 4]
+        L = ["0", 1, "a", "d", 4]
 
-        for pull, push in [('a', 2)]:
+        for pull, push in [("a", 2)]:
             with self.subTest(pull=pull, push=push):
                 result = swap_item(L, pull, push)
                 self.assertTrue(len(result) == len(L))
@@ -121,5 +118,5 @@ class TestExtractZip(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
