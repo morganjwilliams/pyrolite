@@ -8,7 +8,7 @@ from .util.pd import to_frame
 from .util.math import on_finite
 from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
 from .util.general import iscollection
-from .geochem import common_elements
+from .geochem import common_elements, REE, get_radii
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -213,6 +213,36 @@ def ternaryplot(df, components: list = None, ax=None, **kwargs):
         ax.get_yaxis().set_ticks([])
 
     return tax
+
+
+def REE_radii_plot(ax=None):
+    """
+    Creates an axis for a REE diagram with ionic radii along the x axis.
+
+    Parameters
+    -----------
+    ax : matplotlib.axes.Axes
+        Optional designation of axes to reconfigure.
+    """
+    if ax is not None:
+        fig = ax.figure
+        ax = ax
+    else:
+        fig, ax = plt.subplots()
+    ree = REE()
+    radii = np.array(get_radii(ree))
+
+    _ax = ax.twiny()
+    ax.set_yscale("log")
+    ax.set_xlim((0.99 * radii.min(), 1.01 * radii.max()))
+    _ax.set_xticks(radii)
+    _ax.set_xticklabels(ree)
+    _ax.set_xlim(ax.get_xlim())
+    _ax.set_xlabel("Element")
+    ax.axhline(1.0, ls="--", c="k", lw=0.5)
+    ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+    ax.set_xlabel("Ionic Radius ($\mathrm{\AA}$)")
+    return ax
 
 
 def densityplot(

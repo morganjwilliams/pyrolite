@@ -500,7 +500,6 @@ def lambda_lnREE(
     )
     lambdadf.loc[(lambdadf == 0.0).all(axis=1), :] = np.nan
     if append:
-
         # append the smooth f(radii) function to the dataframe
         func_partial = functools.partial(
             lambda_poly_func, pxs=radii, params=params, degree=degree

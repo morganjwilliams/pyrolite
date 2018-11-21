@@ -19,8 +19,6 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
-# Todo: generate hybrid items for legends
-
 
 def add_legend_items(ax):
 

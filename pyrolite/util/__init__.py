@@ -1,11 +1,10 @@
-from .general import *
-from .pd import *
-from .plot import *
-from .text import *
-from .time import *
-from .math import *
-from .georoc import *
-
+# from .general import *
+# from .pd import *
+# from .plot import *
+# from .text import *
+# from .time import *
+# from .math import *
+# from .georoc import *
 # from .database import *
 # from .env import *
 # from .multiprocessing import *

@@ -7,7 +7,7 @@ import matplotlib.axes as matax
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-from pyrolite.comp import close
+from pyrolite.comp.renorm import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
 
