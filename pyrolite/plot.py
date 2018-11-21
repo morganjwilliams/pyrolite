@@ -215,17 +215,6 @@ def ternaryplot(df, components: list = None, ax=None, **kwargs):
     return tax
 
 
-import pandas as pd
-
-
-def chain(df):
-    out = df.columns.size
-    return out
-
-
-chain(pd.DataFrame())
-
-
 def densityplot(
     df,
     components: list = None,

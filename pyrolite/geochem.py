@@ -4,7 +4,7 @@ import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
 import functools
-from .comp import renormalise
+from .comp.renorm import renormalise
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .util.text import titlecase
 from .util.pd import to_frame
