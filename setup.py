@@ -57,6 +57,7 @@ setup(
         "requests",
         "dicttoxml",
         "xmljson",
+        "beautifulsoup4",
     ],
     extras_require={
         "dev": dev_require + tests_require,

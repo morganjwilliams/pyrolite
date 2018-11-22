@@ -6,6 +6,10 @@ from pyrolite.geochem import REE, get_radii
 from pyrolite.plot import REE_radii_plot
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
+
+np.random.seed(82)
+
+
 # %% Generate Some Example Data --------------------------------------------------------
 no_analyses = 1000
 
@@ -25,7 +29,7 @@ lnY = noise + constant + lin + quad
 
 for ix, el in enumerate(data_ree):
     if el in ["Ce", "Eu"]:
-        lnY[ix] += np.random.randn(1) * 0.6
+        lnY[:, ix] += np.random.rand(no_analyses) * 0.6
 
 Y = np.exp(lnY)
 

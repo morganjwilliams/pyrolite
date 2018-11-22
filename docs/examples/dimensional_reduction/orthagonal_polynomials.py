@@ -4,6 +4,9 @@ from pyrolite.geochem import REE, get_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 
+np.random.seed(82)
+
+
 def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **kwargs):
     """Plot polynomials on an axis over x values."""
     for w, p in zip(lambdas, params):  # plot the polynomials
