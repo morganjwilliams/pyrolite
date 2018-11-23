@@ -4,6 +4,7 @@ import versioneer
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 
 dev_require = [
+    "pytest",
     "versioneer",
     "black",
     "nbstripout",
@@ -12,7 +13,7 @@ dev_require = [
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
     #'mock',
-]
+] + tests_require
 
 db_require = ["pyodbc", "psycopg2"]
 
@@ -59,11 +60,7 @@ setup(
         "xmljson",
         "beautifulsoup4",
     ],
-    extras_require={
-        "dev": dev_require + tests_require,
-        "spatial": spatial_require,
-        "db": db_require,
-    },
+    extras_require={"dev": dev_require, "spatial": spatial_require, "db": db_require},
     tests_require=tests_require,
     test_suite="test",
     package_data={"pyrolite": ["data/*"]},

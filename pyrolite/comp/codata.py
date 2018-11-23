@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.base import TransformerMixin
+import scipy.stats as scpstats
+import scipy.special as scpspec
 from .renorm import renormalise, close
 from ..util.math import orthagonal_basis
 import logging
@@ -162,6 +164,61 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     return X
 
 
+def boxcox(
+    X: np.ndarray,
+    lmbda=None,
+    lmbda_search_space=(-1, 5),
+    search_steps=100,
+    return_lmbda=False,
+):
+    """
+    Box-Cox transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the transformation.
+    lmbda: {None, np.float}
+        Lambda value used to forward-transform values. If none, it will be calculated
+        using the mean
+    """
+    _X = X.copy()
+
+    if lmbda is None:
+        l_search = np.linspace(*lmbda_search_space, search_steps)
+        llf = np.apply_along_axis(scpstats.boxcox_llf, 0, np.array([l_search]), _X.T)
+        if llf.shape[0] == 1:
+            mean_llf = llf[0]
+        else:
+            mean_llf = np.nansum(llf, axis=0)
+
+        lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
+    if _X.ndim < 2:
+        out = scpstats.boxcox(_X, lmbda)
+    elif _X.shape[0] == 1:
+        out = scpstats.boxcox(np.squeeze(_X), lmbda)
+    else:
+        out = np.apply_along_axis(scpstats.boxcox, 0, _X, lmbda)
+    if return_lmbda:
+        return out, lmbda
+    else:
+        return out
+
+
+def inv_boxcox(Y: np.ndarray, lmbda):
+    """
+    Inverse Box-Cox transformation.
+
+    Parameters:
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the transformation.
+    lmbda: np.float
+        Lambda value used to forward-transform values.
+    """
+    return scpspec.inv_boxcox(Y, lmbda)
+
+
 class LinearTransform(TransformerMixin):
     """
     Linear Transformer for scikit-learn like use.
@@ -245,3 +302,34 @@ class ILRTransform(TransformerMixin):
 
     def fit(self, X, *args, **kwargs):
         return self
+
+
+class BoxCoxTransform(TransformerMixin):
+    """
+    BoxCox Transformer for scikit-learn like use.
+    """
+
+    def __init__(self, **kwargs):
+        self.kpairs = kwargs
+        self.label = "BoxCox"
+        self.lmbda = None
+
+    def transform(self, X, *args, **kwargs):
+        X = np.array(X)
+        self.X = X
+        if not (self.lmbda is None):
+            kwargs.update(dict(lmbda=self.lmbda))
+        else:
+            kwargs.update(dict(return_lmbda=True))
+        bc_data, lmbda = boxcox(X, *args, **kwargs)
+        self.lmbda = lmbda
+        return bc_data
+
+    def inverse_transform(self, Y, *args, **kwargs):
+        Y = np.array(Y)
+        kwargs.update(dict(lmbda=self.lmbda))
+        return inv_boxcox(Y, *args, **kwargs)
+
+    def fit(self, X, *args, **kwargs):
+        bc_data, lmbda = boxcox(X, *args, **kwargs)
+        self.lmbda = lmbda

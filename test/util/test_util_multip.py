@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.util.multiprocessing import multiprocess, func_wrapper
+from pyrolite.util.multip import multiprocess, func_wrapper
 import platform
 
 

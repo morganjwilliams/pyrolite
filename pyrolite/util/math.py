@@ -2,7 +2,7 @@ import numpy as np
 from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
 from functools import partial
-from scipy import optimize, linalg
+import scipy
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -20,7 +20,7 @@ def orthagonal_basis(X: np.ndarray):
     """
     D = X.shape[1]
     # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
-    H = linalg.helmert(D, full=False)
+    H = scipy.linalg.helmert(D, full=False)
     return H[::-1]
 
 
@@ -170,7 +170,7 @@ def lambdas(
 
         fs = np.array([lambda_poly(xs, pset) for pset in params])
         guess = np.exp(np.arange(degree) + 2)
-        result = optimize.least_squares(
+        result = scipy.optimize.least_squares(
             min_func, guess, args=(arr, fs, costf_power)  # , method='Nelder-Mead'
         )
         x = result.x
