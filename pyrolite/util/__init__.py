@@ -10,3 +10,4 @@
 # from .multip import *
 # from .spatial import *
 # from .wfs import *
+# from .skl import *

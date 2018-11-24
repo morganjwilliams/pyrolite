@@ -56,7 +56,7 @@ class RefComp:
     def __init__(self, filename, **kwargs):
         self.data = pd.read_csv(filename, **kwargs)
         self.data = self.data.set_index("var")
-        self.original_data = self.data.copy()  # preserve unaltered record
+        self.original_data = self.data.copy(deep=True)  # preserve unaltered record
         # self.add_oxides()
         self.collect_vars()
         self.set_units()
@@ -115,7 +115,7 @@ class RefComp:
 
         ## TODO: Implement uncertainty propagation
         """
-        dfc = to_frame(df.copy())
+        dfc = to_frame(df.copy(deep=True))
 
         cols = [c for c in dfc.columns if c in self.vars]
         _cols = set(cols)
@@ -133,7 +133,7 @@ class RefComp:
         """
         Unnormalize the values within a dataframe back to true composition.
         """
-        dfc = to_frame(df.copy())
+        dfc = to_frame(df.copy(deep=True))
 
         cols = [c for c in dfc.columns if c in self.vars]
         _cols = set(cols)

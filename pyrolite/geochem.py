@@ -274,7 +274,7 @@ def recalculate_redox(
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
     FeO = pt.formula("FeO")
     Fe2O3 = pt.formula("Fe2O3")
-    dfc = df.copy()
+    dfc = df.copy(deep=True)
     ox_species = ["Fe2O3", "Fe2O3" + total_suffix]
     ox_in_df = [i for i in ox_species if i in dfc.columns]
     red_species = ["FeO", "FeO" + total_suffix]

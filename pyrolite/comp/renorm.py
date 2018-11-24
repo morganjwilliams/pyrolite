@@ -28,7 +28,7 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     scale: float, 100.
         Closure parameter. Typically either 100 or 1.
     """
-    dfc = df.copy()
+    dfc = df.copy(deep=True)
     if components:
         cmpnts = [c for c in components if c in dfc.columns]
         dfc.loc[:, cmpnts] = scale * dfc.loc[:, cmpnts].divide(

@@ -25,7 +25,7 @@ def listify(df, axis=1):
     axis: {1, 0}
         Axis to condense along.
     """
-    return df.copy().apply(list, axis=axis)
+    return df.copy(deep=True).apply(list, axis=axis)
 
 
 def age_name(
@@ -110,7 +110,7 @@ def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Ali
 
     df = pd.read_csv(filename)
     df.loc[:, ["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(to_numeric)
-    _df = df.copy()
+    _df = df.copy(deep=True)
     grps = [i for i in _df.columns if not i in info_cols]
     condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]].fillna(
         value=""
