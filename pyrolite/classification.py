@@ -8,17 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import logging
-
-try:
-    from sklearn.externals import joblib
-
-    dump = joblib.dump
-    load = joblib.load
-except ImportError:
-    import pickle
-
-    dump = lambda x, *args, **kwargs: pickle.dumps(x, *args)
-    load = lambda x, *args, **kwargs: pickle.load(x, *args)
+import joblib
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

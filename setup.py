@@ -58,6 +58,7 @@ setup(
         "dicttoxml",
         "xmljson",
         "beautifulsoup4",
+        "joblib",
     ],
     extras_require={
         "dev": dev_require,

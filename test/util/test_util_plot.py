@@ -5,11 +5,18 @@ import numpy as np
 import matplotlib
 import matplotlib.axes as matax
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
+
 
 from pyrolite.comp.renorm import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
+
+try:
+    from sklearn.decomposition import PCA
+
+    HAVE_SKLEARN = True
+except ImportError:
+    HAVE_SKLEARN = False
 
 
 class TestAddColorbar(unittest.TestCase):
@@ -88,6 +95,7 @@ class TestLegendProxies(unittest.TestCase):
         self.assertTrue(isinstance(line, matplotlib.lines.Line2D))
 
 
+@unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
 class TestDrawVector(unittest.TestCase):
     """
     Tests the draw_vector utility function.
@@ -111,6 +119,7 @@ class TestDrawVector(unittest.TestCase):
         plt.close("all")
 
 
+@unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
 class TestVectorToLine(unittest.TestCase):
     """
     Tests the vector_to_line utility function.
