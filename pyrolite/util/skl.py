@@ -109,7 +109,7 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     if other_keys:
         pass
     else:
-        results = gs.cv_results_["mean_test_score"].reshape(xx.size, yy.size)
+        results = np.array(gs.cv_results_["mean_test_score"]).reshape(xx.size, yy.size)
     fig, ax = plt.subplots(1)
     ax.imshow(results.T, cmap=plt.cm.Blues)
 
@@ -128,6 +128,7 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     locmax = np.where(results == max)
     x, y = locmax
     ax.scatter(x, y, marker="D", s=100, c="k")
+    return ax
 
 
 class DropBelowZero(BaseEstimator, TransformerMixin):

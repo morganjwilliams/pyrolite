@@ -16,6 +16,7 @@ install:
   # Install test requirements seperately
   - pip install -q pytest pytest-runner pytest-cov coverage
   - pip install coveralls
+  - pip install pyrolite[skl] # required to test optional deps
   - python setup.py install
 
 before_script: # configure a headless display to test plot generation
