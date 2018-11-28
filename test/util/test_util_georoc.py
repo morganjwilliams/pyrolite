@@ -5,6 +5,12 @@ from pyrolite.util.georoc import *
 from pyrolite.geochem import check_multiple_cation_inclusion
 from pyrolite.util.general import internet_connection, temp_path, remove_tempdir
 
+if internet_connection():
+    try:
+        update_georoc_filelist()
+    except:
+        pass
+
 
 class TestParseValues(unittest.TestCase):
     def test_single_entry(self):
@@ -82,9 +88,7 @@ class TestGetGEOROCLinks(unittest.TestCase):
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestUpdateGEOROCFilelist(unittest.TestCase):
     def setUp(self):
-        self.temp_dir = temp_path() / "test_pyrolite.util.georoc"
-        if not self.temp_dir.exists():
-            self.temp_dir.mkdir(parents=True)
+        self.temp_dir = temp_path()
         self.filepath = self.temp_dir / "contents.json"
         with open(str(self.filepath), "w+") as fh:
             pass
@@ -117,7 +121,7 @@ class TestDownloadGEOROCCompilation(unittest.TestCase):
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestBulkGEOROCCompilation(unittest.TestCase):
     def setUp(self):
-        self.temp_dir = temp_path() / "test_pyrolite.util.georoc"
+        self.temp_dir = temp_path()
         if not self.temp_dir.exists():
             self.temp_dir.mkdir(parents=True)
         self.res = ["OBFB"]

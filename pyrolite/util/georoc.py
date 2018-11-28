@@ -35,8 +35,12 @@ __full_cit_rx__ = r"(\s)*?\[(?P<key>\w*)\](\s)*(?P<value>.+)$"
 __doi_rx__ = r"(.)*(doi(\s)*?:*)(\s)*(?P<value>\S*)"
 
 _contents_file = pyrolite_datafolder(subfolder="georoc") / "contents.json"
-with open(str(_contents_file)) as fh:
-    __CONTENTS__ = json.loads(fh.read())
+
+if _contents_file.exists():
+    with open(str(_contents_file)) as fh:
+        __CONTENTS__ = json.loads(fh.read())
+else:
+    __CONTENTS__ = {}
 
 
 def subsitute_commas(entry):
@@ -136,8 +140,9 @@ def get_georoc_links(
         name = titlecase(g.replace("_comp", "").replace("_", " "))
         if name not in exclude:
             abbrv = "".join([s for s in g if s == s.upper() and not s in ["_", "-"]])
-            grp = [i.name for i in pathlinks if i.parent.name == g]
-            contents[name] = {"files": grp, "abbrv": abbrv, "url_suffix": g}
+            # File names which include url_suffix:
+            grp = ["".join([g, "/", i.name]) for i in pathlinks if i.parent.name == g]
+            contents[name] = {"files": grp, "abbrv": abbrv}
 
     return contents
 
@@ -189,8 +194,9 @@ def bulk_GEOROC_download(
     write_pickle: {False, True}
         Whether to create pickle files for each compilation.
     """
+
     output_folder = output_folder or temp_path()
-    output_folder = pathify(output_folder)
+    output_folder = Path(output_folder)
     output_folder = output_folder.expanduser()
 
     update_georoc_filelist()
@@ -217,17 +223,17 @@ def bulk_GEOROC_download(
             v = __CONTENTS__[resname]
 
             resdir = output_folder / res
-            out_aggfile = resdir / ("_" + res)
-
             if not resdir.exists():
                 resdir.mkdir(parents=True)
+
+            out_aggfile = resdir / ("_" + res)
 
             # Compilation List of Targets
             filenames = v["files"]
 
             # URL target
-            host = r"http://georoc.mpch-mainz.gwdg.de/georoc/Csv_Downloads"
-            base_url = host + "/" + v["url_suffix"]
+            host = r"http://georoc.mpch-mainz.gwdg.de"
+            base_url = host + "/georoc/Csv_Downloads"
 
             # Files yet to download, continuing from last 'save'
             dwnld_fns = filenames
@@ -240,13 +246,12 @@ def bulk_GEOROC_download(
                 ]
 
             dataseturls = [
-                (urlify(d), base_url + r"/" + urlify(d))
-                for d in dwnld_fns
-                if d
-                if d.strip()
+                (urlify(d), base_url + r"/" + urlify(d)) for d in dwnld_fns if d.strip()
             ]
 
             for name, url in dataseturls:
+                if "/" in name:
+                    name = name.split("/")[-1]
                 outfile = (resdir / name).with_suffix("")
                 msg = "Downloading {} {} dataset to {}.".format(res, name, outfile)
                 logger.info(msg)
