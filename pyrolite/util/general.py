@@ -237,7 +237,7 @@ def remove_tempdir(directory):
         Path to directory.
     """
     directory = Path(directory)
-    shutil.rmtree(directory)
+    shutil.rmtree(str(directory))
     assert not directory.exists()
 
 
