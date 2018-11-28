@@ -16,7 +16,7 @@ dev_require = [
 ] + tests_require
 
 db_require = ["pyodbc", "psycopg2"]
-
+skl_require = ["scikit-learn", "fancyimpute", "imbalanced-learn"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
 with open("README.md", "r") as src:
@@ -47,7 +47,6 @@ setup(
         "pathlib",
         "numpy",
         "scipy",
-        "scikit-learn",
         "mpmath",
         "sympy",
         "pandas",
@@ -60,7 +59,12 @@ setup(
         "xmljson",
         "beautifulsoup4",
     ],
-    extras_require={"dev": dev_require, "spatial": spatial_require, "db": db_require},
+    extras_require={
+        "dev": dev_require,
+        "skl": skl_require,
+        "spatial": spatial_require,
+        "db": db_require,
+    },
     tests_require=tests_require,
     test_suite="test",
     package_data={"pyrolite": ["data/*"]},

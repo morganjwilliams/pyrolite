@@ -43,7 +43,7 @@ def scale_multiplier(in_unit, target_unit="ppm"):
         scale = RELMASSS_UNITS[in_unit] / RELMASSS_UNITS[target_unit]
     else:
         unkn = [i for i in [in_unit, target_unit] if i not in RELMASSS_UNITS]
-        logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
+        logger.debug("Units not known: {}. Defaulting to unity.".format(unkn))
         scale = 1.0
     return scale
 

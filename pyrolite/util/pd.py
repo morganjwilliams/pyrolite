@@ -31,7 +31,7 @@ def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"]):
 def column_ordered_append(df1, df2, **kwargs):
     """
     Appends one dataframe to another, preserving the column order of the
-    first and appending new columns on the right. Also accepts and passes on
+    first and adding new columns on the right. Also accepts and passes on
     standard keyword arguments for pd.DataFrame.append.
 
     Parameters

@@ -152,6 +152,7 @@ def lambdas(
     arr: np.ndarray,
     xs=np.array([]),
     params=None,
+    guess=None,
     degree=5,
     costf_power=2.0,
     residuals=False,
@@ -165,11 +166,11 @@ def lambdas(
         x = np.nan * np.ones(degree)
         res = np.nan * np.ones(degree)
     else:
-        if params is None:
-            params = OP_constants(xs, degree=degree)
+        guess = guess or np.exp(np.arange(degree) + 2)
+        params = params or OP_constants(xs, degree=degree)
 
         fs = np.array([lambda_poly(xs, pset) for pset in params])
-        guess = np.exp(np.arange(degree) + 2)
+
         result = scipy.optimize.least_squares(
             min_func, guess, args=(arr, fs, costf_power)  # , method='Nelder-Mead'
         )

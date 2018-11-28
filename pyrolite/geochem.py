@@ -285,12 +285,14 @@ def recalculate_redox(
             dfc.loc[:, red_in_df].fillna(0)
         ).sum(axis=1)
         dfc.loc[:, "Fe2O3T"] = Fe2O3T
+        Fe2O3T[Fe2O3T <= 0] = np.nan
         to_drop = red_in_df + [i for i in ox_in_df if not i.endswith(total_suffix)]
     else:
         reduceFe = oxide_conversion(Fe2O3, FeO)
         FeOT = dfc.loc[:, red_in_df].fillna(0).sum(axis=1) + reduceFe(
             dfc.loc[:, ox_in_df].fillna(0)
         ).sum(axis=1)
+        FeOT[FeOT <= 0] = np.nan
         dfc.loc[:, "FeOT"] = FeOT
         to_drop = ox_in_df + [i for i in red_in_df if not i.endswith(total_suffix)]
 
@@ -312,7 +314,9 @@ def aggregate_cation(
 
     Needs to also implement a 'molecular' version.
     """
-    elstr = cation.__str__()
+
+    # Should first check that neither the element or oxide is present more than once
+    elstr = str(cation)
     oxstr = [o for o in df.columns if o in simple_oxides(elstr)][0]
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
@@ -508,6 +512,8 @@ def lambda_lnREE(
             lambdadf["lambda_poly_func"] = np.apply_along_axis(
                 func_partial, 1, lambdadf.values
             )
+
+    lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
     return lambdadf
 
 
