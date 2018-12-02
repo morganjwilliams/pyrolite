@@ -420,7 +420,7 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     return set([el for el in elements_as_majors if el in elements_as_traces])
 
 
-def convert_chemistry(df, columns=[], logdata=False):
+def convert_chemistry(df, columns=[], logdata=False, renorm=False):
     """
     Tries to convert a dataframe with one set of components to another.
 
@@ -431,6 +431,7 @@ def convert_chemistry(df, columns=[], logdata=False):
     columns : list, set
         Set of columns to try to extract from the dataframe.
     """
+    df = df.copy()
     current = df.columns
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
@@ -450,7 +451,7 @@ def convert_chemistry(df, columns=[], logdata=False):
                     )
                     logger.info("Transforming {} to {}".format(elem, o))
                 else:
-                    potential_oxides = simple_oxides(g)
+                    potential_oxides = simple_oxides(o)
                     present_oxides = [p for p in potential_oxides if p in current]
                     for ox in present_oxides:  # aggregate all the relevant oxides
                         df = aggregate_cation(
@@ -486,7 +487,7 @@ def convert_chemistry(df, columns=[], logdata=False):
             current_Fe = [i for i in Fe_parts if i in df.columns]
             c_fe_str = ", ".join(current_Fe)
             if g in ["FeO", "FeOT"]:
-                logger.info("Reducting {} to {}.".format(c_fe_str, g))
+                logger.info("Reducing {} to {}.".format(c_fe_str, g))
                 df = recalculate_redox(
                     df, to_oxidised=False, renorm=False, logdata=logdata
                 )
@@ -503,7 +504,10 @@ def convert_chemistry(df, columns=[], logdata=False):
                 )
                 df = aggregate_cation(df, cation=g, form="element")
 
-    return df.loc[:, columns]
+    if renorm:
+        return renormalise(df.loc[:, columns])
+    else:
+        return df.loc[:, columns]
 
 
 def add_ratio(

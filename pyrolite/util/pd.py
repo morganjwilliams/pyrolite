@@ -46,14 +46,17 @@ def column_ordered_append(df1, df2, **kwargs):
     return df1.append(df2, **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs, ignore_index=False, trace_source=False):
+def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     """
     Accumulate an iterable containing pandas dataframes to a single frame.
     """
     acc = None
     for ix, df in enumerate(dfs):
         if trace_source:
-            df["src_idx"] = ix
+            if names:
+                df["src_idx"] = names[ix]
+            else:
+                df["src_idx"] = [ix]
         if acc is None:
             acc = df
         else:
