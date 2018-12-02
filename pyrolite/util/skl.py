@@ -52,15 +52,15 @@ def plot_confusion_matrix(
         cm = args[0]
     else:
         cm = get_confusion_matrix(*args)
+        if not classes:
+            if hasattr(args[0], "classes_"):
+                classes = list(args[0].classes_)
+
+    if not classes:
+        classes = np.arange(cm.shape[0])
 
     if normalize:
         cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
-
-    if not classes:
-        if hasattr(clf, "classes_"):
-            classes = list(clf.classes_)
-        else:
-            classes = np.arange(cm.shape[0])
 
     if ax is None:
         fig, ax = plt.subplots(1)

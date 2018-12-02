@@ -305,20 +305,56 @@ def recalculate_redox(
 
 
 def aggregate_cation(
-    df: pd.DataFrame, cation, form="oxide", unit_scale=scale_multiplier("Wt%", "Wt%")
+    df: pd.DataFrame,
+    cation=None,
+    oxide=None,
+    form="oxide",
+    unit_scale=scale_multiplier("Wt%", "Wt%"),
 ):
     """
     Aggregates cation information from oxide and elemental components
-    to a single series. Allows scaling (e.g. from ppm to wt% - a factor
-    of 10,000).
+    to a single series. Allows simultaneous scaling (e.g. from ppm to wt%).
 
-    Needs to also implement a 'molecular' version.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame for which to aggregate cation data.
+    cation : str
+        Name of cation to aggregate.
+    oxide:
+        Name of oxide to aggregate.
+    form: {'oxide', 'element'}
+        Whether to aggregate to oxide or elemental form.
+    unit_scale:
+        The scale factor difference between the components. Unity if both have the same
+        units. Can be converted using scale_multiplier: e.g.
+        scale_multiplier("Wt%", "ppm")
+
+
+    Todo
+    -------
+        Needs to also implement a 'molecular' version.
+
     """
 
     # Should first check that neither the element or oxide is present more than once
-    elstr = str(cation)
-    oxstr = [o for o in df.columns if o in simple_oxides(elstr)][0]
+    assert not ((cation is None) and (oxide is None))
+    if cation is not None and oxide is not None:
+        elstr = str(cation)
+        oxstr = str(oxide)
+    elif oxide is not None:
+        oxstr = str(oxide)
+        elstr = str(get_cations(oxide)[0])
+    elif cation is not None:
+        elstr = str(cation)
+        oxstr = [o for o in df.columns if o in simple_oxides(elstr)][0]
+        assert oxstr, "Oxidation state uknown. Please specify desired oxide."
+
     el, ox = pt.formula(elstr), pt.formula(oxstr)
+
+    for c in [elstr, oxstr]:
+        if not c in df.columns:
+            df[c] = np.nan
 
     if form == "oxide":
         if unit_scale is None:
@@ -360,6 +396,77 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
         c for c in common_elements(output="formula") if str(c) in df.columns
     ]
     return set([el for el in elements_as_majors if el in elements_as_traces])
+
+
+def convert_chemistry(df, columns=[]):
+    """
+    Tries to convert a dataframe with one set of components to another.
+
+    Paramaters
+    ----------
+    df : pd.DataFrame
+        Dataframe to convert.
+    columns : list, set
+        Set of columns to try to extract from the dataframe.
+    """
+    current = df.columns
+    ok = [i for i in columns if i in current]
+    get = [i for i in columns if i not in current]
+    multiples = check_multiple_cation_inclusion(df)
+    oxides = common_oxides(addition=[])
+    elements = common_elements()
+    Fe_parts = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
+
+    # Aggregate the columns which are otherwise OK
+    for o in ok:
+        if o in oxides + elements:
+            elem = get_cations(o)[0]
+            if elem in multiples:
+                if o in oxides:
+                    df = aggregate_cation(df, cation=elem, oxide=o, form="oxide")
+                    logger.info("Aggregating to {}".format(o))
+                else:
+                    potential_oxides = simple_oxides(g)
+                    present_oxides = [p for p in potential_oxides if p in current]
+                    for ox in present_oxides:  # aggregate all the relevant oxides
+                        df = aggregate_cation(df, cation=o, oxide=ox, form="element")
+                    logger.info("Aggregating to {}".format(o))
+        if o in Fe_parts:
+            pass
+
+    # --- Try to get the new columns ----
+    for g in get:
+        if g in oxides:
+            elem = get_cations(g)[0]
+            oxide = g
+            df = aggregate_cation(df, cation=elem, oxide=oxide, form="oxide")
+            logger.info("Transforming {} to {}".format(elem, oxide))
+        elif g in elements:
+            elem = g
+            potential_oxides = simple_oxides(g)
+            present_oxides = [p for p in potential_oxides if p in current]
+            for ox in present_oxides:  # aggregate all the relevant oxides
+                df = aggregate_cation(df, cation=elem, oxide=ox, form="element")
+            logger.info("Transforming {} to {}".format(oxide, elem))
+
+    # --- Try to get the new columns - iron redox section ----
+    for g in get:
+        if g in Fe_parts:
+            current_Fe = [i for i in Fe_parts if i in df.columns]
+            c_fe_str = ", ".join(current_Fe)
+            if g in ["FeO", "FeOT"]:
+                logger.info("Reducting {} to {}.".format(c_fe_str, g))
+                df = recalculate_redox(df, to_oxidised=False, renorm=False)
+            elif g in ["Fe2O3", "Fe2O3T"]:
+                logger.info("Oxidising {} to {}.".format(c_fe_str, g))
+                df = recalculate_redox(df, to_oxidised=True, renorm=False)
+            elif g in ["Fe"]:
+                to_oxidised = False
+                logger.info("Oxidising {} to {}.".format(c_fe_str, g))
+                df = recalculate_redox(df, to_oxidised=False, renorm=False)
+                df = aggregate_cation(df, cation=g, form="element")
+
+    return df.loc[:, columns]
 
 
 def add_ratio(
