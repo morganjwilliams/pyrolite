@@ -475,7 +475,7 @@ def lambda_lnREE(
         degree = len(params)
 
     null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
-    norm_df = df.loc[~null_in_row, ree]  # initialize normdf
+    norm_df = df.loc[~null_in_row, ree].copy()  # initialize normdf
 
     labels = [chr(955) + str(d) for d in range(degree)]
 
@@ -514,6 +514,7 @@ def lambda_lnREE(
             )
 
     lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
+    assert lambdadf.index.size == df.index.size
     return lambdadf
 
 

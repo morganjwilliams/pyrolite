@@ -725,20 +725,30 @@ class PdSoftImputer(BaseEstimator, TransformerMixin):
         self.donotimpute = donotimpute
 
     def transform(self, X, *args, **kwargs):
+        """
+        Impute Missing Values
+
+        Need to use masks to avoid SoftImpute returning 0. where it cannot impute.
+        """
         assert isinstance(X, pd.DataFrame)
-        df = pd.DataFrame(columns=X.columns, index=X.index)
+        df = pd.DataFrame(columns=X.columns, index=X.index)  # df of nans
         df.loc[:, self.donotimpute] = X.loc[:, self.donotimpute]
         to_impute = [i for i in X.columns if not i in self.donotimpute]
+        imputable = ~pd.isnull(X.loc[:, to_impute]).all(axis=1)
         if isinstance(self.imputer, dict):
             for c, d in self.imputer.items():
                 mask = d["mask"]
+                mask = mask & imputable
                 imputer = d["impute"]
-                imputed_data = imputer.fit_transform(X[mask, to_impute])
+                imputed_data = imputer.fit_transform(X.loc[mask, to_impute])
+                assert imputed_data.shape[0] == X.loc[mask, :].index.size
                 df.loc[mask, to_impute] = imputed_data
+
             return df
         else:
-            imputed_data = self.imputer.fit_transform(X.loc[:, to_impute])
-            df.loc[:, to_impute] = imputed_data
+            imputed_data = self.imputer.fit_transform(X.loc[imputable, to_impute])
+            assert imputed_data.shape[0] == X.loc[imputable, :].index.size
+            df.loc[imputable, to_impute] = imputed_data
             return df
 
     """
