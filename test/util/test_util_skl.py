@@ -320,6 +320,7 @@ class TestPdUnion(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
+@unittest.skipUnless(HAVE_IMPUTE, "Requires fancyimpute")
 class TestImputers(unittest.TestCase):
     """Checks the default config for scikit-learn imputing transformer classes."""
 
