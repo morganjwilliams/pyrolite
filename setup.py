@@ -61,6 +61,7 @@ setup(
         "joblib",
     ],
     extras_require={
+        "test": tests_require,
         "dev": dev_require,
         "skl": skl_require,
         "spatial": spatial_require,
