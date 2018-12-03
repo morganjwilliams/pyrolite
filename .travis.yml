@@ -14,7 +14,8 @@ matrix:
 
 install:
   - pip install -e .[skl,test] # required to test optional deps
-  - python setup.py install
+  - conda install -c cvxgrp cvxpy # attempt to fix cryptic 3.6 cvxpy error
+#  - python setup.py install
 
 before_script: # configure a headless display to test plot generation
   - "export DISPLAY=:99.0"

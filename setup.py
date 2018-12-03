@@ -16,7 +16,7 @@ dev_require = [
 ] + tests_require
 
 db_require = ["pyodbc", "psycopg2"]
-skl_require = ["scikit-learn", "fancyimpute", "imbalanced-learn"]
+skl_require = ["scikit-learn", "imbalanced-learn", "fancyimpute"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
 with open("README.md", "r") as src:
