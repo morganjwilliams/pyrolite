@@ -268,6 +268,8 @@ def recalculate_redox(
 
     Automatic generation of multiple redox species from dataframes
     would also be a natural improvement.
+
+    # todo: update to incorporate Fe and transformation from multiple oxides to one
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T

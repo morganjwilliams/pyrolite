@@ -4,6 +4,7 @@ from sympy import symbols, var
 from functools import partial
 import scipy
 import logging
+from copy import copy
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -18,10 +19,21 @@ def is_numeric(obj):
 @np.vectorize
 def round_sig(x, sig=2):
     """Round a number to a certain number of significant figures."""
-    return np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+    where_nan = ~np.isfinite(x)
+    x = copy(x)
+    if hasattr(x, "__len__"):
+        x[where_nan] = np.finfo(np.float).eps
+        vals = np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+        vals[where_nan] = np.nan
+        return vals
+    else:
+        try:
+            return np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+        except (ValueError, OverflowError):  # nan or inf is passed
+            return x
 
 
-def significant_figures(n, unc=None, max_sf=20):
+def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
     """
     Get number of significant digits for a number, given an uncertainty.
     """
@@ -34,12 +46,17 @@ def significant_figures(n, unc=None, max_sf=20):
                     return np.nan
                 sf = int(max(0, int(1.0 + mag_n - mag_u)))
             else:
-                sf = min([ix for ix in range(20) if np.isclose(round_sig(n, ix), n)])
-
+                sf = min(
+                    [
+                        ix
+                        for ix in range(max_sf)
+                        if np.isclose(round_sig(n, ix), n, rtol=rtol)
+                    ]
+                )
             return sf
         else:
-            return np.nan
-    else:
+            return 0
+    else:  # this isn't working
         n = np.array(n)
         _n = n.copy()
         mask = np.isclose(n, 0.0)  # can't process zeros
@@ -54,40 +71,67 @@ def significant_figures(n, unc=None, max_sf=20):
                 axis=0,
             ).astype(np.int)
         else:
-            rounded = np.vstack([_n] * 20).reshape(20, *_n.shape)
-            indx = np.indices(rounded.shape)[0]
+            rounded = np.vstack([_n] * max_sf).reshape(max_sf, *_n.shape)
+            indx = np.indices(rounded.shape)[0]  # get the row indexes for no. sig figs
             rounded = round_sig(rounded, indx)
-            sfs = np.nanargmax(np.isclose(rounded, _n), axis=0)
+            sfs = np.nanargmax(np.isclose(rounded, _n, rtol=rtol), axis=0)
         sfs[np.isnan(sfs)] = 0
         return sfs
 
 
-def most_precise(array_like):
+def most_precise(arr):
     """Get the most precise element from an array."""
+
+    """
     if np.isfinite(array_like).any():
         precision = np.array([significant_figures(x) for x in array_like])
         return array_like[np.nanargmax(precision)]
     else:
         return np.nan
+    """
+    arr = np.array(arr)
+    if np.isfinite(arr).any().any():
+        precision = significant_figures(arr)
+        if arr.ndim > 1:
+            return arr[range(arr.shape[0]), np.nanargmax(precision, axis=-1)]
+        else:
+            return arr[np.nanargmax(precision, axis=-1)]
+    else:
+        return np.nan
 
 
-def equal_within_significance(arr, equal_nan=False):
+def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
     """
     Test whether elements within an array are equal to the precision of the least precise.
     """
-    if np.isfinite(arr).all().all():
-        precision = significant_figures(arr)
-        min_precision = np.nanmin(precision, axis=-1)
-        rounded = round_sig(
-            arr, np.repeat(min_precision, arr.shape[-1]).reshape(arr.shape)
-        )
-        return np.apply_along_axis(lambda x: (x == x[0]).all(), -1, rounded).all()
-    else:
-        if equal_nan and (not np.isfinite(arr).any()):
-            # all nan
-            return True
+    arr = np.array(arr)
+
+    if arr.ndim == 1:
+        if not np.isfinite(arr).all():
+            return equal_nan
         else:
-            return False
+            precision = significant_figures(arr)
+            min_precision = np.nanmin(precision)
+            rounded = round_sig(arr, min_precision * np.ones(arr.shape, dtype=int))
+            return np.isclose(rounded[0], rounded, rtol=rtol).all()
+    else:  # ndmim =2
+        equal = equal_nan * np.ones(
+            arr.shape[0], dtype=bool
+        )  # mean for rows containing nan
+        if np.isfinite(arr).all(axis=1).any():
+            non_nan_rows = np.isfinite(arr).all(axis=1)
+
+            precision = significant_figures(arr[non_nan_rows, :])
+            min_precision = np.nanmin(precision, axis=1)
+            precs = np.repeat(min_precision, arr.shape[1]).reshape(
+                arr[non_nan_rows, :].shape
+            )
+            rounded = round_sig(arr[non_nan_rows, :], precs)
+            equal[non_nan_rows] = np.apply_along_axis(
+                lambda x: (x == x[0]).all(), 1, rounded
+            )
+
+        return equal
 
 
 def signify_digit(n, unc=None, leeway=0, low_filter=True):
@@ -99,25 +143,25 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
     """
 
     if np.isfinite(n):
-        mag_n = np.floor(np.log10(np.abs(n)))
-
-        sf = significant_figures(n, unc=unc) + int(leeway)
-
-        if unc is not None:
-            mag_u = np.floor(np.log10(unc))
+        if np.isclose(n, 0.0):
+            return n
         else:
-            mag_u = 0
-
-        round_to = sf - int(mag_n) - 1 + leeway
-        if round_to <= 0:
-            fmt = int
-        else:
-            fmt = lambda x: x
-        sig_n = round(n, round_to)
-        if low_filter and sig_n == 0.0:
-            return np.nan
-        else:
-            return fmt(sig_n)
+            mag_n = np.floor(np.log10(np.abs(n)))
+            sf = significant_figures(n, unc=unc) + int(leeway)
+            if unc is not None:
+                mag_u = np.floor(np.log10(unc))
+            else:
+                mag_u = 0
+            round_to = sf - int(mag_n) - 1 + leeway
+            if round_to <= 0:
+                fmt = int
+            else:
+                fmt = lambda x: x
+            sig_n = round(n, round_to)
+            if low_filter and sig_n == 0.0:
+                return np.nan
+            else:
+                return fmt(sig_n)
     else:
         return np.nan
 
