@@ -107,7 +107,7 @@ def plot_gs_results(gs, xvar=None, yvar=None):
         else:
             yy = gs.param_grid[yvar]
             xx = [v for (k, v) in gs.param_grid.items() if not k == yvar][0]
-
+    xx, yy = np.array(xx), np.array(yy)
     other_keys = [i for i in gs.param_grid.keys() if i not in [xvar, yvar]]
     if other_keys:
         pass

@@ -5,8 +5,121 @@ from functools import partial
 import scipy
 import logging
 
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def is_numeric(obj):
+    attrs = ["__add__", "__sub__", "__mul__", "__truediv__", "__pow__"]
+    return all(hasattr(obj, attr) for attr in attrs)
+
+
+@np.vectorize
+def round_sig(x, sig=2):
+    """Round a number to a certain number of significant figures."""
+    return np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+
+
+def significant_figures(n, unc=None, max_sf=20):
+    """
+    Get number of significant digits for a number, given an uncertainty.
+    """
+    if not hasattr(n, "__len__"):
+        if np.isfinite(n):
+            if unc is not None:
+                mag_n = np.floor(np.log10(np.abs(n)))
+                mag_u = np.floor(np.log10(unc))
+                if not np.isfinite(mag_u) or not np.isfinite(mag_n):
+                    return np.nan
+                sf = int(max(0, int(1.0 + mag_n - mag_u)))
+            else:
+                sf = min([ix for ix in range(20) if np.isclose(round_sig(n, ix), n)])
+
+            return sf
+        else:
+            return np.nan
+    else:
+        n = np.array(n)
+        _n = n.copy()
+        mask = np.isclose(n, 0.0)  # can't process zeros
+        _n[mask] = np.nan
+        if unc is not None:
+            mag_n = np.floor(np.log10(np.abs(_n)))
+            mag_u = np.floor(np.log10(unc))
+            sfs = np.nanmax(
+                np.vstack(
+                    [np.zeros(mag_n.shape), (1.0 + mag_n - mag_u).astype(np.int)]
+                ),
+                axis=0,
+            ).astype(np.int)
+        else:
+            rounded = np.vstack([_n] * 20).reshape(20, *_n.shape)
+            indx = np.indices(rounded.shape)[0]
+            rounded = round_sig(rounded, indx)
+            sfs = np.nanargmax(np.isclose(rounded, _n), axis=0)
+        sfs[np.isnan(sfs)] = 0
+        return sfs
+
+
+def most_precise(array_like):
+    """Get the most precise element from an array."""
+    if np.isfinite(array_like).any():
+        precision = np.array([significant_figures(x) for x in array_like])
+        return array_like[np.nanargmax(precision)]
+    else:
+        return np.nan
+
+
+def equal_within_significance(arr, equal_nan=False):
+    """
+    Test whether elements within an array are equal to the precision of the least precise.
+    """
+    if np.isfinite(arr).all().all():
+        precision = significant_figures(arr)
+        min_precision = np.nanmin(precision, axis=-1)
+        rounded = round_sig(
+            arr, np.repeat(min_precision, arr.shape[-1]).reshape(arr.shape)
+        )
+        return np.apply_along_axis(lambda x: (x == x[0]).all(), -1, rounded).all()
+    else:
+        if equal_nan and (not np.isfinite(arr).any()):
+            # all nan
+            return True
+        else:
+            return False
+
+
+def signify_digit(n, unc=None, leeway=0, low_filter=True):
+    """
+    Reformats numbers to contain only significant_digits. Uncertainty can be provided to
+    digits with relevant precision.
+
+    Note: Will not pad 0s at the end or before floats.
+    """
+
+    if np.isfinite(n):
+        mag_n = np.floor(np.log10(np.abs(n)))
+
+        sf = significant_figures(n, unc=unc) + int(leeway)
+
+        if unc is not None:
+            mag_u = np.floor(np.log10(unc))
+        else:
+            mag_u = 0
+
+        round_to = sf - int(mag_n) - 1 + leeway
+        if round_to <= 0:
+            fmt = int
+        else:
+            fmt = lambda x: x
+        sig_n = round(n, round_to)
+        if low_filter and sig_n == 0.0:
+            return np.nan
+        else:
+            return fmt(sig_n)
+    else:
+        return np.nan
 
 
 def orthagonal_basis(X: np.ndarray):

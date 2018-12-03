@@ -11,6 +11,7 @@ from collections import Mapping
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import datetime
 import logging
 
 
@@ -39,10 +40,13 @@ class Timewith:
 
     def checkpoint(self, name=""):
         elapsed = self.elapsed
-        msg = "{timer} {time}: {checkpoint} in {elapsed:.3f} s.".format(
-            timer=self.name, time=time.process_time(), checkpoint=name, elapsed=elapsed
+        msg = "{time} {timer}: {checkpoint} in {elapsed:.3f} s.".format(
+            timer=self.name,
+            time=datetime.datetime.now().strftime("%H:%M:%S"),
+            checkpoint=name,
+            elapsed=elapsed,
         ).strip()
-        print(msg)
+        logger.info(msg)
         self.checkpoints.append((name, elapsed))
 
     def __enter__(self):
@@ -221,7 +225,7 @@ def copy_file(src, dst, ext=None):
     if ext is not None:
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
-    print("Copying from {} to {}".format(src, dst))
+    logger.debug("Copying from {} to {}".format(src, dst))
     with open(str(src), "rb") as fin:
         with open(str(dst), "wb") as fout:
             shutil.copyfileobj(fin, fout)

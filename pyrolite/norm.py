@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 RELMASSS_UNITS = {
     "%": 10 ** -2,
+    "pct": 10 ** -2,
     "wt%": 10 ** -2,
     "ppm": 10 ** -6,
     "ppb": 10 ** -9,
