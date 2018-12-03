@@ -15,7 +15,7 @@ pyrolite\.util\.pd
 
 pyrolite\.util\.plot
 -------------------------------
-  .. automodule:: pyrolite.util.general
+  .. automodule:: pyrolite.util.plot
       :members:
       :undoc-members:
 
@@ -27,18 +27,24 @@ pyrolite\.util\.text
 
 pyrolite\.util\.time
 -------------------------------
-  .. automodule:: pyrolite.util.text
+  .. automodule:: pyrolite.util.time
       :members:
       :undoc-members:
 
 pyrolite\.util\.math
 -------------------------------
-  .. automodule:: pyrolite.util.text
+  .. automodule:: pyrolite.util.math
       :members:
       :undoc-members:
 
 pyrolite\.util\.georoc
 -------------------------------
-  .. automodule:: pyrolite.util.text
+  .. automodule:: pyrolite.util.georoc
+      :members:
+      :undoc-members:
+
+pyrolite\.util\.skl
+-------------------------------
+  .. automodule:: pyrolite.util.skl
       :members:
       :undoc-members:
