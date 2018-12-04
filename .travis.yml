@@ -18,8 +18,9 @@ matrix:
 install:
   - pip install -q pytest pytest-runner pytest-cov coverage
   - pip install coveralls
-  - pip install -e .[skl] # required to test optional deps, can add impute
   - python setup.py install
+
+#  - pip install -e .[skl] # required to test optional deps, can add impute
 
 before_script: # configure a headless display to test plot generation
   - "export DISPLAY=:99.0"
