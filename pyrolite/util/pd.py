@@ -56,7 +56,7 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
             if names:
                 df["src_idx"] = names[ix]
             else:
-                df["src_idx"] = [ix]
+                df["src_idx"] = ix
         if acc is None:
             acc = df
         else:

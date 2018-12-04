@@ -3,6 +3,7 @@ import pandas as pd
 from functools import partial
 import itertools
 from ..geochem import *
+from ..geochem import __common_elements__, __common_oxides__
 from ..comp.codata import *
 from ..comp.aggregate import *
 
@@ -443,7 +444,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 
 class CompositionalSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, components=common_elements() + common_oxides()):
+    def __init__(self, components=common_oxides() + common_elements()):
         self.columns = components
 
     def fit(self, X, y=None):

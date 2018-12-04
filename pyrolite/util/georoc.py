@@ -354,7 +354,7 @@ def format_GEOROC_response(content: str, start_chem="SiO2", end_chem="Nd143Nd144
     # Translate headers and data units
     cols = tochem([c.replace("(wt%)", "").replace("(ppm)", "") for c in df.columns])
     start = cols.index("SiO2")
-    end = cols.index("Nd143Nd144")
+    end = cols.index("143Nd144Nd")
     where_ppm = [
         (("ppm" in t) and (ix >= start and ix <= end))
         for ix, t in enumerate(df.columns)
