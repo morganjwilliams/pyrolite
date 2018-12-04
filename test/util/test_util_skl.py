@@ -49,9 +49,7 @@ except ImportError:
     HAVE_IMBLEARN = False
 
 try:
-    import fancyimpute
-
-    from pyrolite.util.skl import fancyimpute
+    from fancyimpute import SoftImpute, IterativeImputer
 
     HAVE_IMPUTE = True
 except ImportError:
