@@ -38,6 +38,13 @@ try:
     )
 
     HAVE_SKLEARN = True
+
+    def test_classifier():
+        param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
+        gs = GridSearchCV(SVC(), param_grid, cv=2)
+        return gs
+
+
 except ImportError:
     HAVE_SKLEARN = False
 
@@ -54,12 +61,6 @@ try:
     HAVE_IMPUTE = True
 except ImportError:
     HAVE_IMPUTE = False
-
-
-def test_classifier():
-    param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
-    gs = GridSearchCV(SVC(), param_grid, cv=2)
-    return gs
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
