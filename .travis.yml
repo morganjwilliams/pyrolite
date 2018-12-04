@@ -16,7 +16,7 @@ matrix:
     - python: "3.7"
 
 install:
-  - pip install -e .[skl,test] # required to test optional deps
+  - pip install -e .[skl,test] # required to test optional deps, can add impute
   - python setup.py install
 
 before_script: # configure a headless display to test plot generation
