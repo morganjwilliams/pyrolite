@@ -13,7 +13,7 @@ def impute_ratios(ratios: pd.DataFrame):
     aggregated ratio matrix via chained ratio multiplication akin to
     internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
 
-    Parameters:
+    Parameters
     ---------------
     ratios: pd.DataFrame
         Dataframe of ratios to impute.
@@ -48,7 +48,7 @@ def np_impute_ratios(ratios: np.ndarray):
     aggregated ratio matrix via chained ratio multiplication akin to
     internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
 
-    Parameters:
+    Parameters
     ---------------
     ratios: np.ndarray
         Array of ratios to impute.

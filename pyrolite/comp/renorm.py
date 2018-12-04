@@ -17,7 +17,7 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     """
     Renormalises compositional data to ensure closure.
 
-    Parameters:
+    Parameters
     ------------
     df: pd.DataFrame
         Dataframe to renomalise.

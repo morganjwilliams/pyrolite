@@ -43,3 +43,9 @@ resulting dimensionally reduced data.
 
 .. image:: ../../../_static/Lambdas.png
    :align: center
+
+
+For more on using orthagonal polynomials to describe geochemical pattern data, see:
+[O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+Element Patterns in Basalts. J Petrology 57, 1463–1508.
+](https://doi.org/10.1093/petrology/egw047)

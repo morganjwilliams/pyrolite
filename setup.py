@@ -12,6 +12,7 @@ dev_require = [
     "twine",
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
+    "recommonmark",
     #'mock',
 ] + tests_require
 

@@ -34,9 +34,7 @@ def round_sig(x, sig=2):
 
 
 def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
-    """
-    Get number of significant digits for a number, given an uncertainty.
-    """
+    """Get number of significant digits for a number, given an uncertainty."""
     if not hasattr(n, "__len__"):
         if np.isfinite(n):
             if unc is not None:
@@ -81,14 +79,6 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
 
 def most_precise(arr):
     """Get the most precise element from an array."""
-
-    """
-    if np.isfinite(array_like).any():
-        precision = np.array([significant_figures(x) for x in array_like])
-        return array_like[np.nanargmax(precision)]
-    else:
-        return np.nan
-    """
     arr = np.array(arr)
     if np.isfinite(arr).any().any():
         precision = significant_figures(arr)
@@ -102,7 +92,8 @@ def most_precise(arr):
 
 def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
     """
-    Test whether elements within an array are equal to the precision of the least precise.
+    Test whether elements within an array are equal to the precision of the
+    least precise.
     """
     arr = np.array(arr)
 
@@ -170,9 +161,9 @@ def orthagonal_basis(X: np.ndarray):
     """
     Generate a set of orthagonal basis vectors.
 
-    Parameters:
+    Parameters
     ---------------
-    X: np.ndarray
+    X : np.ndarray
         Array from which the size of the set is derived.
     """
     D = X.shape[1]
@@ -186,9 +177,9 @@ def on_finite(X, f):
     Calls a function on an array ignoring np.nan and +/- np.inf. Note that the
     shape of the output may be different to that of the input.
 
-    Parameters:
+    Parameters
     ---------------
-    X: np.ndarray
+    X : np.ndarray
         Array on which to perform the function.
     """
     ma = np.isfinite(X)
@@ -197,11 +188,10 @@ def on_finite(X, f):
 
 def nancov(X, method="replace"):
     """
-    Generates a covariance matrix excluding nan-components.
-    Done on a column-column/pairwise basis.
-    The result Y may not be a positive definite matrix.
+    Generates a covariance matrix excluding nan-components.  Done on a
+    column-column/pairwise basis. The result Y may not be a positive definite matrix.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Input array for which to derive a covariance matrix.
@@ -209,7 +199,7 @@ def nancov(X, method="replace"):
         Method for calculating covariance matrix.
         'row_exclude' removes all rows  which contain np.nan before calculating
         the covariance matrix. 'replace' instead replaces the np.nan values with
-         the mean before calculating the covariance.
+        the mean before calculating the covariance.
 
     """
     if method == "rowexclude":
@@ -243,8 +233,8 @@ def nancov(X, method="replace"):
 def OP_constants(xs, degree=3, tol=10 ** -14):
     """
     For constructing orthagonal polynomial functions of the general form:
-    y(x) = a_0 + a_1 * (x - β) + a_2 * (x - γ_0) * (x - γ_1) + \
-           a_3 * (x - δ_0) * (x - δ_1) * (x - δ_2)
+    y(x) = a_0 + a_1 * (x - β) + a_2 * (x - γ_0) * (x - γ_1) +
+    a_3 * (x - δ_0) * (x - δ_1) * (x - δ_2)
     Finds the parameters (β_0), (γ_0, γ_1), (δ_0, δ_1, δ_2).
 
     These parameters are functions only of the independent variable x.
@@ -284,7 +274,7 @@ def lambda_poly(x, ps):
     """
     Polynomial lambda_n(x) given parameters ps with len(ps) = n.
 
-    Parameters:
+    Parameters
     -----------
     x: np.ndarray
         X values to calculate the function at.
@@ -345,7 +335,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     function which evaluates the sum of the orthaogonal polynomials at given
     x values.
 
-    Parameters:
+    Parameters
     ------------
     lambdas: np.ndarray
         Lambda values to weight combination of polynomials.
@@ -370,7 +360,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
         Calculates the sum of decomposed polynomial components
         at given x values.
 
-        Parameters:
+        Parameters
         -----------
         xarr: np.ndarray
             X values at which to evaluate the function.

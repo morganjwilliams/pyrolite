@@ -1,2 +1,0 @@
-pyrolite.plot.densityplot
-=========================

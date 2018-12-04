@@ -15,7 +15,7 @@ def get_full_column(X: np.ndarray):
     Returns the index of the first array column which contains only finite
     numbers (i.e. no missing data, nan, inf).
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array for which to find the first full column within.
@@ -33,7 +33,7 @@ def weights_from_array(X: np.ndarray):
     Returns a set of equal weights with size equal to that of the first axis of
     an array.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array of compositions to produce weights for.
@@ -47,7 +47,7 @@ def nan_weighted_mean(X: np.ndarray, weights=None):
     Returns a weighted mean of compositions, where weights are renormalised
     to account for missing data.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array of compositions to take a weighted mean of.
@@ -69,7 +69,7 @@ def compositional_mean(df, weights=[], **kwargs):
     """
     Implements an aggregation using a compositional weighted mean.
 
-    Parameters:
+    Parameters
     ---------------
     df: pd.DataFrame
         Dataframe of compositions to aggregate.
@@ -101,7 +101,7 @@ def nan_weighted_compositional_mean(
     used for multiple-standardisation, the [specified] or first common
     element will be used.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array of compositions to aggregate.
@@ -157,7 +157,7 @@ def cross_ratios(df: pd.DataFrame):
     denominators and the row indexes the numerators, to create a square array.
     Returns one array per record.
 
-    Parameters:
+    Parameters
     ---------------
     df: pd.DataFrame
         Dataframe of compositions to create ratios of.
@@ -181,7 +181,7 @@ def np_cross_ratios(X: np.ndarray, debug=False):
     denominators and the row indexes the numerators, to create a square array.
     Returns one array per record.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array of compositions to create ratios of.
@@ -229,7 +229,7 @@ def standardise_aggregate(
     records. Note: this changes the closure parameter, and is generally
     intended to integrate major and trace element records.
 
-    Parameters:
+    Parameters
     ---------------
     df: pd.DataFrame
         Dataframe of compositions to aggregate of.
@@ -282,7 +282,7 @@ def complex_standardise_aggregate(
     missing data where possible. Falls back to internal standardistion where
     int_std is specified.
 
-    Parameters:
+    Parameters
     ---------------
     df: pd.DataFrame
         Dataframe of compositions to aggregate of.
@@ -342,7 +342,7 @@ def np_complex_standardise_aggregate(
     missing data where possible. Falls back to internal standardistion where
     int_std is specified. Uses numpy more extensively.
 
-    Parameters:
+    Parameters
     ---------------
     df: pd.DataFrame
         Dataframe of compositions to aggregate of.

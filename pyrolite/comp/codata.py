@@ -14,7 +14,7 @@ def additive_log_ratio(X: np.ndarray, ind: int = -1, null_col=False):
     """
     Inverse Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the inverse transformation.
@@ -44,7 +44,7 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1, null_col=False):
     """
     Inverse Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the inverse transformation.
@@ -79,7 +79,7 @@ def alr(*args, **kwargs):
     """
     Short form of Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -93,7 +93,7 @@ def inv_alr(*args, **kwargs):
     """
     Short form of Inverse Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -107,7 +107,7 @@ def clr(X: np.ndarray):
     """
     Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the transformation.
@@ -122,7 +122,7 @@ def inv_clr(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -138,7 +138,7 @@ def ilr(X: np.ndarray):
     """
     Isotmetric Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the transformation.
@@ -155,7 +155,7 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -176,7 +176,7 @@ def boxcox(
     """
     Box-Cox transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the transformation.
@@ -220,7 +220,7 @@ def inv_boxcox(Y: np.ndarray, lmbda):
     """
     Inverse Box-Cox transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the transformation.

@@ -426,8 +426,8 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
     """
     Tries to convert a dataframe with one set of components to another.
 
-    Paramaters
-    ----------
+    Parameters
+    -----------
     df : pd.DataFrame
         Dataframe to convert.
     columns : list, set
