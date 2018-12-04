@@ -6,9 +6,12 @@ os:
 python:
   - "3.5"
   - "3.6"
-  - "3.7" 
 
 matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
   allow_failures:
     - python: "3.7"
 
@@ -28,4 +31,5 @@ script:
   - python setup.py test
 
 after_success:
+  - "ls -lr htmlcov"
   - coveralls
