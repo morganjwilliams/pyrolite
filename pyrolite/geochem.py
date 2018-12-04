@@ -4,6 +4,7 @@ import mpmath
 import periodictable as pt
 import matplotlib.pyplot as plt
 import functools
+import re
 from .comp.renorm import renormalise
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .util.text import titlecase
@@ -40,10 +41,42 @@ def ischem(s):
         return str(s).upper() in chems
 
 
-# todo:
-# def guess_units(s: pd.Series):
-#
-#    if s.min() >= 0 and s.max() <= 100.:
+def is_isotoperatio(text):
+    """Check if text is plausibly an isotope ratio."""
+    isotopes = get_isotopes(text)
+    return len(isotopes) == 2
+
+
+def get_isotopes(ratio_text):
+    """Regex for isotope ratios."""
+    forward_isotope = r"([a-zA-Z][a-zA-Z]?[0-9][0-9]?[0-9]?)"
+    backward_isotope = r"([0-9][0-9]?[0-9]?[a-zA-Z][a-zA-Z]?)"
+    fw = re.findall(forward_isotope, ratio_text)
+    bw = re.findall(backward_isotope, ratio_text)
+    lfw, lbw = len(fw), len(bw)
+    if (lfw > 1 and lbw > 1) or ((lfw < 2) and (lbw < 2)):
+        return []
+    elif lfw == 2:
+        return fw
+    elif lbw == 2:
+        return bw
+
+
+def repr_isotope_ratio(isotope_ratio):
+    """
+    Format an isotope ratio pair as a string.
+
+    Parameters
+    -----------
+    isotope_ratio : tuple
+        Numerator, denominator pair.
+    """
+    num, den = isotope_ratio
+    isomatch = r"([0-9][0-9]?[0-9]?)"
+    elmatch = r"([a-zA-Z][a-zA-Z]?)"
+    num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
+    den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
+    return "{}{}{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
 
 
 def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
@@ -54,9 +87,17 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     # accomodate single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
         strings = [strings]
+
+    # translate elements and oxides
     chems = common_oxides() + common_elements()
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
+
+    # translate potential isotope ratios
+    strings = [
+        repr_isotope_ratio(get_isotopes(h)) if is_isotoperatio(h) else h
+        for h in strings
+    ]
     return strings
 
 
