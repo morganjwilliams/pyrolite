@@ -64,7 +64,6 @@ setup(
     ],
     extras_require={
         "impute": impute_require,
-        "test": tests_require,
         "dev": dev_require,
         "skl": skl_require,
         "spatial": spatial_require,
