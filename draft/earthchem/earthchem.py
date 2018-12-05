@@ -105,23 +105,26 @@ def waitfordownloadstart(dir, untilfiles=1, step=0.5, timeout=None):
     msg = "Waiting for download to start."
     logger.info(msg)
 
-    if timeout is None:
-        while len(os.listdir(dir)) < untilfiles:
-            time.sleep(step)
-    else:
-        elapsed = 0.0
-        while (len(os.listdir(dir)) < untilfiles) and (elapsed <= timeout):
-            time.sleep(step)
-            elapsed += step
+    timeout = timeout or 10 ** 4
+
+    elapsed = 0.0
+    while (len(os.listdir(dir)) < untilfiles) and (elapsed <= timeout):
+        time.sleep(step)
+        elapsed += step
+
+    return elapsed <= timeout
 
 
-def waitfordownloadend(dir, step=0.5):
+def waitfordownloadend(dir, step=0.5, timeout=None):
     _ts = np.array([os.stat(os.path.join(dir, f)).st_mtime for f in os.listdir(dir)])
     stable = False
+    timeout = timeout or 10 ** 4
 
     with Timewith("Download") as T:
-        while not stable:
+        elapsed = 0
+        while (not stable) and (elapsed <= timeout):
             time.sleep(step)
+            elapsed += step
             ts = np.array(
                 [os.stat(os.path.join(dir, f)).st_mtime for f in os.listdir(dir)]
             )
@@ -130,6 +133,8 @@ def waitfordownloadend(dir, step=0.5):
                 stable = True
             else:
                 _ts = ts
+
+    return elapsed <= timeout
 
 
 class EarthChemDriver(object):
@@ -174,6 +179,7 @@ class EarthChemDriver(object):
         self.homepage = "http://ecp.iedadata.org/"
         self.config = {}
         self._configs = []
+        self.OK = True
         self.home()
 
     def __enter__(self):
@@ -183,6 +189,7 @@ class EarthChemDriver(object):
         self.drv.get(self.homepage)
         assert "EarthChem" in self.drv.title
         self.built = True
+        self.OK = True
 
     def close(self):
         self.drv.close()
@@ -194,37 +201,48 @@ class EarthChemDriver(object):
         pass
 
     def select_ocean_feature_name(self, feature_name=None):
-        logger.info("Selecting Ocean Feature: {}".format(feature_name))
+        if self.OK:
+            try:
+                logger.info("Selecting Ocean Feature: {}".format(feature_name))
 
-        # Enter the Ocean Feature Select Dialouge
-        _of_select = '//tbody//tr//td//input[contains(@onclick, "setoceanfeature")]'
-        WebDriverWait(self.drv, self.tout).until(
-            EC.element_to_be_clickable((By.XPATH, _of_select))
-        )
-        ofselector = self.drv.find_element_by_xpath(_of_select)
-        ofselector.send_keys(KEYS.RETURN)
+                # Enter the Ocean Feature Select Dialouge
+                _of_select = (
+                    '//tbody//tr//td//input[contains(@onclick, "setoceanfeature")]'
+                )
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.element_to_be_clickable((By.XPATH, _of_select))
+                )
+                ofselector = self.drv.find_element_by_xpath(_of_select)
+                ofselector.send_keys(KEYS.RETURN)
 
-        WebDriverWait(self.drv, self.tout).until(
-            EC.presence_of_element_located((By.ID, "myselect"))
-        )
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.presence_of_element_located((By.ID, "myselect"))
+                )
 
-        sel = Select(self.drv.find_element_by_id("myselect"))
-        options = {option.text.upper().strip(): option for option in sel.options}
-        assert feature_name.upper().strip() in options.keys()
-        options[feature_name.upper().strip()].click()
-        # Wait until submit present and submit
-        WebDriverWait(self.drv, self.tout).until(
-            EC.presence_of_element_located((By.NAME, "submit"))
-        )
-        submit = self.drv.find_elements_by_name("submit")[-1]
-        submit.send_keys(KEYS.RETURN)
+                time.sleep(1)  # wait 1 seconds for table to load
 
-        # Wait until the ocean feature select is again clickable
-        WebDriverWait(self.drv, self.tout).until(
-            EC.element_to_be_clickable((By.XPATH, _of_select))
-        )
+                sel = Select(self.drv.find_element_by_id("myselect"))
+                options = {
+                    option.text.upper().strip(): option for option in sel.options
+                }
+                assert feature_name.upper().strip() in options.keys()
+                options[feature_name.upper().strip()].click()
+                # Wait until submit present and submit
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.presence_of_element_located((By.NAME, "submit"))
+                )
+                submit = self.drv.find_elements_by_name("submit")[-1]
+                submit.send_keys(KEYS.RETURN)
 
-        self.config["oceanfeature"] = feature_name
+                # Wait until the ocean feature select is again clickable
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.element_to_be_clickable((By.XPATH, _of_select))
+                )
+
+                self.config["oceanfeature"] = feature_name
+            except (TimeoutError, TimeoutException):
+                self.OK = False
+                self.home()
 
     def select_bounds(self, bounds=[[-180, 0], [-180, 45], [-90, 45], [-90, 0]]):
         poly = "; ".join(["{:01.6f} {:01.6f}".format(*xy) for xy in bounds])
@@ -251,45 +269,55 @@ class EarthChemDriver(object):
         self.config["bounds"] = bounds
 
     def select_DB(self, opts=[]):
-        logger.info("Selecting DBs: {}".format(", ".join(opts)))
-        if opts:
-            opts = [i for i in opts if i in self.dbs]
-        if not opts:
-            opts = self.dbs
+        if self.OK:
+            try:
+                logger.info("Selecting DBs: {}".format(", ".join(opts)))
+                if opts:
+                    opts = [i for i in opts if i in self.dbs]
+                if not opts:
+                    opts = self.dbs
 
-        for o in self.dbs:
-            select_ = '//input[@name="{}" and @type="checkbox"]'.format(o)
-            WebDriverWait(self.drv, self.tout).until(
-                EC.element_to_be_clickable((By.XPATH, select_))
-            )
-            checkbox = self.drv.find_element_by_xpath(select_)
-            if checkbox.is_selected():
-                if not o in opts:
-                    checkbox.click()
-            else:
-                if o in opts:
-                    checkbox.click()
+                for o in self.dbs:
+                    select_ = '//input[@name="{}" and @type="checkbox"]'.format(o)
+                    WebDriverWait(self.drv, self.tout).until(
+                        EC.element_to_be_clickable((By.XPATH, select_))
+                    )
+                    checkbox = self.drv.find_element_by_xpath(select_)
+                    if checkbox.is_selected():
+                        if not o in opts:
+                            checkbox.click()
+                    else:
+                        if o in opts:
+                            checkbox.click()
 
-        self.config["db"] = opts
+                self.config["db"] = opts
+            except (TimeoutError, TimeoutException):
+                self.OK = False
+                self.home()
 
     def select_material(self, opt="BULK"):
         pass
 
     def continue_to_data_selection(self):
-        # TODO: have fallbacks for no data available
-        select_ = '//input[@name="clicky" and @type="submit"]'
-        WebDriverWait(self.drv, self.tout).until(
-            EC.element_to_be_clickable((By.XPATH, select_))
-        )
-        button = self.drv.find_element_by_xpath(select_)
-        button.click()
+        if self.OK:
+            try:
+                # TODO: have fallbacks for no data available
+                select_ = '//input[@name="clicky" and @type="submit"]'
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.element_to_be_clickable((By.XPATH, select_))
+                )
+                button = self.drv.find_element_by_xpath(select_)
+                button.click()
 
-        WebDriverWait(self.drv, self.tout).until(
-            EC.presence_of_element_located((By.XPATH, '//h2["DATA ACCESS"]'))
-        )
-        msg = "Continuing to Data Selection"
-        logger.info(msg)
-        self._configs.append(self.config.copy())
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.presence_of_element_located((By.XPATH, '//h2["DATA ACCESS"]'))
+                )
+                msg = "Continuing to Data Selection"
+                logger.info(msg)
+                self._configs.append(self.config.copy())
+            except (TimeoutError, TimeoutException):
+                self.OK = False
+                self.home()
 
     def get_chemical_data(
         self,
@@ -301,68 +329,81 @@ class EarthChemDriver(object):
         showunits=False,
         **kwargs
     ):
-        self.current_files = len(os.listdir(self.tempdir))
-        self.config["output"] = {}
-        msg = "Getting Chemical Data"
-        logger.info(msg)
-        select_ = '//input[@name="advanced" and @type="submit" and @value="Get Chemical Data"]'
-        WebDriverWait(self.drv, self.tout).until(
-            EC.element_to_be_clickable((By.XPATH, select_))
-        )
-        button = self.drv.find_element_by_xpath(select_)
-        button.click()
+        if self.OK:
+            try:
+                self.current_files = len(os.listdir(self.tempdir))
+                self.config["output"] = {}
+                msg = "Getting Chemical Data"
+                logger.info(msg)
+                select_ = '//input[@name="advanced" and @type="submit" and @value="Get Chemical Data"]'
+                WebDriverWait(self.drv, self.tout).until(
+                    EC.element_to_be_clickable((By.XPATH, select_))
+                )
+                button = self.drv.find_element_by_xpath(select_)
+                button.click()
 
-        for opt, value in [
-            ("searchopt", searchopt),
-            ("dispmode", dispmode),
-            ("rowtype", rowtype),
-        ]:
-            select_ = '//input[@type="radio" and @name="{}" and @value="{}"]'.format(
-                opt, value
-            )
-            radio = self.drv.find_element_by_xpath(select_)
-            radio.click()
-            self.config["output"][opt] = value
+                for opt, value in [
+                    ("searchopt", searchopt),
+                    ("dispmode", dispmode),
+                    ("rowtype", rowtype),
+                ]:
+                    select_ = '//input[@type="radio" and @name="{}" and @value="{}"]'.format(
+                        opt, value
+                    )
+                    radio = self.drv.find_element_by_xpath(select_)
+                    radio.click()
+                    self.config["output"][opt] = value
 
-        for opt, value in [("showmethods", showmethods), ("showunits", showunits)]:
-            select_ = '//input[@type="checkbox" and @name="{}"]'.format(opt)
-            checkbox = self.drv.find_element_by_xpath(select_)
-            if (checkbox.is_selected() and not value) or (
-                (not checkbox.is_selected()) and value
-            ):
-                checkbox.click()
-            self.config["output"][opt] = value
+                for opt, value in [
+                    ("showmethods", showmethods),
+                    ("showunits", showunits),
+                ]:
+                    select_ = '//input[@type="checkbox" and @name="{}"]'.format(opt)
+                    checkbox = self.drv.find_element_by_xpath(select_)
+                    if (checkbox.is_selected() and not value) or (
+                        (not checkbox.is_selected()) and value
+                    ):
+                        checkbox.click()
+                    self.config["output"][opt] = value
 
-        for buttonselect in [
-            '//input[@type="button" and @value="{}"]'.format(itemselect),
-            '//input[@type="submit" and @value="Go to Data"]',
-        ]:
-            button = self.drv.find_element_by_xpath(buttonselect)
-            button.click()
+                for buttonselect in [
+                    '//input[@type="button" and @value="{}"]'.format(itemselect),
+                    '//input[@type="submit" and @value="Go to Data"]',
+                ]:
+                    button = self.drv.find_element_by_xpath(buttonselect)
+                    button.click()
 
-        if check_alert(self.drv):
-            alert = self.drv.switch_to.alert()
-            alert.accept()
-            self.drv.switchTo().window(MainWindow)
+                if check_alert(self.drv):
+                    alert = self.drv.switch_to.alert()
+                    alert.accept()
+                    self.drv.switchTo().window(MainWindow)
+            except (TimeoutError, TimeoutException):
+                self.OK = False
+                self.home()
 
     def wait_and_process_download(
         self,
         names=None,
         output_dir=Path(os.getcwd()) / "data",
         clear_tempdir=True,
-        timeout=None,
+        starttimeout=None,
+        downloadtimeout=None,
     ):
-        # wait for file to download
-        waitfordownloadstart(
-            self.tempdir, untilfiles=self.current_files + 1, timeout=timeout
-        )
-        waitfordownloadend(self.tempdir, step=5)
-        process_downloads(
-            output_dir,
-            rename=names,
-            from_tempdir=self.tempdir,
-            clear_tempdir=clear_tempdir,
-        )
+        if self.OK:
+            # wait for file to download
+            self.OK = waitfordownloadstart(
+                self.tempdir, untilfiles=self.current_files + 1, timeout=starttimeout
+            )
+        if self.OK:
+            self.OK = waitfordownloadend(self.tempdir, step=5, timeout=downloadtimeout)
+
+        if self.OK:
+            process_downloads(
+                output_dir,
+                rename=names,
+                from_tempdir=self.tempdir,
+                clear_tempdir=clear_tempdir,
+            )
 
 
 # %% --------
@@ -379,7 +420,27 @@ def get_ocean_features(ecd, features):
             ecd.continue_to_data_selection()
             ecd.get_chemical_data(dispmode="xlsx")
             ecd.wait_and_process_download(
-                names=s, output_dir=Path("./") / "data" / "ocean_features", timeout=60
+                names=s,
+                output_dir=Path("./") / "data" / "ocean_features",
+                starttimeout=60,
+                downloadtimeout=120,
+            )
+        ecd.home()
+
+
+def get_ridges(ecd, features):
+    for s in features:
+        # avoid redownloading
+        if not (Path("./") / "data" / "ridges" / "{}.xlsx".format(s)).exists():
+            ecd.select_ocean_feature_name(feature_name=s)
+            ecd.select_DB([])  # all databases
+            ecd.continue_to_data_selection()
+            ecd.get_chemical_data(dispmode="xlsx")
+            ecd.wait_and_process_download(
+                names=s,
+                output_dir=Path("./") / "data" / "ridges",
+                starttimeout=60,
+                downloadtimeout=120,
             )
         ecd.home()
 
@@ -397,8 +458,8 @@ def get_grid(ecd):
         ecd.home()
 
 
-OF = open("ocean_features.txt").read().split("\n")
-get_ocean_features(ECD, OF)
+ridges = open("ridges.txt").read().split("\n")
+get_ridges(ECD, ridges)
 
 ECD.close()
 
