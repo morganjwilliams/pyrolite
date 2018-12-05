@@ -123,7 +123,7 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
         sc = ax.scatter(
             np.tile(c_indexes, (df.loc[:, components].index.size, 1)).T,
             df.loc[:, components].T.values.astype(np.float),
-            **sty
+            **sty,
         )
 
     ax.set_xticks(c_indexes)
@@ -253,7 +253,8 @@ def densityplot(
     coverage_scale=1.1,
     logspace=False,
     contour=False,
-    **kwargs
+    extent=None,
+    **kwargs,
 ):
     """
     Plots density plot diagrams. Should work for either binary components (X-Y)
@@ -316,28 +317,35 @@ def densityplot(
         data = data[(np.isfinite(data).all(axis=1)), :]
         if len(components) == 2:  # binary
             x, y = data.T
-            xmin, xmax = (
-                on_finite(x, np.min) * (1.0 - exp),
-                on_finite(x, np.max) * (1.0 + exp),
-            )  # 120% range
-            ymin, ymax = (
-                on_finite(y, np.min) * (1.0 - exp),
-                on_finite(y, np.max) * (1.0 + exp),
-            )  # 120% range
-            xstep = (xmax - xmin) / nbins
-            ystep = (ymax - ymin) / nbins
+            if extent is not None:
+                xmin, xmax, ymin, ymax = extent
+            else:
+                xmin, xmax = (
+                    on_finite(x, np.min) * (1.0 - exp),
+                    on_finite(x, np.max) * (1.0 + exp),
+                )  # 120% range
+                ymin, ymax = (
+                    on_finite(y, np.min) * (1.0 - exp),
+                    on_finite(y, np.max) * (1.0 + exp),
+                )  # 120% range
+            if not logspace:
+                xstep = (xmax - xmin) / nbins
+                ystep = (ymax - ymin) / nbins
+            else:
+                xstep = (xmax / xmin) / nbins
+                ystep = (ymax / ymin) / nbins
 
-            extent = (xmin, xmax, ymin, ymax)
+            plotextent = extent or (xmin, xmax, ymin, ymax)
 
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
                 if logspace:
                     # extent values are exponents (i.e. 3 -> 10**3)
                     hex_extent = (
-                        np.log(xmin - xstep),
-                        np.log(xmax + xstep),
-                        np.log(ymin - ystep),
-                        np.log(ymax + ystep),
+                        np.log(xmin / xstep),
+                        np.log(xmax * xstep),
+                        np.log(ymin / ystep),
+                        np.log(ymax * ystep),
                     )
                     mappable = ax.hexbin(
                         x,
@@ -347,7 +355,7 @@ def densityplot(
                         extent=hex_extent,
                         xscale="log",
                         yscale="log",
-                        **kwargs
+                        **kwargs,
                     )
                 else:
                     hex_extent = (
@@ -364,18 +372,18 @@ def densityplot(
             elif mode == "hist2d":
                 vmin = kwargs.pop("vmin", 0)
                 if logspace:
-                    assert (xmin - xstep > 0.0) and (ymin - ystep > 0.0)
+                    assert ((xmin / xstep) > 0.0) and ((ymin / ystep) > 0.0)
                     xe = np.logspace(
-                        np.log(xmin - xstep), np.log(xmax + xstep), nbins + 1
+                        np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1
                     )
                     ye = np.logspace(
-                        np.log(ymin - ystep), np.log(ymax + ystep), nbins + 1
+                        np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1
                     )
                 else:
                     xe = np.linspace(xmin - xstep, xmax + xstep, nbins + 1)
                     ye = np.linspace(ymin - ystep, ymax + ystep, nbins + 1)
 
-                range = [[extent[0], extent[1]], [extent[2], extent[3]]]
+                range = [[plotextent[0], plotextent[1]], [plotextent[2], plotextent[3]]]
                 h, xe, ye, im = ax.hist2d(
                     x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
                 )
@@ -425,7 +433,7 @@ def densityplot(
                         extent=extent,
                         levels=levels,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
 
                     ax.contour(
@@ -436,7 +444,7 @@ def densityplot(
                         linewidths=linewidths,
                         linestyles=linestyles,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
                 else:
                     mappable = ax.pcolormesh(
@@ -446,7 +454,7 @@ def densityplot(
                         cmap=cmap,
                         shading=shading,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -455,7 +463,9 @@ def densityplot(
                 cbarlabel = "Kernel Density Estimate"
 
             if colorbar:
-                add_colorbar(mappable, label=cbarlabel, **kwargs)
+                cbkwargs = kwargs.copy()
+                cbkwargs["label"] = cbarlabel
+                add_colorbar(mappable, **cbkwargs)
 
             ax.axis(extent)
 
