@@ -363,7 +363,9 @@ def recalculate_Fe(
         return dfc
 
 
-def recalculate_redox(df: pd.DataFrame, renorm=True, total_suffix="T", logdata=False):
+def recalculate_redox(
+    df: pd.DataFrame, to_oxidised=True, renorm=True, total_suffix="T", logdata=False
+):
     """
     Recalculates abundances of redox-sensitive components (particularly Fe),
     and normalises a dataframe to contain only one oxide species for a given

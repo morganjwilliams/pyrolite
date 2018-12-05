@@ -214,11 +214,11 @@ class Timescale(object):
         wthn_rng = lambda x: (age <= x.Start) & (age >= x.End)
         relevant = self.data.loc[self.data.apply(wthn_rng, axis=1).values, :]
         if level == "Specific":  # take the rightmost grouping
-            relevant = relevant[self.levels]
+            relevant = relevant.loc[:, self.levels]
             idx_rel_row = (~pd.isnull(relevant)).count(axis=1).idxmax()
-            rel_row = relevant.iloc[idx_rel_row, :]
+            rel_row = relevant.loc[idx_rel_row, :]
             spec = rel_row[~pd.isnull(rel_row)].values[-1]
             return spec
         else:
-            relevant = relevant[level]
+            relevant = relevant.loc[:, level]
             return relevant.unique()[~pd.isnull(relevant.unique())][0]
