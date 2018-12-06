@@ -254,7 +254,7 @@ def densityplot(
     logspace=False,
     contour=False,
     extent=None,
-    **kwargs,
+    **kwargs
 ):
     """
     Plots density plot diagrams. Should work for either binary components (X-Y)
