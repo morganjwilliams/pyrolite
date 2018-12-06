@@ -467,7 +467,10 @@ def densityplot(
                 cbkwargs["label"] = cbarlabel
                 add_colorbar(mappable, **cbkwargs)
 
-            ax.axis(extent)
+            if extent:
+                ax.axis(extent)
+            else:
+                ax.axis((xmin, xmax, ymin, ymax))
 
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
