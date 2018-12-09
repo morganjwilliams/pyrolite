@@ -6,6 +6,7 @@ from ..geochem import *
 from ..geochem import __common_elements__, __common_oxides__
 from ..comp.codata import *
 from ..comp.aggregate import *
+from .plot import *
 
 import logging
 
@@ -98,17 +99,23 @@ def plot_confusion_matrix(
 def plot_gs_results(gs, xvar=None, yvar=None):
     """Plots the results from a GridSearch showing location of optimum in 2D."""
     labels = gs.param_grid.keys()
-    if xvar is None and yvar is None:
-        (yvar, yy), (xvar, xx) = [(k, v) for (k, v) in gs.param_grid.items()][:3]
-    elif xvar is not None and yvar is not None:
-        yy, xx = gs.param_grid[yvar], gs.param_grid[xvar]
+    grid_items = list(gs.param_grid.items())
+    no_items = len(grid_items)
+    if len(grid_items) == 1:  # if there's only one item, there's only one way to plot it.
+        (xvar, xx) = grid_items[0]
+        (yvar, yy) = "", np.array([0])
     else:
-        if xvar is not None:
-            xx = gs.param_grid[xvar]
-            yy = [v for (k, v) in gs.param_grid.items() if not k == xvar][0]
+        if xvar is None and yvar is None:
+            (yvar, yy), (xvar, xx) = [(k, v) for (k, v) in grid_items][:3]
+        elif xvar is not None and yvar is not None:
+            yy, xx = gs.param_grid[yvar], gs.param_grid[xvar]
         else:
-            yy = gs.param_grid[yvar]
-            xx = [v for (k, v) in gs.param_grid.items() if not k == yvar][0]
+            if xvar is not None:
+                xx = gs.param_grid[xvar]
+                (yvar, yy) = [(k, v) for (k, v) in grid_items if not k == xvar][0]
+            else:
+                yy = gs.param_grid[yvar]
+                (xvar, xx) = [(k, v) for (k, v) in grid_items if not k == yvar][0]
     xx, yy = np.array(xx), np.array(yy)
     other_keys = [i for i in gs.param_grid.keys() if i not in [xvar, yvar]]
     if other_keys:
@@ -134,6 +141,27 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     x, y = locmax
     ax.scatter(x, y, marker="D", s=100, c="k")
     return ax
+
+
+def plot_cooccurence(df, ax=None, normalize=True, **kwargs):
+    if ax is None:
+        fig,  ax  = plt.subplots(1, figsize=(4.2,4))
+    co_occur = df.fillna(0)
+    co_occur[co_occur > 0] = 1
+    co_occur = co_occur.T.dot(co_occur).astype(int)
+    if normalize:
+        diags = np.diagonal(co_occur)
+        for i in range(diags.shape[0]):
+            for j in range(diags.shape[0]):
+                co_occur.iloc[i, j] = co_occur.iloc[i, j] / np.max([diags[i], diags[j]])
+    heatmap = ax.pcolor(co_occur, **kwargs)
+    ax.set_yticks(np.arange(co_occur.shape[0]) + 0.5, minor=False)
+    ax.set_xticks(np.arange(co_occur.shape[1]) + 0.5, minor=False)
+    ax.invert_yaxis()
+    ax.xaxis.tick_top()
+    ax.set_xticklabels(df.columns, minor=False)
+    ax.set_yticklabels(df.columns, minor=False)
+    add_colorbar(heatmap)
 
 
 class DropBelowZero(BaseEstimator, TransformerMixin):
@@ -444,15 +472,21 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 
 class CompositionalSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, components=common_oxides() + common_elements()):
+    def __init__(
+        self, components=__common_elements__ | __common_oxides__, inverse=False
+    ):
         self.columns = components
+        self.inverse = inverse
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
-        out_cols = [i for i in X.columns if i in self.columns]
+        if self.inverse:
+            out_cols = [i for i in X.columns if i not in self.columns]
+        else:
+            out_cols = [i for i in X.columns if i in self.columns]
         out = X.loc[:, out_cols]
         return out
 
@@ -553,7 +587,7 @@ class ElementAggregator(BaseEstimator, TransformerMixin):
 
 
 class PdUnion(BaseEstimator, TransformerMixin):
-    def __init__(self, *estimators):
+    def __init__(self, estimators: list = []):
         self.estimators = estimators
 
     def fit(self, X, y=None):
