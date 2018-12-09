@@ -540,7 +540,6 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
     columns : list, set
         Set of columns to try to extract from the dataframe.
     """
-    df = df.copy(deep=True)
     current = df.columns
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
@@ -599,21 +598,21 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
         logger.info("Reducing {} to {}.".format(c_fe_str, f))
 
 
-    ratios = [i for i in columns if "/" in i]
+    ratios = [i for i in columns if "/" in i and i in get]
+
     for r in ratios:
-        try:
-            logger.info('Adding Ratio: {}'.format(r))
-            add_ratio(df, r)
-        except:
-            pass
+        logger.info('Adding Ratio: {}'.format(r))
+        num, den = r.split("/")
+        df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
+        #df = add_ratio(df, r)
 
     remaining = [i for i in columns if i not in df.columns]
     assert not len(remaining), 'Columns not attained: {}'.format(', '.join(remaining))
     if renorm:
-        logger.info("Recalculation Done, Renormalising: {}".format(columns))
+        logger.info("Recalculation Done, Renormalising")
         return renormalise(df.loc[:, columns])
     else:
-        logger.info("Recalculation Done: {}".format(columns))
+        logger.info("Recalculation Done.")
         return df.loc[:, columns]
 
 
