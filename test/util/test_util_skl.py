@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pyrolite.util.pd import test_df
-from pyrolite.comp.renorm import close
+from pyrolite.comp.codata import close
 from pyrolite.geochem import REE
 
 try:

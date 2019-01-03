@@ -16,7 +16,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
-DEFAULT_DISC_COLORMAP = "tab10"
+DEFAULT_DISC_COLORMAP = plt.cm.tab10
 
 
 @pf.register_series_method

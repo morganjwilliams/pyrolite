@@ -61,7 +61,7 @@ setup(
         "xmljson",
         "beautifulsoup4",
         "joblib",
-        "pandas-flavor"
+        "pandas_flavor"
     ],
     extras_require={
         "impute": impute_require,
