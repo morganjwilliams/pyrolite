@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = "tab10"
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def spiderplot(
@@ -143,6 +144,7 @@ def spiderplot(
 
     return ax
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def REE_radii_plot(df=None, ax=None, **kwargs):
@@ -168,7 +170,6 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
             reedata = df.loc[:, ree]
             reedata.spiderplot(ax=ax, indexes=radii, **kwargs)
 
-
     _ax = ax.twiny()
     ax.set_yscale("log")
     ax.set_xlim((0.99 * radii.min(), 1.01 * radii.max()))
@@ -181,6 +182,7 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
     ax.set_xlabel("Ionic Radius ($\mathrm{\AA}$)")
 
     return ax
+
 
 @pf.register_series_method
 @pf.register_dataframe_method
@@ -260,6 +262,7 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
 
     return ax
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def densityplot(
@@ -271,7 +274,7 @@ def densityplot(
     logspace=False,
     contour=False,
     extent=None,
-    **kwargs,
+    **kwargs
 ):
     """
     Plots density plot diagrams. Should work for either binary components (X-Y)
