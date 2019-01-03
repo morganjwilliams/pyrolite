@@ -58,6 +58,7 @@ def modify_legend_handles(ax, **kwargs):
     _hndls = []
     for h in hndls:
         _h = copy(h)
+        print(_h, dir(_h))
         _h.update(kwargs)
         _hndls.append(_h)
     return _hndls, labls

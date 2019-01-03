@@ -8,12 +8,11 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as matax
 
 from pyrolite.geochem import REE, common_elements
-from pyrolite.plot import ternaryplot, spiderplot, densityplot
+from pyrolite.plot import ternaryplot, spiderplot, densityplot, REE_radii_plot
 
 import logging
 
 logging.getLogger(__name__)
-
 
 class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
@@ -87,6 +86,10 @@ class TestSpiderplot(unittest.TestCase):
         spiderplot(self.df, **style)
         plt.close("all")
 
+    def test_pandas_flavour(self):
+        """Test generation of plot using the pandas flavour registered method."""
+        self.df.spiderplot()
+
     def tearDown(self):
         plt.close("all")
 
@@ -104,21 +107,24 @@ class TestTernaryplot(unittest.TestCase):
         """Test generation of plot with no data."""
         df = pd.DataFrame(columns=self.cols)
         out = ternaryplot(df)
-        self.assertEqual(type(out), ternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertTrue(hasattr(out, 'tax'))
+        self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
     def test_one(self):
         """Test generation of plot with one record."""
         df = self.df.head(1)
         out = ternaryplot(df)
-        self.assertEqual(type(out), ternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertTrue(hasattr(out, 'tax'))
+        self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
     def test_multiple(self):
         """Test generation of plot with multiple records."""
         df = self.df.loc[:, :]
         out = ternaryplot(df)
-        self.assertEqual(type(out), ternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertTrue(hasattr(out, 'tax'))
+        self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
     def test_overplotting(self):
@@ -192,6 +198,23 @@ class TestDensityplot(unittest.TestCase):
     def test_overplotting(self):
         """Test use of the plot for multiple rounds of plotting."""
         pass
+
+    def tearDown(self):
+        plt.close("all")
+
+
+class TestREERadiiPlot(unittest.TestCase):
+    """Tests the REE_radii_plot functionality."""
+
+    def setUp(self):
+        reels = REE(output="string")
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(reels, np.random.rand(len(reels), 10))}
+        )
+
+    def test_none(self):
+        """Test generation of plot with no data."""
+        ax = REE_radii_plot()
 
     def tearDown(self):
         plt.close("all")

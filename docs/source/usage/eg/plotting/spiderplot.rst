@@ -1,0 +1,46 @@
+Spider Plots
+==============
+
+.. literalinclude:: ../../../../examples/plotting/spiderplot.py
+   :language: python
+   :end-before: # %% Minimal Example
+
+.. literalinclude:: ../../../../examples/plotting/spiderplot.py
+   :language: python
+   :start-after: # %% Minimal Example
+   :end-before: # %% Save Figure
+
+.. image:: ../../../_static/spiderplot_minimal.png
+   :width: 100%
+   :align: center
+
+.. literalinclude:: ../../../../examples/plotting/spiderplot.py
+   :language: python
+   :start-after: # %% Fill Plot
+   :end-before: # %% Save Figure
+
+.. image:: ../../../_static/spiderplot_fill.png
+   :width: 100%
+   :align: center
+
+.. literalinclude:: ../../../../examples/plotting/spiderplot.py
+   :language: python
+   :start-after: # %% Specify External Axis
+   :end-before: # %% Save Figure
+
+.. image:: ../../../_static/spiderplot_dual.png
+   :width: 100%
+   :align: center
+
+.. literalinclude:: ../../../../examples/plotting/spiderplot.py
+   :language: python
+   :start-after: # %% Normalised Data
+   :end-before: # %% Save Figure
+
+.. image:: ../../../_static/spiderplot_norm.png
+   :width: 100%
+   :align: center
+
+.. seealso:: `Dimensional Reduction <lambdadimreduction.html>`__,
+  `REE Radii Plot <../plotting/REE_radii_plot.html>`__,
+  `Normalisation <../normalisation/normalisation.html>`__

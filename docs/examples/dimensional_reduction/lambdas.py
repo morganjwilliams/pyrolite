@@ -6,10 +6,7 @@ from pyrolite.geochem import REE, get_radii
 from pyrolite.plot import REE_radii_plot
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
-
 np.random.seed(82)
-
-
 # %% Generate Some Example Data --------------------------------------------------------
 no_analyses = 1000
 
@@ -36,12 +33,10 @@ Y = np.exp(lnY)
 ax = REE_radii_plot()
 ax.plot(data_radii.T, Y.T, marker="D", alpha=0.01, c="0.5", markerfacecolor="k")
 # %% Plot Data -------------------------------------------------------------------------
-
 from pyrolite.util.plot import save_figure
 
 save_figure(ax.figure, save_at="../../source/_static", name="LambdaData")
-
-# %% Reduce to Orthagonal Polynomials --------------------------------------------------
+# %% Reduce to Orthogonal Polynomials --------------------------------------------------
 lambda_degree = 4
 
 exclude = ["Ce", "Eu", "Pm"]

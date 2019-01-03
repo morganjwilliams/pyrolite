@@ -9,7 +9,7 @@ Plotting Examples
    :glob:
    :maxdepth: 2
 
-   eg/plot/*
+   eg/plotting/*
 
 Lambdas
 -----------------

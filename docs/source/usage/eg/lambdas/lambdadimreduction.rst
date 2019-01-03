@@ -1,8 +1,6 @@
 Dimensional Reduction
 ======================
 
-.. seealso:: `Visualising Orthagonal Polynomials <visualisation.html>`__
-
 Orthagonal polynomial decomposition can be used for dimensional reduction of smooth
 function over an independent variable, producing an array of independent values
 representing the relative weights for each order of component polynomial.
@@ -33,7 +31,7 @@ resulting dimensionally reduced data.
 
 .. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
   :language: python
-  :start-after: # %% Reduce to Orthagonal Polynomials
+  :start-after: # %% Reduce to Orthogonal Polynomials
   :end-before: # %% Plot the Results
 
 .. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
@@ -44,8 +42,9 @@ resulting dimensionally reduced data.
 .. image:: ../../../_static/Lambdas.png
    :align: center
 
-
-For more on using orthagonal polynomials to describe geochemical pattern data, see:
-[O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+For more on using orthogonal polynomials to describe geochemical pattern data, see:
+O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
 Element Patterns in Basalts. J Petrology 57, 1463–1508.
-](https://doi.org/10.1093/petrology/egw047)
+`doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+
+.. seealso:: `Visualising Orthogonal Polynomials <lambdavis.html>`__

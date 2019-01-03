@@ -15,7 +15,7 @@ Oxides for Elements with Positive Charges (up to U)
 >>> co()  # string return
 ['H2O', 'He2O', 'HeO', 'Li2O', 'Be2O', 'BeO', 'B2O', 'BO', 'B2O3', ...,
 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3']
->>> co()  # periodictable.formulas.Formula return
+>>> co(output='formula')  # periodictable.formulas.Formula return
 [H, He, Li, Be, ...,  Th, Pa, U]
 ```
 REE Elements
@@ -27,7 +27,8 @@ REE Elements
 
 #### Data Cleaning
 
-Some simple utilities for cleaning up data tables are included. Assuming you're importing data into `pd.DataFrame`:
+Some simple utilities for cleaning up data tables are included.
+Assuming you're importing data into `pd.DataFrame`:
 ```python
 import pandas as pd
 df = pd.DataFrame({'label':'basalt', 'ID': 19076,
