@@ -1,4 +1,5 @@
 import pandas as pd
+import pandas_flavor as pf
 import numpy as np
 import mpmath
 import periodictable as pt
@@ -104,7 +105,8 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     strings = [repr_isotope_ratio(h) for h in strings]
     return strings
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
     Converts mass quantities to molar quantities of the same order.
@@ -119,7 +121,8 @@ def to_molecular(df: pd.DataFrame, renorm=True):
     else:
         return df.div(MWs)
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def to_weight(df: pd.DataFrame, renorm=True):
     """
     Converts molar quantities to mass quantities of the same order.

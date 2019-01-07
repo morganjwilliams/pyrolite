@@ -74,6 +74,9 @@ def to_frame(df):
     elif type(df) == pd.DataFrame:  # 1 column slice
         if df.columns.size == 1:
             df = df.T
+    else:
+        msg = "Conversion from {} to dataframe not yet implemented".format(type(df))
+        raise NotImplementedError(msg)
 
     return df
 
