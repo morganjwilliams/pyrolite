@@ -168,7 +168,7 @@ class TestNaNScatter(unittest.TestCase):
 
     def test_plot(self):
         fig, ax = plt.subplots()
-        ax = nan_scatter(ax, self.x, self.y)
+        ax = nan_scatter(self.x, self.y, ax=ax)
         self.assertTrue(isinstance(ax, matax.Axes))
 
     def tearDown(self):

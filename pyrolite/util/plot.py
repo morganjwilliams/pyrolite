@@ -195,7 +195,25 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     return lines
 
 
-def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
+def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
+    """
+    Scatter plot with additional marginal axes to plot data for which data is partially
+    missing. Additional keyword arguments are passed to matplotlib.
+
+    Parameters
+    -----------
+    xdata : np.ndarray | pd.Series
+        X data
+    ydata: np.ndarray | pd.Series
+        Y data
+    ax : matplotlib.axes.Axes
+        Axes on which to plot.
+    axes_width : float
+        Width of the marginal axes.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(1)
+
     ax.scatter(xdata, ydata, **kwargs)
 
     if hasattr(ax, "divider"):  # Don't rebuild axes
@@ -211,7 +229,7 @@ def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
         div = make_axes_locatable(ax)
         ax.divider = div
 
-        nanaxx = div.append_axes("bottom", NAN_AXES_WIDTH, pad=0, sharex=ax)
+        nanaxx = div.append_axes("bottom", axes_width, pad=0, sharex=ax)
         div.nanaxx = nanaxx
         nanaxx.invert_yaxis()
         nanaxx.yaxis.set_visible(False)
@@ -219,7 +237,7 @@ def nan_scatter(ax, xdata, ydata, NAN_AXES_WIDTH=0.2, **kwargs):
         nanaxx.spines["right"].set_visible(False)
         nanaxx.set_facecolor("none")
 
-        nanaxy = div.append_axes("left", NAN_AXES_WIDTH, pad=0, sharey=ax)
+        nanaxy = div.append_axes("left", axes_width, pad=0, sharey=ax)
         div.nanaxy = nanaxy
         nanaxy.invert_xaxis()
         nanaxy.xaxis.set_visible(False)
