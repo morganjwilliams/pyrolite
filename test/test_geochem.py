@@ -795,6 +795,5 @@ class TestLambdaLnREE(unittest.TestCase):
                     )
                     self.assertTrue(ret.columns.size == self.default_degree)
 
-
 if __name__ == "__main__":
     unittest.main()

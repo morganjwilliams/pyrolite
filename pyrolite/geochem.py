@@ -105,6 +105,7 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     strings = [repr_isotope_ratio(h) for h in strings]
     return strings
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def to_molecular(df: pd.DataFrame, renorm=True):
@@ -120,6 +121,7 @@ def to_molecular(df: pd.DataFrame, renorm=True):
         return renormalise(df.div(MWs))
     else:
         return df.div(MWs)
+
 
 @pf.register_series_method
 @pf.register_dataframe_method
@@ -577,7 +579,9 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
         if g in oxides:
             elem = get_cations(g)[0]
             oxide = g
-            logger.info("Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem))
+            logger.info(
+                "Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem)
+            )
             df = aggregate_cation(
                 df, cation=elem, oxide=oxide, form="oxide", logdata=logdata
             )
@@ -587,7 +591,9 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
             potential_oxides = simple_oxides(g)
             present_oxides = [p for p in potential_oxides if p in current]
             for ox in present_oxides:  # aggregate all the relevant oxides
-                logger.info("Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem))
+                logger.info(
+                    "Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem)
+                )
                 df = aggregate_cation(
                     df, cation=elem, oxide=ox, form="element", logdata=logdata
                 )
@@ -600,17 +606,16 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
         df = recalculate_Fe(df, to_species=f, renorm=False, logdata=logdata)
         logger.info("Reducing {} to {}.".format(c_fe_str, f))
 
-
     ratios = [i for i in columns if "/" in i and i in get]
 
     for r in ratios:
-        logger.info('Adding Ratio: {}'.format(r))
+        logger.info("Adding Ratio: {}".format(r))
         num, den = r.split("/")
         df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
-        #df = add_ratio(df, r)
+        # df = add_ratio(df, r)
 
     remaining = [i for i in columns if i not in df.columns]
-    assert not len(remaining), 'Columns not attained: {}'.format(', '.join(remaining))
+    assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
     if renorm:
         logger.info("Recalculation Done, Renormalising")
         return renormalise(df.loc[:, columns])
