@@ -13,7 +13,7 @@ class Site(object):
     site chemistry.
     """
 
-    def __init__(self, name, coordination=0, affinities={}):
+    def __init__(self, name=None, coordination=0, affinities={}):
         if name is None:
             name = self.__class__.__name__
         self.name = name

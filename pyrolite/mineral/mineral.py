@@ -2,6 +2,7 @@ import pandas as pd
 import pandas_flavor as pf
 import numpy as np
 import periodictable as pt
+from pyrolite.geochem import to_molecular
 from pyrolite.comp.codata import renormalise
 from pyrolite.util.pd import to_frame
 from collections import OrderedDict
@@ -20,11 +21,21 @@ class MineralTemplate(object):
 
     def __init__(self, name, *components):
         self.name = name
-        self.structure = None
+        self.structure = {}
         self.site_occupancy = None
         self.set_structure(*components)
 
     def set_structure(self, *components):
+        """
+        Set the structure of the mineral template.
+
+        Parameters
+        ----------
+        components
+            Argument list consisting of each of the structural components. Can consist
+            of any mixture of Sites or argument tuples which can be passed to
+            Site __init__.
+        """
         self.components = list(components)
         self.structure = OrderedDict()
         if len(components):
@@ -34,18 +45,21 @@ class MineralTemplate(object):
                     c = Site(c)
                 if c not in _bag:
                     _bag.append(c)
+
             for item in _bag:
                 self.structure[item] = self.components.count(item)
 
-        self.affinities = {c: c.affinities for c in self.components}
-        self.ideal_cations = sum([c.cationic for c in self.components])
-        self.ideal_oxygens = sum([c.oxygen for c in self.components])
+        self.affinities = {c: c.affinities for c in self.structure}
+        self.ideal_cations = sum(
+            [c.cationic * self.structure[c] for c in self.structure]
+        )
+        self.ideal_oxygens = sum([c.oxygen * self.structure[c] for c in self.structure])
 
     def copy(self):
         return MineralTemplate(self.name, *self.components)
 
     def __repr__(self):
-        if self.structure is not None:
+        if self.structure != {}:
             component_string = ", ".join(
                 ["{}".format(c.__repr__()) for c in list(self.structure)]
             )
@@ -56,7 +70,7 @@ class MineralTemplate(object):
             return """{}("{}")""".format(self.__class__.__name__, self.name)
 
     def __str__(self):
-        if self.structure is not None:
+        if self.structure != {}:
             structure = self.structure
             c_list = []
             names = [c.name for c in list(structure)]
@@ -86,6 +100,7 @@ class Mineral(object):
         self.name = name
         self.template = None
         self.composition = None
+        self.formula = None
         self.endmembers = {}
         self.set_template(template)
         self.set_composition(composition)
@@ -123,7 +138,9 @@ class Mineral(object):
             self.endmembers[name] = min
 
     def set_template(self, template, name=None):
-        """Assign a mineral template to the mineral."""
+        """
+        Assign a mineral template to the mineral.
+        """
         if template is not None:
             if name is None:
                 name = self.name
@@ -141,24 +158,20 @@ class Mineral(object):
         self.sites = [i for i in list(self.template.structure)]
         self.recalculate_cations()
 
-    def set_composition(self, composition):
-        """Assign a composition to the mineral."""
+    def set_composition(self, composition=None):
+        """
+        Parse and assign a composition to the mineral.
+
+        Parameters
+        ---------
+        composition
+            Composition to assign to the mineral. Can be provided in any form which is
+            digestable by parse_composition.
+        """
+        if isinstance(composition, pt.formulas.Formula):
+            self.formula = composition
+        composition = parse_composition(composition)
         if composition is not None:
-            if isinstance(composition, pd.Series):
-                # convert to molecular oxides, then to formula, then to wt% elemental
-                components = [pt.formula(c) for c in composition.index]
-                values = composition.values
-
-                formula = heteromolecule(
-                    [v / c.mass * c for v, c in zip(values, components)]
-                )
-                composition = pd.Series(formula_to_elemental(formula))
-            elif isinstance(composition, pt.formulas.Formula):
-                composition = pd.Series(formula_to_elemental(composition))
-            else:
-                composition = pd.Series(composition)
-                # convert composition to elemental
-
             logger.debug(
                 "Setting Composition: {}".format(
                     {k: np.round(v, 4) for k, v in composition.to_dict().items()}
@@ -176,7 +189,29 @@ class Mineral(object):
         ideal_cations=None,
         ideal_oxygens=None,
         Fe_species=["FeO", "Fe", "Fe2O3"],
+        oxygen_constrained=False,
     ):
+        """
+        Recalculate a composition to give an elemental ionic breakdown.
+
+        Parameters
+        ----------
+        composition
+            Composition to recalculate. If not provided, will try to use the mineral
+            composition as set.
+        ideal_cations : int
+            Ideal number of cations to use for formulae calcuations. Will only be used
+            if oxygen is constrained (i.e. multiple Fe species present or
+            oxygen_constrained=True).
+        ideal_oxygens : int
+            Ideal number of oxygens to use for formulae calcuations. Will only be used
+            if oxygen is not constrained (i.e. single Fe species present and
+            oxygen_constrained=False).
+        Fe_species : list
+            List of iron species for identifying redox-defined compositions.
+        oxygen_constrained : bool, False
+            Whether the oxygen is a closed or open system for the specific composition.
+        """
         composition = composition or self.composition
 
         if composition is not None:
@@ -187,6 +222,8 @@ class Mineral(object):
                 self.composition,
                 ideal_cations=ideal_cations,
                 ideal_oxygens=ideal_oxygens,
+                Fe_species=Fe_species,
+                oxygen_constrained=oxygen_constrained,
             )
             return self.cationic_composition
 
@@ -194,11 +231,26 @@ class Mineral(object):
         """
         Get the atoms per formula unit.
         """
+        # recalculate_cations return apfu by default
         return self.recalculate_cations()
 
     def endmember_decompose(self, det_lim=0.01):
         """
         Decompose a mineral composition into endmember components.
+
+        Parameters
+        ----------
+        det_lim : float
+            Detection limit for individual
+
+        Notes
+        -----
+        Currently implmented using optimization based on mass fractions.
+
+        Todo
+        -----
+        Implement site-based endmember decomposition, which will enable more checks and
+        balances.
         """
         assert self.endmembers is not None
 
@@ -208,10 +260,10 @@ class Mineral(object):
         for em, tem in self.endmembers.items():
             _components = set(tem.composition.index.values)
             if _components.issubset(_target_components):
-                potential_components.append((em, tem.composition))
+                potential_components.append((em, tem))
 
         compositions = pd.concat(
-            [c for em, c in potential_components], axis=1, sort=False
+            [c.composition for em, c in potential_components], axis=1, sort=False
         ).fillna(0)
         compositions.columns = [em for em, c in potential_components]
         weights = np.ones((compositions.columns.size))
@@ -233,14 +285,19 @@ class Mineral(object):
         if cost > det_lim:
             logger.warn("Residuals are higher than detection limits.")
 
-        abundances[
+        # convert abundances to molecular
+        abundances = pd.Series(
+            {c: v for (c, v) in zip(compositions.columns, abundances)}
+        )
+        abundances = abundances.div([c.formula.mass for em, c in potential_components])
+        abundances = abundances.div(abundances.sum())
+        abundances.loc[
             (np.isclose(abundances, 0.0, atol=1e-06) | (abundances <= det_lim))
         ] = np.nan
-        abundances /= np.nansum(abundances)
-        self.endmember_decomposition = {
-            c: v for (c, v) in zip(compositions.columns, abundances) if not np.isnan(v)
-        }
+        abundances = abundances.loc[~pd.isnull(abundances)]
+        abundances /= abundances.sum()
         # optimise decomposition into endmember components
+        self.endmember_decomposition = abundances.to_dict()
         return self.endmember_decomposition
 
     def calculate_occupancy(
@@ -250,11 +307,28 @@ class Mineral(object):
         Calculate the estimated site occupancy for a given composition.
         Ions will be assigned to sites according to affinities. Sites with equal
         affinities should recieve equal assignment.
+
+        Parameters
+        -----------
+        composition
+            Composition to calculate site occupancy for.
+        error : float
+            Absolute error for floating point occupancy calculations.
+        balances : list
+            List of iterables containing ions to balance across multiple sites. Note
+            that the partitioning will occur after non-balanced cations are assigned,
+            and that ions are only balanced between sites which have defined affinities
+            for all of the particular ions defined in the 'balance'.
         """
         if self.template is not None:
-            self.recalculate_cations()
+            if composition is None:
+                self.recalculate_cations()
+                composition = self.cationic_composition
+            else:
+                composition = parse_composition(composition)
 
-            composition = composition or self.cationic_composition
+            if composition is None:
+                logger.warn('Composition not set. Cannot calculate occupancy.')
 
             affinities = pd.DataFrame(
                 [site.affinities for site in self.template.structure]
@@ -332,16 +406,17 @@ class Mineral(object):
                             )
 
             # check sums across all sites equal the full composition
-
             self.template.site_occupancy = occupancy
             return occupancy
+        else:
+            logger.warn('Template not yet set. Cannot calculate occupancy.')
 
     def get_site_occupancy(self):
+        """
+        Get the site occupancy for the mineral.
+        """
         self.calculate_occupancy()
         return self.template.site_occupancy
-
-    def __format__(self, format_spec=":s"):
-        return str(self)
 
     def __str__(self):
         D = {}
@@ -372,6 +447,9 @@ class Mineral(object):
         )
         return reprstring
 
+    def __hash__(self):
+        return hash(self.__repr__().encode("UTF-8"))
+
 
 def formula_to_elemental(formula, weight=True):
     """Convert a periodictable.formulas.Formula to elemental composition."""
@@ -388,19 +466,53 @@ def formula_to_elemental(formula, weight=True):
     return composition
 
 
-def heteromolecule(formulas):
-    """Combine multiple formulas into one."""
+def merge_formulae(formulas):
+    """
+    Combine multiple formulae into one. Particularly useful for defining oxide mineral
+    formulae.
 
+    Parameters
+    -----------
+    formulas: iterable
+        Iterable of multiple formulae to merge into a single larger molecular formulae.
+    """
     molecule = pt.formula("")
     for f in formulas:
         molecule += pt.formula(f)
     return molecule
 
 
+def parse_composition(composition):
+    """
+    Parse a composition to provide an ionic elemental version in the form of a
+    pandas.Series. Currently accepts pandas.Series, periodictable.formulas.Formula
+    and structures which will directly convert to pandas.Series (list of tuples, dict).
+
+    Parameters
+    -----------
+    composition : {pandas.Series, periodictable.formulas.Formula}
+        Formulation of composition to parse.
+    """
+    if composition is not None:
+        if isinstance(composition, pd.Series):
+            # convert to molecular oxides, then to formula, then to wt% elemental
+            components = [pt.formula(c) for c in composition.index]
+            values = composition.values
+            formula = merge_formulae(
+                [v / c.mass * c for v, c in zip(values, components)]
+            )
+            return pd.Series(formula_to_elemental(formula))
+        elif isinstance(composition, pt.formulas.Formula):
+            return pd.Series(formula_to_elemental(composition))
+        else:
+            return parse_composition(pd.Series(composition))
+
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def recalc_cations(
-    df, ideal_cations=4, ideal_oxygens=6, Fe_species=["FeO", "Fe", "Fe2O3"]
+    df, ideal_cations=4, ideal_oxygens=6, Fe_species=["FeO", "Fe", "Fe2O3"],
+    oxygen_constrained=False,
 ):
     """
     Recalculate a composition to a.p.f.u.
@@ -413,18 +525,19 @@ def recalc_cations(
 
     # determine whether oxygen is an open or closed system
     count_iron_species = np.array([i in moles.columns for i in Fe_species]).sum()
-    oxygen_constrained = False
-    if count_iron_species > 1:  # check that only one is defined
-        oxygen_constrained = (
-            count_iron_species - pd.isnull(moles.loc[:, Fe_species]).all(axis=1).sum()
-        ) > 1
+    oxygen_constrained = oxygen_constrained
+    if not oxygen_constrained:
+        if count_iron_species > 1:  # check that only one is defined
+            oxygen_constrained = (
+                count_iron_species - pd.isnull(moles.loc[:, Fe_species]).all(axis=1).sum()
+            ) > 1
 
-        if oxygen_constrained:
-            logger.info("Multiple iron species defined. Calculating using oxygen.")
-        else:
-            logger.info("Single iron species defined. Calculating using cations.")
+            if oxygen_constrained:
+                logger.info("Multiple iron species defined. Calculating using oxygen.")
+            else:
+                logger.info("Single iron species defined. Calculating using cations.")
 
-    components = moles.columns
+        components = moles.columns
     as_oxides = len(list(pt.formula(components[0]).atoms)) > 1
     schema = []
     # if oxygen_constrained:  # need to specifically separate Fe2 and Fe3

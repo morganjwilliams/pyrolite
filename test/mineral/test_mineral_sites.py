@@ -10,16 +10,17 @@ class TestSites(unittest.TestCase):
         self.builtins = [MX, TX, IX, VX, OX, AX]
 
     def test_site_build(self):
-        site = Site(self.names[0])
+        for S in [Site] + self.builtins:
+            s = S()
 
     def test_site_eq(self):
         sites = [Site(name) for name in self.names]
 
     def test_repr(self):
-        pass
+        out = repr(Site())
 
     def test_str(self):
-        pass
+        out = str(Site())
 
 
 if __name__ == "__main__":
