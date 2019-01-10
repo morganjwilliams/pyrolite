@@ -1,5 +1,6 @@
 import unittest
 from pyrolite.mineral.mineral import *
+from pyrolite.mineral.db import *
 
 
 class TestFormula2Elemental(unittest.TestCase):
@@ -45,19 +46,19 @@ class TestMineral(unittest.TestCase):
     def setUp(self):
         self.ol = Mineral(
             "olivine",
-            olivine,
+            OLIVINE,
             pd.Series({"MgO": 42.06, "SiO2": 39.19, "FeO": 18.75}),
             endmembers={
-                "Fo": forsterite,
-                "Fa": fayalite,
-                "Te": tephroite,
-                "Lie": liebenbergite,
+                "Fo": "forsterite",
+                "Fa": "fayalite",
+                "Te": "tephroite",
+                "Lie": "liebenbergite",
             },
         )
 
         self.pyx = Mineral(
             "pyroxene",
-            pyroxene,
+            PYROXENE,
             pd.Series(
                 data=[57.10, 0.17, 0.70, 0.27, 0.60, 5.21, 0.17, 34.52, 0.62, 0.07],
                 index="SiO2, TiO2, Al2O3, Cr2O3, Fe2O3, FeO, MnO, MgO, CaO, Na2O".split(
@@ -65,16 +66,16 @@ class TestMineral(unittest.TestCase):
                 ),
             ),
             endmembers={
-                "En": enstatite,
-                "Fs": ferrosilite,
-                "Di": diopside,
-                "Hd": hedenbergite,
-                "Js": johannsenite,
-                "Es": esseneite,
-                "Jd": jadeite,
-                "Ae": aegirine,
-                "Ko": kosmochlor,
-                "Sm": spodumene,
+                "En": "enstatite",
+                "Fs": "ferrosilite",
+                "Di": "diopside",
+                "Hd": "hedenbergite",
+                "Js": "johannsenite",
+                "Es": "esseneite",
+                "Jd": "jadeite",
+                "Ae": "aegirine",
+                "Ko": "kosmochlor",
+                "Sm": "spodumene",
             },
         )
 
@@ -87,24 +88,24 @@ class TestMineral(unittest.TestCase):
 
         for comp in compositions:
             mineral = Mineral("mineral", composition=comp)
-    '''
+
     def test_recalculate_cations(self):
         """
         Recalculation involves normalisation to a specific number of cations
         or oxygens.
         """
-        for min in [self.pyx, self.ol]:
-            recalc = min.recalculate_cations()
+        for mineral in [self.pyx, self.ol]:
+            recalc = mineral.recalculate_cations()
 
     def test_apfu(self):
         """
         Recalculation to provide atoms per formula units.
         """
-        for min in [self.pyx, self.ol]:
-            apfu = min.apfu()
+        for mineral in [self.pyx, self.ol]:
+            apfu = mineral.apfu()
 
     def test_endembmer_decompose(self):
-        for min in [self.pyx, self.ol]:
+        for mineral in [self.pyx, self.ol]:
             decomp = self.ol.endmember_decompose()
             assert np.isclose(sum([v for k, v in decomp.items()]), 1)
 
@@ -123,6 +124,6 @@ class TestMineral(unittest.TestCase):
         """
         pass
 
-'''
+
 if __name__ == "__main__":
     unittest.main()

@@ -259,11 +259,13 @@ def simple_oxides(cation, output="string"):
         for c in ions
     ]
     oxides = [pt.formula(ox) for ox in oxides]
+    import periodictable
     if not output == "formula":
         oxides = [str(ox) for ox in oxides]
     return oxides
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def devolatilise(
     df: pd.DataFrame,
     exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"],
@@ -312,7 +314,8 @@ def oxide_conversion(oxin, oxout):
     convert_series.__doc__ = doc
     return convert_series
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def recalculate_Fe(
     df: pd.DataFrame, to_species="FeOT", renorm=True, total_suffix="T", logdata=False
 ):
@@ -367,7 +370,8 @@ def recalculate_Fe(
     else:
         return dfc
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def recalculate_redox(
     df: pd.DataFrame, to_oxidised=True, renorm=True, total_suffix="T", logdata=False
 ):
@@ -425,7 +429,8 @@ def recalculate_redox(
     else:
         return dfc
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def aggregate_cation(
     df: pd.DataFrame,
     cation=None,
@@ -459,6 +464,7 @@ def aggregate_cation(
         Needs to also implement a 'molecular' version.
 
     """
+
     dfc = df.copy()
     # Should first check that neither the element or oxide is present more than once
     assert not ((cation is None) and (oxide is None))
@@ -470,8 +476,10 @@ def aggregate_cation(
         elstr = str(get_cations(oxide)[0])
     elif cation is not None:
         elstr = str(cation)
-        oxstr = [o for o in dfc.columns if o in simple_oxides(elstr)][0]
-        assert oxstr, "Oxidation state uknown. Please specify desired oxide."
+        potential_ox = simple_oxides(elstr)
+        oxstr = [o for o in dfc.columns if o in potential_ox][0]
+        assert oxstr, "Oxidation state unknown. " \
+        "Please specify desired oxide from {}.".format(potential_ox)
 
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
@@ -517,7 +525,8 @@ def aggregate_cation(
 
     return dfc
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     """
     Returns cations which are present in both oxide and elemental form.
@@ -533,7 +542,8 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     ]
     return set([el for el in elements_as_majors if el in elements_as_traces])
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def convert_chemistry(df, columns=[], logdata=False, renorm=False):
     """
     Tries to convert a dataframe with one set of components to another.
@@ -623,7 +633,8 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
         logger.info("Recalculation Done.")
         return df.loc[:, columns]
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def add_ratio(
     df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, convert=lambda x: x
 ):
@@ -671,7 +682,8 @@ def add_ratio(
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
     return df
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
 
     if not molecularIn:
@@ -704,7 +716,8 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
             # Molecular Elemental
             df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
 
-
+@pf.register_series_method
+@pf.register_dataframe_method
 def lambda_lnREE(
     df,
     norm_to="Chondrite_PON",

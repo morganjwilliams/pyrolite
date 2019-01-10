@@ -1,7 +1,8 @@
+import periodictable as pt
 from .mineral import *
 from .sites import *
 # %% Generic Mineral Group Templates ---------------------------------------------------
-olivine = MineralTemplate(
+OLIVINE = MineralTemplate(
     "olivine",
     MX(
         "M1",
@@ -35,7 +36,7 @@ olivine = MineralTemplate(
     *[OX()] * 2,
 )
 
-pyroxene = MineralTemplate(
+PYROXENE = MineralTemplate(
     "pyroxene",
     MX(
         "M1",
@@ -69,20 +70,19 @@ pyroxene = MineralTemplate(
     *[OX()] * 6,
 )
 
-# %% Specific Minerals -----------------------------------------------------------------
-forsterite = Mineral("forsterite", olivine, pt.formula("Mg2SiO4"))
-fayalite = Mineral("fayalite", olivine, pt.formula("Fe2SiO4"))
-tephroite = Mineral("tephroite", olivine, pt.formula("Mn2SiO4"))
-liebenbergite = Mineral("liebenbergite", olivine, pt.formula("Ni1.5Mg0.5SiO4"))
+Mineral("forsterite", OLIVINE, pt.formula("Mg2SiO4"))
+Mineral("fayalite", OLIVINE, pt.formula("Fe2SiO4"))
+Mineral("tephroite", OLIVINE, pt.formula("Mn2SiO4"))
+Mineral("liebenbergite", OLIVINE, pt.formula("Ni1.5Mg0.5SiO4"))
 
-enstatite = Mineral("enstatite", pyroxene, pt.formula("Mg2Si2O6"))
-ferrosilite = Mineral("ferrosilite", pyroxene, pt.formula("Fe2Si2O6"))
-diopside = Mineral("diopside", pyroxene, pt.formula("CaMgSi2O6"))
-hedenbergite = Mineral("hedenbergite", pyroxene, pt.formula("CaFeSi2O6"))
-johannsenite = Mineral("johannsenite", pyroxene, pt.formula("CaMnSi2O6"))
-esseneite = Mineral("esseneite", pyroxene, pt.formula("Ca Al Fe{3+} SiO6"))
-jadeite = Mineral("jadeite", pyroxene, pt.formula("NaAlSi2O6"))
-aegirine = Mineral("aegirine", pyroxene, pt.formula("NaFe{3+}Si2O6"))
-namansilite = Mineral("namansilite", pyroxene, pt.formula("NaMn{3+}Si2O6"))
-kosmochlor = Mineral("kosmochlor", pyroxene, pt.formula("NaCrSi2O6"))
-spodumene = Mineral("spodumene", pyroxene, pt.formula("LiAlSi2O6"))
+Mineral("enstatite", PYROXENE, pt.formula("Mg2Si2O6"))
+Mineral("ferrosilite", PYROXENE, pt.formula("Fe2Si2O6"))
+Mineral("diopside", PYROXENE, pt.formula("CaMgSi2O6"))
+Mineral("hedenbergite", PYROXENE, pt.formula("CaFeSi2O6"))
+Mineral("johannsenite", PYROXENE, pt.formula("CaMnSi2O6"))
+Mineral("esseneite", PYROXENE, pt.formula("Ca Al Fe{3+} SiO6"))
+Mineral("jadeite", PYROXENE, pt.formula("NaAlSi2O6"))
+Mineral("aegirine", PYROXENE, pt.formula("NaFe{3+}Si2O6"))
+Mineral("namansilite", PYROXENE, pt.formula("NaMn{3+}Si2O6"))
+Mineral("kosmochlor", PYROXENE, pt.formula("NaCrSi2O6"))
+Mineral("spodumene", PYROXENE, pt.formula("LiAlSi2O6"))

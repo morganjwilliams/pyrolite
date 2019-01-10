@@ -80,16 +80,47 @@ class MineralTemplate(object):
 class Mineral(object):
     """Mineral, with structure and composition."""
 
+    db = {}
+
     def __init__(self, name=None, template=None, composition=None, endmembers=None):
         self.name = name
-        self.endmembers = endmembers
         self.template = None
         self.composition = None
+        self.endmembers = {}
         self.set_template(template)
         self.set_composition(composition)
+        self.set_endmembers(endmembers)
         self.endmember_decomposition = None
-
         self.init = True
+        self.db[self.name] = self
+
+    def set_endmembers(self, endmembers=None):
+        """Set the endmbmer components for a mineral."""
+        if endmembers is not None:
+            if isinstance(endmembers, list):
+                for em in endmembers:
+                    self.add_endmember(em)
+            elif isinstance(endmembers, dict):
+                for name, em in endmembers.items():
+                    self.add_endmember(em, name=name)
+
+    def add_endmember(self, em, name=None):
+        """Add a single endmember to the database."""
+        min = em
+        if isinstance(min, tuple):
+            name, min = min
+        if min is not None:
+            # process different options for getting a mineral output
+            if isinstance(min, str):
+                min = self.db.get(em, None)
+            elif isinstance(min, pt.formulas.Formula):
+                name = name or str(min)
+                min = Mineral(name, None, min)
+            else:
+                pass
+
+            name = name or min.name
+            self.endmembers[name] = min
 
     def set_template(self, template, name=None):
         """Assign a mineral template to the mineral."""
@@ -398,16 +429,14 @@ def recalc_cations(
     schema = []
     # if oxygen_constrained:  # need to specifically separate Fe2 and Fe3
     if as_oxides:
-        parts = [
-            {str(k): v for (k, v) in pt.formula(c).atoms.items()} for c in components
-        ]
+        parts = [pt.formula(c).atoms for c in components]
         for p in parts:
-            oxygens = p["O"]
-            other_components = [i for i in list(p) if not i == "O"]
+            oxygens = p[pt.O]
+            other_components = [i for i in list(p) if not i == pt.O]
             assert len(other_components) == 1  # need to be simple oxides
             other = other_components[0]
             charge = oxygens * 2 / p[other]
-            ion = pt.formula("%s{%i+}" % (other, int(charge)))
+            ion = other.ion[charge]
             schema.append({str(ion): p[other], "O": oxygens})
     else:
         # elemental composition
@@ -417,10 +446,11 @@ def recalc_cations(
             if p.charge != 0:
                 charge = p.charge
             else:
-                p.charge = p.default_charge
-            schema.append({str(p): 1})
+                charge = p.default_charge
+            schema.append({p.ion[charge]: 1})
 
     ref = pd.DataFrame(data=schema)
+    ref.columns = ref.columns.map(str)
     ref.index = components
     cation_masses = {c: pt.formula(c).mass for c in ref.columns}
     oxygen_index = [i for i in ref.columns if "O" in i][0]
