@@ -84,7 +84,7 @@ class TX(Site):
         coordination=4,
         affinities={"Si{4+}": 0, "Al{3+}": 1, "Fe{3+}": 2},
         *args,
-        **kwargs,
+        **kwargs
     ):
         super().__init__(name, coordination, *args, **kwargs)
         self.cationic = True
