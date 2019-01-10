@@ -4,6 +4,7 @@ import versioneer
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 
 dev_require = [
+    "pytest",
     "versioneer",
     "black",
     "nbstripout",
@@ -11,11 +12,13 @@ dev_require = [
     "twine",
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
+    "recommonmark",
     #'mock',
-]
+] + tests_require
 
 db_require = ["pyodbc", "psycopg2"]
-
+skl_require = ["scikit-learn", "imbalanced-learn"]
+impute_require = ["fancyimpute"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
 with open("README.md", "r") as src:
@@ -46,7 +49,6 @@ setup(
         "pathlib",
         "numpy",
         "scipy",
-        "scikit-learn",
         "mpmath",
         "sympy",
         "pandas",
@@ -57,9 +59,14 @@ setup(
         "requests",
         "dicttoxml",
         "xmljson",
+        "beautifulsoup4",
+        "joblib",
+        "pandas_flavor"
     ],
     extras_require={
-        "dev": dev_require + tests_require,
+        "impute": impute_require,
+        "dev": dev_require,
+        "skl": skl_require,
         "spatial": spatial_require,
         "db": db_require,
     },

@@ -2,6 +2,7 @@ import os, sys
 import re
 import time
 import subprocess, shutil
+from tempfile import mkdtemp
 import operator
 import inspect
 import zipfile
@@ -10,7 +11,9 @@ from collections import Mapping
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import datetime
 import logging
+
 
 try:
     import httplib
@@ -29,23 +32,29 @@ class Timewith:
     def __init__(self, name=""):
         self.name = name
         self.start = time.time()
+        self.checkpoints = []
 
     @property
     def elapsed(self):
         return time.time() - self.start
 
     def checkpoint(self, name=""):
-        msg = "{timer:.3f} {checkpoint:.3f} in {elapsed:.3f} s.".format(
-            timer=self.name, checkpoint=name, elapsed=self.elapsed
+        elapsed = self.elapsed
+        msg = "{time} {timer}: {checkpoint} in {elapsed:.3f} s.".format(
+            timer=self.name,
+            time=datetime.datetime.now().strftime("%H:%M:%S"),
+            checkpoint=name,
+            elapsed=elapsed,
         ).strip()
-        print(msg)
+        logger.info(msg)
+        self.checkpoints.append((name, elapsed))
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.checkpoint("Finished")
-        pass
+        self.checkpoints.append(("Finished", self.elapsed))
 
 
 def stream_log(package_name, level="INFO"):
@@ -101,14 +110,10 @@ def internet_connection(target="www.google.com"):
         return False
 
 
-def temp_path():
+def temp_path(suffix=""):
     """Return the path of a temporary directory."""
-    userdir = Path("~").expanduser()
-    root = Path(userdir.drive) / userdir.root
-    if root / "tmp" in root.iterdir():  # .nix
-        return root / "tmp"
-    else:
-        return root / "temp"
+    dir = mkdtemp(suffix=suffix)
+    return Path(dir)
 
 
 def iscollection(obj):
@@ -198,7 +203,7 @@ def swap_item(list: list, pull: str, push: str):
     pull: Item to replace in the list.
     push: Item to add into the list.
     """
-    return [push if i == pull else i for i in list]
+    return [[i, push][i == pull] for i in list]
 
 
 def copy_file(src, dst, ext=None):
@@ -220,7 +225,7 @@ def copy_file(src, dst, ext=None):
     if ext is not None:
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
-    print("Copying from {} to {}".format(src, dst))
+    logger.debug("Copying from {} to {}".format(src, dst))
     with open(str(src), "rb") as fin:
         with open(str(dst), "wb") as fout:
             shutil.copyfileobj(fin, fout)
@@ -236,16 +241,7 @@ def remove_tempdir(directory):
         Path to directory.
     """
     directory = Path(directory)
-    if directory.exists():
-        temp_files = []
-        for x in directory.iterdir():
-            if x.is_file():
-                temp_files.append(x)
-            elif x.is_dir():
-                remove_tempdir(x)
-        for t in temp_files:
-            os.remove(str(t))
-        os.rmdir(str(directory))
+    shutil.rmtree(str(directory))
     assert not directory.exists()
 
 

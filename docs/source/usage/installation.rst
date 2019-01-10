@@ -7,11 +7,11 @@ Pyrolite is available on `PyPi <https://pypi.org/project/pyrolite/>`_, and can b
 
    pip install pyrolite
 
-Optional dependencies (`dev`, `spatial`, `db`) can be specified during pip installation.
+Optional dependencies (`dev`, `skl`, `spatial`, `db`) can be specified during pip installation.
 For example:
 
 .. code-block:: bash
 
    pip install pyrolite[dev]
-   
-   pip install pyrolite[dev,spatial]
+
+   pip install pyrolite[dev,skl,spatial,db]

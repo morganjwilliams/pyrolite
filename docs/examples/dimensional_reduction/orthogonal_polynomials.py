@@ -3,6 +3,7 @@ from pyrolite.plot import REE_radii_plot
 from pyrolite.geochem import REE, get_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
+np.random.seed(82)
 
 def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **kwargs):
     """Plot polynomials on an axis over x values."""
@@ -13,8 +14,6 @@ def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **
         if log:
             f = np.exp(f)
         ax.plot(xs, f, label="$x^{}$".format(len(p)), **kwargs)
-
-
 # %% Generate Some Example Data --------------------------------------------------------
 data_ree = [i for i in REE() if not i in ["Pm"]]
 data_radii = np.array(get_radii(data_ree))
@@ -30,7 +29,7 @@ for ix, el in enumerate(data_ree):
         lnY[ix] += np.random.randn(1) * 0.6
 
 Y = np.exp(lnY)
-# %% Reduce to Orthagonal Polynomials --------------------------------------------------
+# %% Reduce to Orthogonal Polynomials --------------------------------------------------
 exclude = ["Ce", "Eu", "Pm"]
 if exclude:
     subset_Y = Y[[i not in exclude for i in data_ree]]
@@ -44,13 +43,12 @@ l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)
 smooth_profile = np.exp(l_func(continuous_radii))
 # %% Plot the Results ------------------------------------------------------------------
 ax = REE_radii_plot()
-ax.plot(data_radii, Y, marker="D", label="Example Data")
+ax.plot(data_radii, Y, marker="D", color='0.5', label="Example Data")
 plot_orthagonal_polynomial_components(
-    ax, continuous_radii, ls, params, log=True, alpha=0.5
+    ax, continuous_radii, ls, params, log=True,
 )
 ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k")
 ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
 # %% End -------------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure
-
 save_figure(ax.figure, save_at="../../source/_static", name="OrthagPolyDeconstruction")

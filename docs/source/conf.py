@@ -25,7 +25,9 @@ import re
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../."))
 sys.path.insert(0, os.path.abspath("../.."))
-
+# pip install git+https://github.com/rtfd/recommonmark.git@master
+import recommonmark
+from recommonmark.transform import AutoStructify
 import pyrolite
 
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
@@ -59,6 +61,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "recommonmark",
 ]
 
 napoleon_google_docstring = False
@@ -70,10 +73,7 @@ templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = ".rst"
-
+source_suffix = [".rst", ".md"]
 # The master toctree document.
 master_doc = "index"
 
@@ -190,3 +190,17 @@ texinfo_documents = [
 # -- intersphinx
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+
+github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
+
+
+def setup(app):
+    app.add_config_value(
+        "recommonmark_config",
+        {
+            "url_resolver": lambda url: github_doc_root + url,
+            "auto_toc_tree_section": "Contents",
+        },
+        True,
+    )
+    app.add_transform(AutoStructify)

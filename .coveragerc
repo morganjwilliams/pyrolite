@@ -1,12 +1,16 @@
 [run]
+source = pyrolite
 omit =
-    # Omit test and data files
+    # Omit test, docs, draft and data files
     test/*
+    docs/*
     **/data
+    draft/*
 
     # Omit extensions with extra dependencies
     pyrolite/util/wfs.py
     pyrolite/util/database.py
+    pyrolite/util/skl.py
 
     # Ignore _version.py
     */_version.py

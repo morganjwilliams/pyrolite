@@ -1,8 +1,15 @@
+import os
 import unittest
 import pandas as pd
 from pyrolite.util.georoc import *
 from pyrolite.geochem import check_multiple_cation_inclusion
 from pyrolite.util.general import internet_connection, temp_path, remove_tempdir
+
+if internet_connection():
+    try:
+        update_georoc_filelist()
+    except:
+        pass
 
 
 class TestParseValues(unittest.TestCase):
@@ -65,6 +72,39 @@ class TestParseDOI(unittest.TestCase):
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
+class TestGetGEOROCLinks(unittest.TestCase):
+    def test_get_links(self):
+        links = get_georoc_links(exclude=[])
+        self.assertIn("Minerals", links.keys())
+
+    def test_exclude(self):
+        for exclude in [["Minerals"], ["Minerals", "Rocks"]]:
+            with self.subTest(exclude=exclude):
+                links = get_georoc_links(exclude=exclude)
+                for i in exclude:
+                    self.assertNotIn(i, links.keys())
+
+
+@unittest.skipIf(not internet_connection(), "Needs internet connection.")
+class TestUpdateGEOROCFilelist(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = temp_path()
+        self.filepath = self.temp_dir / "contents.json"
+        with open(str(self.filepath), "w+") as fh:
+            pass
+        self.initial_last_modification_time = os.stat(str(self.filepath)).st_mtime
+
+    def test_update_filelist(self):
+        update_georoc_filelist(filepath=self.filepath)
+        new_modification_time = os.stat(str(self.filepath)).st_mtime
+        self.assertTrue(self.filepath.exists())
+        self.assertTrue(new_modification_time > self.initial_last_modification_time)
+
+    def tearDown(self):
+        remove_tempdir(str(self.filepath.parent))
+
+
+@unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestDownloadGEOROCCompilation(unittest.TestCase):
     def setUp(self):
         self.test_url = (
@@ -79,15 +119,9 @@ class TestDownloadGEOROCCompilation(unittest.TestCase):
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
-class TestDownloadGEOROCCompilation(unittest.TestCase):
+class TestBulkGEOROCCompilation(unittest.TestCase):
     def setUp(self):
-        self.test_url = (
-            "http://"
-            + "georoc.mpch-mainz.gwdg.de/georoc/Csv_Downloads/"
-            + "Complex_Volcanic_Settings_comp/"
-            + "FINGER_LAKES_FIELD_NEW_YORK.csv"
-        )
-        self.temp_dir = temp_path() / "test_pyrolite.util.georoc"
+        self.temp_dir = temp_path()
         if not self.temp_dir.exists():
             self.temp_dir.mkdir(parents=True)
         self.res = ["OBFB"]

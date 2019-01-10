@@ -4,7 +4,7 @@ from .general import pyrolite_datafolder
 from .pd import to_frame, to_numeric
 from .text import titlecase, string_variations
 from .general import iscollection
-
+from collections import ChainMap, defaultdict
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -25,7 +25,7 @@ def listify(df, axis=1):
     axis: {1, 0}
         Axis to condense along.
     """
-    return df.copy().apply(list, axis=axis)
+    return df.copy(deep=True).apply(list, axis=axis)
 
 
 def age_name(
@@ -110,7 +110,7 @@ def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Ali
 
     df = pd.read_csv(filename)
     df.loc[:, ["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(to_numeric)
-    _df = df.copy()
+    _df = df.copy(deep=True)
     grps = [i for i in _df.columns if not i in info_cols]
     condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]].fillna(
         value=""
@@ -150,6 +150,11 @@ class Timescale(object):
             self.data = timescale_reference_frame(filename)
         self.levels = [i for i in self.data.Level.unique() if not pd.isnull(i)]
         self.levels = [i for i in self.data.columns if i in self.levels]
+
+        def getnan():
+            return np.nan, np.nan
+
+        self.locate = defaultdict(getnan)
         self.build()
 
     def build(self):
@@ -160,6 +165,13 @@ class Timescale(object):
                 & ~self.data.loc[:, g].isnull()
             )
             setattr(self, g + "s", self.data.loc[fltr, :])
+
+        dicts = self.data.apply(
+            lambda x: {a: (x.Start, x.End) for a in x.Aliases}, axis=1
+        )
+        # should check that the keys are unique across all of these
+        self.locate.update(dict(ChainMap(*dicts)))
+        self.data = self.data.set_index("Ident")
 
     def text2age(self, entry, nulls=[None, "None", "none", np.nan, "NaN"]):
         """
@@ -174,44 +186,11 @@ class Timescale(object):
             String name, or series of string names, for geological age range.
 
         """
-        if isinstance(entry, str):
-            if entry in nulls:
-                return (np.nan, np.nan)
-            elif entry.replace(".", "").isnumeric():
-                # check if the text is actually numeric
-                return (float(entry), float(entry))
-            else:
-                # check whether it corresponds to any of the named aliases
-                matches = self.data.Aliases.apply(
-                    lambda x: entry.lower().strip() in x
-                ).values
-                if matches.any():
-                    if matches.sum() > 1:
-                        msg = "Multiple age matches for {}".format(entry)
-                        logger.warning(msg)
-                    return tuple(self.data.loc[matches, ["Start", "End"]].values[0])
-                else:
-                    logger.info("No age matches for {}".format(entry))
-                    return (np.nan, np.nan)
-        elif iscollection(entry):
-            """
-            nans = (values=="None") | (values=="none") | \
-                   ([i is None for i in values])
-            outvals = np.nan * np.ones((values.size, 2))
-            outvals[~nans] = list(map(self.text2age, values[~nans]))
-            """
-            if isinstance(entry, pd.Series):
-                outvals = entry.apply(self.text2age)
-            elif isinstance(entry, pd.DataFrame):
-                outvals = entry.applymap(self.text2age)
-            else:
-                values = np.array(entry)
-                outvals = list(map(self.text2age, values))
-            return outvals
-        else:
-            msg = "Could not format ages in the form of {}".format(type(entry))
-            logger.info(msg)
-            return np.nan
+        try:
+            entry = np.float(entry)
+            return (entry, entry)
+        except:
+            return self.locate[entry.lower().strip()]
 
     def named_age(self, age, level="Period"):
         """
@@ -235,11 +214,11 @@ class Timescale(object):
         wthn_rng = lambda x: (age <= x.Start) & (age >= x.End)
         relevant = self.data.loc[self.data.apply(wthn_rng, axis=1).values, :]
         if level == "Specific":  # take the rightmost grouping
-            relevant = relevant[self.levels]
+            relevant = relevant.loc[:, self.levels]
             idx_rel_row = (~pd.isnull(relevant)).count(axis=1).idxmax()
-            rel_row = relevant.iloc[idx_rel_row, :]
+            rel_row = relevant.loc[idx_rel_row, :]
             spec = rel_row[~pd.isnull(rel_row)].values[-1]
             return spec
         else:
-            relevant = relevant[level]
+            relevant = relevant.loc[:, level]
             return relevant.unique()[~pd.isnull(relevant.unique())][0]

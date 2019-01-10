@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin
-from .renorm import renormalise, close
+import pandas_flavor as pf
+import scipy.stats as scpstats
+import scipy.special as scpspec
+#from .renorm import renormalise, close
 from ..util.math import orthagonal_basis
 import logging
 
@@ -9,11 +11,46 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def additive_log_ratio(X: np.ndarray, ind: int = -1):
+def close(X: np.ndarray):
+    if X.ndim == 2:
+        return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
+    else:
+        return np.divide(X, np.sum(X, axis=0))
+
+@pf.register_series_method
+@pf.register_dataframe_method
+def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
+    """
+    Renormalises compositional data to ensure closure.
+
+    Parameters
+    ------------
+    df: pd.DataFrame
+        Dataframe to renomalise.
+    components: list
+        Option subcompositon to renormalise to 100. Useful for the use case
+        where compostional data and non-compositional data are stored in the
+        same dataframe.
+    scale: float, 100.
+        Closure parameter. Typically either 100 or 1.
+    """
+    dfc = df.copy(deep=True)
+    if components:
+        cmpnts = [c for c in components if c in dfc.columns]
+        dfc.loc[:, cmpnts] = scale * dfc.loc[:, cmpnts].divide(
+            dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan), axis=0
+        )
+        return dfc
+    else:
+        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.0), axis=0) * scale
+        return dfc
+
+
+def additive_log_ratio(X: np.ndarray, ind: int = -1, null_col=False):
     """
     Inverse Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the inverse transformation.
@@ -29,19 +66,21 @@ def additive_log_ratio(X: np.ndarray, ind: int = -1):
 
     if Y.ndim == 2:
         Y = np.divide(Y, Y[:, ind][:, np.newaxis])
-        Y = np.log(Y[:, [i for i in range(dimensions) if not i == ind]])
+        if not null_col:
+            Y = Y[:, [i for i in range(dimensions) if not i == ind]]
     else:
         Y = np.divide(X, X[ind])
-        Y = np.log(Y[[i for i in range(dimensions) if not i == ind]])
+        if not null_col:
+            Y = Y[[i for i in range(dimensions) if not i == ind]]
 
-    return Y
+    return np.log(Y)
 
 
-def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
+def inverse_additive_log_ratio(Y: np.ndarray, ind=-1, null_col=False):
     """
     Inverse Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the inverse transformation.
@@ -52,18 +91,19 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1):
 
     X = Y.copy()
     dimensions = X.shape[X.ndim - 1]
-    idx = np.arange(0, dimensions + 1)
+    if not null_col:
+        idx = np.arange(0, dimensions + 1)
 
-    if ind != -1:
-        idx = np.array(list(idx[idx < ind]) + [-1] + list(idx[idx >= ind + 1] - 1))
+        if ind != -1:
+            idx = np.array(list(idx[idx < ind]) + [-1] + list(idx[idx >= ind + 1] - 1))
 
-    # Add a zero-column and reorder columns
-    if Y.ndim == 2:
-        X = np.concatenate((X, np.zeros((X.shape[0], 1))), axis=1)
-        X = X[:, idx]
-    else:
-        X = np.append(X, np.array([0]))
-        X = X[idx]
+        # Add a zero-column and reorder columns
+        if Y.ndim == 2:
+            X = np.concatenate((X, np.zeros((X.shape[0], 1))), axis=1)
+            X = X[:, idx]
+        else:
+            X = np.append(X, np.array([0]))
+            X = X[idx]
 
     # Inverse log and closure operations
     X = np.exp(X)
@@ -75,7 +115,7 @@ def alr(*args, **kwargs):
     """
     Short form of Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -89,7 +129,7 @@ def inv_alr(*args, **kwargs):
     """
     Short form of Inverse Additive Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -103,7 +143,7 @@ def clr(X: np.ndarray):
     """
     Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the transformation.
@@ -118,7 +158,7 @@ def inv_clr(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -134,7 +174,7 @@ def ilr(X: np.ndarray):
     """
     Isotmetric Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     X: np.ndarray
         Array on which to perform the transformation.
@@ -151,7 +191,7 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
-    Parameters:
+    Parameters
     ---------------
     Y: np.ndarray
         Array on which to perform the inverse transformation.
@@ -162,86 +202,65 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     return X
 
 
-class LinearTransform(TransformerMixin):
+def boxcox(
+    X: np.ndarray,
+    lmbda=None,
+    lmbda_search_space=(-1, 5),
+    search_steps=100,
+    return_lmbda=False,
+):
     """
-    Linear Transformer for scikit-learn like use.
+    Box-Cox transformation.
+
+    Parameters
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the transformation.
+    lmbda: {None, np.float}
+        Lambda value used to forward-transform values. If none, it will be calculated
+        using the mean
     """
+    if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+        _X = X.values
+    else:
+        _X = X.copy()
 
-    def __init__(self, **kwargs):
-        self.kpairs = kwargs
-        self.label = "Crude"
+    if lmbda is None:
+        l_search = np.linspace(*lmbda_search_space, search_steps)
+        llf = np.apply_along_axis(scpstats.boxcox_llf, 0, np.array([l_search]), _X.T)
+        if llf.shape[0] == 1:
+            mean_llf = llf[0]
+        else:
+            mean_llf = np.nansum(llf, axis=0)
 
-    def transform(self, X, *args):
-        X = np.array(X)
-        return X
+        lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
+    if _X.ndim < 2:
+        out = scpstats.boxcox(_X, lmbda)
+    elif _X.shape[0] == 1:
+        out = scpstats.boxcox(np.squeeze(_X), lmbda)
+    else:
+        out = np.apply_along_axis(scpstats.boxcox, 0, _X, lmbda)
 
-    def inverse_transform(self, Y, *args):
-        Y = np.array(Y)
-        return Y
+    if isinstance(_X, pd.DataFrame) or isinstance(_X, pd.Series):
+        _out = X.copy()
+        _out.loc[:, :] = out
+        out = _out
 
-    def fit(self, X, *args):
-        return self
+    if return_lmbda:
+        return out, lmbda
+    else:
+        return out
 
 
-class ALRTransform(TransformerMixin):
+def inv_boxcox(Y: np.ndarray, lmbda):
     """
-    Additive Log Ratio Transformer for scikit-learn like use.
+    Inverse Box-Cox transformation.
+
+    Parameters
+    ---------------
+    Y: np.ndarray
+        Array on which to perform the transformation.
+    lmbda: np.float
+        Lambda value used to forward-transform values.
     """
-
-    def __init__(self, **kwargs):
-        self.kpairs = kwargs
-        self.label = "ALR"
-
-    def transform(self, X, *args, **kwargs):
-        X = np.array(X)
-        return alr(X, *args, **kwargs)
-
-    def inverse_transform(self, Y, *args, **kwargs):
-        Y = np.array(Y)
-        return inv_alr(Y, *args, **kwargs)
-
-    def fit(self, X, *args, **kwargs):
-        return self
-
-
-class CLRTransform(TransformerMixin):
-    """
-    Centred Log Ratio Transformer for scikit-learn like use.
-    """
-
-    def __init__(self, **kwargs):
-        self.kpairs = kwargs
-        self.label = "CLR"
-
-    def transform(self, X, *args, **kwargs):
-        X = np.array(X)
-        return clr(X, *args, **kwargs)
-
-    def inverse_transform(self, Y, *args, **kwargs):
-        Y = np.array(Y)
-        return inv_clr(Y, *args, **kwargs)
-
-    def fit(self, X, *args, **kwargs):
-        return self
-
-
-class ILRTransform(TransformerMixin):
-    """
-    Isometric Log Ratio Transformer for scikit-learn like use.
-    """
-
-    def __init__(self, **kwargs):
-        self.kpairs = kwargs
-        self.label = "ILR"
-
-    def transform(self, X, *args, **kwargs):
-        X = np.array(X)
-        self.X = X
-        return ilr(X, *args, **kwargs)
-
-    def inverse_transform(self, Y, *args, **kwargs):
-        Y = np.array(Y)
-        return inv_ilr(Y, X=self.X, *args, **kwargs)
-
-    def fit(self, X, *args, **kwargs):
-        return self
+    return scpspec.inv_boxcox(Y, lmbda)

@@ -1,4 +1,5 @@
 import pandas as pd
+import pandas_flavor as pf
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -15,10 +16,14 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
-DEFAULT_DISC_COLORMAP = "tab10"
+DEFAULT_DISC_COLORMAP = plt.cm.tab10
 
 
-def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kwargs):
+@pf.register_series_method
+@pf.register_dataframe_method
+def spiderplot(
+    df, components: list = None, ax=None, plot=True, fill=False, indexes=None, **kwargs
+):
     """
     Plots spidergrams for trace elements data. Additional keyword arguments are
     passed to matplotlib.
@@ -50,10 +55,9 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
     df = to_frame(df)
 
     if components is None:
-        components = [el for el in common_elements(output="str") if el in df.columns]
+        components = [el for el in common_elements() if el in df.columns]
 
     assert len(components) != 0
-    c_indexes = np.arange(len(components))
 
     sty = {}
 
@@ -86,10 +90,15 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
 
     ax = ax or plt.subplots(1, figsize=(len(components) * 0.3, 4))[1]
 
+    if indexes is None:
+        indexes = np.arange(len(components))
+        ax.set_xticks(indexes)
+        ax.set_xticklabels(components, rotation=60)
+
     if fill:
         mins = df.loc[:, components].min(axis=0)
         maxs = df.loc[:, components].max(axis=0)
-        plycol = ax.fill_between(c_indexes, mins, maxs, **sty)
+        plycol = ax.fill_between(indexes, mins, maxs, **sty)
         # Use the first (typically only) element for color
         if (sty.get("color") is None) and (sty.get("c") is None):
             sty["color"] = plycol.get_facecolor()[0]
@@ -101,7 +110,7 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
         sty["color"] = next(ax._get_lines.prop_cycler)["color"]
 
     if plot:
-        ls = ax.plot(c_indexes, df.loc[:, components].T.values.astype(np.float), **sty)
+        ls = ax.plot(indexes, df.loc[:, components].T.values.astype(np.float), **sty)
         if variable_colors:
             for l, c in zip(ls, _c):
                 l.set_color(c)
@@ -121,13 +130,11 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
                 _c = np.tile(_c, (len(components), 1))
 
         sc = ax.scatter(
-            np.tile(c_indexes, (df.loc[:, components].index.size, 1)).T,
+            np.tile(indexes, (df.loc[:, components].index.size, 1)).T,
             df.loc[:, components].T.values.astype(np.float),
-            **sty
+            **sty,
         )
 
-    ax.set_xticks(c_indexes)
-    ax.set_xticklabels(components, rotation=60)
     ax.set_yscale("log")
     ax.set_xlabel("Element")
 
@@ -138,7 +145,48 @@ def spiderplot(df, components: list = None, ax=None, plot=True, fill=False, **kw
     return ax
 
 
-def ternaryplot(df, components: list = None, ax=None, **kwargs):
+@pf.register_series_method
+@pf.register_dataframe_method
+def REE_radii_plot(df=None, ax=None, **kwargs):
+    """
+    Creates an axis for a REE diagram with ionic radii along the x axis.
+
+    Parameters
+    -----------
+    ax : matplotlib.axes.Axes
+        Optional designation of axes to reconfigure.
+    """
+    if ax is not None:
+        fig = ax.figure
+        ax = ax
+    else:
+        fig, ax = plt.subplots()
+
+    ree = REE()
+    radii = np.array(get_radii(ree))
+
+    if df is not None:
+        if any([i in df.columns for i in ree]):
+            reedata = df.loc[:, ree]
+            reedata.spiderplot(ax=ax, indexes=radii, **kwargs)
+
+    _ax = ax.twiny()
+    ax.set_yscale("log")
+    ax.set_xlim((0.99 * radii.min(), 1.01 * radii.max()))
+    _ax.set_xlim(ax.get_xlim())
+    _ax.set_xticks(radii)
+    _ax.set_xticklabels(ree)
+    _ax.set_xlabel("Element")
+    ax.axhline(1.0, ls="--", c="k", lw=0.5)
+    ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+    ax.set_xlabel("Ionic Radius ($\mathrm{\AA}$)")
+
+    return ax
+
+
+@pf.register_series_method
+@pf.register_dataframe_method
+def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     """
     Plots scatter ternary diagrams, using a wrapper around the
     python-ternary library (gh.com/marcharper/python-ternary).
@@ -170,7 +218,7 @@ def ternaryplot(df, components: list = None, ax=None, **kwargs):
     scale = kwargs.pop("scale", None) or 100.0
     figsize = kwargs.pop("size", None) or 8.0
     gridsize = kwargs.pop("gridsize", None) or 10.0
-    fontsize = kwargs.pop("fontsize", None) or 12.0
+    fontsize = kwargs.pop("fontsize", None) or 10.0
 
     sty = {}
     sty["marker"] = kwargs.pop("marker", None) or "D"
@@ -203,7 +251,7 @@ def ternaryplot(df, components: list = None, ax=None, **kwargs):
         tax.right_axis_label(components[1], fontsize=fontsize)
 
         tax.gridlines(multiple=gridsize, color="k", alpha=0.5)
-        tax.ticks(axis="lbr", linewidth=1, multiple=gridsize)
+        tax.ticks(axis="lbr", linewidth=1, clockwise=clockwise, multiple=gridsize)
         tax.boundary(linewidth=1.0)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
@@ -212,39 +260,11 @@ def ternaryplot(df, components: list = None, ax=None, **kwargs):
         ax.get_xaxis().set_ticks([])
         ax.get_yaxis().set_ticks([])
 
-    return tax
-
-
-def REE_radii_plot(ax=None):
-    """
-    Creates an axis for a REE diagram with ionic radii along the x axis.
-
-    Parameters
-    -----------
-    ax : matplotlib.axes.Axes
-        Optional designation of axes to reconfigure.
-    """
-    if ax is not None:
-        fig = ax.figure
-        ax = ax
-    else:
-        fig, ax = plt.subplots()
-    ree = REE()
-    radii = np.array(get_radii(ree))
-
-    _ax = ax.twiny()
-    ax.set_yscale("log")
-    ax.set_xlim((0.99 * radii.min(), 1.01 * radii.max()))
-    _ax.set_xticks(radii)
-    _ax.set_xticklabels(ree)
-    _ax.set_xlim(ax.get_xlim())
-    _ax.set_xlabel("Element")
-    ax.axhline(1.0, ls="--", c="k", lw=0.5)
-    ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
-    ax.set_xlabel("Ionic Radius ($\mathrm{\AA}$)")
     return ax
 
 
+@pf.register_series_method
+@pf.register_dataframe_method
 def densityplot(
     df,
     components: list = None,
@@ -253,6 +273,7 @@ def densityplot(
     coverage_scale=1.1,
     logspace=False,
     contour=False,
+    extent=None,
     **kwargs
 ):
     """
@@ -316,28 +337,35 @@ def densityplot(
         data = data[(np.isfinite(data).all(axis=1)), :]
         if len(components) == 2:  # binary
             x, y = data.T
-            xmin, xmax = (
-                on_finite(x, np.min) * (1.0 - exp),
-                on_finite(x, np.max) * (1.0 + exp),
-            )  # 120% range
-            ymin, ymax = (
-                on_finite(y, np.min) * (1.0 - exp),
-                on_finite(y, np.max) * (1.0 + exp),
-            )  # 120% range
-            xstep = (xmax - xmin) / nbins
-            ystep = (ymax - ymin) / nbins
+            if extent is not None:
+                xmin, xmax, ymin, ymax = extent
+            else:
+                xmin, xmax = (
+                    on_finite(x, np.min) * (1.0 - exp),
+                    on_finite(x, np.max) * (1.0 + exp),
+                )  # 120% range
+                ymin, ymax = (
+                    on_finite(y, np.min) * (1.0 - exp),
+                    on_finite(y, np.max) * (1.0 + exp),
+                )  # 120% range
+            if not logspace:
+                xstep = (xmax - xmin) / nbins
+                ystep = (ymax - ymin) / nbins
+            else:
+                xstep = (xmax / xmin) / nbins
+                ystep = (ymax / ymin) / nbins
 
-            extent = (xmin, xmax, ymin, ymax)
+            plotextent = extent or (xmin, xmax, ymin, ymax)
 
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
                 if logspace:
                     # extent values are exponents (i.e. 3 -> 10**3)
                     hex_extent = (
-                        np.log(xmin - xstep),
-                        np.log(xmax + xstep),
-                        np.log(ymin - ystep),
-                        np.log(ymax + ystep),
+                        np.log(xmin / xstep),
+                        np.log(xmax * xstep),
+                        np.log(ymin / ystep),
+                        np.log(ymax * ystep),
                     )
                     mappable = ax.hexbin(
                         x,
@@ -347,7 +375,7 @@ def densityplot(
                         extent=hex_extent,
                         xscale="log",
                         yscale="log",
-                        **kwargs
+                        **kwargs,
                     )
                 else:
                     hex_extent = (
@@ -364,18 +392,18 @@ def densityplot(
             elif mode == "hist2d":
                 vmin = kwargs.pop("vmin", 0)
                 if logspace:
-                    assert (xmin - xstep > 0.0) and (ymin - ystep > 0.0)
+                    assert ((xmin / xstep) > 0.0) and ((ymin / ystep) > 0.0)
                     xe = np.logspace(
-                        np.log(xmin - xstep), np.log(xmax + xstep), nbins + 1
+                        np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1
                     )
                     ye = np.logspace(
-                        np.log(ymin - ystep), np.log(ymax + ystep), nbins + 1
+                        np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1
                     )
                 else:
                     xe = np.linspace(xmin - xstep, xmax + xstep, nbins + 1)
                     ye = np.linspace(ymin - ystep, ymax + ystep, nbins + 1)
 
-                range = [[extent[0], extent[1]], [extent[2], extent[3]]]
+                range = [[plotextent[0], plotextent[1]], [plotextent[2], plotextent[3]]]
                 h, xe, ye, im = ax.hist2d(
                     x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
                 )
@@ -425,7 +453,7 @@ def densityplot(
                         extent=extent,
                         levels=levels,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
 
                     ax.contour(
@@ -436,7 +464,7 @@ def densityplot(
                         linewidths=linewidths,
                         linestyles=linestyles,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
                 else:
                     mappable = ax.pcolormesh(
@@ -446,7 +474,7 @@ def densityplot(
                         cmap=cmap,
                         shading=shading,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -455,9 +483,14 @@ def densityplot(
                 cbarlabel = "Kernel Density Estimate"
 
             if colorbar:
-                add_colorbar(mappable, label=cbarlabel, **kwargs)
+                cbkwargs = kwargs.copy()
+                cbkwargs["label"] = cbarlabel
+                add_colorbar(mappable, **cbkwargs)
 
-            ax.axis(extent)
+            if extent:
+                ax.axis(extent)
+            else:
+                ax.axis((xmin, xmax, ymin, ymax))
 
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
@@ -466,8 +499,8 @@ def densityplot(
             scale = kwargs.pop("scale", None) or 100.0
             empty_df = pd.DataFrame(columns=df.columns)
             heatmapdata = tern_heatmapcoords(data.T, scale=nbins, bins=nbins)
-            tax = ternaryplot(empty_df, ax=ax, components=components, scale=scale)
-            ax = tax.ax
+            ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+            tax = ax.tax
             if mode == "hexbin":
                 style = "hexagonal"
             else:

@@ -31,7 +31,7 @@ def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"]):
 def column_ordered_append(df1, df2, **kwargs):
     """
     Appends one dataframe to another, preserving the column order of the
-    first and appending new columns on the right. Also accepts and passes on
+    first and adding new columns on the right. Also accepts and passes on
     standard keyword arguments for pd.DataFrame.append.
 
     Parameters
@@ -46,14 +46,17 @@ def column_ordered_append(df1, df2, **kwargs):
     return df1.append(df2, **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs, ignore_index=False, trace_source=False):
+def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     """
     Accumulate an iterable containing pandas dataframes to a single frame.
     """
     acc = None
     for ix, df in enumerate(dfs):
         if trace_source:
-            df["src_idx"] = ix
+            if names:
+                df["src_idx"] = names[ix]
+            else:
+                df["src_idx"] = ix
         if acc is None:
             acc = df
         else:
@@ -71,6 +74,9 @@ def to_frame(df):
     elif type(df) == pd.DataFrame:  # 1 column slice
         if df.columns.size == 1:
             df = df.T
+    else:
+        msg = "Conversion from {} to dataframe not yet implemented".format(type(df))
+        raise NotImplementedError(msg)
 
     return df
 

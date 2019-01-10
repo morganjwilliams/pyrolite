@@ -7,6 +7,7 @@
 # from .georoc import *
 # from .database import *
 # from .env import *
-# from .multiprocessing import *
+# from .multip import *
 # from .spatial import *
 # from .wfs import *
+# from .skl import *

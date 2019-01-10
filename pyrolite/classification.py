@@ -4,11 +4,11 @@ from pathlib import Path
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import logging
+import joblib
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
