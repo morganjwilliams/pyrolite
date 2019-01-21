@@ -5,20 +5,21 @@
     <img src="https://img.shields.io/pypi/v/pyrolite.svg" alt="PyPI"></a>
   <a href="https://pyrolite.readthedocs.io/">
      <img src="https://readthedocs.org/projects/pyrolite/badge/?version=latest" alt="Docs"/></a>
-  <a href="https://github.com/ambv/black">
-    <img src="https://img.shields.io/badge/code%20style-black-000000.svg"
-         alt="Code Style: Black"></a>
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/pyversions/pyrolite.svg"
          alt="Compatible Versions"></a>
-  <a href="https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE" >
-    <img src="https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg"
-         alt="License: CSIRO Modified BSD/MIT License"></a>
-  <a href="https://saythanks.io/to/morganjwilliams">
-    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"
-         alt="Say Thanks"></a>
-</p>
+  <a href="https://github.com/ambv/black">
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg"
+         alt="Code Style: Black"></a>
 
+</p>
+<p align="left">
+<a href="https://zenodo.org/badge/latestdoi/137172322">
+  <img src="https://zenodo.org/badge/137172322.svg" alt="DOI"></a>
+<a href="https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE" >
+  <img src="https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg"
+       alt="License: CSIRO Modified BSD/MIT License"></a>
+</p>
 ### Install
 
 ```bash
