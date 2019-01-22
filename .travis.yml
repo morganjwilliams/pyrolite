@@ -12,7 +12,7 @@ matrix:
     - python: 3.7
       dist: xenial
       sudo: true
-      env: PYVERSION=36
+      env: PYVERSION=37
 
   allow_failures:
     - python: "3.7"
