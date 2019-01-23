@@ -61,10 +61,10 @@ MELTS_environment_variables = {  # Solution Models
         validate=lambda x: x in ["MELTS", "pMELTS"],
         desc=description(
             """Set to choose the liquid thermodynamic model.
-                           pMELTS is only recommended for peridotite bulk
-                           compositions between 1 and 4 GPa. If doing pHMELTS
-                           calculations then use ‘pMELTS’ for melting and
-                           ‘MELTS’ for low-pressure crystallization."""
+           pMELTS is only recommended for peridotite bulk
+           compositions between 1 and 4 GPa. If doing pHMELTS
+           calculations then use ‘pMELTS’ for melting and
+           ‘MELTS’ for low-pressure crystallization."""
         ),
     ),
     "OLD_GARNET": mvar(
@@ -72,12 +72,12 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Uses the old, incorrect, garnet model. When set,
-                              the behavior will resemble that of all GUI
-                              versions of MELTS released before 2005 (including
-                              Java MELTS) and the default behavior of
-                              Adiabat_1ph versions 1.4 – 2.X. When unset,
-                              will behave as if ADIABAT_FIX_GARNET was set in
-                              older (pre-3.0) versions of Adiabat_1ph."""
+              the behavior will resemble that of all GUI
+              versions of MELTS released before 2005 (including
+              Java MELTS) and the default behavior of
+              Adiabat_1ph versions 1.4 – 2.X. When unset,
+              will behave as if ADIABAT_FIX_GARNET was set in
+              older (pre-3.0) versions of Adiabat_1ph."""
         ),
     ),
     "OLD_SPINEL": mvar(
@@ -85,13 +85,13 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Use the spinel model from Sack and
-                                  Ghiorso [1991], with perfectly ideal
-                                  mixing of volumes. When set, gives the
-                                  same behavior as Java MELTS and
-                                  earlier (pre-3.0) versions of
-                                  Adiabat_1ph. When unset, uses the
-                                  spinel volume model as formulated in
-                                  Ghiorso and Sack [1991]."""
+              Ghiorso [1991], with perfectly ideal
+              mixing of volumes. When set, gives the
+              same behavior as Java MELTS and
+              earlier (pre-3.0) versions of
+              Adiabat_1ph. When unset, uses the
+              spinel volume model as formulated in
+              Ghiorso and Sack [1991]."""
         ),
     ),
     "OLD_BIOTITE": mvar(
@@ -99,11 +99,11 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Uses the biotite model from Sack and Ghiorso
-                       [1989] instead of the default alphaMELTS one.
-                       When set, the program uses the same code as
-                       GUI versions of MELTS (2005-present). The
-                       behavior may differ slightly from earlier GUI
-                       versions of MELTS as a small error was fixed."""
+           [1989] instead of the default alphaMELTS one.
+           When set, the program uses the same code as
+           GUI versions of MELTS (2005-present). The
+           behavior may differ slightly from earlier GUI
+           versions of MELTS as a small error was fixed."""
         ),
     ),
     "2_AMPH": mvar(
@@ -111,12 +111,12 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Uses separate orthoamphibole and clinoamphibole
-                  phases. When set, gives the same behavior as Java
-                  MELTS and Corba MELTS applets, and earlier versions
-                  of Adiabat_1ph (which inherited its code from the
-                  Java MELTS branch). When unset, will use a single
-                  cummingtonite-grunerite-tremolite solution and deduce
-                  the amphibole structure from the energetics."""
+              phases. When set, gives the same behavior as Java
+              MELTS and Corba MELTS applets, and earlier versions
+              of Adiabat_1ph (which inherited its code from the
+              Java MELTS branch). When unset, will use a single
+              cummingtonite-grunerite-tremolite solution and deduce
+              the amphibole structure from the energetics."""
         ),
     ),
     "NO_CHLORITE": mvar(
@@ -124,11 +124,11 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """As of version 1.6, the chlorite model of
-                       Hunziker [2003] is included in alphaMELTS
-                       (see Smith et al. [2007]). To reproduce previous
-                       results for bulk compositions that may stabilize
-                       chlorite, add a ‘Suppress: chlorite’ line to the
-                       melts_file or set this variable."""
+               Hunziker [2003] is included in alphaMELTS
+               (see Smith et al. [2007]). To reproduce previous
+               results for bulk compositions that may stabilize
+               chlorite, add a ‘Suppress: chlorite’ line to the
+               melts_file or set this variable."""
         ),
     ),
     # P-T Path and fO2 control
@@ -148,22 +148,22 @@ MELTS_environment_variables = {  # Solution Models
         default="isentropic",
         desc=description(
             """Sets the calculation mode. This variable is case
-                 insensitive. ‘PTfile’ (‘PTPath’ is also accepted
-                 for backwards compatibility) reads in P and T from
-                 a file; see below. ‘PTgrid’ and ‘TPgrid’ perform
-                 calculations on a grid bounded by the starting T
-                 and ALPHAMELTS_MINT/MAXT, and by the starting P and
-                 ALPHAMELTS_MINP/MAXP. For ‘PTgrid’ the T-loop is
-                 inside the P-loop, whereas ‘TPgrid’ is the other
-                 way round; in either case the (superliquidus or
-                 subsolidus) starting solution migrates with the
-                 outer loop. Generally, unless liquid is suppressed,
-                 ‘PTgrid’ with ALPHAMELTS_DELTAT < 0 will be the
-                 easiest combination. For other modes, there are
-                 various ways to initialize P, T and / or reference
-                 entropy, enthalpy or volume, and the thermodynamic
-                 path is set using ALPHAMELTS_DELTAP and / or
-                 ALPHAMELTS_DELTAT."""
+             insensitive. ‘PTfile’ (‘PTPath’ is also accepted
+             for backwards compatibility) reads in P and T from
+             a file; see below. ‘PTgrid’ and ‘TPgrid’ perform
+             calculations on a grid bounded by the starting T
+             and ALPHAMELTS_MINT/MAXT, and by the starting P and
+             ALPHAMELTS_MINP/MAXP. For ‘PTgrid’ the T-loop is
+             inside the P-loop, whereas ‘TPgrid’ is the other
+             way round; in either case the (superliquidus or
+             subsolidus) starting solution migrates with the
+             outer loop. Generally, unless liquid is suppressed,
+             ‘PTgrid’ with ALPHAMELTS_DELTAT < 0 will be the
+             easiest combination. For other modes, there are
+             various ways to initialize P, T and / or reference
+             entropy, enthalpy or volume, and the thermodynamic
+             path is set using ALPHAMELTS_DELTAP and / or
+             ALPHAMELTS_DELTAT."""
         ),
     ),
     "PTPATH_FILE": mvar(
@@ -171,10 +171,10 @@ MELTS_environment_variables = {  # Solution Models
         validate=filepath_validator,
         desc=description(
             """Gives the name of the ptpath_file, which is a simple
-                        space delimited text file with one ‘P_value T_value’
-                        pair per line. If ALPHAMELTS_DELTAP and
-                        ALPHAMELTS_DELTAT are both zero the user will be asked
-                        for a maximum number of iterations to perform."""
+            space delimited text file with one ‘P_value T_value’
+            pair per line. If ALPHAMELTS_DELTAP and
+            ALPHAMELTS_DELTAT are both zero the user will be asked
+            for a maximum number of iterations to perform."""
         ),
     ),
     "DELTAP": mvar(
@@ -184,14 +184,14 @@ MELTS_environment_variables = {  # Solution Models
         units="bars",
         desc=description(
             """This sets the pressure increment for isentropic,
-                   isothermal, geothermal or phase diagram mode.
-                   This is a signed number; i.e., a positive value steps
-                   upwards in P, negative steps down. If using a ptpath_file,
-                   a non-zero ALPHAMELTS_DELTAP means the whole will be read
-                   in and executed. Setting ALPHAMELTS_DELTAP to zero, with a
-                   non-zero value for ALPHAMELTS_DELTAT, means that phase
-                   diagram mode will step in temperature instead of pressure
-                   (except for liquid)."""
+               isothermal, geothermal or phase diagram mode.
+               This is a signed number; i.e., a positive value steps
+               upwards in P, negative steps down. If using a ptpath_file,
+               a non-zero ALPHAMELTS_DELTAP means the whole will be read
+               in and executed. Setting ALPHAMELTS_DELTAP to zero, with a
+               non-zero value for ALPHAMELTS_DELTAT, means that phase
+               diagram mode will step in temperature instead of pressure
+               (except for liquid)."""
         ),
     ),
     "DELTAT": mvar(
@@ -201,12 +201,12 @@ MELTS_environment_variables = {  # Solution Models
         units="Degrees Celsius",
         desc=description(
             """This sets the temperature increment for isobaric,
-                   isochoric, geothermal or phase diagram mode. This is a
-                   signed number; i.e., a positive value steps upwards in T,
-                   negative steps down. If using a ptpath_file, a non-zero
-                   ALPHAMELTS_DELTAT means the whole will be read in and
-                   executed. For phase diagram mode to step in temperature
-                   ALPHAMELTS_DELTAP must be set to zero."""
+               isochoric, geothermal or phase diagram mode. This is a
+               signed number; i.e., a positive value steps upwards in T,
+               negative steps down. If using a ptpath_file, a non-zero
+               ALPHAMELTS_DELTAT means the whole will be read in and
+               executed. For phase diagram mode to step in temperature
+               ALPHAMELTS_DELTAP must be set to zero."""
         ),
     ),
     "MAXP": mvar(
@@ -256,16 +256,16 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Normally, the parameterization of Kress and
-                            Carmichael [1991] is used to calculate fO2 in the
-                            liquid. If conditions are subsolidus or liquid is
-                            suppressed then the approach detailed in Asimow and
-                            Ghiorso [1998] is used to construct an appropriate
-                            redox reaction to solve for fO2 of the bulk
-                            assemblage. If this environment variable is set,
-                            however, then the method of Asimow and Ghiorso
-                            [1998] is used to calculate fO2 regardless of
-                            whether liquid is present and so, in theory, allows
-                            for a smoother transition across the solidus. """
+            Carmichael [1991] is used to calculate fO2 in the
+            liquid. If conditions are subsolidus or liquid is
+            suppressed then the approach detailed in Asimow and
+            Ghiorso [1998] is used to construct an appropriate
+            redox reaction to solve for fO2 of the bulk
+            assemblage. If this environment variable is set,
+            however, then the method of Asimow and Ghiorso
+            [1998] is used to calculate fO2 regardless of
+            whether liquid is present and so, in theory, allows
+            for a smoother transition across the solidus. """
         ),
     ),
     "LIQUID_FO2": mvar(
@@ -274,17 +274,17 @@ MELTS_environment_variables = {  # Solution Models
         overridden_by=["LIQUID_FO2"],
         desc=description(
             """The method of Asimow and Ghiorso
-                       [1998] is computationally more involved than the
-                       parameterization of Kress and Carmichael [1991] and it
-                       is not uncommon for fO2 calculations to be successful
-                       with liquid present but fail subsolidus. It is possible
-                       to turn off the fO2 buffer manually (option 5).
-                       Alternatively, if this environment variable is set then
-                       the fO2 buffer, as formulated in Kress and Carmichael
-                       [1991], will only be imposed when liquid is present.
-                       Note that setting this variable does not change the
-                       fO2 buffer setting (e.g. ‘FMQ’); the program just ignores
-                        the flag if no liquid is around."""
+           [1998] is computationally more involved than the
+           parameterization of Kress and Carmichael [1991] and it
+           is not uncommon for fO2 calculations to be successful
+           with liquid present but fail subsolidus. It is possible
+           to turn off the fO2 buffer manually (option 5).
+           Alternatively, if this environment variable is set then
+           the fO2 buffer, as formulated in Kress and Carmichael
+           [1991], will only be imposed when liquid is present.
+           Note that setting this variable does not change the
+           fO2 buffer setting (e.g. ‘FMQ’); the program just ignores
+            the flag if no liquid is around."""
         ),
     ),
     "IMPOSE_FO2": mvar(
@@ -292,15 +292,15 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """Normally, for isentropic, isenthalpic and isochoric
-                       modes any fO2 buffer will be switched off on execution
-                       once the reference entropy, enthalpy or volume has been
-                       set (usually after the first calculation or before if set
-                       manually). If this environment variable is set then the
-                       program will alternate between (1) an unbuffered
-                       isenthalpic / isentropic / isochoric step and (2) an
-                       isobaric / isothermal fO2 buffered step. Overall this
-                       approximates an isenthalpic, isentropic or isochoric
-                       path with a desired fO2 buffer."""
+           modes any fO2 buffer will be switched off on execution
+           once the reference entropy, enthalpy or volume has been
+           set (usually after the first calculation or before if set
+           manually). If this environment variable is set then the
+           program will alternate between (1) an unbuffered
+           isenthalpic / isentropic / isochoric step and (2) an
+           isobaric / isothermal fO2 buffered step. Overall this
+           approximates an isenthalpic, isentropic or isochoric
+           path with a desired fO2 buffer."""
         ),
     ),
     "FO2_PRESSURE_TERM": mvar(
@@ -308,24 +308,24 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """In most versions of MELTS, including Corba
-                              MELTS and alphaMELTS, by default, reference fO2
-                              buffers in the system Fe-Si-O are calculated from
-                              the equations given in Myers and Eugster [1983].
-                              In the standalone GUI version of MELTS a pressure
-                              term is added to the fayalite-magnetite-quartz
-                              buffer (FMQ) to give:
+              MELTS and alphaMELTS, by default, reference fO2
+              buffers in the system Fe-Si-O are calculated from
+              the equations given in Myers and Eugster [1983].
+              In the standalone GUI version of MELTS a pressure
+              term is added to the fayalite-magnetite-quartz
+              buffer (FMQ) to give:
 
-                              log(fO2) = − 24441.9/T + 0.110 (P − 1)/T + 8.290
+              log(fO2) = − 24441.9/T + 0.110 (P − 1)/T + 8.290
 
-                              When this environment variable is set then
-                              alphaMELTS uses the equation as shown whereas by
-                              default the second term is omitted. Inclusion of
-                              the pressure term can have subtle effects on the
-                              stability of certain phases such as pyroxenes.
-                              Note that in Kessel et al. [2001] the coefficient
-                              on the pressure term is 0.05, rather than 0.110;
-                              the value of 0.110 was chosen by Ghiorso to
-                              maintain consistency with Berman [1988]."""
+              When this environment variable is set then
+              alphaMELTS uses the equation as shown whereas by
+              default the second term is omitted. Inclusion of
+              the pressure term can have subtle effects on the
+              stability of certain phases such as pyroxenes.
+              Note that in Kessel et al. [2001] the coefficient
+              on the pressure term is 0.05, rather than 0.110;
+              the value of 0.110 was chosen by Ghiorso to
+              maintain consistency with Berman [1988]."""
         ),
     ),
     # Open vs closed system
@@ -334,14 +334,14 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """By default, batch melting equations are used.
-                               Setting this environment variable will change the
-                               melting mode to continuous or fractional, where
-                               melt is extracted after each equilibrium. Set
-                               ALPHAMELTS_MINF to 0 for perfect fractional
-                               melting. In practice though, the program will
-                               run more smoothly if ALPHAMELTS_MINF is slightly
-                               greater than 0. See the next four environment
-                               variables’ entries for more details."""
+               Setting this environment variable will change the
+               melting mode to continuous or fractional, where
+               melt is extracted after each equilibrium. Set
+               ALPHAMELTS_MINF to 0 for perfect fractional
+               melting. In practice though, the program will
+               run more smoothly if ALPHAMELTS_MINF is slightly
+               greater than 0. See the next four environment
+               variables’ entries for more details."""
         ),
     ),
     "MINF": mvar(
@@ -353,13 +353,13 @@ MELTS_environment_variables = {  # Solution Models
         overridden_by=["MINPHI"],
         desc=description(
             """If ALPHAMELTS_CONTINUOUS_MELTING is set, then by default a
-                 fixed melt fraction, by mass, marks the threshold above which
-                 melt is extracted. This variable is used to change the amount
-                 of melt retained. If the current melt fraction is less than
-                 ALPHAMELTS_MINF then all the melt will be retained until the
-                 next step, otherwise the amount of melt removed (approximately
-                 F - ALPHAMELTS_MINF) will be adjusted so such that the melt
-                 fraction is exactly ALPHAMELTS_MINF after extraction."""
+         fixed melt fraction, by mass, marks the threshold above which
+         melt is extracted. This variable is used to change the amount
+         of melt retained. If the current melt fraction is less than
+         ALPHAMELTS_MINF then all the melt will be retained until the
+         next step, otherwise the amount of melt removed (approximately
+         F - ALPHAMELTS_MINF) will be adjusted so such that the melt
+         fraction is exactly ALPHAMELTS_MINF after extraction."""
         ),
     ),
     "MINPHI": mvar(
@@ -371,13 +371,13 @@ MELTS_environment_variables = {  # Solution Models
         overridden_by=["CONTINUOUS_RATIO"],
         desc=description(
             """If ALPHAMELTS_CONTINUOUS_MELTING is set, then set this
-                   environment variable controls the retained melt fraction,
-                   by volume i.e. the ‘residual porosity’. If the current melt
-                   fraction is less than ALPHAMELTS_MINPHI then all the melt
-                   will be retained until the next step, otherwise the amount
-                   of melt removed (approximately phi - ALPHAMELTS_MINPHI) will
-                   be adjusted so that the melt fraction, by volume, is exactly
-                   ALPHAMELTS_MINPHI after extraction."""
+           environment variable controls the retained melt fraction,
+           by volume i.e. the ‘residual porosity’. If the current melt
+           fraction is less than ALPHAMELTS_MINPHI then all the melt
+           will be retained until the next step, otherwise the amount
+           of melt removed (approximately phi - ALPHAMELTS_MINPHI) will
+           be adjusted so that the melt fraction, by volume, is exactly
+           ALPHAMELTS_MINPHI after extraction."""
         ),
     ),
     "CONTINUOUS_RATIO": mvar(
@@ -389,10 +389,10 @@ MELTS_environment_variables = {  # Solution Models
         overridden_by=["CONTINUOUS_VOLUME"],
         desc=description(
             """This implements another alternative definition
-                             of continuous melting. Instead of extracting all
-                             liquid above a fixed mass or volume fraction, this
-                             option, if set, causes the program to multiply the
-                             liquid mass by a fixed ratio."""
+             of continuous melting. Instead of extracting all
+             liquid above a fixed mass or volume fraction, this
+             option, if set, causes the program to multiply the
+             liquid mass by a fixed ratio."""
         ),
     ),
     "CONTINUOUS_VOLUME": mvar(
@@ -400,21 +400,21 @@ MELTS_environment_variables = {  # Solution Models
         type=float,
         desc=description(
             """"This option, if set, extracts the required
-                              amount of melt to retain a constant total volume.
-                              This reference volume is set the first time
-                              melting occurs and is equal to the solid volume
-                              plus whatever melt volume is retained according
-                              to the ALPHAMELTS_MINPHI variable (or a default
-                              value of 0.002 if that is unset). Only for
-                              isobaric or isothermal calculations. Note that
-                              this is not an ‘isochoric’ calculation as far
-                              as alphaMELTS is concerned because melting is
-                              still allowed to cause expansion; this option
-                              only controls how much melt must be extracted
-                              to return to the original volume and, if
-                              necessary, also adjusts pressure (for isothermal
-                              calculations) or temperature (for isobaric
-                              calculations) to maintain equilibrium."""
+              amount of melt to retain a constant total volume.
+              This reference volume is set the first time
+              melting occurs and is equal to the solid volume
+              plus whatever melt volume is retained according
+              to the ALPHAMELTS_MINPHI variable (or a default
+              value of 0.002 if that is unset). Only for
+              isobaric or isothermal calculations. Note that
+              this is not an ‘isochoric’ calculation as far
+              as alphaMELTS is concerned because melting is
+              still allowed to cause expansion; this option
+              only controls how much melt must be extracted
+              to return to the original volume and, if
+              necessary, also adjusts pressure (for isothermal
+              calculations) or temperature (for isobaric
+              calculations) to maintain equilibrium."""
         ),
     ),
     "FRACTIONATE_SOLIDS": mvar(
@@ -422,13 +422,13 @@ MELTS_environment_variables = {  # Solution Models
         type=bool,
         desc=description(
             """To turn on fractional crystallization of all
-                               solid phases, set this option to true (does not
-                               include water, see below). Do not use this
-                               option if you wish to selectively fractionate
-                               just a few phases; instead put ‘Fractionate:
-                               phase’ lines in you melts_file (see the ‘MELTS
-                               file’ section) or adjust individual phase
-                               settings with menu option 8."""
+               solid phases, set this option to true (does not
+               include water, see below). Do not use this
+               option if you wish to selectively fractionate
+               just a few phases; instead put ‘Fractionate:
+               phase’ lines in you melts_file (see the ‘MELTS
+               file’ section) or adjust individual phase
+               settings with menu option 8."""
         ),
     ),
     "MASSIN": mvar(

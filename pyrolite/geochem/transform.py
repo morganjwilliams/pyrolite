@@ -5,6 +5,7 @@ import functools
 import pandas_flavor as pf
 from ..util.pd import to_frame
 from ..comp.codata import renormalise
+from ..util.text import titlecase
 from ..util.general import iscollection
 from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
