@@ -1,5 +1,7 @@
 import pandas_flavor as pf
 import pandas as pd
+import re
+from ..util.text import titlecase
 from .validate import is_isotoperatio
 from .ind import (
     __common_oxides__,

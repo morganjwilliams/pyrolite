@@ -1,6 +1,6 @@
 import unittest
 import pyrolite
-from pyrolite.norm import *
+from pyrolite.geochem.norm import *
 
 
 class TestScaleFunction(unittest.TestCase):

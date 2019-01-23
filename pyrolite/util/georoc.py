@@ -21,7 +21,7 @@ from .general import (
     internet_connection,
 )
 from ..geochem import tochem, check_multiple_cation_inclusion, aggregate_cation
-from ..norm import scale_multiplier
+from ..geochem.norm import scale_multiplier
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

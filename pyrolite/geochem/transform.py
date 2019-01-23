@@ -3,11 +3,11 @@ import pandas as pd
 import numpy as np
 import functools
 import pandas_flavor as pf
-from pyrolite.util.pd import to_frame
-from pyrolite.comp.codata import renormalise
-from pyrolite.norm import ReferenceCompositions, RefComp, scale_multiplier
-from pyrolite.util.general import iscollection
-from pyrolite.util.math import OP_constants, lambdas
+from ..util.pd import to_frame
+from ..comp.codata import renormalise
+from ..util.general import iscollection
+from ..util.math import OP_constants, lambdas
+from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .ind import REE, get_radii, simple_oxides, common_elements, common_oxides
 
 

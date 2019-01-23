@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.alteration import *
+from pyrolite.geochem.alteration import *
 
 
 class TestCIA(unittest.TestCase):

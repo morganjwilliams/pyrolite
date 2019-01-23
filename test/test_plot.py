@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.axes as matax
 
-from pyrolite.geochem import REE, common_elements
+from pyrolite.geochem.ind import REE, common_elements
 from pyrolite.plot import ternaryplot, spiderplot, densityplot, REE_radii_plot
 
 import logging

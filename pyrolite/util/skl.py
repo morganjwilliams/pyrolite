@@ -3,7 +3,7 @@ import pandas as pd
 from functools import partial
 import itertools
 from ..geochem import *
-from ..geochem import __common_elements__, __common_oxides__
+from ..geochem.ind import __common_elements__, __common_oxides__
 from ..comp.codata import *
 from ..comp.aggregate import *
 from .plot import *
