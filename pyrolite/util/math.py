@@ -181,6 +181,8 @@ def on_finite(X, f):
     ---------------
     X : np.ndarray
         Array on which to perform the function.
+    f : function
+        Function to call on the array.
     """
     ma = np.isfinite(X)
     return f(X[ma])

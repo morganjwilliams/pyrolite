@@ -7,6 +7,7 @@ import pandas as pd
 from scipy import interpolate
 from scipy.stats.kde import gaussian_kde
 from scipy.spatial import ConvexHull
+from scipy import interpolate
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.lines as mlines
@@ -58,7 +59,6 @@ def modify_legend_handles(ax, **kwargs):
     _hndls = []
     for h in hndls:
         _h = copy(h)
-        print(_h, dir(_h))
         _h.update(kwargs)
         _hndls.append(_h)
     return _hndls, labls
@@ -193,6 +193,80 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
         xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
+
+
+def percentile_contour_values_from_meshz(
+    z, percentiles=[0.95, 0.66, 0.33], resolution=1000
+):
+    """
+    Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
+    correspond to specified percentile contours.T
+
+    Parameters
+    ----------
+    z : np.ndarray
+        Probability density function over x, y.
+    percentiles : list-like
+        Percentile values for which to create contours.
+    resolution : int
+        Number of bins for thresholds between 0. and max(Z)
+    """
+    percentiles = sorted(percentiles, reverse=True)
+    # Integral approach from https://stackoverflow.com/a/37932566
+    t = np.linspace(0., z.max(), resolution)
+    integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
+    f = interpolate.interp1d(integral, t)
+    t_contours = f(np.array(percentiles) * z.sum())
+    return percentiles, t_contours
+
+
+def z2percentile(
+    z,
+    percentiles=[0.95, 0.66, 0.33],
+    ax=None,
+    extent=None,
+    imshow=False,
+    fontsize=8,
+    cmap="viridis",
+    **kwargs
+):
+    """
+    Plot percentile contours onto a 2D  (scaled or unscaled) probability density
+    distribution Z over X,Y.
+
+    Parameters
+    ------------
+    z : np.ndarray
+        Probability density function over x, y.
+    percentiles : list-like
+        Percentile values for which to create contours.
+    ax : matplotlib.axes.Axes
+        Axes on which to plot. If none given, will create a new Axes instance.
+    extent
+        List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
+    imshow : bool
+        Whether to simultaneously plot the image of the probability density.
+    fontsize : np.number
+        Fontsize for the contour labels.
+    cmap
+        Color map for the contours, contour labels and imshow.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(6, 6))
+
+    clabels, contours = percentile_contour_values_from_meshz(z, percentiles=percentiles)
+    cs = ax.contour(z.T, contours, extent=extent, cmap=cmap)
+    lbls = ax.clabel(cs, fontsize=fontsize)
+    z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
+    trans = {
+        float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+    }
+    [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
+    if imshow:
+        mappable = ax.imshow(z.T, extent=extent, origin="lower", cmap=cmap, alpha=0.4)
+        return mappable
+    else:
+        return cs
 
 
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
