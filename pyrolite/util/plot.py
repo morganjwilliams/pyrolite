@@ -213,19 +213,26 @@ def percentile_contour_values_from_meshz(
     """
     percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
-    t = np.linspace(0., z.max(), resolution)
+    t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
     f = interpolate.interp1d(integral, t)
-    t_contours = f(np.array(percentiles) * z.sum())
-    return percentiles, t_contours
+    try:
+        t_contours = f(np.array(percentiles) * z.sum())
+        return percentiles, t_contours
+    except ValueError:
+        logger.debug('Percentile contour below minimum for given resolution' \
+                     'Returning Minimium.')
+        return ['min'], f(np.array([np.nanmax(non_one)]))
 
 
-def z2percentile(
-    z,
+def plot_Z_percentiles(
+    xi,
+    yi,
+    zi,
     percentiles=[0.95, 0.66, 0.33],
     ax=None,
     extent=None,
-    imshow=False,
+    logspace=False,
     fontsize=8,
     cmap="viridis",
     **kwargs
@@ -244,8 +251,8 @@ def z2percentile(
         Axes on which to plot. If none given, will create a new Axes instance.
     extent
         List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    imshow : bool
-        Whether to simultaneously plot the image of the probability density.
+    logspace : bool
+        Noting whether the grid is log-spaced.
     fontsize : np.number
         Fontsize for the contour labels.
     cmap
@@ -254,19 +261,20 @@ def z2percentile(
     if ax is None:
         fig, ax = plt.subplots(1, figsize=(6, 6))
 
-    clabels, contours = percentile_contour_values_from_meshz(z, percentiles=percentiles)
-    cs = ax.contour(z.T, contours, extent=extent, cmap=cmap)
+    if extent is None:
+        xmin, xmax = np.min(xi), np.max(xi)
+        ymin, ymax = np.min(yi), np.max(yi)
+        extent = [xmin, xmax, ymin, ymax]
+
+    clabels, contours = percentile_contour_values_from_meshz(zi, percentiles=percentiles)
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, cmap=cmap)
     lbls = ax.clabel(cs, fontsize=fontsize)
     z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
     trans = {
         float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
     }
     [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
-    if imshow:
-        mappable = ax.imshow(z.T, extent=extent, origin="lower", cmap=cmap, alpha=0.4)
-        return mappable
-    else:
-        return cs
+    return cs
 
 
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):

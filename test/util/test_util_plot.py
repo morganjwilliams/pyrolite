@@ -176,7 +176,7 @@ class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
                 percentile_contour_values_from_meshz(self.z, resolution=res)
 
 
-class TestZ2Percentile(unittest.TestCase):
+class TestPlotZPercentiles(unittest.TestCase):
     def setUp(self):
         x, y = np.mgrid[-1:1:100j, -1:1:100j]
         pos = np.empty(x.shape + (2,))
@@ -185,26 +185,21 @@ class TestZ2Percentile(unittest.TestCase):
         self.z = multivariate_normal([0.5, -0.2], [[2.0, 0.3], [0.3, 0.5]]).pdf(pos)
 
     def test_default(self):
-        z2percentile(self.z)
+        plot_Z_percentiles(self.z)
 
     def test_percentiles(self):
         for ps in [[1.0], [0.001], np.linspace(0.001, 1, 10), [0.95, 0.10]]:
             with self.subTest(ps=ps):
-                z2percentile(self.z, percentiles=ps)
+                plot_Z_percentiles(self.z, percentiles=ps)
 
     def test_external_ax(self):
         fig, ax = plt.subplots(1)
-        z2percentile(self.z, ax=ax)
+        plot_Z_percentiles(self.z, ax=ax)
 
     def test_extent(self):
         for extent in [[-1, 1, -1, 1], [-0.01, 0.99, -1.01, -0.01], [-2, 2, -2, -2]]:
             with self.subTest(extent=extent):
-                z2percentile(self.z, extent=extent)
-
-    def test_imshow(self):
-        for imshow in [True, False]:
-            with self.subTest(imshow=imshow):
-                z2percentile(self.z, imshow=imshow)
+                plot_Z_percentiles(self.z, extent=extent)
 
 
 class TestNaNScatter(unittest.TestCase):

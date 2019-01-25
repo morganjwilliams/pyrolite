@@ -1,6 +1,6 @@
 import numpy as np
 from pyrolite.plot import REE_radii_plot
-from pyrolite.geochem import REE, get_radii
+from pyrolite.geochem.ind import REE, get_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 np.random.seed(82)

@@ -1,7 +1,3 @@
-Compositions
-============================
-
-
 pyrolite\.comp\.codata
 -------------------------------
   .. automodule:: pyrolite.comp.codata
@@ -11,12 +7,6 @@ pyrolite\.comp\.codata
 pyrolite\.comp\.aggregate
 -------------------------------
   .. automodule:: pyrolite.comp.aggregate
-      :members:
-      :undoc-members:
-
-pyrolite\.comp\.renorm
--------------------------------
-  .. automodule:: pyrolite.comp.renorm
       :members:
       :undoc-members:
 

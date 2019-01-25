@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import spiderplot
-from pyrolite.geochem import common_elements
+from pyrolite.geochem.ind import common_elements
 
 np.random.seed(82)
 # %% Minimal Example -------------------------------------------------------------------

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import REE_radii_plot
-from pyrolite.geochem import REE, get_radii
+from pyrolite.geochem.ind import REE, get_radii
 # %% Minimal Example -------------------------------------------------------------------
 # Where data is not specified, it will return a formatted axis which can be used for
 # subsequent plotting:

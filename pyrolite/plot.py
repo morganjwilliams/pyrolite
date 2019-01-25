@@ -7,7 +7,13 @@ import numpy as np
 import ternary
 from .util.pd import to_frame
 from .util.math import on_finite
-from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
+from .util.plot import (
+    ABC_to_tern_xy,
+    tern_heatmapcoords,
+    add_colorbar,
+    plot_Z_percentiles,
+    percentile_contour_values_from_meshz,
+)
 from .util.general import iscollection
 from .geochem import common_elements, REE, get_radii
 import logging
@@ -272,9 +278,11 @@ def densityplot(
     mode="density",
     coverage_scale=1.1,
     logspace=False,
-    contour=False,
     extent=None,
-    **kwargs
+    contours=[],
+    percentiles=True,
+    relim=False,
+    **kwargs,
 ):
     """
     Plots density plot diagrams. Should work for either binary components (X-Y)
@@ -286,21 +294,24 @@ def densityplot(
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : Matplotlib AxesSubplot, None
         The subplot to draw on.
-    mode: str, 'density'
+    mode : str, 'density'
         Different modes used here: ['density', 'hexbin', 'hist2d']
-    coverage_scale: float, 1.1
+    coverage_scale : float, 1.1
         Scale the area over which the density plot is drawn.
-    logspace: {False, True}
-        Whether to use a logspaced grid. Note that values strickly >0 are
-        required.
-    contour: {False, True}
-        Whether to add density contours to the plot.
+    logspace : {False, True}
+        Whether to use a logspaced *grid*. Note that values strickly >0 are required.
+    contours : list
+        Contours to add to the plot.
+    percentiles : bool, True
+        Whether contours specified are to be converted to percentiles.
+    relim : bool, False
+        Whether to relimit the plot based on xmin, xmax values.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -316,8 +327,8 @@ def densityplot(
 
     figsize = kwargs.pop("figsize", 8.0)
     fontsize = kwargs.pop("fontsize", 12.0)
-    linewidths = kwargs.pop("linewidths", None)
-    linestyles = kwargs.pop("linestyles", None)
+    lws = kwargs.pop("linewidths", None)
+    lss = kwargs.pop("linestyles", None)
 
     colorbar = kwargs.pop("colorbar", False)
 
@@ -335,28 +346,35 @@ def densityplot(
     if data.any():
         # Data can't be plotted if there's any nans, so we can exclude these
         data = data[(np.isfinite(data).all(axis=1)), :]
+
         if len(components) == 2:  # binary
             x, y = data.T
-            if extent is not None:
+            if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
             else:
-                xmin, xmax = (
-                    on_finite(x, np.min) * (1.0 - exp),
-                    on_finite(x, np.max) * (1.0 + exp),
-                )  # 120% range
-                ymin, ymax = (
-                    on_finite(y, np.min) * (1.0 - exp),
-                    on_finite(y, np.max) * (1.0 + exp),
-                )  # 120% range
-            if not logspace:
-                xstep = (xmax - xmin) / nbins
-                ystep = (ymax - ymin) / nbins
-            else:
+                # 120% range
+                if logspace:  # make sure the range_values are >0
+                    rng = lambda v: (
+                        on_finite(v[v > 0], np.min) * (1.0 - exp),
+                        on_finite(v[v > 0], np.max) * (1.0 + exp),
+                    )
+                else:
+                    rng = lambda v: (
+                        on_finite(v, np.min) * (1.0 - exp),
+                        on_finite(v, np.max) * (1.0 + exp),
+                    )
+                xmin, xmax = rng(x)
+                ymin, ymax = rng(y)
+
+            # grid parameters
+            if logspace:
                 xstep = (xmax / xmin) / nbins
                 ystep = (ymax / ymin) / nbins
+            else:
+                xstep = (xmax - xmin) / nbins
+                ystep = (ymax - ymin) / nbins
 
-            plotextent = extent or (xmin, xmax, ymin, ymax)
-
+            extent = xmin, xmax, ymin, ymax
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
                 if logspace:
@@ -403,7 +421,7 @@ def densityplot(
                     xe = np.linspace(xmin - xstep, xmax + xstep, nbins + 1)
                     ye = np.linspace(ymin - ystep, ymax + ystep, nbins + 1)
 
-                range = [[plotextent[0], plotextent[1]], [plotextent[2], plotextent[3]]]
+                range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(
                     x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
                 )
@@ -413,68 +431,74 @@ def densityplot(
             elif mode == "density":
                 shading = kwargs.pop("shading", None) or "flat"
                 kdedata = data.T
-                # Can't have nans or infs
-                # kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
-
-                if logspace:
+                # Generate Grid
+                if logspace:  # Generate logspaced grid
                     assert xmin > 0.0 and ymin > 0.0
-                    # Generate grid in logspace
-                    _xs = np.linspace(np.log(xmin), np.log(xmax), nbins + 1)
-                    _ys = np.linspace(np.log(ymin), np.log(ymax), nbins + 1)
-                    xi, yi = np.meshgrid(_xs, _ys)
-                    # Generate KDE in logspace
-                    k = gaussian_kde(np.log(kdedata))
-                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-                    # Revert coordinates bacl to non-log space
-                    xi, yi = np.exp(xi), np.exp(yi)
-                    assert np.isfinite(xi).all() and np.isfinite(yi).all()
+                    """
+                    xs, ys = (
+                        np.logspace(np.log(xmin), np.log(xmax), nbins + 1, base=np.e),
+                        np.logspace(np.log(ymin), np.log(ymax), nbins + 1, base=np.e),
+                    )
+                    """
+                    xs, ys = (
+                        np.linspace(np.log(xmin), np.log(xmax), nbins + 1),
+                        np.linspace(np.log(ymin), np.log(ymax), nbins + 1),
+                    )
+                    xi, yi = np.meshgrid(xs, ys)
+                    xi, yi = xi.T, yi.T
+                    kdedata = np.log(kdedata)
                 else:
                     xi, yi = np.mgrid[
-                        xmin : xmax : nbins * 1j, ymin : ymax : nbins * 1j
+                        xmin : xmax : (nbins+1) * 1j, ymin : ymax :(nbins+1) * 1j
                     ]
-                    k = gaussian_kde(kdedata)
-                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-
-                vmin = kwargs.pop("vmin", 0.02 * np.nanmax(zi))  # 2% max height
-                if contour:
-                    levels = kwargs.pop("levels", None)
-
-                    if levels is None:
-                        levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
-                    elif isinstance(levels, int):
-                        levels = MaxNLocator(nbins=levels).tick_values(
-                            zi.min(), zi.max()
+                assert np.isfinite(xi).all() and np.isfinite(yi).all()
+                k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
+                zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
+                zi = zi / zi.max()
+                vmin = kwargs.pop("vmin", 0.02)  # 2% max height
+                if percentiles:  # 98th percentile
+                    vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
+                if logspace:
+                    xi, yi = np.exp(xi), np.exp(yi)
+                if contours:
+                    levels = contours or kwargs.pop("levels", None)
+                    cags = xi, yi, zi
+                    if percentiles and not isinstance(levels, int):
+                        _cs = plot_Z_percentiles(
+                            *cags,
+                            ax=ax,
+                            percentiles=levels,
+                            logspace=logspace,
+                            extent=extent,
+                            **kwargs,
                         )
+                    else:
+                        if levels is None:
+                            levels = MaxNLocator(nbins=10).tick_values(
+                                zi.min(), zi.max()
+                            )
+                        elif isinstance(levels, int):
+                            levels = MaxNLocator(nbins=levels).tick_values(
+                                zi.min(), zi.max()
+                            )
 
-                    mappable = ax.contourf(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        extent=extent,
-                        levels=levels,
-                        vmin=vmin,
-                        **kwargs,
-                    )
-
-                    ax.contour(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        extent=extent,
-                        linewidths=linewidths,
-                        linestyles=linestyles,
-                        vmin=vmin,
-                        **kwargs,
-                    )
+                        # filled contours
+                        mappable = ax.contourf(
+                            *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
+                        )
+                        # contours
+                        ax.contour(
+                            *cags,
+                            extent=extent,
+                            levels=levels,
+                            linewidths=lws,
+                            linestyles=lss,
+                            vmin=vmin,
+                            **kwargs,
+                        )
                 else:
                     mappable = ax.pcolormesh(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        cmap=cmap,
-                        shading=shading,
-                        vmin=vmin,
-                        **kwargs,
+                        xi, yi, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -487,11 +511,8 @@ def densityplot(
                 cbkwargs["label"] = cbarlabel
                 add_colorbar(mappable, **cbkwargs)
 
-            if extent:
+            if relim:
                 ax.axis(extent)
-            else:
-                ax.axis((xmin, xmax, ymin, ymax))
-
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
 

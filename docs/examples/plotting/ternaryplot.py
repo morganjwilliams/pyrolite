@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import ternaryplot
-from pyrolite.geochem import common_oxides
+from pyrolite.geochem.ind import common_oxides
 
 np.random.seed(82)
 # %% Minimal Example -------------------------------------------------------------------
