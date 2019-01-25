@@ -281,8 +281,8 @@ def densityplot(
     extent=None,
     contours=[],
     percentiles=True,
-    relim=False,
-    **kwargs,
+    relim=True,
+    **kwargs
 ):
     """
     Plots density plot diagrams. Should work for either binary components (X-Y)
@@ -393,7 +393,7 @@ def densityplot(
                         extent=hex_extent,
                         xscale="log",
                         yscale="log",
-                        **kwargs,
+                        **kwargs
                     )
                 else:
                     hex_extent = (
@@ -470,7 +470,7 @@ def densityplot(
                             percentiles=levels,
                             logspace=logspace,
                             extent=extent,
-                            **kwargs,
+                            **kwargs
                         )
                     else:
                         if levels is None:
@@ -494,7 +494,7 @@ def densityplot(
                             linewidths=lws,
                             linestyles=lss,
                             vmin=vmin,
-                            **kwargs,
+                            **kwargs
                         )
                 else:
                     mappable = ax.pcolormesh(
