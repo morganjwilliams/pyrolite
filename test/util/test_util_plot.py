@@ -182,24 +182,25 @@ class TestPlotZPercentiles(unittest.TestCase):
         pos = np.empty(x.shape + (2,))
         pos[:, :, 0] = x
         pos[:, :, 1] = y
-        self.z = multivariate_normal([0.5, -0.2], [[2.0, 0.3], [0.3, 0.5]]).pdf(pos)
+        self.xi, self.yi = x, y
+        self.zi = multivariate_normal([0.5, -0.2], [[2.0, 0.3], [0.3, 0.5]]).pdf(pos)
 
     def test_default(self):
-        plot_Z_percentiles(self.z)
+        plot_Z_percentiles(self.xi, self.yi, self.zi)
 
     def test_percentiles(self):
         for ps in [[1.0], [0.001], np.linspace(0.001, 1, 10), [0.95, 0.10]]:
             with self.subTest(ps=ps):
-                plot_Z_percentiles(self.z, percentiles=ps)
+                plot_Z_percentiles(self.xi, self.yi, self.zi, percentiles=ps)
 
     def test_external_ax(self):
         fig, ax = plt.subplots(1)
-        plot_Z_percentiles(self.z, ax=ax)
+        plot_Z_percentiles(self.xi, self.yi, self.zi, ax=ax)
 
     def test_extent(self):
         for extent in [[-1, 1, -1, 1], [-0.01, 0.99, -1.01, -0.01], [-2, 2, -2, -2]]:
             with self.subTest(extent=extent):
-                plot_Z_percentiles(self.z, extent=extent)
+                plot_Z_percentiles(self.xi, self.yi, self.zi,  extent=extent)
 
 
 class TestNaNScatter(unittest.TestCase):
