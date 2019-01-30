@@ -1,4 +1,8 @@
 import numpy as np
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def FeAt8MgO(FEOT: float, MGO: float) -> float:

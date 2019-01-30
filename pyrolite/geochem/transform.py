@@ -9,7 +9,19 @@ from ..util.text import titlecase
 from ..util.general import iscollection
 from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
-from .ind import REE, get_radii, simple_oxides, common_elements, common_oxides
+from .ind import (
+    REE,
+    get_radii,
+    simple_oxides,
+    common_elements,
+    common_oxides,
+    get_cations,
+)
+from .parse import check_multiple_cation_inclusion
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 @pf.register_series_method

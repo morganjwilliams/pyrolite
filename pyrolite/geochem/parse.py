@@ -11,6 +11,10 @@ from .ind import (
     common_oxides,
     get_isotopes
 )
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):

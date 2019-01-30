@@ -1,6 +1,10 @@
 import re
 import periodictable as pt
 from pyrolite.util.text import titlecase
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """

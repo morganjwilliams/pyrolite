@@ -9,6 +9,10 @@ from .ind import (
     get_cations,
     get_isotopes
 )
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def ischem(s):
