@@ -18,7 +18,9 @@
 <a href="https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE" >
   <img src="https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg"
        alt="License: CSIRO Modified BSD/MIT License"></a>
-<img alt="pyrolite downloads" src="https://img.shields.io/pypi/dm/pyrolite.svg?style=flat">
+<a href="https://pypistats.org/packages/pyrolite" >
+  <img src="https://img.shields.io/pypi/dm/pyrolite.svg?style=flat"
+        alt="pyrolite downloads" ></a>
 </p>
 
 ### Install
