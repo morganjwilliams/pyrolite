@@ -10,6 +10,12 @@ from copy import copy
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+def isclose(a, b):
+    """Implementation of np.isclose with equal nan."""
+    if (np.isnan(a) & np.isnan(b)).any():
+        return (np.isnan(a) & np.isnan(b)).all()
+    else:
+        return np.isclose(a, b)
 
 def is_numeric(obj):
     attrs = ["__add__", "__sub__", "__mul__", "__truediv__", "__pow__"]

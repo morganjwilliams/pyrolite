@@ -233,8 +233,7 @@ def plot_Z_percentiles(
     ax=None,
     extent=None,
     logspace=False,
-    fontsize=8,
-    cmap="viridis",
+    label_contours=True,
     **kwargs
 ):
     """
@@ -267,13 +266,15 @@ def plot_Z_percentiles(
         extent = [xmin, xmax, ymin, ymax]
 
     clabels, contours = percentile_contour_values_from_meshz(zi, percentiles=percentiles)
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, cmap=cmap)
-    lbls = ax.clabel(cs, fontsize=fontsize)
-    z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
-    trans = {
-        float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
-    }
-    [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent,  **kwargs)
+    if label_contours:
+        fs = kwargs.pop('fontsize', None) or 8
+        lbls = ax.clabel(cs, fontsize=fs)
+        z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
+        trans = {
+            float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+        }
+        [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
     return cs
 
 

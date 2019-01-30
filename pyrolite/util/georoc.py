@@ -203,7 +203,7 @@ def bulk_GEOROC_download(
 
     reservoirs = reservoirs or __CONTENTS__.keys()
     abbrvs = {__CONTENTS__[k]["abbrv"]: k for k in __CONTENTS__}
-    logger.info("Downloading only undownloaded files.")
+
     if not redownload:
         logger.info("Bulk download for {} beginning.".format(", ".join(reservoirs)))
 
@@ -239,6 +239,7 @@ def bulk_GEOROC_download(
             dwnld_fns = filenames
             if not redownload:
                 # Just get the ones we don't have,
+                logger.info("Downloading only undownloaded files.")
                 dwnld_stems = [(resdir / urlify(f)).stem for f in dwnld_fns]
                 current_files = [f.stem for f in resdir.iterdir() if f.is_file()]
                 dwnld_fns = [
