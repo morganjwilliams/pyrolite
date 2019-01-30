@@ -121,7 +121,7 @@ def recalculate_Fe(
     out_species = pt.formula(to_species.strip(total_suffix))
 
     dfc = df.copy(deep=True)
-    ox_species = ["Fe2O3", "Fe2O3"]
+    ox_species = ["Fe2O3"]
     ox_species += [i + total_suffix for i in ox_species]
     ox_in_df = [i for i in ox_species if i in dfc.columns]
     red_species = ["Fe", "FeO"]

@@ -434,12 +434,6 @@ def densityplot(
                 # Generate Grid
                 if logspace:  # Generate logspaced grid
                     assert xmin > 0.0 and ymin > 0.0
-                    """
-                    xs, ys = (
-                        np.logspace(np.log(xmin), np.log(xmax), nbins + 1, base=np.e),
-                        np.logspace(np.log(ymin), np.log(ymax), nbins + 1, base=np.e),
-                    )
-                    """
                     xs, ys = (
                         np.linspace(np.log(xmin), np.log(xmax), nbins + 1),
                         np.linspace(np.log(ymin), np.log(ymax), nbins + 1),
@@ -449,7 +443,7 @@ def densityplot(
                     kdedata = np.log(kdedata)
                 else:
                     xi, yi = np.mgrid[
-                        xmin : xmax : (nbins+1) * 1j, ymin : ymax :(nbins+1) * 1j
+                        xmin : xmax : (nbins + 1) * 1j, ymin : ymax : (nbins + 1) * 1j
                     ]
                 assert np.isfinite(xi).all() and np.isfinite(yi).all()
                 k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
@@ -470,6 +464,8 @@ def densityplot(
                             percentiles=levels,
                             logspace=logspace,
                             extent=extent,
+                            zorder=5,
+                            cmap=cmap,
                             **kwargs
                         )
                     else:
