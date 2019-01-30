@@ -36,12 +36,6 @@ __doi_rx__ = r"(.)*(doi(\s)*?:*)(\s)*(?P<value>\S*)"
 
 _contents_file = pyrolite_datafolder(subfolder="georoc") / "contents.json"
 
-if _contents_file.exists():
-    with open(str(_contents_file)) as fh:
-        __CONTENTS__ = json.loads(fh.read())
-else:
-    __CONTENTS__ = {}
-
 
 def subsitute_commas(entry):
     if iscollection(entry):
@@ -219,7 +213,6 @@ def bulk_GEOROC_download(
         else:
             msg = "Unknown reservoir requested: {}".format(res)
             logger.warn(msg)
-
         if resname:
             v = __CONTENTS__[resname]
 
@@ -444,3 +437,15 @@ def georoc_munge(df):
     df.loc[:, "Lat"] = (df.LatitudeMax + df.LatitudeMin) / 2.0
     df.loc[:, "Long"] = (df.LongitudeMax + df.LongitudeMin) / 2.0
     return df
+
+
+if _contents_file.exists():
+    with open(str(_contents_file)) as fh:
+        __CONTENTS__ = json.loads(fh.read())
+else:
+    if not _contents_file.parent.exists():
+        _contents_file.parent.mkdir(parents=True)
+    __CONTENTS__ = {}
+    update_georoc_filelist()
+    with open(str(_contents_file)) as fh:
+        __CONTENTS__ = json.loads(fh.read())
