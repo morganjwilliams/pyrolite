@@ -11,7 +11,6 @@
   <a href="https://github.com/ambv/black">
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg"
          alt="Code Style: Black"></a>
-
 </p>
 <p align="left">
 <a href="https://zenodo.org/badge/latestdoi/137172322">
@@ -19,6 +18,7 @@
 <a href="https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE" >
   <img src="https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg"
        alt="License: CSIRO Modified BSD/MIT License"></a>
+<img alt="pyrolite downloads" src="https://img.shields.io/pypi/dm/pyrolite.svg?style=flat">
 </p>
 
 ### Install
