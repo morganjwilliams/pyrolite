@@ -156,7 +156,8 @@ def update_georoc_filelist(
     try:
         assert internet_connection(target="georoc.mpch-mainz.gwdg.de")
         contents = get_georoc_links()
-        with open(str(filepath), "w") as fh:
+
+        with open(str(filepath), "w+") as fh:
             fh.write(json.dumps(contents))
     except AssertionError:
         msg = "Unable to make onnection to GEOROC to update compilation lists."
