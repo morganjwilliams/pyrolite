@@ -5,6 +5,19 @@ from pyrolite.util.math import *
 from pyrolite.geochem import REE, get_radii
 
 
+class TestIsClose(unittest.TestCase):
+    def test_non_nan(self):
+        self.assertTrue(isclose(1.0, 1.0))
+        self.assertTrue(isclose(0.0, 0.0))
+
+        self.assertTrue(isclose(np.array([1.0]), np.array([1.0])))
+        self.assertTrue(isclose(np.array([0.0]), np.array([0.0])))
+
+    def test_nan(self):
+        self.assertTrue(isclose(np.nan, np.nan))
+        self.assertTrue(isclose(np.array([np.nan]), np.array([np.nan])))
+
+
 class TestIsNumeric(unittest.TestCase):
     """
     Tests round_sig function.
@@ -231,7 +244,7 @@ class TestEqualWithinSignificance(unittest.TestCase):
         neq = pd.DataFrame(data=np.array(self.twoDunequal).T)
         self.assertTrue(equal_within_significance(eq).all())
         self.assertFalse(equal_within_significance(neq).all())
-        print(equal_within_significance(neq))
+        # print(equal_within_significance(neq))
 
 
 class TestSignifyDigit(unittest.TestCase):
