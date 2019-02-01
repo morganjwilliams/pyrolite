@@ -3,7 +3,7 @@
 
 All Elements up to U
 ```python
->>> import pyrolite.geochem.common_elements as ce
+>>> import pyrolite.geochem.ind.common_elements as ce
 >>> ce()  # string return
 ['H', 'He', 'Li', 'Be', ...,  'Th', 'Pa', 'U']
 >>> ce(output='formula')  # periodictable.core.Element return
@@ -11,7 +11,7 @@ All Elements up to U
 ```
 Oxides for Elements with Positive Charges (up to U)
 ```python
->>> import pyrolite.geochem.common_oxides as co
+>>> import pyrolite.geochem.ind.common_oxides as co
 >>> co()  # string return
 ['H2O', 'He2O', 'HeO', 'Li2O', 'Be2O', 'BeO', 'B2O', 'BO', 'B2O3', ...,
 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3']
@@ -20,7 +20,7 @@ Oxides for Elements with Positive Charges (up to U)
 ```
 REE Elements
 ```python
->>> from pyrolite.geochem import REE
+>>> from pyrolite.geochem.ind import REE
 >>> REE()
 ['La', 'Ce', 'Pr', 'Nd', 'Pm', ..., 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']
 ```
@@ -39,7 +39,7 @@ Index(['label', 'ID', 'mgo', 'SIO2', 'cs', 'TiO2'], dtype='object')
 ```
 ```python
 from pyrolite.util.text import titlecase
-from pyrolite.geochem import tochem
+from pyrolite.geochem.parse import tochem
 
 >>> df.columns = [titlecase(h, abbrv=['ID']) for h in df.columns]
 Index(['Label', 'ID', 'Mgo', 'Sio2', 'Cs', 'Tio2'], dtype='object')

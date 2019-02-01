@@ -3,7 +3,7 @@ Normalisation
 
 A selection of reference compositions are included:
 
-  >>> from pyrolite.normalisation import ReferenceCompositions
+  >>> from pyrolite.geochem.norm import ReferenceCompositions
   >>> refcomp = ReferenceCompositions()
   {
   'Chondrite_PON': Model of Chondrite (Palme2014),
