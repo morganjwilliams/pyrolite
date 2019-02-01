@@ -277,7 +277,8 @@ def densityplot(
     ax=None,
     mode="density",
     coverage_scale=1.1,
-    logspace=False,
+    logx=False,
+    logy=False,
     extent=None,
     contours=[],
     percentiles=True,
@@ -304,8 +305,10 @@ def densityplot(
         Different modes used here: ['density', 'hexbin', 'hist2d']
     coverage_scale : float, 1.1
         Scale the area over which the density plot is drawn.
-    logspace : {False, True}
-        Whether to use a logspaced *grid*. Note that values strickly >0 are required.
+    logx : {False, True}
+        Whether to use a logspaced *grid* on the x axis. Values strickly >0 required.
+    logy : {False, True}
+        Whether to use a logspaced *grid* on the y axis. Values strickly >0 required.
     contours : list
         Contours to add to the plot.
     percentiles : bool, True
@@ -352,74 +355,61 @@ def densityplot(
             if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
             else:
-                # 120% range
-                if logspace:  # make sure the range_values are >0
-                    rng = lambda v: (
-                        on_finite(v[v > 0], np.min) * (1.0 - exp),
-                        on_finite(v[v > 0], np.max) * (1.0 + exp),
-                    )
-                else:
-                    rng = lambda v: (
-                        on_finite(v, np.min) * (1.0 - exp),
-                        on_finite(v, np.max) * (1.0 + exp),
-                    )
-                xmin, xmax = rng(x)
-                ymin, ymax = rng(y)
+                logrng = lambda v: (  # make sure the range_values are >0
+                    on_finite(v[v > 0], np.min) * (1.0 - exp),
+                    on_finite(v[v > 0], np.max) * (1.0 + exp),
+                )
+                linrng = lambda v: (
+                    on_finite(v, np.min) * (1.0 - exp),
+                    on_finite(v, np.max) * (1.0 + exp),
+                )
 
-            # grid parameters
-            if logspace:
-                xstep = (xmax / xmin) / nbins
-                ystep = (ymax / ymin) / nbins
-            else:
-                xstep = (xmax - xmin) / nbins
-                ystep = (ymax - ymin) / nbins
+                xmin, xmax = [linrng(x), logrng(x)][logx]
+                ymin, ymax = [linrng(y), logrng(y)][logy]
 
+            xstep = [(xmax - xmin) / nbins, (xmax / xmin) / nbins][logx]
+            ystep = [(ymax - ymin) / nbins, (ymax / ymin) / nbins][logy]
+            logspace = logx and logy
             extent = xmin, xmax, ymin, ymax
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
-                if logspace:
-                    # extent values are exponents (i.e. 3 -> 10**3)
-                    hex_extent = (
-                        np.log(xmin / xstep),
-                        np.log(xmax * xstep),
-                        np.log(ymin / ystep),
-                        np.log(ymax * ystep),
-                    )
-                    mappable = ax.hexbin(
-                        x,
-                        y,
-                        gridsize=nbins,
-                        cmap=cmap,
-                        extent=hex_extent,
-                        xscale="log",
-                        yscale="log",
-                        **kwargs
-                    )
-                else:
-                    hex_extent = (
-                        xmin - xstep,
-                        xmax + xstep,
-                        ymin - ystep,
-                        ymax + ystep,
-                    )
-                    mappable = ax.hexbin(
-                        x, y, gridsize=nbins, cmap=cmap, extent=hex_extent, **kwargs
-                    )
+                hex_extent = (
+                    [
+                        [xmin - xstep, xmax + xstep],
+                        [np.log(xmin / xstep), np.log(xmax * xstep)],
+                    ][logx]
+                    + [
+                        [ymin - ystep, ymax + ystep],
+                        [np.log(ymin / ystep), np.log(ymax * ystep)],
+                    ][logy]
+                )
+                # extent values are exponents (i.e. 3 -> 10**3)
+                mappable = ax.hexbin(
+                    x,
+                    y,
+                    gridsize=nbins,
+                    cmap=cmap,
+                    extent=hex_extent,
+                    xscale=["linear", "log"][logx],
+                    yscale=["linear", "log"][logy],
+                    **kwargs,
+                )
                 cbarlabel = "Frequency"
 
             elif mode == "hist2d":
                 vmin = kwargs.pop("vmin", 0)
-                if logspace:
-                    assert ((xmin / xstep) > 0.0) and ((ymin / ystep) > 0.0)
-                    xe = np.logspace(
-                        np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1
-                    )
-                    ye = np.logspace(
-                        np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1
-                    )
-                else:
-                    xe = np.linspace(xmin - xstep, xmax + xstep, nbins + 1)
-                    ye = np.linspace(ymin - ystep, ymax + ystep, nbins + 1)
+                if logx:
+                    assert (xmin / xstep) > 0.0
+                if logy:
+                    assert (ymin / ystep) > 0.0
+                xe = [
+                    np.linspace(xmin - xstep, xmax + xstep, nbins + 1),
+                    np.logspace(np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1),
+                ][logx]
+                ye = [
+                    np.linspace(ymin - ystep, ymax + ystep, nbins + 1),
+                    np.logspace(np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1),
+                ][logy]
 
                 range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(
@@ -432,19 +422,26 @@ def densityplot(
                 shading = kwargs.pop("shading", None) or "flat"
                 kdedata = data.T
                 # Generate Grid
-                if logspace:  # Generate logspaced grid
-                    assert xmin > 0.0 and ymin > 0.0
-                    xs, ys = (
-                        np.linspace(np.log(xmin), np.log(xmax), nbins + 1),
-                        np.linspace(np.log(ymin), np.log(ymax), nbins + 1),
-                    )
-                    xi, yi = np.meshgrid(xs, ys)
-                    xi, yi = xi.T, yi.T
-                    kdedata = np.log(kdedata)
-                else:
-                    xi, yi = np.mgrid[
-                        xmin : xmax : (nbins + 1) * 1j, ymin : ymax : (nbins + 1) * 1j
-                    ]
+                if logx:
+                    assert xmin > 0.0
+                if logy:
+                    assert ymin > 0.0
+
+                xs = [
+                    np.linspace(xmin, xmax, nbins + 1),
+                    np.linspace(np.log(xmin), np.log(xmax), nbins + 1),
+                ][logx]
+                ys = [
+                    np.linspace(ymin, ymax, nbins + 1),
+                    np.linspace(np.log(ymin), np.log(ymax), nbins + 1),
+                ][logy]
+                xi, yi = np.meshgrid(xs, ys)
+                xi, yi = xi.T, yi.T
+                if logx:
+                    kdedata[0] = np.log(kdedata[0])
+                if logy:
+                    kdedata[1] = np.log(kdedata[1])
+
                 assert np.isfinite(xi).all() and np.isfinite(yi).all()
                 k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
                 zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
@@ -452,8 +449,10 @@ def densityplot(
                 vmin = kwargs.pop("vmin", 0.02)  # 2% max height
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
-                if logspace:
-                    xi, yi = np.exp(xi), np.exp(yi)
+                if logx:
+                    xi = np.exp(xi)
+                if logy:
+                    yi = np.exp(yi)
                 if contours:
                     levels = contours or kwargs.pop("levels", None)
                     cags = xi, yi, zi
@@ -462,12 +461,12 @@ def densityplot(
                             *cags,
                             ax=ax,
                             percentiles=levels,
-                            logspace=logspace,
                             extent=extent,
                             zorder=5,
                             cmap=cmap,
                             **kwargs
                         )
+                        mappable = _cs
                     else:
                         if levels is None:
                             levels = MaxNLocator(nbins=10).tick_values(

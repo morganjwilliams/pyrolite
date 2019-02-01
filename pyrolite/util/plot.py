@@ -232,7 +232,6 @@ def plot_Z_percentiles(
     percentiles=[0.95, 0.66, 0.33],
     ax=None,
     extent=None,
-    logspace=False,
     label_contours=True,
     **kwargs
 ):
@@ -250,8 +249,6 @@ def plot_Z_percentiles(
         Axes on which to plot. If none given, will create a new Axes instance.
     extent
         List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    logspace : bool
-        Noting whether the grid is log-spaced.
     fontsize : np.number
         Fontsize for the contour labels.
     cmap
