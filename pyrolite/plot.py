@@ -563,7 +563,7 @@ def densityplot(
                             ax=ax,
                             percentiles=levels,
                             extent=extent,
-                            zorder=5,
+                            zorder=kwargs.pop('zorder', 5),
                             cmap=cmap,
                             **kwargs,
                         )
@@ -627,5 +627,9 @@ def densityplot(
             )
         else:
             pass
+    if logx:
+        ax.set_xscale('log')
+    if logy:
+        ax.set_yscale('log')
     plt.tight_layout()
     return ax
