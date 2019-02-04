@@ -12,7 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 def isclose(a, b):
-    """Implementation of np.isclose with equal nan."""
+    """
+    Implementation of np.isclose with equal nan.
+
+    Returns
+    -------
+    bool
+    """
     hasnan = np.isnan(a) | np.isnan(b)
     if np.array(a).ndim > 1:
         if hasnan.any():
@@ -37,7 +43,20 @@ def is_numeric(obj):
 
 @np.vectorize
 def round_sig(x, sig=2):
-    """Round a number to a certain number of significant figures."""
+    """
+    Round a number to a certain number of significant figures.
+
+    Parameters
+    ----------
+    x : np.number
+        Number to round.
+    sig : int
+        Number of significant digits to round to.
+
+    Returns
+    -------
+    np.float
+    """
     where_nan = ~np.isfinite(x)
     x = copy(x)
     if hasattr(x, "__len__"):
@@ -53,7 +72,27 @@ def round_sig(x, sig=2):
 
 
 def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
-    """Get number of significant digits for a number, given an uncertainty."""
+    """
+    Iterative method to determine the number of significant digits for a given float,
+    optionally providing an uncertainty.
+
+    Parameters
+    ----------
+    n : np.number
+        Number from which to ascertain the significance level.
+    unc : np.number, None
+        Uncertainty, which if provided is used to derive the number of significant
+        digits.
+    max_sf : int
+        An upper limit to the number of significant digits suggested.
+    rtol : np.number
+        Relative tolerance to determine similarity of numbers, used in calculations.
+
+    Returns
+    -------
+    int
+        Number of significant digits.
+    """
     if not hasattr(n, "__len__"):
         if np.isfinite(n):
             if unc is not None:
@@ -97,7 +136,9 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
 
 
 def most_precise(arr):
-    """Get the most precise element from an array."""
+    """
+    Get the most precise element from an array.
+    """
     arr = np.array(arr)
     if np.isfinite(arr).any().any():
         precision = significant_figures(arr)

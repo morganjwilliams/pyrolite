@@ -72,12 +72,12 @@ def add_colorbar(mappable, **kwargs):
 
     Parameters
     ----------
-    mappable :
+    mappable
         The Image, ContourSet, etc. to which the colorbar applies.
 
     Returns
     ----------
-    colorbar: matplotlib.colorbar.Colorbar
+    matplotlib.colorbar.Colorbar
     """
     ax = kwargs.get("ax", None)
     if hasattr(mappable, "axes"):
@@ -129,7 +129,7 @@ def proxy_rect(**kwargs):
 
     Returns
     ----------
-    rect: matplotlib.patches.Rectangle
+    matplotlib.patches.Rectangle
     """
     return patches.Rectangle((0, 0), 1, 1, **kwargs)
 
@@ -140,7 +140,7 @@ def proxy_line(**kwargs):
 
     Returns
     ----------
-    line: matplotlib.lines.Line2D
+    matplotlib.lines.Line2D
     """
     return mlines.Line2D(range(1), range(1), **kwargs)
 
@@ -167,10 +167,9 @@ def vector_to_line(
 ):
     """
     Creates an array of points representing a line along a vector - typically
-    for principal component analysis.
-
-    Modified after Jake VanderPlas' Python Data Science Handbook
-    https://jakevdp.github.io/PythonDataScienceHandbook/05.09-principal-component-analysis.html
+    for principal component analysis. Modified after Jake VanderPlas' Python Data
+    Science Handbook https://jakevdp.github.io/PythonDataScienceHandbook/ \
+    05.09-principal-component-analysis.html
     """
     length = np.sqrt(variance)
     parts = np.linspace(-spans, spans, expand * 2 * spans + 1)
@@ -210,6 +209,14 @@ def percentile_contour_values_from_meshz(
         Percentile values for which to create contours.
     resolution : int
         Number of bins for thresholds between 0. and max(Z)
+
+    Returns
+    -------
+    labels
+        Labels for contours (percentiles, if above minimum z value).
+
+    contours
+        Contour heigh values.
     """
     percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
@@ -222,6 +229,7 @@ def percentile_contour_values_from_meshz(
     except ValueError:
         logger.debug('Percentile contour below minimum for given resolution' \
                      'Returning Minimium.')
+        non_one = integral[~np.isclose(integral, np.ones_like(integral))]
         return ['min'], f(np.array([np.nanmax(non_one)]))
 
 
@@ -253,6 +261,11 @@ def plot_Z_percentiles(
         Fontsize for the contour labels.
     cmap
         Color map for the contours, contour labels and imshow.
+
+    Returns
+    -------
+    matplotlib.contour.QuadContourSet
+        Plotted and formatted contour set.
     """
     if ax is None:
         fig, ax = plt.subplots(1, figsize=(6, 6))
@@ -290,6 +303,11 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         Axes on which to plot.
     axes_width : float
         Width of the marginal axes.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the nan_scatter is plotted.
     """
     if ax is None:
         fig, ax = plt.subplots(1)
@@ -402,7 +420,20 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
 
 def get_full_extent(ax, pad=0.0):
     """Get the full extent of an axes, including axes labels, tick labels, and
-    titles. Text objects are first drawn to define the extents."""
+    titles. Text objects are first drawn to define the extents.
+
+    Parameters
+    -----------
+    ax : matplotlib.axes.Axes
+        Axes of which to check items to get full extent.
+    pad : np.number
+        Amount of padding to add to the full extent prior to returning.
+
+    Returns
+    --------
+    matplotlib.transforms.Bbox
+        Bbox of the axes with optional additional padding.
+    """
     fig = ax.figure
     fig.canvas.draw()
     renderer = fig.canvas.renderer
