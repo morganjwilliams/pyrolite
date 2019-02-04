@@ -284,6 +284,92 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     return ax
 
 
+def _linspc(_min, _max, step=0.0, bins=20):
+    """
+    Linear spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : np.number
+        Minimum value for spaced range.
+    _max : np.number
+        Maximum value for spaced range.
+    step : np.number, 0.0
+        Step for expanding at grid edges. Default of 0.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    np.ndarray
+        Linearly-spaced array.
+    """
+    return np.linspace(_min - step, _max + step, bins + 1)
+
+
+def _logspc(_min, _max, step=1.0, bins=20):
+    """
+    Log spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : np.number
+        Minimum value for spaced range.
+    _max : np.number
+        Maximum value for spaced range.
+    step : np.number, 1.0
+        Step for expanding at grid edges. Default of 1.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    np.ndarray
+        Log-spaced array.
+    """
+    return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
+
+
+def _logrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are excluded.
+
+    Parameters
+    -----------
+    v : list-like
+        Array of values to obtain a range from.
+    exp : np.float, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    tuple
+        Min, max tuple.
+    """
+    u = v[(v > 0)]  # make sure the range_values are >0
+    return _linrng(u, exp=exp)
+
+
+def _linrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are included.
+
+    Parameters
+    -----------
+    v : list-like
+        Array of values to obtain a range from.
+    exp : np.float, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    tuple
+        Min, max tuple.
+    """
+    u = v[np.isfinite(v)]
+    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def densityplot(
@@ -366,7 +452,7 @@ def densityplot(
         cmap = plt.get_cmap(cmap)
     cmap.set_under(color=background_color)
 
-    exp = (coverage_scale - 1.) / 2
+    exp = (coverage_scale - 1.0) / 2
     data = df.loc[:, components].values
 
     if data.any():
@@ -378,21 +464,14 @@ def densityplot(
             if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
             else:
-                logrng = lambda v: (  # make sure the range_values are >0
-                    on_finite(v[v > 0], np.min) * (1.0 - exp),
-                    on_finite(v[v > 0], np.max) * (1.0 + exp),
-                )
-                linrng = lambda v: (
-                    on_finite(v, np.min) * (1.0 - exp),
-                    on_finite(v, np.max) * (1.0 + exp),
-                )
-
-                xmin, xmax = [linrng(x), logrng(x)][logx]
-                ymin, ymax = [linrng(y), logrng(y)][logy]
+                # get the range from the data itself. data > 0 for log grids
+                xmin, xmax = [_linrng, _logrng][logx](x, exp=exp)
+                ymin, ymax = [_linrng, _logrng][logy](y, exp=exp)
 
             xstep = [(xmax - xmin) / nbins, (xmax / xmin) / nbins][logx]
             ystep = [(ymax - ymin) / nbins, (ymax / ymin) / nbins][logy]
             extent = xmin, xmax, ymin, ymax
+
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
                 hex_extent = (
@@ -424,14 +503,9 @@ def densityplot(
                     assert (xmin / xstep) > 0.0
                 if logy:
                     assert (ymin / ystep) > 0.0
-                xe = [
-                    np.linspace(xmin - xstep, xmax + xstep, nbins + 1),
-                    np.logspace(np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1),
-                ][logx]
-                ye = [
-                    np.linspace(ymin - ystep, ymax + ystep, nbins + 1),
-                    np.logspace(np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1),
-                ][logy]
+
+                xe = [_linspc, _logspc][logx](xmin, xmax, xstep, nbins)
+                ye = [_linspc, _logspc][logy](ymin, ymax, ystep, nbins)
 
                 range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(
@@ -443,31 +517,29 @@ def densityplot(
             elif mode == "density":
                 shading = kwargs.pop("shading", None) or "flat"
 
-
                 if logx:
                     assert xmin > 0.0
                 if logy:
                     assert ymin > 0.0
 
-                xs = [
-                    np.linspace(xmin, xmax, nbins + 1),
-                    np.linspace(np.log(xmin), np.log(xmax), nbins + 1),
-                ][logx]
-                ys = [
-                    np.linspace(ymin, ymax, nbins + 1),
-                    np.linspace(np.log(ymin), np.log(ymax), nbins + 1),
-                ][logy]
+                # Generate Grid
+                xs = [_linspc, _logspc][logx](xmin, xmax, bins=nbins)
+                ys = [_linspc, _logspc][logy](ymin, ymax, bins=nbins)
                 xi, yi = np.meshgrid(xs, ys)
                 xi, yi = xi.T, yi.T
                 assert np.isfinite(xi).all() and np.isfinite(yi).all()
 
                 kdedata = data.T
-                if logx:
+                if logx:  # generate x grid over range spanned by log(x)
                     kdedata[0] = np.log(kdedata[0])
-                if logy:
+                    xi = np.log(xi)
+                if logy:  # generate y grid over range spanned by log(y)
                     kdedata[1] = np.log(kdedata[1])
+                    yi = np.log(yi)
 
-                assert np.isfinite(xi).all() and np.isfinite(yi).all()
+                # remove nan, inf bearing rows
+                kdedata = kdedata[:, np.isfinite(kdedata).all(axis=0)]
+                assert np.isfinite(kdedata).all()
                 k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
                 zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
                 assert np.isfinite(zi).all()
@@ -475,6 +547,9 @@ def densityplot(
                 vmin = kwargs.pop("vmin", 0.02)  # 2% max height
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
+                    logger.debug(
+                        "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
+                    )
                 if logx:
                     xi = np.exp(xi)
                 if logy:
@@ -490,7 +565,7 @@ def densityplot(
                             extent=extent,
                             zorder=5,
                             cmap=cmap,
-                            **kwargs
+                            **kwargs,
                         )
                         mappable = _cs
                     else:
