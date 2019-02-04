@@ -40,16 +40,21 @@ def spiderplot(
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas.DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : matplotlib.axes.Axes, None
         The subplot to draw on.
-    plot: boolean, True
+    plot : boolean, True
         Whether to plot lines and markers.
-    fill:
+    fill : boolean, True
         Whether to add a patch representing the full range.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
     try:
@@ -161,6 +166,11 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
     -----------
     ax : matplotlib.axes.Axes
         Optional designation of axes to reconfigure.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the REE_radii_plot is plotted.
     """
     if ax is not None:
         fig = ax.figure
@@ -200,12 +210,17 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas.DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : matplotlib.axes.Axes, None
         The subplot to draw on.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -275,11 +290,11 @@ def densityplot(
     df,
     components: list = None,
     ax=None,
-    mode="density",
-    coverage_scale=1.1,
     logx=False,
     logy=False,
+    mode="density",
     extent=None,
+    coverage_scale=1.1,
     contours=[],
     percentiles=True,
     relim=True,
@@ -301,20 +316,28 @@ def densityplot(
         Elements or compositional components to plot.
     ax : Matplotlib AxesSubplot, None
         The subplot to draw on.
-    mode : str, 'density'
-        Different modes used here: ['density', 'hexbin', 'hist2d']
-    coverage_scale : float, 1.1
-        Scale the area over which the density plot is drawn.
     logx : {False, True}
         Whether to use a logspaced *grid* on the x axis. Values strickly >0 required.
     logy : {False, True}
         Whether to use a logspaced *grid* on the y axis. Values strickly >0 required.
+    mode : str, 'density'
+        Different modes used here: ['density', 'hexbin', 'hist2d']
+    extent : list-like
+        Predetermined extent of the grid for which to from the histogram/KDE. In the
+        general from (xmin, xmax, ymin, ymax).
+    coverage_scale : float, 1.1
+        Scale the area over which the density plot is drawn.
     contours : list
         Contours to add to the plot.
     percentiles : bool, True
         Whether contours specified are to be converted to percentiles.
     relim : bool, False
         Whether to relimit the plot based on xmin, xmax values.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the densityplot is plotted.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -343,7 +366,7 @@ def densityplot(
         cmap = plt.get_cmap(cmap)
     cmap.set_under(color=background_color)
 
-    exp = (coverage_scale - 1) / 2
+    exp = (coverage_scale - 1.) / 2
     data = df.loc[:, components].values
 
     if data.any():
@@ -369,7 +392,6 @@ def densityplot(
 
             xstep = [(xmax - xmin) / nbins, (xmax / xmin) / nbins][logx]
             ystep = [(ymax - ymin) / nbins, (ymax / ymin) / nbins][logy]
-            logspace = logx and logy
             extent = xmin, xmax, ymin, ymax
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
@@ -420,8 +442,8 @@ def densityplot(
 
             elif mode == "density":
                 shading = kwargs.pop("shading", None) or "flat"
-                kdedata = data.T
-                # Generate Grid
+
+
                 if logx:
                     assert xmin > 0.0
                 if logy:
@@ -437,6 +459,9 @@ def densityplot(
                 ][logy]
                 xi, yi = np.meshgrid(xs, ys)
                 xi, yi = xi.T, yi.T
+                assert np.isfinite(xi).all() and np.isfinite(yi).all()
+
+                kdedata = data.T
                 if logx:
                     kdedata[0] = np.log(kdedata[0])
                 if logy:
@@ -445,6 +470,7 @@ def densityplot(
                 assert np.isfinite(xi).all() and np.isfinite(yi).all()
                 k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
                 zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
+                assert np.isfinite(zi).all()
                 zi = zi / zi.max()
                 vmin = kwargs.pop("vmin", 0.02)  # 2% max height
                 if percentiles:  # 98th percentile
