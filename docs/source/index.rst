@@ -4,8 +4,8 @@
 `Pyrolite`
 ====================================
 
-.. note:: This documentation is currently incomplete and a work in progress.
-          Information is derived principally from docstrings.
+.. note:: This documentation is a work in progress and is updated regularly. Contact
+          the maintainer with any specific questions/requests.
 
 .. toctree::
    :maxdepth: 1
