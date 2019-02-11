@@ -417,7 +417,7 @@ def densityplot(
         Contours to add to the plot.
     percentiles : bool, True
         Whether contours specified are to be converted to percentiles.
-    relim : bool, False
+    relim : bool, True
         Whether to relimit the plot based on xmin, xmax values.
 
     Returns
@@ -627,9 +627,10 @@ def densityplot(
             )
         else:
             pass
-    if logx:
-        ax.set_xscale('log')
-    if logy:
-        ax.set_yscale('log')
+    if relim:
+        if logx:
+            ax.set_xscale('log')
+        if logy:
+            ax.set_yscale('log')
     plt.tight_layout()
     return ax
