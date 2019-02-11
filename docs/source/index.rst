@@ -11,7 +11,6 @@
    :maxdepth: 1
 
    usage/installation
-   usage/plotting
    usage/examples
    usage/contributing
    usage/tests
