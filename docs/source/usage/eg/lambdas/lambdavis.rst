@@ -7,6 +7,11 @@ Visualising Orthogonal Polynomials
 
 .. literalinclude:: ../../../../examples/dimensional_reduction/orthogonal_polynomials.py
    :language: python
+   :start-after: # %% Generate Some Example Data
+   :end-before: # %% Reduce to Orthogonal Polynomials
+
+.. literalinclude:: ../../../../examples/dimensional_reduction/orthogonal_polynomials.py
+   :language: python
    :start-after: # %% Reduce to Orthogonal Polynomials
    :end-before: # %% Plot the Results
 

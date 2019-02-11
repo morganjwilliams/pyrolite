@@ -56,14 +56,10 @@ ys = stats.norm.rvs(loc=20, scale=3, size=(200, 1)) + 5 * xs + 50
 data = np.append(xs, ys, axis=1).T
 asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 15))
 asym_df.columns = ["A", "B"]
-# ----------------------------------
-fig, ax = plt.subplots(3, 2, figsize=(8, 8))
-ax = ax.flat
 grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
 scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
 labels = ["{}-{}".format(ls, ps) for (ls, ps) in zip(grids, scales)]
-for a, ls, grid, scale in zip(
-    ax,
+params = list(zip(
     [
         (False, False),
         (True, True),
@@ -74,7 +70,12 @@ for a, ls, grid, scale in zip(
     ],
     grids,
     scales,
-):
+))
+# %% ------------------------------------
+fig, ax = plt.subplots(3, 2, figsize=(8, 8))
+ax = ax.flat
+
+for a, (ls, grid, scale) in zip(ax, params):
     lx, ly = ls
     asym_df.densityplot(ax=a, logx=lx, logy=ly, bins=30, cmap="viridis_r")
     asym_df.densityplot(
