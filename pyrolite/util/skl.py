@@ -644,7 +644,7 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
     ):
         self.norm_to = norm_to
         self.ree = [i for i in REE() if not i in exclude]
-        self.radii = np.array(get_radii(self.ree))
+        self.radii = np.array(get_ionic_radii(self.ree, charge=3, coordination=8))
         self.exclude = exclude
         if params is None:
             self.degree = degree

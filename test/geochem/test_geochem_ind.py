@@ -201,22 +201,22 @@ class TestCommonOxides(unittest.TestCase):
                     self.assertIn(get_cations(ox)[0].__str__(), els)
 
 
-class TestGetRadii(unittest.TestCase):
-    """Checks the radii getter."""
+class TestGetIonicRadii(unittest.TestCase):
+    """Checks the Shannon radii getter."""
 
     def setUp(self):
         self.ree = REE()
 
     def test_ree_radii(self):
-        radii = get_radii(self.ree[0])
+        radii = get_ionic_radii(self.ree[0], charge=3, coordination=8)
         self.assertTrue(isinstance(radii, float))
 
     def test_ree_radii_list(self):
-        radii = get_radii(self.ree)
+        radii = get_ionic_radii(self.ree, charge=3, coordination=8)
         self.assertTrue(isinstance(radii, list))
 
 
-get_cations
+# todo: get_cations
 
 
 if __name__ == "__main__":

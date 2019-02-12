@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
-from pyrolite.geochem import REE, get_radii
+from pyrolite.geochem import REE, get_ionic_radii
 
 
 class TestIsClose(unittest.TestCase):
@@ -341,7 +341,7 @@ class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
 
     def setUp(self):
-        self.xs = np.array(get_radii(REE()))
+        self.xs = np.array(get_ionic_radii(REE(), coordination=8, charge=3))
         self.default_degree = 4
 
     def test_xs(self):

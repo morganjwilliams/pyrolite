@@ -11,7 +11,7 @@ from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .ind import (
     REE,
-    get_radii,
+    get_ionic_radii,
     simple_oxides,
     common_elements,
     common_oxides,
@@ -529,7 +529,7 @@ def lambda_lnREE(
         and (not str(i) in exclude)
         and (str(i) in non_null_cols or i in non_null_cols)
     ]  # no promethium
-    radii = np.array(get_radii(ree))
+    radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
     if params is None:
         params = OP_constants(radii, degree=degree)

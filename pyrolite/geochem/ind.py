@@ -1,10 +1,16 @@
 import re
+from pathlib import Path
+import pandas as pd
 import periodictable as pt
 from pyrolite.util.text import titlecase
+from scipy.interpolate import interp1d
+from pyrolite.mineral import ions
+from pyrolite.util.general import pyrolite_datafolder
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
 
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
@@ -119,15 +125,6 @@ def simple_oxides(cation, output="string"):
     return oxides
 
 
-def get_radii(el):
-    """Convenience function for ionic radii."""
-    if isinstance(el, list):
-        return [get_radii(e) for e in el]
-    elif not isinstance(el, str):
-        el = str(el)
-    return _RADII[el]
-
-
 def get_cations(oxide: str, exclude=[]):
     """
     Returns the principal cations in an oxide component.
@@ -155,29 +152,109 @@ def get_isotopes(ratio_text):
     elif lbw == 2:
         return bw
 
+
+def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling=True):
+    """
+    Function to obtain Shannon's radii for a given ion. Shannon published two sets of
+    radii. The first ('Crystal Radii') were using Shannon's value for r($O^{2-}_{VI}$)
+    of 1.26 $\AA$, while the second ('Ionic Radii') is consistent with the
+    Pauling (1960) value of r($O^{2-}_{VI}$) of 1.40 $\AA$; see `pauling` below.
+
+    Parameters
+    -----------
+    element : str | list-like
+        Element to obtain a radii for. If a list is passed, the function will be applied
+        over each of the items.
+    charge : int
+        Charge of the ion to obtain a radii for. If unspecified will use the default
+        charge from :mod:`pyrolite.mineral.ions`.
+    coordination : int
+        Coordination of the ion to obtain a radii for.
+    variant : list
+        List of strings specifying particular variants (here 'squareplanar' or
+        'pyramidal', 'highspin' or 'lowspin').
+    pauling : bool
+        Whether to use the radii consistent with Pauling (1960).
+
+    Returns
+    --------
+    :class:`pandas.Series`
+        Dataframe with viable ion charge and coordination, with associated radii in
+        angstroms. If the ion charge and coordiation are specified and found in the
+        table, a single value will be returned instead.
+
+    Note
+    -----
+        **Reference**: Shannon RD (1976). Revised effective ionic radii and systematic
+        studies of interatomic distances in halides and chalcogenides.
+        Acta Crystallographica Section A 32:751–767. doi: 10.1107/S0567739476001551
+
+
+    Todo
+    -----
+        * Implement interpolation for coordination +/- charge.
+        * Finish Shannon Radii tests
+    """
+    if isinstance(element, list):
+        return [
+            get_ionic_radii(
+                e,
+                charge=charge,
+                coordination=coordination,
+                variant=variant,
+                pauling=pauling,
+            )
+            for e in element
+        ]
+
+    target = ["crystalradius", "ionicradius"][pauling]
+
+    elfltr = __shannon__.element == element
+    fltrs = elfltr.copy()
+    if charge is not None:
+        if charge in __shannon__.loc[elfltr, "charge"].unique():
+            fltrs *= __shannon__.charge == charge
+        else:
+            logging.warn("Charge {:d} not in table.".format(int(charge)))
+            # try to interpolate over charge?..
+            # interpolate_charge=True
+    else:
+        charge = getattr(pt, element).default_charge
+        fltrs *= __shannon__.charge == charge
+
+    if coordination is not None:
+        if coordination in __shannon__.loc[elfltr, "coordination"].unique():
+            fltrs *= __shannon__.coordination == coordination
+        else:
+            logging.warn("Coordination {:d} not in table.".format(int(coordination)))
+            # try to interpolate over coordination
+            # interpolate_coordination=True
+
+    # assert not interpolate_coordination and interpolate_charge
+
+    if variant:  # todo warning for missing variants
+        for v in variant:
+            fltrs *= __shannon__.variant.apply(lambda x: v in x)
+
+    result = __shannon__.loc[fltrs, target]
+    if result.index.size == 1:
+        return result.values[0]  # return the specific number
+    else:
+        return result  # return the series
+
+
+__shannon__ = pd.read_csv(pyrolite_datafolder("shannon") / "radii.csv").set_index(
+    "index", drop=True
+)
+
+# private sets to improve performance
 __common_oxides__ = common_oxides(as_set=True)
 __common_elements__ = common_elements(as_set=True)
 __REE = REE()
+
 _RADII = {
     str(k): v
     for (k, v) in zip(
-        REE(),
-        [
-            1.160,
-            1.143,
-            1.126,
-            1.109,
-            1.093,
-            1.079,
-            1.066,
-            1.053,
-            1.040,
-            1.027,
-            1.015,
-            1.004,
-            0.994,
-            0.985,
-            0.977,
-        ],
+        REE(), [get_ionic_radii(e, charge=3, coordination=8) for e in REE()]
     )
 }

@@ -15,7 +15,7 @@ from .util.plot import (
     percentile_contour_values_from_meshz,
 )
 from .util.general import iscollection
-from .geochem import common_elements, REE, get_radii
+from .geochem import common_elements, REE, get_ionic_radii
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -179,7 +179,7 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
         fig, ax = plt.subplots()
 
     ree = REE()
-    radii = np.array(get_radii(ree))
+    radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
 
     if df is not None:
         if any([i in df.columns for i in ree]):
@@ -384,6 +384,7 @@ def densityplot(
     contours=[],
     percentiles=True,
     relim=True,
+    axlabels=True,
     **kwargs
 ):
     """
@@ -419,6 +420,8 @@ def densityplot(
         Whether contours specified are to be converted to percentiles.
     relim : bool, True
         Whether to relimit the plot based on xmin, xmax values.
+    axlabels : bool, True
+        Whether to add x-y axis labels.
 
     Returns
     -------
@@ -609,8 +612,9 @@ def densityplot(
 
             if relim:
                 ax.axis(extent)
-            ax.set_xlabel(components[0], fontsize=fontsize)
-            ax.set_ylabel(components[1], fontsize=fontsize)
+            if axlabels:
+                ax.set_xlabel(components[0], fontsize=fontsize)
+                ax.set_ylabel(components[1], fontsize=fontsize)
 
         elif len(components) == 3:  # ternary
             scale = kwargs.pop("scale", None) or 100.0
