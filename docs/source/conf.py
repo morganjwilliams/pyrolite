@@ -202,14 +202,14 @@ comps = []
 for r in reservoirs:
     comps += [k for k in RC if RC[k].Reservoir == r]
 refcomps = (
-    "<dl>\n    "
+    "    <dl>"
     + "\n    ".join(
         [
             "<dt>{}</dt><dd>{}</dd>".format(k, RC[k])
             for k in comps
         ]
     )
-    + "\n</dl>\n"
+    + "</dl>"
 )
 rst_prolog = """
 .. |br| raw:: html
