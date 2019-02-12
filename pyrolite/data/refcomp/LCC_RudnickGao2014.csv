@@ -2,7 +2,7 @@ var,value,units,unc_2sigma,constraint_var,constraint_value,constraint_comment
 ModelName,LCC_RG2014,,,,,
 Reservoir,LowerContinentalCrust,,,,,
 ModelType,Calculation,,,,,
-Reference,RudnickGao2014,,,,,
+Reference,Rudnick & Gao 2014,,,,,
 SiO2,53.4,%,,,,
 Al2O3,16.9,%,,,,
 FeO,8.57,%,,,,

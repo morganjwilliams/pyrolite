@@ -2,7 +2,7 @@ var,value,units,unc_2sigma,constraint_var,constraint_value,constraint_comment
 ModelName,Chondrite_PON,,,,,
 Reservoir,Chondrite,,,,,
 ModelType,Calculation,,,,,
-Reference,Palme2014,,,,,
+Reference,Palme & O'Neill 2014,,,,,
 SiO2,,,,,,
 Al2O3,,,,,,
 FeO,,,,,,

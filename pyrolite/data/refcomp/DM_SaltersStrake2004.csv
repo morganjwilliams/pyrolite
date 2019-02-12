@@ -1,8 +1,8 @@
 var,value,units,unc_2sigma,constraint_var,constraint_value,constraint_comment
-ModelName,DM_SS,,,,,
+ModelName,DM_SS2004,,,,,
 Reservoir,DepletedMantle,,,,,
 ModelType,,,,,,
-Reference,Salters2004,,,,,
+Reference,Salters & Strake 2004,,,,,
 SiO2,44.9,wt%,,MMM,,
 Al2O3,4.28,wt%,,MMM,,
 FeO,8.07,wt%,,MMM,,

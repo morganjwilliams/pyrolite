@@ -2,7 +2,7 @@ var,value,units,unc_2sigma,constraint_var,constraint_value,constraint_comment
 ModelName,BCC_RG2014,,,,,
 Reservoir,BulkContinentalCrust,,,,,
 ModelType,Calculation,,,,,
-Reference,RudnickGao2014,,,,,
+Reference,Rudnick & Gao 2014,,,,,
 SiO2,60.6,%,,,,
 Al2O3,15.9,%,,,,
 FeO,6.7,%,,,,

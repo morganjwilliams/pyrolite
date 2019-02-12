@@ -194,15 +194,19 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
 
 # metadata
-import pyrolite.geochem
-
-
+# ordered reference composition list
+from pyrolite.geochem.norm import ReferenceCompositions as rc
+RC = rc()
+reservoirs = set([RC[k].Reservoir for k in RC])
+comps = []
+for r in reservoirs:
+    comps += [k for k in RC if RC[k].Reservoir == r]
 refcomps = (
-    "<dl>"
+    "<dl>\n    "
     + "\n    ".join(
         [
-            "<dt>{}</dt><dd>{}</dd>\n".format(k, v)
-            for k, v in pyrolite.geochem.norm.ReferenceCompositions().items()
+            "<dt>{}</dt><dd>{}</dd>".format(k, RC[k])
+            for k in comps
         ]
     )
     + "\n</dl>\n"

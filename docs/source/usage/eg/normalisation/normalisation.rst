@@ -7,14 +7,15 @@ A selection of reference compositions are included:
 
   >>> from pyrolite.geochem.norm import ReferenceCompositions
   >>> refcomp = ReferenceCompositions()
+  >>> refcomp
   {
-  'Chondrite_PON': Model of Chondrite (Palme2014),
-  'D-DMM_WH': Model of DepletedDepletedMORBMantle (Workman2005),
-  'DMM_WH': Model of DepletedMORBMantle (Workman2005),
-  'DM_SS': Model of DepletedMantle (Salters2004),
-  'E-DMM_WH': Model of EnrichedDepletedMORBMantle (Workman2005),
-  'PM_PON': Model of PrimitiveMantle (Palme2014)
+   'BCC_RG2003': Model of BulkContinentalCrust (Rudnick & Gao 2003),
+   'BCC_RG2014': Model of BulkContinentalCrust (Rudnick & Gao 2014),
+   'Chondrite_MS95': Model of Chondrite (McDonough & Sun 1995),
+   ...
+   'UCC_RG2014': Model of UpperContinentalCrust (Rudnick & Gao 2014)
   }
+
 
 .. code-block:: python
 
@@ -38,7 +39,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
   >>> from pyrolite.plot import spiderplot
   >>> refcomp = ReferenceCompositions()
   >>> CH = refcomp['Chondrite_PON']
-  >>> DMM = refcomp['DMM_WH']
+  >>> DMM = refcomp['DMM_WH2005']
 
   >>> df = DMM.data.loc[REE(), ['value']]
   >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
