@@ -19,7 +19,6 @@ try:
     import httplib
 except:
     import http.client as httplib
-import pyrolite  # required for introspection/data folder
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -84,7 +83,7 @@ def stream_log(package_name, level="INFO"):
 
 def pyrolite_datafolder(subfolder=None):
     """Returns the path of the pyrolite data folder."""
-    pth = Path(inspect.getfile(pyrolite)).parent / "data"
+    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
     if subfolder:
         pth /= subfolder
     return pth
