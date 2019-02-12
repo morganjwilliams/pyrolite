@@ -196,15 +196,28 @@ github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/
 # metadata
 import pyrolite.geochem
 
-refcomps = [
-    str(i).replace("Model of ", "")
-    for i in pyrolite.geochem.norm.ReferenceCompositions().values()
-]
 
+refcomps = (
+    "<dl>"
+    + "\n    ".join(
+        [
+            "<dt>{}</dt><dd>{}</dd>\n".format(k, v)
+            for k, v in pyrolite.geochem.norm.ReferenceCompositions().items()
+        ]
+    )
+    + "\n</dl>\n"
+)
 rst_prolog = """
-.. |refcomps| replace:: {}
+.. |br| raw:: html
+
+   <br />
+
+.. |refcomps| raw:: html
+
+    {rc}
+
 """.format(
-    ", ".join(refcomps)
+    rc=refcomps
 )
 
 

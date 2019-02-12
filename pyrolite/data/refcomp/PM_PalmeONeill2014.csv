@@ -14,20 +14,20 @@ Cr2O3,,,,,,
 TiO2,,,,,,
 NiO,,,,,,
 K2O,,,,,,
-P2O4,,,,,,
+P2O5,,,,,,
 H,0.012,%,0.0048,,,Mass balance
 Li,1.6,ppm,0.64,,,Data on mantle rocks
 Be,0.062,ppm,0.0124,,,RLE; PM/CI = 2.83
-B,0.26,ppm,0.208,,,B/K = 1.0 ± 3 × 10? 3
+B,0.26,ppm,0.208,,,B/K = 1.0 ï¿½ 3 ï¿½ 10? 3
 C,0.01,%,,,,Mass balance
 N,0.0002,%,,,,Mass balance
 O,44.33,%,1.7732,,,Stoichiometry; with Fe3 +/? Fe = 0.03
-F,25,ppm,20,,,F/K = 0.09 ± 0.03; F/P = 0.3 ± 0.1
+F,25,ppm,20,,,F/K = 0.09 ï¿½ 0.03; F/P = 0.3 ï¿½ 0.1
 Na,2590,ppm,259,,,vs. MgO
 Mg,22.17,%,0.4434,,,Major element (see text)
 Al,2.38,%,0.3808,,,Major element (see text)
 Si,21.22,%,0.4244,,,Major element (see text)
-P,87,ppm,26.1,,,P/Nd = 65 ± 10
+P,87,ppm,26.1,,,P/Nd = 65 ï¿½ 10
 S,0.02,%,0.016,,,vs. MgO; komatiites
 Cl,30,ppm,24,,,Mass balance
 K,260,ppm,78,,,Mean of K/U and K/La
@@ -44,26 +44,26 @@ Cu,20,ppm,20,,,
 Zn,53.5,ppm,5.35,,,vs. MgO
 Ga,4.4,ppm,0.44,,,vs. MgO
 Ge,1.2,ppm,0.48,,,vs. SiO2
-As,0.068,ppm,0.0408,,,As/Pb = 0.37 ± 0.10 in OFB
+As,0.068,ppm,0.0408,,,As/Pb = 0.37 ï¿½ 0.10 in OFB
 Se,0.076,ppm,,,,CI-ratio S/Se = 2635
-Br,0.075,ppm,0.075,,,Cl/Br = 400 ± 50
-Rb,0.605,ppm,0.121,,,Rb/Sr = 0.029 ± 0.002 (Sr isotopes); Rb/Ba = 0.09 ± 0.02
+Br,0.075,ppm,0.075,,,Cl/Br = 400 ï¿½ 50
+Rb,0.605,ppm,0.121,,,Rb/Sr = 0.029 ï¿½ 0.002 (Sr isotopes); Rb/Ba = 0.09 ï¿½ 0.02
 Sr,22,ppm,2.2,,,RLE; PM/CI = 2.83
 Y,4.13,ppm,0.826,,,RLE; PM/CI = 2.83
 Zr,10.3,ppm,2.06,,,RLE; PM/CI = 2.83
-Nb,0.595,ppm,0.238,,,Nb/Ta = 14.0 ± 0.3
-Mo,0.047,ppm,0.0376,,,Mo/Ce = 0.027 ± 0.012
+Nb,0.595,ppm,0.238,,,Nb/Ta = 14.0 ï¿½ 0.3
+Mo,0.047,ppm,0.0376,,,Mo/Ce = 0.027 ï¿½ 0.012
 Ru,0.0074,ppm,0.00296,,,HSE
 Rh,0.0012,ppm,0.00048,,,HSE
 Pd,0.0071,ppm,0.00284,,,HSE
-Ag,0.006,ppm,0.006,,,Ag/Cu = 2.9 ± 0.5 × 10? 4 in OFB
+Ag,0.006,ppm,0.006,,,Ag/Cu = 2.9 ï¿½ 0.5 ï¿½ 10? 4 in OFB
 Cd,0.035,ppm,0.014,,,Cd vs Ca in mantle rocks
 In,0.018,ppm,0.0072,,,In vs. Ca in mantle rocks
-Sn,0.14,ppm,0.084,,,Sn/Sm = 0.32 ± 0.06
-Sb,0.0054,ppm,0.00432,,,Sb/Pb = 0.029 ± 0.011 in OFB
+Sn,0.14,ppm,0.084,,,Sn/Sm = 0.32 ï¿½ 0.06
+Sb,0.0054,ppm,0.00432,,,Sb/Pb = 0.029 ï¿½ 0.011 in OFB
 Te,0.009,ppm,,,,S/Te = 23500 (CI)
 I,0.007,ppm,,,,Mass balance
-Cs,0.018,ppm,0.018,,,Cs/Ba = 1.1 × 10? 3 in the mantle; 3.6 × 10? 3 in the crust
+Cs,0.018,ppm,0.018,,,Cs/Ba = 1.1 ï¿½ 10? 3 in the mantle; 3.6 ï¿½ 10? 3 in the crust
 Ba,6.85,ppm,2.055,,,RLE; PM/CI = 2.83
 La,0.6832,ppm,0.13664,,,RLE; PM/CI = 2.83
 Ce,1.7529,ppm,0.35058,,,RLE; PM/CI = 2.83
@@ -88,8 +88,8 @@ Ir,0.0035,ppm,0.0007,,,HSE
 Pt,0.0076,ppm,0.00304,,,HSE
 Au,0.0017,ppm,0.00102,,,HSE
 Hg,0.006,ppm,,,,Hg/Se = 0.075
-Tl,0.0041,ppm,0.00205,,,Tl/Pb = 0.022 ± 0.005 in OFB
-Pb,0.185,ppm,0.037,,,238U/204Pb = 8.5 ± 0.5; 206/204 = 18; 207/204 = 15.5; 208/204 = 38
+Tl,0.0041,ppm,0.00205,,,Tl/Pb = 0.022 ï¿½ 0.005 in OFB
+Pb,0.185,ppm,0.037,,,238U/204Pb = 8.5 ï¿½ 0.5; 206/204 = 18; 207/204 = 15.5; 208/204 = 38
 Bi,0.003,ppm,,,,Bi/Pb = 0.02
 Th,0.0849,ppm,0.02547,,,RLE; PM/CI = 2.83
 U,0.0229,ppm,0.00687,,,RLE; PM/CI = 2.83

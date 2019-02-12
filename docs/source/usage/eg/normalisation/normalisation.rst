@@ -48,4 +48,6 @@ The `normalize` method can be used to normalise dataframes to a given reference 
    :height: 250px
    :align: center
 
-Currently available models include: |refcomps|.
+Currently available models include:
+
+|refcomps|
