@@ -3,8 +3,8 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-from .comp import *
-from .util.pd import to_frame, to_numeric
+from ..comp import *
+from ..util.pd import to_frame, to_numeric
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -89,6 +89,10 @@ class RefComp:
         headers=["Reservoir", "Reference", "ModelName", "ModelType"],
         floatvars=["value", "unc_2sigma", "constraint_value"],
     ):
+        # integrate header data
+        for h in headers:
+            setattr(self, h, self.data.loc[h, "value"])
+
         self.vars = [
             i
             for i in self.data.index

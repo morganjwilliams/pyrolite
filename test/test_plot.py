@@ -7,12 +7,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.axes as matax
 
-from pyrolite.geochem import REE, common_elements
+from pyrolite.geochem.ind import REE, common_elements
 from pyrolite.plot import ternaryplot, spiderplot, densityplot, REE_radii_plot
 
 import logging
 
 logging.getLogger(__name__)
+
 
 class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
@@ -107,7 +108,7 @@ class TestTernaryplot(unittest.TestCase):
         """Test generation of plot with no data."""
         df = pd.DataFrame(columns=self.cols)
         out = ternaryplot(df)
-        self.assertTrue(hasattr(out, 'tax'))
+        self.assertTrue(hasattr(out, "tax"))
         self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
@@ -115,7 +116,7 @@ class TestTernaryplot(unittest.TestCase):
         """Test generation of plot with one record."""
         df = self.df.head(1)
         out = ternaryplot(df)
-        self.assertTrue(hasattr(out, 'tax'))
+        self.assertTrue(hasattr(out, "tax"))
         self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
@@ -123,7 +124,7 @@ class TestTernaryplot(unittest.TestCase):
         """Test generation of plot with multiple records."""
         df = self.df.loc[:, :]
         out = ternaryplot(df)
-        self.assertTrue(hasattr(out, 'tax'))
+        self.assertTrue(hasattr(out, "tax"))
         self.assertEqual(type(out.tax), ternary.ternary_axes_subplot.TernaryAxesSubplot)
         plt.close("all")
 
@@ -187,17 +188,15 @@ class TestDensityplot(unittest.TestCase):
     def test_bivariate_logscale(self):  #
         """Tests logscale for different ploting modes using bivariate data."""
         df = self.bidf
-        for logspace in [True, False]:
-            with self.subTest(logspace=logspace):
+        df[df<0] = np.nan
+        for logspacing in [(True, True), (False, False), (False, True), (True, False)]:
+            lx, ly = logspacing
+            with self.subTest(logx=lx, logy=ly):
                 for mode in ["density", "hist2d", "hexbin"]:
                     with self.subTest(mode=mode):
-                        out = densityplot(df, mode=mode)
+                        out = densityplot(df, mode=mode, logx=lx, logy=ly)
                         self.assertTrue(isinstance(out, matax.Axes))
                         plt.close("all")
-
-    def test_overplotting(self):
-        """Test use of the plot for multiple rounds of plotting."""
-        pass
 
     def tearDown(self):
         plt.close("all")

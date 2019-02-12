@@ -21,7 +21,7 @@ from .general import (
     internet_connection,
 )
 from ..geochem import tochem, check_multiple_cation_inclusion, aggregate_cation
-from ..norm import scale_multiplier
+from ..geochem.norm import scale_multiplier
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -35,12 +35,6 @@ __full_cit_rx__ = r"(\s)*?\[(?P<key>\w*)\](\s)*(?P<value>.+)$"
 __doi_rx__ = r"(.)*(doi(\s)*?:*)(\s)*(?P<value>\S*)"
 
 _contents_file = pyrolite_datafolder(subfolder="georoc") / "contents.json"
-
-if _contents_file.exists():
-    with open(str(_contents_file)) as fh:
-        __CONTENTS__ = json.loads(fh.read())
-else:
-    __CONTENTS__ = {}
 
 
 def subsitute_commas(entry):
@@ -156,7 +150,8 @@ def update_georoc_filelist(
     try:
         assert internet_connection(target="georoc.mpch-mainz.gwdg.de")
         contents = get_georoc_links()
-        with open(str(filepath), "w") as fh:
+
+        with open(str(filepath), "w+") as fh:
             fh.write(json.dumps(contents))
     except AssertionError:
         msg = "Unable to make onnection to GEOROC to update compilation lists."
@@ -203,7 +198,7 @@ def bulk_GEOROC_download(
 
     reservoirs = reservoirs or __CONTENTS__.keys()
     abbrvs = {__CONTENTS__[k]["abbrv"]: k for k in __CONTENTS__}
-    logger.info("Downloading only undownloaded files.")
+
     if not redownload:
         logger.info("Bulk download for {} beginning.".format(", ".join(reservoirs)))
 
@@ -218,7 +213,6 @@ def bulk_GEOROC_download(
         else:
             msg = "Unknown reservoir requested: {}".format(res)
             logger.warn(msg)
-
         if resname:
             v = __CONTENTS__[resname]
 
@@ -239,6 +233,7 @@ def bulk_GEOROC_download(
             dwnld_fns = filenames
             if not redownload:
                 # Just get the ones we don't have,
+                logger.info("Downloading only undownloaded files.")
                 dwnld_stems = [(resdir / urlify(f)).stem for f in dwnld_fns]
                 current_files = [f.stem for f in resdir.iterdir() if f.is_file()]
                 dwnld_fns = [
@@ -442,3 +437,15 @@ def georoc_munge(df):
     df.loc[:, "Lat"] = (df.LatitudeMax + df.LatitudeMin) / 2.0
     df.loc[:, "Long"] = (df.LongitudeMax + df.LongitudeMin) / 2.0
     return df
+
+
+if _contents_file.exists():
+    with open(str(_contents_file)) as fh:
+        __CONTENTS__ = json.loads(fh.read())
+else:
+    if not _contents_file.parent.exists():
+        _contents_file.parent.mkdir(parents=True)
+    __CONTENTS__ = {}
+    update_georoc_filelist()
+    with open(str(_contents_file)) as fh:
+        __CONTENTS__ = json.loads(fh.read())

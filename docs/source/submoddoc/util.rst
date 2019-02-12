@@ -1,6 +1,3 @@
-Utilities
-============================
-
 pyrolite\.util\.general
 -------------------------------
   .. automodule:: pyrolite.util.general

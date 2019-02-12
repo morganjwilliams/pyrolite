@@ -15,10 +15,9 @@ summarised by 3-4 shape parameters).
 Here we generate some example data, reduce these to lambda values, and plot the
 resulting dimensionally reduced data.
 
-
 .. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
-   :language: python
-   :end-before: # %% Generate Some Example Data
+  :language: python
+  :end-before: # %% Generate Some Example Data
 
 .. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
   :language: python
@@ -26,8 +25,8 @@ resulting dimensionally reduced data.
   :end-before: # %% Plot Data
 
 .. image:: ../../../_static/LambdaData.png
-   :width: 60%
-   :align: center
+  :width: 60%
+  :align: center
 
 .. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
   :language: python

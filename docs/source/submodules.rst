@@ -12,18 +12,11 @@ pyrolite\.comp
 pyrolite\.geochem
 ------------------------
 
-  .. automodule:: pyrolite.geochem
-      :members:
-      :undoc-members:
-      :show-inheritance:
+  .. toctree::
+     :maxdepth: 2
 
-pyrolite\.norm
-------------------------------
+     submoddoc/geochem
 
-  .. automodule:: pyrolite.norm
-      :members:
-      :undoc-members:
-      :show-inheritance:
 
 pyrolite\.plot
 ---------------------
@@ -33,13 +26,6 @@ pyrolite\.plot
       :undoc-members:
       :show-inheritance:
 
-pyrolite\.alteration
----------------------------
-
-  .. automodule:: pyrolite.alteration
-      :members:
-      :undoc-members:
-      :show-inheritance:
 
 pyrolite\.classification
 -------------------------------

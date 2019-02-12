@@ -2,8 +2,6 @@ import pandas as pd
 import pandas_flavor as pf
 import numpy as np
 import periodictable as pt
-from pyrolite.geochem import to_molecular
-from pyrolite.comp.codata import renormalise
 from pyrolite.util.pd import to_frame
 from collections import OrderedDict
 from scipy.optimize import least_squares, Bounds

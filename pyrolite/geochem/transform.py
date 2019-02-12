@@ -1,109 +1,27 @@
-import pandas as pd
-import pandas_flavor as pf
-import numpy as np
-import mpmath
 import periodictable as pt
-import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 import functools
-import re
-from .comp.codata import renormalise
+import pandas_flavor as pf
+from ..util.pd import to_frame
+from ..comp.codata import renormalise
+from ..util.text import titlecase
+from ..util.general import iscollection
+from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
-from .util.text import titlecase
-from .util.pd import to_frame
-from .util.math import *
-from .util.general import iscollection
+from .ind import (
+    REE,
+    get_ionic_radii,
+    simple_oxides,
+    common_elements,
+    common_oxides,
+    get_cations,
+)
+from .parse import check_multiple_cation_inclusion
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-def get_radii(el):
-    """Convenience function for ionic radii."""
-    if isinstance(el, list):
-        return [get_radii(e) for e in el]
-    elif not isinstance(el, str):
-        el = str(el)
-    return _RADII[el]
-
-
-def ischem(s):
-    """
-    Checks if a string corresponds to chemical component (compositional).
-    Here simply checking whether it is a common element or oxide.
-
-    TODO: Implement checking for other compounds, e.g. carbonates.
-    """
-    chems = set(map(str.upper, (__common_elements__ | __common_oxides__)))
-    if isinstance(s, list):
-        return [str(st).upper() in chems for st in s]
-    else:
-        return str(s).upper() in chems
-
-
-def is_isotoperatio(text):
-    """Check if text is plausibly an isotope ratio."""
-    if text not in __common_oxides__:
-        isotopes = get_isotopes(text)
-        return len(isotopes) == 2
-    else:
-        return False
-
-
-def get_isotopes(ratio_text):
-    """Regex for isotope ratios."""
-    forward_isotope = r"([a-zA-Z][a-zA-Z]?[0-9][0-9]?[0-9]?)"
-    backward_isotope = r"([0-9][0-9]?[0-9]?[a-zA-Z][a-zA-Z]?)"
-    fw = re.findall(forward_isotope, ratio_text)
-    bw = re.findall(backward_isotope, ratio_text)
-    lfw, lbw = len(fw), len(bw)
-    if (lfw > 1 and lbw > 1) or ((lfw < 2) and (lbw < 2)):
-        return []
-    elif lfw == 2:
-        return fw
-    elif lbw == 2:
-        return bw
-
-
-def repr_isotope_ratio(isotope_ratio):
-    """
-    Format an isotope ratio pair as a string.
-
-    Parameters
-    -----------
-    isotope_ratio : tuple
-        Numerator, denominator pair.
-    """
-    if not is_isotoperatio(isotope_ratio):
-        return isotope_ratio
-    else:
-        if isinstance(isotope_ratio, str):
-            isotope_ratio = get_isotopes(isotope_ratio)
-        num, den = isotope_ratio
-        isomatch = r"([0-9][0-9]?[0-9]?)"
-        elmatch = r"([a-zA-Z][a-zA-Z]?)"
-        num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
-        den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
-    return "{}{}{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
-
-
-def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
-    """
-    Converts a list of strings containing come chemical compounds to
-    appropriate case.
-    """
-    # accomodate single string passed
-    if not type(strings) in [list, pd.core.indexes.base.Index]:
-        strings = [strings]
-
-    # translate elements and oxides
-    chems = __common_elements__ | __common_oxides__
-    trans = {str(e).upper(): str(e) for e in chems}
-    strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
-
-    # translate potential isotope ratios
-    strings = [repr_isotope_ratio(h) for h in strings]
-    return strings
 
 
 @pf.register_series_method
@@ -139,130 +57,6 @@ def to_weight(df: pd.DataFrame, renorm=True):
     else:
         return df.multiply(MWs)
 
-
-def get_cations(oxide: str, exclude=[]):
-    """
-    Returns the principal cations in an oxide component.
-
-    Todo: Consider implementing periodictable style return.
-    """
-    if "O" not in exclude:
-        exclude += ["O"]
-    atms = pt.formula(oxide).atoms
-    cations = [el for el in atms.keys() if not el.__str__() in exclude]
-    return cations
-
-
-def common_elements(cutoff=92, output="string", order=None, as_set=False):
-    """
-    Provides a list of elements up to a particular cutoff (default: including U)
-    Output options are 'formula', or 'string'.
-
-    Todo: implement ordering for e.g. incompatibility.
-    """
-    elements = [el for el in pt.elements if not (str(el) == "n" or el.number > cutoff)]
-
-    if as_set:
-        return set(map(str, elements))
-    else:
-        if not output == "formula":
-            elements = list(map(str, elements))
-
-        if order is not None:
-            sort_function = order
-            elements = list(elements).sort(key=sort_function)
-
-        return elements
-
-
-def REE(output="string", include_extras=False):
-    """
-    Provides the list of Rare Earth Elements
-    Output options are 'formula', or strings.
-
-    Todo: add include extras such as Y.
-    """
-    elements = [
-        "La",
-        "Ce",
-        "Pr",
-        "Nd",
-        "Pm",
-        "Sm",
-        "Eu",
-        "Gd",
-        "Tb",
-        "Dy",
-        "Ho",
-        "Er",
-        "Tm",
-        "Yb",
-        "Lu",
-    ]
-    if output == "formula":
-        elements = [getattr(pt, el) for el in elements]
-    return elements
-
-
-def common_oxides(
-    elements: list = [],
-    output="string",
-    addition: list = ["FeOT", "Fe2O3T", "LOI"],
-    exclude=["O", "He", "Ne", "Ar", "Kr", "Xe"],
-    as_set=False,
-):
-    """
-    Creates a list of oxides based on a list of elements.
-    Output options are 'formula', or strings.
-
-    Note: currently return FeOT and LOI even for element lists
-    not including iron or water - potential upgrade!
-
-    Todo: element verification
-    """
-    if not elements:
-        elements = [
-            el for el in common_elements(output="formula") if not str(el) in exclude
-        ]
-    else:
-        # Check that all elements input are indeed elements..
-        pass
-
-    oxides = [ox for el in elements for ox in simple_oxides(el, output=output)]
-
-    if as_set:
-        return set(map(str, oxides + addition))
-    else:
-        if output != "formula":
-            oxides = list(map(str, oxides + addition))
-        return oxides
-
-
-def simple_oxides(cation, output="string"):
-    """
-    Creates a list of oxides for a cationic element
-    (oxide of ions with c=1+ and above).
-    """
-    try:
-        if not isinstance(cation, pt.core.Element):
-            catstr = titlecase(cation)  # edge case of lowercase str such as 'cs'
-            cation = getattr(pt, catstr)
-    except AttributeError:
-        raise Exception("You must select a cation to obtain oxides.")
-    ions = [c for c in cation.ions if c > 0]  # Use only positive charges
-
-    # for 3.6+, could use f'{cation}{1}O{c//2}',  f'{cation}{2}O{c}'
-    oxides = [
-        str(cation) + str(1) + "O" + str(c // 2)
-        if not c % 2
-        else str(cation) + str(2) + "O" + str(c)
-        for c in ions
-    ]
-    oxides = [pt.formula(ox) for ox in oxides]
-    import periodictable
-    if not output == "formula":
-        oxides = [str(ox) for ox in oxides]
-    return oxides
 
 @pf.register_series_method
 @pf.register_dataframe_method
@@ -314,6 +108,7 @@ def oxide_conversion(oxin, oxout):
     convert_series.__doc__ = doc
     return convert_series
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def recalculate_Fe(
@@ -338,7 +133,7 @@ def recalculate_Fe(
     out_species = pt.formula(to_species.strip(total_suffix))
 
     dfc = df.copy(deep=True)
-    ox_species = ["Fe2O3", "Fe2O3"]
+    ox_species = ["Fe2O3"]
     ox_species += [i + total_suffix for i in ox_species]
     ox_in_df = [i for i in ox_species if i in dfc.columns]
     red_species = ["Fe", "FeO"]
@@ -369,6 +164,7 @@ def recalculate_Fe(
         return renormalise(dfc)
     else:
         return dfc
+
 
 @pf.register_series_method
 @pf.register_dataframe_method
@@ -429,6 +225,7 @@ def recalculate_redox(
     else:
         return dfc
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def aggregate_cation(
@@ -478,8 +275,10 @@ def aggregate_cation(
         elstr = str(cation)
         potential_ox = simple_oxides(elstr)
         oxstr = [o for o in dfc.columns if o in potential_ox][0]
-        assert oxstr, "Oxidation state unknown. " \
-        "Please specify desired oxide from {}.".format(potential_ox)
+        assert oxstr, (
+            "Oxidation state unknown. "
+            "Please specify desired oxide from {}.".format(potential_ox)
+        )
 
     el, ox = pt.formula(elstr), pt.formula(oxstr)
 
@@ -525,26 +324,10 @@ def aggregate_cation(
 
     return dfc
 
-@pf.register_series_method
-@pf.register_dataframe_method
-def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
-    """
-    Returns cations which are present in both oxide and elemental form.
-
-    Todo: Options for output (string/formula).
-    """
-    major_components = [i for i in __common_oxides__ if i in df.columns]
-    elements_as_majors = [
-        get_cations(oxide)[0] for oxide in major_components if not oxide in exclude
-    ]
-    elements_as_traces = [
-        c for c in common_elements(output="formula") if str(c) in df.columns
-    ]
-    return set([el for el in elements_as_majors if el in elements_as_traces])
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def convert_chemistry(df, columns=[], logdata=False, renorm=False):
+def convert_chemistry(input, columns=[], logdata=False, renorm=False):
     """
     Tries to convert a dataframe with one set of components to another.
 
@@ -555,6 +338,7 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
     columns : list, set
         Set of columns to try to extract from the dataframe.
     """
+    df = input.copy()
     current = df.columns
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
@@ -633,6 +417,7 @@ def convert_chemistry(df, columns=[], logdata=False, renorm=False):
         logger.info("Recalculation Done.")
         return df.loc[:, columns]
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_ratio(
@@ -682,6 +467,7 @@ def add_ratio(
     df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
     return df
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
@@ -716,6 +502,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
             # Molecular Elemental
             df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
 
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def lambda_lnREE(
@@ -742,7 +529,7 @@ def lambda_lnREE(
         and (not str(i) in exclude)
         and (str(i) in non_null_cols or i in non_null_cols)
     ]  # no promethium
-    radii = np.array(get_radii(ree))
+    radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
     if params is None:
         params = OP_constants(radii, degree=degree)
@@ -791,31 +578,3 @@ def lambda_lnREE(
     lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
     assert lambdadf.index.size == df.index.size
     return lambdadf
-
-
-__common_oxides__ = common_oxides(as_set=True)
-__common_elements__ = common_elements(as_set=True)
-__REE = REE()
-_RADII = {
-    str(k): v
-    for (k, v) in zip(
-        REE(),
-        [
-            1.160,
-            1.143,
-            1.126,
-            1.109,
-            1.093,
-            1.079,
-            1.066,
-            1.053,
-            1.040,
-            1.027,
-            1.015,
-            1.004,
-            0.994,
-            0.985,
-            0.977,
-        ],
-    )
-}

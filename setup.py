@@ -44,6 +44,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    keywords=["geochemistry", "compositional data", "visualisation", "petrology"],
     packages=find_packages(exclude=["test*"]),
     install_requires=[
         "pathlib",
@@ -75,5 +76,5 @@ setup(
     package_data={"pyrolite": ["data/*"]},
     include_package_data=True,
     license="CSIRO Modifed MIT/BSD",
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=versioneer.get_cmdclass()
 )

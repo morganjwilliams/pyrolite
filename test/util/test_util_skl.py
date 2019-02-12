@@ -47,7 +47,7 @@ try:
 
 except ImportError:
     HAVE_SKLEARN = False
-
+HAVE_SKLEARN
 try:
     import imblearn
 

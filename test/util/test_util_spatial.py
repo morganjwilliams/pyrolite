@@ -1,7 +1,131 @@
 import unittest
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
+try:
+    import cartopy.crs as ccrs
+
+    HAVE_CARTOPY = True
+except ImportError:
+    HAVE_CARTOPY = False
 from pyrolite.util.spatial import *
+from pyrolite.util.math import isclose  # nan-equalling isclose
+
+
+class TestGreatCircleDistance(unittest.TestCase):
+    def setUp(self):
+
+        self.ps = zip(
+            np.array(
+                [
+                    ([0, 0], [0, 0]),  # should be 0
+                    ([-170, 0], [170, 0]),  # should be 20
+                    ([0, -90], [0, 90]),  # should be 180
+                    ([-45, 0], [45.0, 0.0]),  # should be 90
+                    ([-90, -90], [90.0, 90.0]),  # should be 180
+                    ([-90, -45], [90.0, 45.0]),  # should be 180, rotation of above
+                    ([-90, -0], [90.0, 0.0]),  # should be 180, rotation of above
+                    ([-60, 20], [45.0, 15.0]),
+                    ([-87.0, 67.0], [34, 14]),
+                    ([-45, -45], [45.0, 45.0]),
+                    ([-45, -30], [45.0, 30.0]),
+                ]
+            ),
+            [0, 20, 180, 90, 180, 180, 180, None, None, None, None],
+        )
+
+    def test_default(self):
+        for ps, expect in self.ps:
+            with self.subTest(ps=ps, expect=expect):
+                distance = great_circle_distance(*ps)
+                distance_r = great_circle_distance(*ps[::-1])
+                self.assertTrue(isclose(distance, distance_r))
+                if (ps[0] == ps[1]).all():
+                    self.assertTrue(np.isclose(distance, 0.0))
+
+        """
+        ax = plt.subplot(111, projection=ccrs.Mollweide())  # ccrs.Orthographic(0, 0))
+        ax.figure.set_size_inches(8, 8)
+        ax.stock_img()
+
+        ax.plot(
+            *np.array([*ps]).T,
+            color="blue",
+            marker="o",
+            transform=ccrs.Geodetic()
+        )
+        ax.plot(*np.array([*ps]).T, color="gray", transform=ccrs.PlateCarree())
+        plt.text(
+            **np.array([*ps])[0] + [5, 5],
+            "{:2.0f}".format(distance),
+            horizontalalignment="left",
+            fontsize=10,
+            transform=ccrs.Geodetic()
+        )
+        plt.show()"""
+
+    def test_absolute(self):
+        for ps, expect in self.ps:
+            for absolute in [True, False]:
+                with self.subTest(ps=ps, expect=expect, absolute=absolute):
+                    distance = great_circle_distance(*ps, absolute=absolute)
+                    distance_r = great_circle_distance(*ps[::-1], absolute=absolute)
+                    self.assertTrue(isclose(distance, distance_r))
+                    if (ps[0] == ps[1]).all():
+                        self.assertTrue(np.isclose(distance, 0.0))
+
+    def test_degrees(self):
+        for ps, expect in self.ps:
+            for degrees in [True, False]:
+                with self.subTest(ps=ps, expect=expect, degrees=degrees):
+                    if not degrees:
+                        ps = np.deg2rad(
+                            ps
+                        )  # convert to radians to give sensible output
+                    distance = great_circle_distance(*ps, degrees=degrees)
+                    distance_r = great_circle_distance(*ps[::-1], degrees=degrees)
+                    self.assertTrue(isclose(distance, distance_r))
+                    if (ps[0] == ps[1]).all():
+                        self.assertTrue(np.isclose(distance, 0.0))
+                    if expect is not None:
+                        self.assertTrue(isclose(distance, expect))
+
+    def test_Vicenty(self):
+        method = "vicenty"
+        for ps, expect in self.ps:
+            with self.subTest(ps=ps, expect=expect, method=method):
+                distance = great_circle_distance(*ps, method=method)
+                distance_r = great_circle_distance(*ps[::-1], method=method)
+                self.assertTrue(isclose(distance, distance_r))
+                if (ps[0] == ps[1]).all():
+                    self.assertTrue(np.isclose(distance, 0.0))
+                if expect is not None:
+                    self.assertTrue(isclose(distance, expect))
+
+    def test_haversine(self):
+        method = "haversine"
+        for ps, expect in self.ps:
+            with self.subTest(ps=ps, expect=expect, method=method):
+                distance = great_circle_distance(*ps, method=method)
+                distance_r = great_circle_distance(*ps[::-1], method=method)
+                self.assertTrue(isclose(distance, distance_r))
+                if (ps[0] == ps[1]).all():
+                    self.assertTrue(np.isclose(distance, 0.0))
+                if expect is not None:
+                    self.assertTrue(isclose(distance, expect))
+
+    def test_cosines(self):
+        method = "cosines"
+        for ps, expect in self.ps:
+            with self.subTest(ps=ps, expect=expect, method=method):
+                distance = great_circle_distance(*ps, method=method)
+                distance_r = great_circle_distance(*ps[::-1], method=method)
+                self.assertTrue(isclose(distance, distance_r))
+                if (ps[0] == ps[1]).all():
+                    self.assertTrue(np.isclose(distance, 0.0))
+                if expect is not None:
+                    self.assertTrue(isclose(distance, expect))
 
 
 class TestPieceWise(unittest.TestCase):

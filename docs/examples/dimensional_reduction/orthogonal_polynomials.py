@@ -1,9 +1,10 @@
 import numpy as np
 from pyrolite.plot import REE_radii_plot
-from pyrolite.geochem import REE, get_radii
+from pyrolite.geochem.ind import REE, get_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 np.random.seed(82)
+
 
 def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **kwargs):
     """Plot polynomials on an axis over x values."""
@@ -13,7 +14,15 @@ def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **
             f *= xs - np.float(c)
         if log:
             f = np.exp(f)
-        ax.plot(xs, f, label="$x^{}$".format(len(p)), **kwargs)
+
+        label = (
+            "$r^{}: \lambda_{}".format(len(p), len(p))
+            + ["\cdot f_{}".format(len(p)), ""][int(len(p) == 0)]
+            + "$"
+        )
+        ax.plot(xs, f, label=label, **kwargs)
+
+
 # %% Generate Some Example Data --------------------------------------------------------
 data_ree = [i for i in REE() if not i in ["Pm"]]
 data_radii = np.array(get_radii(data_ree))
@@ -43,12 +52,11 @@ l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)
 smooth_profile = np.exp(l_func(continuous_radii))
 # %% Plot the Results ------------------------------------------------------------------
 ax = REE_radii_plot()
-ax.plot(data_radii, Y, marker="D", color='0.5', label="Example Data")
-plot_orthagonal_polynomial_components(
-    ax, continuous_radii, ls, params, log=True,
-)
+ax.plot(data_radii, Y, marker="D", color="0.5", label="Example Data")
+plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
 ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k")
 ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
 # %% End -------------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure
-save_figure(ax.figure, save_at="../../source/_static", name="OrthagPolyDeconstruction")
+
+save_figure(ax.figure, save_at="../../source/_static", name="OrthogPolyDeconstruction")

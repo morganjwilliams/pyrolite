@@ -2,7 +2,20 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
-from pyrolite.geochem import REE, get_radii
+from pyrolite.geochem import REE, get_ionic_radii
+
+
+class TestIsClose(unittest.TestCase):
+    def test_non_nan(self):
+        self.assertTrue(isclose(1.0, 1.0))
+        self.assertTrue(isclose(0.0, 0.0))
+
+        self.assertTrue(isclose(np.array([1.0]), np.array([1.0])))
+        self.assertTrue(isclose(np.array([0.0]), np.array([0.0])))
+
+    def test_nan(self):
+        self.assertTrue(isclose(np.nan, np.nan))
+        self.assertTrue(isclose(np.array([np.nan]), np.array([np.nan])))
 
 
 class TestIsNumeric(unittest.TestCase):
@@ -231,7 +244,7 @@ class TestEqualWithinSignificance(unittest.TestCase):
         neq = pd.DataFrame(data=np.array(self.twoDunequal).T)
         self.assertTrue(equal_within_significance(eq).all())
         self.assertFalse(equal_within_significance(neq).all())
-        print(equal_within_significance(neq))
+        # print(equal_within_significance(neq))
 
 
 class TestSignifyDigit(unittest.TestCase):
@@ -328,7 +341,7 @@ class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
 
     def setUp(self):
-        self.xs = np.array(get_radii(REE()))
+        self.xs = np.array(get_ionic_radii(REE(), coordination=8, charge=3))
         self.default_degree = 4
 
     def test_xs(self):

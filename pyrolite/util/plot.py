@@ -7,6 +7,7 @@ import pandas as pd
 from scipy import interpolate
 from scipy.stats.kde import gaussian_kde
 from scipy.spatial import ConvexHull
+from scipy import interpolate
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.lines as mlines
@@ -58,7 +59,6 @@ def modify_legend_handles(ax, **kwargs):
     _hndls = []
     for h in hndls:
         _h = copy(h)
-        print(_h, dir(_h))
         _h.update(kwargs)
         _hndls.append(_h)
     return _hndls, labls
@@ -72,12 +72,12 @@ def add_colorbar(mappable, **kwargs):
 
     Parameters
     ----------
-    mappable :
+    mappable
         The Image, ContourSet, etc. to which the colorbar applies.
 
     Returns
     ----------
-    colorbar: matplotlib.colorbar.Colorbar
+    matplotlib.colorbar.Colorbar
     """
     ax = kwargs.get("ax", None)
     if hasattr(mappable, "axes"):
@@ -129,7 +129,7 @@ def proxy_rect(**kwargs):
 
     Returns
     ----------
-    rect: matplotlib.patches.Rectangle
+    matplotlib.patches.Rectangle
     """
     return patches.Rectangle((0, 0), 1, 1, **kwargs)
 
@@ -140,7 +140,7 @@ def proxy_line(**kwargs):
 
     Returns
     ----------
-    line: matplotlib.lines.Line2D
+    matplotlib.lines.Line2D
     """
     return mlines.Line2D(range(1), range(1), **kwargs)
 
@@ -167,10 +167,9 @@ def vector_to_line(
 ):
     """
     Creates an array of points representing a line along a vector - typically
-    for principal component analysis.
-
-    Modified after Jake VanderPlas' Python Data Science Handbook
-    https://jakevdp.github.io/PythonDataScienceHandbook/05.09-principal-component-analysis.html
+    for principal component analysis. Modified after Jake VanderPlas' Python Data
+    Science Handbook https://jakevdp.github.io/PythonDataScienceHandbook/ \
+    05.09-principal-component-analysis.html
     """
     length = np.sqrt(variance)
     parts = np.linspace(-spans, spans, expand * 2 * spans + 1)
@@ -195,6 +194,100 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     return lines
 
 
+def percentile_contour_values_from_meshz(
+    z, percentiles=[0.95, 0.66, 0.33], resolution=1000
+):
+    """
+    Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
+    correspond to specified percentile contours.T
+
+    Parameters
+    ----------
+    z : np.ndarray
+        Probability density function over x, y.
+    percentiles : list-like
+        Percentile values for which to create contours.
+    resolution : int
+        Number of bins for thresholds between 0. and max(Z)
+
+    Returns
+    -------
+    labels
+        Labels for contours (percentiles, if above minimum z value).
+
+    contours
+        Contour heigh values.
+    """
+    percentiles = sorted(percentiles, reverse=True)
+    # Integral approach from https://stackoverflow.com/a/37932566
+    t = np.linspace(0.0, z.max(), resolution)
+    integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
+    f = interpolate.interp1d(integral, t)
+    try:
+        t_contours = f(np.array(percentiles) * z.sum())
+        return percentiles, t_contours
+    except ValueError:
+        logger.debug('Percentile contour below minimum for given resolution' \
+                     'Returning Minimium.')
+        non_one = integral[~np.isclose(integral, np.ones_like(integral))]
+        return ['min'], f(np.array([np.nanmax(non_one)]))
+
+
+def plot_Z_percentiles(
+    xi,
+    yi,
+    zi,
+    percentiles=[0.95, 0.66, 0.33],
+    ax=None,
+    extent=None,
+    label_contours=True,
+    **kwargs
+):
+    """
+    Plot percentile contours onto a 2D  (scaled or unscaled) probability density
+    distribution Z over X,Y.
+
+    Parameters
+    ------------
+    z : np.ndarray
+        Probability density function over x, y.
+    percentiles : list-like
+        Percentile values for which to create contours.
+    ax : matplotlib.axes.Axes
+        Axes on which to plot. If none given, will create a new Axes instance.
+    extent
+        List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
+    fontsize : np.number
+        Fontsize for the contour labels.
+    cmap
+        Color map for the contours, contour labels and imshow.
+
+    Returns
+    -------
+    matplotlib.contour.QuadContourSet
+        Plotted and formatted contour set.
+    """
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(6, 6))
+
+    if extent is None:
+        xmin, xmax = np.min(xi), np.max(xi)
+        ymin, ymax = np.min(yi), np.max(yi)
+        extent = [xmin, xmax, ymin, ymax]
+
+    clabels, contours = percentile_contour_values_from_meshz(zi, percentiles=percentiles)
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent,  **kwargs)
+    if label_contours:
+        fs = kwargs.pop('fontsize', None) or 8
+        lbls = ax.clabel(cs, fontsize=fs)
+        z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
+        trans = {
+            float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+        }
+        [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
+    return cs
+
+
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     """
     Scatter plot with additional marginal axes to plot data for which data is partially
@@ -210,6 +303,11 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         Axes on which to plot.
     axes_width : float
         Width of the marginal axes.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the nan_scatter is plotted.
     """
     if ax is None:
         fig, ax = plt.subplots(1)
@@ -322,7 +420,20 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
 
 def get_full_extent(ax, pad=0.0):
     """Get the full extent of an axes, including axes labels, tick labels, and
-    titles. Text objects are first drawn to define the extents."""
+    titles. Text objects are first drawn to define the extents.
+
+    Parameters
+    -----------
+    ax : matplotlib.axes.Axes
+        Axes of which to check items to get full extent.
+    pad : np.number
+        Amount of padding to add to the full extent prior to returning.
+
+    Returns
+    --------
+    matplotlib.transforms.Bbox
+        Bbox of the axes with optional additional padding.
+    """
     fig = ax.figure
     fig.canvas.draw()
     renderer = fig.canvas.renderer

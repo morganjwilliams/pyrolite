@@ -19,7 +19,6 @@ try:
     import httplib
 except:
     import http.client as httplib
-import pyrolite  # required for introspection/data folder
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -60,6 +59,18 @@ class Timewith:
 def stream_log(package_name, level="INFO"):
     """
     Stream the log from a specific package or subpackage.
+
+    Parameters
+    ----------
+    package_name : str
+        Name of the package to monitor logging from.
+    level : str, 'INFO'
+        Logging level at which to set the handler output.
+
+    Returns
+    -------
+    logging.logger
+        Logger for the specified package with stream handler added.
     """
     logger = logging.getLogger(package_name)
     ch = logging.StreamHandler()
@@ -72,7 +83,7 @@ def stream_log(package_name, level="INFO"):
 
 def pyrolite_datafolder(subfolder=None):
     """Returns the path of the pyrolite data folder."""
-    pth = Path(inspect.getfile(pyrolite)).parent / "data"
+    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
     if subfolder:
         pth /= subfolder
     return pth
@@ -99,6 +110,12 @@ def internet_connection(target="www.google.com"):
     ----------
     target: url
         URL to check connectivity, defaults to www.google.com
+
+    Returns
+    -------
+    bool
+        Boolean indication of whether a HTTP connection can be established at the given
+        url.
     """
     conn = httplib.HTTPConnection(target, timeout=5)
     try:
@@ -117,7 +134,19 @@ def temp_path(suffix=""):
 
 
 def iscollection(obj):
-    """Checks whether an object is an interable collection"""
+    """
+    Checks whether an object is an iterable collection.
+
+    Parameters
+    ----------
+    obj : object
+        Object to check.
+
+    Returns
+    -------
+    bool
+        Boolean indication of whether the object is a collection.
+    """
 
     for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
         if isinstance(obj, ty):
@@ -127,7 +156,14 @@ def iscollection(obj):
 
 
 def check_perl():
-    """Checks whether perl is installed on the system."""
+    """
+    Checks whether perl is installed on the system.
+
+    Returns
+    -------
+    bool
+        Boolean indication of whether there is an executable perl installation.
+    """
     try:
         p = subprocess.check_output("perl -v")
         returncode = 0
@@ -156,6 +192,11 @@ def flatten_dict(d, climb=False, safemode=False):
     safemode: True | False, False
         Whether to keep all keys as a tuple index, to avoid issues with
         conflicts.
+
+    Returns
+    -------
+    dict
+        Flattened dictionary.
     """
     lift = lambda x: (x,)
     join = operator.add
@@ -193,15 +234,22 @@ def flatten_dict(d, climb=False, safemode=False):
     return dict(items)
 
 
-def swap_item(list: list, pull: str, push: str):
+def swap_item(list: list, pull: object, push: object):
     """
     Swap a specified item in a list for another.
 
     Parameters
     ----------
-    list: List to replace item within.
-    pull: Item to replace in the list.
-    push: Item to add into the list.
+    list : list
+        List to replace item within.
+    pull : object
+        Item to replace in the list.
+    push : object
+        Item to add into the list.
+
+    Returns
+    -------
+    list
     """
     return [[i, push][i == pull] for i in list]
 
@@ -213,11 +261,11 @@ def copy_file(src, dst, ext=None):
 
     Parameters
     ----------
-    src: str | Path
+    src : str | Path
         Source filepath.
-    dst: str | Path
+    dst : str | Path
         Destination filepath.
-    ext: extension, None
+    ext : extension, None
         Optional file extension specification.
     """
     src = Path(src)

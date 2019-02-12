@@ -7,9 +7,15 @@ import numpy as np
 import ternary
 from .util.pd import to_frame
 from .util.math import on_finite
-from .util.plot import ABC_to_tern_xy, tern_heatmapcoords, add_colorbar
+from .util.plot import (
+    ABC_to_tern_xy,
+    tern_heatmapcoords,
+    add_colorbar,
+    plot_Z_percentiles,
+    percentile_contour_values_from_meshz,
+)
 from .util.general import iscollection
-from .geochem import common_elements, REE, get_radii
+from .geochem import common_elements, REE, get_ionic_radii
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -34,16 +40,21 @@ def spiderplot(
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas.DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : matplotlib.axes.Axes, None
         The subplot to draw on.
-    plot: boolean, True
+    plot : boolean, True
         Whether to plot lines and markers.
-    fill:
+    fill : boolean, True
         Whether to add a patch representing the full range.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
     try:
@@ -155,6 +166,11 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
     -----------
     ax : matplotlib.axes.Axes
         Optional designation of axes to reconfigure.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the REE_radii_plot is plotted.
     """
     if ax is not None:
         fig = ax.figure
@@ -163,7 +179,7 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
         fig, ax = plt.subplots()
 
     ree = REE()
-    radii = np.array(get_radii(ree))
+    radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
 
     if df is not None:
         if any([i in df.columns for i in ree]):
@@ -194,12 +210,17 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas.DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : matplotlib.axes.Axes, None
         The subplot to draw on.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -263,17 +284,107 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     return ax
 
 
+def _linspc(_min, _max, step=0.0, bins=20):
+    """
+    Linear spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : np.number
+        Minimum value for spaced range.
+    _max : np.number
+        Maximum value for spaced range.
+    step : np.number, 0.0
+        Step for expanding at grid edges. Default of 0.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    np.ndarray
+        Linearly-spaced array.
+    """
+    return np.linspace(_min - step, _max + step, bins + 1)
+
+
+def _logspc(_min, _max, step=1.0, bins=20):
+    """
+    Log spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : np.number
+        Minimum value for spaced range.
+    _max : np.number
+        Maximum value for spaced range.
+    step : np.number, 1.0
+        Step for expanding at grid edges. Default of 1.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    np.ndarray
+        Log-spaced array.
+    """
+    return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
+
+
+def _logrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are excluded.
+
+    Parameters
+    -----------
+    v : list-like
+        Array of values to obtain a range from.
+    exp : np.float, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    tuple
+        Min, max tuple.
+    """
+    u = v[(v > 0)]  # make sure the range_values are >0
+    return _linrng(u, exp=exp)
+
+
+def _linrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are included.
+
+    Parameters
+    -----------
+    v : list-like
+        Array of values to obtain a range from.
+    exp : np.float, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    tuple
+        Min, max tuple.
+    """
+    u = v[np.isfinite(v)]
+    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+
+
 @pf.register_series_method
 @pf.register_dataframe_method
 def densityplot(
     df,
     components: list = None,
     ax=None,
+    logx=False,
+    logy=False,
     mode="density",
-    coverage_scale=1.1,
-    logspace=False,
-    contour=False,
     extent=None,
+    coverage_scale=1.1,
+    contours=[],
+    percentiles=True,
+    relim=True,
+    axlabels=True,
     **kwargs
 ):
     """
@@ -286,21 +397,36 @@ def densityplot(
 
     Parameters
     ----------
-    df: pandas DataFrame
+    df : pandas DataFrame
         Dataframe from which to draw data.
-    components: list, None
+    components : list, None
         Elements or compositional components to plot.
-    ax: Matplotlib AxesSubplot, None
+    ax : Matplotlib AxesSubplot, None
         The subplot to draw on.
-    mode: str, 'density'
+    logx : {False, True}
+        Whether to use a logspaced *grid* on the x axis. Values strickly >0 required.
+    logy : {False, True}
+        Whether to use a logspaced *grid* on the y axis. Values strickly >0 required.
+    mode : str, 'density'
         Different modes used here: ['density', 'hexbin', 'hist2d']
-    coverage_scale: float, 1.1
+    extent : list-like
+        Predetermined extent of the grid for which to from the histogram/KDE. In the
+        general from (xmin, xmax, ymin, ymax).
+    coverage_scale : float, 1.1
         Scale the area over which the density plot is drawn.
-    logspace: {False, True}
-        Whether to use a logspaced grid. Note that values strickly >0 are
-        required.
-    contour: {False, True}
-        Whether to add density contours to the plot.
+    contours : list
+        Contours to add to the plot.
+    percentiles : bool, True
+        Whether contours specified are to be converted to percentiles.
+    relim : bool, True
+        Whether to relimit the plot based on xmin, xmax values.
+    axlabels : bool, True
+        Whether to add x-y axis labels.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes on which the densityplot is plotted.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -316,8 +442,8 @@ def densityplot(
 
     figsize = kwargs.pop("figsize", 8.0)
     fontsize = kwargs.pop("fontsize", 12.0)
-    linewidths = kwargs.pop("linewidths", None)
-    linestyles = kwargs.pop("linestyles", None)
+    lws = kwargs.pop("linewidths", None)
+    lss = kwargs.pop("linestyles", None)
 
     colorbar = kwargs.pop("colorbar", False)
 
@@ -329,81 +455,62 @@ def densityplot(
         cmap = plt.get_cmap(cmap)
     cmap.set_under(color=background_color)
 
-    exp = (coverage_scale - 1) / 2
+    exp = (coverage_scale - 1.0) / 2
     data = df.loc[:, components].values
 
     if data.any():
         # Data can't be plotted if there's any nans, so we can exclude these
         data = data[(np.isfinite(data).all(axis=1)), :]
+
         if len(components) == 2:  # binary
             x, y = data.T
-            if extent is not None:
+            if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
             else:
-                xmin, xmax = (
-                    on_finite(x, np.min) * (1.0 - exp),
-                    on_finite(x, np.max) * (1.0 + exp),
-                )  # 120% range
-                ymin, ymax = (
-                    on_finite(y, np.min) * (1.0 - exp),
-                    on_finite(y, np.max) * (1.0 + exp),
-                )  # 120% range
-            if not logspace:
-                xstep = (xmax - xmin) / nbins
-                ystep = (ymax - ymin) / nbins
-            else:
-                xstep = (xmax / xmin) / nbins
-                ystep = (ymax / ymin) / nbins
+                # get the range from the data itself. data > 0 for log grids
+                xmin, xmax = [_linrng, _logrng][logx](x, exp=exp)
+                ymin, ymax = [_linrng, _logrng][logy](y, exp=exp)
 
-            plotextent = extent or (xmin, xmax, ymin, ymax)
+            xstep = [(xmax - xmin) / nbins, (xmax / xmin) / nbins][logx]
+            ystep = [(ymax - ymin) / nbins, (ymax / ymin) / nbins][logy]
+            extent = xmin, xmax, ymin, ymax
 
             if mode == "hexbin":
                 vmin = kwargs.pop("vmin", 0)
-                if logspace:
-                    # extent values are exponents (i.e. 3 -> 10**3)
-                    hex_extent = (
-                        np.log(xmin / xstep),
-                        np.log(xmax * xstep),
-                        np.log(ymin / ystep),
-                        np.log(ymax * ystep),
-                    )
-                    mappable = ax.hexbin(
-                        x,
-                        y,
-                        gridsize=nbins,
-                        cmap=cmap,
-                        extent=hex_extent,
-                        xscale="log",
-                        yscale="log",
-                        **kwargs,
-                    )
-                else:
-                    hex_extent = (
-                        xmin - xstep,
-                        xmax + xstep,
-                        ymin - ystep,
-                        ymax + ystep,
-                    )
-                    mappable = ax.hexbin(
-                        x, y, gridsize=nbins, cmap=cmap, extent=hex_extent, **kwargs
-                    )
+                hex_extent = (
+                    [
+                        [xmin - xstep, xmax + xstep],
+                        [np.log(xmin / xstep), np.log(xmax * xstep)],
+                    ][logx]
+                    + [
+                        [ymin - ystep, ymax + ystep],
+                        [np.log(ymin / ystep), np.log(ymax * ystep)],
+                    ][logy]
+                )
+                # extent values are exponents (i.e. 3 -> 10**3)
+                mappable = ax.hexbin(
+                    x,
+                    y,
+                    gridsize=nbins,
+                    cmap=cmap,
+                    extent=hex_extent,
+                    xscale=["linear", "log"][logx],
+                    yscale=["linear", "log"][logy],
+                    **kwargs,
+                )
                 cbarlabel = "Frequency"
 
             elif mode == "hist2d":
                 vmin = kwargs.pop("vmin", 0)
-                if logspace:
-                    assert ((xmin / xstep) > 0.0) and ((ymin / ystep) > 0.0)
-                    xe = np.logspace(
-                        np.log(xmin / xstep), np.log(xmax * xstep), nbins + 1
-                    )
-                    ye = np.logspace(
-                        np.log(ymin / ystep), np.log(ymax * ystep), nbins + 1
-                    )
-                else:
-                    xe = np.linspace(xmin - xstep, xmax + xstep, nbins + 1)
-                    ye = np.linspace(ymin - ystep, ymax + ystep, nbins + 1)
+                if logx:
+                    assert (xmin / xstep) > 0.0
+                if logy:
+                    assert (ymin / ystep) > 0.0
 
-                range = [[plotextent[0], plotextent[1]], [plotextent[2], plotextent[3]]]
+                xe = [_linspc, _logspc][logx](xmin, xmax, xstep, nbins)
+                ye = [_linspc, _logspc][logy](ymin, ymax, ystep, nbins)
+
+                range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(
                     x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
                 )
@@ -412,69 +519,85 @@ def densityplot(
 
             elif mode == "density":
                 shading = kwargs.pop("shading", None) or "flat"
+
+                if logx:
+                    assert xmin > 0.0
+                if logy:
+                    assert ymin > 0.0
+
+                # Generate Grid
+                xs = [_linspc, _logspc][logx](xmin, xmax, bins=nbins)
+                ys = [_linspc, _logspc][logy](ymin, ymax, bins=nbins)
+                xi, yi = np.meshgrid(xs, ys)
+                xi, yi = xi.T, yi.T
+                assert np.isfinite(xi).all() and np.isfinite(yi).all()
+
                 kdedata = data.T
-                # Can't have nans or infs
-                # kdedata = kdedata[:, (np.isfinite(kdedata).all(axis=0))]
+                if logx:  # generate x grid over range spanned by log(x)
+                    kdedata[0] = np.log(kdedata[0])
+                    xi = np.log(xi)
+                if logy:  # generate y grid over range spanned by log(y)
+                    kdedata[1] = np.log(kdedata[1])
+                    yi = np.log(yi)
 
-                if logspace:
-                    assert xmin > 0.0 and ymin > 0.0
-                    # Generate grid in logspace
-                    _xs = np.linspace(np.log(xmin), np.log(xmax), nbins + 1)
-                    _ys = np.linspace(np.log(ymin), np.log(ymax), nbins + 1)
-                    xi, yi = np.meshgrid(_xs, _ys)
-                    # Generate KDE in logspace
-                    k = gaussian_kde(np.log(kdedata))
-                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-                    # Revert coordinates bacl to non-log space
-                    xi, yi = np.exp(xi), np.exp(yi)
-                    assert np.isfinite(xi).all() and np.isfinite(yi).all()
-                else:
-                    xi, yi = np.mgrid[
-                        xmin : xmax : nbins * 1j, ymin : ymax : nbins * 1j
-                    ]
-                    k = gaussian_kde(kdedata)
-                    zi = k(np.vstack([xi.flatten(), yi.flatten()]))
-
-                vmin = kwargs.pop("vmin", 0.02 * np.nanmax(zi))  # 2% max height
-                if contour:
-                    levels = kwargs.pop("levels", None)
-
-                    if levels is None:
-                        levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
-                    elif isinstance(levels, int):
-                        levels = MaxNLocator(nbins=levels).tick_values(
-                            zi.min(), zi.max()
+                # remove nan, inf bearing rows
+                kdedata = kdedata[:, np.isfinite(kdedata).all(axis=0)]
+                assert np.isfinite(kdedata).all()
+                k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
+                zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
+                assert np.isfinite(zi).all()
+                zi = zi / zi.max()
+                vmin = kwargs.pop("vmin", 0.02)  # 2% max height
+                if percentiles:  # 98th percentile
+                    vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
+                    logger.debug(
+                        "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
+                    )
+                if logx:
+                    xi = np.exp(xi)
+                if logy:
+                    yi = np.exp(yi)
+                if contours:
+                    levels = contours or kwargs.pop("levels", None)
+                    cags = xi, yi, zi
+                    if percentiles and not isinstance(levels, int):
+                        _cs = plot_Z_percentiles(
+                            *cags,
+                            ax=ax,
+                            percentiles=levels,
+                            extent=extent,
+                            zorder=kwargs.pop('zorder', 5),
+                            cmap=cmap,
+                            **kwargs,
                         )
+                        mappable = _cs
+                    else:
+                        if levels is None:
+                            levels = MaxNLocator(nbins=10).tick_values(
+                                zi.min(), zi.max()
+                            )
+                        elif isinstance(levels, int):
+                            levels = MaxNLocator(nbins=levels).tick_values(
+                                zi.min(), zi.max()
+                            )
 
-                    mappable = ax.contourf(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        extent=extent,
-                        levels=levels,
-                        vmin=vmin,
-                        **kwargs,
-                    )
-
-                    ax.contour(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        extent=extent,
-                        linewidths=linewidths,
-                        linestyles=linestyles,
-                        vmin=vmin,
-                        **kwargs,
-                    )
+                        # filled contours
+                        mappable = ax.contourf(
+                            *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
+                        )
+                        # contours
+                        ax.contour(
+                            *cags,
+                            extent=extent,
+                            levels=levels,
+                            linewidths=lws,
+                            linestyles=lss,
+                            vmin=vmin,
+                            **kwargs
+                        )
                 else:
                     mappable = ax.pcolormesh(
-                        xi,
-                        yi,
-                        zi.reshape(xi.shape),
-                        cmap=cmap,
-                        shading=shading,
-                        vmin=vmin,
-                        **kwargs,
+                        xi, yi, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -487,13 +610,11 @@ def densityplot(
                 cbkwargs["label"] = cbarlabel
                 add_colorbar(mappable, **cbkwargs)
 
-            if extent:
+            if relim:
                 ax.axis(extent)
-            else:
-                ax.axis((xmin, xmax, ymin, ymax))
-
-            ax.set_xlabel(components[0], fontsize=fontsize)
-            ax.set_ylabel(components[1], fontsize=fontsize)
+            if axlabels:
+                ax.set_xlabel(components[0], fontsize=fontsize)
+                ax.set_ylabel(components[1], fontsize=fontsize)
 
         elif len(components) == 3:  # ternary
             scale = kwargs.pop("scale", None) or 100.0
@@ -510,5 +631,10 @@ def densityplot(
             )
         else:
             pass
+    if relim:
+        if logx:
+            ax.set_xscale('log')
+        if logy:
+            ax.set_yscale('log')
     plt.tight_layout()
     return ax

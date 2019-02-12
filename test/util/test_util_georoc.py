@@ -1,4 +1,5 @@
 import os
+import time
 import unittest
 import pandas as pd
 from pyrolite.util.georoc import *
@@ -96,6 +97,7 @@ class TestUpdateGEOROCFilelist(unittest.TestCase):
 
     def test_update_filelist(self):
         update_georoc_filelist(filepath=self.filepath)
+        time.sleep(2) # sleep two seconds to allow updating
         new_modification_time = os.stat(str(self.filepath)).st_mtime
         self.assertTrue(self.filepath.exists())
         self.assertTrue(new_modification_time > self.initial_last_modification_time)
