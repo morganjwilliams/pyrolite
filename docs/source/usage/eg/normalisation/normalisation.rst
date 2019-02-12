@@ -3,6 +3,8 @@ Normalisation
 
 A selection of reference compositions are included:
 
+.. code-block:: python
+
   >>> from pyrolite.geochem.norm import ReferenceCompositions
   >>> refcomp = ReferenceCompositions()
   {
@@ -14,6 +16,7 @@ A selection of reference compositions are included:
   'PM_PON': Model of PrimitiveMantle (Palme2014)
   }
 
+.. code-block:: python
 
   >>> CH = refcomp['Chondrite_PON']
   >>> PM = refcomp['PM_PON']
@@ -30,6 +33,8 @@ A selection of reference compositions are included:
 
 The `normalize` method can be used to normalise dataframes to a given reference (e.g. for spiderplots):
 
+.. code-block:: python
+
   >>> from pyrolite.plot import spiderplot
   >>> refcomp = ReferenceCompositions()
   >>> CH = refcomp['Chondrite_PON']
@@ -43,4 +48,4 @@ The `normalize` method can be used to normalise dataframes to a given reference 
    :height: 250px
    :align: center
 
-More reference compositions will soon be included (e.g. Sun and McDonough, 1989).
+Currently available models include: |refcomps|.

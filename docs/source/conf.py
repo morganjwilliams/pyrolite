@@ -193,6 +193,20 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
 
+# metadata
+import pyrolite.geochem
+
+refcomps = [
+    str(i).replace("Model of ", "")
+    for i in pyrolite.geochem.norm.ReferenceCompositions().values()
+]
+
+rst_prolog = """
+.. |refcomps| replace:: {}
+""".format(
+    ", ".join(refcomps)
+)
+
 
 def setup(app):
     app.add_config_value(
