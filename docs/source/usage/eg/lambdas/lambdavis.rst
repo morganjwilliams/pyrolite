@@ -29,4 +29,6 @@ O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare 
 Element Patterns in Basalts. J Petrology 57, 1463–1508.
 `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
 
-.. seealso:: `Dimensional Reduction <lambdadimreduction.html>`__, `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+.. seealso:: `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__,
+             `Dimensional Reduction <lambdadimreduction.html>`__,
+             `REE Radii Plot <../plotting/REE_radii_plot.html>`__
