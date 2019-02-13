@@ -1,7 +1,6 @@
 Elements and Oxides
 =====================
 
-
 All Elements up to U
 
 .. code-block:: python
