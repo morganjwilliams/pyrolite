@@ -28,10 +28,15 @@ logger = logging.getLogger(__name__)
 @pf.register_dataframe_method
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
-    Converts mass quantities to molar quantities of the same order.
-    E.g.:
-    mass% --> mol%
-    mass-ppm --> mol-ppm
+    Converts mass quantities to molar quantities of the same order. Does not convert
+    units (i.e. mass% --> mol%; mass-ppm --> mol-ppm).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to transform.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after converting to relative moles.
     """
     df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
@@ -45,11 +50,17 @@ def to_molecular(df: pd.DataFrame, renorm=True):
 @pf.register_dataframe_method
 def to_weight(df: pd.DataFrame, renorm=True):
     """
-    Converts molar quantities to mass quantities of the same order.
-    E.g.:
-    mol% --> mass%
-    mol-ppm --> mass-ppm
+    Converts molar quantities to mass quantities of the same order. Does not convert
+    units (i.e. mol% --> mass%; mol-ppm --> mass-ppm).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to transform.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after converting to relative moles.
     """
+
     df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
@@ -67,6 +78,15 @@ def devolatilise(
 ):
     """
     Recalculates components after exclusion of volatile phases (e.g. H2O, CO2).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to devolatilise.
+    exclude : :class:`list`
+        Components to exclude from the dataset.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after devolatilisation.
     """
     keep = [i for i in df.columns if not i in exclude]
     if renorm:
@@ -79,6 +99,14 @@ def oxide_conversion(oxin, oxout):
     """
     Generates a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
+
+    Parameters
+    ----------
+    oxin : :class:`str` | :class:`periodictable.core.Element`
+        Input component.
+
+    oxout : :class:`str` | :class:`periodictable.core.Element`
+        Output component.
     """
     if not (isinstance(oxin, pt.formulas.Formula) or isinstance(oxin, pt.core.Element)):
         oxin = pt.formula(oxin)
@@ -118,13 +146,27 @@ def recalculate_Fe(
     Recalculates abundances of iron, and normalises a dataframe to contain only one
     oxide species.
 
-    Consider reimplementing total suffix as a lambda formatting function
-    to deal with cases of prefixes, capitalisation etc.
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to recalcuate iron.
+    to_species : :class:`str`
+        Component to convert to.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after recalculation.
+    total_suffix : :class:`str`, 'T'
+        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
+    logdata : :class:`bool`, False
+        Whether the data has been log transformed.
 
-    Automatic generation of multiple redox species from dataframes
-    would also be a natural improvement.
+    Todo
+    ------
+        * Consider reimplementing total suffix as a lambda formatting function..
 
-    # todo: update to incorporate Fe and transformation from multiple oxides to one
+        * Automatic generation of multiple redox species from dataframes.
+
+        * Update to incorporate Fe and transformation from multiple oxides to one.
+
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -181,7 +223,6 @@ def recalculate_redox(
 
     Automatic generation of multiple redox species from dataframes
     would also be a natural improvement.
-
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -242,24 +283,24 @@ def aggregate_cation(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df : :class:`pandas.DataFrame`
         DataFrame for which to aggregate cation data.
-    cation : str
+    cation : :class:`str`
         Name of cation to aggregate.
-    oxide:
+    oxide : :class:`str`
         Name of oxide to aggregate.
-    form: {'oxide', 'element'}
+    form : :class:`str`, {'oxide', 'element'}
         Whether to aggregate to oxide or elemental form.
-    unit_scale:
+    unit_scale : :class:`numpy.number`, 1.
         The scale factor difference between the components. Unity if both have the same
         units. Can be converted using scale_multiplier: e.g.
         scale_multiplier("Wt%", "ppm")
-
+    logdata : :class:`bool`, False
+        Whether data has been log transformed.
 
     Todo
     -------
-        Needs to also implement a 'molecular' version.
-
+        * Support for molecular data.
     """
 
     dfc = df.copy()
@@ -327,18 +368,32 @@ def aggregate_cation(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def convert_chemistry(input, columns=[], logdata=False, renorm=False):
+def convert_chemistry(input_df, columns=[], logdata=False, renorm=False):
     """
-    Tries to convert a dataframe with one set of components to another.
+    Attempts to convert a dataframe with one set of components to another.
 
     Parameters
     -----------
-    df : pd.DataFrame
+    input_df : :class:`pandas.DataFrame`
         Dataframe to convert.
-    columns : list, set
+    columns : :class:`list`
         Set of columns to try to extract from the dataframe.
+    logdata : :class:`bool`, False
+        Whether chemical data has been log transformed. Necessary for aggregation
+        functions.
+    renorm : :class:`bool`, False
+        Whether to renormalise the data after transformation.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Dataframe with converted chemistry.
+
+    Todo
+    ------
+        * Implement generalised redox transformation.
     """
-    df = input.copy()
+    df = input_df.copy()
     current = df.columns
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
@@ -429,15 +484,15 @@ def add_ratio(
 
     Parameters
     -----------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe to append ratio to.
-    ratio: str
+    ratio : :class:`str`
         String decription of ratio in the form A/B[_n].
-    alias: str
+    alias : :class:`str`
         Alternate name for ratio to be used as column name.
-    norm_to: {None, RefComp, str}
+    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, None
         Reference composition to normalise to.
-    convert:
+    convert : :class:`function`
         Data processing function to be calculated prior to ratio.
     """
 
@@ -471,6 +526,20 @@ def add_ratio(
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
+    """
+    Append the magnesium number to a dataframe.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Input dataframe.
+    molecularIn : :class:`bool`, False
+        Whether the input data is molecular.
+    elemental : :class:`bool`, False
+        Whether to data is in elemental or oxide form.
+    components : :class:`bool`, False
+        Whether Fe data is split into components (True) or as FeOT (False).
+    """
 
     if not molecularIn:
         if components:
@@ -519,7 +588,25 @@ def lambda_lnREE(
     to a specific composition. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
 
-    TODO: Operate only on valid rows.
+    Parameters
+    ------------
+    df : :class:`pandas.DataFrame`
+        Dataframe to calculate lambda coefficients for.
+    norm_to : :class:`str`, 'Chondrite_PON'
+        Which reservoir to normalise REE data to.
+    exclude : :class:`list`, ['Pm', 'Eu']
+        Which REE elements to exclude from the fit.
+    params : list-like, None
+        Set of predetermined orthagonal polynomial parameters.
+    degree : :class:`int`, 5
+        Maximum degree polynomial fit component to include.
+    append : :class:`list`, []
+        Whether to append lambda function (i.e. [function]).
+
+    Todo
+    -----
+        * Operate only on valid rows.
+        * Add residuals as an option to `append`.
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [

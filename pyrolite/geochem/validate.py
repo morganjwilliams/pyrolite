@@ -20,7 +20,18 @@ def ischem(s):
     Checks if a string corresponds to chemical component (compositional).
     Here simply checking whether it is a common element or oxide.
 
-    TODO: Implement checking for other compounds, e.g. carbonates.
+    Parameters
+    ----------
+    s : :class:`str`
+        String to validate.
+
+    Returns
+    --------
+    bool
+
+    Todo
+    -----
+        * Implement checking for other compounds, e.g. carbonates.
     """
     chems = set(map(str.upper, (__common_elements__ | __common_oxides__)))
     if isinstance(s, list):
@@ -29,10 +40,21 @@ def ischem(s):
         return str(s).upper() in chems
 
 
-def is_isotoperatio(text):
-    """Check if text is plausibly an isotope ratio."""
-    if text not in __common_oxides__:
-        isotopes = get_isotopes(text)
+def is_isotoperatio(s):
+    """
+    Check if text is plausibly an isotope ratio.
+
+    Paramters
+    -----------
+    s : :class:`str`
+        String to validate.
+
+    Returns
+    --------
+    bool
+    """
+    if s not in __common_oxides__:
+        isotopes = get_isotopes(s)
         return len(isotopes) == 2
     else:
         return False
