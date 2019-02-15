@@ -44,7 +44,7 @@ def is_isotoperatio(s):
     """
     Check if text is plausibly an isotope ratio.
 
-    Paramters
+    Parameters
     -----------
     s : :class:`str`
         String to validate.
