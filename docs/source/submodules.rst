@@ -27,6 +27,15 @@ pyrolite\.plot
       :show-inheritance:
 
 
+pyrolite\.mineral
+---------------------
+
+  .. automodule:: pyrolite.mineral
+      :members:
+      :undoc-members:
+      :show-inheritance:
+
+
 pyrolite\.classification
 -------------------------------
 

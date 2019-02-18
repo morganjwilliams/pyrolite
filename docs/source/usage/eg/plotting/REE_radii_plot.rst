@@ -46,4 +46,5 @@ REE Radii Plots
    :width: 50%
    :align: center
 
-.. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,  `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__
+.. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
+             `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__

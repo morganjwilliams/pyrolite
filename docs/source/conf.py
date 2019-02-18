@@ -188,14 +188,23 @@ texinfo_documents = [
 ]
 
 # -- intersphinx
-
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "matplotlib": ("https://matplotlib.org/", None),
+    "sympy": ("https://docs.sympy.org/latest/", None),
+    "sklearn": ("http://scikit-learn.org/stable", None),
+    "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
+}
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
 
 # metadata
 # ordered reference composition list
 from pyrolite.geochem.norm import ReferenceCompositions as rc
+
 RC = rc()
 reservoirs = set([RC[k].Reservoir for k in RC])
 comps = []
@@ -203,12 +212,7 @@ for r in reservoirs:
     comps += [k for k in RC if RC[k].Reservoir == r]
 refcomps = (
     "    <dl>"
-    + "\n    ".join(
-        [
-            "<dt>{}</dt><dd>{}</dd>".format(k, RC[k])
-            for k in comps
-        ]
-    )
+    + "\n    ".join(["<dt>{}</dt><dd>{}</dd>".format(k, RC[k]) for k in comps])
     + "</dl>"
 )
 rst_prolog = """
@@ -223,6 +227,87 @@ rst_prolog = """
 """.format(
     rc=refcomps
 )
+
+
+# -----------------------------------------------------------------------------
+# Source code links
+# -----------------------------------------------------------------------------
+
+import re
+import inspect
+from os.path import relpath, dirname
+
+for name in ["sphinx.ext.linkcode", "linkcode", "numpydoc.linkcode"]:
+    try:
+        __import__(name)
+        extensions.append(name)
+        break
+    except ImportError:
+        pass
+else:
+    print("NOTE: linkcode extension not found -- no links to source generated")
+
+
+def linkcode_resolve(domain, info):
+    """
+    Determine the URL corresponding to Python object
+    """
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except Exception:
+            return None
+
+    try:
+        fn = inspect.getsourcefile(obj)
+    except Exception:
+        fn = None
+    if not fn:
+        try:
+            fn = inspect.getsourcefile(sys.modules[obj.__module__])
+        except Exception:
+            fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except Exception:
+        lineno = None
+
+    if lineno:
+        linespec = "#L%d-L%d" % (lineno, lineno + len(source) - 1)
+    else:
+        linespec = ""
+
+    startdir = os.path.abspath(os.path.join(dirname(pyrolite.__file__), ".."))
+    fn = relpath(fn, start=startdir).replace(os.path.sep, "/")
+    if fn.startswith("pyrolite/"):
+        m = re.match(r"(^.*)\+[\.a-z0-9]+$", pyrolite.__version__)  # develpment version
+        if m:  # link to development version; line numbers could be off by a bit
+            return "https://github.com/morganjwilliams/pyrolite/blob/develop/%s%s" % (
+                fn,
+                linespec
+            )
+        else:
+            return "https://github.com/morganjwilliams/pyrolite/blob/master/%s%s" % (
+                pyrolite.__version__,
+                fn,
+                linespec
+            )
+    else:
+        return None
 
 
 def setup(app):
