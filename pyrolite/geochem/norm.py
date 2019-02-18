@@ -33,6 +33,10 @@ def scale_multiplier(in_unit, target_unit="ppm"):
         Units to be converted from
     target_unit: target mass unit, ppm
         Units to scale to.
+
+    Returns
+    --------
+    :class:`np.number`
     """
     in_unit = str(in_unit).lower()
     target_unit = str(target_unit).lower()
@@ -89,6 +93,16 @@ class RefComp:
         headers=["Reservoir", "Reference", "ModelName", "ModelType"],
         floatvars=["value", "unc_2sigma", "constraint_value"],
     ):
+        """
+        Build a data dictionary from the variable table.
+
+        Parameters
+        -----------
+        headers : :class:`list`
+            Headers to be treated separately to compositonal data.
+        floatvars : :class:`list`
+            Headers to be treated as compositonal data.
+        """
         # integrate header data
         for h in headers:
             setattr(self, h, self.data.loc[h, "value"])
@@ -103,6 +117,7 @@ class RefComp:
         )
 
     def set_units(self, to="ppm"):
+
         v = self.vars
         self.data.loc[v, "scale"] = self.data.loc[v, "units"].apply(
             scale_multiplier, target_unit=to
@@ -118,7 +133,9 @@ class RefComp:
         Here we create indexes for normalisation of values and any auxilary
         values (e.g. uncertainty).
 
-        ## TODO: Implement uncertainty propagation
+        Todo
+        -----
+            * Implement uncertainty propagation
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -136,7 +153,19 @@ class RefComp:
 
     def denormalize(self, df, aux_cols=["LOD", "2SE"]):
         """
-        Unnormalize the values within a dataframe back to true composition.
+        Un-normalize the values within a dataframe back to true composition.
+
+        Parameters
+        -----------
+        df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+            Dataframe to de-normalize.
+        aux_cols : :class:`list`, ["LOD", "2SE"]
+            Auxilary columns which should scale with the compositional data.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            De-normalized dataframe.
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -153,7 +182,19 @@ class RefComp:
         return dfc
 
     def ratio(self, ratio):
-        """Calculates an elemental ratio."""
+        """
+        Calculates an elemental ratio.
+
+        Parameters
+        ------------
+        ratio : :class:`str`
+            Slash-separated numerator and denominator for specific ratio.
+
+        Returns
+        --------
+        :class:`np.number`
+            Ratio, if it exists, otherwise :class:`np.nan`
+        """
         try:
             assert "/" in ratio
             num, den = ratio.split("/")
@@ -164,6 +205,11 @@ class RefComp:
     def __getattr__(self, var):
         """
         Allow access to model values via attribute e.g. Model.Si
+
+        Parameters
+        -----------
+        var : :class:`str`
+            Variable to get.
         """
         if not isinstance(var, str):
             var = str(var)
@@ -176,9 +222,14 @@ class RefComp:
         """
         Allow access to model values via [] indexing e.g. Model['Si', 'Cr'].
         Currently not implemented for ratios.
+
+        Parameters
+        -----------
+        vars : :class:`str` | :class:`list`
+            Variable(s) to get.
         """
         if (
-            isinstance(vars, list)
+            isinstance(vars, list)  # if iterable
             or isinstance(vars, pd.Index)
             or isinstance(vars, np.ndarray)
         ):
@@ -193,18 +244,21 @@ class RefComp:
 
 def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     """
-    Build all reference models in a given directory.
-
-    Here we use either the input directory, or the default data directory
-    within this module.
+    Build all reference models in a given directory. Here we use either the input
+    directory, or the default data directory within this module.
 
     Parameters
     ----------
-    directory: file directory, None
+    directory : :class:`str`, None
         Location of reference data files.
-    formats: reference data formats, csv
+    formats : :class:`list`, "csv"
         List of potential data formats to draw from.
         Currently only csv will work.
+
+    Returns
+    --------
+    :class:`dict`
+        Dictionary of reference compositions.
     """
     if platform.system() == "Windows":
         kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"

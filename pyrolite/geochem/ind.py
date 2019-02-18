@@ -24,7 +24,28 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
     Provides a list of elements up to a particular cutoff (default: including U)
     Output options are 'formula', or 'string'.
 
-    Todo: implement ordering for e.g. incompatibility.
+    Parameters
+    -----------
+    cutoff : :class:`int`
+        Upper cutoff on atomic number for the output list. Defaults to stopping at
+        uranium (92).
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+    order
+        Sorting function for elements.
+    as_set : :class:`bool`
+        Whether to return a :class:`set` (True) or :class:`list` (False). Note that
+        formulae cannot be used as members of a set, and hence sets will consist only
+        of strings.
+
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of elements.
+
+    Todo
+    -----
+        * Implement ordering for e.g. incompatibility.
     """
     elements = [el for el in pt.elements if not (str(el) == "n" or el.number > cutoff)]
 
@@ -41,12 +62,19 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
         return elements
 
 
-def REE(output="string", include_extras=False):
+def REE(output="string"):
     """
-    Provides the list of Rare Earth Elements
-    Output options are 'formula', or strings.
+    Provides a list of Rare Earth Elements.
 
-    Todo: add include extras such as Y.
+    Parameters
+    -----------
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of REE.
     """
     elements = [
         "La",
@@ -79,12 +107,31 @@ def common_oxides(
 ):
     """
     Creates a list of oxides based on a list of elements.
-    Output options are 'formula', or strings.
 
-    Note: currently return FeOT and LOI even for element lists
-    not including iron or water - potential upgrade!
+    Parameters
+    -----------
+    elements : :class:`list`, []
+        List of elements to obtain oxide forms for.
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+    addition : :class:`list`, []
+        Additional components to append to the list.
+    exclude : :class:`list`
+        Elements to not produce oxide forms for (e.g. oxygen, noble gases).
+    as_set : :class:`bool`
+        Whether to return a :class:`set` (True) or :class:`list` (False). Note that
+        formulae cannot be used as members of a set, and hence sets will consist only
+        of strings.
 
-    Todo: element verification
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of oxides.
+
+    Todo
+    ----
+        * Element verification
+        * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
     if not elements:
         elements = [
@@ -108,6 +155,18 @@ def simple_oxides(cation, output="string"):
     """
     Creates a list of oxides for a cationic element
     (oxide of ions with c=1+ and above).
+
+    Parameters
+    -----------
+    cation : :class:`str` | :class:`periodictable.core.Element`
+        Cation to obtain oxide forms for.
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of oxides.
     """
     try:
         if not isinstance(cation, pt.core.Element):
@@ -131,22 +190,49 @@ def simple_oxides(cation, output="string"):
         oxides = [str(ox) for ox in oxides]
     return oxides
 
+import periodictable
+periodictable.formulas.Formula
 
 def get_cations(oxide: str, exclude=[]):
     """
     Returns the principal cations in an oxide component.
 
-    Todo: Consider implementing periodictable style return.
+    Parameters
+    -----------
+    oxide : :class:`str` | :class:`periodictable.formulas.Formula`
+        Oxide to obtain cations for.
+    exclude : :class:`list`
+        Components to exclude, i.e. anions (e.g. O, Cl, F).
+
+    Returns
+    -------
+    :class:`list`
+        List of cations.
+
+    Todo
+    -----
+        * Consider implementing :class:`periodictable.core.Element` return.
     """
-    if "O" not in exclude:
-        exclude += ["O"]
+    exclude += ["O"]
     atms = pt.formula(oxide).atoms
     cations = [el for el in atms.keys() if not el.__str__() in exclude]
     return cations
 
 
 def get_isotopes(ratio_text):
-    """Regex for isotope ratios."""
+    """
+    Regex for isotope ratios.
+
+    Parameters
+    -----------
+    ratio_text : :class:`str`
+        Text to extract isotope ratio components from.
+
+    Returns
+    -----------
+    :class:`list`
+        Isotope ration numerator and denominator.
+    """
     forward_isotope = r"([a-zA-Z][a-zA-Z]?[0-9][0-9]?[0-9]?)"
     backward_isotope = r"([0-9][0-9]?[0-9]?[a-zA-Z][a-zA-Z]?)"
     fw = re.findall(forward_isotope, ratio_text)
@@ -162,25 +248,25 @@ def get_isotopes(ratio_text):
 
 def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling=True):
     """
-    Function to obtain Shannon's radii for a given ion. Shannon published two sets of
+    Function to obtain Shannon's radii for a given ion [1]_. Shannon published two sets of
     radii. The first ('Crystal Radii') were using Shannon's value for r($O^{2-}_{VI}$)
     of 1.26 $\AA$, while the second ('Ionic Radii') is consistent with the
     Pauling (1960) value of r($O^{2-}_{VI}$) of 1.40 $\AA$; see `pauling` below.
 
     Parameters
     -----------
-    element : str | list-like
+    element : :class:`str` | :class:`list`
         Element to obtain a radii for. If a list is passed, the function will be applied
         over each of the items.
-    charge : int
+    charge : :class:`int`
         Charge of the ion to obtain a radii for. If unspecified will use the default
         charge from :mod:`pyrolite.mineral.ions`.
-    coordination : int
+    coordination : :class:`int`
         Coordination of the ion to obtain a radii for.
-    variant : list
+    variant : :class:`list`
         List of strings specifying particular variants (here 'squareplanar' or
         'pyramidal', 'highspin' or 'lowspin').
-    pauling : bool
+    pauling : :class:`bool`
         Whether to use the radii consistent with Pauling (1960).
 
     Returns
@@ -190,11 +276,12 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         angstroms. If the ion charge and coordiation are specified and found in the
         table, a single value will be returned instead.
 
-    Note
-    -----
-        **Reference**: Shannon RD (1976). Revised effective ionic radii and systematic
-        studies of interatomic distances in halides and chalcogenides.
-        Acta Crystallographica Section A 32:751–767. doi: 10.1107/S0567739476001551
+    References
+    ----------
+    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
+            studies of interatomic distances in halides and chalcogenides.
+            Acta Crystallographica Section A 32:751–767. doi: 10.1107/S0567739476001551
+            https://dx.doi.org/10.1107/S0567739476001551
 
 
     Todo

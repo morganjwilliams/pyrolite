@@ -37,6 +37,11 @@ def to_molecular(df: pd.DataFrame, renorm=True):
         Dataframe to transform.
     renorm : :class:`bool`, True
         Whether to renormalise the dataframe after converting to relative moles.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
@@ -59,6 +64,11 @@ def to_weight(df: pd.DataFrame, renorm=True):
         Dataframe to transform.
     renorm : :class:`bool`, True
         Whether to renormalise the dataframe after converting to relative moles.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
 
     df = to_frame(df)
@@ -87,6 +97,11 @@ def devolatilise(
         Components to exclude from the dataset.
     renorm : :class:`bool`, True
         Whether to renormalise the dataframe after devolatilisation.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     keep = [i for i in df.columns if not i in exclude]
     if renorm:
@@ -97,7 +112,7 @@ def devolatilise(
 
 def oxide_conversion(oxin, oxout):
     """
-    Generates a function to convert oxide components between
+    Factory function to generate a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
 
     Parameters
@@ -107,6 +122,10 @@ def oxide_conversion(oxin, oxout):
 
     oxout : :class:`str` | :class:`periodictable.core.Element`
         Output component.
+
+    Returns
+    -------
+        Function to convert a pandas.Series from one elment-oxide component to another.
     """
     if not (isinstance(oxin, pt.formulas.Formula) or isinstance(oxin, pt.core.Element)):
         oxin = pt.formula(oxin)
@@ -159,14 +178,10 @@ def recalculate_Fe(
     logdata : :class:`bool`, False
         Whether the data has been log transformed.
 
-    Todo
-    ------
-        * Consider reimplementing total suffix as a lambda formatting function..
-
-        * Automatic generation of multiple redox species from dataframes.
-
-        * Update to incorporate Fe and transformation from multiple oxides to one.
-
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -214,15 +229,37 @@ def recalculate_redox(
     df: pd.DataFrame, to_oxidised=True, renorm=True, total_suffix="T", logdata=False
 ):
     """
-    Recalculates abundances of redox-sensitive components (particularly Fe),
+    Recalculates abundances of redox-sensitive components (here currently just iron),
     and normalises a dataframe to contain only one oxide species for a given
     element.
 
-    Consider reimplementing total suffix as a lambda formatting function
-    to deal with cases of prefixes, capitalisation etc.
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to recalcuate iron.
+    to_oxidised : :class:`str`
+        Whether to convert components to oxidised (True) or reduced (False) forms.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after recalculation.
+    total_suffix : :class:`str`, 'T'
+        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
+    logdata : :class:`bool`, False
+        Whether the data has been log transformed.
 
-    Automatic generation of multiple redox species from dataframes
-    would also be a natural improvement.
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
+
+    Todo
+    ------
+        * Consider reimplementing total suffix as a lambda formatting function.
+
+        * Automatic generation of multiple redox species from dataframes.
+
+        * Considering other redox species.
+
+        * Specification of list of components to output.
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -297,6 +334,11 @@ def aggregate_cation(
         scale_multiplier("Wt%", "ppm")
     logdata : :class:`bool`, False
         Whether data has been log transformed.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with cation aggregated.
 
     Todo
     -------
@@ -494,6 +536,11 @@ def add_ratio(
         Reference composition to normalise to.
     convert : :class:`function`
         Data processing function to be calculated prior to ratio.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with ratio appended.
     """
 
     num, den = ratio.split("/")
@@ -539,6 +586,11 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         Whether to data is in elemental or oxide form.
     components : :class:`bool`, False
         Whether Fe data is split into components (True) or as FeOT (False).
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with ratio appended.
     """
 
     if not molecularIn:

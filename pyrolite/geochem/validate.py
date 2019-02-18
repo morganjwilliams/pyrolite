@@ -27,7 +27,7 @@ def ischem(s):
 
     Returns
     --------
-    bool
+    :class:`bool`
 
     Todo
     -----
@@ -51,7 +51,7 @@ def is_isotoperatio(s):
 
     Returns
     --------
-    bool
+    :class:`bool`
     """
     if s not in __common_oxides__:
         isotopes = get_isotopes(s)
