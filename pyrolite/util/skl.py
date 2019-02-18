@@ -315,7 +315,7 @@ class ALRTransform(BaseEstimator, TransformerMixin):
         self.kpairs = kwargs
         self.label = "ALR"
         self.forward = alr
-        self.inverse = inv_alr
+        self.inverse = inverse_alr
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):

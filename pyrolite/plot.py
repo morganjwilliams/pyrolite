@@ -40,20 +40,20 @@ def spiderplot(
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe from which to draw data.
-    components : list, None
+    components : :class:`list`, None
         Elements or compositional components to plot.
-    ax : matplotlib.axes.Axes, None
+    ax : :class:`matplotlib.axes.Axes`, None
         The subplot to draw on.
-    plot : boolean, True
+    plot : :class:`bool`, True
         Whether to plot lines and markers.
-    fill : boolean, True
+    fill : :class:`bool`, True
         Whether to add a patch representing the full range.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
@@ -164,12 +164,12 @@ def REE_radii_plot(df=None, ax=None, **kwargs):
 
     Parameters
     -----------
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Optional designation of axes to reconfigure.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the REE_radii_plot is plotted.
     """
     if ax is not None:
@@ -210,16 +210,16 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe from which to draw data.
-    components : list, None
+    components : :class:`list`, None
         Elements or compositional components to plot.
-    ax : matplotlib.axes.Axes, None
+    ax : :class:`matplotlib.axes.Axes`, None
         The subplot to draw on.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the spiderplot is plotted.
     """
     kwargs = kwargs.copy()
@@ -290,18 +290,18 @@ def _linspc(_min, _max, step=0.0, bins=20):
 
     Parameters
     -----------
-    _min : np.number
+    _min : :class:`numpy.number`
         Minimum value for spaced range.
-    _max : np.number
+    _max : :class:`numpy.number`
         Maximum value for spaced range.
-    step : np.number, 0.0
+    step : :class:`numpy.number`, 0.0
         Step for expanding at grid edges. Default of 0.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         Linearly-spaced array.
     """
     return np.linspace(_min - step, _max + step, bins + 1)
@@ -313,18 +313,18 @@ def _logspc(_min, _max, step=1.0, bins=20):
 
     Parameters
     -----------
-    _min : np.number
+    _min : :class:`numpy.number`
         Minimum value for spaced range.
-    _max : np.number
+    _max : :class:`numpy.number`
         Maximum value for spaced range.
-    step : np.number, 1.0
+    step : :class:`numpy.number`, 1.0
         Step for expanding at grid edges. Default of 1.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         Log-spaced array.
     """
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
@@ -336,14 +336,14 @@ def _logrng(v, exp=0.0):
 
     Parameters
     -----------
-    v : list-like
+    v : :class:`list`; list-like
         Array of values to obtain a range from.
-    exp : np.float, (0, 1)
+    exp : :class:`float`, (0, 1)
         Fractional expansion of the range.
 
     Returns
     -------
-    tuple
+    :class:`tuple`
         Min, max tuple.
     """
     u = v[(v > 0)]  # make sure the range_values are >0
@@ -356,14 +356,14 @@ def _linrng(v, exp=0.0):
 
     Parameters
     -----------
-    v : list-like
+    v : :class:`list`; list-like
         Array of values to obtain a range from.
-    exp : np.float, (0, 1)
+    exp : :class:`float`, (0, 1)
         Fractional expansion of the range.
 
     Returns
     -------
-    tuple
+    :class:`tuple`
         Min, max tuple.
     """
     u = v[np.isfinite(v)]
@@ -397,35 +397,35 @@ def densityplot(
 
     Parameters
     ----------
-    df : pandas DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe from which to draw data.
-    components : list, None
+    components : :class:`list`, None
         Elements or compositional components to plot.
-    ax : Matplotlib AxesSubplot, None
+    ax : :class:`matplotlib.axes.Axes`, None
         The subplot to draw on.
-    logx : {False, True}
+    logx : :class:`bool`, False
         Whether to use a logspaced *grid* on the x axis. Values strickly >0 required.
-    logy : {False, True}
+    logy : :class:`bool`, False
         Whether to use a logspaced *grid* on the y axis. Values strickly >0 required.
-    mode : str, 'density'
+    mode : :class:`str`, 'density'
         Different modes used here: ['density', 'hexbin', 'hist2d']
-    extent : list-like
+    extent : :class:`list`; list-like
         Predetermined extent of the grid for which to from the histogram/KDE. In the
         general from (xmin, xmax, ymin, ymax).
-    coverage_scale : float, 1.1
+    coverage_scale : :class:`float`, 1.1
         Scale the area over which the density plot is drawn.
-    contours : list
+    contours : :class:`list`
         Contours to add to the plot.
-    percentiles : bool, True
+    percentiles :  :class:`bool`, True
         Whether contours specified are to be converted to percentiles.
-    relim : bool, True
+    relim : :class:`bool`, True
         Whether to relimit the plot based on xmin, xmax values.
-    axlabels : bool, True
+    axlabels : :class:`bool`, True
         Whether to add x-y axis labels.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
     """
     kwargs = kwargs.copy()

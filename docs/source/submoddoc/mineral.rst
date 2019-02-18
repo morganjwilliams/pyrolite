@@ -13,6 +13,7 @@ pyrolite\.mineral\.sites
       :members:
       :undoc-members:
 
+
 pyrolite\.mineral\.normative
 -------------------------------
   .. automodule:: pyrolite.mineral.normative
@@ -25,6 +26,7 @@ pyrolite\.mineral\.ions
   .. automodule:: pyrolite.mineral.ions
       :members:
       :undoc-members:
+
 
 pyrolite\.mineral\.db
 -------------------------------

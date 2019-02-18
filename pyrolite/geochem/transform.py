@@ -541,6 +541,10 @@ def add_ratio(
     -------
     :class:`pandas.DataFrame`
         Dataframe with ratio appended.
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.transform.add_MgNo`
     """
 
     num, den = ratio.split("/")
@@ -591,6 +595,10 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     -------
     :class:`pandas.DataFrame`
         Dataframe with ratio appended.
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.transform.add_ratio`
     """
 
     if not molecularIn:
@@ -659,6 +667,15 @@ def lambda_lnREE(
     -----
         * Operate only on valid rows.
         * Add residuals as an option to `append`.
+        * Pre-build orthagonal parameters for REE combinations for calculation speed.
+
+    See Also
+    ---------
+    :func:`~pyrolite.geochem.ind.get_ionic_radii`
+    :func:`~pyrolite.util.math.lambdas`
+    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.plot.REE_radii_plot`
+    :func:`~pyrolite.geochem.norm.ReferenceCompositions`
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [

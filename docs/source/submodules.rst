@@ -43,6 +43,7 @@ pyrolite\.classification
       :members:
       :undoc-members:
       :show-inheritance:
+      
 
 pyrolite\.util
 -------------------------------

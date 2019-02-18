@@ -15,12 +15,12 @@ def impute_ratios(ratios: pd.DataFrame):
 
     Parameters
     ---------------
-    ratios: pd.DataFrame
+    ratios : :class:`pandas.DataFrame`
         Dataframe of ratios to impute.
 
     Returns
     -------
-    pd.DataFrame
+    :class:`pandas.DataFrame`
         A DataFrame of imputed ratios.
     """
     with warnings.catch_warnings():
@@ -50,12 +50,12 @@ def np_impute_ratios(ratios: np.ndarray):
 
     Parameters
     ---------------
-    ratios: np.ndarray
+    ratios : :class:`numpy.ndarray`
         Array of ratios to impute.
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         Array of imputed ratios.
     """
     finite = np.isfinite(ratios)

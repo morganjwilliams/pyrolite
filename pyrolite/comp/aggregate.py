@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import warnings
-from .codata import alr, inv_alr
+from .codata import alr, inverse_alr
 from .impute import *
 
 import logging
@@ -17,8 +17,13 @@ def get_full_column(X: np.ndarray):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array for which to find the first full column within.
+
+    Returns
+    --------
+    :class:`int`
+        Index of the first full column.
     """
     if len(X.shape) == 1:
         X = X.reshape((1, *X.shape))
@@ -35,8 +40,13 @@ def weights_from_array(X: np.ndarray):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array of compositions to produce weights for.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Array of weights.
     """
     wts = np.ones((X.shape[0]))
     return wts / np.sum(wts)
@@ -49,10 +59,15 @@ def nan_weighted_mean(X: np.ndarray, weights=None):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array of compositions to take a weighted mean of.
-    weights: np.ndarray
+    weights : :class:`numpy.ndarray`
         Array of weights.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Array mean.
     """
     if weights is None:
         weights = weights_from_array(X)
@@ -71,10 +86,15 @@ def compositional_mean(df, weights=[], **kwargs):
 
     Parameters
     ---------------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions to aggregate.
-    weights: np.ndarray
+    weights : :class:`numpy.ndarray`
         Array of weights.
+
+    Returns
+    --------
+    :class:`pandas.Series`
+        Mean values along index of dataframe.
     """
     non_nan_cols = df.dropna(axis=1, how="all").columns
     assert not df.loc[:, non_nan_cols].isna().values.any()
@@ -85,7 +105,7 @@ def compositional_mean(df, weights=[], **kwargs):
 
     logmean = alr(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
     # this renormalises by default
-    mean.loc[non_nan_cols] = inv_alr(logmean.T.squeeze())
+    mean.loc[non_nan_cols] = inverse_alr(logmean.T.squeeze())
     return mean
 
 
@@ -103,18 +123,18 @@ def nan_weighted_compositional_mean(
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array of compositions to aggregate.
-    weights: np.ndarray
+    weights : :class:`numpy.ndarray`
         Array of weights.
-    ind: int
+    ind : :class:`int`
         Index of the column to use as the alr divisor.
-    renorm: bool, True
+    renorm : :class:`bool`, True
         Whether to renormalise the output compositional mean to unity.
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         An array with the mean composition.
     """
     if X.ndim == 1:  # if it's a single row
@@ -159,12 +179,12 @@ def cross_ratios(df: pd.DataFrame):
 
     Parameters
     ---------------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions to create ratios of.
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         A 3D array of ratios.
     """
     ratios = np.ones((len(df.index), len(df.columns), len(df.columns)))
@@ -183,12 +203,12 @@ def np_cross_ratios(X: np.ndarray, debug=False):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array of compositions to create ratios of.
 
     Returns
     -------
-    np.ndarray
+    :class:`numpy.ndarray`
         A 3D array of ratios.
     """
     X = X.copy()
@@ -231,19 +251,19 @@ def standardise_aggregate(
 
     Parameters
     ---------------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions to aggregate of.
-    int_std: str
+    int_std : :class:`str`
         Name of the internal standard column.
-    fixed_record_idx: int
+    fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm: bool, True
+    renorm : :class:`bool`, True
         Whether to renormalise to unity.
 
     Returns
     -------
-    pd.Series
+    :class:`pandas.Series`
         A series representing the internally standardised record.
     """
     if df.index.size == 1:  # catch single records
@@ -284,19 +304,19 @@ def complex_standardise_aggregate(
 
     Parameters
     ---------------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions to aggregate of.
-    int_std: str
+    int_std : :class:`str`
         Name of the internal standard column.
-    fixed_record_idx: int
+    fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm: bool, True
+    renorm : :class:`bool`, True
         Whether to renormalise to unity.
 
     Returns
     -------
-    pd.Series
+    :class:`pandas.Series`
         A series representing the internally standardised record.
     """
     if int_std is None:
@@ -344,19 +364,19 @@ def np_complex_standardise_aggregate(
 
     Parameters
     ---------------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions to aggregate of.
-    int_std: str
+    int_std : :class:`str`
         Name of the internal standard column.
-    fixed_record_idx: int
+    fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm: bool, True
+    renorm : :class:`bool`, True
         Whether to renormalise to unity.
 
     Returns
     -------
-    pd.Series
+    :class:`pandas.Series`
         A series representing the internally standardised record.
     """
 
