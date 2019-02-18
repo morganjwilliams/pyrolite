@@ -7,6 +7,7 @@ from ..util.pd import to_frame
 from ..comp.codata import renormalise
 from ..util.text import titlecase
 from ..util.general import iscollection
+from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .ind import (
@@ -532,7 +533,7 @@ def add_ratio(
         String decription of ratio in the form A/B[_n].
     alias : :class:`str`
         Alternate name for ratio to be used as column name.
-    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, None
+    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
         Reference composition to normalise to.
     convert : :class:`function`
         Data processing function to be calculated prior to ratio.
@@ -631,7 +632,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
             # Molecular Elemental
             df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
 
-
+@update_docstring_references
 @pf.register_series_method
 @pf.register_dataframe_method
 def lambda_lnREE(
@@ -645,7 +646,7 @@ def lambda_lnREE(
 ):
     """
     Calculates lambda coefficients for a given set of REE data, normalised
-    to a specific composition. Lambda factors are given for the
+    to a specific composition [#ref_1]_. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
 
     Parameters
@@ -668,6 +669,13 @@ def lambda_lnREE(
         * Operate only on valid rows.
         * Add residuals as an option to `append`.
         * Pre-build orthagonal parameters for REE combinations for calculation speed.
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+
 
     See Also
     ---------
