@@ -30,10 +30,10 @@ pyrolite\.plot
 pyrolite\.mineral
 ---------------------
 
-  .. automodule:: pyrolite.mineral
-      :members:
-      :undoc-members:
-      :show-inheritance:
+  .. toctree::
+     :maxdepth: 2
+
+     submoddoc/mineral
 
 
 pyrolite\.classification
