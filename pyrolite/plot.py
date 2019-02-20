@@ -404,9 +404,9 @@ def densityplot(
     ax : :class:`matplotlib.axes.Axes`, None
         The subplot to draw on.
     logx : :class:`bool`, False
-        Whether to use a logspaced *grid* on the x axis. Values strickly >0 required.
+        Whether to use a logspaced *grid* on the x axis. Values strictly >0 required.
     logy : :class:`bool`, False
-        Whether to use a logspaced *grid* on the y axis. Values strickly >0 required.
+        Whether to use a logspaced *grid* on the y axis. Values strictly >0 required.
     mode : :class:`str`, 'density'
         Different modes used here: ['density', 'hexbin', 'hist2d']
     extent : :class:`list`; list-like

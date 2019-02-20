@@ -13,6 +13,25 @@ logger = logging.getLogger(__name__)
 
 
 def close(X: np.ndarray):
+    """
+    Closure operator for compositional data.
+
+    Parameters
+    -----------
+    X : :class:`numpy.ndarray`
+        Array to close.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Closed array.
+
+    Note
+    ------
+        * Does not check for non-positive entries.
+        * Will not ignore :class:`numpy.nan`. Exclude all-nan components.
+    """
+
     if X.ndim == 2:
         return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
     else:
@@ -241,7 +260,7 @@ def boxcox(
 
     Returns
     -------
-    :class:`numpy.ndarray` | (:class:`numpy.ndarray`, :class:`float`)
+    :class:`numpy.ndarray` | :class:`numpy.ndarray`(:class:`float`)
         Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
         lambda value.
     """
