@@ -27,6 +27,15 @@ pyrolite\.plot
       :show-inheritance:
 
 
+pyrolite\.mineral
+---------------------
+
+  .. toctree::
+     :maxdepth: 2
+
+     submoddoc/mineral
+
+
 pyrolite\.classification
 -------------------------------
 
@@ -34,6 +43,7 @@ pyrolite\.classification
       :members:
       :undoc-members:
       :show-inheritance:
+      
 
 pyrolite\.util
 -------------------------------

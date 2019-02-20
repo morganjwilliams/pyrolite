@@ -21,6 +21,19 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     """
     Converts a list of strings containing come chemical compounds to
     appropriate case.
+
+    Parameters
+    ----------
+    strings : :class:`list`
+        Strings to convert to 'chemical case'.
+    abbr : :class:`list`, ['ID', 'IGSN']
+        Abbreivated phrases to ignore in capitalisation.
+    split_on : :class:`str`, "[\s_]+"
+        Regex for character or phrases to split the strings on.
+
+    Returns
+    --------
+    :class:`list`
     """
     # accomodate single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
@@ -42,8 +55,12 @@ def repr_isotope_ratio(isotope_ratio):
 
     Parameters
     -----------
-    isotope_ratio : tuple
+    isotope_ratio : :class:`tuple`
         Numerator, denominator pair.
+
+    Returns
+    --------
+    :class:`str`
     """
     if not is_isotoperatio(isotope_ratio):
         return isotope_ratio
@@ -64,7 +81,21 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     """
     Returns cations which are present in both oxide and elemental form.
 
-    Todo: Options for output (string/formula).
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to check duplication within.
+    exclude : :class:`list`, ['LOI','FeOT', 'Fe2O3T']
+        List of components to exclude from the duplication check.
+
+    Returns
+    --------
+    :class:`set`
+        Set of elements for which multiple components exist in the dataframe.
+
+    Todo
+    -----
+        * Options for output (string/formula).
     """
     major_components = [i for i in __common_oxides__ if i in df.columns]
     elements_as_majors = [

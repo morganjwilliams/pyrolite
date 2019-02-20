@@ -7,6 +7,7 @@ from ..util.pd import to_frame
 from ..comp.codata import renormalise
 from ..util.text import titlecase
 from ..util.general import iscollection
+from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .ind import (
@@ -28,10 +29,20 @@ logger = logging.getLogger(__name__)
 @pf.register_dataframe_method
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
-    Converts mass quantities to molar quantities of the same order.
-    E.g.:
-    mass% --> mol%
-    mass-ppm --> mol-ppm
+    Converts mass quantities to molar quantities of the same order. Does not convert
+    units (i.e. mass% --> mol%; mass-ppm --> mol-ppm).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to transform.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after converting to relative moles.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
@@ -45,11 +56,22 @@ def to_molecular(df: pd.DataFrame, renorm=True):
 @pf.register_dataframe_method
 def to_weight(df: pd.DataFrame, renorm=True):
     """
-    Converts molar quantities to mass quantities of the same order.
-    E.g.:
-    mol% --> mass%
-    mol-ppm --> mass-ppm
+    Converts molar quantities to mass quantities of the same order. Does not convert
+    units (i.e. mol% --> mass%; mol-ppm --> mass-ppm).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to transform.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after converting to relative moles.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
+
     df = to_frame(df)
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
@@ -67,6 +89,20 @@ def devolatilise(
 ):
     """
     Recalculates components after exclusion of volatile phases (e.g. H2O, CO2).
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to devolatilise.
+    exclude : :class:`list`
+        Components to exclude from the dataset.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after devolatilisation.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     keep = [i for i in df.columns if not i in exclude]
     if renorm:
@@ -77,8 +113,20 @@ def devolatilise(
 
 def oxide_conversion(oxin, oxout):
     """
-    Generates a function to convert oxide components between
+    Factory function to generate a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
+
+    Parameters
+    ----------
+    oxin : :class:`str` | :class:`periodictable.core.Element`
+        Input component.
+
+    oxout : :class:`str` | :class:`periodictable.core.Element`
+        Output component.
+
+    Returns
+    -------
+        Function to convert a pandas.Series from one elment-oxide component to another.
     """
     if not (isinstance(oxin, pt.formulas.Formula) or isinstance(oxin, pt.core.Element)):
         oxin = pt.formula(oxin)
@@ -118,13 +166,23 @@ def recalculate_Fe(
     Recalculates abundances of iron, and normalises a dataframe to contain only one
     oxide species.
 
-    Consider reimplementing total suffix as a lambda formatting function
-    to deal with cases of prefixes, capitalisation etc.
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to recalcuate iron.
+    to_species : :class:`str`
+        Component to convert to.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after recalculation.
+    total_suffix : :class:`str`, 'T'
+        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
+    logdata : :class:`bool`, False
+        Whether the data has been log transformed.
 
-    Automatic generation of multiple redox species from dataframes
-    would also be a natural improvement.
-
-    # todo: update to incorporate Fe and transformation from multiple oxides to one
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -172,16 +230,37 @@ def recalculate_redox(
     df: pd.DataFrame, to_oxidised=True, renorm=True, total_suffix="T", logdata=False
 ):
     """
-    Recalculates abundances of redox-sensitive components (particularly Fe),
+    Recalculates abundances of redox-sensitive components (here currently just iron),
     and normalises a dataframe to contain only one oxide species for a given
     element.
 
-    Consider reimplementing total suffix as a lambda formatting function
-    to deal with cases of prefixes, capitalisation etc.
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to recalcuate iron.
+    to_oxidised : :class:`str`
+        Whether to convert components to oxidised (True) or reduced (False) forms.
+    renorm : :class:`bool`, True
+        Whether to renormalise the dataframe after recalculation.
+    total_suffix : :class:`str`, 'T'
+        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
+    logdata : :class:`bool`, False
+        Whether the data has been log transformed.
 
-    Automatic generation of multiple redox species from dataframes
-    would also be a natural improvement.
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Transformed dataframe.
 
+    Todo
+    ------
+        * Consider reimplementing total suffix as a lambda formatting function.
+
+        * Automatic generation of multiple redox species from dataframes.
+
+        * Considering other redox species.
+
+        * Specification of list of components to output.
     """
     # Assuming either (a single column) or (FeO + Fe2O3) are reported
     # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
@@ -242,24 +321,29 @@ def aggregate_cation(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df : :class:`pandas.DataFrame`
         DataFrame for which to aggregate cation data.
-    cation : str
+    cation : :class:`str`
         Name of cation to aggregate.
-    oxide:
+    oxide : :class:`str`
         Name of oxide to aggregate.
-    form: {'oxide', 'element'}
+    form : :class:`str`, {'oxide', 'element'}
         Whether to aggregate to oxide or elemental form.
-    unit_scale:
+    unit_scale : :class:`numpy.number`, 1.
         The scale factor difference between the components. Unity if both have the same
         units. Can be converted using scale_multiplier: e.g.
         scale_multiplier("Wt%", "ppm")
+    logdata : :class:`bool`, False
+        Whether data has been log transformed.
 
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with cation aggregated.
 
     Todo
     -------
-        Needs to also implement a 'molecular' version.
-
+        * Support for molecular data.
     """
 
     dfc = df.copy()
@@ -327,18 +411,32 @@ def aggregate_cation(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def convert_chemistry(input, columns=[], logdata=False, renorm=False):
+def convert_chemistry(input_df, columns=[], logdata=False, renorm=False):
     """
-    Tries to convert a dataframe with one set of components to another.
+    Attempts to convert a dataframe with one set of components to another.
 
     Parameters
     -----------
-    df : pd.DataFrame
+    input_df : :class:`pandas.DataFrame`
         Dataframe to convert.
-    columns : list, set
+    columns : :class:`list`
         Set of columns to try to extract from the dataframe.
+    logdata : :class:`bool`, False
+        Whether chemical data has been log transformed. Necessary for aggregation
+        functions.
+    renorm : :class:`bool`, False
+        Whether to renormalise the data after transformation.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Dataframe with converted chemistry.
+
+    Todo
+    ------
+        * Implement generalised redox transformation.
     """
-    df = input.copy()
+    df = input_df.copy()
     current = df.columns
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
@@ -429,16 +527,25 @@ def add_ratio(
 
     Parameters
     -----------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe to append ratio to.
-    ratio: str
+    ratio : :class:`str`
         String decription of ratio in the form A/B[_n].
-    alias: str
+    alias : :class:`str`
         Alternate name for ratio to be used as column name.
-    norm_to: {None, RefComp, str}
+    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
         Reference composition to normalise to.
-    convert:
+    convert : :class:`function`
         Data processing function to be calculated prior to ratio.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with ratio appended.
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.transform.add_MgNo`
     """
 
     num, den = ratio.split("/")
@@ -471,6 +578,29 @@ def add_ratio(
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
+    """
+    Append the magnesium number to a dataframe.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Input dataframe.
+    molecularIn : :class:`bool`, False
+        Whether the input data is molecular.
+    elemental : :class:`bool`, False
+        Whether to data is in elemental or oxide form.
+    components : :class:`bool`, False
+        Whether Fe data is split into components (True) or as FeOT (False).
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Dataframe with ratio appended.
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.transform.add_ratio`
+    """
 
     if not molecularIn:
         if components:
@@ -502,7 +632,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
             # Molecular Elemental
             df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
 
-
+@update_docstring_references
 @pf.register_series_method
 @pf.register_dataframe_method
 def lambda_lnREE(
@@ -516,10 +646,44 @@ def lambda_lnREE(
 ):
     """
     Calculates lambda coefficients for a given set of REE data, normalised
-    to a specific composition. Lambda factors are given for the
+    to a specific composition [#ref_1]_. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
 
-    TODO: Operate only on valid rows.
+    Parameters
+    ------------
+    df : :class:`pandas.DataFrame`
+        Dataframe to calculate lambda coefficients for.
+    norm_to : :class:`str`, 'Chondrite_PON'
+        Which reservoir to normalise REE data to.
+    exclude : :class:`list`, ['Pm', 'Eu']
+        Which REE elements to exclude from the fit.
+    params : list-like, None
+        Set of predetermined orthagonal polynomial parameters.
+    degree : :class:`int`, 5
+        Maximum degree polynomial fit component to include.
+    append : :class:`list`, []
+        Whether to append lambda function (i.e. [function]).
+
+    Todo
+    -----
+        * Operate only on valid rows.
+        * Add residuals as an option to `append`.
+        * Pre-build orthagonal parameters for REE combinations for calculation speed.
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+
+
+    See Also
+    ---------
+    :func:`~pyrolite.geochem.ind.get_ionic_radii`
+    :func:`~pyrolite.util.math.lambdas`
+    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.plot.REE_radii_plot`
+    :func:`~pyrolite.geochem.norm.ReferenceCompositions`
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [

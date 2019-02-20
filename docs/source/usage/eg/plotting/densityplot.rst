@@ -85,10 +85,10 @@ Contouring is not enabled for these histogram methods.
    :width: 100%
    :align: center
 
-For the `density` mode, a `vmin` variable is used to choose the lower threshold,
-and by default is the 99th percentile (`vmin`=0.01), but can be adjusted. This is useful
-where there are a number of outliers, or where you wish to reduce the overall
-complexity/colour intensity of a figure (also good for printing!).
+For the ``density`` mode, a ``param`` variable is used to choose the lower
+threshold, and by default is the 99th percentile (``vmin``=0.01), but can be
+adjusted. This is useful where there are a number of outliers, or where you wish to
+reduce the overall complexity/colour intensity of a figure (also good for printing!).
 
 .. literalinclude:: ../../../../examples/plotting/densityplot.py
    :language: python

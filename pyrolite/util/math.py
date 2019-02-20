@@ -5,6 +5,7 @@ from functools import partial
 import scipy
 import logging
 from copy import copy
+from .meta import update_docstring_references
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -15,9 +16,14 @@ def isclose(a, b):
     """
     Implementation of np.isclose with equal nan.
 
+
+    Parameters
+    ------------
+    a,b : :class:`numpy.number` | :class:`numpy.ndarray`
+        Numbers or arrays to compare.
     Returns
     -------
-    bool
+    :class:`bool`
     """
     hasnan = np.isnan(a) | np.isnan(b)
     if np.array(a).ndim > 1:
@@ -37,6 +43,19 @@ def isclose(a, b):
 
 
 def is_numeric(obj):
+    """
+    Check for numerical behaviour.
+
+    Parameters
+    ----------
+    obj
+        Object to check.
+
+    Returns
+    --------
+    :class:`bool`
+    """
+
     attrs = ["__add__", "__sub__", "__mul__", "__truediv__", "__pow__"]
     return all(hasattr(obj, attr) for attr in attrs)
 
@@ -48,14 +67,14 @@ def round_sig(x, sig=2):
 
     Parameters
     ----------
-    x : np.number
+    x : :class:`numpy.number`
         Number to round.
-    sig : int
+    sig : :class:`int`
         Number of significant digits to round to.
 
     Returns
     -------
-    np.float
+    :class:`float`
     """
     where_nan = ~np.isfinite(x)
     x = copy(x)
@@ -78,19 +97,19 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
 
     Parameters
     ----------
-    n : np.number
+    n : :class:`numpy.number`
         Number from which to ascertain the significance level.
-    unc : np.number, None
+    unc : :class:`numpy.number`, None
         Uncertainty, which if provided is used to derive the number of significant
         digits.
-    max_sf : int
+    max_sf : :class:`int`
         An upper limit to the number of significant digits suggested.
-    rtol : np.number
+    rtol : :class:`numpy.number`
         Relative tolerance to determine similarity of numbers, used in calculations.
 
     Returns
     -------
-    int
+    :class:`int`
         Number of significant digits.
     """
     if not hasattr(n, "__len__"):
@@ -138,6 +157,17 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
 def most_precise(arr):
     """
     Get the most precise element from an array.
+
+    Parameters
+    -----------
+    arr : :class:`numpy.ndarray`
+        Array to obtain the most precise element/subarray from.
+
+    Returns
+    -----------
+    :class:`numpy.number` | :class:`numpy.ndarray`
+        Returns the most precise array element (for ndim=1), or most precise subarray
+        (for ndim > 1).
     """
     arr = np.array(arr)
     if np.isfinite(arr).any().any():
@@ -152,8 +182,21 @@ def most_precise(arr):
 
 def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
     """
-    Test whether elements within an array are equal to the precision of the
+    Test whether elements of an array are equal within the precision of the
     least precise.
+
+    Parameters
+    ------------
+    arr : :class:`numpy.ndarray`
+        Array to test.
+    equal_nan : :class:`bool`
+        Whether to consider :class:`np.nan` elements equal to one another.
+    rtol : :class:`numpy.number`
+        Relative tolerance for comparison.
+
+    Returns
+    ---------
+    :class:`bool` | :class:`numpy.ndarray`(:class:`bool`)
     """
     arr = np.array(arr)
 
@@ -190,7 +233,27 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
     Reformats numbers to contain only significant_digits. Uncertainty can be provided to
     digits with relevant precision.
 
-    Note: Will not pad 0s at the end or before floats.
+    Parameters
+    ----------
+    n : :class:`numpy.number`
+        Number to reformat
+    unc : :class:`numpy.number`, None
+        Absolute uncertainty on the number, optional.
+    leeway : :class:`int`, 0
+        Manual override for significant figures. Positive values will force extra
+        significant figures; negative values will remove significant figures.
+    low_filter : :class:`bool`, True
+        Whether to return :class:`np.nan` in place of values which are within precision
+        equal to zero.
+
+    Returns
+    -------
+    :class:`numpy.number`
+        Reformatted number.
+
+    Note
+    ----
+        * Will not pad 0s at the end or before floats.
     """
 
     if np.isfinite(n):
@@ -223,13 +286,20 @@ def orthagonal_basis(X: np.ndarray):
 
     Parameters
     ---------------
-    X : np.ndarray
+    X : :class:`numpy.ndarray`
         Array from which the size of the set is derived.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        (D-1, D) helmert matrix corresponding to default orthagonal basis.
     """
     D = X.shape[1]
     # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
     H = scipy.linalg.helmert(D, full=False)
     return H[::-1]
+
+import numpy as np
 
 
 def on_finite(X, f):
@@ -239,10 +309,14 @@ def on_finite(X, f):
 
     Parameters
     ---------------
-    X : np.ndarray
+    X : :class:`numpy.ndarray`
         Array on which to perform the function.
-    f : function
+    f : :class:`Callable`
         Function to call on the array.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
     """
     ma = np.isfinite(X)
     return f(X[ma])
@@ -255,14 +329,17 @@ def nancov(X, method="replace"):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Input array for which to derive a covariance matrix.
-    method: str, 'row_exclude' | 'replace'
+    method : :class:`str`, 'row_exclude' | 'replace'
         Method for calculating covariance matrix.
         'row_exclude' removes all rows  which contain np.nan before calculating
         the covariance matrix. 'replace' instead replaces the np.nan values with
         the mean before calculating the covariance.
 
+    Returns
+    -------
+    :class:`numpy.ndarray`
     """
     if method == "rowexclude":
         Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
@@ -291,15 +368,53 @@ def nancov(X, method="replace"):
                 cov[m, n] = c
         return cov
 
-
+@update_docstring_references
 def OP_constants(xs, degree=3, tol=10 ** -14):
-    """
-    For constructing orthagonal polynomial functions of the general form:
-    y(x) = a_0 + a_1 * (x - β) + a_2 * (x - γ_0) * (x - γ_1) +
-    a_3 * (x - δ_0) * (x - δ_1) * (x - δ_2)
-    Finds the parameters (β_0), (γ_0, γ_1), (δ_0, δ_1, δ_2).
+    r"""
+    Finds the parameters
+    :math:`(\beta_0), (\gamma_0, \gamma_1), (\delta_0, \delta_1, \delta_2)` etc.
+    for constructing orthogonal polynomial functions `f(x)` over a fixed set of values
+    of independent variable `x`.
+    Used for obtaining lambda values for dimensional reduction of REE data [#ref_1]_.
 
-    These parameters are functions only of the independent variable x.
+    Parameters
+    ----------
+    xs : :class:`numpy.ndarray`
+        Indexes over which to generate the orthogonal polynomials.
+    degree : :class:`int`
+        Maximum polynomial degree. E.g. 2 will generate constant, linear, and quadratic
+        polynomial components.
+    tol : :class:`numpy.number`
+        Convergence tolerance for solver.
+
+    Returns
+    ---------
+    :class:`list`
+        List of tuples corresponding to coefficients for each of the polynomial
+        components. I.e the first tuple will be empty, the second will contain a single
+        coefficient etc.
+
+    Note
+    ----
+        Parameters are used to construct orthogonal polymomials of the general form:
+
+        .. math::
+
+            f(x) &= a_0 \\
+            &+ a_1 * (x - \beta) \\
+            &+ a_2 * (x - \gamma_0) * (x - \gamma_1) \\
+            &+ a_3 * (x - \delta_0) * (x - \delta_1) * (x - \delta_2) \\
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.math.lambdas`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
     xs = np.array(xs)
     x = var("x")
@@ -338,10 +453,14 @@ def lambda_poly(x, ps):
 
     Parameters
     -----------
-    x: np.ndarray
+    x : :class:`numpy.ndarray`
         X values to calculate the function at.
-    ps: tuple
-        Parameter set tuple. E.g. parameters (a, b) from f(x) = (x-a)(x-b).
+    ps: :class:`tuple`
+        Parameter set tuple. E.g. parameters `(a, b)` from :math:`f(x) = (x-a)(x-b)`.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
     """
     if not isinstance(x, np.ndarray):
         x = np.array(x)
@@ -352,11 +471,36 @@ def lambda_poly(x, ps):
 
 
 def lambda_min_func(ls, ys, arrs, power=2.0):
+    """
+    Cost function for lambda optitmization.
+
+    Parameters
+    ------------
+    ls : :class:`numpy.ndarray`
+        Lambda values, effectively weights for the polynomial components.
+    ys : :class:`numpy.ndarray`
+        Target y values.
+    arrs : :class:`numpy.ndarray`
+        Arrays representing the individual unweighted orthaogonal polynomial components.
+        E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
+    power : :class:`numpy.number`
+        Power for the cost function. 1 for MAE/L1 norm, 2 for MSD/L2 norm.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Cost at the given set of `ls`.
+
+    Todo
+    -----
+        * Rewrite cost function for readability with :func:`lambdas`.
+    """
     cost = np.abs(np.dot(ls, arrs) - ys) ** power
     cost[np.isnan(cost)] = 0.0  # can't change nans - don't penalise them
     return cost
 
 
+@update_docstring_references
 def lambdas(
     arr: np.ndarray,
     xs=np.array([]),
@@ -368,8 +512,48 @@ def lambdas(
     min_func=lambda_min_func,
 ):
     """
-    Parameterises values based on linear combination of orthagonal polynomials
-    over a given set of x values.
+    Parameterises values based on linear combination of orthogonal polynomials
+    over a given set of values for independent variable `x`. [#ref_1]_
+
+    Parameters
+    -----------
+    arr : :class:`numpy.ndarray`
+        Target data to fit.
+    xs : :class:`numpy.ndarray`
+        Values of `x` to construct the polymomials over.
+    params : :class:`list`, None
+        Orthogonal polynomial coefficients (see :func:`OP_constants`). Defaults to
+        `None`, in which case these coefficinets are generated automatically.
+    guess : :class:`numpy.ndarray`
+        Starting for values of lambdas. Used as starting point for optimization.
+    degree : :class:`int`
+        Maximum degree polymomial component to include.
+    costf_power : :class:`numpy.number`
+        Power of the optimization cost function.
+    residuals : :class:`bool`
+        Whether to return residuals with the optimized results.
+    min_func : :class:`Callable`
+        Cost function to use for optimization of lambdas.
+
+    Returns
+    --------
+    :class:`numpy.ndarray` | (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+        Optimial results for weights of orthogonal polymomial regression (`lambdas`).
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    Todo
+    -----
+        * Change the cost function such that the power is controlled externally
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
     if np.isnan(arr).any():  # With missing data, the method can't be used.
         x = np.nan * np.ones(degree)
@@ -378,6 +562,7 @@ def lambdas(
         guess = guess or np.exp(np.arange(degree) + 2)
         params = params or OP_constants(xs, degree=degree)
 
+        # arrays representing the unweighted individual polynomial components
         fs = np.array([lambda_poly(xs, pset) for pset in params])
 
         result = scipy.optimize.least_squares(
@@ -395,20 +580,28 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     """
     Expansion of lambda parameters back to the original space. Returns a
     function which evaluates the sum of the orthaogonal polynomials at given
-    x values.
+    `x` values.
 
     Parameters
     ------------
-    lambdas: np.ndarray
+    lambdas: :class:`numpy.ndarray`
         Lambda values to weight combination of polynomials.
-    params: list of tuples
+    params: :class:`list`(:class:`tuple`)
         Parameters for the orthagonal polynomial decomposition.
-    pxs: np.ndarray
-        x values used to construct the lambda values.*
-    degree: int
-        Degree of the orthagonal polynomial decomposition.*
+    pxs: :class:`numpy.ndarray`
+        x values used to construct the lambda values. [#note_1]_
+    degree: :class:`int`
+        Degree of the orthagonal polynomial decomposition. [#note_1]_
 
-    * (only needed if parameters are not supplied)
+    See Also
+    ---------
+    :func:`~pyrolite.util.math.lambdas`
+    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    Note
+    -----
+        .. [#note_1] Only needed if parameters are not supplied
     """
     if params is None and pxs is not None:
         params = OP_constants(pxs, degree=degree)
@@ -424,7 +617,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
 
         Parameters
         -----------
-        xarr: np.ndarray
+        xarr: :class:`numpy.ndarray`
             X values at which to evaluate the function.
         """
         arrs = np.array([lambda_poly(xarr, pset) for pset in params])

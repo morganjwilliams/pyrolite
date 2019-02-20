@@ -73,14 +73,14 @@ class TestALR(unittest.TestCase):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
         out = alr(df.values)
-        inv = inv_alr(out)
+        inv = inverse_alr(out)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
         out = alr(df.values)
-        inv = inv_alr(out)
+        inv = inverse_alr(out)
         self.assertTrue(np.allclose(inv, df.values))
 
 

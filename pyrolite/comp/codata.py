@@ -3,7 +3,8 @@ import pandas as pd
 import pandas_flavor as pf
 import scipy.stats as scpstats
 import scipy.special as scpspec
-#from .renorm import renormalise, close
+
+# from .renorm import renormalise, close
 from ..util.math import orthagonal_basis
 import logging
 
@@ -12,10 +13,30 @@ logger = logging.getLogger(__name__)
 
 
 def close(X: np.ndarray):
+    """
+    Closure operator for compositional data.
+
+    Parameters
+    -----------
+    X : :class:`numpy.ndarray`
+        Array to close.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Closed array.
+
+    Note
+    ------
+        * Does not check for non-positive entries.
+        * Will not ignore :class:`numpy.nan`. Exclude all-nan components.
+    """
+
     if X.ndim == 2:
         return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
     else:
         return np.divide(X, np.sum(X, axis=0))
+
 
 @pf.register_series_method
 @pf.register_dataframe_method
@@ -25,14 +46,19 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
 
     Parameters
     ------------
-    df: pd.DataFrame
+    df: :class:`pandas.DataFrame`
         Dataframe to renomalise.
-    components: list
+    components: :class:`list`
         Option subcompositon to renormalise to 100. Useful for the use case
         where compostional data and non-compositional data are stored in the
         same dataframe.
-    scale: float, 100.
+    scale: :class:`float`, 100.
         Closure parameter. Typically either 100 or 1.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Renormalized dataframe.
     """
     dfc = df.copy(deep=True)
     if components:
@@ -46,16 +72,23 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
         return dfc
 
 
-def additive_log_ratio(X: np.ndarray, ind: int = -1, null_col=False):
+def alr(X: np.ndarray, ind: int = -1, null_col=False):
     """
-    Inverse Additive Log Ratio transformation.
+    Additive Log Ratio transformation.
 
     Parameters
     ---------------
-    X: np.ndarray
-        Array on which to perform the inverse transformation.
-    ind: int
+    X: :class:`numpy.ndarray`
+        Array on which to perform the transformation.
+    ind: :class:`int`
         Index of column used as denominator.
+    null_col : :class:`bool`
+        Whether to keep the redundant column.
+
+    Returns
+    ---------
+    :class:`numpy.ndarray`
+        ALR-transformed array.
     """
 
     Y = X.copy()
@@ -76,16 +109,23 @@ def additive_log_ratio(X: np.ndarray, ind: int = -1, null_col=False):
     return np.log(Y)
 
 
-def inverse_additive_log_ratio(Y: np.ndarray, ind=-1, null_col=False):
+def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
     """
     Inverse Centred Log Ratio transformation.
 
     Parameters
     ---------------
-    X: np.ndarray
+    Y : :class:`numpy.ndarray`
         Array on which to perform the inverse transformation.
-    ind: int
+    ind : :class:`int`
         Index of column used as denominator.
+    null_col : :class:`bool`
+        Whether the array contains an extra redundant column.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Inverse-ALR transformed array.
     """
     assert Y.ndim in [1, 2]
 
@@ -111,42 +151,19 @@ def inverse_additive_log_ratio(Y: np.ndarray, ind=-1, null_col=False):
     return X
 
 
-def alr(*args, **kwargs):
-    """
-    Short form of Additive Log Ratio transformation.
-
-    Parameters
-    ---------------
-    Y: np.ndarray
-        Array on which to perform the inverse transformation.
-    ind: int
-        Index of column used as denominator.
-    """
-    return additive_log_ratio(*args, **kwargs)
-
-
-def inv_alr(*args, **kwargs):
-    """
-    Short form of Inverse Additive Log Ratio transformation.
-
-    Parameters
-    ---------------
-    Y: np.ndarray
-        Array on which to perform the inverse transformation.
-    ind: int
-        Index of column used as denominator.
-    """
-    return inverse_additive_log_ratio(*args, **kwargs)
-
-
 def clr(X: np.ndarray):
     """
     Centred Log Ratio transformation.
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array on which to perform the transformation.
+
+    Returns
+    ---------
+    :class:`numpy.ndarray`
+        CLR-transformed array.
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
@@ -160,8 +177,13 @@ def inv_clr(Y: np.ndarray):
 
     Parameters
     ---------------
-    Y: np.ndarray
+    Y : :class:`numpy.ndarray`
         Array on which to perform the inverse transformation.
+
+    Returns
+    ---------
+    :class:`numpy.ndarray`
+        Inverse-CLR transformed array.
     """
     # Inverse of log operation
     X = np.exp(Y)
@@ -176,8 +198,13 @@ def ilr(X: np.ndarray):
 
     Parameters
     ---------------
-    X: np.ndarray
+    X : :class:`numpy.ndarray`
         Array on which to perform the transformation.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        ILR-transformed array.
     """
     d = X.shape[1]
     Y = clr(X)
@@ -193,8 +220,13 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
 
     Parameters
     ---------------
-    Y: np.ndarray
+    Y : :class:`numpy.ndarray`
         Array on which to perform the inverse transformation.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Inverse-ILR transformed array.
     """
     psi = orthagonal_basis(X)
     C = Y @ psi
@@ -214,11 +246,23 @@ def boxcox(
 
     Parameters
     ---------------
-    Y: np.ndarray
+    X : :class:`numpy.ndarray`
         Array on which to perform the transformation.
-    lmbda: {None, np.float}
+    lmbda : :class:`numpy.number`, None
         Lambda value used to forward-transform values. If none, it will be calculated
         using the mean
+    lmbda_search_space : :class:`tuple`
+        Range tuple (min, max).
+    search_steps : :class:`int`
+        Steps for lambda search range.
+    return_lmbda : :class:`bool`
+        Whether to also return the lambda value.
+
+    Returns
+    -------
+    :class:`numpy.ndarray` | :class:`numpy.ndarray`(:class:`float`)
+        Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
+        lambda value.
     """
     if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
         _X = X.values
@@ -258,9 +302,14 @@ def inv_boxcox(Y: np.ndarray, lmbda):
 
     Parameters
     ---------------
-    Y: np.ndarray
+    Y : :class:`numpy.ndarray`
         Array on which to perform the transformation.
-    lmbda: np.float
+    lmbda : :class:`float`
         Lambda value used to forward-transform values.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Inverse Box-Cox transformed array.
     """
     return scpspec.inv_boxcox(Y, lmbda)
