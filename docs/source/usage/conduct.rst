@@ -2,4 +2,4 @@ Code of Conduct
 ===============
 
 .. include:: ../../../CODE_OF_CONDUCT.rst
-    :start-line: 1
+    :start-line: 2

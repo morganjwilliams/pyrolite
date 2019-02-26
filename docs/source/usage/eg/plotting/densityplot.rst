@@ -85,8 +85,8 @@ Contouring is not enabled for these histogram methods.
    :width: 100%
    :align: center
 
-For the ``density`` mode, a ``param`` variable is used to choose the lower
-threshold, and by default is the 99th percentile (``vmin``=0.01), but can be
+For the ``density`` mode, a ``vmin`` parameter is used to choose the lower
+threshold, and by default is the 99th percentile (``vmin=0.01``), but can be
 adjusted. This is useful where there are a number of outliers, or where you wish to
 reduce the overall complexity/colour intensity of a figure (also good for printing!).
 
@@ -99,8 +99,8 @@ reduce the overall complexity/colour intensity of a figure (also good for printi
    :width: 100%
    :align: center
 
-.. note:: Using alpha with the `density` mode induces a known and old matplotlib bug,
-          where the edges of bins within a `pcolormesh` image (used for plotting the
+.. note:: Using alpha with the ``density`` mode induces a known and old matplotlib bug,
+          where the edges of bins within a ``pcolormesh`` image (used for plotting the
           KDE estimate) are over-emphasized, giving a gridded look.
 
 .. seealso:: `Ternary Plots <../plotting/ternaryplot.html>`__

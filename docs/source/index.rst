@@ -15,6 +15,7 @@
    usage/contributing
    usage/conduct
    usage/tests
+   usage/future
    submodules
 
 
