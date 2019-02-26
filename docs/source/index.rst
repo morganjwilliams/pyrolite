@@ -13,6 +13,7 @@
    usage/installation
    usage/examples
    usage/contributing
+   usage/conduct
    usage/tests
    submodules
 

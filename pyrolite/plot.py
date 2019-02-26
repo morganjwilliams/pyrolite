@@ -34,10 +34,6 @@ def spiderplot(
     Plots spidergrams for trace elements data. Additional keyword arguments are
     passed to matplotlib.
 
-    By using separate lines and scatterplots, values between two missing
-    items are still presented. Might be able to speed up the lines
-    with a matplotlib.collections.LineCollection.
-
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
@@ -48,13 +44,25 @@ def spiderplot(
         The subplot to draw on.
     plot : :class:`bool`, True
         Whether to plot lines and markers.
-    fill : :class:`bool`, True
+    fill : :class:`bool`, False
         Whether to add a patch representing the full range.
+    density : :class:`bool`, False
+        Whether to add a conditional kernel density estimate over the index.
 
     Returns
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the spiderplot is plotted.
+
+    Note
+    -----
+        By using separate lines and scatterplots, values between two missing
+        items are still presented.
+
+    Todo
+    ----
+        * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
+        * Conditional density plot.
     """
     kwargs = kwargs.copy()
     try:
