@@ -1,5 +1,5 @@
-.. note:: This project is currently in `alpha`, and as such there's much work to be
-          done.
+Contributing
+=============
 
 The long-term aim of this project is to be designed, build and supported by and for
 the geochemistry community. In the present, the majority of the work involves

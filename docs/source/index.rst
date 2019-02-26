@@ -10,13 +10,14 @@
 .. toctree::
    :maxdepth: 1
 
-   usage/installation
+
    usage/examples
-   usage/contributing
-   usage/conduct
-   usage/tests
-   usage/future
    submodules
+   installation
+   contributing
+   conduct
+   tests
+   future
 
 
 Indices and tables

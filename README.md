@@ -38,3 +38,9 @@ pip install pyrolite
 | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=master)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=develop)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=develop) |
 
 **Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)
+
+### Contributing
+
+The long-term aim of this project is to be designed, build and supported by and for
+the geochemistry community. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
+Contributing page](https://pyrolite.readthedocs.io/en/latest/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/latest/conduct.html).
