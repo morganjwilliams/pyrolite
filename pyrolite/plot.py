@@ -400,9 +400,6 @@ def densityplot(
     or in a ternary plot. Some additional keyword arguments are passed to
     matplotlib.
 
-    Todo:
-        Split logscales for x and y (currently only for log-log)
-
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
