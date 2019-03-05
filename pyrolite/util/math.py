@@ -12,6 +12,92 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
+def _linspc(_min, _max, step=0.0, bins=20):
+    """
+    Linear spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : :class:`numpy.number`
+        Minimum value for spaced range.
+    _max : :class:`numpy.number`
+        Maximum value for spaced range.
+    step : :class:`numpy.number`, 0.0
+        Step for expanding at grid edges. Default of 0.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Linearly-spaced array.
+    """
+    return np.linspace(_min - step, _max + step, bins + 1)
+
+
+def _logspc(_min, _max, step=1.0, bins=20):
+    """
+    Log spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : :class:`numpy.number`
+        Minimum value for spaced range.
+    _max : :class:`numpy.number`
+        Maximum value for spaced range.
+    step : :class:`numpy.number`, 1.0
+        Step for expanding at grid edges. Default of 1.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Log-spaced array.
+    """
+    return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
+
+
+def _logrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are excluded.
+
+    Parameters
+    -----------
+    v : :class:`list`; list-like
+        Array of values to obtain a range from.
+    exp : :class:`float`, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    :class:`tuple`
+        Min, max tuple.
+    """
+    u = v[(v > 0)]  # make sure the range_values are >0
+    return _linrng(u, exp=exp)
+
+
+def _linrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are included.
+
+    Parameters
+    -----------
+    v : :class:`list`; list-like
+        Array of values to obtain a range from.
+    exp : :class:`float`, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    :class:`tuple`
+        Min, max tuple.
+    """
+    u = v[np.isfinite(v)]
+    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+
+
 def isclose(a, b):
     """
     Implementation of np.isclose with equal nan.
@@ -299,6 +385,7 @@ def orthagonal_basis(X: np.ndarray):
     H = scipy.linalg.helmert(D, full=False)
     return H[::-1]
 
+
 import numpy as np
 
 
@@ -367,6 +454,7 @@ def nancov(X, method="replace"):
                 cov[n, m] = c
                 cov[m, n] = c
         return cov
+
 
 @update_docstring_references
 def OP_constants(xs, degree=3, tol=10 ** -14):

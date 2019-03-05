@@ -6,7 +6,7 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 import ternary
 from .util.pd import to_frame
-from .util.math import on_finite
+from .util.math import on_finite, _linspc, _logspc, _linspc, _linrng, _logrng
 from .util.plot import (
     ABC_to_tern_xy,
     tern_heatmapcoords,
@@ -63,6 +63,7 @@ def spiderplot(
     ----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
         * Conditional density plot.
+        * Refactor as separate numpy-based function, and add second alias for pandas
     """
     kwargs = kwargs.copy()
     try:
@@ -214,7 +215,7 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     """
     Plots scatter ternary diagrams, using a wrapper around the
     python-ternary library (gh.com/marcharper/python-ternary).
-    Additional keyword arguments arepassed to matplotlib.
+    Additional keyword arguments are passed to matplotlib.
 
     Parameters
     ----------
@@ -229,6 +230,10 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the spiderplot is plotted.
+
+    Todo
+    -------
+        * Refactor as separate numpy-based function, and add second alias for pandas
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -292,92 +297,6 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     return ax
 
 
-def _linspc(_min, _max, step=0.0, bins=20):
-    """
-    Linear spaced array, with optional step for grid margins.
-
-    Parameters
-    -----------
-    _min : :class:`numpy.number`
-        Minimum value for spaced range.
-    _max : :class:`numpy.number`
-        Maximum value for spaced range.
-    step : :class:`numpy.number`, 0.0
-        Step for expanding at grid edges. Default of 0.0 results in no expansion.
-    bins : int
-        Number of bins to divide the range (adds one by default).
-
-    Returns
-    -------
-    :class:`numpy.ndarray`
-        Linearly-spaced array.
-    """
-    return np.linspace(_min - step, _max + step, bins + 1)
-
-
-def _logspc(_min, _max, step=1.0, bins=20):
-    """
-    Log spaced array, with optional step for grid margins.
-
-    Parameters
-    -----------
-    _min : :class:`numpy.number`
-        Minimum value for spaced range.
-    _max : :class:`numpy.number`
-        Maximum value for spaced range.
-    step : :class:`numpy.number`, 1.0
-        Step for expanding at grid edges. Default of 1.0 results in no expansion.
-    bins : int
-        Number of bins to divide the range (adds one by default).
-
-    Returns
-    -------
-    :class:`numpy.ndarray`
-        Log-spaced array.
-    """
-    return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
-
-
-def _logrng(v, exp=0.0):
-    """
-    Range of a sample, where values <0 are excluded.
-
-    Parameters
-    -----------
-    v : :class:`list`; list-like
-        Array of values to obtain a range from.
-    exp : :class:`float`, (0, 1)
-        Fractional expansion of the range.
-
-    Returns
-    -------
-    :class:`tuple`
-        Min, max tuple.
-    """
-    u = v[(v > 0)]  # make sure the range_values are >0
-    return _linrng(u, exp=exp)
-
-
-def _linrng(v, exp=0.0):
-    """
-    Range of a sample, where values <0 are included.
-
-    Parameters
-    -----------
-    v : :class:`list`; list-like
-        Array of values to obtain a range from.
-    exp : :class:`float`, (0, 1)
-        Fractional expansion of the range.
-
-    Returns
-    -------
-    :class:`tuple`
-        Min, max tuple.
-    """
-    u = v[np.isfinite(v)]
-    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
-
-
 @pf.register_series_method
 @pf.register_dataframe_method
 def densityplot(
@@ -432,6 +351,10 @@ def densityplot(
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
+
+    Todo
+    -----
+        * Refactor as separate numpy-based function, and add second alias for pandas
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
