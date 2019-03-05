@@ -234,6 +234,7 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
     Todo
     -------
         * Refactor as separate numpy-based function, and add second alias for pandas
+        * Changing `clockwise` can render the plot invalid. Update to fix.
     """
     kwargs = kwargs.copy()
     df = to_frame(df)
@@ -280,12 +281,14 @@ def ternaryplot(df, components: list = None, ax=None, clockwise=True, **kwargs):
 
     # Check if there's already labels
     if not len(tax._labels.keys()):
-        tax.left_axis_label(components[2], fontsize=fontsize)
-        tax.bottom_axis_label(components[0], fontsize=fontsize)
-        tax.right_axis_label(components[1], fontsize=fontsize)
+        # python-ternary uses "right, top, left"
+
+        tax.right_axis_label(components[0], fontsize=fontsize)
+        tax.left_axis_label(components[1], fontsize=fontsize)
+        tax.bottom_axis_label(components[2], fontsize=fontsize)
 
         tax.gridlines(multiple=gridsize, color="k", alpha=0.5)
-        tax.ticks(axis="lbr", linewidth=1, clockwise=clockwise, multiple=gridsize)
+        tax.ticks(linewidth=1, clockwise=clockwise, multiple=gridsize)
         tax.boundary(linewidth=1.0)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
