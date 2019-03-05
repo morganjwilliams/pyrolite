@@ -366,9 +366,27 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
         return np.nan
 
 
-def orthagonal_basis(X: np.ndarray):
+def orthogonal_basis_default(D: int, **kwargs):
     """
-    Generate a set of orthagonal basis vectors.
+    Generate a set of orthogonal basis vectors .
+
+    Parameters
+    ---------------
+    D : :class:`int`
+        Dimension of compositional vectors.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        (D-1, D) helmert matrix corresponding to default orthogonal basis.
+    """
+    H = scipy.linalg.helmert(D, **kwargs)
+    return H[::-1]
+
+
+def orthogonal_basis_from_array(X: np.ndarray, **kwargs):
+    """
+    Generate a set of orthogonal basis vectors.
 
     Parameters
     ---------------
@@ -378,15 +396,17 @@ def orthagonal_basis(X: np.ndarray):
     Returns
     --------
     :class:`numpy.ndarray`
-        (D-1, D) helmert matrix corresponding to default orthagonal basis.
+        (D-1, D) helmert matrix corresponding to default orthogonal basis.
+
+    Note
+    ----
+        * Currently returns the default set of basis vectors for an array of given dim.
+
+    Todo
+    -----
+        * Update to provide other potential sets of basis vectors.
     """
-    D = X.shape[1]
-    # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
-    H = scipy.linalg.helmert(D, full=False)
-    return H[::-1]
-
-
-import numpy as np
+    return orthogonal_basis_default(X.shape[1], **kwargs)
 
 
 def on_finite(X, f):
@@ -675,11 +695,11 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     lambdas: :class:`numpy.ndarray`
         Lambda values to weight combination of polynomials.
     params: :class:`list`(:class:`tuple`)
-        Parameters for the orthagonal polynomial decomposition.
+        Parameters for the orthogonal polynomial decomposition.
     pxs: :class:`numpy.ndarray`
         x values used to construct the lambda values. [#note_1]_
     degree: :class:`int`
-        Degree of the orthagonal polynomial decomposition. [#note_1]_
+        Degree of the orthogonal polynomial decomposition. [#note_1]_
 
     See Also
     ---------

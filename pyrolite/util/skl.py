@@ -390,6 +390,7 @@ class ILRTransform(BaseEstimator, TransformerMixin):
         self.label = "ILR"
         self.forward = ilr
         self.inverse = inv_ilr
+        self.X = None
 
     def transform(self, X, *args, **kwargs):
         self.X = np.array(X)
@@ -406,7 +407,8 @@ class ILRTransform(BaseEstimator, TransformerMixin):
 
     def inverse_transform(self, Y, *args, **kwargs):
         if "X" not in kwargs:
-            kwargs.update(dict(X=self.X))
+            if not self.X is not None:
+                kwargs.update(dict(X=self.X))
         if isinstance(Y, pd.DataFrame):
             out = pd.DataFrame(
                 index=Y.index, data=self.inverse(Y.values, *args, **kwargs)
