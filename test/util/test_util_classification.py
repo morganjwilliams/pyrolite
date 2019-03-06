@@ -1,5 +1,5 @@
 import unittest
-from pyrolite.classification import *
+from pyrolite.util.classification import *
 from pyrolite.comp.codata import renormalise
 
 

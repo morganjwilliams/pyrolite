@@ -9,6 +9,7 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import logging
 import joblib
+from pyrolite.util.general import pyrolite_datafolder
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class ClassifierModel(object):
         if __name__ == "__main__":
             modeldir = Path(os.getcwd()) / "models"
         else:
-            modeldir = Path(__file__).resolve().parent / "data" / "models"
+            modeldir = pyrolite_datafolder(subfolder="models") 
         self.diskname = modeldir / str(self.clsf_modelname)
         self.deterministic = deterministic
         self.clsf = None
