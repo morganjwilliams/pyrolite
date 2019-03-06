@@ -21,6 +21,8 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
+__DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
+__DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 def add_legend_items(ax):
 
