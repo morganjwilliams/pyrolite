@@ -4,8 +4,9 @@
 `Pyrolite`
 ====================================
 
-.. note:: This documentation is a work in progress and is updated regularly. Contact
-          the maintainer with any specific questions/requests.
+.. image:: ./_static/icon.svg
+   :width: 70%
+   :align: right
 
 .. toctree::
    :maxdepth: 1
@@ -20,8 +21,13 @@
    future
 
 
+
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
+
+
+.. note:: This documentation is a work in progress and is updated regularly. Contact
+          the maintainer with any specific questions/requests.
