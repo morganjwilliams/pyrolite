@@ -5,6 +5,11 @@ from pyrolite.util.math import *
 from pyrolite.geochem import REE, get_ionic_radii
 
 
+class TestIndexsRanges(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
 class TestIsClose(unittest.TestCase):
     def test_non_nan(self):
         self.assertTrue(isclose(1.0, 1.0))
@@ -329,12 +334,17 @@ class TestNaNCov(unittest.TestCase):
         pass
 
 
-class TestOrthagonalBasis(unittest.TestCase):
-    """Test the orthagonal basis generator for ILR transformation."""
+class TestOrthogonalBasis(unittest.TestCase):
+    """Test the orthogonal basis generator for ILR transformation."""
 
-    def test_orthagonal_basis(self):
-        """Checks orthagonality of the transformation basis."""
-        pass
+    def setUp(self):
+        self.X = np.ones((10, 3))
+
+    def test_orthogonal_basis_from_array(self):
+        basis = orthogonal_basis_from_array(self.X)
+
+    def test_orthogonal_basis_default(self):
+        basis = orthogonal_basis_default(self.X.shape[0])
 
 
 class TestOPConstants(unittest.TestCase):

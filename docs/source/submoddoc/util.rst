@@ -45,3 +45,9 @@ pyrolite\.util\.skl
   .. automodule:: pyrolite.util.skl
       :members:
       :undoc-members:
+
+pyrolite\.util\.classification
+-------------------------------
+  .. automodule:: pyrolite.util.classification
+      :members:
+      :undoc-members:

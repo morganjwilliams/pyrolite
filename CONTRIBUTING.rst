@@ -1,12 +1,14 @@
-.. note:: This project is currently in `alpha`, and as such there's much work to be
-          done.
+Contributing
+=============
 
 The long-term aim of this project is to be designed, build and supported by and for
 the geochemistry community. In the present, the majority of the work involves
 incorporating geological knowledge and frameworks into a practically useful core set of
 tools which can be later be expanded. As such, requests for features and bug reports
 are particularly valuable contributions, in addition to code and expanding the
-documentation.
+documentation. All individuals contributing to the project are expected to follow the
+`Code of Conduct <conduct.html>`__, which outlines community expectations and
+responsibilities.
 
 Feature Requests
 -------------------------
@@ -22,9 +24,9 @@ and comment there.
 Bug Reports
 -------------------------
 
-If you've tried to do something with pyrolite, but it didn't work, and googling error
-messages didn't help (or, if the error messages are full of :code:`pyrolite.XX.xx`),
-you can submit a
+If you've tried to do something with :code:`pyrolite`, but it didn't work, and googling
+erro messages didn't help (or, if the error messages are full of
+:code:`pyrolite.XX.xx`), you can submit a
 `Bug Report <https://github.com/morganjwilliams/pyrolite/issues/new?assignees=morganjwilliams&labels=bug&template=bug-report.md>`__ .
 Perhaps also check the
 `Issues Board <https://github.com/morganjwilliams/pyrolite/issues>`__ first to see if

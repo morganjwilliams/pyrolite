@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def FeAt8MgO(FEOT: float, MGO: float) -> float:
     """
     To account for differences in the slopes and curvature of liquid lines of descent
-    as a function of parental magma composition [#ref_1]_ [#ref_2]_.
+    as a function of parental magma composition [#ref_1]_ [#ref_2]_ (after [#ref_3]_).
 
     References
     -----------
@@ -41,7 +41,7 @@ def FeAt8MgO(FEOT: float, MGO: float) -> float:
 def NaAt8MgO(NA2O: float, MGO: float) -> float:
     """
     To account for differences in the slopes and curvature of liquid lines of descent
-    as a function of parental magma composition [#ref_1]_ [#ref_2]_.
+    as a function of parental magma composition [#ref_1]_ [#ref_2]_ (after [#ref_3]_).
 
     References
     -----------

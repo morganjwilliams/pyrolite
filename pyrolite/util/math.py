@@ -12,6 +12,101 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
+def random_cov_matrix(shape):
+    """
+    Generate a random covariance matrix which is symmetric positive-semidefinite.
+    """
+    cov = np.random.rand(shape, shape)
+    cov = np.dot(cov, cov.T)
+    return cov
+
+
+def _linspc(_min, _max, step=0.0, bins=20):
+    """
+    Linear spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : :class:`numpy.number`
+        Minimum value for spaced range.
+    _max : :class:`numpy.number`
+        Maximum value for spaced range.
+    step : :class:`numpy.number`, 0.0
+        Step for expanding at grid edges. Default of 0.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Linearly-spaced array.
+    """
+    return np.linspace(_min - step, _max + step, bins + 1)
+
+
+def _logspc(_min, _max, step=1.0, bins=20):
+    """
+    Log spaced array, with optional step for grid margins.
+
+    Parameters
+    -----------
+    _min : :class:`numpy.number`
+        Minimum value for spaced range.
+    _max : :class:`numpy.number`
+        Maximum value for spaced range.
+    step : :class:`numpy.number`, 1.0
+        Step for expanding at grid edges. Default of 1.0 results in no expansion.
+    bins : int
+        Number of bins to divide the range (adds one by default).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Log-spaced array.
+    """
+    return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
+
+
+def _logrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are excluded.
+
+    Parameters
+    -----------
+    v : :class:`list`; list-like
+        Array of values to obtain a range from.
+    exp : :class:`float`, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    :class:`tuple`
+        Min, max tuple.
+    """
+    u = v[(v > 0)]  # make sure the range_values are >0
+    return _linrng(u, exp=exp)
+
+
+def _linrng(v, exp=0.0):
+    """
+    Range of a sample, where values <0 are included.
+
+    Parameters
+    -----------
+    v : :class:`list`; list-like
+        Array of values to obtain a range from.
+    exp : :class:`float`, (0, 1)
+        Fractional expansion of the range.
+
+    Returns
+    -------
+    :class:`tuple`
+        Min, max tuple.
+    """
+    u = v[np.isfinite(v)]
+    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+
+
 def isclose(a, b):
     """
     Implementation of np.isclose with equal nan.
@@ -280,9 +375,27 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
         return np.nan
 
 
-def orthagonal_basis(X: np.ndarray):
+def orthogonal_basis_default(D: int, **kwargs):
     """
-    Generate a set of orthagonal basis vectors.
+    Generate a set of orthogonal basis vectors .
+
+    Parameters
+    ---------------
+    D : :class:`int`
+        Dimension of compositional vectors.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        (D-1, D) helmert matrix corresponding to default orthogonal basis.
+    """
+    H = scipy.linalg.helmert(D, **kwargs)
+    return H[::-1]
+
+
+def orthogonal_basis_from_array(X: np.ndarray, **kwargs):
+    """
+    Generate a set of orthogonal basis vectors.
 
     Parameters
     ---------------
@@ -292,14 +405,17 @@ def orthagonal_basis(X: np.ndarray):
     Returns
     --------
     :class:`numpy.ndarray`
-        (D-1, D) helmert matrix corresponding to default orthagonal basis.
-    """
-    D = X.shape[1]
-    # D-1, D Helmert matrix, exact representation of ψ as in Egozogue's book
-    H = scipy.linalg.helmert(D, full=False)
-    return H[::-1]
+        (D-1, D) helmert matrix corresponding to default orthogonal basis.
 
-import numpy as np
+    Note
+    ----
+        * Currently returns the default set of basis vectors for an array of given dim.
+
+    Todo
+    -----
+        * Update to provide other potential sets of basis vectors.
+    """
+    return orthogonal_basis_default(X.shape[1], **kwargs)
 
 
 def on_finite(X, f):
@@ -367,6 +483,7 @@ def nancov(X, method="replace"):
                 cov[n, m] = c
                 cov[m, n] = c
         return cov
+
 
 @update_docstring_references
 def OP_constants(xs, degree=3, tol=10 ** -14):
@@ -587,11 +704,11 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     lambdas: :class:`numpy.ndarray`
         Lambda values to weight combination of polynomials.
     params: :class:`list`(:class:`tuple`)
-        Parameters for the orthagonal polynomial decomposition.
+        Parameters for the orthogonal polynomial decomposition.
     pxs: :class:`numpy.ndarray`
         x values used to construct the lambda values. [#note_1]_
     degree: :class:`int`
-        Degree of the orthagonal polynomial decomposition. [#note_1]_
+        Degree of the orthogonal polynomial decomposition. [#note_1]_
 
     See Also
     ---------

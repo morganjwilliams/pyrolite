@@ -62,7 +62,8 @@ setup(
         "xmljson",
         "beautifulsoup4",
         "joblib",
-        "pandas_flavor"
+        "pandas_flavor",
+        "numpydoc",
     ],
     extras_require={
         "impute": impute_require,
@@ -76,5 +77,5 @@ setup(
     package_data={"pyrolite": ["data/*"]},
     include_package_data=True,
     license="CSIRO Modifed MIT/BSD",
-    cmdclass=versioneer.get_cmdclass()
+    cmdclass=versioneer.get_cmdclass(),
 )
