@@ -14,7 +14,7 @@ class TestSpiderplot(unittest.TestCase):
 
     def setUp(self):
         self.els = REE()
-        self.df = test_df(self.els)
+        self.arr = np.random.rand(10, len(self.els))
 
     def test_none(self):
         """Test generation of plot with no data."""
@@ -55,9 +55,10 @@ class TestSpiderplot(unittest.TestCase):
     @unittest.expectedFailure
     def test_noplot_nofill(self):
         """Test failure on no-plot no-fill options."""
-        out = spider(self.df.values, plot=False, fill=False)
-        self.assertTrue(isinstance(out, Maxes.Axes))
-        plt.close("all")
+        for arr in [self.arr]:
+            out = spider(arr, plot=False, fill=False)
+            self.assertTrue(isinstance(out, Maxes.Axes))
+            plt.close("all")
 
     def test_valid_style(self):
         """Test valid styling options."""
@@ -68,7 +69,8 @@ class TestSpiderplot(unittest.TestCase):
         style = {"thingwhichisnotacolor": "notacolor", "irrelevant": "red"}
         with self.assertLogs(level="INFO") as cm:
             # with self.assertWarns(UserWarning):
-            ax = spider(self.df.values, **style)
+            for arr in [self.arr]:
+                ax = spider(arr, **style)
 
         plt.close("all")
 
@@ -76,12 +78,9 @@ class TestSpiderplot(unittest.TestCase):
     def test_invalid_style_options(self):
         """Test stability under invalid style values."""
         style = {"color": "notacolor", "marker": "red"}
-        spider(self.df.values, **style)
+        for arr in [self.arr]:
+            ax = spider(arr, **style)
         plt.close("all")
-
-    def test_pandas_flavour(self):
-        """Test generation of plot using the pandas flavour registered method."""
-        self.df.pyroplot.spider()
 
     def tearDown(self):
         plt.close("all")
@@ -91,20 +90,21 @@ class TestREERadiiPlot(unittest.TestCase):
     """Tests the REE_radii_plot functionality."""
 
     def setUp(self):
-        self.reels = REE(output="string")
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.reels, np.random.rand(len(reels), 10))}
-        )
+        self.reels = REE()
+        self.arr = np.random.rand(10, len(self.reels))
 
     def test_none(self):
         """Test generation of plot with no data."""
-        ax = REE_v_radii()
+        for arr in [np.empty(0), None]:
+            with self.subTest(arr=arr):
+                ax = REE_v_radii(arr=arr)
 
-    def test_one_np(self):
-        ax = REE_v_radii(self.df.values, ree=self.reels)
+    def test_one(self):
+        ax = REE_v_radii(self.arr[0, :], ree=self.reels)
 
-    def test_one_pandas(self):
-        ax = self.df.pyroplot.REE(ree=self.reels)
+    def test_default(self):
+        for arr in [self.arr]:
+            ax = REE_v_radii(self.arr, ree=self.reels)
 
     def tearDown(self):
         plt.close("all")

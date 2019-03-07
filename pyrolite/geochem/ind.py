@@ -134,9 +134,7 @@ def common_oxides(
         * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
     if not elements:
-        elements = [
-            el for el in common_elements(output="formula") if not str(el) in exclude
-        ]
+        elements = __common_elements__ - set(exclude)
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -184,14 +182,11 @@ def simple_oxides(cation, output="string"):
         for c in ions
     ]
     oxides = [pt.formula(ox) for ox in oxides]
-    import periodictable
 
     if not output == "formula":
         oxides = [str(ox) for ox in oxides]
     return oxides
 
-import periodictable
-periodictable.formulas.Formula
 
 def get_cations(oxide: str, exclude=[]):
     """
@@ -304,7 +299,7 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
     target = ["crystalradius", "ionicradius"][pauling]
 
     elfltr = __shannon__.element == element
-    fltrs = elfltr.copy()
+    fltrs = elfltr.copy().astype(int)
     if charge is not None:
         if charge in __shannon__.loc[elfltr, "charge"].unique():
             fltrs *= __shannon__.charge == charge
@@ -330,13 +325,13 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         for v in variant:
             fltrs *= __shannon__.variant.apply(lambda x: v in x)
 
-    result = __shannon__.loc[fltrs, target]
+    result = __shannon__.loc[fltrs.astype(bool), target]
     if result.index.size == 1:
         return result.values[0]  # return the specific number
     else:
         return result  # return the series
 
 
-# private sets to improve performance
-__common_oxides__ = common_oxides(as_set=True)
+# private sets for improved performance
 __common_elements__ = common_elements(as_set=True)
+__common_oxides__ = common_oxides(as_set=True)
