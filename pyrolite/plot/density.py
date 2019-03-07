@@ -32,6 +32,8 @@ def density(
     relim=True,
     figsize=(6, 6),
     cmap=__DEFAULT_CONT_COLORMAP__,
+    vmin=0.0,
+    shading="flat",
     colorbar=False,
     **kwargs,
 ):
@@ -103,12 +105,12 @@ def density(
     cmap.set_under(color=background_color)
 
     exp = (coverage_scale - 1.0) / 2
-    valid_rows = np.isfinite(arr).all(axis=1)
+    valid_rows = np.isfinite(arr).all(axis=-1)
     if valid_rows.any():
         # Data can't be plotted if there's any nans, so we can exclude these
         arr = arr[valid_rows]
 
-        if arr.shape[1] == 2:  # binary
+        if arr.shape[-1] == 2:  # binary
             x, y = arr.T
             if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
@@ -248,18 +250,18 @@ def density(
             if relim:
                 ax.axis(extent)
 
-        elif len(components) == 3:  # ternary
-            scale = kwargs.pop("scale", None) or 100.0
-            empty_df = pd.DataFrame(columns=df.columns)  # update to array method
-            heatmapdata = tern_heatmapcoords(arr, scale=bins, bins=bins)
-            ternaryplot(empty_df, ax=ax, components=components, scale=scale)
+        elif arr.shape[-1] == 3:  # ternary
+            # todo : check the scale here.
+            nanarr = np.ones(3) * np.nan  # update to array method
+            heatmapdata = tern_heatmapcoords(arr.T, scale=bins, bins=bins)
+            ternary(nanarr, ax=ax, scale=1., figsize=figsize)
             tax = ax.tax
             if mode == "hexbin":
                 style = "hexagonal"
             else:
                 style = "triangular"
             tax.heatmap(
-                heatmapdata, scale=scale, style=style, colorbar=colorbar, **kwargs
+                heatmapdata, scale=bins, style=style, colorbar=colorbar, **kwargs
             )
         else:
             pass
@@ -268,7 +270,6 @@ def density(
             ax.set_xscale("log")
         if logy:
             ax.set_yscale("log")
-    plt.tight_layout()
     return ax
 
 
@@ -286,7 +287,7 @@ density.__doc__ = density.__doc__.format(
             plt.contourf,
             header="Other Parameters",
             indent=4,
-            subsections=True
+            subsections=True,
         ),
     ][_add_additional_parameters]
 )

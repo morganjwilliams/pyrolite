@@ -12,6 +12,15 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
+def random_cov_matrix(shape):
+    """
+    Generate a random covariance matrix which is symmetric positive-semidefinite.
+    """
+    cov = np.random.rand(shape, shape)
+    cov = np.dot(cov, cov.T)
+    return cov
+
+
 def _linspc(_min, _max, step=0.0, bins=20):
     """
     Linear spaced array, with optional step for grid margins.

@@ -83,11 +83,17 @@ def ternary(
     # Set attribute for future reference
     ax.tax = tax
     points = close(arr) * scale
-    valid_rows = np.isfinite(arr).all(axis=1)
-    if valid_rows.any():
+
+    valid_rows = np.isfinite(points).all(axis=-1)
+    if valid_rows.any() and points.size:
+        if points.ndim == 1:
+            points = np.array([points])
+
+        assert points.shape[1] == 3
+
         tax.scatter(points, c=color, marker=marker, alpha=alpha, label=label)
 
-    if sty["label"] is not None:
+    if label is not None:
         tax.legend(frameon=False)
 
     # Check if there's already labels

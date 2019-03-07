@@ -16,6 +16,8 @@ from .ind import (
     simple_oxides,
     common_elements,
     common_oxides,
+    __common_elements__,
+    __common_oxides__,
     get_cations,
 )
 from .parse import check_multiple_cation_inclusion
@@ -441,13 +443,14 @@ def convert_chemistry(input_df, columns=[], logdata=False, renorm=False):
     ok = [i for i in columns if i in current]
     get = [i for i in columns if i not in current]
     multiples = check_multiple_cation_inclusion(df)
-    oxides = common_oxides(addition=[])
-    elements = common_elements()
+    oxides = __common_oxides__
+    elements = __common_elements__
     Fe_parts = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
 
     # Aggregate the columns which are otherwise OK
+    c_components = oxides | elements
     for o in ok:
-        if o in oxides + elements:
+        if o in c_components:
             elem = get_cations(o)[0]
             if elem in multiples:
                 if o in oxides:
@@ -631,6 +634,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         else:
             # Molecular Elemental
             df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
+
 
 @update_docstring_references
 @pf.register_series_method

@@ -23,6 +23,7 @@ def spider(
     markersize=5.0,
     label=None,
     figsize=None,
+    logy=True,
     plot=True,
     fill=False,
     density=False,
@@ -86,7 +87,34 @@ def spider(
     :func:`matplotlib.pyplot.scatter`
     :func:`REE_radii_plot`
     """
-    kwargs = kwargs.copy()
+
+    # ---------------------------------------------------------------------
+    ncomponents = arr.shape[-1]
+    figsize = figsize or (ncomponents * 0.3, 4)
+
+    ax = ax or plt.subplots(1, figsize=figsize)[1]
+
+    if logy:
+        ax.set_yscale("log")
+
+    if indexes is None:
+        indexes = np.arange(ncomponents)
+
+    if indexes.ndim == 1:
+        indexes0 = indexes
+    else:
+        indexes0 = indexes[0]
+
+    ax.set_xticks(indexes0)
+
+    # if there is no data, return the blank axis
+    if (arr is None) or (not np.isfinite(arr).sum()):
+        return ax
+
+
+    if indexes.ndim < arr.ndim:
+        indexes = np.tile(indexes0, (arr.shape[0], 1))
+
     try:
         assert plot or fill
     except:
@@ -116,22 +144,6 @@ def spider(
         _c = [cmap(c) for c in _c]
 
     sty["alpha"] = alpha
-
-    # ---------------------------------------------------------------------
-    ncomponents = arr.shape[1]
-    figsize = figsize or (ncomponents * 0.3, 4)
-
-    ax = ax or plt.subplots(1, figsize=figsize)[1]
-
-    if indexes is None:
-        indexes0 = np.arange(ncomponents)
-    elif indexes.ndim == 1:
-        indexes0 = indexes
-    else:
-        indexes0 = indexes[0]
-
-    if indexes.ndim < arr.ndim:
-        indexes = np.tile(indexes0, (arr.shape[0], 1))
 
     if fill:
         mins = arr.min(axis=0)
@@ -168,9 +180,6 @@ def spider(
                 _c = np.tile(_c, (len(components), 1))
 
         sc = ax.scatter(indexes.T, arr.T, **sty)
-
-    ax.set_yscale("log")
-    ax.set_xlabel("Element")
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
@@ -219,7 +228,7 @@ def REE_v_radii(arr=None, ree=REE(), ax=None, **kwargs):
 
     _ax = ax.twiny()
     ax.set_yscale("log")
-    ax.set_xlim((0.99 * radii.min(), 1.01 * radii.max()))
+    ax.set_xlim((0.99 * np.min(radii), 1.01 * np.max(radii)))
     _ax.set_xlim(ax.get_xlim())
     _ax.set_xticks(radii)
     _ax.set_xticklabels(ree)

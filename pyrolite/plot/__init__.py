@@ -30,7 +30,6 @@ class pyroplot(object):
     This accessor enables the coexistence of array-based plotting functions and
     methods for pandas objects. This enables some separation of concerns.
     """
-
     def __init__(self, obj):
         self._validate(obj)
         self._obj = obj
@@ -128,7 +127,8 @@ class pyroplot(object):
 
     def spider(self, components: list = None, indexes: list = None, ax=None, **kwargs):
         r"""
-        Spider plot.
+        Spider plot. Additional keyword arguments are forwarded to
+        :func:`~pyrolite.plot.spider.spider` (see below for additional parameters).
 
         Parameters
         -----------
@@ -146,28 +146,26 @@ class pyroplot(object):
         :class:`matplotlib.axes.Axes`
             Axes on which the spider diagram is plotted.
 
-        Note
+        Todo
         ----
-            * Additional keyword arguments are forwarded to :func:`~pyrolite.plot.spider.spider`.
+            * Add 'compositional data' filter for default components if None is given
         """
         obj = to_frame(self._obj)
 
-        if components is None:
-            components = [el for el in common_elements() if el in obj.columns]
+        if components is None: # default to plotting elemental data, TODO
+            components = [el for el in obj.columns if el in common_elements()]
 
         assert len(components) != 0
 
         ax = spider.spider(
-            obj.loc[:, components].values.astype(np.float),
+            obj.loc[:, components].values,
             indexes=indexes,
             ax=ax,
             **kwargs
         )
 
+        ax.set_xlabel("Element")
         ax.set_xticklabels(components, rotation=60)
-        if indexes is None:  # numerical indexes
-            indexes = np.arange(len(components))
-        ax.set_xticks(indexes)
 
         return ax
 
@@ -189,10 +187,11 @@ class pyroplot(object):
         obj = to_frame(self._obj)
         ree = REE()
 
-        if any([i in obj.columns for i in ree]):
-            reedata = obj.loc[:, ree]
-            ax = spider.REE_v_radii(self._obj.loc[:, ree], ree=ree, **kwargs)
-            ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+        reedata = obj.loc[:, ree].values
+        ax = spider.REE_v_radii(reedata, ree=ree, **kwargs)
+
+        ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+        ax.set_xlabel("Element")
         return ax
 
 

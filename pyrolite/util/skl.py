@@ -509,7 +509,7 @@ class CompositionalSelector(BaseEstimator, TransformerMixin):
 
 
 class MajorsSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, components=common_oxides()):
+    def __init__(self, components=__common_oxides__):
         self.columns = components
 
     def fit(self, X, y=None):
