@@ -215,92 +215,12 @@ def recalculate_Fe(
         out_sum += component
 
     out_sum[out_sum <= 0.0] = np.nan
+
     if logdata:
         out_sum = np.exp(out_sum)
 
     dfc.loc[:, to_species] = out_sum
     dfc = dfc.drop(columns=[i for i in fe_species if not i == to_species])
-    if renorm:
-        return renormalise(dfc)
-    else:
-        return dfc
-
-
-@pf.register_series_method
-@pf.register_dataframe_method
-def recalculate_redox(
-    df: pd.DataFrame, to_oxidised=True, renorm=True, total_suffix="T", logdata=False
-):
-    """
-    Recalculates abundances of redox-sensitive components (here currently just iron),
-    and normalises a dataframe to contain only one oxide species for a given
-    element.
-
-    Parameters
-    -----------
-    df : :class:`pandas.DataFrame`
-        Dataframe to recalcuate iron.
-    to_oxidised : :class:`str`
-        Whether to convert components to oxidised (True) or reduced (False) forms.
-    renorm : :class:`bool`, True
-        Whether to renormalise the dataframe after recalculation.
-    total_suffix : :class:`str`, 'T'
-        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
-    logdata : :class:`bool`, False
-        Whether the data has been log transformed.
-
-    Returns
-    -------
-    :class:`pandas.DataFrame`
-        Transformed dataframe.
-
-    Todo
-    ------
-        * Consider reimplementing total suffix as a lambda formatting function.
-
-        * Automatic generation of multiple redox species from dataframes.
-
-        * Considering other redox species.
-
-        * Specification of list of components to output.
-    """
-    # Assuming either (a single column) or (FeO + Fe2O3) are reported
-    # Fe columns - FeO, Fe2O3, FeOT, Fe2O3T
-    FeO = pt.formula("FeO")
-    Fe2O3 = pt.formula("Fe2O3")
-    dfc = df.copy(deep=True)
-    ox_species = ["Fe2O3", "Fe2O3" + total_suffix]
-    ox_in_df = [i for i in ox_species if i in dfc.columns]
-    red_species = ["FeO", "FeO" + total_suffix]
-    red_in_df = [i for i in red_species if i in dfc.columns]
-    if logdata:
-        dfc.loc[:, ox_in_df + red_in_df] = dfc.loc[:, ox_in_df + red_in_df].applymap(
-            np.exp
-        )
-    if to_oxidised:
-        key = "Fe2O3T"
-        oxFe = oxide_conversion(FeO, Fe2O3)
-        Fe2O3T = dfc.loc[:, ox_in_df].fillna(0).sum(axis=1) + oxFe(
-            dfc.loc[:, red_in_df].fillna(0)
-        ).sum(axis=1)
-        dfc.loc[:, key] = Fe2O3T
-        Fe2O3T[Fe2O3T <= 0] = np.nan
-        to_drop = red_in_df + [i for i in ox_in_df if not i.endswith(total_suffix)]
-    else:
-        key = "FeOT"
-        reduceFe = oxide_conversion(Fe2O3, FeO)
-        FeOT = dfc.loc[:, red_in_df].fillna(0).sum(axis=1) + reduceFe(
-            dfc.loc[:, ox_in_df].fillna(0)
-        ).sum(axis=1)
-        FeOT[FeOT <= 0] = np.nan
-        dfc.loc[:, key] = FeOT
-        to_drop = ox_in_df + [i for i in red_in_df if not i.endswith(total_suffix)]
-
-    if logdata:
-        dfc.loc[:, key] = np.exp(dfc.loc[:, key].values)
-
-    dfc = dfc.drop(columns=to_drop)
-
     if renorm:
         return renormalise(dfc)
     else:
