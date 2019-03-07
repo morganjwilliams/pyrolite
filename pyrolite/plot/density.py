@@ -35,7 +35,7 @@ def density(
     vmin=0.0,
     shading="flat",
     colorbar=False,
-    **kwargs,
+    **kwargs
 ):
     """
     Creates diagramatic representation of data density and/or frequency for either
@@ -153,7 +153,7 @@ def density(
                     extent=hex_extent,
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
-                    **kwargs,
+                    **kwargs
                 )
                 cbarlabel = "Frequency"
 
@@ -221,7 +221,7 @@ def density(
                             percentiles=levels,
                             extent=extent,
                             cmap=cmap,
-                            **kwargs,
+                            **kwargs
                         )
                         mappable = _cs
                     else:
