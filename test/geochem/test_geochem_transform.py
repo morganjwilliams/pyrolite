@@ -140,26 +140,32 @@ class TestDevolatilise(unittest.TestCase):
 class TestOxideConversion(unittest.TestCase):
     """Tests the pandas oxide conversion function generator."""
 
+    def test_callable_return(self):
+        """Check that the return is callable."""
+        oxin, oxout = "Fe", "FeO"
+        converter = oxide_conversion(oxin, oxout)
+        self.assertTrue(callable(converter))
+
     def test_string_input(self):
         """Check that the function accepts string formatted inputs."""
         oxin, oxout = "Fe", "FeO"
-        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
+        converter = oxide_conversion(oxin, oxout)
+
+    def test_direction_correct(self):
+        """Check that the conversion is in the right direction."""
+        oxin, oxout = "Fe", "FeO"
+        converter = oxide_conversion(oxin, oxout)
+        self.assertTrue(converter(1.) > 1.)
 
     def test_formula_input(self):
         """Check that the function accepts formula formatted inputs."""
         oxin, oxout = pt.formula("Fe"), pt.formula("FeO")
-        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
+        converter = oxide_conversion(oxin, oxout)
 
     def test_different_inputs(self):
         """Check that the function accepts two different formats of inputs."""
         oxin, oxout = pt.formula("Fe"), "FeO"
-        self.assertTrue(oxide_conversion(oxin, oxout) is not None)
-
-    def test_function_generation(self):
-        """Check that a vaild function is returned."""
-        oxin, oxout = "Fe", "FeO"
-        f = oxide_conversion(oxin, oxout)
-        self.assertTrue(callable(f))
+        converter = oxide_conversion(oxin, oxout)
 
     def test_function_docstring(self):
         """Check the function docstring includes the oxide info."""
@@ -178,47 +184,42 @@ class TestOxideConversion(unittest.TestCase):
     def test_same(self):
         """Check the function retains unit for the same in-out."""
         oxin, oxout = "FeO", "FeO"
-        ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
-        self.assertTrue((f(ser) == ser).all())
+        converter = oxide_conversion(oxin, oxout)
+        self.assertTrue(np.isclose(converter(1.), 1.))
 
     def test_multiple_cations(self):
         """Check the function works for multiple-cation simple oxides."""
         oxin, oxout = "FeO", "Fe2O3"
-        ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
+        converter = oxide_conversion(oxin, oxout)
         # Add oxygen, gains mass
-        self.assertTrue((f(ser) >= ser).all())
-
-    def test_oxidise(self):
-        """Check the function works for oxidation."""
-        oxin, oxout = "FeO", "Fe"
-        ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
-        # Lose oxygen, gains mass
-        self.assertTrue((f(ser) <= ser).all())
+        self.assertTrue(converter(1.) > 1.)
 
     def test_reduce(self):
         """Check the function works for reduction."""
+        oxin, oxout = "FeO", "Fe"
+        converter = oxide_conversion(oxin, oxout)
+        # Lose oxygen, gains mass
+        self.assertTrue(converter(1) < 1.)
+
+    def test_oxidist(self):
+        """Check the function works for oxidation."""
         oxin, oxout = "Fe", "FeO"
         ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
+        converter = oxide_conversion(oxin, oxout)
         # Add oxygen, gains mass
-        self.assertTrue((f(ser) >= ser).all())
+        self.assertTrue(converter(1.) > 1.)
 
     def test_molecular(self):
         """Check that the generated function can convert molecular data."""
         oxin, oxout = "Fe", "FeO"
-        ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
+        converter = oxide_conversion(oxin, oxout)
         # Same number of atoms in each = should be same
-        self.assertTrue((f(ser, molecular=True) == ser).all())
+        self.assertTrue(np.isclose(converter(1., molecular=True), 1.))
 
         oxin, oxout = "Fe", "Fe2O3"
-        ser = pd.Series([1.0, 1.0])
-        f = oxide_conversion(oxin, oxout)
+        converter = oxide_conversion(oxin, oxout)
         # Twice number of atoms in Fe2O3, should be half the moles of Fe2O3
-        self.assertTrue((f(ser, molecular=True) == (0.5 * ser)).all())
+        self.assertTrue(np.isclose(converter(1., molecular=True), 0.5))
 
     @unittest.expectedFailure
     def test_different_cations(self):
@@ -474,9 +475,55 @@ class TestLambdaLnREE(unittest.TestCase):
                     )
                     self.assertTrue(ret.columns.size == self.default_degree)
 
+
 recalculate_Fe
 
-convert_chemistry
+
+class TestConvertChemistry(unittest.TestCase):
+    def setUp(self):
+        self.components = ["MgO", "SiO2", "FeO", "Ca", "Te", "Na"]
+        self.df = pd.DataFrame(
+            np.random.rand(10, len(self.components)), columns=self.components
+        )
+
+    def test_null(self):
+        out_components = self.components
+        conv_df = convert_chemistry(self.df, columns=out_components)
+        self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
+
+    def test_oxide_to_element(self):
+        _in, _out = 'Mg', 'MgO'
+        out_components = [i for i in self.components if not i in [_out]] + [_in]
+        conv_df = convert_chemistry(self.df, columns=out_components, renorm=False)
+        self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
+        # conversion from oxide - should all be smaller
+        self.assertTrue((conv_df[_in].values < self.df[_out].values).all())
+
+    def test_element_to_oxide(self):
+        _in, _out = 'Na2O', 'Na'
+        out_components = [i for i in self.components if not i in [_out]] + [_in]
+        conv_df = convert_chemistry(self.df, columns=out_components, renorm=False)
+        self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
+        # conversion to oxide - should be larger
+        self.assertTrue((conv_df[_in].values > self.df[_out].values).all())
+
+    def test_logdata(self):
+        out_components = self.components
+        for logdata in [True, False]:
+            with self.subTest(logdata=logdata):
+                conv_df = convert_chemistry(self.df, logdata=logdata)
+                self.assertTrue(
+                    all([a == b for a, b in zip(conv_df.columns, out_components)])
+                )
+
+    def test_renorm(self):
+        out_components = self.components
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                conv_df = convert_chemistry(self.df, renorm=renorm)
+                self.assertTrue(
+                    all([a == b for a, b in zip(conv_df.columns, out_components)])
+                )
 
 if __name__ == "__main__":
     unittest.main()
