@@ -1,28 +1,27 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.plot import REE_radii_plot
-from pyrolite.geochem.ind import REE, get_radii
+from pyrolite.plot.spider import REE_v_radii
+from pyrolite.geochem.ind import REE, get_ionic_radii
 # %% Minimal Example -------------------------------------------------------------------
 # Where data is not specified, it will return a formatted axis which can be used for
 # subsequent plotting:
-ax = REE_radii_plot()
+ax = REE_v_radii()
 
 # create some example data
 ree = REE()
-xs = get_radii(ree)
+xs = get_ionic_radii(ree, coordination=8, charge=3)
 ys = np.linspace(1, 20, len(xs))
-
 ax.plot(xs, ys, marker='D', color='k')
 # %% Save Figure
 from pyrolite.util.plot import save_figure
-save_figure(ax.figure, save_at="../../source/_static", name="REE_radii_plot_minimal")
+save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_minimal")
 
 # %% Generate Some Example Data -------------------------------------------------------
 no_analyses = 10
 
 data_ree = [i for i in REE() if not i in ["Pm"]]
-data_radii = np.array(get_radii(data_ree))
+data_radii = np.array(get_ionic_radii(data_ree, coordination=8, charge=3))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
 )
@@ -51,26 +50,28 @@ df1 = dataframes[0]
 df2 = dataframes[1]
 # %% Data Specified --------------------------------------------------------------------
 # Where data is specified, the default plot is a line-based spiderplot:
-ax = REE_radii_plot(df1)
+ax = REE_v_radii(df1.values, ree=data_ree)
+
 # or, alternatively directly from the dataframe:
-ax = df1.REE_radii_plot()
+ax = df1.pyroplot.REE()
+
 # %% Save Figure
-save_figure(ax.figure, save_at="../../source/_static", name="REE_radii_plot_df")
+save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_df")
 
 # %% Fill Plot -------------------------------------------------------------------------
 # This behaviour can be modified (see spiderplot docs) to provide filled ranges:
-ax = REE_radii_plot(df1, fill=True, plot=False)
+ax = REE_v_radii(df1.values, ree=data_ree, fill=True, plot=False)
 # or, alternatively directly from the dataframe:
-ax = df1.REE_radii_plot(fill=True, plot=False)
+ax = df1.pyroplot.REE(fill=True, plot=False)
 # %% Save Figure
-save_figure(ax.figure, save_at="../../source/_static", name="REE_radii_plot_fill")
+save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_fill")
 # %% Specify External Axis ------------------------------------------------------------
 # The plotting axis can be specified to use exisiting axes:
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(6, 8))
 
-df1.REE_radii_plot(ax=ax[0])
-df2.REE_radii_plot(ax=ax[1], color='k')
+df1.pyroplot.REE(ax=ax[0])
+df2.pyroplot.REE(ax=ax[1], color='k')
 plt.tight_layout()
 
 # %% Save Figure
-save_figure(fig, save_at="../../source/_static", name="REE_radii_plot_dual")
+save_figure(fig, save_at="../../source/_static", name="REE_v_radii_dual")

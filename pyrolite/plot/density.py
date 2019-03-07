@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import logging
 from scipy.stats.kde import gaussian_kde
-from .ternary import ternary
+from .tern import ternary
 from ..util.math import on_finite, _linspc, _logspc, _linspc, _linrng, _logrng
 from ..util.plot import (
     tern_heatmapcoords,
@@ -38,10 +38,16 @@ def density(
     **kwargs,
 ):
     """
-    Creates diagramatic representation of data density and/or frequency.
-    Should work for either binary components (X-Y)
-    or in a ternary plot. Some additional keyword arguments are passed to
-    matplotlib.
+    Creates diagramatic representation of data density and/or frequency for either
+    binary diagrams (X-Y) or in a ternary plot
+    (limited functionality and poorly tested for the latter).
+    Additional arguments are typically forwarded
+    to respective :mod:`matplotlib` functions
+    :func:`~matplotlib.pyplot.pcolormesh,`
+    :func:`~matplotlib.pyplot.hist2d`,
+    :func:`~matplotlib.pyplot.hexbin`,
+    :func:`~matplotlib.pyplot.contour`, and
+    :func:`~matplotlib.pyplot.contourf` (see Other Parameters, below).
 
     Parameters
     ----------
@@ -86,12 +92,16 @@ def density(
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
 
+    Todo
+    -----
+        * More accurate ternary density plots.
+
     See Also
     ---------
     :func:`matplotlib.pyplot.pcolormesh`
     :func:`matplotlib.pyplot.hist2d`
     :func:`matplotlib.pyplot.contourf`
-    :func:`pyrolite.plot.ternary.ternary`
+    :func:`pyrolite.plot.tern.ternary`
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
@@ -254,7 +264,7 @@ def density(
             # todo : check the scale here.
             nanarr = np.ones(3) * np.nan  # update to array method
             heatmapdata = tern_heatmapcoords(arr.T, scale=bins, bins=bins)
-            ternary(nanarr, ax=ax, scale=1., figsize=figsize)
+            ternary(nanarr, ax=ax, scale=1.0, figsize=figsize)
             tax = ax.tax
             if mode == "hexbin":
                 style = "hexagonal"

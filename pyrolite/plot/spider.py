@@ -30,8 +30,9 @@ def spider(
     **kwargs
 ):
     """
-    Plots spidergrams for trace elements data. Additional keyword arguments are
-    passed to matplotlib.
+    Plots spidergrams for trace elements data. Additional arguments are typically forwarded
+    to respective :mod:`matplotlib` functions :func:`~matplotlib.pyplot.plot` and
+    :func:`~matplotlib.pyplot.scatter` (see Other Parameters, below).
 
     Parameters
     ----------
@@ -228,6 +229,7 @@ def REE_v_radii(arr=None, ree=REE(), ax=None, **kwargs):
 
     _ax = ax.twiny()
     ax.set_yscale("log")
+    ax.set_xticklabels(ax.xaxis.get_ticklabels(), rotation=60)
     ax.set_xlim((0.99 * np.min(radii), 1.01 * np.max(radii)))
     _ax.set_xlim(ax.get_xlim())
     _ax.set_xticks(radii)

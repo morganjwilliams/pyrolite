@@ -16,8 +16,8 @@ pyrolite\.plot\.density
       :members:
       :undoc-members:
 
-pyrolite\.plot\.ternary
+pyrolite\.plot\.tern
 -------------------------------
-  .. automodule:: pyrolite.plot.ternary
+  .. automodule:: pyrolite.plot.tern
       :members:
       :undoc-members:
