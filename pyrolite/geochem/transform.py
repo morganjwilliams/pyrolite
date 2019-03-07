@@ -8,7 +8,7 @@ from ..comp.codata import renormalise
 from ..util.text import titlecase
 from ..util.general import iscollection
 from ..util.meta import update_docstring_references
-from ..util.math import OP_constants, lambdas
+from ..util.math import OP_constants, lambdas, lambda_poly_func
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
 from .ind import (
     REE,
@@ -20,7 +20,7 @@ from .ind import (
     __common_oxides__,
     get_cations,
 )
-from .parse import check_multiple_cation_inclusion
+from .parse import check_multiple_cation_inclusion, tochem
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -266,6 +266,7 @@ def aggregate_cation(
     Todo
     -------
         * Support for molecular data.
+        * Update to return only a series, rather than modify a dataframe.
     """
 
     dfc = df.copy()
@@ -357,6 +358,7 @@ def convert_chemistry(input_df, columns=[], logdata=False, renorm=False):
     Todo
     ------
         * Check for conflicts between oxides and elements
+        * Aggregator for ratios
         * Implement generalised redox transformation.
     """
     df = input_df.copy()
@@ -477,8 +479,8 @@ def add_ratio(
     if den.lower().endswith("_n"):
         den = titlecase(den.lower().replace("_n", ""))
         _to_norm = True
-    assert titlecase(num) in df.columns
-    assert titlecase(den) in df.columns
+    assert tochem(num) in df.columns
+    assert tochem(den) in df.columns
 
     if _to_norm or (norm_to is not None):
         if isinstance(norm_to, str):
@@ -587,12 +589,12 @@ def lambda_lnREE(
     degree : :class:`int`, 5
         Maximum degree polynomial fit component to include.
     append : :class:`list`, []
-        Whether to append lambda function (i.e. [function]).
+        Whether to append lambda function (i.e. ['function']).
 
     Todo
     -----
         * Operate only on valid rows.
-        * Add residuals as an option to `append`.
+        * Add residuals, Eu, Ce anomalies as options to `append`.
         * Pre-build orthagonal parameters for REE combinations for calculation speed.
 
     References
@@ -655,11 +657,11 @@ def lambda_lnREE(
     )
     lambdadf.loc[(lambdadf == 0.0).all(axis=1), :] = np.nan
     if append:
-        # append the smooth f(radii) function to the dataframe
-        func_partial = functools.partial(
-            lambda_poly_func, pxs=radii, params=params, degree=degree
-        )
         if "function" in append:
+            # append the smooth f(radii) function to the dataframe
+            func_partial = functools.partial(
+                lambda_poly_func, pxs=radii, params=params, degree=degree
+            )
             lambdadf["lambda_poly_func"] = np.apply_along_axis(
                 func_partial, 1, lambdadf.values
             )
