@@ -8,53 +8,53 @@ visualising data density, most based on Gaussian kernel density estimation
 and evaluation over a grid. The below examples highlight some of the currently
 implemented features.
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :end-before: # %% Minimal Example
 
 A minimal density plot can be constructed as follows:
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Minimal Example
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_minimal.png
+.. image:: ../../../_static/density_minimal.png
    :width: 50%
    :align: center
 
 A colorbar linked to the KDE estimate colormap can be added using the `colorbar`
 boolean switch:
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Colorbar
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_colorbar.png
+.. image:: ../../../_static/density_colorbar.png
    :width: 50%
    :align: center
 
-`densityplot` by default will create a new axis, but can also be plotted over an
+`density` by default will create a new axis, but can also be plotted over an
 existing axis for more control:
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Specify External Axis
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_dual.png
+.. image:: ../../../_static/density_dual.png
    :width: 100%
    :align: center
 
 Contours are also easily created, which by default are percentile values:
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Percentiles
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_percentiles.png
+.. image:: ../../../_static/density_percentiles.png
    :width: 50%
    :align: center
 
@@ -63,12 +63,12 @@ and visualised after log-transformation. The density estimation can be conducted
 over logspaced grids (individually for x and y axes using `logx` and `logy` boolean
 switches). Notably, this makes both the KDE image and contours behave more naturally:
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Logspace
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_loggrid.png
+.. image:: ../../../_static/density_loggrid.png
    :width: 100%
    :align: center
 
@@ -76,12 +76,12 @@ There are two other implemented modes beyond the default `density`: `hist2d` and
 `hexbin`, which parallel their equivalents in matplotlib.
 Contouring is not enabled for these histogram methods.
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Modes
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_modes.png
+.. image:: ../../../_static/density_modes.png
    :width: 100%
    :align: center
 
@@ -90,12 +90,12 @@ threshold, and by default is the 99th percentile (``vmin=0.01``), but can be
 adjusted. This is useful where there are a number of outliers, or where you wish to
 reduce the overall complexity/colour intensity of a figure (also good for printing!).
 
-.. literalinclude:: ../../../../examples/plotting/densityplot.py
+.. literalinclude:: ../../../../examples/plotting/density.py
    :language: python
    :start-after: # %% Density Vmin
    :end-before: # %% Save Figure
 
-.. image:: ../../../_static/densityplot_vmin.png
+.. image:: ../../../_static/density_vmin.png
    :width: 100%
    :align: center
 
@@ -103,4 +103,4 @@ reduce the overall complexity/colour intensity of a figure (also good for printi
           where the edges of bins within a ``pcolormesh`` image (used for plotting the
           KDE estimate) are over-emphasized, giving a gridded look.
 
-.. seealso:: `Ternary Plots <../plotting/ternaryplot.html>`__
+.. seealso:: `Ternary Plots <../plotting/ternary.html>`__

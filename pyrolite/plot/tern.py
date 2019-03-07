@@ -28,9 +28,9 @@ def ternary(
     **kwargs
 ):
     """
-    Plots scatter ternary diagrams, using a wrapper around the
-    python-ternary library (gh.com/marcharper/python-ternary).
-    Additional keyword arguments are passed to matplotlib.
+    Ternary scatter diagrams. This function uses the :mod:`python-ternary` library
+    (`gh.com/marcharper/python-ternary <https://github.com/marcharper/python-ternary>`).
+    Additional keyword arguments are passed to :mod:`matplotlib` (see Other Parameters, below).
 
     Parameters
     ----------
@@ -74,11 +74,14 @@ def ternary(
     :func:`matplotlib.pyplot.scatter`
     """
 
-    ax = ax or plt.subplots(1, figsize=figsize)[1]
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=figsize)
     d1 = ax.__dict__.copy()
 
     # Checking if there's already a ternary axis
-    tax = getattr(ax, "tax", None) or pyternary.figure(ax=ax, scale=scale)[1]
+    tax = getattr(ax, "tax", None)
+    if tax is None:
+        fig, tax = pyternary.figure(ax=ax, scale=scale)
 
     # Set attribute for future reference
     ax.tax = tax

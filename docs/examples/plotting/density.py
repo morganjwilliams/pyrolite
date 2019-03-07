@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.plot import densityplot
+from pyrolite.plot.density import density
 from pyrolite.geochem.ind import common_oxides
 from pyrolite.comp.codata import close
 
@@ -13,39 +13,39 @@ ys = np.random.rand(1000, len(oxs))
 ys = close(np.exp(ys))
 df = pd.DataFrame(data=ys, columns=oxs)
 # plot
-ax = densityplot(df.loc[:, ["SiO2", "MgO"]])
+ax = density(df.loc[:, ["SiO2", "MgO"]].values)
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # or, alternatively directly from the dataframe:
-ax = df.loc[:, ["SiO2", "MgO"]].densityplot()
+ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
 
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # %% Save Figure
 from pyrolite.util.plot import save_figure
 
-save_figure(ax.figure, save_at="../../source/_static", name="densityplot_minimal")
+save_figure(ax.figure, save_at="../../source/_static", name="density_minimal")
 
 # %% Colorbar --------------------------------------------------------------------------
-ax = df.loc[:, ["SiO2", "MgO"]].densityplot(colorbar=True)
+ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density(colorbar=True)
 # %% Save Figure
-save_figure(ax.figure, save_at="../../source/_static", name="densityplot_colorbar")
+save_figure(ax.figure, save_at="../../source/_static", name="density_colorbar")
 
 # %% Specify External Axis -------------------------------------------------------------
 # The plotting axis can be specified to use exisiting axes:
 fig, ax = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
-df.loc[:, ["SiO2", "MgO"]].densityplot(ax=ax[0])
-df.loc[:, ["SiO2", "CaO"]].densityplot(ax=ax[1])
+df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[0])
+df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax[1])
 
 plt.tight_layout()
 # %% Save Figure
-save_figure(fig, save_at="../../source/_static", name="densityplot_dual")
+save_figure(fig, save_at="../../source/_static", name="density_dual")
 
 # %% Percentiles -----------------------------------------------------------------------
 ax = df.loc[:, ["SiO2", "CaO"]].plot.scatter(
     x="SiO2", y="CaO", s=10, alpha=0.3, c="k", zorder=2
 )
-df.loc[:, ["SiO2", "CaO"]].densityplot(ax=ax, contours=[0.95, 0.66, 0.33])
+df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax, contours=[0.95, 0.66, 0.33])
 # %% Save Figure
-save_figure(ax.figure, save_at="../../source/_static", name="densityplot_percentiles")
+save_figure(ax.figure, save_at="../../source/_static", name="density_percentiles")
 
 # %% Logspace --------------------------------------------------------------------------
 # some assymetric data -------------
@@ -59,26 +59,28 @@ asym_df.columns = ["A", "B"]
 grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
 scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
 labels = ["{}-{}".format(ls, ps) for (ls, ps) in zip(grids, scales)]
-params = list(zip(
-    [
-        (False, False),
-        (True, True),
-        (False, False),
-        (True, True),
-        (True, False),
-        (False, True),
-    ],
-    grids,
-    scales,
-))
+params = list(
+    zip(
+        [
+            (False, False),
+            (True, True),
+            (False, False),
+            (True, True),
+            (True, False),
+            (False, True),
+        ],
+        grids,
+        scales,
+    )
+)
 # %% ------------------------------------
 fig, ax = plt.subplots(3, 2, figsize=(8, 8))
 ax = ax.flat
 
 for a, (ls, grid, scale) in zip(ax, params):
     lx, ly = ls
-    asym_df.densityplot(ax=a, logx=lx, logy=ly, bins=30, cmap="viridis_r")
-    asym_df.densityplot(
+    asym_df.pyroplot.density(ax=a, logx=lx, logy=ly, bins=30, cmap="viridis_r")
+    asym_df.pyroplot.density(
         ax=a,
         logx=lx,
         logy=ly,
@@ -93,22 +95,22 @@ for a, (ls, grid, scale) in zip(ax, params):
         a.set_xscale("log")
     if scale in ["logscale", "semilogy"]:
         a.set_yscale("log")
+plt.tight_layout()
 # %% Save Figure
-save_figure(fig, save_at="../../source/_static", name="densityplot_loggrid")
+save_figure(fig, save_at="../../source/_static", name="density_loggrid")
 
 # %% Modes -----------------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(14, 5))
 for a, mode in zip(ax, ["density", "hexbin", "hist2d"]):
-    df.loc[:, ["SiO2", "CaO"]].densityplot(ax=a, mode=mode)
+    df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, mode=mode)
     a.set_title("Mode: {}".format(mode))
 # %% Save Figure
-save_figure(fig, save_at="../../source/_static", name="densityplot_modes")
+save_figure(fig, save_at="../../source/_static", name="density_modes")
 
 # %% Density Vmin ----------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, figsize=(14, 4))
 for a, vmin in zip(ax, [0.01, 0.1, 0.4]):
-    df.loc[:, ["SiO2", "CaO"]].densityplot(
-        ax=a, logx=lx, logy=ly, bins=30, vmin=vmin, colorbar=True
-    )
+    df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, bins=30, vmin=vmin, colorbar=True)
+plt.tight_layout()
 # %% Save Figure
-save_figure(fig, save_at="../../source/_static", name="densityplot_vmin")
+save_figure(fig, save_at="../../source/_static", name="density_vmin")

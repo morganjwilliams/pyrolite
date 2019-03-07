@@ -11,10 +11,10 @@ from ..util.meta import get_additional_params
 from ..geochem import common_elements, REE
 from . import density
 from . import spider
-from . import ternary
+from . import tern
 
 # pyroplot added to __all__ for docs
-__all__ = ["density", "spider", "ternary", "pyroplot"]
+__all__ = ["density", "spider", "tern", "pyroplot"]
 
 import pandas as pd
 
@@ -40,8 +40,10 @@ class pyroplot(object):
 
     def density(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
-        Passes the pandas object to :func:`~pyrolite.plot.density.density` (see
-        `Other Parameters`, below).
+        Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
+        esitimates from point data. Convenience access function to
+        :func:`~pyrolite.plot.density.density` (see `Other Parameters`, below), where
+        further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
         -----------
@@ -60,10 +62,6 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the density diagram is plotted.
-
-        Note
-        ----
-            * Additional keyword arguments are forwarded to :func:`~pyrolite.plot.density.density`.
         """
         obj = to_frame(self._obj)
         try:
@@ -85,8 +83,10 @@ class pyroplot(object):
 
     def ternary(self, components: list = None, ax=None, **kwargs):
         r"""
-        Ternary scatter plot. Passes the pandas object to
-        :func:`~pyrolite.plot.ternary.ternary` (see `Other Parameters`, below).
+        Method for ternary scatter plots. Convenience access function to
+        :func:`~pyrolite.plot.tern.ternary` (see `Other Parameters`, below), where
+        further parameters for relevant `matplotlib` functions are also listed.
+
 
         Parameters
         -----------
@@ -115,7 +115,7 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 10.0)
-        ax = ternary.ternary(self._obj.astype(np.float).values, **kwargs)
+        ax = tern.ternary(self._obj.astype(np.float).values, ax=ax, **kwargs)
         tax = ax.tax
         # python-ternary uses "right, top, left"
         # Check if there's already labels
@@ -127,8 +127,9 @@ class pyroplot(object):
 
     def spider(self, components: list = None, indexes: list = None, ax=None, **kwargs):
         r"""
-        Spider plot. Additional keyword arguments are forwarded to
-        :func:`~pyrolite.plot.spider.spider` (see below for additional parameters).
+        Method for spider plots. Convenience access function to
+        :func:`~pyrolite.plot.spider.spider` (see `Other Parameters`, below), where
+        further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
         -----------
@@ -166,7 +167,6 @@ class pyroplot(object):
 
         ax.set_xlabel("Element")
         ax.set_xticklabels(components, rotation=60)
-
         return ax
 
     def REE(self, ax=None, **kwargs):
@@ -217,7 +217,7 @@ pyroplot.ternary.__doc__ = pyroplot.ternary.__doc__.format(
         "",
         get_additional_params(
             pyroplot.ternary,
-            ternary.ternary,
+            tern.ternary,
             header="Other Parameters",
             indent=8,
             subsections=True,

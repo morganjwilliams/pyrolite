@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from numpy.random import multivariate_normal
 import logging
-from pyrolite.plot import ternary, spider, density, pyroplot
+from pyrolite.plot import tern, spider, density, pyroplot
 from pyrolite.geochem import REE
 from pyrolite.util.math import random_cov_matrix
 
