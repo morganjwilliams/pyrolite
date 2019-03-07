@@ -9,9 +9,10 @@ from scipy.stats.kde import gaussian_kde
 from scipy.spatial import ConvexHull
 from scipy import interpolate
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import matplotlib.lines as mlines
-import matplotlib.patches as patches
+import matplotlib.colors
+import matplotlib.lines
+import matplotlib.patches
+import matplotlib.path
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
@@ -20,6 +21,8 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
+__DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
+__DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 def add_legend_items(ax):
 
@@ -62,6 +65,35 @@ def modify_legend_handles(ax, **kwargs):
         _h.update(kwargs)
         _hndls.append(_h)
     return _hndls, labls
+
+
+def interpolated_patch_path(patch, resolution=100):
+    """
+    Obtain the periodic interpolation of the existing path of a patch at a
+    given resolution.
+
+    Parameters
+    -----------
+    patch : :class:`matplotlib.patches.Patch`
+        Patch to obtain the original path from.
+    resolution :class:`int`
+        Resolution at which to obtain the new path. The verticies of the new path
+        will have shape (`resolution`, 2).
+
+    Returns
+    --------
+    `matplotlib.path.Path`
+        Interpolated `~matplotlib.path.Path` object.
+    """
+    pth = patch.get_path()
+    tfm = patch.get_transform()
+    pathtfm = tfm.transform_path(pth)
+    x, y = pathtfm.vertices.T
+    tck, u = interpolate.splprep([x[:-1],y[:-1]], per=True, s=1)
+    xi, yi =  interpolate.splev(np.linspace(0, 1, resolution), tck)
+    # could get control points for path and construct codes here
+    codes = None
+    return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
 
 
 def add_colorbar(mappable, **kwargs):
@@ -131,7 +163,7 @@ def proxy_rect(**kwargs):
     ----------
     matplotlib.patches.Rectangle
     """
-    return patches.Rectangle((0, 0), 1, 1, **kwargs)
+    return matplotlib.patches.Rectangle((0, 0), 1, 1, **kwargs)
 
 
 def proxy_line(**kwargs):
@@ -142,7 +174,7 @@ def proxy_line(**kwargs):
     ----------
     matplotlib.lines.Line2D
     """
-    return mlines.Line2D(range(1), range(1), **kwargs)
+    return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
 
 
 def draw_vector(v0, v1, ax=None, **kwargs):

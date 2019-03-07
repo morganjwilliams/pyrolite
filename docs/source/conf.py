@@ -199,6 +199,7 @@ intersphinx_mapping = {
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("http://scikit-learn.org/stable", None),
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
+    "statsmodels": ("https://www.statsmodels.org/stable", None)
 }
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"

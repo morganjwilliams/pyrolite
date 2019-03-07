@@ -1,0 +1,23 @@
+pyrolite\.plot
+-------------------------------
+  .. automodule:: pyrolite.plot
+      :members:
+      :undoc-members:
+
+pyrolite\.plot\.spider
+-------------------------------
+  .. automodule:: pyrolite.plot.spider
+      :members:
+      :undoc-members:
+
+pyrolite\.plot\.density
+-------------------------------
+  .. automodule:: pyrolite.plot.density
+      :members:
+      :undoc-members:
+
+pyrolite\.plot\.tern
+-------------------------------
+  .. automodule:: pyrolite.plot.tern
+      :members:
+      :undoc-members:

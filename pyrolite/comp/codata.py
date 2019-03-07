@@ -5,7 +5,7 @@ import scipy.stats as scpstats
 import scipy.special as scpspec
 
 # from .renorm import renormalise, close
-from ..util.math import orthagonal_basis
+from ..util.math import orthogonal_basis_default, orthogonal_basis_from_array
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -208,8 +208,7 @@ def ilr(X: np.ndarray):
     """
     d = X.shape[1]
     Y = clr(X)
-    psi = orthagonal_basis(X)  # Get a basis
-    psi = orthagonal_basis(clr(X))  # trying to get right algorithm
+    psi = orthogonal_basis_from_array(X)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
@@ -228,7 +227,11 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     :class:`numpy.ndarray`
         Inverse-ILR transformed array.
     """
-    psi = orthagonal_basis(X)
+
+    if X is None:
+        psi = orthogonal_basis_default(D=Y.shape[1] + 1)
+    else:
+        psi = orthogonal_basis_from_array(X)
     C = Y @ psi
     X = inv_clr(C)  # Inverse log operation
     return X
