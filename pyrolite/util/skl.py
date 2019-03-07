@@ -578,9 +578,13 @@ class RedoxAggregator(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
-        return recalculate_redox(
+        if self.to_oxidised:
+            Fe_form = 'Fe2O3T'
+        else:
+            Fe_form = 'FeOT'
+        return recalculate_Fe(
             X,
-            to_oxidised=self.to_oxidised,
+            to_species=Fe_form,
             renorm=self.renorm,
             total_suffix=self.total_suffix,
         )
