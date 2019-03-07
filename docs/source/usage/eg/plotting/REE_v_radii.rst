@@ -43,7 +43,7 @@ REE Radii Plots
    :end-before: # %% Save Figure
 
 .. image:: ../../../_static/REE_v_radii_dual.png
-   :width: 50%
+   :width: 100%
    :align: center
 
 .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,

@@ -38,8 +38,8 @@ def spider(
     ----------
     arr : :class:`numpy.ndarray`
         Data array.
-    components : :class:`list`, `None`
-        Elements or compositional components to plot.
+    indexes : : :class:`numpy.ndarray`
+        Numerical indexes of x-axis positions.
     ax : :class:`matplotlib.axes.Axes`, `None`
         The subplot to draw on.
     color : :class:`str` | :class:`list` | :class:`numpy.ndarray`
@@ -111,7 +111,6 @@ def spider(
     # if there is no data, return the blank axis
     if (arr is None) or (not np.isfinite(arr).sum()):
         return ax
-
 
     if indexes.ndim < arr.ndim:
         indexes = np.tile(indexes0, (arr.shape[0], 1))
@@ -189,7 +188,9 @@ def spider(
     return ax
 
 
-def REE_v_radii(arr=None, ree=REE(), ax=None, **kwargs):
+def REE_v_radii(
+    arr=None, ax=None, ree=REE(), mode="radii", tl_rotation=60, **kwargs
+):
     """
     Creates an axis for a REE diagram with ionic radii along the x axis.
 
@@ -201,6 +202,10 @@ def REE_v_radii(arr=None, ree=REE(), ax=None, **kwargs):
         Optional designation of axes to reconfigure.
     ree : :class:`list`
         List of REE to use as an index.
+    mode : :class:`str`
+        Whether to plot using radii on the x-axis ('radii'), or elements ('elements').
+    tl_rotation : :class:`float`
+        Rotation of the numerical index labels in degrees.
 
     {otherparams}
 
@@ -224,20 +229,38 @@ def REE_v_radii(arr=None, ree=REE(), ax=None, **kwargs):
 
     radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
 
+    xlabels, _xlabels = ["{:1.3f}".format(i) for i in radii], ree
+    xticks, _xticks = radii, radii
+    xlabelrotation, _xlabelrotation = tl_rotation, 0
+    xtitle, _xtitle = "Ionic Radius ($\mathrm{\AA}$)", "Element"
+
+    if mode == "radii":
+        indexes = radii
+        xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
+    else:  # mode == 'elements'
+
+        indexes = None
+        xlim = None
+        # swap ticks labels etc,
+        _xtitle, xtitle = xtitle, _xtitle
+        _xlabels, xlabels = xlabels, _xlabels
+        _xticks, xticks = np.arange(len(ree)), np.arange(len(ree))
+        _xlabelrotation, xlabelrotation = xlabelrotation, _xlabelrotation
+
     if arr is not None:
-        spider(arr, ax=ax, indexes=radii, **kwargs)
+        ax = spider(arr, indexes=indexes, ax=ax, logy=True, **kwargs)
 
-    _ax = ax.twiny()
-    ax.set_yscale("log")
-    ax.set_xticklabels(ax.xaxis.get_ticklabels(), rotation=60)
-    ax.set_xlim((0.99 * np.min(radii), 1.01 * np.max(radii)))
-    _ax.set_xlim(ax.get_xlim())
-    _ax.set_xticks(radii)
-    _ax.set_xticklabels(ree)
-    _ax.set_xlabel("Element")
     ax.axhline(1.0, ls="--", c="k", lw=0.5)
-    ax.set_xlabel("Ionic Radius ($\mathrm{\AA}$)")
-
+    ax.set_xlabel(xtitle)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xlabels, rotation=xlabelrotation)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    _ax = ax.twiny()
+    _ax.set_xlabel(_xtitle)
+    _ax.set_xticks(_xticks)
+    _ax.set_xticklabels(_xlabels, rotation=_xlabelrotation)
+    _ax.set_xlim(ax.get_xlim())
     return ax
 
 
