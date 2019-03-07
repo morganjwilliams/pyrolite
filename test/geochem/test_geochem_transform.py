@@ -228,8 +228,8 @@ class TestOxideConversion(unittest.TestCase):
         f = oxide_conversion(oxin, oxout)
 
 
-class TestRecalculateRedox(unittest.TestCase):
-    """Tests the pandas dataframe redox conversion."""
+class TestRecalculateFe(unittest.TestCase):
+    """Tests the pandas dataframe Fe redox conversion."""
 
     def setUp(self):
         self.cols = "FeO", "Fe2O3", "Fe2O3T"
@@ -239,7 +239,7 @@ class TestRecalculateRedox(unittest.TestCase):
     def test_none(self):
         """Check the function copes with no records."""
         df = self.df.head(0)
-        out = recalculate_redox(df)
+        out = recalculate_Fe(df)
         self.assertTrue(out is not None)
         self.assertIs(type(out), pd.DataFrame)
         self.assertEqual(out.index.size, 0)
@@ -247,28 +247,32 @@ class TestRecalculateRedox(unittest.TestCase):
     def test_one(self):
         """Check the transformation functions for one record."""
         df = self.df.head(1)
-        self.assertEqual(recalculate_redox(df).index.size, df.index.size)
+        self.assertEqual(recalculate_Fe(df).index.size, df.index.size)
 
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
         df = self.df
-        self.assertEqual(recalculate_redox(df).index.size, df.index.size)
+        self.assertEqual(recalculate_Fe(df).index.size, df.index.size)
 
     def test_to_oxidised(self):
         """Check the oxidised form is returned when called."""
         df = self.df
-        recalculate_redox(df, to_oxidised=True)
+        to_species = 'Fe2O3'
+        outdf = recalculate_Fe(df, to_species=to_species)
+        self.assertTrue(to_species in outdf.columns)
 
     def test_to_reduced(self):
         """Check the reduced form is returned when called."""
         df = self.df
-        recalculate_redox(df, to_oxidised=False)
+        to_species = 'FeO'
+        outdf = recalculate_Fe(df, to_species=to_species)
+        self.assertTrue(to_species in outdf.columns)
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
         for renorm in [True, False]:
             with self.subTest(renorm=renorm):
-                reddf = recalculate_redox(self.df, renorm=renorm)
+                reddf = recalculate_Fe(self.df, renorm=renorm)
                 if renorm:
                     self.assertTrue((reddf.sum(axis=1) == 100.0).all())
                 else:
