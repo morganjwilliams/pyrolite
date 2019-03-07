@@ -1,5 +1,6 @@
 # `pyrolite`
 
+<img src="https://github.com/morganjwilliams/pyrolite/blob/master/docs/source/_static/icon.svg" alt="pyrolite Logo" width="40%" align="right">
 <p align="left">
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/v/pyrolite.svg" alt="PyPI"></a>
@@ -22,6 +23,7 @@
   <img src="https://img.shields.io/pypi/dm/pyrolite.svg?style=flat"
         alt="pyrolite downloads" ></a>
 </p>
+
 
 ### Install
 
