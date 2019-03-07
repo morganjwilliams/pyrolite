@@ -43,7 +43,7 @@ def density(
     (limited functionality and poorly tested for the latter).
     Additional arguments are typically forwarded
     to respective :mod:`matplotlib` functions
-    :func:`~matplotlib.pyplot.pcolormesh,`
+    :func:`~matplotlib.pyplot.pcolormesh`,
     :func:`~matplotlib.pyplot.hist2d`,
     :func:`~matplotlib.pyplot.hexbin`,
     :func:`~matplotlib.pyplot.contour`, and
