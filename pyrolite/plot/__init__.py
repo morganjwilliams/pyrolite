@@ -30,6 +30,7 @@ class pyroplot(object):
     This accessor enables the coexistence of array-based plotting functions and
     methods for pandas objects. This enables some separation of concerns.
     """
+
     def __init__(self, obj):
         self._validate(obj)
         self._obj = obj
@@ -153,29 +154,29 @@ class pyroplot(object):
         """
         obj = to_frame(self._obj)
 
-        if components is None: # default to plotting elemental data, TODO
+        if components is None:  # default to plotting elemental data, TODO
             components = [el for el in obj.columns if el in common_elements()]
 
         assert len(components) != 0
 
         ax = spider.spider(
-            obj.loc[:, components].values,
-            indexes=indexes,
-            ax=ax,
-            **kwargs
+            obj.loc[:, components].values, indexes=indexes, ax=ax, **kwargs
         )
 
         ax.set_xlabel("Element")
         ax.set_xticklabels(components, rotation=60)
         return ax
 
-    def REE(self, ax=None, **kwargs):
+    def REE(self, mode="radii", ax=None, **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
         ------------
         ax : :class:`matplotlib.axes.Axes`, None
             The subplot to draw on.
+        mode : :class:`str`
+            Whether to plot using radii on the x-axis ('radii'), or elements
+            ('elements').
 
         {otherparams}
 
@@ -188,10 +189,8 @@ class pyroplot(object):
         ree = REE()
 
         reedata = obj.loc[:, ree].values
-        ax = spider.REE_v_radii(reedata, ree=ree, **kwargs)
-
+        ax = spider.REE_v_radii(reedata, ree=ree, mode=mode, ax=ax, **kwargs)
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
-        ax.set_xlabel("Element")
         return ax
 
 
