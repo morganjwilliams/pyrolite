@@ -419,7 +419,7 @@ def save_figure(
     for fmt in save_fmts:
         out_filename = os.path.join(save_at, name + "." + fmt)
         if output:
-            print("Saving " + out_filename)
+            logger.info("Saving " + out_filename)
         figure.savefig(out_filename, format=fmt, **config)
 
 

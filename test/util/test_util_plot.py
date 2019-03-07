@@ -3,7 +3,9 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib
-import matplotlib.axes as matax
+import matplotlib.axes
+import matplotlib.patches
+import matplotlib.path
 import matplotlib.pyplot as plt
 from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
@@ -30,6 +32,9 @@ class TestAddColorbar(unittest.TestCase):
     def test_colorbar(self):
         add_colorbar(self.mappable)
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestModifyLegendHandles(unittest.TestCase):
     """
@@ -43,6 +48,9 @@ class TestModifyLegendHandles(unittest.TestCase):
     def test_modify_legend_handles(self):
         _hndls, labls = modify_legend_handles(self.ax, **{"color": "k"})
         self.assertTrue(_hndls[0].get_color() == "k")
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestABC2TernXY(unittest.TestCase):
@@ -59,6 +67,9 @@ class TestABC2TernXY(unittest.TestCase):
         conv = ABC_to_tern_xy(self.data)
         self.assertTrue(len(conv) == 2)  # xd, yd
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestTernHeatmapCoords(unittest.TestCase):
     """
@@ -74,6 +85,9 @@ class TestTernHeatmapCoords(unittest.TestCase):
         coords = tern_heatmapcoords(self.data)
         self.assertTrue(isinstance(coords, dict))
         # need to test completeness of keys
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestLegendProxies(unittest.TestCase):
@@ -92,6 +106,9 @@ class TestLegendProxies(unittest.TestCase):
     def test_proxy_rect(self):
         line = proxy_line()
         self.assertTrue(isinstance(line, matplotlib.lines.Line2D))
+
+    def tearDown(self):
+        plt.close("all")
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
@@ -153,6 +170,32 @@ class Test2DHull(unittest.TestCase):
         lines = plot_2dhull(self.ax, self.data)
         self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
 
+    def test_2d_hull_splines(self):
+        lines = plot_2dhull(self.ax, self.data, splines=True)
+        self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
+
+    def tearDown(self):
+        plt.close("all")
+
+
+class InterpolatedPathPatch(unittest.TestCase):
+    """
+    Tests the interpolated_path_patch utility function.
+    """
+
+    def setUp(self):
+        self.patch = matplotlib.patches.Ellipse((0, 0), 1, 2)
+
+    def test_default(self):
+        path = interpolated_patch_path(self.patch)
+        self.assertTrue(isinstance(path, matplotlib.path.Path))
+
+    def test_resolution(self):
+        for res in [2, 10, 100]:
+            with self.subTest(res=res):
+                path = interpolated_patch_path(self.patch, resolution=res)
+                self.assertTrue(path.vertices.shape[0] == res)
+
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
     def setUp(self):
@@ -200,7 +243,10 @@ class TestPlotZPercentiles(unittest.TestCase):
     def test_extent(self):
         for extent in [[-1, 1, -1, 1], [-0.01, 0.99, -1.01, -0.01], [-2, 2, -2, -2]]:
             with self.subTest(extent=extent):
-                plot_Z_percentiles(self.xi, self.yi, self.zi,  extent=extent)
+                plot_Z_percentiles(self.xi, self.yi, self.zi, extent=extent)
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestNaNScatter(unittest.TestCase):
@@ -217,7 +263,7 @@ class TestNaNScatter(unittest.TestCase):
     def test_plot(self):
         fig, ax = plt.subplots()
         ax = nan_scatter(self.x, self.y, ax=ax)
-        self.assertTrue(isinstance(ax, matax.Axes))
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def tearDown(self):
         plt.close("all")

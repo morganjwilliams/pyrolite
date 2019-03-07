@@ -35,9 +35,10 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     --------
     :class:`list`
     """
-    # accomodate single string passed
+    # listify single string passed
     if not type(strings) in [list, pd.core.indexes.base.Index]:
         strings = [strings]
+        listified=True
 
     # translate elements and oxides
     chems = __common_elements__ | __common_oxides__
@@ -46,6 +47,8 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
 
     # translate potential isotope ratios
     strings = [repr_isotope_ratio(h) for h in strings]
+    if listified:
+        strings = strings[0]
     return strings
 
 
