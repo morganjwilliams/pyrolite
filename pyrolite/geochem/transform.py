@@ -383,14 +383,14 @@ def aggregate_cation(
         if unit_scale is None:
             unit_scale = 1.0
         assert unit_scale > 0
-        convert_function = oxide_conversion(ox, el)
+        convert_function = oxide_conversion(el, ox)
         conv_values = convert_function(eldata) * unit_scale
         totals = np.nansum(np.vstack((oxdata, conv_values)), axis=0)
     elif form == "element":
         if unit_scale is None:
             unit_scale = 1.0
         assert unit_scale > 0
-        convert_function = oxide_conversion(el, ox)
+        convert_function = oxide_conversion(ox, el)
         conv_values = convert_function(oxdata) * unit_scale
         totals = np.nansum(np.vstack((eldata, conv_values)), axis=0)
 
@@ -436,6 +436,7 @@ def convert_chemistry(input_df, columns=[], logdata=False, renorm=False):
 
     Todo
     ------
+        * Check for conflicts between oxides and elements
         * Implement generalised redox transformation.
     """
     df = input_df.copy()
