@@ -130,7 +130,7 @@ class TestRefcomp(unittest.TestCase):
         # Test that type isn't changed
         self.assertTrue(type(norm) == type(self.df))
 
-    def test_normalize(self):
+    def test_denormalize(self):
         """Checks that the model can be used for de-normalising a dataframe."""
         CH = RefComp(self.CHfile, **self.build_kwargs)
         norm = CH.normalize(self.df)
@@ -138,6 +138,26 @@ class TestRefcomp(unittest.TestCase):
         # Test that type isn't changed
         self.assertTrue(type(unnorm) == type(self.df))
         self.assertTrue(np.allclose(unnorm.values, self.df.values))
+
+    def test_ratio_present(self):
+        CH = RefComp(self.CHfile, **self.build_kwargs)
+        for ratio in ['Mn/Cu']:
+            r = CH.ratio(ratio)
+            self.assertTrue(np.isfinite(r))
+
+    def test_getattr(self):
+        CH = RefComp(self.CHfile, **self.build_kwargs)
+        for attr in ['Mn', 'Cu']:
+            a = getattr(CH, attr)
+            self.assertTrue(np.isfinite(r))
+
+    def test_repr(self):
+        CH = RefComp(self.CHfile, **self.build_kwargs)
+        self.assertTrue('RefComp' in repr(CH))
+
+    def test_str(self):
+        CH = RefComp(self.CHfile, **self.build_kwargs)
+        self.assertTrue('Model of' in str(CH))
 
 
 class TestReferenceCompositions(unittest.TestCase):

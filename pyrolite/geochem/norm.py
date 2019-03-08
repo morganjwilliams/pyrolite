@@ -53,7 +53,7 @@ def scale_multiplier(in_unit, target_unit="ppm"):
     return scale
 
 
-class RefComp:
+class RefComp(object):
     """
     Reference compositional model object, principally used for normalisation.
     """
@@ -238,8 +238,11 @@ class RefComp:
             vars = str(vars)
         return self.data.loc[vars, ["value", "unc_2sigma", "units"]]
 
-    def __repr__(self):
+    def __str__(self):
         return "Model of " + self.Reservoir + " (" + self.Reference + ")"
+
+    def __repr__(self):
+        return "RefComp(" + self.filename, + ") from " + self.Reference + "."
 
 
 def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
