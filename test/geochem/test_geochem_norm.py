@@ -149,7 +149,7 @@ class TestRefcomp(unittest.TestCase):
         CH = RefComp(self.CHfile, **self.build_kwargs)
         for attr in ['Mn', 'Cu']:
             a = getattr(CH, attr)
-            self.assertTrue(np.isfinite(r))
+            self.assertTrue(np.isfinite(a))
 
     def test_repr(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)
