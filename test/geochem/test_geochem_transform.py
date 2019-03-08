@@ -232,16 +232,16 @@ class TestRecalculateFe(unittest.TestCase):
     """Tests the pandas dataframe Fe redox conversion."""
 
     def setUp(self):
-        self.cols = "FeO", "Fe2O3", "Fe2O3T"
-        self.two_rows = np.array([[0.5, 0.3, 0.1], [0.5, 0.3, 0.1]])
-        self.df = pd.DataFrame(self.two_rows, columns=self.cols)
+        self.df = pd.DataFrame(
+            np.array([[0.5, 0.3, 0.1], [0.5, 0.3, 0.1]]),
+            columns=["FeO", "Fe2O3", "Fe2O3T"],
+        )
 
     def test_none(self):
         """Check the function copes with no records."""
         df = self.df.head(0)
         out = recalculate_Fe(df)
-        self.assertTrue(out is not None)
-        self.assertIs(type(out), pd.DataFrame)
+        self.assertTrue(isinstance(out, pd.DataFrame))
         self.assertEqual(out.index.size, 0)
 
     def test_one(self):
@@ -507,8 +507,8 @@ class TestLambdaLnREE(unittest.TestCase):
         """
         Tests the ability to append a function to the dataframe returned.
         """
-        ret = lambda_lnREE(self.df, degree=self.default_degree, append=['function'])
-        self.assertTrue('lambda_poly_func' in ret.columns)
+        ret = lambda_lnREE(self.df, degree=self.default_degree, append=["function"])
+        self.assertTrue("lambda_poly_func" in ret.columns)
 
 
 class TestConvertChemistry(unittest.TestCase):
