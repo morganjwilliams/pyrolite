@@ -133,6 +133,14 @@ html_sidebars = {
     ]
 }
 
+html_context = {
+    "display_github": True, # Integrate GitHub
+    "github_user": "morganjwilliams", # Username
+    "github_repo": "pyrolite", # Repo name
+    "github_version": "develop", # Version
+    "conf_py_path": "/docs/source/", # Path in the checkout to the docs root
+}
+
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -202,7 +210,7 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None)
 }
 
-github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
+github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
 
 # metadata
 # ordered reference composition list
