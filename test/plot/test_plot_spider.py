@@ -1,5 +1,6 @@
 import unittest
 import matplotlib.pyplot as plt
+import matplotlib.axes
 import pandas as pd
 import numpy as np
 from pyrolite.geochem import REE
@@ -13,12 +14,15 @@ class TestSpiderplot(unittest.TestCase):
     """Tests the Spiderplot functionality."""
 
     def setUp(self):
+        self.fig, self.ax = plt.subplots(1)
         self.els = REE()
         self.arr = np.random.rand(10, len(self.els))
 
+
     def test_none(self):
         """Test generation of plot with no data."""
-        pass
+        ax = spider(np.empty(0))
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_one(self):
         """Test generation of plot with one record."""
@@ -28,37 +32,22 @@ class TestSpiderplot(unittest.TestCase):
         """Test generation of plot with multiple records."""
         pass
 
-    def test_no_axis_specified(self):
-        """Test generation of plot without axis specified."""
-        pass
-
     def test_axis_specified(self):
         """Test generation of plot with axis specified."""
-        pass
-
-    def test_no_components_specified(self):
-        """Test generation of plot with no components specified."""
-        pass
-
-    def test_components_specified(self):
-        """Test generation of plot with components specified."""
-        pass
-
-    def test_plot_off(self):
-        """Test plot generation with plot off."""
-        pass
+        ax = spider(self.arr, ax=self.ax)
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_fill(self):
         """Test fill functionality is available."""
-        pass
+        for plot, fill in [(False, True), (True, True)]:
+            ax = spider(self.arr, plot=plot, fill=fill)
+            self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     @unittest.expectedFailure
     def test_noplot_nofill(self):
         """Test failure on no-plot no-fill options."""
         for arr in [self.arr]:
-            out = spider(arr, plot=False, fill=False)
-            self.assertTrue(isinstance(out, Maxes.Axes))
-            plt.close("all")
+            ax = spider(arr, plot=False, fill=False)
 
     def test_valid_style(self):
         """Test valid styling options."""
@@ -72,7 +61,6 @@ class TestSpiderplot(unittest.TestCase):
             for arr in [self.arr]:
                 ax = spider(arr, **style)
 
-        plt.close("all")
 
     @unittest.expectedFailure
     def test_invalid_style_options(self):
@@ -80,7 +68,6 @@ class TestSpiderplot(unittest.TestCase):
         style = {"color": "notacolor", "marker": "red"}
         for arr in [self.arr]:
             ax = spider(arr, **style)
-        plt.close("all")
 
     def tearDown(self):
         plt.close("all")
@@ -90,6 +77,7 @@ class TestREERadiiPlot(unittest.TestCase):
     """Tests the REE_radii_plot functionality."""
 
     def setUp(self):
+        self.fig, self.ax = plt.subplots(1)
         self.reels = REE()
         self.arr = np.random.rand(10, len(self.reels))
 
@@ -104,7 +92,14 @@ class TestREERadiiPlot(unittest.TestCase):
 
     def test_default(self):
         for arr in [self.arr]:
+            ax = REE_v_radii(arr, ree=self.reels)
+
+    def test_mode(self):
+        for mode in ['radii', 'elements']:
             ax = REE_v_radii(self.arr, ree=self.reels)
+
+    def test_external_ax(self):
+        ax = REE_v_radii(self.arr, ree=self.reels, ax=self.ax)
 
     def tearDown(self):
         plt.close("all")

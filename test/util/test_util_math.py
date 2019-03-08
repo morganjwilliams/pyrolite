@@ -5,10 +5,70 @@ from pyrolite.util.math import *
 from pyrolite.geochem import REE, get_ionic_radii
 
 
+class TestRandomCovMatrix(unittest.TestCase):
+    """
+    Check that the random covariance matrix produces a symmetric postive-semidefinite
+    covariance matrix.
+    """
+
+    def test_shape(self):
+        for shape in [2, 5]:
+            mat = random_cov_matrix(shape)
+            self.assertTrue(mat.shape == (shape, shape))  # shape
+            self.assertTrue(np.allclose(mat, mat.T))  # symmetry
+            for i in range(shape):
+                self.assertTrue(
+                    np.linalg.det(mat[0:i, 0:i]) > 0.0
+                )  # sylvesters criterion
+
+
+class TestInterpolateLine(unittest.TestCase):
+    def setUp(self):
+        self.xy = np.vstack([np.linspace(0.0, 10.0, 10), np.random.randn(10)])
+
+    def test_default(self):
+        # should do no interpoltion
+        interpxy = interpolate_line(self.xy)
+        self.assertTrue(isinstance(interpxy, np.ndarray))
+        self.assertTrue(interpxy.shape == self.xy.shape)
+
+    def test_n(self):
+        for n in [2, 5]:
+            interpxy = interpolate_line(self.xy, n=n)
+            self.assertTrue(isinstance(interpxy, np.ndarray))
+            self.assertTrue(
+                interpxy.shape == (2, self.xy.shape[1] + (self.xy.shape[1] - 1) * n)
+            )
+
+
 class TestIndexsRanges(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.x = np.linspace(1, 10, 10)
+
+    def test_linspc(self):
+        spc = linspc_(self.x.min(), self.x.max())
+        self.assertTrue(np.isclose(spc[0], self.x.min()))
+        self.assertTrue(np.isclose(spc[-1], self.x.max()))
+
+    def test_logspc(self):
+        spc = logspc_(self.x.min(), self.x.max())
+        self.assertTrue(np.isclose(spc[0], self.x.min()))
+        self.assertTrue(np.isclose(spc[-1], self.x.max()))
+
+    def test_linrng_default(self):
+        # should be equivalent to linspace where all above zero
+        rng = linrng_(self.x)
+        self.assertTrue(isinstance(rng, tuple))
+        self.assertTrue(np.isclose(rng[0], self.x.min()))
+        self.assertTrue(np.isclose(rng[1], self.x.max()))
+
+    def test_logrng_default(self):
+        rng = logrng_(self.x)
+        self.assertTrue(isinstance(rng, tuple))
+        self.assertTrue(np.isclose(rng[0], self.x.min()))
+        self.assertTrue(np.isclose(rng[1], self.x.max()))
+
 
 class TestIsClose(unittest.TestCase):
     def test_non_nan(self):

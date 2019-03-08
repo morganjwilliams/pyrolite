@@ -21,7 +21,30 @@ def random_cov_matrix(shape):
     return cov
 
 
-def _linspc(_min, _max, step=0.0, bins=20):
+def interpolate_line(xy, n=0):
+    """
+    Add intermediate evenly spaced points interpolated between given x-y coordinates.
+    """
+    xy = np.squeeze(xy)
+    if xy.ndim > 2:
+        return np.array(list(map(lambda line: interpolate_line(line, n=n), xy)))
+    x, y = xy
+    intervals = x[1:] - x[:-1]
+    current = x[:-1].copy()
+    _x = current.copy().astype(np.float)
+    if n:
+        dx = intervals / (n + 1.0)
+        for ix in range(n):
+            current = current + dx
+            _x = np.append(_x, current)
+    _x = np.append(_x, np.array([x[-1]]))
+    _x = np.sort(_x)
+    _y = np.interp(_x, x, y)
+    assert all([i in _x for i in x])
+    return np.vstack([_x, _y])
+
+
+def linspc_(_min, _max, step=0.0, bins=20):
     """
     Linear spaced array, with optional step for grid margins.
 
@@ -44,7 +67,7 @@ def _linspc(_min, _max, step=0.0, bins=20):
     return np.linspace(_min - step, _max + step, bins + 1)
 
 
-def _logspc(_min, _max, step=1.0, bins=20):
+def logspc_(_min, _max, step=1.0, bins=20):
     """
     Log spaced array, with optional step for grid margins.
 
@@ -67,7 +90,7 @@ def _logspc(_min, _max, step=1.0, bins=20):
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 
-def _logrng(v, exp=0.0):
+def logrng_(v, exp=0.0):
     """
     Range of a sample, where values <0 are excluded.
 
@@ -84,10 +107,10 @@ def _logrng(v, exp=0.0):
         Min, max tuple.
     """
     u = v[(v > 0)]  # make sure the range_values are >0
-    return _linrng(u, exp=exp)
+    return linrng_(u, exp=exp)
 
 
-def _linrng(v, exp=0.0):
+def linrng_(v, exp=0.0):
     """
     Range of a sample, where values <0 are included.
 
