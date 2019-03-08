@@ -3,7 +3,7 @@ import numpy as np
 import logging
 from scipy.stats.kde import gaussian_kde
 from .tern import ternary
-from ..util.math import on_finite, _linspc, _logspc, _linspc, _linrng, _logrng
+from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_
 from ..util.plot import (
     tern_heatmapcoords,
     add_colorbar,
@@ -126,8 +126,8 @@ def density(
                 xmin, xmax, ymin, ymax = extent
             else:
                 # get the range from the data itself. data > 0 for log grids
-                xmin, xmax = [_linrng, _logrng][logx](x, exp=exp)
-                ymin, ymax = [_linrng, _logrng][logy](y, exp=exp)
+                xmin, xmax = [linrng_, logrng_][logx](x, exp=exp)
+                ymin, ymax = [linrng_, logrng_][logy](y, exp=exp)
 
             xstep = [(xmax - xmin) / bins, (xmax / xmin) / bins][logx]
             ystep = [(ymax - ymin) / bins, (ymax / ymin) / bins][logy]
@@ -163,8 +163,8 @@ def density(
                 if logy:
                     assert (ymin / ystep) > 0.0
 
-                xe = [_linspc, _logspc][logx](xmin, xmax, xstep, bins)
-                ye = [_linspc, _logspc][logy](ymin, ymax, ystep, bins)
+                xe = [linspc_, logspc_][logx](xmin, xmax, xstep, bins)
+                ye = [linspc_, logspc_][logy](ymin, ymax, ystep, bins)
 
                 range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 h, xe, ye, im = ax.hist2d(
@@ -181,8 +181,8 @@ def density(
                     assert ymin > 0.0
 
                 # Generate Grid
-                xs = [_linspc, _logspc][logx](xmin, xmax, bins=bins)
-                ys = [_linspc, _logspc][logy](ymin, ymax, bins=bins)
+                xs = [linspc_, logspc_][logx](xmin, xmax, bins=bins)
+                ys = [linspc_, logspc_][logy](ymin, ymax, bins=bins)
                 xi, yi = np.meshgrid(xs, ys)
                 xi, yi = xi.T, yi.T
                 assert np.isfinite(xi).all() and np.isfinite(yi).all()
