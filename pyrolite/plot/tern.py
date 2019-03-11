@@ -2,11 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ternary as pyternary
 import logging
-from ..util.plot import (
-    ABC_to_tern_xy,
-    __DEFAULT_CONT_COLORMAP__,
-    __DEFAULT_DISC_COLORMAP__,
-)
+from ..util.plot import ABC_to_xy, __DEFAULT_CONT_COLORMAP__, __DEFAULT_DISC_COLORMAP__
 from ..util.meta import get_additional_params
 from ..comp.codata import close
 
