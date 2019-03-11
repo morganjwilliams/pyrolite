@@ -95,6 +95,7 @@ def density(
     Todo
     -----
         * More accurate ternary density plots.
+        * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pts
 
     See Also
     ---------
@@ -207,6 +208,7 @@ def density(
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
+                # update xi, yi to bin edges.
                 if logx:
                     xi = np.exp(xi)
                 if logy:
