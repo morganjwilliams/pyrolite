@@ -127,7 +127,7 @@ def linrng_(v, exp=0.0):
         Min, max tuple.
     """
     u = v[np.isfinite(v)]
-    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+    return (np.nanmin(u) * (1.0 - exp), np.nanmax(u) * (1.0 + exp))
 
 
 def isclose(a, b):

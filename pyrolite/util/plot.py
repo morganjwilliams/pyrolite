@@ -130,19 +130,13 @@ def add_colorbar(mappable, **kwargs):
     return fig.colorbar(mappable, cax=cax, **kwargs)
 
 
-def ABC_to_tern_xy(ABC):
+def bin_centres_to_edges(centres):
     """
-    Ternary transformation function. Now superseded.
+    Translates point estimates at the centres of bins to equivalent edges,
+    for the case of evenly spaced bins.
     """
-    (A, B, C) = ABC
-    T = A + B + C
-    A_n, B_n, C_n = np.divide(A, T), np.divide(B, T), np.divide(C, T)
-    xdata = 100.0 * (
-        (C_n / np.sin(np.pi / 3) + A_n / np.tan(np.pi / 3.0)) * np.sin(np.pi / 3.0)
-    )
-    ydata = 100.0 * (2.0 / (3.0 ** 0.5)) * A_n * np.sin(np.pi / 3.0)
-    return xdata, ydata
-
+    step = (centres[1] - centres[0])/2
+    return np.append(centres - step, centres[-1]+step)
 
 def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):
     def tfm(data):
@@ -183,6 +177,7 @@ def ternary_heatmap(
     inverse_transform=inverse_ilr,
     mode="histogram",
     aspect="unit",
+    ret_centres = False,
     **kwargs
 ):
     """
@@ -190,7 +185,7 @@ def ternary_heatmap(
 
     Parameters
     -----------
-    data : :class:`np.ndarray`
+    data : :class:`numpy.ndarray`
         Ternary data to obtain heatmap coords from.
     bins : :class:`int`
         Number of bins for the grid.
@@ -209,12 +204,19 @@ def ternary_heatmap(
     aspect : :class:`str`, {'unit', 'equilateral'}
         Aspect of the ternary plot - whether to plot with an equilateral triangle
         (yscale = 3**0.5/2) or a triangle within a unit square (yscale = 1.)
+    ret_centres : :class:`bool`
+        Whether to return the centres of the ternary bins.
 
+    Returns
+    -------
+    :class:`tuple` of :class:`numpy.ndarray`
+        :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density estimates :code:`Z`.
+        If :code:`ret_centres` is :code:`True`, the last return value will contain the
+        bin :code:`centres`.
 
     Todo
     -----
-        * Resolve conflicts between histogram and density mode for plotting purposes
-        * Vmin for density mode
+        * Add hexbin mode
     """
     if inspect.isclass(transform):
         # TransformerMixin
@@ -262,53 +264,43 @@ def ternary_heatmap(
 
     adata = tfm(data)
 
-    xbins, ybins = (
-        np.linspace(axmin, axmax, bins + 1),
-        np.linspace(aymin, aymax, bins + 1),
-    )
-
     ndim = adata.shape[1]
+    # bins for evaluation
     bins = [
-        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), bins + 1)
+        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), bins)
         for dim in range(ndim)
     ]
+    centres = np.meshgrid(*bins)
+    binedges = [bin_centres_to_edges(b) for b in bins]
+    edges = np.meshgrid(*binedges)
+
+
     assert len(bins) == ndim
     # histogram in logspace
-    if mode == "histogram":
-        H, edges = np.histogramdd(adata, bins=bins)
-        indexes = np.meshgrid(*edges)
-        flatind = np.vstack([ind.flatten() for ind in indexes])
-    elif mode == "density":
-        indexes = np.meshgrid(*bins)
+    if mode == "density":
         kdedata = adata[np.isfinite(adata).all(axis=1), :]
         k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
-        flatind = np.vstack([ind.flatten() for ind in indexes])
-        H = k(flatind).reshape(indexes[0].shape)
+        cdata = np.vstack([c.flatten() for c in centres])
+        H = k(cdata).reshape((bins[0].size, bins[1].size))
+    elif "hist" in mode:
+        H, edges = np.histogramdd(adata, bins=binedges)
+        # these indicies for bin edges are correct
+    elif 'hex' in mode:
+        # could do this in practice, but need to immplement transforms for hexbins
+        raise NotImplementedError
     else:
-        pass
-    mgshape = indexes[0].shape
-    xi, yi = AXtfm(itfm(flatind.T))
-    xi, yi = xi.reshape(mgshape), yi.reshape(mgshape)
+        raise NotImplementedError
+
+    e_shape = edges[0].shape
+    flatedges = np.vstack([e.flatten() for e in edges])
+    xe, ye = AXtfm(itfm(flatedges.T))
+    xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
+    
     if remove_background:
         H[H == 0] = np.nan
-    return xi, yi, H.T
-
-
-def tern_heatmapcoords(data, scale=10, bins=10):
-    # this appears to cause problems for ternary density diagrams
-    x, y = ABC_to_tern_xy(data)
-    xydata = np.vstack((x, y))
-    k = gaussian_kde(xydata)
-
-    tridata = dict()
-    step = scale // bins
-    for i in np.arange(0, scale + 1, step):
-        for j in np.arange(0, scale + 1 - i, step):
-            datacoord = i, j
-            # datacoord = i+0.5*step, j+0.5*step
-            tridata[(i, j)] = np.float(k(np.vstack(datacoord)))
-
-    return tridata
+    if ret_centres:
+        return xe, ye, H, centres
+    return xe, ye, H
 
 
 def proxy_rect(**kwargs):

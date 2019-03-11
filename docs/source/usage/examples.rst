@@ -5,9 +5,9 @@ Plotting
 ---------
 
 Pyrolite provides some functionality for basic plotting of geochemical data in the
-form of spidergrams (:func:`pyrolite.plot.spiderplot`),
-ternary diagrams (:func:`pyrolite.plot.ternaryplot`) and
-density diagrams (i.e. 2D histograms, :func:`pyrolite.plot.densityplot`).
+form of spidergrams (:mod:`pyrolite.plot.spider`),
+ternary diagrams (:mod:`pyrolite.plot.tern`) and
+density diagrams (i.e. 2D histograms, :mod:`pyrolite.plot.density`).
 
 .. toctree::
    :glob:

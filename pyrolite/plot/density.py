@@ -5,10 +5,11 @@ from scipy.stats.kde import gaussian_kde
 from .tern import ternary
 from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_
 from ..util.plot import (
-    tern_heatmapcoords,
+    ternary_heatmap,
     add_colorbar,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
+    bin_centres_to_edges,
     __DEFAULT_CONT_COLORMAP__,
     __DEFAULT_DISC_COLORMAP__,
 )
@@ -94,7 +95,7 @@ def density(
 
     Todo
     -----
-        * More accurate ternary density plots.
+        * More accurate ternary density plots see :func:`~pyrolite.util.plot.ternary_heatmap` for now.
         * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pts
 
     See Also
@@ -108,12 +109,17 @@ def density(
         vmin = 0.02  # 2% max height | 98th percentile
 
     ax = ax or plt.subplots(1, figsize=figsize)[1]
-    background_color = ax.patch.get_facecolor()  # consider alpha here
+    background_color = (*ax.patch.get_facecolor()[:-1], 0.0)  # background with 0 alpha
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
 
     cmap.set_under(color=background_color)
+
+    if mode == "density":
+        cbarlabel = "Kernel Density Estimate"
+    else:
+        cbarlabel = "Frequency"
 
     exp = (coverage_scale - 1.0) / 2
     valid_rows = np.isfinite(arr).all(axis=-1)
@@ -156,7 +162,6 @@ def density(
                     yscale=["linear", "log"][logy],
                     **kwargs
                 )
-                cbarlabel = "Frequency"
 
             elif mode == "hist2d":
                 if logx:
@@ -164,15 +169,18 @@ def density(
                 if logy:
                     assert (ymin / ystep) > 0.0
 
-                xe = [linspc_, logspc_][logx](xmin, xmax, xstep, bins)
-                ye = [linspc_, logspc_][logy](ymin, ymax, ystep, bins)
-
+                xs = [linspc_, logspc_][logx](xmin, xmax, xstep, bins)
+                ys = [linspc_, logspc_][logy](ymin, ymax, ystep, bins)
+                xi, yi = np.meshgrid(xs, ys)  # indexes for potential contouring..
+                xe, ye = (
+                    bin_centres_to_edges(np.sort(xs)),
+                    bin_centres_to_edges(np.sort(ys)),
+                )
                 range = [[extent[0], extent[1]], [extent[2], extent[3]]]
-                h, xe, ye, im = ax.hist2d(
+                zi, xe, ye, im = ax.hist2d(
                     x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
                 )
                 mappable = im
-                cbarlabel = "Frequency"
 
             elif mode == "density":
 
@@ -181,26 +189,28 @@ def density(
                 if logy:
                     assert ymin > 0.0
 
-                # Generate Grid
+                # Generate Grid of centres
                 xs = [linspc_, logspc_][logx](xmin, xmax, bins=bins)
                 ys = [linspc_, logspc_][logy](ymin, ymax, bins=bins)
-                xi, yi = np.meshgrid(xs, ys)
-                xi, yi = xi.T, yi.T
-                assert np.isfinite(xi).all() and np.isfinite(yi).all()
+                xe, ye = bin_centres_to_edges(xs), bin_centres_to_edges(ys)
 
+                assert np.isfinite(xs).all() and np.isfinite(ys).all()
                 kdedata = arr.T
                 if logx:  # generate x grid over range spanned by log(x)
                     kdedata[0] = np.log(kdedata[0])
-                    xi = np.log(xi)
+                    xs = np.log(xs)
+                    xe = np.log(xe)
                 if logy:  # generate y grid over range spanned by log(y)
                     kdedata[1] = np.log(kdedata[1])
-                    yi = np.log(yi)
+                    ys = np.log(ys)
+                    ye = np.log(ye)
 
+                xi, yi = np.meshgrid(xs, ys)
                 # remove nan, inf bearing rows
                 kdedata = kdedata[:, np.isfinite(kdedata).all(axis=0)]
                 assert np.isfinite(kdedata).all()
                 k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
-                zi = k(np.vstack([xi.flatten(), yi.flatten()])).reshape(xi.shape)
+                zi = k(np.vstack([xi.flatten(), yi.flatten()])).T.reshape(xi.shape)
                 assert np.isfinite(zi).all()
                 zi = zi / zi.max()
                 if percentiles:  # 98th percentile
@@ -208,75 +218,74 @@ def density(
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
-                # update xi, yi to bin edges.
+                # TODO: update xi, yi to bin edges.
                 if logx:
                     xi = np.exp(xi)
+                    xe = np.exp(xe)
                 if logy:
                     yi = np.exp(yi)
-                if contours:
-                    levels = contours or kwargs.pop("levels", None)
-                    cags = xi, yi, zi
-                    if percentiles and not isinstance(levels, int):
-                        _cs = plot_Z_percentiles(
-                            *cags,
-                            ax=ax,
-                            percentiles=levels,
-                            extent=extent,
-                            cmap=cmap,
-                            **kwargs
-                        )
-                        mappable = _cs
-                    else:
-                        if levels is None:
-                            levels = MaxNLocator(nbins=10).tick_values(
-                                zi.min(), zi.max()
-                            )
-                        elif isinstance(levels, int):
-                            levels = MaxNLocator(nbins=levels).tick_values(
-                                zi.min(), zi.max()
-                            )
+                    ye = np.exp(ye)
 
-                        # filled contours
-                        mappable = ax.contourf(
-                            *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
-                        )
-                        # contours
-                        ax.contour(
-                            *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
-                        )
-                else:
+                xe, ye = np.meshgrid(xe, ye)
+
+                if not contours:
+                    # pcolormesh using bin edges
                     mappable = ax.pcolormesh(
-                        xi, yi, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
+                        xe, ye, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
                     mappable.set_lw(0.0)
-
-                cbarlabel = "Kernel Density Estimate"
-
-            if colorbar:
-                cbkwargs = kwargs.copy()
-                cbkwargs["label"] = cbarlabel
-                add_colorbar(mappable, **cbkwargs)
 
             if relim:
                 ax.axis(extent)
 
         elif arr.shape[-1] == 3:  # ternary
             # todo : check the scale here.
+            scale = 100.0
             nanarr = np.ones(3) * np.nan  # update to array method
-            heatmapdata = tern_heatmapcoords(arr.T, scale=bins, bins=bins)
-            ternary(nanarr, ax=ax, scale=1.0, figsize=figsize)
+            ternary(nanarr, ax=ax, scale=scale, figsize=figsize)
             tax = ax.tax
-            if mode == "hexbin":
-                style = "hexagonal"
-            else:
-                style = "triangular"
-            tax.heatmap(
-                heatmapdata, scale=bins, style=style, colorbar=colorbar, **kwargs
+            xe, ye, zi, centres = ternary_heatmap(
+                arr, bins=bins, mode=mode, aspect="eq", ret_centres=True
             )
+            mappable = ax.pcolormesh(xe * scale, ye * scale, zi, cmap=cmap, vmin=vmin)
+            xi, yi = centres # coordinates of grid centres for possible contouring
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.spines["bottom"].set_visible(False)
+            ax.spines["left"].set_visible(False)
+            ax.patch.set_facecolor(None)
+            ax.set_aspect("equal")
         else:
-            pass
+            if not arr.ndim in [0, 1, 2]:
+                raise NotImplementedError
+
+    if contours:
+        levels = contours or kwargs.pop("levels", None)
+        cags = xi, yi, zi  # contour-like function arguments, point estimates
+        if percentiles and not isinstance(levels, int):
+            _cs = plot_Z_percentiles(
+                *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
+            )
+            mappable = _cs
+        else:
+            if levels is None:
+                levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
+            elif isinstance(levels, int):
+                levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
+            # filled contours
+            mappable = ax.contourf(
+                *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
+            )
+            # contours
+            ax.contour(*cags, extent=extent, levels=levels, vmin=vmin, **kwargs)
+
+    if colorbar:
+        cbkwargs = kwargs.copy()
+        cbkwargs["label"] = cbarlabel
+        add_colorbar(mappable, **cbkwargs)
+
     if relim:
         if logx:
             ax.set_xscale("log")

@@ -77,9 +77,20 @@ class pyroplot(object):
 
         fontsize = kwargs.get("fontsize", 12.0)
         ax = density.density(self._obj.loc[:, components].values, ax=ax, **kwargs)
-        if axlabels:
+        if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
+        elif axlabels and len(components) == 3:
+            tax = ax.tax
+            # python-ternary uses "right, top, left"
+            # Check if there's already labels
+            if not len(tax._labels.keys()):
+                tax.right_axis_label(components[0], fontsize=fontsize)
+                tax.left_axis_label(components[1], fontsize=fontsize)
+                tax.bottom_axis_label(components[2], fontsize=fontsize)
+        else:
+            pass
+
         return ax
 
     def ternary(self, components: list = None, ax=None, **kwargs):
@@ -124,6 +135,8 @@ class pyroplot(object):
             tax.right_axis_label(components[0], fontsize=fontsize)
             tax.left_axis_label(components[1], fontsize=fontsize)
             tax.bottom_axis_label(components[2], fontsize=fontsize)
+        ax.patch.set_facecolor(None)
+        ax.set_aspect("equal")
         return ax
 
     def spider(self, components: list = None, indexes: list = None, ax=None, **kwargs):

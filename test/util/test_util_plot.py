@@ -105,22 +105,23 @@ class TestTernaryHeatmap(unittest.TestCase):
     def test_default(self):
         out = ternary_heatmap(self.data)
         self.assertTrue(isinstance(out, tuple))
-        xi, yi, zi = out
-        self.assertTrue(xi.shape == yi.shape)
+        xe, xe, zi = out
+        self.assertTrue(xe.shape == ye.shape)
         # zi could have more or less bins depending on mode..
 
     def test_histogram(self):
         out = ternary_heatmap(self.data, mode="histogram")
-        xi, yi, zi = out
-        self.assertTrue(xi.shape == yi.shape)
-        self.assertTrue(zi.shape != xi.shape)  # should be higher in x - they're edges
-        self.assertTrue(zi.shape == (xi.shape[0] - 1, xi.shape[1] - 1))
+        xe, ye, zi = out
+        self.assertTrue(xe.shape == ye.shape)
+        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
+        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
 
     def test_density(self):
         out = ternary_heatmap(self.data, mode="density")
-        xi, yi, zi = out
-        self.assertTrue(xi.shape == yi.shape)
-        self.assertTrue(zi.shape == xi.shape)  # should be equal to x - they're points
+        xe, ye, zi = out
+        self.assertTrue(xe.shape == ye.shape)
+        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
+        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
 
     def test_transform(self):
         for tfm, itfm in [
@@ -131,7 +132,7 @@ class TestTernaryHeatmap(unittest.TestCase):
         ]:
             with self.subTest(tfm=tfm, itfm=itfm):
                 out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
-                xi, yi, zi = out
+                xe, ye, zi = out
 
     @unittest.expectedFailure
     def test_need_inverse_transform(self):
@@ -139,42 +140,6 @@ class TestTernaryHeatmap(unittest.TestCase):
             with self.subTest(tfm=tfm, itfm=itfm):
                 out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 
-
-class TestABC2TernXY(unittest.TestCase):
-    """
-    Tests the ABC_to_tern_xy utility function.
-    """
-
-    def setUp(self):
-        self.fig, self.ax = plt.subplots(1)
-        self.data = np.random.random((3, 10))
-        self.data = close(self.data)
-
-    def test_ABC_to_tern_xy(self):
-        conv = ABC_to_tern_xy(self.data)
-        self.assertTrue(len(conv) == 2)  # xd, yd
-
-    def tearDown(self):
-        plt.close("all")
-
-
-class TestTernHeatmapCoords(unittest.TestCase):
-    """
-    Tests the tern_heatmapcoords utility function.
-    """
-
-    def setUp(self):
-        self.fig, self.ax = plt.subplots(1)
-        self.data = np.random.random((3, 10))
-        self.data = close(self.data)
-
-    def test_tern_heatmapcoords(self):
-        coords = tern_heatmapcoords(self.data)
-        self.assertTrue(isinstance(coords, dict))
-        # need to test completeness of keys
-
-    def tearDown(self):
-        plt.close("all")
 
 
 class TestLegendProxies(unittest.TestCase):
