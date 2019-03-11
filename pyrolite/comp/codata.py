@@ -171,7 +171,7 @@ def clr(X: np.ndarray):
     return Y
 
 
-def inv_clr(Y: np.ndarray):
+def inverse_clr(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
@@ -213,7 +213,7 @@ def ilr(X: np.ndarray):
     return Y @ psi.T
 
 
-def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
+def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -233,7 +233,7 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     else:
         psi = orthogonal_basis_from_array(X)
     C = Y @ psi
-    X = inv_clr(C)  # Inverse log operation
+    X = inverse_clr(C)  # Inverse log operation
     return X
 
 
@@ -299,7 +299,7 @@ def boxcox(
         return out
 
 
-def inv_boxcox(Y: np.ndarray, lmbda):
+def inverse_boxcox(Y: np.ndarray, lmbda):
     """
     Inverse Box-Cox transformation.
 

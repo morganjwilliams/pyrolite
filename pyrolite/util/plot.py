@@ -1,13 +1,13 @@
 import os
+import inspect
 from copy import copy
 from types import MethodType
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from scipy import interpolate
 from scipy.stats.kde import gaussian_kde
-from scipy.spatial import ConvexHull
-from scipy import interpolate
+import scipy.spatial
+import scipy.interpolate
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.lines
@@ -18,11 +18,14 @@ import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
 import logging
 
+from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+
 
 def add_legend_items(ax):
 
@@ -89,8 +92,8 @@ def interpolated_patch_path(patch, resolution=100):
     tfm = patch.get_transform()
     pathtfm = tfm.transform_path(pth)
     x, y = pathtfm.vertices.T
-    tck, u = interpolate.splprep([x[:-1],y[:-1]], per=True, s=1)
-    xi, yi =  interpolate.splev(np.linspace(0, 1, resolution), tck)
+    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], per=True, s=1)
+    xi, yi = scipy.interpolate.splev(np.linspace(0, 1, resolution), tck)
     # could get control points for path and construct codes here
     codes = None
     return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
@@ -128,6 +131,9 @@ def add_colorbar(mappable, **kwargs):
 
 
 def ABC_to_tern_xy(ABC):
+    """
+    Ternary transformation function. Now superseded.
+    """
     (A, B, C) = ABC
     T = A + B + C
     A_n, B_n, C_n = np.divide(A, T), np.divide(B, T), np.divide(C, T)
@@ -136,6 +142,156 @@ def ABC_to_tern_xy(ABC):
     )
     ydata = 100.0 * (2.0 / (3.0 ** 0.5)) * A_n * np.sin(np.pi / 3.0)
     return xdata, ydata
+
+
+def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):
+    def tfm(data):
+        xy = data[:, :2]
+        return (mtx @ np.vstack((xy.T[:2], np.ones(xy.T.shape[1]))))[:2]
+
+    return tfm
+
+
+def ABC_to_xy(ABC, xscale=1.0, yscale=1.0):
+    assert ABC.shape[-1] == 3
+    # transform from ternary to xy cartesian
+    scale = affine_transform(np.array([[xscale, 0, 0], [0, yscale, 0], [0, 0, 1]]))
+    shear = affine_transform(np.array([[1, 1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    xy = scale(shear(close(ABC)).T)
+    return xy.T
+
+
+def xy_to_ABC(xy, xscale=1.0, yscale=1.0):
+    assert xy.shape[-1] == 2
+    # transform from xy cartesian to ternary
+    scale = affine_transform(
+        np.array([[1 / xscale, 0, 0], [0, 1 / yscale, 0], [0, 0, 1]])
+    )
+    shear = affine_transform(np.array([[1, -1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    xs, ys = shear(scale(xy).T)
+    zs = 1.0 - (xs + ys)  # + (xscale-1) + (yscale-1)
+    return np.vstack([xs, ys, zs]).T
+
+
+def ternary_heatmap(
+    data,
+    bins=10,
+    margin=0.01,
+    force_margin=False,
+    remove_background=True,
+    transform=ilr,
+    inverse_transform=inverse_ilr,
+    mode="histogram",
+    aspect="unit",
+    **kwargs
+):
+    """
+    Heatmap for ternary diagrams.
+
+    Parameters
+    -----------
+    data : :class:`np.ndarray`
+        Ternary data to obtain heatmap coords from.
+    bins : :class:`int`
+        Number of bins for the grid.
+    margin : :class:`float`
+        Optional specification of margin around ternary diagram to draw the grid.
+    force_margin : :class:`bool`
+        Whether to enforce the minimum margin.
+    remove_background : :class:`bool`
+        Whether to display cells with no counts.
+    transform : :class:`callable` | :class:`sklearn.base.TransformerMixin`, :func:`~pyrolite.comp.codata.ilr`
+        Callable function or Transformer class.
+    inverse_transform : :class:`callable`, :func:`~pyrolite.comp.codata.inverse_ilr`
+        Inverse function for `transform`, necessary if transformer class not specified.
+    mode : :class:`str`, {'histogram', 'density'}
+        Which mode to render the histogram/KDE in.
+    aspect : :class:`str`, {'unit', 'equilateral'}
+        Aspect of the ternary plot - whether to plot with an equilateral triangle
+        (yscale = 3**0.5/2) or a triangle within a unit square (yscale = 1.)
+
+
+    Todo
+    -----
+        * Resolve conflicts between histogram and density mode for plotting purposes
+        * Vmin for density mode
+    """
+    if inspect.isclass(transform):
+        # TransformerMixin
+        tcls = transform()
+        tfm = tcls.transform
+        itfm = tcls.inverse_transform
+    else:
+        # callable
+        tfm = transform
+        assert callable(inverse_transform)
+        itfm = inverse_transform
+
+    if aspect == "unit":
+        yscale = 1.0
+    else:
+        yscale = np.sqrt(3) / 2
+
+    AXtfm = lambda x: ABC_to_xy(x, yscale=yscale).T
+    XAtfm = lambda x: xy_to_ABC(x, yscale=yscale).T
+
+    data = close(data)
+    if not force_margin:
+        margin = min([margin, np.nanmin(data[data > 0])])
+    # this appears to cause problems for ternary density diagrams
+    _min, _max = (margin, 1.0 - margin)
+
+    bounds = np.array(  # three points defining the edges of what will be rendered
+        [
+            [margin, margin, 1 - 2 * margin],
+            [margin, 1 - 2 * margin, margin],
+            [1 - 2 * margin, margin, margin],
+        ]
+    )
+    xbounds, ybounds = AXtfm(bounds)
+    xbounds = np.hstack((xbounds, [xbounds[0]]))
+    ybounds = np.hstack((ybounds, [ybounds[0]]))
+    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
+
+    xs, ys, zs = XAtfm(np.vstack([xi, yi]).T)
+    bound_data = np.vstack([xs, ys, zs])
+    abounds = tfm(bound_data.T)
+    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
+    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
+
+    adata = tfm(data)
+
+    xbins, ybins = (
+        np.linspace(axmin, axmax, bins + 1),
+        np.linspace(aymin, aymax, bins + 1),
+    )
+
+    ndim = adata.shape[1]
+    bins = [
+        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), bins + 1)
+        for dim in range(ndim)
+    ]
+    assert len(bins) == ndim
+    # histogram in logspace
+    if mode == "histogram":
+        H, edges = np.histogramdd(adata, bins=bins)
+        indexes = np.meshgrid(*edges)
+        flatind = np.vstack([ind.flatten() for ind in indexes])
+    elif mode == "density":
+        indexes = np.meshgrid(*bins)
+        kdedata = adata[np.isfinite(adata).all(axis=1), :]
+        k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
+        flatind = np.vstack([ind.flatten() for ind in indexes])
+        H = k(flatind).reshape(indexes[0].shape)
+    else:
+        pass
+    mgshape = indexes[0].shape
+    xi, yi = AXtfm(itfm(flatind.T))
+    xi, yi = xi.reshape(mgshape), yi.reshape(mgshape)
+    if remove_background:
+        H[H == 0] = np.nan
+    return xi, yi, H.T
 
 
 def tern_heatmapcoords(data, scale=10, bins=10):
@@ -214,14 +370,14 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     """
     Plots a 2D convex hull around an array of xy data points.
     """
-    chull = ConvexHull(data, incremental=True)
+    chull = scipy.spatial.ConvexHull(data, incremental=True)
     x, y = data[chull.vertices].T
     if not splines:
         lines = ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
     else:
         # https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
-        tck, u = interpolate.splprep([x, y], per=True, s=s)
-        xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
+        tck, u = scipy.interpolate.splprep([x, y], per=True, s=s)
+        xi, yi = scipy.interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
 
@@ -254,15 +410,17 @@ def percentile_contour_values_from_meshz(
     # Integral approach from https://stackoverflow.com/a/37932566
     t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
-    f = interpolate.interp1d(integral, t)
+    f = scipy.interpolate.interp1d(integral, t)
     try:
         t_contours = f(np.array(percentiles) * z.sum())
         return percentiles, t_contours
     except ValueError:
-        logger.debug('Percentile contour below minimum for given resolution' \
-                     'Returning Minimium.')
+        logger.debug(
+            "Percentile contour below minimum for given resolution"
+            "Returning Minimium."
+        )
         non_one = integral[~np.isclose(integral, np.ones_like(integral))]
-        return ['min'], f(np.array([np.nanmax(non_one)]))
+        return ["min"], f(np.array([np.nanmax(non_one)]))
 
 
 def plot_Z_percentiles(
@@ -307,14 +465,17 @@ def plot_Z_percentiles(
         ymin, ymax = np.min(yi), np.max(yi)
         extent = [xmin, xmax, ymin, ymax]
 
-    clabels, contours = percentile_contour_values_from_meshz(zi, percentiles=percentiles)
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent,  **kwargs)
+    clabels, contours = percentile_contour_values_from_meshz(
+        zi, percentiles=percentiles
+    )
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, **kwargs)
     if label_contours:
-        fs = kwargs.pop('fontsize', None) or 8
+        fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs)
         z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
         trans = {
-            float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+            float(t): str(p)
+            for t, p in zip(z_contours, sorted(percentiles, reverse=True))
         }
         [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
     return cs
