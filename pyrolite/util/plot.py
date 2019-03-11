@@ -27,24 +27,6 @@ __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 
-def add_legend_items(ax):
-
-    handles_original = []
-    handles_original += ax.lines + ax.patches + ax.collections + ax.containers
-    # support parasite axes:
-    if hasattr(ax, "parasites"):
-        for axx in ax.parasites:
-            handles_original += (
-                axx.lines + axx.patches + axx.collections + axx.containers
-            )
-    handles, labels = [], []
-    for handle in handles_original:
-        label = handle.get_label()
-        if label and not label.startswith("_"):
-            handles.append(handle)
-            labels.append(label)
-
-
 def modify_legend_handles(ax, **kwargs):
     """
     Modify the handles of a legend based for a single axis.
