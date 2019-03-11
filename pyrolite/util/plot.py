@@ -283,7 +283,7 @@ def ternary_heatmap(
         cdata = np.vstack([c.flatten() for c in centres])
         H = k(cdata).reshape((bins[0].size, bins[1].size))
     elif "hist" in mode:
-        H, edges = np.histogramdd(adata, bins=binedges)
+        H, hedges = np.histogramdd(adata, bins=binedges)
         # these indicies for bin edges are correct
     elif 'hex' in mode:
         # could do this in practice, but need to immplement transforms for hexbins
@@ -295,7 +295,7 @@ def ternary_heatmap(
     flatedges = np.vstack([e.flatten() for e in edges])
     xe, ye = AXtfm(itfm(flatedges.T))
     xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
-    
+
     if remove_background:
         H[H == 0] = np.nan
     if ret_centres:

@@ -105,7 +105,7 @@ class TestTernaryHeatmap(unittest.TestCase):
     def test_default(self):
         out = ternary_heatmap(self.data)
         self.assertTrue(isinstance(out, tuple))
-        xe, xe, zi = out
+        xe, ye, zi = out
         self.assertTrue(xe.shape == ye.shape)
         # zi could have more or less bins depending on mode..
 
