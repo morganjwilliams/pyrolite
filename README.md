@@ -6,7 +6,7 @@
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/v/pyrolite.svg" alt="PyPI"></a>
   <a href="https://pyrolite.readthedocs.io/">
-     <img src="https://readthedocs.org/projects/pyrolite/badge/?version=latest" alt="Docs"/></a>
+     <img src="https://readthedocs.org/projects/pyrolite/badge/?version=develop" alt="Docs"/></a>
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/pyversions/pyrolite.svg"
          alt="Compatible Versions"></a>
