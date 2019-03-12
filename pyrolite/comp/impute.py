@@ -233,7 +233,6 @@ def random_composition_missing(size=1000, D=4, propnan=0.1, MAR=True):
                 data[np.random.randint(size), i + 1] = np.nan
     else:
         thresholds = np.percentile(data, propnan * 100, axis=0)
-        print(thresholds)
         data[:, 1:] = np.where(data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D-1), np.nan, data[:, 1:])
     return data
 
