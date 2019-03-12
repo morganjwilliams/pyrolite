@@ -3,7 +3,35 @@ import numpy as np
 import pandas as pd
 from pyrolite.util.pd import test_df, test_ser
 from pyrolite.comp.aggregate import np_cross_ratios
+from pyrolite.util.math import random_cov_matrix
 from pyrolite.comp.impute import *
+
+
+class TestAugmentedCovarianceMatrix(unittest.TestCase):
+    def setUp(self):
+        self.mean = np.random.randn(5)
+        self.cov = random_cov_matrix(5)
+
+    def test_augmented_covariance_matrix(self):
+        ACM = augmented_covariance_matrix(self.mean, self.cov)
+
+
+class TestMDPattern(unittest.TestCase):
+    def setUp(self):
+        self.data = random_composition_missing(size=200, MAR=False)
+
+    def test_md_pattern(self):
+        pattern_ids, PD = md_pattern(self.data)
+
+
+class TestEMCOMP(unittest.TestCase):
+    def setUp(self):
+        self.data = random_composition_missing(size=200, MAR=False)
+
+    def test_encomp(self):
+        impute, p0, ni = EMCOMP(
+            self.data, threshold=0.1 * np.nanmin(self.data, axis=0), tol=0.01
+        )
 
 
 class TestPDImputeRatios(unittest.TestCase):
