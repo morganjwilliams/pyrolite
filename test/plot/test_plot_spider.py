@@ -26,11 +26,13 @@ class TestSpiderplot(unittest.TestCase):
 
     def test_one(self):
         """Test generation of plot with one record."""
-        pass
+        ax = spider(self.arr[0, :])
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_multiple(self):
         """Test generation of plot with multiple records."""
-        pass
+        ax = spider(self.arr)
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_axis_specified(self):
         """Test generation of plot with axis specified."""
@@ -51,7 +53,9 @@ class TestSpiderplot(unittest.TestCase):
 
     def test_valid_style(self):
         """Test valid styling options."""
-        pass
+        for sty in [{"c":'k'}]:
+            ax = spider(self.arr, **sty)
+            self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_log_on_irrellevant_style_options(self):
         """Test stability under additional kwargs."""
@@ -96,7 +100,7 @@ class TestREERadiiPlot(unittest.TestCase):
 
     def test_mode(self):
         for mode in ['radii', 'elements']:
-            ax = REE_v_radii(self.arr, ree=self.reels)
+            ax = REE_v_radii(self.arr, ree=self.reels, mode=mode)
 
     def test_external_ax(self):
         ax = REE_v_radii(self.arr, ree=self.reels, ax=self.ax)

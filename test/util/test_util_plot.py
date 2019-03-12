@@ -141,7 +141,6 @@ class TestTernaryHeatmap(unittest.TestCase):
                 out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 
 
-
 class TestLegendProxies(unittest.TestCase):
     """
     Tests the proxy_rect and proxy_line utility functions.

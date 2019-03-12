@@ -37,13 +37,13 @@ class TestPyroPlot(unittest.TestCase):
         self.multidf.iloc[0, 1] = np.nan
 
     def test_pyroplot_class_structure(self):
-        pplot = pyroplot # class
-        for attr in ['spider', 'ternary', 'density', 'REE']:
+        pplot = pyroplot  # class
+        for attr in ["spider", "ternary", "density", "REE"]:
             self.assertTrue(hasattr(pplot, attr))
 
     def test_pyroplot_instance_structure(self):
-        pplot = pyroplot(self.bidf) # instance
-        for attr in ['spider', 'ternary', 'density', 'REE']:
+        pplot = pyroplot(self.bidf)  # instance
+        for attr in ["spider", "ternary", "density", "REE"]:
             self.assertTrue(hasattr(pplot, attr))
 
     def test_pandas_api_accessor_exists(self):
@@ -59,8 +59,32 @@ class TestPyroPlot(unittest.TestCase):
     def test_ternary(self):
         self.tridf.pyroplot.ternary()
 
+    @unittest.expectedFailure
+    def test_ternary_with_two_components(self):
+        self.bidf.pyroplot.ternary()
+
+    @unittest.expectedFailure
+    def test_ternary_with_more_components(self):
+        self.multidf.pyroplot.ternary()
+
+    def test_ternary_with_more_components_specified(self):
+        self.multidf.pyroplot.ternary(components=self.multidf.columns[:3])
+
     def test_density(self):
         self.bidf.pyroplot.density()
+
+    def test_density_ternary(self):
+        self.tridf.pyroplot.density()
+
+    @unittest.expectedFailure
+    def test_density_with_more_components(self):
+        self.multidf.pyroplot.density()
+
+    def test_density_with_more_components_specified(self):
+        self.multidf.pyroplot.density(components=self.multidf.columns[:2])
+
+    def test_density_with_more_components_specified_ternary(self):
+        self.multidf.pyroplot.density(components=self.multidf.columns[:3])
 
     def tearDown(self):
         plt.close("all")
