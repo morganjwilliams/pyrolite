@@ -76,7 +76,7 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 12.0)
-        ax = density.density(self._obj.loc[:, components].values, ax=ax, **kwargs)
+        ax = density.density(obj.loc[:, components].values, ax=ax, **kwargs)
         if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
@@ -127,7 +127,7 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 10.0)
-        ax = tern.ternary(self._obj.astype(np.float).values, ax=ax, **kwargs)
+        ax = tern.ternary(obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs)
         tax = ax.tax
         # python-ternary uses "right, top, left"
         # Check if there's already labels
