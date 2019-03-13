@@ -97,5 +97,6 @@ def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], **kwargs):
     Creates a pandas.Series with random data.
     """
     return pd.Series(
-        columns=index, data=random_composition(size=len(index), D=1, **kwargs)
+        random_composition(size=1, D=len(index), **kwargs).flatten(),
+        index=index,
     )
