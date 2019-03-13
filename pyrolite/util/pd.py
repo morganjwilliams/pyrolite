@@ -11,23 +11,6 @@ from .general import pathify
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
-
-def test_df(cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10):
-    """
-    Creates a pandas.DataFrame with random data.
-    """
-    return pd.DataFrame(
-        {k: v for k, v in zip(cols, np.random.rand(len(cols), index_length))}
-    )
-
-
-def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"]):
-    """
-    Creates a pandas.Series with random data.
-    """
-    return pd.Series({k: v for k, v in zip(index, np.random.rand(len(index)))})
-
-
 def column_ordered_append(df1, df2, **kwargs):
     """
     Appends one dataframe to another, preserving the column order of the

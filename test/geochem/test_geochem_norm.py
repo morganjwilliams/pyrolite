@@ -1,6 +1,6 @@
 import unittest
 import pyrolite
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 from pyrolite.geochem.norm import *
 
 

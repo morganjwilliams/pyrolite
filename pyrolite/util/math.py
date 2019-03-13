@@ -12,13 +12,41 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def random_cov_matrix(shape):
+def augmented_covariance_matrix(M, C):
+    r"""
+    Constructs an augmented covariance matrix from means M and covariance matrix C.
+
+    Parameters
+    ----------
+    M : :class:`numpy.ndarray`
+        Array of means.
+    C : :class:`numpy.ndarray`
+        Covariance matrix.
+
+    Returns
+    ---------
+    :class:`numpy.ndarray`
+        Augmented covariance matrix A.
+
+    Note
+    ------
+        Augmented covariance matrix constructed from mean of shape (D, ) and covariance
+        matrix of shape (D, D) as follows:
+
+        .. math::
+                \begin{array}{c|c}
+                -1 & M.T \\
+                \hline
+                M & C
+                \end{array}
     """
-    Generate a random covariance matrix which is symmetric positive-semidefinite.
-    """
-    cov = np.random.rand(shape, shape)
-    cov = np.dot(cov, cov.T)
-    return cov
+    d = np.squeeze(M).shape[0]
+    A = np.zeros((d + 1, d + 1))
+    A[0, 0] = -1
+    A[0, 1 : d + 1] = M
+    A[1 : d + 1, 0] = M.T
+    A[1 : d + 1, 1 : d + 1] = C
+    return A
 
 
 def interpolate_line(xy, n=0):

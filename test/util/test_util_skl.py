@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 from pyrolite.comp.codata import close
 from pyrolite.geochem import REE
 

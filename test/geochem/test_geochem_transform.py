@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.util.pd import test_df, test_ser
+from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.geochem.transform import *
 
 

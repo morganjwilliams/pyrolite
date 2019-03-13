@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pyrolite.comp.aggregate import *
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 
 import logging
 

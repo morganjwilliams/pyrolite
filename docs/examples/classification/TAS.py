@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from pyrolite.classification import Geochemistry
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 import numpy as np
 
 np.random.seed(110)
