@@ -6,7 +6,7 @@ from numpy.random import multivariate_normal
 import logging
 from pyrolite.plot import tern, spider, density, pyroplot
 from pyrolite.geochem import REE
-from pyrolite.util.synthetic import random_composition
+from pyrolite.util.synthetic import test_df
 
 logger = logging.getLogger(__name__)
 
@@ -14,21 +14,10 @@ logger = logging.getLogger(__name__)
 class TestPyroPlot(unittest.TestCase):
     def setUp(self):
         self.cols = ["MgO", "SiO2", "CaO"]
-        data = np.array([0.5, 0.4, 0.3])
 
-        self.bidf = pd.DataFrame(
-            data=random_composition(mean=data[:2], size=100),
-            columns=self.cols[:2],
-        )
-
-        self.tridf = pd.DataFrame(
-            data=random_composition(mean=data,size=100), columns=self.cols
-        )
-
-        ree = REE()
-        self.multidf = pd.DataFrame(
-            data=random_composition(size=100, D=len(ree)), columns=ree
-        )
+        self.tridf = test_df(cols=self.cols, index_length=100)
+        self.bidf = self.tridf.loc[:, self.cols[:2]]
+        self.multidf = test_df(cols=REE(), index_length=100)
 
         # add a small number of nans
         self.bidf.iloc[0, 1] = np.nan

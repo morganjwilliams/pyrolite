@@ -3,12 +3,20 @@ import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
 
 
-def random_cov_matrix(shape):
+def random_cov_matrix(shape, validate=False):
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
     """
-    cov = np.random.rand(shape, shape)
+    cov = np.random.randn(shape, shape)
     cov = np.dot(cov, cov.T)
+    if validate:
+        try:
+            assert (cov == cov.T).all()
+            #eig = np.linalg.eigvalsh(cov)
+            for i in range(shape):
+                assert np.linalg.det(cov[0:i, 0:i]) > 0.0  # sylvesters criterion
+        except:
+            cov = random_cov_matrix(shape, validate=validate)
     return cov
 
 
@@ -50,6 +58,7 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
     else:
         D = mean.size
         mean = ilr(mean.reshape(1, D)).flatten()
+        mean += np.random.randn(*mean.shape) * 0.01  # minor noise
 
     if cov is None:
         cov = random_cov_matrix(D - 1)
@@ -58,6 +67,7 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
         # if the covariance matrix isn't for the logspace data, we'd have to convert it
 
     data = inverse_ilr(np.random.multivariate_normal(mean, cov, size=size))
+
     if missing is not None:
         if missing == "MCAR":
             nnan = int(propnan * size)
@@ -97,6 +107,5 @@ def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], **kwargs):
     Creates a pandas.Series with random data.
     """
     return pd.Series(
-        random_composition(size=1, D=len(index), **kwargs).flatten(),
-        index=index,
+        random_composition(size=1, D=len(index), **kwargs).flatten(), index=index
     )
