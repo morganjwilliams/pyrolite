@@ -3,7 +3,8 @@ import pandas as pd
 import scipy.stats as stats
 from scipy.special import comb
 from pyrolite.util.math import nancov
-from pyrolite.comp.codata import alr, inverse_alr, close
+from pyrolite.comp.codata import alr, inverse_alr, ilr, inverse_ilr, close
+from pyrolite.util.math import random_cov_matrix
 from collections import defaultdict
 import warnings
 import logging
@@ -11,6 +12,65 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def random_composition(size=1000, D=4, propnan=0.1, missing=None):
+    """
+    Generate a simulated random unimodal compositional dataset,
+    optionally with missing data.
+
+    Parameters
+    -----------
+    size : :class:`int`
+        Size of the dataset.
+    D : :class:`int`
+        Dimensionality of the dataset.
+    propnan : :class:`float`, [0, 1)
+        Proportion of missing values in the output dataset.
+    missing : :class:`str`, None
+        If not :code:`None`, a string in :code:`{"MCAR", "MAR", "MNAR"}`.
+
+            * If :code:`missing = "MCAR"``, data will be missing at random.
+            * If :code:`missing = "MAR"``, data will be missing with some relationship to other parameters.
+        *   * If :code:`missing = "MNAR"``, data will be thresholded at some lower bound.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Simulated dataset with missing values.
+
+    Todo
+    ------
+        * Update the `:code:`missing = "MAR"`` example to be more realistic/variable.
+    """
+    data = inverse_ilr(
+        np.random.multivariate_normal(
+            np.random.randn(D - 1), random_cov_matrix(D - 1), size=size
+        )
+    )
+    if missing is not None:
+        if missing == "MCAR":
+            nnan = int(propnan * size)
+            for _ in range(nnan):
+                for i in range(data.shape[1] - 1):
+                    data[np.random.randint(size), i + 1] = np.nan
+        elif missing == "MAR":
+            thresholds = np.percentile(data, propnan * 100, axis=0)
+
+        elif missing == "MNAR":
+            thresholds = np.percentile(data, propnan * 100, axis=0)
+            data[:, 1:] = np.where(
+                data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D - 1),
+                np.nan,
+                data[:, 1:],
+            )
+        else:
+            msg = "Provide a value for missing in {}".format(
+                set(["MCAR", "MAR", "MNAR"])
+            )
+            raise NotImplementedError(msg)
+
+    return data
 
 
 def augmented_covariance_matrix(M, C):
@@ -134,8 +194,8 @@ def _little_sweep(G, k: int = 1, verify=False):
         if not np.allclose(H - H.T, 0):
             raise ValueError("Not a symmetrical array")
     inds = [i for i in np.linspace(0, n - 1, n).astype(int) if not i == k]
+    assert np.isfinite(G[k, k]) & (G[k, k] != 0.0)
     H[k, k] = -1 / G[k, k]
-    assert G[k, k] != 0.0
     H[k, inds] = -G[k, inds] * H[k, k]  # divide row k by D
     H[inds, k] = -G[inds, k] * H[k, k]  # divide column k by D
     for j in inds:
@@ -145,7 +205,7 @@ def _little_sweep(G, k: int = 1, verify=False):
     return H
 
 
-def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=200):
+def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
     """
     A function to cacluate estimated regression coefficients and residial covariance
     matrix for missing variables.
@@ -159,6 +219,9 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
         Covariance matrix.
     varobs : :class:`numpy.ndarray`
         Boolean array indicating which variables are included in the regression model.
+    error_threshold : :class:`float`
+        Low-pass threshold at which an error will result. Effectively limiting mean
+        values to :math:`e^{threshold}`.
 
     Returns
     --------
@@ -177,7 +240,8 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     """
     assert np.isfinite(M).all()
     assert np.isfinite(C).all()
-    assert (np.abs(np.log(M)) < error_threshold).all()
+    if error_threshold is not None:
+        assert (np.abs(M) < error_threshold).all()
     p = M.shape[0]  # p > 0
     q = varobs.size  # q > 0
     i = np.ones(p)
@@ -198,51 +262,11 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     return β, σ2_res
 
 
-def random_composition_missing(size=1000, D=4, propnan=0.1, MAR=True):
-    """
-    Generate a simulated random compositional dataset with missing data.
-
-    Parameters
-    -----------
-    size : :class:`int`
-        Size of the dataset.
-    D : :class:`int`
-        Dimensionality of the dataset.
-    propnan : :class:`float`, [0, 1)
-        Proportion of missing values in the output dataset.
-    MAR : :class:`bool`
-        Whether to have missing at random data (:code:`True`, random points selected),
-        or instead have missing not at random data (:code:`False`, high-pass filter
-        or 'thresholded').
-
-    Returns
-    --------
-    :class:`numpy.ndarray`
-        Simulated dataset with missing values.
-    """
-    data = np.array(
-        [np.ones(size) * 0.1 + np.random.rand(size) * 0.001]
-        + [np.random.rand(size) for i in range(D - 1)]
-    ).T
-    data = close(data)
-
-    if MAR:
-        nnan = int(propnan * size)
-        for _ in range(nnan):
-            for i in range(data.shape[1] - 1):
-                data[np.random.randint(size), i + 1] = np.nan
-    else:
-        thresholds = np.percentile(data, propnan * 100, axis=0)
-        data[:, 1:] = np.where(data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D-1), np.nan, data[:, 1:])
-    return data
-
-
 def EMCOMP(
     X,
     threshold=None,
     tol=0.0001,
-    # tfm=lambda x, *args: ilr(x),
-    # inv_tfm=lambda x, *args: inverse_ilr(x),
+    convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
 ):
     """
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
@@ -264,6 +288,9 @@ def EMCOMP(
        Proportion of zeros in the original data set.
     n_iters : :class:`int`
         Number of iterations needed for convergence.
+    convergence_metric : :class:`callable`
+        Callable function to check for convergence. Here we use a compositional distance
+        rather than a maximum absolute difference, with very similar performance.
 
     Note
     -----
@@ -278,31 +305,27 @@ def EMCOMP(
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
     """
     X = X.copy()
-    n_obs, p = X.shape
-    D = p
-
-    """Close the X rows to 1"""
-    X = np.divide(X, np.nansum(X, axis=1)[:, np.newaxis])
+    n_obs, D = X.shape
+    X = close(X, sumf=np.nansum)
     """Convert zeros into missing values"""
-    X[X == 0] = np.nan
+    X = np.where(np.isclose(X, 0.0), np.nan, X)
     """Use a divisor free of missing values"""
-    assert np.all(np.isfinite(X), axis=0).any()
-    pos = np.argmax(np.all(np.isfinite(X), axis=0))
+    assert np.isfinite(X).all(axis=0).any()
+    pos = np.argmax(np.isfinite(X).all(axis=0))
     Yden = X[:, pos]
     """Compute the matrix of censure points Ψ"""
+    # need an equivalent concept for ilr
     cpoints = (
         np.ones((n_obs, 1)) @ np.log(threshold[np.newaxis, :])
-        - np.log(Yden[:, np.newaxis]) @ np.ones((1, p))
+        - np.log(Yden[:, np.newaxis]) @ np.ones((1, D))
         - np.spacing(1.0)  # Machine epsilon
     )
-
     assert np.isfinite(cpoints).all()
     cpoints = cpoints[:, [i for i in range(D) if not i == pos]]
-    prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * p)
+    prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
     Y = alr(X, pos)
-    # Y = np.vstack((alr(X, pos).T, np.zeros(n_obs))).T
     # ---------------Log Space--------------------------------
-    n_obs, p = Y.shape
+    LD = Y.shape[1]
     M = np.nanmean(Y, axis=0)  # μ0
     C = nancov(Y)  # Σ0
     assert np.isfinite(M).all() and np.isfinite(C).all()
@@ -311,70 +334,71 @@ def EMCOMP(
     Stage 2: Find and enumerate missing data patterns.
     ------------------------------------------------
     """
-    pattern_ids, pattern_dict = md_pattern(Y)
+    pID, pD = md_pattern(Y)
     """
     Regression against other variables ------------------------------------------
     """
+
     another_iter = True
     niters = 0
     while another_iter:
         niters += 1
-        Mnew = M
-        Cnew = C
+        Mnew, Cnew = M, C
         Ystar = Y.copy()
-        V = np.zeros((p, p))
-        for p_no in np.unique(pattern_ids):
-            patternrows = np.arange(pattern_ids.size)[pattern_ids == p_no]
-            ni = patternrows.size
-            observed = np.isfinite(Y[patternrows[0], :])
+        V = np.zeros((LD, LD))
+
+        for p_no in np.unique(pID):
+            rows = np.arange(pID.size)[pID == p_no]  # rows with this pattern
+            ni = rows.size  # number of rows
             varobs, varmiss = (
-                np.arange(D - 1)[~pattern_dict[p_no]["pattern"]],
-                np.arange(D - 1)[pattern_dict[p_no]["pattern"]],
+                np.arange(D - 1)[~pD[p_no]["pattern"]],
+                np.arange(D - 1)[pD[p_no]["pattern"]],
             )
-            nvarobs, nvarmiss = varobs.size, varmiss.size
-            sigmas = np.zeros(p)
 
-            if nvarobs:  # Only where there observations
+            sigmas = np.zeros(LD)
+
+            if varobs.size and varmiss.size:  # Non-completely missing, but missing some
                 B, σ2_res = _reg_sweep(Mnew, Cnew, varobs)
-                if B.size:  # If there are missing elements in the pattern
-                    B = B.flatten()
-                    # estimate mising y
-                    Ystar[np.ix_(patternrows, varmiss)] = (
-                        np.ones(ni) * B[0]
-                        + Y[np.ix_(patternrows, varobs)] @ B[1 : (nvarobs + 1)]
-                    )[:, np.newaxis]
 
-                    # assert np.isfinite(Ystar[np.ix_(patternrows, varmiss)]).all()
+                B = B.flatten()
+                Ystar[np.ix_(rows, varmiss)] = (
+                    np.ones(ni) * B[0]
+                    + Y[np.ix_(rows, varobs)] @ B[1 : (varobs.size + 1)]
+                )[
+                    :, np.newaxis
+                ]  # regression
 
-                    sigmas[varmiss] = np.sqrt(np.diag(σ2_res))
-                    _diff = (
-                        cpoints[np.ix_(patternrows, varmiss)]
-                        - Ystar[np.ix_(patternrows, varmiss)]
-                    )
-                    _std_devs = np.divide(_diff, sigmas[varmiss])
-                    _ϕ = stats.norm.pdf(_std_devs, loc=0, scale=1)
-                    _Φ = stats.norm.cdf(_std_devs, loc=0, scale=1)
-                    _sigdevs = sigmas[varmiss] * _ϕ / _Φ
-                    _sigdevs = np.where(np.isfinite(_sigdevs), _sigdevs, 0.0)
-                    Ystar[np.ix_(patternrows, varmiss)] -= _sigdevs
-                    V[np.ix_(varmiss, varmiss)] += σ2_res * ni
+                V[np.ix_(varmiss, varmiss)] += σ2_res * rows.size
+                sigmas[varmiss] = np.sqrt(np.diag(σ2_res))
+                diff = (  # distance below thresholds
+                    cpoints[np.ix_(rows, varmiss)]  # threshold values
+                    - Ystar[np.ix_(rows, varmiss)]
+                )
+                SD = diff / sigmas[varmiss][np.newaxis, :]  # standard deviations
+                ϕ = stats.norm.pdf(SD, loc=0, scale=1)  # pdf
+                Φ = stats.norm.cdf(SD, loc=0, scale=1)  # cdf
+                ds = sigmas[varmiss] * ϕ / Φ
+                ds = np.where(np.isfinite(ds), ds, 0.0)
+                Ystar[np.ix_(rows, varmiss)] -= ds
 
         """Update and store parameter vector (μ(t), Σ(t))."""
         M = np.nanmean(Ystar, axis=0)
+
         dif = Ystar - np.ones(n_obs)[:, np.newaxis] @ M[np.newaxis, :]
         dif[np.isnan(dif)] = 0.0
+        PearsonCorr = np.dot(dif.T, dif)
+        C = (PearsonCorr + V) / (n_obs - 1)
         try:
-            PearsonCorr = np.dot(dif.T, dif)
-            assert n_obs > 1
-            C = (PearsonCorr + V) / (n_obs - 1)
             assert np.isfinite(C).all()
         except AssertionError:
-            print(PearsonCorr)
+            logger.warning("Covariance matrix not finite.")
             C = Cnew
-        Mdif, Cdif = np.nanmax(np.abs(M - Mnew)), np.nanmax(np.abs(C - Cnew))
-        if np.nanmax(np.vstack([Mdif, Cdif]).flatten()) < tol:  # Convergence checking
+
+        # Convergence checking
+        if convergence_metric(M, Mnew, tol) & convergence_metric(C, Cnew, tol):
             another_iter = False
 
+    # Back to compositional space
     Xstar = inverse_alr(Ystar, pos)
     return Xstar, prop_zeroes, niters
 

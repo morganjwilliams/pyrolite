@@ -12,7 +12,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def close(X: np.ndarray):
+def close(X: np.ndarray, sumf=np.sum):
     """
     Closure operator for compositional data.
 
@@ -20,6 +20,8 @@ def close(X: np.ndarray):
     -----------
     X : :class:`numpy.ndarray`
         Array to close.
+    sumf : :class:`callable`, :func:`numpy.sum`
+        Sum function to use for closure.
 
     Returns
     --------
@@ -29,13 +31,12 @@ def close(X: np.ndarray):
     Note
     ------
         * Does not check for non-positive entries.
-        * Will not ignore :class:`numpy.nan`. Exclude all-nan components.
     """
 
     if X.ndim == 2:
-        return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
+        return np.divide(X, sumf(X, axis=1)[:, np.newaxis])
     else:
-        return np.divide(X, np.sum(X, axis=0))
+        return np.divide(X, sumf(X, axis=0))
 
 
 @pf.register_series_method
