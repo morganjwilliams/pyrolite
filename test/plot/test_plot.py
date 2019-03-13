@@ -15,15 +15,14 @@ class TestPyroPlot(unittest.TestCase):
     def setUp(self):
         self.cols = ["MgO", "SiO2", "CaO"]
         data = np.array([0.5, 0.4, 0.3])
-        cov = np.array([[2, -1], [-1, 2]])
 
         self.bidf = pd.DataFrame(
-            data=random_composition(mean=data[:2], cov=cov[:-1, :-1], size=100),
+            data=random_composition(mean=data[:2], size=100),
             columns=self.cols[:2],
         )
 
         self.tridf = pd.DataFrame(
-            data=random_composition(mean=data, cov=cov, size=100), columns=self.cols
+            data=random_composition(mean=data,size=100), columns=self.cols
         )
 
         ree = REE()
