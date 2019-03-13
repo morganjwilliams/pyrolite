@@ -2,6 +2,7 @@ import os, time
 import unittest
 import pandas as pd
 import numpy as np
+from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.pd import *
 from pathlib import Path
 

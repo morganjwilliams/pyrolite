@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.comp.impute import EMCOMP, random_composition, md_pattern
+from pyrolite.comp.impute import EMCOMP
+from pyrolite.util.synthetic import random_composition
 
 np.random.seed(82)
 
-sample_data = random_composition(1000, 5, propnan=0.05, missing="MNAR")
+sample_data = random_composition(1000, 5, propnan=0.1, missing="MNAR")
 
 imputed_data, p0, niter = EMCOMP(
     sample_data, threshold=np.nanpercentile(sample_data, 90, axis=0)
@@ -25,10 +26,7 @@ for a in ax:
     a.set_ylabel('Component 2')
 # %% Save Figure --
 from pyrolite.util.plot import save_figure
-
 save_figure(fig, save_at="../../source/_static", name="EMCOMP_comparison")
-
-
 # %% --
 import scipy.stats
 

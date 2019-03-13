@@ -2,24 +2,17 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
+from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem import REE, get_ionic_radii
 
 
-class TestRandomCovMatrix(unittest.TestCase):
-    """
-    Check that the random covariance matrix produces a symmetric postive-semidefinite
-    covariance matrix.
-    """
+class TestAugmentedCovarianceMatrix(unittest.TestCase):
+    def setUp(self):
+        self.mean = np.random.randn(5)
+        self.cov = random_cov_matrix(5)
 
-    def test_shape(self):
-        for shape in [2, 5]:
-            mat = random_cov_matrix(shape)
-            self.assertTrue(mat.shape == (shape, shape))  # shape
-            self.assertTrue(np.allclose(mat, mat.T))  # symmetry
-            for i in range(shape):
-                self.assertTrue(
-                    np.linalg.det(mat[0:i, 0:i]) > 0.0
-                )  # sylvesters criterion
+    def test_augmented_covariance_matrix(self):
+        ACM = augmented_covariance_matrix(self.mean, self.cov)
 
 
 class TestInterpolateLine(unittest.TestCase):

@@ -6,7 +6,7 @@ from numpy.random import multivariate_normal
 import logging
 from pyrolite.plot import tern, spider, density, pyroplot
 from pyrolite.geochem import REE
-from pyrolite.util.math import random_cov_matrix
+from pyrolite.util.synthetic import random_composition
 
 logger = logging.getLogger(__name__)
 
@@ -15,20 +15,20 @@ class TestPyroPlot(unittest.TestCase):
     def setUp(self):
         self.cols = ["MgO", "SiO2", "CaO"]
         data = np.array([0.5, 0.4, 0.3])
-        cov = np.array([[2, -1, -0.5], [-1, 2, -1], [-0.5, -1, 2]])
+        cov = np.array([[2, -1], [-1, 2]])
 
         self.bidf = pd.DataFrame(
-            multivariate_normal(data[:2], cov[:2, :2], 100), columns=self.cols[:2]
+            data=random_composition(mean=data[:2], cov=cov[:-1, :-1], size=100),
+            columns=self.cols[:2],
         )
 
         self.tridf = pd.DataFrame(
-            multivariate_normal(data, cov, 100), columns=self.cols
+            data=random_composition(mean=data, cov=cov, size=100), columns=self.cols
         )
 
         ree = REE()
-        cov_ree = random_cov_matrix(len(ree))
         self.multidf = pd.DataFrame(
-            multivariate_normal(np.random.randn(len(ree)), cov_ree, 100), columns=ree
+            data=random_composition(size=100, D=len(ree)), columns=ree
         )
 
         # add a small number of nans
