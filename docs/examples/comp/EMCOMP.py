@@ -21,7 +21,7 @@ ax[0].scatter(*sample_data[:, 2:4].T, marker="D", color="0.5", alpha=0.1)
 ax[1].scatter(*imputed_data[fltr, 2:4].T, marker="D", color="r", alpha=0.1)
 ax[2].scatter(*imputed_data[:, 2:4].T, marker="D", color="k", alpha=0.1)
 for a in ax:
-    a.set_xlabel('Component 2')
+    a.set_xlabel('Component 1')
     a.set_ylabel('Component 2')
 # %% Save Figure --
 from pyrolite.util.plot import save_figure
