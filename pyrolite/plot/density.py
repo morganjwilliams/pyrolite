@@ -73,7 +73,7 @@ def density(
         Contours to add to the plot.
     percentiles :  :class:`bool`, `True`
         Whether contours specified are to be converted to percentiles.
-    relim : :class:`bool`, True
+    relim : :class:`bool`, :code:`True`
         Whether to relimit the plot based on xmin, xmax values.
     figsize : :class:`tuple`, (6, 6)
         Size of the figure generated.

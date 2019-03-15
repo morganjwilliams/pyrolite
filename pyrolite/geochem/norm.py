@@ -36,7 +36,7 @@ def scale_multiplier(in_unit, target_unit="ppm"):
 
     Returns
     --------
-    :class:`np.number`
+    :class:`float`
     """
     in_unit = str(in_unit).lower()
     target_unit = str(target_unit).lower()
@@ -192,7 +192,7 @@ class RefComp(object):
 
         Returns
         --------
-        :class:`np.number`
+        :class:`float`
             Ratio, if it exists, otherwise :class:`np.nan`
         """
         try:
@@ -252,7 +252,7 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
 
     Parameters
     ----------
-    directory : :class:`str`, None
+    directory : :class:`str`, :code:`None`
         Location of reference data files.
     formats : :class:`list`, "csv"
         List of potential data formats to draw from.

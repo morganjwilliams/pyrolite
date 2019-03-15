@@ -15,6 +15,7 @@ class TestPyroPlot(unittest.TestCase):
     def setUp(self):
         self.cols = ["MgO", "SiO2", "CaO"]
 
+        # can run into interesting singular matrix errors with bivariate random data
         self.tridf = test_df(cols=self.cols, index_length=100)
         self.bidf = self.tridf.loc[:, self.cols[:2]]
         self.multidf = test_df(cols=REE(), index_length=100)

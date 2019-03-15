@@ -48,9 +48,9 @@ class pyroplot(object):
 
         Parameters
         -----------
-        components : :class:`list`, None
+        components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
@@ -104,7 +104,7 @@ class pyroplot(object):
         -----------
         components : :class:`list`, `None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
 
         {otherparams}
@@ -151,7 +151,7 @@ class pyroplot(object):
             Elements or compositional components to plot.
         indexes :  :class:`list`, `None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
 
         {otherparams}
@@ -185,7 +185,7 @@ class pyroplot(object):
 
         Parameters
         ------------
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         mode : :class:`str`
             Whether to plot using radii on the x-axis ('radii'), or elements

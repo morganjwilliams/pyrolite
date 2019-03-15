@@ -126,24 +126,21 @@ def parse_entry(
 
     Parameters
     -----------------------
-    entry: str
+    entry : :class:`str`
         String entry which to search for the regex pattern.
-    regex: str
+    regex : :class:`str`
         Regular expression to compile and use to search the
         entry for a value.
-    delimiter: str, ','
+    delimiter : :class:`str`, ::code:`','`
         Optional delimiter to split the string in case of multiple
         inclusion.
-    values_only: bool, True
+    values_only : :class:`bool`, :code:`True`
         Option to return only values (single or list), or to instead
         return the dictionary corresponding to the matches.
-    first_only: bool, True
-        Option to return only the first match, or else all matches.
-
-    Not yet implemented:
-
-    errors: int|float|np.nan|None, None
-        Error value to denote 'no match'.
+    first_only : :class:`bool`, :code:`True`
+        Option to return only the first match, or else all matches
+    errors
+        Error value to denote 'no match'. Not yet implemented.
     """
 
     if isinstance(entry, str):

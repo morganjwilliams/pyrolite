@@ -204,6 +204,7 @@ intersphinx_mapping = {
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "matplotlib": ("https://matplotlib.org/", None),
+    "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("http://scikit-learn.org/stable", None),
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
