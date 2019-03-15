@@ -3,20 +3,32 @@ import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
 
 
-def random_cov_matrix(shape, validate=False):
+def random_cov_matrix(dim, validate=False):
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
+
+    Parameters
+    -----------
+    dim : :class:`int`
+        Dimensionality of the covariance matrix.
+    validate : :class:`bool`
+        Whether to validate output.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+        Covariance matrix of shape :code:`(dim, dim)`.
     """
-    cov = np.random.randn(shape, shape)
+    cov = np.random.randn(dim, dim)
     cov = np.dot(cov, cov.T)
     if validate:
         try:
             assert (cov == cov.T).all()
             #eig = np.linalg.eigvalsh(cov)
-            for i in range(shape):
+            for i in range(dim):
                 assert np.linalg.det(cov[0:i, 0:i]) > 0.0  # sylvesters criterion
         except:
-            cov = random_cov_matrix(shape, validate=validate)
+            cov = random_cov_matrix(dim, validate=validate)
     return cov
 
 
@@ -37,12 +49,12 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
         Optional specification of covariance matrix (in log space).
     propnan : :class:`float`, [0, 1)
         Proportion of missing values in the output dataset.
-    missing : :class:`str`, None
+    missing : :class:`str`, :code:`None`
         If not :code:`None`, a string in :code:`{"MCAR", "MAR", "MNAR"}`.
 
             * If :code:`missing = "MCAR"``, data will be missing at random.
             * If :code:`missing = "MAR"``, data will be missing with some relationship to other parameters.
-        *   * If :code:`missing = "MNAR"``, data will be thresholded at some lower bound.
+            * If :code:`missing = "MNAR"``, data will be thresholded at some lower bound.
 
     Returns
     --------

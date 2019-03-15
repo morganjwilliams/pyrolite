@@ -584,7 +584,7 @@ class RedoxAggregator(BaseEstimator, TransformerMixin):
             Fe_form = 'FeOT'
         return recalculate_Fe(
             X,
-            to_species=Fe_form,
+            to=Fe_form,
             renorm=self.renorm,
             total_suffix=self.total_suffix,
         )

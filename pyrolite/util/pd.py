@@ -11,6 +11,7 @@ from .general import pathify
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
+
 def column_ordered_append(df1, df2, **kwargs):
     """
     Appends one dataframe to another, preserving the column order of the
@@ -19,11 +20,14 @@ def column_ordered_append(df1, df2, **kwargs):
 
     Parameters
     ------------
-    df1: pd.DataFrame
+    df1 : :class:`pandas.DataFrame`
         The dataframe for which columns order is preserved in the output.
-    df2: pd.DataFrame
+    df2 : :class:`pandas.DataFrame`
         The dataframe for which new columns are appended to the output.
 
+    Returns
+    --------
+    :class:`pandas.DataFrame`
     """
     outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
     return df1.append(df2, **kwargs).reindex(columns=outcols)
@@ -31,7 +35,7 @@ def column_ordered_append(df1, df2, **kwargs):
 
 def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     """
-    Accumulate an iterable containing pandas dataframes to a single frame.
+    Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single frame.
     """
     acc = None
     for ix, df in enumerate(dfs):
@@ -49,7 +53,7 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
 
 def to_frame(df):
     """
-    Simple utility for converting to pandas dataframes.
+    Simple utility for converting to :class:`pandas.DataFrame`.
     """
 
     if type(df) == pd.Series:  # using series instead of dataframe
@@ -66,7 +70,8 @@ def to_frame(df):
 
 def to_ser(df):
     """
-    Simple utility for converting single column pandas dataframes to series.
+    Simple utility for converting single column :class:`pandas.DataFrame`
+    to :class:`pandas.Series`.
     """
     if type(df) == pd.DataFrame:
         assert (df.columns.size == 1) or (

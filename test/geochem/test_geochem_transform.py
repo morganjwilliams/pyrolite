@@ -257,16 +257,16 @@ class TestRecalculateFe(unittest.TestCase):
     def test_to_oxidised(self):
         """Check the oxidised form is returned when called."""
         df = self.df
-        to_species = "Fe2O3"
-        outdf = recalculate_Fe(df, to_species=to_species)
-        self.assertTrue(to_species in outdf.columns)
+        to = "Fe2O3"
+        outdf = recalculate_Fe(df, to=to)
+        self.assertTrue(to in outdf.columns)
 
     def test_to_reduced(self):
         """Check the reduced form is returned when called."""
         df = self.df
-        to_species = "FeO"
-        outdf = recalculate_Fe(df, to_species=to_species)
-        self.assertTrue(to_species in outdf.columns)
+        to = "FeO"
+        outdf = recalculate_Fe(df, to=to)
+        self.assertTrue(to in outdf.columns)
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used."""
@@ -521,13 +521,13 @@ class TestConvertChemistry(unittest.TestCase):
 
     def test_null(self):
         out_components = self.expect
-        conv_df = convert_chemistry(self.df, columns=out_components)
+        conv_df = convert_chemistry(self.df, to=out_components)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
 
     def test_oxide_to_element(self):
         _in, _out = "Mg", "MgO"
         out_components = [i for i in self.expect if not i in [_out]] + [_in]
-        conv_df = convert_chemistry(self.df, columns=out_components, renorm=False)
+        conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion from oxide - should all be smaller
         self.assertTrue((conv_df[_in].values < self.df[_out].values).all())
@@ -535,14 +535,14 @@ class TestConvertChemistry(unittest.TestCase):
     def test_element_to_oxide(self):
         _in, _out = "Na2O", "Na"
         out_components = [i for i in self.expect if not i in [_out]] + [_in]
-        conv_df = convert_chemistry(self.df, columns=out_components, renorm=False)
+        conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion to oxide - should be larger
         self.assertTrue((conv_df[_in].values > self.df[_out].values).all())
 
     def test_ratio(self):
         out_components = self.expect + ["CaO/MgO"]
-        conv_df = convert_chemistry(self.df, columns=out_components, renorm=False)
+        conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
 
     def test_logdata(self):

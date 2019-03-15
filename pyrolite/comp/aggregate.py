@@ -129,7 +129,7 @@ def nan_weighted_compositional_mean(
         Array of weights.
     ind : :class:`int`
         Index of the column to use as the alr divisor.
-    renorm : :class:`bool`, True
+    renorm : :class:`bool`, :code:`True`
         Whether to renormalise the output compositional mean to unity.
 
     Returns
@@ -258,7 +258,7 @@ def standardise_aggregate(
     fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm : :class:`bool`, True
+    renorm : :class:`bool`, :code:`True`
         Whether to renormalise to unity.
 
     Returns
@@ -311,7 +311,7 @@ def complex_standardise_aggregate(
     fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm : :class:`bool`, True
+    renorm : :class:`bool`, :code:`True`
         Whether to renormalise to unity.
 
     Returns
@@ -371,7 +371,7 @@ def np_complex_standardise_aggregate(
     fixed_record_idx : :class:`int`
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm : :class:`bool`, True
+    renorm : :class:`bool`, :code:`True`
         Whether to renormalise to unity.
 
     Returns

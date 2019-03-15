@@ -252,7 +252,7 @@ def boxcox(
     ---------------
     X : :class:`numpy.ndarray`
         Array on which to perform the transformation.
-    lmbda : :class:`numpy.number`, None
+    lmbda : :class:`numpy.number`, :code:`None`
         Lambda value used to forward-transform values. If none, it will be calculated
         using the mean
     lmbda_search_space : :class:`tuple`

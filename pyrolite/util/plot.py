@@ -33,15 +33,15 @@ def modify_legend_handles(ax, **kwargs):
 
     Parameters
     ----------
-    ax: matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axis for which to obtain modifed legend handles.
-    kwargs:
-        Keyword arguments to be passed to the handles.
 
     Returns
     -------
-    tuple
-        Handles, labels to be passed to a legend call.
+    handles : :class:`list`
+        Handles to be passed to a legend call.
+    labels : :class:`list`
+        Labels to be passed to a legend call.
     """
     hndls, labls = ax.get_legend_handles_labels()
     _hndls = []
@@ -67,8 +67,8 @@ def interpolated_patch_path(patch, resolution=100):
 
     Returns
     --------
-    `matplotlib.path.Path`
-        Interpolated `~matplotlib.path.Path` object.
+    :class:`matplotlib.path.Path`
+        Interpolated :class:`~matplotlib.path.Path` object.
     """
     pth = patch.get_path()
     tfm = patch.get_transform()
@@ -94,7 +94,7 @@ def add_colorbar(mappable, **kwargs):
 
     Returns
     ----------
-    matplotlib.colorbar.Colorbar
+    :class:`matplotlib.colorbar.Colorbar`
     """
     ax = kwargs.get("ax", None)
     if hasattr(mappable, "axes"):
@@ -116,9 +116,27 @@ def bin_centres_to_edges(centres):
     """
     Translates point estimates at the centres of bins to equivalent edges,
     for the case of evenly spaced bins.
+
+    Todo
+    ------
+        * This can be updated to unevenly spaced bins, just need to calculate outer bins.
     """
-    step = (centres[1] - centres[0])/2
-    return np.append(centres - step, centres[-1]+step)
+    step = (centres[1] - centres[0]) / 2
+    return np.append(centres - step, centres[-1] + step)
+
+
+def bin_edges_to_centres(edges):
+    """
+    Translates edges of histogram bins to bin centres.
+    """
+    if edges.ndim == 1:
+        steps = (edges[1:] - edges[:-1]) / 2
+        return edges[:-1] + steps
+    else:
+        steps = (edges[1:, 1:] - edges[:-1, :-1]) / 2
+        centres = edges[:-1, :-1] + steps
+        return centres
+
 
 def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):
     def tfm(data):
@@ -159,7 +177,7 @@ def ternary_heatmap(
     inverse_transform=inverse_ilr,
     mode="histogram",
     aspect="unit",
-    ret_centres = False,
+    ret_centres=False,
     **kwargs
 ):
     """
@@ -256,7 +274,6 @@ def ternary_heatmap(
     binedges = [bin_centres_to_edges(b) for b in bins]
     edges = np.meshgrid(*binedges)
 
-
     assert len(bins) == ndim
     # histogram in logspace
     if mode == "density":
@@ -267,7 +284,7 @@ def ternary_heatmap(
     elif "hist" in mode:
         H, hedges = np.histogramdd(adata, bins=binedges)
         # these indicies for bin edges are correct
-    elif 'hex' in mode:
+    elif "hex" in mode:
         # could do this in practice, but need to immplement transforms for hexbins
         raise NotImplementedError
     else:
@@ -291,7 +308,7 @@ def proxy_rect(**kwargs):
 
     Returns
     ----------
-    matplotlib.patches.Rectangle
+    :class:`matplotlib.patches.Rectangle`
     """
     return matplotlib.patches.Rectangle((0, 0), 1, 1, **kwargs)
 
@@ -302,7 +319,7 @@ def proxy_line(**kwargs):
 
     Returns
     ----------
-    matplotlib.lines.Line2D
+    :class:`matplotlib.lines.Line2D`
     """
     return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
 
@@ -365,20 +382,20 @@ def percentile_contour_values_from_meshz(
 
     Parameters
     ----------
-    z : np.ndarray
+    z : :class:`numpy.ndarray`
         Probability density function over x, y.
-    percentiles : list-like
+    percentiles : :class:`numpy.ndarray`
         Percentile values for which to create contours.
-    resolution : int
+    resolution : :class:`int`
         Number of bins for thresholds between 0. and max(Z)
 
     Returns
     -------
-    labels
+    labels : :class:`list`
         Labels for contours (percentiles, if above minimum z value).
 
-    contours
-        Contour heigh values.
+    contours : :class:`list`
+        Contour height values.
     """
     percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
@@ -413,22 +430,22 @@ def plot_Z_percentiles(
 
     Parameters
     ------------
-    z : np.ndarray
+    z : :class:`numpy.ndarray`
         Probability density function over x, y.
-    percentiles : list-like
+    percentiles : :class:`list`
         Percentile values for which to create contours.
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
         Axes on which to plot. If none given, will create a new Axes instance.
-    extent
+    extent : :class:`list`, :code:`None`
         List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    fontsize : np.number
+    fontsize : :class:`float`
         Fontsize for the contour labels.
-    cmap
+    cmap : :class:`matplotlib.colors.ListedColormap`
         Color map for the contours, contour labels and imshow.
 
     Returns
     -------
-    matplotlib.contour.QuadContourSet
+    :class:`matplotlib.contour.QuadContourSet`
         Plotted and formatted contour set.
     """
     if ax is None:
@@ -462,18 +479,18 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
     Parameters
     -----------
-    xdata : np.ndarray | pd.Series
+    xdata : :class:`numpy.ndarray`
         X data
-    ydata: np.ndarray | pd.Series
+    ydata: class:`numpy.ndarray` | pd.Series
         Y data
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axes on which to plot.
-    axes_width : float
+    axes_width : :class:`float`
         Width of the marginal axes.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the nan_scatter is plotted.
     """
     if ax is None:
@@ -591,14 +608,14 @@ def get_full_extent(ax, pad=0.0):
 
     Parameters
     -----------
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axes of which to check items to get full extent.
-    pad : np.number
+    pad : :class:`float`
         Amount of padding to add to the full extent prior to returning.
 
     Returns
     --------
-    matplotlib.transforms.Bbox
+    :class:`matplotlib.transforms.Bbox`
         Bbox of the axes with optional additional padding.
     """
     fig = ax.figure
