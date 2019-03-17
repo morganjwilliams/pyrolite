@@ -13,7 +13,7 @@ class TestFeAt8MgO(unittest.TestCase):
 
     def test_close_to_8(self):
         feat8 = FeAt8MgO(self.FeOT, 8.0)
-        self.assertTrue(np.isclose(feat8, self.FeOT))
+        self.assertTrue(np.isclose(feat8, self.FeOT, rtol=0.001))
 
 
 class TestNaAt8MgO(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestNaAt8MgO(unittest.TestCase):
 
     def test_close_to_8(self):
         naat8 = FeAt8MgO(self.Na2O, 8.0)
-        self.assertTrue(np.isclose(naat8, self.Na2O))
+        self.assertTrue(np.isclose(naat8, self.Na2O, rtol=0.001))
 
 
 if __name__ == "__main__":
