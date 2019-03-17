@@ -73,17 +73,22 @@ def to_ser(df):
     Simple utility for converting single column :class:`pandas.DataFrame`
     to :class:`pandas.Series`.
     """
-    if type(df) == pd.DataFrame:
+    if isinstance(df, pd.Series):  # passed series instead of dataframe
+        ser = df
+    elif isinstance(df, pd.DataFrame):
         assert (df.columns.size == 1) or (
             df.index.size == 1
         ), """Can't convert DataFrame to Series:
               either columns or index need to have size 1."""
         if df.columns.size == 1:
-            return df.iloc[:, 0]
+            ser = df.iloc[:, 0]
         else:
-            return df.iloc[0, :]
+            ser = df.iloc[0, :]
     else:
-        return df
+        msg = "Conversion from {} to series not yet implemented".format(type(df))
+        raise NotImplementedError(msg)
+
+    return ser
 
 
 def to_numeric(df, errors: str = "coerce"):
