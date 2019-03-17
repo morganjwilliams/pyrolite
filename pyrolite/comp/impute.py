@@ -23,6 +23,11 @@ def _little_sweep(G, k: int = 1, verify=False):
     verify : :class:`bool`
         Whether to verify valid matrix input.
 
+    Returns
+    --------
+    H : :class:`numpy.ndarray`
+        Swept array.
+
     References
     ----------
         Little R. J. A. and Rubin D. B. (2014).
@@ -67,14 +72,15 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     Parameters
     -----------
     M : :class:`numpy.ndarray`
-        Array of means.
+        Array of means of shape :code:`(D, )`.
     C : :class:`numpy.ndarray`
-        Covariance matrix.
+        Covariance of shape :code:`(D, D)`.
     varobs : :class:`numpy.ndarray`
-        Boolean array indicating which variables are included in the regression model.
+        Boolean array indicating which variables are included in the regression model,
+        of shape :code:`(D, )`
     error_threshold : :class:`float`
-        Low-pass threshold at which an error will result. Effectively limiting mean
-        values to :math:`e^{threshold}`.
+        Low-pass threshold at which an error will result, of shape :code:`(D, )`.
+        Effectively limiting mean values to :math:`e^{threshold}`.
 
     Returns
     --------
@@ -150,6 +156,11 @@ def EMCOMP(
         At least one component without missing values is needed for the divisor. Rounded zeros/
         missing values are replaced by values below their respective detection limits.
 
+    Todo
+    -------
+        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code`(N, D)`)
+        * Conisder non-normal models for data distributions.
+
     References
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
@@ -183,15 +194,16 @@ def EMCOMP(
     C = nancov(Y)  # Σ0
     assert np.isfinite(M).all() and np.isfinite(C).all()
     """
-    ------------------------------------------------
+    ------------------------------------------------------------------------------------
     Stage 2: Find and enumerate missing data patterns.
-    ------------------------------------------------
+    ------------------------------------------------------------------------------------
     """
     pID, pD = md_pattern(Y)
     """
-    Regression against other variables ------------------------------------------
+    ------------------------------------------------------------------------------------
+    Stage 3: Regression against other variables
+    ------------------------------------------------------------------------------------
     """
-
     another_iter = True
     niters = 0
     while another_iter:
@@ -262,6 +274,8 @@ def impute_ratios(ratios: pd.DataFrame):
     aggregated ratio matrix via chained ratio multiplication akin to
     internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
 
+    .. warning:: Not used in the wild.
+
     Parameters
     ---------------
     ratios : :class:`pandas.DataFrame`
@@ -296,6 +310,8 @@ def np_impute_ratios(ratios: np.ndarray):
     Imputation function utilizing numpy which is used to fill out the
     aggregated ratio matrix via chained ratio multiplication akin to
     internal standardisation (e.g. Ti / MgO = Ti/SiO2 * SiO2 / MgO).
+
+    .. warning:: Not used in the wild.
 
     Parameters
     ---------------

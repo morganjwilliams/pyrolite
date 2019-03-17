@@ -47,13 +47,13 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
 
     Parameters
     ------------
-    df: :class:`pandas.DataFrame`
+    df : :class:`pandas.DataFrame`
         Dataframe to renomalise.
-    components: :class:`list`
+    components : :class:`list`
         Option subcompositon to renormalise to 100. Useful for the use case
         where compostional data and non-compositional data are stored in the
         same dataframe.
-    scale: :class:`float`, 100.
+    scale : :class:`float`, :code:`100.`
         Closure parameter. Typically either 100 or 1.
 
     Returns
@@ -80,7 +80,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     Parameters
     ---------------
     X: :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
     ind: :class:`int`
         Index of column used as denominator.
     null_col : :class:`bool`
@@ -89,7 +89,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     Returns
     ---------
     :class:`numpy.ndarray`
-        ALR-transformed array.
+        ALR-transformed array, of shape :code:`(N, D-1)`.
     """
 
     Y = X.copy()
@@ -117,16 +117,17 @@ def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
     ind : :class:`int`
         Index of column used as denominator.
-    null_col : :class:`bool`
-        Whether the array contains an extra redundant column.
+    null_col : :class:`bool`, :code:`False`
+        Whether the array contains an extra redundant column
+        (i.e. shape is :code:`(N, D)`).
 
     Returns
     --------
     :class:`numpy.ndarray`
-        Inverse-ALR transformed array.
+        Inverse-ALR transformed array, of shape :code:`(N, D)`.
     """
     assert Y.ndim in [1, 2]
 
@@ -159,12 +160,12 @@ def clr(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
     :class:`numpy.ndarray`
-        CLR-transformed array.
+        CLR-transformed array, of shape :code:`(N, D)`.
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
@@ -179,12 +180,12 @@ def inverse_clr(Y: np.ndarray):
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
     :class:`numpy.ndarray`
-        Inverse-CLR transformed array.
+        Inverse-CLR transformed array, of shape :code:`(N, D)`.
     """
     # Inverse of log operation
     X = np.exp(Y)
@@ -200,12 +201,12 @@ def ilr(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     --------
     :class:`numpy.ndarray`
-        ILR-transformed array.
+        ILR-transformed array, of shape :code:`(N, D-1)`.
     """
     d = X.shape[1]
     Y = clr(X)
@@ -221,12 +222,15 @@ def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
+    X : :class:`numpy.ndarray`, :code:`None`
+        Optional specification for an array from which to derive the orthonormal basis,
+        with shape :code:`(N, D)`.
 
     Returns
     --------
     :class:`numpy.ndarray`
-        Inverse-ILR transformed array.
+        Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
 
     if X is None:

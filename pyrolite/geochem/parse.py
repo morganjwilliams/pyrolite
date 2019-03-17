@@ -9,7 +9,7 @@ from .ind import (
     get_cations,
     common_elements,
     common_oxides,
-    get_isotopes
+    get_isotopes,
 )
 import logging
 
@@ -26,14 +26,14 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
     ----------
     strings : :class:`list`
         Strings to convert to 'chemical case'.
-    abbr : :class:`list`, ['ID', 'IGSN']
+    abbr : :class:`list`, :code:`["ID", "IGSN"]`
         Abbreivated phrases to ignore in capitalisation.
     split_on : :class:`str`, "[\s_]+"
         Regex for character or phrases to split the strings on.
 
     Returns
     --------
-    :class:`list`
+    :class:`list` | :class:`str`
     """
     # listify single string passed
     listified = False
@@ -89,7 +89,7 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe to check duplication within.
-    exclude : :class:`list`, ['LOI','FeOT', 'Fe2O3T']
+    exclude : :class:`list`, :code:`["LOI", "FeOT", "Fe2O3T"]`
         List of components to exclude from the duplication check.
 
     Returns

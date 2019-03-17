@@ -284,6 +284,7 @@ def aggregate_cation(
     -------
         * Support for molecular data.
         * Update to return only a series, rather than modify a dataframe.
+        * Update to reflect similar process to :func:`~pyrolite.geochem.transform.recalcuate_Fe`
     """
 
     dfc = df.copy()
@@ -504,6 +505,12 @@ def add_ratio(
     :class:`pandas.DataFrame`
         Dataframe with ratio appended.
 
+    Todo
+    ------
+        * Implement methods to get data which is not currently present.
+        * Use sympy-like functionality to accept arbitrary input e.g.
+            :code:`"MgNo = Mg / (Mg + Fe)"` for subsequent calculation.
+
     See Also
     --------
     :func:`~pyrolite.geochem.transform.add_MgNo`
@@ -558,6 +565,10 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     :class:`pandas.DataFrame`
         Dataframe with ratio appended.
 
+    Todo
+    ------
+        * Update to be able to get components regardless of elemental/oxide etc.
+
     See Also
     --------
     :func:`~pyrolite.geochem.transform.add_ratio`
@@ -607,30 +618,31 @@ def lambda_lnREE(
     **kwargs
 ):
     """
-    Calculates lambda coefficients for a given set of REE data, normalised
-    to a specific composition [#ref_1]_. Lambda factors are given for the
+    Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
+    normalised to a specific composition [#ref_1]_. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
 
     Parameters
     ------------
     df : :class:`pandas.DataFrame`
         Dataframe to calculate lambda coefficients for.
-    norm_to : :class:`str`, 'Chondrite_PON'
-        Which reservoir to normalise REE data to.
-    exclude : :class:`list`, ['Pm', 'Eu']
-        Which REE elements to exclude from the fit.
+    norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+        Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
+    exclude : :class:`list`, :code:`["Pm", "Eu"]`
+        Which REE elements to exclude from the fit. May wish to include Ce for minerals
+        in which Ce anomalies are common.
     params : :class:`list`, :code:`None`
         Set of predetermined orthagonal polynomial parameters.
     degree : :class:`int`, 5
         Maximum degree polynomial fit component to include.
-    append : :class:`list`, []
-        Whether to append lambda function (i.e. ['function']).
+    append : :class:`list`, :code:`None`
+        Whether to append lambda function (i.e. :code:`["function"]`).
 
     Todo
     -----
         * Operate only on valid rows.
         * Add residuals, Eu, Ce anomalies as options to `append`.
-        * Pre-build orthagonal parameters for REE combinations for calculation speed.
+        * Pre-build orthagonal parameters for REE combinations for calculation speed?
 
     References
     -----------
@@ -691,7 +703,7 @@ def lambda_lnREE(
         lambda_partial, 1, norm_df.values
     )
     lambdadf.loc[(lambdadf == 0.0).all(axis=1), :] = np.nan
-    if append:
+    if append is not None:
         if "function" in append:
             # append the smooth f(radii) function to the dataframe
             func_partial = functools.partial(
