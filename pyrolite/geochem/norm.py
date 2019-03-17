@@ -34,6 +34,10 @@ def scale_multiplier(in_unit, target_unit="ppm"):
     target_unit: target mass unit, ppm
         Units to scale to.
 
+    Todo
+    -------
+        * Implement different inputs: :class:`str`, :class:`list`, :class:`pandas.Series`
+
     Returns
     --------
     :class:`float`
@@ -117,7 +121,13 @@ class RefComp(object):
         )
 
     def set_units(self, to="ppm"):
+        """
+        Set the units of the dataframe.
 
+        Parameters
+        ------------
+        to : :class:`str`, :code:`"ppm"`
+        """
         v = self.vars
         self.data.loc[v, "scale"] = self.data.loc[v, "units"].apply(
             scale_multiplier, target_unit=to
@@ -127,15 +137,27 @@ class RefComp(object):
             v, "scale"
         ].astype(np.float)
 
-    def normalize(self, df, aux_cols=["LOD", "2SE"]):
+    def normalize(self, df):
         """
         Normalize the values within a dataframe to the refererence composition.
-        Here we create indexes for normalisation of values and any auxilary
-        values (e.g. uncertainty).
+        Here we create indexes for normalisation of values.
+
+        Parameters
+        -----------
+        df : :class:`pandas.DataFrame`
+            Dataframe to normalize.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Normalised dataframe.
 
         Todo
         -----
-            * Implement uncertainty propagation
+            * Implement normalization of auxilary columns (LOD, uncertanties),
+              potentially identified by lambda functions
+              (e.g. :code:`lambda x: delim.join([str(x), "LOD"])`).
+            * Uncertainty propogation
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -151,7 +173,7 @@ class RefComp(object):
         dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
         return dfc
 
-    def denormalize(self, df, aux_cols=["LOD", "2SE"]):
+    def denormalize(self, df):
         """
         Un-normalize the values within a dataframe back to true composition.
 
@@ -159,13 +181,18 @@ class RefComp(object):
         -----------
         df : :class:`pandas.DataFrame` | :class:`pandas.Series`
             Dataframe to de-normalize.
-        aux_cols : :class:`list`, ["LOD", "2SE"]
-            Auxilary columns which should scale with the compositional data.
 
         Returns
         --------
         :class:`pandas.DataFrame`
             De-normalized dataframe.
+
+        Todo
+        -----
+            * Implement normalization of auxilary columns (LOD, uncertanties),
+              potentially identified by lambda functions
+              (e.g. :code:`lambda x: delim.join([str(x), "LOD"])`).
+            * Uncertainty propogation
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -194,6 +221,11 @@ class RefComp(object):
         --------
         :class:`float`
             Ratio, if it exists, otherwise :class:`np.nan`
+
+        Todo
+        ------
+            * Functionality for calculating arbitrary components in the event that
+                one is not directly present (e.g get Si from SiO2)
         """
         try:
             assert "/" in ratio
@@ -254,7 +286,7 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     ----------
     directory : :class:`str`, :code:`None`
         Location of reference data files.
-    formats : :class:`list`, "csv"
+    formats : :class:`list`, :code:`["csv"]`
         List of potential data formats to draw from.
         Currently only csv will work.
 
@@ -263,9 +295,9 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     :class:`dict`
         Dictionary of reference compositions.
     """
-    #if platform.system() == "Windows":
+    # if platform.system() == "Windows":
     #    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
-    #else:
+    # else:
     kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
 
     curr_dir = os.path.realpath(__file__)

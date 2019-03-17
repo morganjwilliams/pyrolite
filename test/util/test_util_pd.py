@@ -69,13 +69,21 @@ class TestToFrame(unittest.TestCase):
 
 class TestToSer(unittest.TestCase):
     def setUp(self):
-        pass
+        self.ser = test_ser()
+        self.df = test_df()
 
     def test_single_column(self):
-        pass
+        result = to_ser(self.df.iloc[:, 0])
+
+    def test_single_row(self):
+        result = to_ser(self.df.iloc[0, 1])
+
+    def test_ser_column_order(self):
+        result = to_ser(self.df.iloc[:, 0])
+        self.assertTrue(all(result.index == self.df.columns))
 
     def test_assertion_error_mulitcolumn(self):
-        pass
+        result = to_ser(self.df)
 
 
 class TestToNumeric(unittest.TestCase):
