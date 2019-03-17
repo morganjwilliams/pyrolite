@@ -114,8 +114,8 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     assert (np.diag(A) != 0).all()  # Not introducing extra zeroes
     for n in range(q):  # for
         A = _little_sweep(A, n)
-    if not np.isfinite(A).all():  # Typically caused by infs
-        A[~np.isfinite(A)] = 0
+        if not np.isfinite(A).all():  # Typically caused by infs
+            A[~np.isfinite(A)] = 0
     β = A[0 : q + 1, q + 1 : p + 1]
     σ2_res = A[q + 1 : p + 1, q + 1 : p + 1]
     return β, σ2_res
@@ -151,15 +151,18 @@ def EMCOMP(
         Callable function to check for convergence. Here we use a compositional distance
         rather than a maximum absolute difference, with very similar performance.
 
-    Note
+    Notes
     -----
-        At least one component without missing values is needed for the divisor. Rounded zeros/
-        missing values are replaced by values below their respective detection limits.
+        * At least one component without missing values is needed for the divisor. Rounded zeros/
+            missing values are replaced by values below their respective detection limits.
+
+        * This routine is not completely numerically stable as written.
 
     Todo
     -------
         * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code`(N, D)`)
         * Conisder non-normal models for data distributions.
+        * Improve numerical stability to reduce the chance of :code:`np.inf` appearing.
 
     References
     ----------
