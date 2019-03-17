@@ -52,15 +52,15 @@ class TestToFrame(unittest.TestCase):
 
     def test_df_column_order(self):
         result = to_frame(self.df)
-        self.assertTrue(all(result.columns == self.df.columns))
+        self.assertTrue((result.columns == self.df.columns).all())
 
     def test_ser_column_order(self):
         result = to_frame(self.ser)
-        self.assertTrue(all(result.columns == self.ser.index))
+        self.assertTrue((result.columns == self.ser.index).all())
 
     def test_df_index_preservation(self):
         result = to_frame(self.df)
-        self.assertTrue(all(result.index == self.df.index))
+        self.assertTrue((result.index == self.df.index).all())
 
     def test_series_conversion(self):
         result = to_frame(self.ser)
@@ -80,13 +80,11 @@ class TestToSer(unittest.TestCase):
 
     def test_single_column(self):
         result = to_ser(self.df.iloc[:, 0])
+        self.assertTrue((result.index == self.df.index).all())
 
     def test_single_row(self):
-        result = to_ser(self.df.iloc[0, 1])
-
-    def test_ser_column_order(self):
-        result = to_ser(self.df.iloc[:, 0])
-        self.assertTrue(all(result.index == self.df.columns))
+        result = to_ser(self.df.iloc[0, :])
+        self.assertTrue((result.index == self.df.columns).all())
 
     def test_assertion_error_mulitcolumn(self):
         with self.assertRaises(AssertionError) as cm:
@@ -152,11 +150,11 @@ class TestConcatColumns(unittest.TestCase):
         ).T
 
     def test_default(self):
-        out = concat_columns(df)
+        out = concat_columns(self.df)
         self.assertTrue((out == pd.Series(["abc", "def"])).all())
 
     def test_columns(self):
-        out = concat_columns(df, columns=["A", "B"])
+        out = concat_columns(self.df, columns=["A", "B"])
         self.assertTrue((out == pd.Series(["ab", "de"])).all())
 
 
@@ -167,18 +165,18 @@ class TestUniquesFromConcat(unittest.TestCase):
         ).T
 
     def test_default(self):
-        out = uniques_from_concat(df)
-        self.assertTrue(out.index.size = out.unique().index.size)
+        out = uniques_from_concat(self.df)
+        self.assertTrue(out.index.size == out.unique().index.size)
 
     def test_columns(self):
-        out = uniques_from_concat(df, columns=["A", "B"])
-        self.assertTrue(out.index.size = out.unique().index.size)
+        out = uniques_from_concat(self.df, columns=["A", "B"])
+        self.assertTrue(out.index.size == out.unique().index.size)
 
     def test_hashit(self):
         for h in [True, False]:
             with self.subTest(h=h):
-                out = uniques_from_concat(df, hashit=h)
-                self.assertTrue(out.index.size = out.unique().index.size)
+                out = uniques_from_concat(self.df, hashit=h)
+                self.assertTrue(out.index.size == out.unique().index.size)
                 if not h:
                     self.assertTrue((out == pd.Series(["abc", "def"])).all())
 
