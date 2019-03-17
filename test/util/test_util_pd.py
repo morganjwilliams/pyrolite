@@ -66,6 +66,12 @@ class TestToFrame(unittest.TestCase):
         result = to_frame(self.ser)
         self.assertTrue(isinstance(result, pd.DataFrame))
 
+    def test_non_convertable(self):
+        for noconv in [None, [0, 1, [1]]]:
+            with self.subTest(noconv=noconv):
+                with self.assertRaises(NotImplementedError) as cm:
+                    result = to_frame(noconv)
+
 
 class TestToSer(unittest.TestCase):
     def setUp(self):
@@ -83,7 +89,14 @@ class TestToSer(unittest.TestCase):
         self.assertTrue(all(result.index == self.df.columns))
 
     def test_assertion_error_mulitcolumn(self):
-        result = to_ser(self.df)
+        with self.assertRaises(AssertionError) as cm:
+            result = to_ser(self.df)
+
+    def test_non_convertable(self):
+        for noconv in [None, [0, 1, [1]]]:
+            with self.subTest(noconv=noconv):
+                with self.assertRaises(NotImplementedError) as cm:
+                    result = to_ser(noconv)
 
 
 class TestToNumeric(unittest.TestCase):
