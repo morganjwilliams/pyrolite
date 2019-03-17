@@ -134,7 +134,25 @@ def outliers(
     return df.loc[whereout, colfltr]
 
 
-def concat_columns(df, columns, astype=str, **kwargs):
+def concat_columns(df, columns=None, astype=str, **kwargs):
+    """
+    Concatenate strings across columns.
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to concatenate.
+    columns : :class:`list`
+        List of columns to concatenate.
+    astype : :class:`type`
+        Type to convert final concatenation to.
+
+    Returns
+    -------
+    :class:`pandas.Series`
+    """
+    if columns is None:
+        columns = df.columns
     out = pd.Series(index=df.index, **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:
@@ -144,17 +162,34 @@ def concat_columns(df, columns, astype=str, **kwargs):
     return out
 
 
-def uniques_from_concat(df, cols, hashit=True):
+def uniques_from_concat(df, columns=None, hashit=True):
     """
     Creates ideally unique keys from multiple columns.
     Optionally hashes string to standardise length of identifier.
+
+    Parameters
+    ------------
+    df : :class:`pandas.DataFrame`
+        DataFrame to create indexes for.
+    columns : :class:`list`
+        Columns to use in the string concatenatation.
+    hashit : :class:`bool`, :code:`True`
+        Whether to use a hashing algorithm to create the key from a typically
+        longer string.
+
+    Returns
+    ---------
+    :class:`pandas.Series`
     """
+    if columns is None:
+        columns = df.columns
+
     if hashit:
         fmt = lambda x: hashlib.md5(x.encode("UTF-8")).hexdigest()
     else:
         fmt = lambda x: x.encode("UTF-8")
 
-    return concat_columns(df, cols, dtype="category").apply(fmt)
+    return concat_columns(df, columns, dtype="category").apply(fmt)
 
 
 def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):

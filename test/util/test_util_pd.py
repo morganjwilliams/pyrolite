@@ -147,22 +147,41 @@ class TestOutliers(unittest.TestCase):
 
 class TestConcatColumns(unittest.TestCase):
     def setUp(self):
-        pass
+        self.df = pd.DataFrame(
+            {0: ["a", "b", "c"], 1: ["d", "e", "f"]}, index=["A", "B", "C"]
+        ).T
 
-    def test_exclude(self):
-        pass
+    def test_default(self):
+        out = concat_columns(df)
+        self.assertTrue((out == pd.Series(["abc", "def"])).all())
 
-    def test_error_methods(self):
-        pass
+    def test_columns(self):
+        out = concat_columns(df, columns=["A", "B"])
+        self.assertTrue((out == pd.Series(["ab", "de"])).all())
 
 
 class TestUniquesFromConcat(unittest.TestCase):
     def setUp(self):
-        self.df = pd.DataFrame()
+        self.df = pd.DataFrame(
+            {0: ["a", "b", "c"], 1: ["d", "e", "f"]}, index=["A", "B", "C"]
+        ).T
 
-    def test_unique(self):
-        pass
-        uniques_from_concat
+    def test_default(self):
+        out = uniques_from_concat(df)
+        self.assertTrue(out.index.size = out.unique().index.size)
+
+    def test_columns(self):
+        out = uniques_from_concat(df, columns=["A", "B"])
+        self.assertTrue(out.index.size = out.unique().index.size)
+
+    def test_hashit(self):
+        for h in [True, False]:
+            with self.subTest(h=h):
+                out = uniques_from_concat(df, hashit=h)
+                self.assertTrue(out.index.size = out.unique().index.size)
+                if not h:
+                    self.assertTrue((out == pd.Series(["abc", "def"])).all())
+
 
 
 class TestDFFromCSVs(unittest.TestCase):
