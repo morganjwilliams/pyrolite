@@ -166,20 +166,21 @@ class TestUniquesFromConcat(unittest.TestCase):
 
     def test_default(self):
         out = uniques_from_concat(self.df)
-        self.assertTrue(out.index.size == out.unique().index.size)
+        self.assertTrue(out.index.size == len(out.unique()))
 
     def test_columns(self):
         out = uniques_from_concat(self.df, columns=["A", "B"])
-        self.assertTrue(out.index.size == out.unique().index.size)
+        self.assertTrue(out.index.size == len(out.unique()))
 
     def test_hashit(self):
         for h in [True, False]:
             with self.subTest(h=h):
                 out = uniques_from_concat(self.df, hashit=h)
-                self.assertTrue(out.index.size == out.unique().index.size)
+                self.assertTrue(out.index.size == len(out.unique()))
                 if not h:
-                    self.assertTrue((out == pd.Series(["abc", "def"])).all())
-
+                    self.assertTrue(
+                        (out == pd.Series(["abc", "def"]).str.encode("UTF-8")).all()
+                    )
 
 
 class TestDFFromCSVs(unittest.TestCase):

@@ -185,11 +185,16 @@ def uniques_from_concat(df, columns=None, hashit=True):
         columns = df.columns
 
     if hashit:
-        fmt = lambda x: hashlib.md5(x.encode("UTF-8")).hexdigest()
-    else:
-        fmt = lambda x: x.encode("UTF-8")
 
-    return concat_columns(df, columns, dtype="category").apply(fmt)
+        def fmt(ser):
+            ser = ser.str.encode("UTF-8")
+            ser = ser.apply(lambda x: hashlib.md5(x).hexdigest())
+            return ser
+
+    else:
+        fmt = lambda x: x.str.encode("UTF-8")
+
+    return fmt(concat_columns(df, columns, dtype="category"))
 
 
 def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
