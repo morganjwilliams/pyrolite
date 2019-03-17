@@ -2,13 +2,17 @@ import unittest
 from pathlib import Path
 import pandas as pd
 import numpy as np
+from scipy.stats import multivariate_normal
 import matplotlib
-import matplotlib.axes as matax
+import matplotlib.axes
+import matplotlib.patches
+import matplotlib.path
 import matplotlib.pyplot as plt
 from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
-from scipy.stats import multivariate_normal
+from pyrolite.util.skl import ILRTransform, ALRTransform
+
 
 try:
     from sklearn.decomposition import PCA
@@ -30,6 +34,9 @@ class TestAddColorbar(unittest.TestCase):
     def test_colorbar(self):
         add_colorbar(self.mappable)
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestModifyLegendHandles(unittest.TestCase):
     """
@@ -44,36 +51,94 @@ class TestModifyLegendHandles(unittest.TestCase):
         _hndls, labls = modify_legend_handles(self.ax, **{"color": "k"})
         self.assertTrue(_hndls[0].get_color() == "k")
 
+    def tearDown(self):
+        plt.close("all")
 
-class TestABC2TernXY(unittest.TestCase):
-    """
-    Tests the ABC_to_tern_xy utility function.
-    """
 
+class TestTernaryTransforms(unittest.TestCase):
     def setUp(self):
-        self.fig, self.ax = plt.subplots(1)
-        self.data = np.random.random((3, 10))
-        self.data = close(self.data)
+        self.ABC = np.array(
+            [[0, 0, 1], [0, 1, 0], [1, 0, 0], [1 / 3, 1 / 3, 1 / 3], [1, 1, 1]]
+        )
+        self.xy = np.array([[0, 0], [0.5, 1.0], [1, 0], [0.5, 1 / 3], [0.5, 1 / 3]])
 
-    def test_ABC_to_tern_xy(self):
-        conv = ABC_to_tern_xy(self.data)
-        self.assertTrue(len(conv) == 2)  # xd, yd
+    def test_xy_to_ABC(self):
+        out = xy_to_ABC(self.xy)
+        self.assertTrue(np.allclose(out, close(self.ABC)))
+
+    def test_ABC_to_xy(self):
+        out = ABC_to_xy(self.ABC)
+        self.assertTrue(np.allclose(out, self.xy))
+
+    def test_tfm_inversion_xyABC(self):
+        out = ABC_to_xy(xy_to_ABC(self.xy))
+        self.assertTrue(np.allclose(out, self.xy))
+
+    def test_tfm_inversion_ABCxy(self):
+        out = xy_to_ABC(ABC_to_xy(self.ABC))
+        self.assertTrue(np.allclose(out, close(self.ABC)))
+
+    def test_xy_to_ABC_yscale(self):
+        for yscale in [1.0, 2.0, np.sqrt(3) / 2]:
+            out = xy_to_ABC(self.xy, yscale=yscale)
+            expect = self.ABC.copy()
+            # scale is slightly complicated; will leave for now
+            # test inverse
+            self.assertTrue(np.allclose(ABC_to_xy(out, yscale=yscale), self.xy))
+
+    def test_ABC_to_xy_yscale(self):
+        for yscale in [1.0, 2.0, np.sqrt(3) / 2]:
+            out = ABC_to_xy(self.ABC, yscale=yscale)
+            expect = self.xy.copy()
+            expect[:, 1] *= yscale
+            # test scale
+            self.assertTrue(np.allclose(out, expect))
+            # test inverse
+
+            self.assertTrue(np.allclose(xy_to_ABC(out, yscale=yscale), close(self.ABC)))
 
 
-class TestTernHeatmapCoords(unittest.TestCase):
-    """
-    Tests the tern_heatmapcoords utility function.
-    """
-
+class TestTernaryHeatmap(unittest.TestCase):
     def setUp(self):
-        self.fig, self.ax = plt.subplots(1)
-        self.data = np.random.random((3, 10))
-        self.data = close(self.data)
+        self.data = np.random.rand(100, 3)
 
-    def test_tern_heatmapcoords(self):
-        coords = tern_heatmapcoords(self.data)
-        self.assertTrue(isinstance(coords, dict))
-        # need to test completeness of keys
+    def test_default(self):
+        out = ternary_heatmap(self.data)
+        self.assertTrue(isinstance(out, tuple))
+        xe, ye, zi = out
+        self.assertTrue(xe.shape == ye.shape)
+        # zi could have more or less bins depending on mode..
+
+    def test_histogram(self):
+        out = ternary_heatmap(self.data, mode="histogram")
+        xe, ye, zi = out
+        self.assertTrue(xe.shape == ye.shape)
+        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
+        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
+
+    def test_density(self):
+        out = ternary_heatmap(self.data, mode="density")
+        xe, ye, zi = out
+        self.assertTrue(xe.shape == ye.shape)
+        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
+        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
+
+    def test_transform(self):
+        for tfm, itfm in [
+            (alr, inverse_alr),
+            (ilr, inverse_ilr),
+            (ILRTransform, None),
+            (ALRTransform, None),
+        ]:
+            with self.subTest(tfm=tfm, itfm=itfm):
+                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
+                xe, ye, zi = out
+
+    @unittest.expectedFailure
+    def test_need_inverse_transform(self):
+        for tfm, itfm in [(alr, None), (ilr, None)]:
+            with self.subTest(tfm=tfm, itfm=itfm):
+                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 
 
 class TestLegendProxies(unittest.TestCase):
@@ -92,6 +157,9 @@ class TestLegendProxies(unittest.TestCase):
     def test_proxy_rect(self):
         line = proxy_line()
         self.assertTrue(isinstance(line, matplotlib.lines.Line2D))
+
+    def tearDown(self):
+        plt.close("all")
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
@@ -153,6 +221,32 @@ class Test2DHull(unittest.TestCase):
         lines = plot_2dhull(self.ax, self.data)
         self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
 
+    def test_2d_hull_splines(self):
+        lines = plot_2dhull(self.ax, self.data, splines=True)
+        self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
+
+    def tearDown(self):
+        plt.close("all")
+
+
+class InterpolatedPathPatch(unittest.TestCase):
+    """
+    Tests the interpolated_path_patch utility function.
+    """
+
+    def setUp(self):
+        self.patch = matplotlib.patches.Ellipse((0, 0), 1, 2)
+
+    def test_default(self):
+        path = interpolated_patch_path(self.patch)
+        self.assertTrue(isinstance(path, matplotlib.path.Path))
+
+    def test_resolution(self):
+        for res in [2, 10, 100]:
+            with self.subTest(res=res):
+                path = interpolated_patch_path(self.patch, resolution=res)
+                self.assertTrue(path.vertices.shape[0] == res)
+
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
     def setUp(self):
@@ -200,7 +294,10 @@ class TestPlotZPercentiles(unittest.TestCase):
     def test_extent(self):
         for extent in [[-1, 1, -1, 1], [-0.01, 0.99, -1.01, -0.01], [-2, 2, -2, -2]]:
             with self.subTest(extent=extent):
-                plot_Z_percentiles(self.xi, self.yi, self.zi,  extent=extent)
+                plot_Z_percentiles(self.xi, self.yi, self.zi, extent=extent)
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestNaNScatter(unittest.TestCase):
@@ -217,7 +314,7 @@ class TestNaNScatter(unittest.TestCase):
     def test_plot(self):
         fig, ax = plt.subplots()
         ax = nan_scatter(self.x, self.y, ax=ax)
-        self.assertTrue(isinstance(ax, matax.Axes))
+        self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def tearDown(self):
         plt.close("all")

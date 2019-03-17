@@ -62,14 +62,14 @@ def stream_log(package_name, level="INFO"):
 
     Parameters
     ----------
-    package_name : str
+    package_name : :class:`str`
         Name of the package to monitor logging from.
-    level : str, 'INFO'
+    level : :class:`str`, :code:`'INFO'`
         Logging level at which to set the handler output.
 
     Returns
     -------
-    logging.logger
+    :class:`logging.logger`
         Logger for the specified package with stream handler added.
     """
     logger = logging.getLogger(package_name)
@@ -108,12 +108,12 @@ def internet_connection(target="www.google.com"):
 
     Parameters
     ----------
-    target: url
+    target : :class:`str`
         URL to check connectivity, defaults to www.google.com
 
     Returns
     -------
-    bool
+    :class:`bool`
         Boolean indication of whether a HTTP connection can be established at the given
         url.
     """
@@ -139,12 +139,12 @@ def iscollection(obj):
 
     Parameters
     ----------
-    obj : object
+    obj : :class:`object`
         Object to check.
 
     Returns
     -------
-    bool
+    :class:`bool`
         Boolean indication of whether the object is a collection.
     """
 
@@ -161,7 +161,7 @@ def check_perl():
 
     Returns
     -------
-    bool
+    :class:`bool`
         Boolean indication of whether there is an executable perl installation.
     """
     try:
@@ -187,15 +187,15 @@ def flatten_dict(d, climb=False, safemode=False):
 
     Parameters
     ----------
-    climb: True | False, False
+    climb: :class:`bool`, :code:`False`
         Whether to keep trunk or leaf-values, for items with the same key.
-    safemode: True | False, False
+    safemode: :class:`bool`, :code:`True`
         Whether to keep all keys as a tuple index, to avoid issues with
         conflicts.
 
     Returns
     -------
-    dict
+    :class:`dict`
         Flattened dictionary.
     """
     lift = lambda x: (x,)
@@ -240,11 +240,11 @@ def swap_item(list: list, pull: object, push: object):
 
     Parameters
     ----------
-    list : list
+    list : :class:`list`
         List to replace item within.
-    pull : object
+    pull
         Item to replace in the list.
-    push : object
+    push
         Item to add into the list.
 
     Returns
@@ -261,11 +261,11 @@ def copy_file(src, dst, ext=None):
 
     Parameters
     ----------
-    src : str | Path
+    src : :class:`str` | :class:`pathlib.Path`
         Source filepath.
-    dst : str | Path
+    dst : :class:`str` | :class:`pathlib.Path`
         Destination filepath.
-    ext : extension, None
+    ext : :class:`str`, :code:`None`
         Optional file extension specification.
     """
     src = Path(src)

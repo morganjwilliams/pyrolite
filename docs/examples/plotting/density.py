@@ -10,8 +10,10 @@ np.random.seed(82)
 # create some example data
 oxs = ["SiO2", "CaO", "MgO", "Na2O"]
 ys = np.random.rand(1000, len(oxs))
-ys = close(np.exp(ys))
-df = pd.DataFrame(data=ys, columns=oxs)
+ys[:, 1] += 0.7
+ys[:, 2] += 1.
+df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
+df
 # plot
 ax = density(df.loc[:, ["SiO2", "MgO"]].values)
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
@@ -114,3 +116,12 @@ for a, vmin in zip(ax, [0.01, 0.1, 0.4]):
 plt.tight_layout()
 # %% Save Figure
 save_figure(fig, save_at="../../source/_static", name="density_vmin")
+
+# %% Density Ternary -------------------------------------------------------------------
+fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color='k')
+for a, mode in zip(ax[1:], ["hist", "density"]):
+    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
+    a.set_title("Mode: {}".format(mode))
+# %% Save Figure
+save_figure(fig, save_at="../../source/_static", name="density_ternary")

@@ -48,9 +48,9 @@ class pyroplot(object):
 
         Parameters
         -----------
-        components : :class:`list`, None
+        components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
@@ -76,10 +76,21 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 12.0)
-        ax = density.density(self._obj.loc[:, components].values, ax=ax, **kwargs)
-        if axlabels:
+        ax = density.density(obj.loc[:, components].values, ax=ax, **kwargs)
+        if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
+        elif axlabels and len(components) == 3:
+            tax = ax.tax
+            # python-ternary uses "right, top, left"
+            # Check if there's already labels
+            if not len(tax._labels.keys()):
+                tax.right_axis_label(components[0], fontsize=fontsize)
+                tax.left_axis_label(components[1], fontsize=fontsize)
+                tax.bottom_axis_label(components[2], fontsize=fontsize)
+        else:
+            pass
+
         return ax
 
     def ternary(self, components: list = None, ax=None, **kwargs):
@@ -93,7 +104,7 @@ class pyroplot(object):
         -----------
         components : :class:`list`, `None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
 
         {otherparams}
@@ -116,7 +127,7 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 10.0)
-        ax = tern.ternary(self._obj.astype(np.float).values, ax=ax, **kwargs)
+        ax = tern.ternary(obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs)
         tax = ax.tax
         # python-ternary uses "right, top, left"
         # Check if there's already labels
@@ -124,6 +135,8 @@ class pyroplot(object):
             tax.right_axis_label(components[0], fontsize=fontsize)
             tax.left_axis_label(components[1], fontsize=fontsize)
             tax.bottom_axis_label(components[2], fontsize=fontsize)
+        ax.patch.set_facecolor(None)
+        ax.set_aspect("equal")
         return ax
 
     def spider(self, components: list = None, indexes: list = None, ax=None, **kwargs):
@@ -138,7 +151,7 @@ class pyroplot(object):
             Elements or compositional components to plot.
         indexes :  :class:`list`, `None`
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
 
         {otherparams}
@@ -172,7 +185,7 @@ class pyroplot(object):
 
         Parameters
         ------------
-        ax : :class:`matplotlib.axes.Axes`, None
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         mode : :class:`str`
             Whether to plot using radii on the x-axis ('radii'), or elements

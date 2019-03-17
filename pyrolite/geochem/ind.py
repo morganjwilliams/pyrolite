@@ -31,17 +31,21 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
         uranium (92).
     output : :class:`str`
         Whether to return output list as formulae ('formula') or strings (anthing else).
-    order
+    order : :class:`callable`
         Sorting function for elements.
-    as_set : :class:`bool`
-        Whether to return a :class:`set` (True) or :class:`list` (False). Note that
-        formulae cannot be used as members of a set, and hence sets will consist only
-        of strings.
+    as_set : :class:`bool`, :code:`False`
+        Whether to return a :class:`set` (:code:`True`) or :class:`list` (:code:`False`).
+
 
     Returns
     -------
     :class:`list` | :class:`set`
         List of elements.
+
+    Note
+    -----
+        Formulae cannot be used as members of a set, and hence sets returned will
+        instead consist only of strings.
 
     Todo
     -----
@@ -119,14 +123,17 @@ def common_oxides(
     exclude : :class:`list`
         Elements to not produce oxide forms for (e.g. oxygen, noble gases).
     as_set : :class:`bool`
-        Whether to return a :class:`set` (True) or :class:`list` (False). Note that
-        formulae cannot be used as members of a set, and hence sets will consist only
-        of strings.
+        Whether to return a :class:`set` (:code:`True`) or :class:`list` (:code:`False`).
 
     Returns
     -------
     :class:`list` | :class:`set`
         List of oxides.
+
+    Note
+    -----
+        Formulae cannot be used as members of a set, and hence sets returned will
+        instead consist only of strings.
 
     Todo
     ----
@@ -277,7 +284,6 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
             studies of interatomic distances in halides and chalcogenides.
             Acta Crystallographica Section A 32:751–767. doi: 10.1107/S0567739476001551
             https://dx.doi.org/10.1107/S0567739476001551
-
 
     Todo
     -----

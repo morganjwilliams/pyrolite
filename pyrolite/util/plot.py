@@ -1,13 +1,13 @@
 import os
+import inspect
 from copy import copy
 from types import MethodType
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from scipy import interpolate
 from scipy.stats.kde import gaussian_kde
-from scipy.spatial import ConvexHull
-from scipy import interpolate
+import scipy.spatial
+import scipy.interpolate
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.lines
@@ -18,28 +18,13 @@ import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
 import logging
 
+from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
-
-def add_legend_items(ax):
-
-    handles_original = []
-    handles_original += ax.lines + ax.patches + ax.collections + ax.containers
-    # support parasite axes:
-    if hasattr(ax, "parasites"):
-        for axx in ax.parasites:
-            handles_original += (
-                axx.lines + axx.patches + axx.collections + axx.containers
-            )
-    handles, labels = [], []
-    for handle in handles_original:
-        label = handle.get_label()
-        if label and not label.startswith("_"):
-            handles.append(handle)
-            labels.append(label)
 
 
 def modify_legend_handles(ax, **kwargs):
@@ -48,15 +33,15 @@ def modify_legend_handles(ax, **kwargs):
 
     Parameters
     ----------
-    ax: matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axis for which to obtain modifed legend handles.
-    kwargs:
-        Keyword arguments to be passed to the handles.
 
     Returns
     -------
-    tuple
-        Handles, labels to be passed to a legend call.
+    handles : :class:`list`
+        Handles to be passed to a legend call.
+    labels : :class:`list`
+        Labels to be passed to a legend call.
     """
     hndls, labls = ax.get_legend_handles_labels()
     _hndls = []
@@ -82,15 +67,15 @@ def interpolated_patch_path(patch, resolution=100):
 
     Returns
     --------
-    `matplotlib.path.Path`
-        Interpolated `~matplotlib.path.Path` object.
+    :class:`matplotlib.path.Path`
+        Interpolated :class:`~matplotlib.path.Path` object.
     """
     pth = patch.get_path()
     tfm = patch.get_transform()
     pathtfm = tfm.transform_path(pth)
     x, y = pathtfm.vertices.T
-    tck, u = interpolate.splprep([x[:-1],y[:-1]], per=True, s=1)
-    xi, yi =  interpolate.splev(np.linspace(0, 1, resolution), tck)
+    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], per=True, s=1)
+    xi, yi = scipy.interpolate.splev(np.linspace(0, 1, resolution), tck)
     # could get control points for path and construct codes here
     codes = None
     return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
@@ -109,7 +94,7 @@ def add_colorbar(mappable, **kwargs):
 
     Returns
     ----------
-    matplotlib.colorbar.Colorbar
+    :class:`matplotlib.colorbar.Colorbar`
     """
     ax = kwargs.get("ax", None)
     if hasattr(mappable, "axes"):
@@ -127,32 +112,194 @@ def add_colorbar(mappable, **kwargs):
     return fig.colorbar(mappable, cax=cax, **kwargs)
 
 
-def ABC_to_tern_xy(ABC):
-    (A, B, C) = ABC
-    T = A + B + C
-    A_n, B_n, C_n = np.divide(A, T), np.divide(B, T), np.divide(C, T)
-    xdata = 100.0 * (
-        (C_n / np.sin(np.pi / 3) + A_n / np.tan(np.pi / 3.0)) * np.sin(np.pi / 3.0)
+def bin_centres_to_edges(centres):
+    """
+    Translates point estimates at the centres of bins to equivalent edges,
+    for the case of evenly spaced bins.
+
+    Todo
+    ------
+        * This can be updated to unevenly spaced bins, just need to calculate outer bins.
+    """
+    step = (centres[1] - centres[0]) / 2
+    return np.append(centres - step, centres[-1] + step)
+
+
+def bin_edges_to_centres(edges):
+    """
+    Translates edges of histogram bins to bin centres.
+    """
+    if edges.ndim == 1:
+        steps = (edges[1:] - edges[:-1]) / 2
+        return edges[:-1] + steps
+    else:
+        steps = (edges[1:, 1:] - edges[:-1, :-1]) / 2
+        centres = edges[:-1, :-1] + steps
+        return centres
+
+
+def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):
+    def tfm(data):
+        xy = data[:, :2]
+        return (mtx @ np.vstack((xy.T[:2], np.ones(xy.T.shape[1]))))[:2]
+
+    return tfm
+
+
+def ABC_to_xy(ABC, xscale=1.0, yscale=1.0):
+    assert ABC.shape[-1] == 3
+    # transform from ternary to xy cartesian
+    scale = affine_transform(np.array([[xscale, 0, 0], [0, yscale, 0], [0, 0, 1]]))
+    shear = affine_transform(np.array([[1, 1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    xy = scale(shear(close(ABC)).T)
+    return xy.T
+
+
+def xy_to_ABC(xy, xscale=1.0, yscale=1.0):
+    assert xy.shape[-1] == 2
+    # transform from xy cartesian to ternary
+    scale = affine_transform(
+        np.array([[1 / xscale, 0, 0], [0, 1 / yscale, 0], [0, 0, 1]])
     )
-    ydata = 100.0 * (2.0 / (3.0 ** 0.5)) * A_n * np.sin(np.pi / 3.0)
-    return xdata, ydata
+    shear = affine_transform(np.array([[1, -1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    xs, ys = shear(scale(xy).T)
+    zs = 1.0 - (xs + ys)  # + (xscale-1) + (yscale-1)
+    return np.vstack([xs, ys, zs]).T
 
 
-def tern_heatmapcoords(data, scale=10, bins=10):
+def ternary_heatmap(
+    data,
+    bins=10,
+    margin=0.01,
+    force_margin=False,
+    remove_background=True,
+    transform=ilr,
+    inverse_transform=inverse_ilr,
+    mode="histogram",
+    aspect="unit",
+    ret_centres=False,
+    **kwargs
+):
+    """
+    Heatmap for ternary diagrams.
+
+    Parameters
+    -----------
+    data : :class:`numpy.ndarray`
+        Ternary data to obtain heatmap coords from.
+    bins : :class:`int`
+        Number of bins for the grid.
+    margin : :class:`float`
+        Optional specification of margin around ternary diagram to draw the grid.
+    force_margin : :class:`bool`
+        Whether to enforce the minimum margin.
+    remove_background : :class:`bool`
+        Whether to display cells with no counts.
+    transform : :class:`callable` | :class:`sklearn.base.TransformerMixin`, :func:`~pyrolite.comp.codata.ilr`
+        Callable function or Transformer class.
+    inverse_transform : :class:`callable`, :func:`~pyrolite.comp.codata.inverse_ilr`
+        Inverse function for `transform`, necessary if transformer class not specified.
+    mode : :class:`str`, {'histogram', 'density'}
+        Which mode to render the histogram/KDE in.
+    aspect : :class:`str`, {'unit', 'equilateral'}
+        Aspect of the ternary plot - whether to plot with an equilateral triangle
+        (yscale = 3**0.5/2) or a triangle within a unit square (yscale = 1.)
+    ret_centres : :class:`bool`
+        Whether to return the centres of the ternary bins.
+
+    Returns
+    -------
+    :class:`tuple` of :class:`numpy.ndarray`
+        :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density estimates :code:`Z`.
+        If :code:`ret_centres` is :code:`True`, the last return value will contain the
+        bin :code:`centres`.
+
+    Todo
+    -----
+        * Add hexbin mode
+    """
+    if inspect.isclass(transform):
+        # TransformerMixin
+        tcls = transform()
+        tfm = tcls.transform
+        itfm = tcls.inverse_transform
+    else:
+        # callable
+        tfm = transform
+        assert callable(inverse_transform)
+        itfm = inverse_transform
+
+    if aspect == "unit":
+        yscale = 1.0
+    else:
+        yscale = np.sqrt(3) / 2
+
+    AXtfm = lambda x: ABC_to_xy(x, yscale=yscale).T
+    XAtfm = lambda x: xy_to_ABC(x, yscale=yscale).T
+
+    data = close(data)
+    if not force_margin:
+        margin = min([margin, np.nanmin(data[data > 0])])
     # this appears to cause problems for ternary density diagrams
-    x, y = ABC_to_tern_xy(data)
-    xydata = np.vstack((x, y))
-    k = gaussian_kde(xydata)
+    _min, _max = (margin, 1.0 - margin)
 
-    tridata = dict()
-    step = scale // bins
-    for i in np.arange(0, scale + 1, step):
-        for j in np.arange(0, scale + 1 - i, step):
-            datacoord = i, j
-            # datacoord = i+0.5*step, j+0.5*step
-            tridata[(i, j)] = np.float(k(np.vstack(datacoord)))
+    bounds = np.array(  # three points defining the edges of what will be rendered
+        [
+            [margin, margin, 1 - 2 * margin],
+            [margin, 1 - 2 * margin, margin],
+            [1 - 2 * margin, margin, margin],
+        ]
+    )
+    xbounds, ybounds = AXtfm(bounds)
+    xbounds = np.hstack((xbounds, [xbounds[0]]))
+    ybounds = np.hstack((ybounds, [ybounds[0]]))
+    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
 
-    return tridata
+    xs, ys, zs = XAtfm(np.vstack([xi, yi]).T)
+    bound_data = np.vstack([xs, ys, zs])
+    abounds = tfm(bound_data.T)
+    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
+    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
+
+    adata = tfm(data)
+
+    ndim = adata.shape[1]
+    # bins for evaluation
+    bins = [
+        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), bins)
+        for dim in range(ndim)
+    ]
+    centres = np.meshgrid(*bins)
+    binedges = [bin_centres_to_edges(b) for b in bins]
+    edges = np.meshgrid(*binedges)
+
+    assert len(bins) == ndim
+    # histogram in logspace
+    if mode == "density":
+        kdedata = adata[np.isfinite(adata).all(axis=1), :]
+        k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
+        cdata = np.vstack([c.flatten() for c in centres])
+        H = k(cdata).reshape((bins[0].size, bins[1].size))
+    elif "hist" in mode:
+        H, hedges = np.histogramdd(adata, bins=binedges)
+        # these indicies for bin edges are correct
+    elif "hex" in mode:
+        # could do this in practice, but need to immplement transforms for hexbins
+        raise NotImplementedError
+    else:
+        raise NotImplementedError
+
+    e_shape = edges[0].shape
+    flatedges = np.vstack([e.flatten() for e in edges])
+    xe, ye = AXtfm(itfm(flatedges.T))
+    xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
+
+    if remove_background:
+        H[H == 0] = np.nan
+    if ret_centres:
+        return xe, ye, H, centres
+    return xe, ye, H
 
 
 def proxy_rect(**kwargs):
@@ -161,7 +308,7 @@ def proxy_rect(**kwargs):
 
     Returns
     ----------
-    matplotlib.patches.Rectangle
+    :class:`matplotlib.patches.Rectangle`
     """
     return matplotlib.patches.Rectangle((0, 0), 1, 1, **kwargs)
 
@@ -172,7 +319,7 @@ def proxy_line(**kwargs):
 
     Returns
     ----------
-    matplotlib.lines.Line2D
+    :class:`matplotlib.lines.Line2D`
     """
     return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
 
@@ -214,14 +361,14 @@ def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
     """
     Plots a 2D convex hull around an array of xy data points.
     """
-    chull = ConvexHull(data, incremental=True)
+    chull = scipy.spatial.ConvexHull(data, incremental=True)
     x, y = data[chull.vertices].T
     if not splines:
         lines = ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
     else:
         # https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
-        tck, u = interpolate.splprep([x, y], per=True, s=s)
-        xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
+        tck, u = scipy.interpolate.splprep([x, y], per=True, s=s)
+        xi, yi = scipy.interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
 
@@ -235,34 +382,36 @@ def percentile_contour_values_from_meshz(
 
     Parameters
     ----------
-    z : np.ndarray
+    z : :class:`numpy.ndarray`
         Probability density function over x, y.
-    percentiles : list-like
+    percentiles : :class:`numpy.ndarray`
         Percentile values for which to create contours.
-    resolution : int
+    resolution : :class:`int`
         Number of bins for thresholds between 0. and max(Z)
 
     Returns
     -------
-    labels
+    labels : :class:`list`
         Labels for contours (percentiles, if above minimum z value).
 
-    contours
-        Contour heigh values.
+    contours : :class:`list`
+        Contour height values.
     """
     percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
     t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
-    f = interpolate.interp1d(integral, t)
+    f = scipy.interpolate.interp1d(integral, t)
     try:
         t_contours = f(np.array(percentiles) * z.sum())
         return percentiles, t_contours
     except ValueError:
-        logger.debug('Percentile contour below minimum for given resolution' \
-                     'Returning Minimium.')
+        logger.debug(
+            "Percentile contour below minimum for given resolution"
+            "Returning Minimium."
+        )
         non_one = integral[~np.isclose(integral, np.ones_like(integral))]
-        return ['min'], f(np.array([np.nanmax(non_one)]))
+        return ["min"], f(np.array([np.nanmax(non_one)]))
 
 
 def plot_Z_percentiles(
@@ -281,22 +430,22 @@ def plot_Z_percentiles(
 
     Parameters
     ------------
-    z : np.ndarray
+    z : :class:`numpy.ndarray`
         Probability density function over x, y.
-    percentiles : list-like
+    percentiles : :class:`list`
         Percentile values for which to create contours.
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
         Axes on which to plot. If none given, will create a new Axes instance.
-    extent
+    extent : :class:`list`, :code:`None`
         List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    fontsize : np.number
+    fontsize : :class:`float`
         Fontsize for the contour labels.
-    cmap
+    cmap : :class:`matplotlib.colors.ListedColormap`
         Color map for the contours, contour labels and imshow.
 
     Returns
     -------
-    matplotlib.contour.QuadContourSet
+    :class:`matplotlib.contour.QuadContourSet`
         Plotted and formatted contour set.
     """
     if ax is None:
@@ -307,14 +456,17 @@ def plot_Z_percentiles(
         ymin, ymax = np.min(yi), np.max(yi)
         extent = [xmin, xmax, ymin, ymax]
 
-    clabels, contours = percentile_contour_values_from_meshz(zi, percentiles=percentiles)
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent,  **kwargs)
+    clabels, contours = percentile_contour_values_from_meshz(
+        zi, percentiles=percentiles
+    )
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, **kwargs)
     if label_contours:
-        fs = kwargs.pop('fontsize', None) or 8
+        fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs)
         z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
         trans = {
-            float(t): str(p) for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+            float(t): str(p)
+            for t, p in zip(z_contours, sorted(percentiles, reverse=True))
         }
         [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
     return cs
@@ -327,18 +479,18 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
     Parameters
     -----------
-    xdata : np.ndarray | pd.Series
+    xdata : :class:`numpy.ndarray`
         X data
-    ydata: np.ndarray | pd.Series
+    ydata: class:`numpy.ndarray` | pd.Series
         Y data
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axes on which to plot.
-    axes_width : float
+    axes_width : :class:`float`
         Width of the marginal axes.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes on which the nan_scatter is plotted.
     """
     if ax is None:
@@ -419,7 +571,7 @@ def save_figure(
     for fmt in save_fmts:
         out_filename = os.path.join(save_at, name + "." + fmt)
         if output:
-            print("Saving " + out_filename)
+            logger.info("Saving " + out_filename)
         figure.savefig(out_filename, format=fmt, **config)
 
 
@@ -456,14 +608,14 @@ def get_full_extent(ax, pad=0.0):
 
     Parameters
     -----------
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axes of which to check items to get full extent.
-    pad : np.number
+    pad : :class:`float`
         Amount of padding to add to the full extent prior to returning.
 
     Returns
     --------
-    matplotlib.transforms.Bbox
+    :class:`matplotlib.transforms.Bbox`
         Bbox of the axes with optional additional padding.
     """
     fig = ax.figure

@@ -6,6 +6,8 @@ import numpy as np
 from numpy.random import multivariate_normal
 import logging
 from pyrolite.plot.density import density
+from pyrolite.comp.codata import close
+from pyrolite.util.plot import ternary_heatmap
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +18,7 @@ class TestDensityplot(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["MgO", "SiO2", "CaO"]
-        data = np.array([0.5, 0.4, 0.3])
+        data = np.array([3, 5, 7])
         cov = np.array([[2, -1, -0.5], [-1, 2, -1], [-0.5, -1, 2]])
 
         self.biarr = multivariate_normal(data[:2], cov[:2, :2], 100)
@@ -56,9 +58,12 @@ class TestDensityplot(unittest.TestCase):
             with self.subTest(arr=arr):
                 for mode in ["density", "hist2d", "hexbin"]:
                     with self.subTest(mode=mode):
-                        out = density(arr, mode=mode)
-                        self.assertTrue(isinstance(out, matplotlib.axes.Axes))
-                        plt.close("all")
+                        try:
+                            out = density(arr, mode=mode)
+                            self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+                            plt.close("all")
+                        except NotImplementedError: # some are not implemented for 3D
+                            pass
 
     def test_bivariate_logscale(self):  #
         """Tests logscale for different ploting modes using bivariate data."""

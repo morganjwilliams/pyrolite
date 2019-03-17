@@ -133,6 +133,14 @@ html_sidebars = {
     ]
 }
 
+html_context = {
+    "display_github": True, # Integrate GitHub
+    "github_user": "morganjwilliams", # Username
+    "github_repo": "pyrolite", # Repo name
+    "github_version": "develop", # Version
+    "conf_py_path": "/docs/source/", # Path in the checkout to the docs root
+}
+
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -196,13 +204,14 @@ intersphinx_mapping = {
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "matplotlib": ("https://matplotlib.org/", None),
+    "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("http://scikit-learn.org/stable", None),
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
     "statsmodels": ("https://www.statsmodels.org/stable", None)
 }
 
-github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/master/docs/"
+github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
 
 # metadata
 # ordered reference composition list

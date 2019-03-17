@@ -20,9 +20,9 @@ def listify(df, axis=1):
 
     Parameters
     ----------
-    df: pd.DataFrame
+    df : :class:`pandas.DataFrame`
         Dataframe (or slice of dataframe) to condense along axis.
-    axis: {1, 0}
+    axis : :class:`int`
         Axis to condense along.
     """
     return df.copy(deep=True).apply(list, axis=axis)
@@ -37,14 +37,14 @@ def age_name(
 
     Parameters
     ----------
-    agenamelist: list
-        List of name components (i.e. [Eon, Era, Period, Epoch])
-    prefixes: list
+    agenamelist : :class:`list`
+        List of name components (i.e. :code:`[Eon, Era, Period, Epoch]`)
+    prefixes : :class:`list`
         Name components which occur prior to the higher order classification
-        (e.g. Upper Triassic).
-    suffixes: list
+        (e.g. :code:`"Upper Triassic"`).
+    suffixes : :class:`list`
         Name components which occur after the higher order classification
-        (e.g. Cambrian Series 2).
+        (e.g. :code:`"Cambrian Series 2"`).
     """
     ambiguous_names = prefixes + suffixes
     ambig_vars = [s.lower().strip() for s in ambiguous_names]
@@ -97,14 +97,14 @@ def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Ali
 
     Parameters
     ----------
-    filename: {str, pathlib.Path}
+    filename : :class:`str` | :class:`pathlib.Path`
         File from which to generate the timescale information.
-    info_cols: list
+    info_cols : :class:`list`
         List of columns beyond hierarchial group labels (e.g. Eon, Era..).
 
     Returns
     -------
-    pd.DataFrame
+    :class:`pandas.DataFrame`
         Dataframe containing timescale information.
     """
 
@@ -182,7 +182,7 @@ class Timescale(object):
 
         Parameters
         ------------
-        entry: str
+        entry : :class:`str`
             String name, or series of string names, for geological age range.
 
         """
@@ -198,15 +198,14 @@ class Timescale(object):
 
         Parameters
         ------------
-        age: float
+        age : :class:`float`
             Numeric age in Ma.
-        level: {'Eon', 'Era', 'Period', 'Superepoch',
-                'Epoch', 'Age', 'Specific'}
+        level : :class:`str`, :code:`{'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
             Level of specificity.
 
         Returns
         ------------
-        str
+        :class:`str`
             String representation for the entry.
         """
 

@@ -58,7 +58,7 @@ def _haversine_GC_distance(ps):
 
     Parameters
     ----------
-    ps
+    ps : :class:`numpy.ndarray`
         Numpy array wih latitudes and longitudes [x1, x2, y1, y2]
     """
     φ1, φ2 = ps[2:]  # latitude
@@ -76,16 +76,16 @@ def great_circle_distance(
 
     Parameters
     ----------
-    p1, p2
+    p1, p2 : :class:`float`
         Lat-Long points to calculate distance between.
-    absolute : bool, False
+    absolute : :class:`bool`, :code:`False`
         Whether to return estimates of on-sphere distances [True], or simply return the
         central angle between the points.
-    degrees : bool, True
+    degrees : :class:`bool`, :code:`True`
         Whether lat-long coordinates are in degrees [True] or radians [False].
-    r : np.number
+    r : :class:`float`
         Earth radii for estimating absolute distances.
-    method : {'vicenty', 'cosines', 'haversine'}
+    method : :class:`str`, :code:`{'vicenty', 'cosines', 'haversine'}`
         Which method to use for great circle distance calculation. Defaults to the
         Vicenty formula.
     """

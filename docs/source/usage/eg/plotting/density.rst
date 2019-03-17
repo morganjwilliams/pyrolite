@@ -99,6 +99,19 @@ reduce the overall complexity/colour intensity of a figure (also good for printi
    :width: 100%
    :align: center
 
+Density plots can also be used for ternary diagrams, where more than two components
+are specified:
+
+.. literalinclude:: ../../../../examples/plotting/density.py
+   :language: python
+   :start-after: # %% Density Ternary
+   :end-before: # %% Save Figure
+
+.. image:: ../../../_static/density_ternary.png
+   :width: 100%
+   :align: center
+
+
 .. note:: Using alpha with the ``density`` mode induces a known and old matplotlib bug,
           where the edges of bins within a ``pcolormesh`` image (used for plotting the
           KDE estimate) are over-emphasized, giving a gridded look.

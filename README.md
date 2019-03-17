@@ -1,10 +1,12 @@
 # `pyrolite`
 
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/source/_static/icon.svg?sanitize=true" alt="pyrolite Logo" width="30%" align="right">
+
 <p align="left">
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/v/pyrolite.svg" alt="PyPI"></a>
   <a href="https://pyrolite.readthedocs.io/">
-     <img src="https://readthedocs.org/projects/pyrolite/badge/?version=latest" alt="Docs"/></a>
+     <img src="https://readthedocs.org/projects/pyrolite/badge/?version=develop" alt="Docs"/></a>
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/pyversions/pyrolite.svg"
          alt="Compatible Versions"></a>
@@ -22,6 +24,7 @@
   <img src="https://img.shields.io/pypi/dm/pyrolite.svg?style=flat"
         alt="pyrolite downloads" ></a>
 </p>
+
 
 ### Install
 
