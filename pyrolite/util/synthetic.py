@@ -24,7 +24,7 @@ def random_cov_matrix(dim, validate=False):
     if validate:
         try:
             assert (cov == cov.T).all()
-            #eig = np.linalg.eigvalsh(cov)
+            # eig = np.linalg.eigvalsh(cov)
             for i in range(dim):
                 assert np.linalg.det(cov[0:i, 0:i]) > 0.0  # sylvesters criterion
         except:
@@ -65,20 +65,47 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
     ------
         * Update the `:code:`missing = "MAR"`` example to be more realistic/variable.
     """
-    if mean is None:
-        mean = np.random.randn(D - 1)
-    else:
+    data = None
+    if mean is None and cov is None:
+        pass
+    elif mean is None:
+        D = cov.shape[0] + 1
+    elif cov is None:
         D = mean.size
-        mean = ilr(mean.reshape(1, D)).flatten()
-        mean += np.random.randn(*mean.shape) * 0.01  # minor noise
+    else:  # both defined
+        assert mean.size == cov.shape[0] + 1
+        D = mean.size
+        mean = mean.reshape(1, -1)
 
     if cov is None:
-        cov = random_cov_matrix(D - 1)
-    else:
-        assert cov.shape == (D - 1, D - 1)
-        # if the covariance matrix isn't for the logspace data, we'd have to convert it
+        if D != 1:
+            cov = random_cov_matrix(D - 1)
+        else:
+            cov = np.array([[1]])
 
-    data = inverse_ilr(np.random.multivariate_normal(mean, cov, size=size))
+    assert cov.shape in [(D - 1, D - 1), (1, 1)]
+
+    if mean is None:
+        if D > 1:
+            mean = np.random.randn(D - 1).reshape(1, -1)
+        else:  # D == 1, return a 1D series
+            data = np.exp(np.random.randn(size).reshape(size, D))
+            data /= np.nanmax(data)
+            return data
+    else:
+        mean = ilr(mean.reshape(1, D)).reshape(
+            1, -1
+        )  # ilr of a (1, D) mean to (1, D-1)
+        mean += np.random.randn(*mean.shape) * 0.01  # minor noise
+
+    if size == 1:  # single sample
+        data = inverse_ilr(mean).reshape(size, D)
+
+    # if the covariance matrix isn't for the logspace data, we'd have to convert it
+    if data is None:
+        data = inverse_ilr(
+            np.random.multivariate_normal(mean.reshape(D - 1), cov, size=size)
+        ).reshape(size, D)
 
     if missing is not None:
         if missing == "MCAR":
@@ -88,7 +115,13 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
                     data[np.random.randint(size), i + 1] = np.nan
         elif missing == "MAR":
             thresholds = np.percentile(data, propnan * 100, axis=0)
-
+            # should update this such that data are proportional to other variables
+            # potentially just by rearranging the where statement
+            data[:, 1:] = np.where(
+                data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D - 1),
+                np.nan,
+                data[:, 1:],
+            )
         elif missing == "MNAR":
             thresholds = np.percentile(data, propnan * 100, axis=0)
             data[:, 1:] = np.where(
