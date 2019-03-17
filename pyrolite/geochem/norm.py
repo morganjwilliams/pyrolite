@@ -34,9 +34,13 @@ def scale_multiplier(in_unit, target_unit="ppm"):
     target_unit: target mass unit, ppm
         Units to scale to.
 
+    Todo
+    -------
+        * Implement different inputs: :class:`str`, :class:`list`, :class:`pandas.Series`
+
     Returns
     --------
-    :class:`np.number`
+    :class:`float`
     """
     in_unit = str(in_unit).lower()
     target_unit = str(target_unit).lower()
@@ -53,7 +57,7 @@ def scale_multiplier(in_unit, target_unit="ppm"):
     return scale
 
 
-class RefComp:
+class RefComp(object):
     """
     Reference compositional model object, principally used for normalisation.
     """
@@ -117,7 +121,13 @@ class RefComp:
         )
 
     def set_units(self, to="ppm"):
+        """
+        Set the units of the dataframe.
 
+        Parameters
+        ------------
+        to : :class:`str`, :code:`"ppm"`
+        """
         v = self.vars
         self.data.loc[v, "scale"] = self.data.loc[v, "units"].apply(
             scale_multiplier, target_unit=to
@@ -127,15 +137,27 @@ class RefComp:
             v, "scale"
         ].astype(np.float)
 
-    def normalize(self, df, aux_cols=["LOD", "2SE"]):
+    def normalize(self, df):
         """
         Normalize the values within a dataframe to the refererence composition.
-        Here we create indexes for normalisation of values and any auxilary
-        values (e.g. uncertainty).
+        Here we create indexes for normalisation of values.
+
+        Parameters
+        -----------
+        df : :class:`pandas.DataFrame`
+            Dataframe to normalize.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Normalised dataframe.
 
         Todo
         -----
-            * Implement uncertainty propagation
+            * Implement normalization of auxilary columns (LOD, uncertanties),
+              potentially identified by lambda functions
+              (e.g. :code:`lambda x: delim.join([str(x), "LOD"])`).
+            * Uncertainty propogation
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -151,7 +173,7 @@ class RefComp:
         dfc.loc[:, cols] = np.divide(dfc.loc[:, cols].values, divisor)
         return dfc
 
-    def denormalize(self, df, aux_cols=["LOD", "2SE"]):
+    def denormalize(self, df):
         """
         Un-normalize the values within a dataframe back to true composition.
 
@@ -159,13 +181,18 @@ class RefComp:
         -----------
         df : :class:`pandas.DataFrame` | :class:`pandas.Series`
             Dataframe to de-normalize.
-        aux_cols : :class:`list`, ["LOD", "2SE"]
-            Auxilary columns which should scale with the compositional data.
 
         Returns
         --------
         :class:`pandas.DataFrame`
             De-normalized dataframe.
+
+        Todo
+        -----
+            * Implement normalization of auxilary columns (LOD, uncertanties),
+              potentially identified by lambda functions
+              (e.g. :code:`lambda x: delim.join([str(x), "LOD"])`).
+            * Uncertainty propogation
         """
         dfc = to_frame(df.copy(deep=True))
 
@@ -192,8 +219,13 @@ class RefComp:
 
         Returns
         --------
-        :class:`np.number`
+        :class:`float`
             Ratio, if it exists, otherwise :class:`np.nan`
+
+        Todo
+        ------
+            * Functionality for calculating arbitrary components in the event that
+                one is not directly present (e.g get Si from SiO2)
         """
         try:
             assert "/" in ratio
@@ -238,8 +270,11 @@ class RefComp:
             vars = str(vars)
         return self.data.loc[vars, ["value", "unc_2sigma", "units"]]
 
-    def __repr__(self):
+    def __str__(self):
         return "Model of " + self.Reservoir + " (" + self.Reference + ")"
+
+    def __repr__(self):
+        return "RefComp(" + str(self.filename) + ") from " + str(self.Reference) + "."
 
 
 def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
@@ -249,9 +284,9 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
 
     Parameters
     ----------
-    directory : :class:`str`, None
+    directory : :class:`str`, :code:`None`
         Location of reference data files.
-    formats : :class:`list`, "csv"
+    formats : :class:`list`, :code:`["csv"]`
         List of potential data formats to draw from.
         Currently only csv will work.
 
@@ -260,10 +295,10 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     :class:`dict`
         Dictionary of reference compositions.
     """
-    if platform.system() == "Windows":
-        kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
-    else:
-        kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
+    # if platform.system() == "Windows":
+    #    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
+    # else:
+    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
 
     curr_dir = os.path.realpath(__file__)
     module_dir = Path(sys.modules["pyrolite"].__file__).parent

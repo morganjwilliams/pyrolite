@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pyrolite.comp.codata import *
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 
 
 class TestClose(unittest.TestCase):
@@ -104,14 +104,14 @@ class TestCLR(unittest.TestCase):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
         out = clr(df.values)
-        inv = inv_clr(out)
+        inv = inverse_clr(out)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
         out = clr(df.values)
-        inv = inv_clr(out)
+        inv = inverse_clr(out)
         self.assertTrue(np.allclose(inv, df.values))
 
 
@@ -135,14 +135,14 @@ class TestILR(unittest.TestCase):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
         out = ilr(df.values)
-        inv = inv_ilr(out, X=df.values)
+        inv = inverse_ilr(out, X=df.values)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
         out = ilr(df.values)
-        inv = inv_ilr(out, X=df.values)
+        inv = inverse_ilr(out, X=df.values)
         self.assertTrue(np.allclose(inv, df.values))
 
 
@@ -166,14 +166,14 @@ class TestBoxCox(unittest.TestCase):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
         out, lmbda = boxcox(df.values, return_lmbda=True)
-        inv = inv_boxcox(out, lmbda)
+        inv = inverse_boxcox(out, lmbda)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
         out, lmbda = boxcox(df.values, return_lmbda=True)
-        inv = inv_boxcox(out, lmbda)
+        inv = inverse_boxcox(out, lmbda)
         self.assertTrue(np.allclose(inv, df.values))
 
 

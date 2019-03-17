@@ -12,22 +12,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
 
 
-def test_df(cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10):
-    """
-    Creates a pandas.DataFrame with random data.
-    """
-    return pd.DataFrame(
-        {k: v for k, v in zip(cols, np.random.rand(len(cols), index_length))}
-    )
-
-
-def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"]):
-    """
-    Creates a pandas.Series with random data.
-    """
-    return pd.Series({k: v for k, v in zip(index, np.random.rand(len(index)))})
-
-
 def column_ordered_append(df1, df2, **kwargs):
     """
     Appends one dataframe to another, preserving the column order of the
@@ -36,11 +20,14 @@ def column_ordered_append(df1, df2, **kwargs):
 
     Parameters
     ------------
-    df1: pd.DataFrame
+    df1 : :class:`pandas.DataFrame`
         The dataframe for which columns order is preserved in the output.
-    df2: pd.DataFrame
+    df2 : :class:`pandas.DataFrame`
         The dataframe for which new columns are appended to the output.
 
+    Returns
+    --------
+    :class:`pandas.DataFrame`
     """
     outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
     return df1.append(df2, **kwargs).reindex(columns=outcols)
@@ -48,7 +35,7 @@ def column_ordered_append(df1, df2, **kwargs):
 
 def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     """
-    Accumulate an iterable containing pandas dataframes to a single frame.
+    Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single frame.
     """
     acc = None
     for ix, df in enumerate(dfs):
@@ -66,7 +53,7 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
 
 def to_frame(df):
     """
-    Simple utility for converting to pandas dataframes.
+    Simple utility for converting to :class:`pandas.DataFrame`.
     """
 
     if type(df) == pd.Series:  # using series instead of dataframe
@@ -83,19 +70,25 @@ def to_frame(df):
 
 def to_ser(df):
     """
-    Simple utility for converting single column pandas dataframes to series.
+    Simple utility for converting single column :class:`pandas.DataFrame`
+    to :class:`pandas.Series`.
     """
-    if type(df) == pd.DataFrame:
+    if isinstance(df, pd.Series):  # passed series instead of dataframe
+        ser = df
+    elif isinstance(df, pd.DataFrame):
         assert (df.columns.size == 1) or (
             df.index.size == 1
         ), """Can't convert DataFrame to Series:
               either columns or index need to have size 1."""
         if df.columns.size == 1:
-            return df.iloc[:, 0]
+            ser = df.iloc[:, 0]
         else:
-            return df.iloc[0, :]
+            ser = df.iloc[0, :]
     else:
-        return df
+        msg = "Conversion from {} to series not yet implemented".format(type(df))
+        raise NotImplementedError(msg)
+
+    return ser
 
 
 def to_numeric(df, errors: str = "coerce"):
@@ -141,7 +134,25 @@ def outliers(
     return df.loc[whereout, colfltr]
 
 
-def concat_columns(df, columns, astype=str, **kwargs):
+def concat_columns(df, columns=None, astype=str, **kwargs):
+    """
+    Concatenate strings across columns.
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to concatenate.
+    columns : :class:`list`
+        List of columns to concatenate.
+    astype : :class:`type`
+        Type to convert final concatenation to.
+
+    Returns
+    -------
+    :class:`pandas.Series`
+    """
+    if columns is None:
+        columns = df.columns
     out = pd.Series(index=df.index, **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:
@@ -151,17 +162,39 @@ def concat_columns(df, columns, astype=str, **kwargs):
     return out
 
 
-def uniques_from_concat(df, cols, hashit=True):
+def uniques_from_concat(df, columns=None, hashit=True):
     """
     Creates ideally unique keys from multiple columns.
     Optionally hashes string to standardise length of identifier.
-    """
-    if hashit:
-        fmt = lambda x: hashlib.md5(x.encode("UTF-8")).hexdigest()
-    else:
-        fmt = lambda x: x.encode("UTF-8")
 
-    return concat_columns(df, cols, dtype="category").apply(fmt)
+    Parameters
+    ------------
+    df : :class:`pandas.DataFrame`
+        DataFrame to create indexes for.
+    columns : :class:`list`
+        Columns to use in the string concatenatation.
+    hashit : :class:`bool`, :code:`True`
+        Whether to use a hashing algorithm to create the key from a typically
+        longer string.
+
+    Returns
+    ---------
+    :class:`pandas.Series`
+    """
+    if columns is None:
+        columns = df.columns
+
+    if hashit:
+
+        def fmt(ser):
+            ser = ser.str.encode("UTF-8")
+            ser = ser.apply(lambda x: hashlib.md5(x).hexdigest())
+            return ser
+
+    else:
+        fmt = lambda x: x.str.encode("UTF-8")
+
+    return fmt(concat_columns(df, columns, dtype="category"))
 
 
 def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):

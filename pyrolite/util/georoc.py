@@ -177,16 +177,16 @@ def bulk_GEOROC_download(
 
     Parameters
     ----------
-    output_folder: {pathlib.Path('~/Downloads/GEOROC'), :obj:`str`}
+    output_folder : :class:`str` | :class:`pathlib.Path`
         Path to folder to store output data.
-    reservoirs: {None, :obj:`list`}
+    reservoirs : :class:`list`, :code:`None`
         List of names (e.g. 'ConvergentMargins') or abbrevaitions (e.g. 'CM') for
         GEOROC compilations to download.
-    redownload: {False, True}
+    redownload : :class:`bool`, :code:`False`
         Whether to redownload prevoiusly downloaded compilations.
-    write_hdf: {True, False}
+    write_hdf : :class:`bool`, :code:`False`
         Whether to create HDF5 files for each compilation.
-    write_pickle: {False, True}
+    write_pickle : :class:`bool`, :code:`False`
         Whether to create pickle files for each compilation.
     """
 
@@ -287,7 +287,7 @@ def bulk_GEOROC_download(
 def download_GEOROC_compilation(url: str):
     """
     Downloads a specific GEOROC compilation and returns a cleaned and formatted
-    pd.DataFrame.
+    :class:`pandas.DataFrame`.
 
     Parameters
     ----------
@@ -296,7 +296,7 @@ def download_GEOROC_compilation(url: str):
 
     Returns
     -------
-    pd.DataFrame
+    :class:`pandas.DataFrame`
         Dataframe representation of the GEOROC data.
     """
     with requests.Session() as s:
@@ -312,16 +312,16 @@ def download_GEOROC_compilation(url: str):
 
 def format_GEOROC_response(content: str, start_chem="SiO2", end_chem="Nd143Nd144"):
     """
-    Formats decoded content from GEOROC as a pd.DataFrame
+    Formats decoded content from GEOROC as a :class:`pandas.DataFrame`
 
     Parameters
     ---------
-    content
+    content : :class:`str`
         Decoded string from GEOROC response.
 
     Returns
     -------
-    pd.DataFrame
+    :class:`pandas.DataFrame`
     """
     # GEOROC Specific Data Working
     data, ref = re.split("\s?References:\s+", content)

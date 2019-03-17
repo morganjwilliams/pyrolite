@@ -12,7 +12,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def close(X: np.ndarray):
+def close(X: np.ndarray, sumf=np.sum):
     """
     Closure operator for compositional data.
 
@@ -20,6 +20,8 @@ def close(X: np.ndarray):
     -----------
     X : :class:`numpy.ndarray`
         Array to close.
+    sumf : :class:`callable`, :func:`numpy.sum`
+        Sum function to use for closure.
 
     Returns
     --------
@@ -29,13 +31,12 @@ def close(X: np.ndarray):
     Note
     ------
         * Does not check for non-positive entries.
-        * Will not ignore :class:`numpy.nan`. Exclude all-nan components.
     """
 
     if X.ndim == 2:
-        return np.divide(X, np.sum(X, axis=1)[:, np.newaxis])
+        return np.divide(X, sumf(X, axis=1)[:, np.newaxis])
     else:
-        return np.divide(X, np.sum(X, axis=0))
+        return np.divide(X, sumf(X, axis=0))
 
 
 @pf.register_series_method
@@ -46,13 +47,13 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
 
     Parameters
     ------------
-    df: :class:`pandas.DataFrame`
+    df : :class:`pandas.DataFrame`
         Dataframe to renomalise.
-    components: :class:`list`
+    components : :class:`list`
         Option subcompositon to renormalise to 100. Useful for the use case
         where compostional data and non-compositional data are stored in the
         same dataframe.
-    scale: :class:`float`, 100.
+    scale : :class:`float`, :code:`100.`
         Closure parameter. Typically either 100 or 1.
 
     Returns
@@ -79,7 +80,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     Parameters
     ---------------
     X: :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
     ind: :class:`int`
         Index of column used as denominator.
     null_col : :class:`bool`
@@ -88,7 +89,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     Returns
     ---------
     :class:`numpy.ndarray`
-        ALR-transformed array.
+        ALR-transformed array, of shape :code:`(N, D-1)`.
     """
 
     Y = X.copy()
@@ -116,16 +117,17 @@ def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
     ind : :class:`int`
         Index of column used as denominator.
-    null_col : :class:`bool`
-        Whether the array contains an extra redundant column.
+    null_col : :class:`bool`, :code:`False`
+        Whether the array contains an extra redundant column
+        (i.e. shape is :code:`(N, D)`).
 
     Returns
     --------
     :class:`numpy.ndarray`
-        Inverse-ALR transformed array.
+        Inverse-ALR transformed array, of shape :code:`(N, D)`.
     """
     assert Y.ndim in [1, 2]
 
@@ -158,12 +160,12 @@ def clr(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
     :class:`numpy.ndarray`
-        CLR-transformed array.
+        CLR-transformed array, of shape :code:`(N, D)`.
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
@@ -171,19 +173,19 @@ def clr(X: np.ndarray):
     return Y
 
 
-def inv_clr(Y: np.ndarray):
+def inverse_clr(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
     :class:`numpy.ndarray`
-        Inverse-CLR transformed array.
+        Inverse-CLR transformed array, of shape :code:`(N, D)`.
     """
     # Inverse of log operation
     X = np.exp(Y)
@@ -199,12 +201,12 @@ def ilr(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
+        Array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     --------
     :class:`numpy.ndarray`
-        ILR-transformed array.
+        ILR-transformed array, of shape :code:`(N, D-1)`.
     """
     d = X.shape[1]
     Y = clr(X)
@@ -213,19 +215,22 @@ def ilr(X: np.ndarray):
     return Y @ psi.T
 
 
-def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
+def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
     Parameters
     ---------------
     Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation.
+        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
+    X : :class:`numpy.ndarray`, :code:`None`
+        Optional specification for an array from which to derive the orthonormal basis,
+        with shape :code:`(N, D)`.
 
     Returns
     --------
     :class:`numpy.ndarray`
-        Inverse-ILR transformed array.
+        Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
 
     if X is None:
@@ -233,7 +238,7 @@ def inv_ilr(Y: np.ndarray, X: np.ndarray = None):
     else:
         psi = orthogonal_basis_from_array(X)
     C = Y @ psi
-    X = inv_clr(C)  # Inverse log operation
+    X = inverse_clr(C)  # Inverse log operation
     return X
 
 
@@ -251,7 +256,7 @@ def boxcox(
     ---------------
     X : :class:`numpy.ndarray`
         Array on which to perform the transformation.
-    lmbda : :class:`numpy.number`, None
+    lmbda : :class:`numpy.number`, :code:`None`
         Lambda value used to forward-transform values. If none, it will be calculated
         using the mean
     lmbda_search_space : :class:`tuple`
@@ -299,7 +304,7 @@ def boxcox(
         return out
 
 
-def inv_boxcox(Y: np.ndarray, lmbda):
+def inverse_boxcox(Y: np.ndarray, lmbda):
     """
     Inverse Box-Cox transformation.
 

@@ -2,6 +2,7 @@ import os, time
 import unittest
 import pandas as pd
 import numpy as np
+from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.pd import *
 from pathlib import Path
 
@@ -51,30 +52,49 @@ class TestToFrame(unittest.TestCase):
 
     def test_df_column_order(self):
         result = to_frame(self.df)
-        self.assertTrue(all(result.columns == self.df.columns))
+        self.assertTrue((result.columns == self.df.columns).all())
 
     def test_ser_column_order(self):
         result = to_frame(self.ser)
-        self.assertTrue(all(result.columns == self.ser.index))
+        self.assertTrue((result.columns == self.ser.index).all())
 
     def test_df_index_preservation(self):
         result = to_frame(self.df)
-        self.assertTrue(all(result.index == self.df.index))
+        self.assertTrue((result.index == self.df.index).all())
 
     def test_series_conversion(self):
         result = to_frame(self.ser)
         self.assertTrue(isinstance(result, pd.DataFrame))
 
+    def test_non_convertable(self):
+        for noconv in [None, [0, 1, [1]]]:
+            with self.subTest(noconv=noconv):
+                with self.assertRaises(NotImplementedError) as cm:
+                    result = to_frame(noconv)
+
 
 class TestToSer(unittest.TestCase):
     def setUp(self):
-        pass
+        self.ser = test_ser()
+        self.df = test_df()
 
     def test_single_column(self):
-        pass
+        result = to_ser(self.df.iloc[:, 0])
+        self.assertTrue((result.index == self.df.index).all())
+
+    def test_single_row(self):
+        result = to_ser(self.df.iloc[0, :])
+        self.assertTrue((result.index == self.df.columns).all())
 
     def test_assertion_error_mulitcolumn(self):
-        pass
+        with self.assertRaises(AssertionError) as cm:
+            result = to_ser(self.df)
+
+    def test_non_convertable(self):
+        for noconv in [None, [0, 1, [1]]]:
+            with self.subTest(noconv=noconv):
+                with self.assertRaises(NotImplementedError) as cm:
+                    result = to_ser(noconv)
 
 
 class TestToNumeric(unittest.TestCase):
@@ -125,22 +145,42 @@ class TestOutliers(unittest.TestCase):
 
 class TestConcatColumns(unittest.TestCase):
     def setUp(self):
-        pass
+        self.df = pd.DataFrame(
+            {0: ["a", "b", "c"], 1: ["d", "e", "f"]}, index=["A", "B", "C"]
+        ).T
 
-    def test_exclude(self):
-        pass
+    def test_default(self):
+        out = concat_columns(self.df)
+        self.assertTrue((out == pd.Series(["abc", "def"])).all())
 
-    def test_error_methods(self):
-        pass
+    def test_columns(self):
+        out = concat_columns(self.df, columns=["A", "B"])
+        self.assertTrue((out == pd.Series(["ab", "de"])).all())
 
 
 class TestUniquesFromConcat(unittest.TestCase):
     def setUp(self):
-        self.df = pd.DataFrame()
+        self.df = pd.DataFrame(
+            {0: ["a", "b", "c"], 1: ["d", "e", "f"]}, index=["A", "B", "C"]
+        ).T
 
-    def test_unique(self):
-        pass
-        uniques_from_concat
+    def test_default(self):
+        out = uniques_from_concat(self.df)
+        self.assertTrue(out.index.size == len(out.unique()))
+
+    def test_columns(self):
+        out = uniques_from_concat(self.df, columns=["A", "B"])
+        self.assertTrue(out.index.size == len(out.unique()))
+
+    def test_hashit(self):
+        for h in [True, False]:
+            with self.subTest(h=h):
+                out = uniques_from_concat(self.df, hashit=h)
+                self.assertTrue(out.index.size == len(out.unique()))
+                if not h:
+                    self.assertTrue(
+                        (out == pd.Series(["abc", "def"]).str.encode("UTF-8")).all()
+                    )
 
 
 class TestDFFromCSVs(unittest.TestCase):

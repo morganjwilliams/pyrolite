@@ -352,7 +352,7 @@ class CLRTransform(BaseEstimator, TransformerMixin):
         self.kpairs = kwargs
         self.label = "CLR"
         self.forward = clr
-        self.inverse = inv_clr
+        self.inverse = inverse_clr
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
@@ -389,7 +389,7 @@ class ILRTransform(BaseEstimator, TransformerMixin):
         self.kpairs = kwargs
         self.label = "ILR"
         self.forward = ilr
-        self.inverse = inv_ilr
+        self.inverse = inverse_ilr
         self.X = None
 
     def transform(self, X, *args, **kwargs):
@@ -432,7 +432,7 @@ class BoxCoxTransform(BaseEstimator, TransformerMixin):
         self.kpairs = kwargs
         self.label = "BoxCox"
         self.forward = boxcox
-        self.inverse = inv_boxcox
+        self.inverse = inverse_boxcox
         self.lmbda = None
 
     def transform(self, X, *args, **kwargs):
@@ -578,9 +578,13 @@ class RedoxAggregator(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
-        return recalculate_redox(
+        if self.to_oxidised:
+            Fe_form = 'Fe2O3T'
+        else:
+            Fe_form = 'FeOT'
+        return recalculate_Fe(
             X,
-            to_oxidised=self.to_oxidised,
+            to=Fe_form,
             renorm=self.renorm,
             total_suffix=self.total_suffix,
         )

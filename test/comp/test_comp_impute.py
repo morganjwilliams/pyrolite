@@ -1,9 +1,28 @@
 import unittest
 import numpy as np
 import pandas as pd
-from pyrolite.util.pd import test_df, test_ser
+from pyrolite.util.synthetic import test_df, test_ser, random_cov_matrix, random_composition
 from pyrolite.comp.aggregate import np_cross_ratios
 from pyrolite.comp.impute import *
+
+
+
+class TestMDPattern(unittest.TestCase):
+    def setUp(self):
+        self.data = random_composition(size=200, missing='MCAR')
+
+    def test_md_pattern(self):
+        pattern_ids, PD = md_pattern(self.data)
+
+
+class TestEMCOMP(unittest.TestCase):
+    def setUp(self):
+        self.data = random_composition(size=200, missing='MNAR')
+
+    def test_encomp(self):
+        impute, p0, ni = EMCOMP(
+            self.data, threshold=0.1 * np.nanmin(self.data, axis=0), tol=0.01
+        )
 
 
 class TestPDImputeRatios(unittest.TestCase):

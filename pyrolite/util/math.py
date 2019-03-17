@@ -11,27 +11,98 @@ from .meta import update_docstring_references
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-
-def random_cov_matrix(shape):
+def eigsorted(cov):
     """
-    Generate a random covariance matrix which is symmetric positive-semidefinite.
+    Returns arrays of eigenvalues and eigenvectors sorted by magnitude.
+
+    Parameters
+    -----------
+    cov : :class:`numpy.ndarray`
+        Covariance matrix to extract eigenvalues and eigenvectors from.
+
+    Returns
+    --------
+    vals : :class:`numpy.ndarray`
+        Sorted eigenvalues.
+    vecs : :class:`numpy.ndarray`
+        Sorted eigenvectors.
     """
-    cov = np.random.rand(shape, shape)
-    cov = np.dot(cov, cov.T)
-    return cov
+    vals, vecs = np.linalg.eigh(cov)
+    order = vals.argsort()[::-1]
+    return vals[order], vecs[:, order]
 
 
-def _linspc(_min, _max, step=0.0, bins=20):
+def augmented_covariance_matrix(M, C):
+    r"""
+    Constructs an augmented covariance matrix from means M and covariance matrix C.
+
+    Parameters
+    ----------
+    M : :class:`numpy.ndarray`
+        Array of means.
+    C : :class:`numpy.ndarray`
+        Covariance matrix.
+
+    Returns
+    ---------
+    :class:`numpy.ndarray`
+        Augmented covariance matrix A.
+
+    Note
+    ------
+        Augmented covariance matrix constructed from mean of shape (D, ) and covariance
+        matrix of shape (D, D) as follows:
+
+        .. math::
+                \begin{array}{c|c}
+                -1 & M.T \\
+                \hline
+                M & C
+                \end{array}
+    """
+    d = np.squeeze(M).shape[0]
+    A = np.zeros((d + 1, d + 1))
+    A[0, 0] = -1
+    A[0, 1 : d + 1] = M
+    A[1 : d + 1, 0] = M.T
+    A[1 : d + 1, 1 : d + 1] = C
+    return A
+
+
+def interpolate_line(xy, n=0):
+    """
+    Add intermediate evenly spaced points interpolated between given x-y coordinates.
+    """
+    xy = np.squeeze(xy)
+    if xy.ndim > 2:
+        return np.array(list(map(lambda line: interpolate_line(line, n=n), xy)))
+    x, y = xy
+    intervals = x[1:] - x[:-1]
+    current = x[:-1].copy()
+    _x = current.copy().astype(np.float)
+    if n:
+        dx = intervals / (n + 1.0)
+        for ix in range(n):
+            current = current + dx
+            _x = np.append(_x, current)
+    _x = np.append(_x, np.array([x[-1]]))
+    _x = np.sort(_x)
+    _y = np.interp(_x, x, y)
+    assert all([i in _x for i in x])
+    return np.vstack([_x, _y])
+
+
+def linspc_(_min, _max, step=0.0, bins=20):
     """
     Linear spaced array, with optional step for grid margins.
 
     Parameters
     -----------
-    _min : :class:`numpy.number`
+    _min : :class:`float`
         Minimum value for spaced range.
-    _max : :class:`numpy.number`
+    _max : :class:`float`
         Maximum value for spaced range.
-    step : :class:`numpy.number`, 0.0
+    step : :class:`float`, 0.0
         Step for expanding at grid edges. Default of 0.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
@@ -44,17 +115,17 @@ def _linspc(_min, _max, step=0.0, bins=20):
     return np.linspace(_min - step, _max + step, bins + 1)
 
 
-def _logspc(_min, _max, step=1.0, bins=20):
+def logspc_(_min, _max, step=1.0, bins=20):
     """
     Log spaced array, with optional step for grid margins.
 
     Parameters
     -----------
-    _min : :class:`numpy.number`
+    _min : :class:`float`
         Minimum value for spaced range.
-    _max : :class:`numpy.number`
+    _max : :class:`float`
         Maximum value for spaced range.
-    step : :class:`numpy.number`, 1.0
+    step : :class:`float`, 1.0
         Step for expanding at grid edges. Default of 1.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
@@ -67,7 +138,7 @@ def _logspc(_min, _max, step=1.0, bins=20):
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 
-def _logrng(v, exp=0.0):
+def logrng_(v, exp=0.0):
     """
     Range of a sample, where values <0 are excluded.
 
@@ -84,10 +155,10 @@ def _logrng(v, exp=0.0):
         Min, max tuple.
     """
     u = v[(v > 0)]  # make sure the range_values are >0
-    return _linrng(u, exp=exp)
+    return linrng_(u, exp=exp)
 
 
-def _linrng(v, exp=0.0):
+def linrng_(v, exp=0.0):
     """
     Range of a sample, where values <0 are included.
 
@@ -104,7 +175,7 @@ def _linrng(v, exp=0.0):
         Min, max tuple.
     """
     u = v[np.isfinite(v)]
-    return (np.min(u) * (1.0 - exp), np.max(u) * (1.0 + exp))
+    return (np.nanmin(u) * (1.0 - exp), np.nanmax(u) * (1.0 + exp))
 
 
 def isclose(a, b):
@@ -114,7 +185,7 @@ def isclose(a, b):
 
     Parameters
     ------------
-    a,b : :class:`numpy.number` | :class:`numpy.ndarray`
+    a,b : :class:`float` | :class:`numpy.ndarray`
         Numbers or arrays to compare.
     Returns
     -------
@@ -162,7 +233,7 @@ def round_sig(x, sig=2):
 
     Parameters
     ----------
-    x : :class:`numpy.number`
+    x : :class:`float`
         Number to round.
     sig : :class:`int`
         Number of significant digits to round to.
@@ -192,14 +263,14 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
 
     Parameters
     ----------
-    n : :class:`numpy.number`
+    n : :class:`float`
         Number from which to ascertain the significance level.
-    unc : :class:`numpy.number`, None
+    unc : :class:`float`, :code:`None`
         Uncertainty, which if provided is used to derive the number of significant
         digits.
     max_sf : :class:`int`
         An upper limit to the number of significant digits suggested.
-    rtol : :class:`numpy.number`
+    rtol : :class:`float`
         Relative tolerance to determine similarity of numbers, used in calculations.
 
     Returns
@@ -260,7 +331,7 @@ def most_precise(arr):
 
     Returns
     -----------
-    :class:`numpy.number` | :class:`numpy.ndarray`
+    :class:`float` | :class:`numpy.ndarray`
         Returns the most precise array element (for ndim=1), or most precise subarray
         (for ndim > 1).
     """
@@ -284,9 +355,9 @@ def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
     ------------
     arr : :class:`numpy.ndarray`
         Array to test.
-    equal_nan : :class:`bool`
+    equal_nan : :class:`bool`, :code:`False`
         Whether to consider :class:`np.nan` elements equal to one another.
-    rtol : :class:`numpy.number`
+    rtol : :class:`float`
         Relative tolerance for comparison.
 
     Returns
@@ -330,20 +401,20 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
 
     Parameters
     ----------
-    n : :class:`numpy.number`
+    n : :class:`float`
         Number to reformat
-    unc : :class:`numpy.number`, None
+    unc : :class:`float`, :code:`None`
         Absolute uncertainty on the number, optional.
     leeway : :class:`int`, 0
         Manual override for significant figures. Positive values will force extra
         significant figures; negative values will remove significant figures.
-    low_filter : :class:`bool`, True
+    low_filter : :class:`bool`, :code:`True`
         Whether to return :class:`np.nan` in place of values which are within precision
         equal to zero.
 
     Returns
     -------
-    :class:`numpy.number`
+    :class:`float`
         Reformatted number.
 
     Note
@@ -501,7 +572,7 @@ def OP_constants(xs, degree=3, tol=10 ** -14):
     degree : :class:`int`
         Maximum polynomial degree. E.g. 2 will generate constant, linear, and quadratic
         polynomial components.
-    tol : :class:`numpy.number`
+    tol : :class:`float`
         Convergence tolerance for solver.
 
     Returns
@@ -600,7 +671,7 @@ def lambda_min_func(ls, ys, arrs, power=2.0):
     arrs : :class:`numpy.ndarray`
         Arrays representing the individual unweighted orthaogonal polynomial components.
         E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
-    power : :class:`numpy.number`
+    power : :class:`float`
         Power for the cost function. 1 for MAE/L1 norm, 2 for MSD/L2 norm.
 
     Returns
@@ -638,14 +709,14 @@ def lambdas(
         Target data to fit.
     xs : :class:`numpy.ndarray`
         Values of `x` to construct the polymomials over.
-    params : :class:`list`, None
+    params : :class:`list`, :code:`None`
         Orthogonal polynomial coefficients (see :func:`OP_constants`). Defaults to
         `None`, in which case these coefficinets are generated automatically.
     guess : :class:`numpy.ndarray`
         Starting for values of lambdas. Used as starting point for optimization.
     degree : :class:`int`
         Maximum degree polymomial component to include.
-    costf_power : :class:`numpy.number`
+    costf_power : :class:`float`
         Power of the optimization cost function.
     residuals : :class:`bool`
         Whether to return residuals with the optimized results.

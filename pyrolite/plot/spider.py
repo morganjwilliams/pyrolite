@@ -196,7 +196,7 @@ def REE_v_radii(
 
     Parameters
     -----------
-    arr : :class:`np.ndarray`
+    arr : :class:`numpy.ndarray`
         Data array.
     ax : :class:`matplotlib.axes.Axes`
         Optional designation of axes to reconfigure.
