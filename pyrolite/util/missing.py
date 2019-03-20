@@ -2,6 +2,7 @@ import numpy as np
 from scipy.special import comb
 from collections import defaultdict
 
+
 def md_pattern(Y):
     """
     Get the missing data patterns from an array.
@@ -20,11 +21,11 @@ def md_pattern(Y):
         for each pattern ID.
     """
     N, D = Y.shape
-    pID = np.zeros(N)
+    pID = np.zeros(N).astype(int)
     Ymiss = ~np.isfinite(Y)
     rows = np.arange(N)[~np.isfinite(np.sum(Y, axis=1))]
     max_pats = comb((D - 1) * np.ones(D - 2), np.arange(D - 2) + 1).sum().astype(int)
-    pID[rows] = max_pats + 2  # initialise to high value
+    pID[rows] = max_pats * 10  # initialise to high value
     pD = defaultdict(dict)
 
     pindex = 0  # 0 = no missing data
