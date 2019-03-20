@@ -5,10 +5,11 @@ from pyrolite.util.synthetic import random_composition
 
 np.random.seed(82)
 
-sample_data = random_composition(1000, 5, propnan=0.1, missing="MNAR")
+sample_data = random_composition(100, 5, propnan=0.1, missing="MNAR")
 
 imputed_data, p0, niter = EMCOMP(
-    sample_data, threshold=np.nanpercentile(sample_data, 90, axis=0)
+    sample_data, threshold=np.nanpercentile(sample_data, 90, axis=0),
+    tol=0.01
 )
 # %% Plot Data --
 fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(10, 4))
