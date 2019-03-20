@@ -135,7 +135,7 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     A = A[reor, :][:, reor]
     Astart = A.copy()
     assert (np.diag(A) != 0).all()  # Not introducing extra zeroes
-    A = _multisweep(A, range(nvarobs+1))
+    A = _multisweep(A, range(nvarobs + 1))
     """
     A is of form:
     -D  | E
@@ -306,9 +306,9 @@ def EMCOMP(
         assert np.isfinite(V).all()
         """Update and store parameter vector (μ(t), Σ(t))."""
         logger.debug("Regression finished.")
-        M = np.mean(Ystar, axis=0)
+        M = np.nanmean(Ystar, axis=0)
         Ydevs = Ystar - np.ones((n_obs, 1)) * M
-        Ydevs[~np.isfinite(Ydevs)] = 0.0 # remove nonfinite components
+        Ydevs[~np.isfinite(Ydevs)] = 0.0  # remove nonfinite components
         PC = np.dot(Ydevs.T, Ydevs)
         logger.debug("Correlation:\n{}".format(PC / (n_obs - 1)))
         C = (PC + V) / (n_obs - 1)
