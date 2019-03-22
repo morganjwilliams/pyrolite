@@ -19,8 +19,9 @@ def ternary(
     label=None,
     clockwise=True,
     scale=100.0,
-    gridsize=10.0,
+    gridsize=20.0,
     figsize=(8.0, 4 * 3 ** 0.5),
+    no_ticks=False,
     **kwargs
 ):
     """
@@ -50,7 +51,10 @@ def ternary(
     gridsize : :class:`int`, 10.0
         Interval between ternary gridlines.
     figsize : :class:`tuple`
-        Size of the figure to be generated, if not using an existing :class:`~matplotlib.axes.Axes`.
+        Size of the figure to be generated, if not using an existing
+        :class:`~matplotlib.axes.Axes`.
+    no_ticks : :class:`bool`
+        Whether to suppress ticks and tick labels.
 
     {otherparams}
 
@@ -89,8 +93,10 @@ def ternary(
             points = np.array([points])
 
         assert points.shape[1] == 3
-
-        tax.scatter(points, c=color, marker=marker, alpha=alpha, label=label)
+        config = dict(c=color, marker=marker, alpha=alpha, label=label)
+        if isinstance(color, (str, tuple)):
+            config["color"] = config.pop("c")
+        tax.scatter(points, **config)
 
     if label is not None:
         tax.legend(frameon=False)
@@ -99,7 +105,8 @@ def ternary(
     if not len(tax._labels.keys()):
         # python-ternary uses "right, top, left"
         tax.gridlines(multiple=gridsize, color="k", alpha=0.5)
-        tax.ticks(linewidth=1, clockwise=clockwise, multiple=gridsize)
+        if not no_ticks:
+            tax.ticks(linewidth=1, clockwise=clockwise, multiple=gridsize)
         tax.boundary(linewidth=1.0)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)

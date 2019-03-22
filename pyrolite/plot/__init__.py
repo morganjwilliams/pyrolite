@@ -75,7 +75,7 @@ class pyroplot(object):
             msg = "Suggest components or provide a slice of the dataframe."
             raise AssertionError(msg)
 
-        fontsize = kwargs.get("fontsize", 12.0)
+        fontsize = kwargs.get("fontsize", 8.0)
         ax = density.density(obj.loc[:, components].values, ax=ax, **kwargs)
         if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
@@ -93,7 +93,7 @@ class pyroplot(object):
 
         return ax
 
-    def ternary(self, components: list = None, ax=None, **kwargs):
+    def ternary(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Method for ternary scatter plots. Convenience access function to
         :func:`~pyrolite.plot.tern.ternary` (see `Other Parameters`, below), where
@@ -106,6 +106,9 @@ class pyroplot(object):
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
+        axlabels : :class:`bool`, True
+            Whether to add axis labels.
+
 
         {otherparams}
 
@@ -127,14 +130,23 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 10.0)
-        ax = tern.ternary(obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs)
+        ax = tern.ternary(
+            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
+        )
         tax = ax.tax
         # python-ternary uses "right, top, left"
         # Check if there's already labels
-        if not len(tax._labels.keys()):
+        if not len(tax._labels.keys()) and axlabels:
             tax.right_axis_label(components[0], fontsize=fontsize)
             tax.left_axis_label(components[1], fontsize=fontsize)
             tax.bottom_axis_label(components[2], fontsize=fontsize)
+        elif len(tax._labels.keys()): # are labels, should be none
+            tax.right_axis_label(None)
+            tax.left_axis_label(None)
+            tax.bottom_axis_label(None)
+        else:
+
+            pass
         ax.patch.set_facecolor(None)
         ax.set_aspect("equal")
         return ax

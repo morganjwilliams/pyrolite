@@ -137,12 +137,17 @@ def oxide_conversion(oxin, oxout):
     ):
         oxout = pt.formula(oxout)
 
-    inatoms = {k: v for (k, v) in oxin.atoms.items() if not k.__str__() == "O"}
+    inatoms = {k: v for (k, v) in oxin.atoms.items() if not str(k) == "O"}
     in_els = inatoms.keys()
-    outatoms = {k: v for (k, v) in oxout.atoms.items() if not k.__str__() == "O"}
+    outatoms = {k: v for (k, v) in oxout.atoms.items() if not str(k) == "O"}
     out_els = outatoms.keys()
-    assert len(in_els) == len(out_els) == 1  # Assertion of simple oxide
-    assert in_els == out_els  # Need to be dealilng with the same element!
+    try:
+        assert (len(in_els) == len(out_els)) & (
+            len(in_els) == 1
+        )  # Assertion of simple oxide
+        assert in_els == out_els  # Need to be dealilng with the same element!
+    except:
+        raise ValueError("Incompatible compounds: {} --> {}".format(in_els, out_els))
     # Moles of product vs. moles of reactant
     cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
 
@@ -382,41 +387,47 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         * Implement generalised redox transformation.
     """
     df = input_df.copy()
+    oxides = __common_oxides__
+    elements = __common_elements__
+    c_components = oxides | elements
     # multi-component dictionaries which are not elements/oxides/ratios
     multi_comp = [
         i for i in to if not isinstance(i, (str, pt.core.Element, pt.formulas.Formula))
     ]
+
+    df_comp_c = [i for i in df.columns if i in c_components]
     to = [i for i in to if not i in multi_comp]
-    ok = [i for i in to if i in df.columns]  # have them, aggregate others
-    get = [i for i in to if i not in df.columns]  # need them
+    ok = [i for i in to if i in df_comp_c]  # have them, aggregate others
+    get = [i for i in to if i not in df_comp_c]  # need them
     # remove iron components from main getter, we'll deal with them separately
-    fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
-    get_fe = [i for i in get if i in fe_components]
+    # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
+    current_fe = [i for i in df_comp_c if "Fe" in str(i)]
+    get_fe = [i for i in get if "Fe" in str(i)]
+    ok = list(set(ok) - set(current_fe))
     get = list(set(get) - set(get_fe))
 
     multiples = check_multiple_cation_inclusion(df)
-    oxides = __common_oxides__
-    elements = __common_elements__
 
     # Aggregate the columns which are otherwise OK
-    c_components = oxides | elements
+
     for o in ok:
         if o in c_components:
             elem = get_cations(o)[0]
             if elem in multiples:
                 if o in oxides:
+                    logger.info("Aggregating from {} to {}".format(elem, o))
                     df = aggregate_cation(
                         df, cation=elem, oxide=o, form="oxide", logdata=logdata
                     )
-                    logger.info("Aggregating from {} to {}".format(elem, o))
+
                 else:
                     potential_oxides = simple_oxides(o)
                     present_oxides = [p for p in potential_oxides if p in df.columns]
                     for ox in present_oxides:  # aggregate all the relevant oxides
+                        logger.info("Aggregating from {} to {}".format(ox, o))
                         df = aggregate_cation(
                             df, cation=o, oxide=ox, form="element", logdata=logdata
                         )
-                        logger.info("Aggregating from {} to {}".format(ox, o))
 
     # --- Try to get the new non-Fe columns ----
     for g in get:
@@ -444,7 +455,6 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
 
     # --- Try to get the new columns - iron redox section ------------------------------
     # check if there's a multicomponent speciation problem
-    current_fe = [i for i in fe_components if i in df.columns]
     c_fe_str = ", ".join(current_fe)
     # check if any of the multi_comp dictionaries correspond to iron
     multi_fe = [x for x in multi_comp if all(["Fe" in k for k in x.items()])]

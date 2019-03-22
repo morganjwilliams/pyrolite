@@ -12,7 +12,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def _little_sweep(G, k: int = 1, verify=False):
+def _little_sweep(G, k: int = 0, verify=False):
     """
     Parameters
     ---------------
@@ -49,9 +49,11 @@ def _little_sweep(G, k: int = 1, verify=False):
     if verify:
         if H.shape != (n, n):
             raise ValueError("Not a square array")
+        if not np.isfinite(H).all():
+            raise ValueError("Not all finite.")
         if not np.allclose(H - H.T, 0):
             raise ValueError("Not a symmetrical array")
-    inds = [i for i in np.linspace(0, n - 1, n).astype(int) if not i == k]
+    inds = [i for i in np.linspace(0, n - 1, n).astype(int) if not np.isclose(i, k)]
     assert np.isfinite(G[k, k]) & (G[k, k] != 0.0)
     H[k, k] = -1 / G[k, k]
     H[k, inds] = -G[k, inds] * H[k, k]  # divide row k by D
@@ -63,11 +65,34 @@ def _little_sweep(G, k: int = 1, verify=False):
     return H
 
 
+def _multisweep(G, ks):
+    """
+    Sweep G along all indexes ks.
+
+    Parameters
+    -----------
+    G : :class:`numpy.ndarray`
+        Augmented covariance matrix to sweep.
+    ks : :class:`numpy.ndarray`
+        Indicies to sweep.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+    """
+    H = G.copy()
+    for k in ks:
+        H = _little_sweep(H, k=k)
+    return H
+
+
 def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
     """
-    A function to cacluate estimated regression coefficients and residial covariance
-    matrix for missing variables.
-    After Palarea-Albaladejo and Martín-Fernández (2008) [#ref_1]_.
+    Performs multiple sweeps of the augmented covariance matrix and extracts the
+    regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
+    for the regression of missing variables against observed variables for a given
+    missing data pattern. Translated from matlab to python from Palarea-Albaladejo
+    and Martín-Fernández (2008) [#ref_1]_.
 
     Parameters
     -----------
@@ -85,7 +110,7 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     Returns
     --------
     β : :class:`numpy.ndarray`
-        Array of estimated means.
+        Array of estimated regression coefficients.
     σ2_res : :class:`numpy.ndarray`
         Residuals.
 
@@ -100,24 +125,27 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     assert np.isfinite(M).all()
     assert np.isfinite(C).all()
     if error_threshold is not None:
-        assert (np.abs(M) < error_threshold).all()
-    p = M.shape[0]  # p > 0
-    q = varobs.size  # q > 0
-    i = np.ones(p)
-    i[varobs] -= 1
-    dep = np.array(np.nonzero(i))[0]  # indicies where i is nonzero
+        assert (np.abs(M) < error_threshold).all()  # avoid runaway expansion
+    dimension = M.size  # p > 0
+    nvarobs = varobs.size  # q > 0 # number of observed variables
+    dep = np.array([i for i in np.arange(dimension) if not i in varobs])
     # Shift the non-zero element to the end for pivoting
     reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)  #
     A = augmented_covariance_matrix(M, C)
     A = A[reor, :][:, reor]
     Astart = A.copy()
     assert (np.diag(A) != 0).all()  # Not introducing extra zeroes
-    for n in range(q):  # for
-        A = _little_sweep(A, n)
-        if not np.isfinite(A).all():  # Typically caused by infs
-            A[~np.isfinite(A)] = 0
-    β = A[0 : q + 1, q + 1 : p + 1]
-    σ2_res = A[q + 1 : p + 1, q + 1 : p + 1]
+    A = _multisweep(A, range(nvarobs + 1))
+    """
+    A is of form:
+    -D  | E
+    E.T | F
+    """
+    # if not np.isfinite(A).all():  # Typically caused by infs
+    #    A[~np.isfinite(A)] = 0
+    assert np.isfinite(A).all()
+    β = A[0 : nvarobs + 1, nvarobs + 1 : dimension + 1]
+    σ2_res = A[nvarobs + 1 :, nvarobs + 1 :]
     return β, σ2_res
 
 
@@ -126,6 +154,7 @@ def EMCOMP(
     threshold=None,
     tol=0.0001,
     convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
+    max_iter=30,
 ):
     """
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
@@ -138,6 +167,13 @@ def EMCOMP(
         Dataset with rounded zeros
     threshold : :class:`numpy.ndarray`
         Array of threshold values for each component as a proprotion.
+    tol : :class:`float`
+        Tolerance to check for convergence.
+    convergence_metric : :class:`callable`
+        Callable function to verify convergence, which accepts two :class:`numpy.ndarray`
+        arguments and third tolerance argument.
+    max_iter : :class:`int`
+        Maximum number of iterations before an error is thrown.
 
     Returns
     --------
@@ -188,7 +224,7 @@ def EMCOMP(
         - np.spacing(1.0)  # Machine epsilon
     )
     assert np.isfinite(cpoints).all()
-    cpoints = cpoints[:, [i for i in range(D) if not i == pos]]
+    cpoints = cpoints[:, [i for i in range(D) if not i == pos]]  # censure points
     prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
     Y = alr(X, pos)
     # ---------------Log Space--------------------------------
@@ -197,76 +233,97 @@ def EMCOMP(
     C = nancov(Y)  # Σ0
     assert np.isfinite(M).all() and np.isfinite(C).all()
     """
-    ------------------------------------------------------------------------------------
-    Stage 2: Find and enumerate missing data patterns.
-    ------------------------------------------------------------------------------------
+    --------------------------------------------------
+    Stage 2: Find and enumerate missing data patterns
+    --------------------------------------------------
     """
     pID, pD = md_pattern(Y)
     """
-    ------------------------------------------------------------------------------------
+    -------------------------------------------
     Stage 3: Regression against other variables
-    ------------------------------------------------------------------------------------
+    -------------------------------------------
     """
+    logger.debug(
+        "Starting Iterative Regression for Matrix : ({}, {})".format(n_obs, LD)
+    )
     another_iter = True
     niters = 0
     while another_iter:
         niters += 1
-        Mnew, Cnew = M, C
+        Mnew, Cnew = M.copy(), C.copy()
         Ystar = Y.copy()
         V = np.zeros((LD, LD))
 
         for p_no in np.unique(pID):
+            logger.debug("Pattern ID: {}, {}".format(p_no, pD[p_no]["pattern"]))
             rows = np.arange(pID.size)[pID == p_no]  # rows with this pattern
-            ni = rows.size  # number of rows
             varobs, varmiss = (
                 np.arange(D - 1)[~pD[p_no]["pattern"]],
                 np.arange(D - 1)[pD[p_no]["pattern"]],
             )
-
-            sigmas = np.zeros(LD)
-
+            sigmas = np.zeros((LD))
+            assert np.isfinite(Y[np.ix_(rows, varobs)]).all()
+            assert (~np.isfinite(Y[np.ix_(rows, varmiss)])).all()
             if varobs.size and varmiss.size:  # Non-completely missing, but missing some
-                B, σ2_res = _reg_sweep(Mnew, Cnew, varobs)
-
-                B = B.flatten()
-                Ystar[np.ix_(rows, varmiss)] = (
-                    np.ones(ni) * B[0]
-                    + Y[np.ix_(rows, varobs)] @ B[1 : (varobs.size + 1)]
-                )[
-                    :, np.newaxis
-                ]  # regression
-
-                V[np.ix_(varmiss, varmiss)] += σ2_res * rows.size
-                sigmas[varmiss] = np.sqrt(np.diag(σ2_res))
-                diff = (  # distance below thresholds
-                    cpoints[np.ix_(rows, varmiss)]  # threshold values
-                    - Ystar[np.ix_(rows, varmiss)]
+                logger.debug(
+                    "Regressing {} rows for pattern {} | {}.".format(
+                        rows.size,
+                        "".join(varobs.astype(str)),
+                        "".join(varmiss.astype(str)),
+                    )
                 )
-                SD = diff / sigmas[varmiss][np.newaxis, :]  # standard deviations
-                ϕ = stats.norm.pdf(SD, loc=0, scale=1)  # pdf
-                Φ = stats.norm.cdf(SD, loc=0, scale=1)  # cdf
-                ds = sigmas[varmiss] * ϕ / Φ
-                ds = np.where(np.isfinite(ds), ds, 0.0)
-                Ystar[np.ix_(rows, varmiss)] -= ds
+                B, σ2_res = _reg_sweep(Mnew, Cnew, varobs)
+                assert B.shape == (varobs.size + 1, varmiss.size)
+                assert σ2_res.shape == (varmiss.size, varmiss.size)
+                assert np.isfinite(B).all()
+                logger.debug(
+                    "Current Estimator (1, {})".format(
+                        ", ".join(["β{}".format(i) for i in range(B.shape[0] - 1)])
+                    )
+                )
 
+                Ystar[np.ix_(rows, varmiss)] = np.ones((rows.size, 1)) * B[0, :] + (
+                    (Y[np.ix_(rows, varobs)] @ B[1 : (varobs.size + 1), :])
+                )
+                sigmas[varmiss] = np.sqrt(np.diag(σ2_res))
+                assert np.isfinite(sigmas[varmiss]).all()
+
+                x = (  # position of threshold values relative to estimated means
+                    cpoints[np.ix_(rows, varmiss)] - Ystar[np.ix_(rows, varmiss)]
+                )
+                x /= sigmas[varmiss][np.newaxis, :]  # as standard deviations
+                assert np.isfinite(x).all()
+                # Calculate inverse Mills Ratio
+                ϕ = stats.norm.pdf(x, loc=0, scale=1)  # pdf
+                Φ = stats.norm.cdf(x, loc=0, scale=1)  # cdf
+                Φ[np.isclose(Φ, 0)] = np.finfo(np.float).eps * 2
+                assert (Φ > 0).all()  # if its not, infinity will be introduced
+                inversemills = ϕ / Φ
+                Ystar[np.ix_(rows, varmiss)] = (
+                    Ystar[np.ix_(rows, varmiss)] - sigmas[varmiss] * inversemills
+                )
+                V[np.ix_(varmiss, varmiss)] += σ2_res * rows.size
+        assert np.isfinite(V).all()
         """Update and store parameter vector (μ(t), Σ(t))."""
+        logger.debug("Regression finished.")
         M = np.nanmean(Ystar, axis=0)
+        Ydevs = Ystar - np.ones((n_obs, 1)) * M
+        Ydevs[~np.isfinite(Ydevs)] = 0.0  # remove nonfinite components
+        PC = np.dot(Ydevs.T, Ydevs)
+        logger.debug("Correlation:\n{}".format(PC / (n_obs - 1)))
+        C = (PC + V) / (n_obs - 1)
 
-        dif = Ystar - np.ones(n_obs)[:, np.newaxis] @ M[np.newaxis, :]
-        dif[np.isnan(dif)] = 0.0
-        PearsonCorr = np.dot(dif.T, dif)
-        C = (PearsonCorr + V) / (n_obs - 1)
-        try:
-            assert np.isfinite(C).all()
-        except AssertionError:
-            logger.warning("Covariance matrix not finite.")
-            C = Cnew
-
+        logger.debug("Average diff: {}".format(np.mean(Ydevs, axis=0)))
+        assert np.isfinite(C).all()
         # Convergence checking
         if convergence_metric(M, Mnew, tol) & convergence_metric(C, Cnew, tol):
             another_iter = False
+            logger.debug("Convergence achieved.")
 
+        another_iter = another_iter & (niters < max_iter)
+        logger.debug("Iterations Continuing: {}".format(another_iter))
     # Back to compositional space
+    logger.debug("Finished. Inverting to compositional space.")
     Xstar = inverse_alr(Ystar, pos)
     return Xstar, prop_zeroes, niters
 
