@@ -16,8 +16,10 @@ import matplotlib.path
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
+from sklearn.decomposition import PCA
 import logging
 
+from ..util.math import eigsorted, nancov
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -176,7 +178,7 @@ def ternary_heatmap(
     transform=ilr,
     inverse_transform=inverse_ilr,
     mode="histogram",
-    aspect="unit",
+    aspect="eq",
     ret_centres=False,
     **kwargs
 ):
@@ -281,8 +283,10 @@ def ternary_heatmap(
         k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
         cdata = np.vstack([c.flatten() for c in centres])
         H = k(cdata).reshape((bins[0].size, bins[1].size))
+        H = H.T
     elif "hist" in mode:
         H, hedges = np.histogramdd(adata, bins=binedges)
+        H = H.T
         # these indicies for bin edges are correct
     elif "hex" in mode:
         # could do this in practice, but need to immplement transforms for hexbins
@@ -294,6 +298,12 @@ def ternary_heatmap(
     flatedges = np.vstack([e.flatten() for e in edges])
     xe, ye = AXtfm(itfm(flatedges.T))
     xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
+
+    c_shape = centres[0].shape
+    flatcentres= np.vstack([c.flatten() for c in centres])
+    xi, yi = AXtfm(itfm(flatcentres.T))
+    xi, yi = xi.reshape(c_shape), yi.reshape(c_shape)
+    centres = [xi, yi]
 
     if remove_background:
         H[H == 0] = np.nan
@@ -351,10 +361,93 @@ def vector_to_line(
     05.09-principal-component-analysis.html
     """
     length = np.sqrt(variance)
-    parts = np.linspace(-spans, spans, expand * 2 * spans + 1)
+    parts = np.linspace(-spans, spans, expand * spans + 1)
     line = length * np.dot(parts[:, np.newaxis], vector[np.newaxis, :]) + mu
     line = length * parts.reshape(parts.shape[0], 1) * vector + mu
     return line
+
+
+def plot_stdev_ellipses(comp, nstds=4, scale=100, transform=None, ax=None, **kwargs):
+    """
+    Plot covariance ellipses at a number of standard deviations from the mean.
+
+    Parameters
+    -------------
+    comp : :class:`numpy.ndarray`
+        Composition to use.
+    nstds : :class:`int`
+        Number of standard deviations from the mean for which to plot the ellipses.
+    scale : :class:`float`
+        Scale applying to all x-y data points. For intergration with python-ternary.
+    transform : :class:`callable`
+        Function for transformation of data prior to plotting (to either 2D or 3D).
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to plot on.
+
+    Returns
+    -------
+    ax :  :class:`matplotlib.axes.Axes`
+    """
+    mean, cov = np.nanmean(comp, axis=0), nancov(comp)
+    vals, vecs = eigsorted(cov)
+    theta = np.degrees(np.arctan2(*vecs[::-1]))
+    for nstd in np.arange(1, nstds + 1)[::-1]:  # backwards for svg construction
+        xsig, ysig = nstd * np.sqrt(vals)  # n sigmas
+        ell = matplotlib.patches.Ellipse(
+            xy=mean.flatten(), width=2 * xsig, height=2 * ysig, angle=theta[:1]
+        )
+        points = interpolated_patch_path(ell, resolution=1000).vertices
+
+        if callable(transform) and (transform is not None):
+            points = transform(points)  # transform to compositional data
+
+        if points.shape[1] == 3:
+            xy = ABC_to_xy(points, yscale=np.sqrt(3) / 2)
+        else:
+            xy = points
+        xy *= scale
+        patch = matplotlib.patches.PathPatch(matplotlib.path.Path(xy), **kwargs)
+        patch.set_edgecolor("k")
+        patch.set_alpha(1.0 / nstd)
+        patch.set_linewidth(0.5)
+        ax.add_artist(patch)
+    return ax
+
+
+def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwargs):
+    """
+    Plot vectors corresponding to principal components and their magnitudes.
+
+    Parameters
+    -------------
+    comp : :class:`numpy.ndarray`
+        Composition to use.
+    nstds : :class:`int`
+        Multiplier for magnitude of individual principal component vectors.
+    scale : :class:`float`
+        Scale applying to all x-y data points. For intergration with python-ternary.
+    transform : :class:`callable`
+        Function for transformation of data prior to plotting (to either 2D or 3D).
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to plot on.
+
+    Returns
+    -------
+    ax :  :class:`matplotlib.axes.Axes`
+    """
+    pca = PCA(n_components=2)
+    pca.fit(comp)
+    for variance, vector in zip(pca.explained_variance_, pca.components_):
+        line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
+        if callable(transform) and (transform is not None):
+            line = transform(line)
+        if line.shape[1] == 3:
+            xy = ABC_to_xy(line, yscale=np.sqrt(3) / 2)
+        else:
+            xy = line
+        xy *= scale
+        ax.plot(*xy.T, **kwargs)
+    return ax
 
 
 def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
@@ -421,6 +514,9 @@ def plot_Z_percentiles(
     percentiles=[0.95, 0.66, 0.33],
     ax=None,
     extent=None,
+    fontsize=8,
+    cmap=None,
+    contour_labels=None,
     label_contours=True,
     **kwargs
 ):
@@ -442,7 +538,10 @@ def plot_Z_percentiles(
         Fontsize for the contour labels.
     cmap : :class:`matplotlib.colors.ListedColormap`
         Color map for the contours, contour labels and imshow.
-
+    contour_labels : :class:`dict`
+        Labels to assign to contours, organised by level.
+    label_contours :class:`bool`
+        Whether to add text labels to individual contours.
     Returns
     -------
     :class:`matplotlib.contour.QuadContourSet`
@@ -459,16 +558,22 @@ def plot_Z_percentiles(
     clabels, contours = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, **kwargs)
+    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, cmap=cmap, **kwargs)
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
-        lbls = ax.clabel(cs, fontsize=fs)
+        lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
         z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
         trans = {
             float(t): str(p)
             for t, p in zip(z_contours, sorted(percentiles, reverse=True))
         }
-        [l.set_text(trans[float(l.get_text())]) for ix, l in enumerate(lbls)]
+        if contour_labels is None:
+            _labels = [trans[float(l.get_text())] for l in lbls]
+        else:  # get the labels from the dictionary provided
+            contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
+            _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+
+        [l.set_text(t) for l, t in zip(lbls, _labels)]
     return cs
 
 
