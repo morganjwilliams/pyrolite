@@ -5,7 +5,7 @@ import dask
 import dask.dataframe as dd
 import pandas as pd
 
-from pyrolite.util.pd import test_df
+from pyrolite.util.synthetic import test_df
 
 
 
