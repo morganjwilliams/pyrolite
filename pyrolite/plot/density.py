@@ -126,12 +126,13 @@ def density(
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
-        if pcolor:
-            pc = ax.pcolor
-        else:
-            pc = ax.pcolormesh
     else:
         cbarlabel = "Frequency"
+
+    if pcolor:
+        pc = ax.pcolor
+    else:
+        pc = ax.pcolormesh
 
     exp = (coverage_scale - 1.0) / 2
     valid_rows = np.isfinite(arr).all(axis=-1)
@@ -257,13 +258,7 @@ def density(
             scale = kwargs.pop("scale", 100.0)
             aspect = kwargs.pop("aspect", "unit")
             nanarr = np.ones(3) * np.nan  # update to array method
-            ternary(
-                nanarr,
-                ax=ax,
-                scale=scale,
-                figsize=figsize,
-                no_ticks=no_ticks,
-            )
+            ternary(nanarr, ax=ax, scale=scale, figsize=figsize, no_ticks=no_ticks)
             tax = ax.tax
             xe, ye, zi, centres = ternary_heatmap(
                 arr, bins=bins, mode=mode, aspect=aspect, ret_centres=True
