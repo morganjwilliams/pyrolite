@@ -3,6 +3,7 @@ import numpy as np
 import logging
 from scipy.stats.kde import gaussian_kde
 from .tern import ternary
+from ..comp.codata import close
 from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_
 from ..util.plot import (
     ternary_heatmap,
@@ -36,6 +37,8 @@ def density(
     vmin=0.0,
     shading="flat",
     colorbar=False,
+    pcolor=False,
+    no_ticks=False,
     **kwargs
 ):
     """
@@ -85,6 +88,11 @@ def density(
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
+    pcolor : :class:`bool`
+        Option to use the :func:`matplotlib.pyplot.pcolor`function in place
+        of :func:`matplotlib.pyplot.pcolormesh`.
+    no_ticks : :class:`bool`
+        Option to *suppress* tickmarks and labels.
 
     {otherparams}
 
@@ -118,6 +126,10 @@ def density(
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
+        if pcolor:
+            pc = ax.pcolor
+        else:
+            pc = ax.pcolormesh
     else:
         cbarlabel = "Frequency"
 
@@ -230,7 +242,7 @@ def density(
 
                 if not contours:
                     # pcolormesh using bin edges
-                    mappable = ax.pcolormesh(
+                    mappable = pc(
                         xe, ye, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
                     )
                     mappable.set_edgecolor(background_color)
@@ -241,16 +253,30 @@ def density(
                 ax.axis(extent)
 
         elif arr.shape[-1] == 3:  # ternary
-            # todo : check the scale here.
-            scale = 100.0
+            arr = close(arr)
+            scale = kwargs.pop("scale", 100.0)
+            aspect = kwargs.pop("aspect", "unit")
             nanarr = np.ones(3) * np.nan  # update to array method
-            ternary(nanarr, ax=ax, scale=scale, figsize=figsize)
+            ternary(
+                nanarr,
+                ax=ax,
+                scale=scale,
+                figsize=figsize,
+                no_ticks=no_ticks,
+            )
             tax = ax.tax
             xe, ye, zi, centres = ternary_heatmap(
-                arr, bins=bins, mode=mode, aspect="eq", ret_centres=True
+                arr, bins=bins, mode=mode, aspect=aspect, ret_centres=True
             )
-            mappable = ax.pcolormesh(xe * scale, ye * scale, zi, cmap=cmap, vmin=vmin)
-            xi, yi = centres # coordinates of grid centres for possible contouring
+            zi[np.isnan(zi)] = 0.0
+            if percentiles:  # 98th percentile
+                vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
+                logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
+
+            if not contours:
+                mappable = pc(xe * scale, ye * scale, zi, cmap=cmap, vmin=vmin)
+            xi, yi = centres  # coordinates of grid centres for possible contouring
+            xi, yi = xi * scale, yi * scale
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)
             ax.spines["bottom"].set_visible(False)
@@ -276,10 +302,12 @@ def density(
                 levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
             # filled contours
             mappable = ax.contourf(
-                *cags, extent=extent, levels=levels, vmin=vmin, **kwargs
+                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
             )
             # contours
-            ax.contour(*cags, extent=extent, levels=levels, vmin=vmin, **kwargs)
+            ax.contour(
+                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+            )
 
     if colorbar:
         cbkwargs = kwargs.copy()
