@@ -76,9 +76,7 @@ for ix, sample in enumerate(df.Sample.unique()):
     plot_pca_vectors(tcomp, ls="-", lw=0.5, color="k", **kwargs)
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 # %% individual density diagrams ------------------------------------------------------
-cmap = matplotlib.cm.Blues
 kwargs = dict(ax=ax[-2], bins=100, no_ticks=True, axlabels=False)
-cmap.set_under(color=(1, 1, 1, 0.0))  # transparent white
 for ix, sample in enumerate(df.Sample.unique()):
     comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
     comp.pyroplot.density(cmap="Blues", pcolor=True, **kwargs)
