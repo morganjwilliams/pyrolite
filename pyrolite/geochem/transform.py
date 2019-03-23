@@ -696,7 +696,7 @@ def lambda_lnREE(
         elif isinstance(norm_to, RefComp):
             norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
         else:  # list, iterable, pd.Index etc
-            norm_abund = np.array([i for i in norm_abund])
+            norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(ree)
 
         norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)

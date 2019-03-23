@@ -12,7 +12,7 @@ from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
 from pyrolite.util.skl import ILRTransform, ALRTransform
-
+from pyrolite.util.synthetic import random_composition
 
 try:
     from sklearn.decomposition import PCA
@@ -208,32 +208,72 @@ class TestLegendProxies(unittest.TestCase):
 
 class TestPlotStDevEllipses(unittest.TestCase):
     def setUp(self):
-
-        pass
+        self.comp2d = random_composition(size=100, D=2)
+        self.comp3d = random_composition(size=100, D=3)
 
     def test_default(self):
-        plot_stdev_ellipses
+        for comp in [self.comp2d]:
+            with self.subTest(comp=comp):
+                plot_stdev_ellipses(comp)
 
-    def test_3d(self):
-        pass
+    def test_axis_specified(self):
+        for comp in [self.comp2d]:
+            with self.subTest(comp=comp):
+                fig, ax = plt.subplots()
+                plot_stdev_ellipses(comp, ax=ax)
 
     def test_transform(self):
-        pass
+        for tfm in [None, ILRTransform, ALRTransform]:
+            with self.subTest(tfm=tfm):
+                if callable(tfm):
+                    T = tfm()
+                    to = T.transform
+                    transform = T.inverse_transform
+                    comp = to(self.comp3d)
+                else:
+                    comp = self.comp2d
+                    transform = None
+
+                plot_stdev_ellipses(comp, transform=transform)
+
+    def tearDown(self):
+        plt.close("all")
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
 class TestPlotPCAVectors(unittest.TestCase):
     def setUp(self):
-        pass
+        self.comp2d = random_composition(size=100, D=2)
+        self.comp3d = random_composition(size=100, D=3)
 
     def test_default(self):
-        plot_pca_vectors
+        for comp in [self.comp2d, self.comp3d]:
+            with self.subTest(comp=comp):
+                plot_pca_vectors(comp)
 
-    def test_3d(self):
-        pass
+    def test_axis_specified(self):
+        for comp in [self.comp2d, self.comp3d]:
+            with self.subTest(comp=comp):
+                fig, ax = plt.subplots()
+                plot_pca_vectors(comp, ax=ax)
 
     def test_transform(self):
-        pass
+        for tfm in [None, ILRTransform, ALRTransform]:
+            with self.subTest(tfm=tfm):
+                if callable(tfm):
+                    T = tfm()
+                    to = T.transform
+                    transform = T.inverse_transform
+                    comp = to(self.comp3d)
+                else:
+                    comp = self.comp2d
+                    transform = None
+
+                plot_pca_vectors(comp, transform=transform)
+
+    def tearDown(self):
+        plt.close("all")
+
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
 class TestDrawVector(unittest.TestCase):
