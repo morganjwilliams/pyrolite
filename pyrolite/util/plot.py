@@ -282,12 +282,10 @@ def ternary_heatmap(
         kdedata = adata[np.isfinite(adata).all(axis=1), :]
         k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
         cdata = np.vstack([c.flatten() for c in centres])
-        H = k(cdata).reshape((bins[0].size, bins[1].size))
-        H = H.T
+        H = k(cdata).T.reshape((bins[0].size, bins[1].size))
     elif "hist" in mode:
         H, hedges = np.histogramdd(adata, bins=binedges)
         H = H.T
-        # these indicies for bin edges are correct
     elif "hex" in mode:
         # could do this in practice, but need to immplement transforms for hexbins
         raise NotImplementedError
@@ -300,7 +298,7 @@ def ternary_heatmap(
     xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
 
     c_shape = centres[0].shape
-    flatcentres= np.vstack([c.flatten() for c in centres])
+    flatcentres = np.vstack([c.flatten() for c in centres])
     xi, yi = AXtfm(itfm(flatcentres.T))
     xi, yi = xi.reshape(c_shape), yi.reshape(c_shape)
     centres = [xi, yi]

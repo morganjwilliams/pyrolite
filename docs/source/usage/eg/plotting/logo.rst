@@ -52,7 +52,7 @@ First, let's look at the synthetic data itself in the ternary space:
    :end-before: # %% ellipses and vectors from PCA
 
 
-.. image:: ../../../_static/icon_points.png
+.. image:: ../../../_static/logo_eg_points.png
    :width: 50%
    :align: center
 
@@ -67,7 +67,7 @@ vectors using principal component analysis:
    :end-before: # %% individual density diagrams
 
 
-.. image:: ../../../_static/icon.png
+.. image:: ../../../_static/logo_eg_ellipses.png
   :width: 50%
   :align: center
 
@@ -82,7 +82,7 @@ in log-space:
   :end-before: # %% axes cleanup
 
 
-.. image:: ../../../_static/icon_density.png
+.. image:: ../../../_static/logo_eg_density.png
   :width: 50%
   :align: center
 
@@ -96,7 +96,7 @@ We can also do this for individual samples, and estimate percentile contours:
    :end-before: # %% overall density diagram
 
 
-.. image:: ../../../_static/icon_contours.png
+.. image:: ../../../_static/logo_eg_contours.png
   :width: 50%
   :align: center
 
@@ -110,7 +110,7 @@ Typically, you'll want to do some axes clean-up, this is what's used for these f
   :end-before: # %% Save Figure
 
 
-.. image:: ../../../_static/icon_all.png
+.. image:: ../../../_static/logo_eg_all.png
   :width: 100%
   :align: center
 

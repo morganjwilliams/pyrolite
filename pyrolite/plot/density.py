@@ -121,6 +121,7 @@ def density(
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
+        cmap.set_under(color=(1, 1, 1, 0.0))
 
     cmap.set_under(color=background_color)
 
@@ -256,22 +257,24 @@ def density(
         elif arr.shape[-1] == 3:  # ternary
             arr = close(arr)
             scale = kwargs.pop("scale", 100.0)
-            aspect = kwargs.pop("aspect", "unit")
+            aspect = kwargs.pop("aspect", "eq")
             nanarr = np.ones(3) * np.nan  # update to array method
             ternary(nanarr, ax=ax, scale=scale, figsize=figsize, no_ticks=no_ticks)
             tax = ax.tax
             xe, ye, zi, centres = ternary_heatmap(
                 arr, bins=bins, mode=mode, aspect=aspect, ret_centres=True
             )
+            xi, yi = centres  # coordinates of grid centres for possible contouring
+            xi, yi = xi * scale, yi * scale
             zi[np.isnan(zi)] = 0.0
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
 
             if not contours:
+                zi[zi == 0.0] = np.nan  #
                 mappable = pc(xe * scale, ye * scale, zi, cmap=cmap, vmin=vmin)
-            xi, yi = centres  # coordinates of grid centres for possible contouring
-            xi, yi = xi * scale, yi * scale
+
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)
             ax.spines["bottom"].set_visible(False)
