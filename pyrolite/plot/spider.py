@@ -232,7 +232,7 @@ def REE_v_radii(
     xlabels, _xlabels = ["{:1.3f}".format(i) for i in radii], ree
     xticks, _xticks = radii, radii
     xlabelrotation, _xlabelrotation = tl_rotation, 0
-    xtitle, _xtitle = "Ionic Radius ($\mathrm{\AA}$)", "Element"
+    xtitle, _xtitle = r"Ionic Radius ($\mathrm{\AA}$)", "Element"
 
     if mode == "radii":
         indexes = radii
