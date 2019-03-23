@@ -32,7 +32,9 @@ def random_cov_matrix(dim, validate=False):
     return cov
 
 
-def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing=None):
+def random_composition(
+    size=1000, D=4, mean=None, cov=None, propnan=0.1, missingcols=None, missing=None
+):
     """
     Generate a simulated random unimodal compositional dataset,
     optionally with missing data.
@@ -49,7 +51,13 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
         Optional specification of covariance matrix (in log space).
     propnan : :class:`float`, [0, 1)
         Proportion of missing values in the output dataset.
+    missingcols : :class:`int` | :class:`tuple`
+        Specification of columns to be missing. If an integer is specified,
+        interpreted to be the number of columns containin missing data (at a proportion
+        defined by `propnan`). If a tuple or list, the specific columns to contain
+        missing data.
     missing : :class:`str`, :code:`None`
+        Missingness pattern.
         If not :code:`None`, a string in :code:`{"MCAR", "MAR", "MNAR"}`.
 
             * If :code:`missing = "MCAR"``, data will be missing at random.
@@ -107,27 +115,46 @@ def random_composition(size=1000, D=4, mean=None, cov=None, propnan=0.1, missing
             np.random.multivariate_normal(mean.reshape(D - 1), cov, size=size)
         ).reshape(size, D)
 
+    if missingcols is None:
+        nancols = (
+            np.random.choice(
+                range(data.shape[1] - 1), size=int(data.shape[1] - 1), replace=False
+            )
+            + 1
+        )
+    elif isinstance(missingcols, int):  # number of columns specified
+        nancols = (
+            np.random.choice(range(data.shape[1] - 1), size=missingcols, replace=False)
+            + 1
+        )
+    else:  # tuples, list etc
+        nancols = missingcols
+
     if missing is not None:
         if missing == "MCAR":
-            nnan = int(propnan * size)
-            for _ in range(nnan):
-                for i in range(data.shape[1] - 1):
-                    data[np.random.randint(size), i + 1] = np.nan
+            for i in nancols:
+                data[np.random.randint(size, size=int(propnan * size)), i] = np.nan
         elif missing == "MAR":
-            thresholds = np.percentile(data, propnan * 100, axis=0)
+            thresholds = np.percentile(data[:, nancols], propnan * 100, axis=0)[
+                np.newaxis, :
+            ]
             # should update this such that data are proportional to other variables
             # potentially just by rearranging the where statement
-            data[:, 1:] = np.where(
-                data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D - 1),
+            data[:, nancols] = np.where(
+                data[:, nancols]
+                < np.tile(thresholds, size).reshape(size, len(nancols)),
                 np.nan,
-                data[:, 1:],
+                data[:, nancols],
             )
         elif missing == "MNAR":
-            thresholds = np.percentile(data, propnan * 100, axis=0)
-            data[:, 1:] = np.where(
-                data[:, 1:] < np.tile(thresholds[1:], size).reshape(size, D - 1),
+            thresholds = np.percentile(data[:, nancols], propnan * 100, axis=0)[
+                np.newaxis, :
+            ]
+            data[:, nancols] = np.where(
+                data[:, nancols]
+                < np.tile(thresholds, size).reshape(size, len(nancols)),
                 np.nan,
-                data[:, 1:],
+                data[:, nancols],
             )
         else:
             msg = "Provide a value for missing in {}".format(

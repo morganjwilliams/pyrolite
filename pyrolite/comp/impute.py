@@ -92,7 +92,8 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
     for the regression of missing variables against observed variables for a given
     missing data pattern. Translated from matlab to python from Palarea-Albaladejo
-    and Martín-Fernández (2008) [#ref_1]_.
+    and Martín-Fernández (2008) [#ref_1]_. Note that this algorithm requires at least
+    two columns free of missing values.
 
     Parameters
     -----------

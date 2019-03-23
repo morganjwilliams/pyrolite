@@ -66,7 +66,14 @@ class TestRandomComposition(unittest.TestCase):
 
     def test_missing_mechanism(self):
         for missing in [None, "MCAR", "MAR", "MNAR"]:
-            random_composition(size=self.size, D=self.D, missing=missing)
+            rc = random_composition(size=self.size, D=self.D, missing=missing)
+
+    def test_missing_columns(self):
+        for missingcols in [1, 2, (0, 1), [1, 2]]:
+            with self.subTest(missingcols=missingcols):
+                rc = random_composition(
+                    size=self.size, D=self.D, missingcols=missingcols
+                )
 
     def test_missing_mechanism_invalid(self):
         for missing in ["all", "completely"]:
