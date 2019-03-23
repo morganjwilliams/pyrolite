@@ -13,13 +13,11 @@ ys = np.random.rand(1000, len(oxs))
 ys[:, 1] += 0.7
 ys[:, 2] += 1.
 df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
-df
 # plot
 ax = density(df.loc[:, ["SiO2", "MgO"]].values)
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
-
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # %% Save Figure
 from pyrolite.util.plot import save_figure
