@@ -35,7 +35,6 @@ class TestInterpolateLine(unittest.TestCase):
 
 
 class TestIndexsRanges(unittest.TestCase):
-
     def setUp(self):
         self.x = np.linspace(1, 10, 10)
 
@@ -353,38 +352,49 @@ class TestNaNCov(unittest.TestCase):
     """Tests the numpy nan covariance matrix utility."""
 
     def setUp(self):
-        self.X = np.random.rand(1000, 10)
+        self.X = np.vstack((np.arange(10.), -np.arange(10.))).T
+        self.X -= np.nanmean(self.X, axis=0)[np.newaxis, :]
+        self.target = np.eye(2) + -1.0 * np.eye(2)[::-1, :]
 
     def test_simple(self):
         """Checks whether non-nan covariances are correct."""
-        X = np.vstack((np.arange(10), -np.arange(10))).T
+        X = self.X
         out = nancov(X)
-        target = np.eye(2) + -1.0 * np.eye(2)[::-1, :]
-        self.assertTrue(np.allclose(out / out[0][0], target))
-
-    def test_replace_method(self):
-        """Checks whether the replacement method works."""
-        pass
-
-    def test_rowexclude_method(self):
-        """Checks whether the traditional row-exclude method works."""
-        pass
+        self.assertTrue(np.allclose(out / out[0][0], self.target))
 
     def test_one_column_partial_nan(self):
         """Checks whether a single column containing NaN is processed."""
-        pass
+        X = self.X
+        X[0, 1] = np.nan
+        out = nancov(X)
+        self.assertTrue(np.allclose(out / out[0][0], self.target))
 
     def test_all_column_partial_nan(self):
         """Checks whether all columns containing NaNs is processed."""
-        pass
+        X = self.X
+        X[0, 1] = np.nan
+        X[1, 0] = np.nan
+        out = nancov(X)
+        self.assertTrue(np.allclose(out / out[0][0], self.target))
 
+    @unittest.expectedFailure
     def test_one_column_all_nan(self):
         """Checks whether a single column all-NaN is processed."""
-        pass
+        X = self.X
+        X[:, 1] = np.nan
+        for method in ["replace", "rowexclude"]:
+            with self.subTest(method=method):
+                out = nancov(X, method=method)
+                self.assertTrue(np.allclose(out / out[0][0], self.target))
 
+    @unittest.expectedFailure
     def test_all_column_all_nan(self):
         """Checks whether all columns all-NaNs is processed."""
-        pass
+        X = self.X
+        X[:, 1] = np.nan
+        X[:, 0] = np.nan
+        out = nancov(X)
+        self.assertTrue(np.allclose(out / out[0][0], self.target))
 
 
 class TestOrthogonalBasis(unittest.TestCase):
