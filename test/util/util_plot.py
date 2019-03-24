@@ -208,31 +208,32 @@ class TestLegendProxies(unittest.TestCase):
 
 class TestPlotStDevEllipses(unittest.TestCase):
     def setUp(self):
-        self.comp2d = random_composition(size=100, D=2)
+
         self.comp3d = random_composition(size=100, D=3)
+        self.T = ILRTransform()
+        self.comp2d = self.T.transform(self.comp3d)
 
     def test_default(self):
         for comp in [self.comp2d]:
             with self.subTest(comp=comp):
-                plot_stdev_ellipses(comp)
+                plot_stdev_ellipses(comp, transform=self.T.inverse_transform)
 
     def test_axis_specified(self):
         for comp in [self.comp2d]:
             with self.subTest(comp=comp):
-                fig, ax = plt.subplots()
-                plot_stdev_ellipses(comp, ax=ax)
+                fig, ax = plt.subplots(1)
+                plot_stdev_ellipses(comp, ax=ax, transform=self.T.inverse_transform)
 
     def test_transform(self):
         for tfm in [None, ILRTransform, ALRTransform]:
             with self.subTest(tfm=tfm):
                 if callable(tfm):
                     T = tfm()
-                    to = T.transform
+                    comp = T.transform(self.comp3d)
                     transform = T.inverse_transform
-                    comp = to(self.comp3d)
                 else:
-                    comp = self.comp2d
                     transform = None
+                    comp = self.comp2d
 
                 plot_stdev_ellipses(comp, transform=transform)
 
@@ -243,8 +244,9 @@ class TestPlotStDevEllipses(unittest.TestCase):
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
 class TestPlotPCAVectors(unittest.TestCase):
     def setUp(self):
-        self.comp2d = random_composition(size=100, D=2)
         self.comp3d = random_composition(size=100, D=3)
+        self.T = ILRTransform()
+        self.comp2d = self.T.transform(self.comp3d)
 
     def test_default(self):
         for comp in [self.comp2d, self.comp3d]:
@@ -262,12 +264,11 @@ class TestPlotPCAVectors(unittest.TestCase):
             with self.subTest(tfm=tfm):
                 if callable(tfm):
                     T = tfm()
-                    to = T.transform
+                    comp = T.transform(self.comp3d)
                     transform = T.inverse_transform
-                    comp = to(self.comp3d)
                 else:
-                    comp = self.comp2d
                     transform = None
+                    comp = self.comp2d
 
                 plot_pca_vectors(comp, transform=transform)
 
