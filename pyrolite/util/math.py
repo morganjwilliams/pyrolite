@@ -11,6 +11,7 @@ from .meta import update_docstring_references
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+
 def eigsorted(cov):
     """
     Returns arrays of eigenvalues and eigenvectors sorted by magnitude.
@@ -509,51 +510,24 @@ def on_finite(X, f):
     return f(X[ma])
 
 
-def nancov(X, method="replace"):
+def nancov(X):
     """
-    Generates a covariance matrix excluding nan-components.  Done on a
-    column-column/pairwise basis. The result Y may not be a positive definite matrix.
+    Generates a covariance matrix excluding nan-components.
 
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
         Input array for which to derive a covariance matrix.
-    method : :class:`str`, 'row_exclude' | 'replace'
-        Method for calculating covariance matrix.
-        'row_exclude' removes all rows  which contain np.nan before calculating
-        the covariance matrix. 'replace' instead replaces the np.nan values with
-        the mean before calculating the covariance.
 
     Returns
     -------
     :class:`numpy.ndarray`
     """
-    if method == "rowexclude":
-        Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
-        # assert Xnanfree.shape[1] > Xnanfree.shape[0]
-        # (1/m)X^T*X
-        return np.cov(Xnanfree)
-    else:
-        X = np.array(X, ndmin=2, dtype=float)
-        X -= np.nanmean(X, axis=0)  # [:, np.newaxis]
-        cov = np.empty((X.shape[1], X.shape[1]))
-        cols = range(X.shape[1])
-        for n in cols:
-            for m in [i for i in cols if i >= n]:
-                fn = np.isfinite(X[:, n])
-                fm = np.isfinite(X[:, m])
-                if method == "replace":
-                    X[~fn, n] = 0
-                    X[~fm, m] = 0
-                    fact = fn.shape[0] - 1
-                    c = np.dot(X[:, n], X[:, m]) / fact
-                else:
-                    f = fn & fm
-                    fact = f.shape[0] - 1
-                    c = np.dot(X[f, n], X[f, m]) / fact
-                cov[n, m] = c
-                cov[m, n] = c
-        return cov
+    # tried and true - simply excludes samples
+    Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
+    # assert Xnanfree.shape[1] > Xnanfree.shape[0]
+    # (1/m)X^T*X
+    return np.cov(Xnanfree)
 
 
 @update_docstring_references

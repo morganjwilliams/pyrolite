@@ -12,7 +12,7 @@ from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
 from pyrolite.util.skl import ILRTransform, ALRTransform
-
+from pyrolite.util.synthetic import random_composition
 
 try:
     from sklearn.decomposition import PCA
@@ -109,6 +109,20 @@ class TestTernaryHeatmap(unittest.TestCase):
         self.assertTrue(xe.shape == ye.shape)
         # zi could have more or less bins depending on mode..
 
+    def test_aspect(self):
+        """
+        The ternary heatmap can be used in different aspects for either equilateral
+        triangle mode ('eq') or as a triangle which would fit in a unit square ('unit').
+        """
+        for aspect, expect in [("eq", np.sqrt(3) / 2), ("unit", 1.0)]:
+            with self.subTest(aspect=aspect, expect=expect):
+                out = ternary_heatmap(self.data, aspect=aspect)
+                self.assertTrue(isinstance(out, tuple))
+                xe, ye, zi = out
+                self.assertTrue(xe.shape == ye.shape)
+                ymax = np.nanmax(ye)
+                self.assertTrue(ymax < expect)
+
     def test_histogram(self):
         out = ternary_heatmap(self.data, mode="histogram")
         xe, ye, zi = out
@@ -141,6 +155,36 @@ class TestTernaryHeatmap(unittest.TestCase):
                 out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 
 
+class TestBinConversions(unittest.TestCase):
+    def setUp(self):
+        self.binedges = np.array([0, 1, 2, 3, 4, 5])
+        self.bincentres = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
+
+        self.asymbinedges = np.array([0, 2, 3, 4, 7])
+        self.asymbincentres = np.array([1, 2.5, 3.5, 5.5])
+
+    def test_linear_bin_edges_to_centres(self):
+        cs = bin_edges_to_centres(self.binedges)
+        self.assertTrue(np.allclose(self.bincentres, cs))
+
+    def test_linear_bin_centres_to_edges(self):
+        edgs = bin_centres_to_edges(self.bincentres)
+        self.assertTrue(np.allclose(self.binedges, edgs))
+
+    def test_asymmetric_bin_edges_to_centres(self):
+        cs = bin_edges_to_centres(self.asymbinedges)
+        self.assertTrue(np.allclose(self.asymbincentres, cs))
+
+    @unittest.expectedFailure
+    def test_asymmetric_bin_centres_to_edges(self):
+        """
+        This problem doesn't have a unique solution, only bounds. The simple algorithm
+        used can't accurately reconstruct bin edges.
+        """
+        edgs = bin_centres_to_edges(self.asymbincentres)
+        self.assertTrue(np.allclose(self.asymbinedges, edgs))
+
+
 class TestLegendProxies(unittest.TestCase):
     """
     Tests the proxy_rect and proxy_line utility functions.
@@ -157,6 +201,75 @@ class TestLegendProxies(unittest.TestCase):
     def test_proxy_rect(self):
         line = proxy_line()
         self.assertTrue(isinstance(line, matplotlib.lines.Line2D))
+
+    def tearDown(self):
+        plt.close("all")
+
+
+class TestPlotStDevEllipses(unittest.TestCase):
+    def setUp(self):
+        self.comp2d = random_composition(size=100, D=2)
+        self.comp3d = random_composition(size=100, D=3)
+
+    def test_default(self):
+        for comp in [self.comp2d]:
+            with self.subTest(comp=comp):
+                plot_stdev_ellipses(comp)
+
+    def test_axis_specified(self):
+        for comp in [self.comp2d]:
+            with self.subTest(comp=comp):
+                fig, ax = plt.subplots()
+                plot_stdev_ellipses(comp, ax=ax)
+
+    def test_transform(self):
+        for tfm in [None, ILRTransform, ALRTransform]:
+            with self.subTest(tfm=tfm):
+                if callable(tfm):
+                    T = tfm()
+                    to = T.transform
+                    transform = T.inverse_transform
+                    comp = to(self.comp3d)
+                else:
+                    comp = self.comp2d
+                    transform = None
+
+                plot_stdev_ellipses(comp, transform=transform)
+
+    def tearDown(self):
+        plt.close("all")
+
+
+@unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
+class TestPlotPCAVectors(unittest.TestCase):
+    def setUp(self):
+        self.comp2d = random_composition(size=100, D=2)
+        self.comp3d = random_composition(size=100, D=3)
+
+    def test_default(self):
+        for comp in [self.comp2d, self.comp3d]:
+            with self.subTest(comp=comp):
+                plot_pca_vectors(comp)
+
+    def test_axis_specified(self):
+        for comp in [self.comp2d, self.comp3d]:
+            with self.subTest(comp=comp):
+                fig, ax = plt.subplots()
+                plot_pca_vectors(comp, ax=ax)
+
+    def test_transform(self):
+        for tfm in [None, ILRTransform, ALRTransform]:
+            with self.subTest(tfm=tfm):
+                if callable(tfm):
+                    T = tfm()
+                    to = T.transform
+                    transform = T.inverse_transform
+                    comp = to(self.comp3d)
+                else:
+                    comp = self.comp2d
+                    transform = None
+
+                plot_pca_vectors(comp, transform=transform)
 
     def tearDown(self):
         plt.close("all")

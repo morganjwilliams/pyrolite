@@ -252,7 +252,8 @@ class TestRecalculateFe(unittest.TestCase):
     def test_multiple(self):
         """Check the transformation functions for multiple records."""
         df = self.df
-        self.assertEqual(recalculate_Fe(df).index.size, df.index.size)
+        out = recalculate_Fe(df)
+        self.assertEqual(out.index.size, df.index.size)
 
     def test_to_oxidised(self):
         """Check the oxidised form is returned when called."""
@@ -278,6 +279,12 @@ class TestRecalculateFe(unittest.TestCase):
                 else:
                     # the reduced columns will be dropped,
                     pass
+
+    def test_dictionary_passed(self):
+        df = self.df
+        to = {"FeO": 0.9, "Fe2O3": 0.1}
+        outdf = recalculate_Fe(df, to=to)
+        self.assertTrue(all([t in outdf.columns for t in to.keys()]))
 
     def test_total_suffix(self):
         """Checks that different suffixes can be used."""
@@ -494,14 +501,13 @@ class TestLambdaLnREE(unittest.TestCase):
     def test_norm_to(self):
         """
         Tests the ability to generate lambdas using different normalisations."""
-        for norm_to in self.rc.keys():
-            data = self.rc[norm_to][self.df.columns]["value"]
-            if not pd.isnull(data).any():
-                with self.subTest(norm_to=norm_to):
-                    ret = lambda_lnREE(
-                        self.df, norm_to=norm_to, degree=self.default_degree
-                    )
-                    self.assertTrue(ret.columns.size == self.default_degree)
+        for norm_to in list(self.rc.keys()) + [
+            self.rc["Chondrite_PON"],
+            np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
+        ]:
+            with self.subTest(norm_to=norm_to):
+                ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)
+                self.assertTrue(ret.columns.size == self.default_degree)
 
     def test_append(self):
         """

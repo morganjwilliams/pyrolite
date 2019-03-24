@@ -77,7 +77,7 @@ def interpolated_patch_path(patch, resolution=100):
     pathtfm = tfm.transform_path(pth)
     x, y = pathtfm.vertices.T
     tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], per=True, s=1)
-    xi, yi = scipy.interpolate.splev(np.linspace(0, 1, resolution), tck)
+    xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
     # could get control points for path and construct codes here
     codes = None
     return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
@@ -389,8 +389,13 @@ def plot_stdev_ellipses(comp, nstds=4, scale=100, transform=None, ax=None, **kwa
     mean, cov = np.nanmean(comp, axis=0), nancov(comp)
     vals, vecs = eigsorted(cov)
     theta = np.degrees(np.arctan2(*vecs[::-1]))
+
+    if ax is None:
+        fig, ax = plt.subplots(1)
+
     for nstd in np.arange(1, nstds + 1)[::-1]:  # backwards for svg construction
-        xsig, ysig = nstd * np.sqrt(vals)  # n sigmas
+        # here we use the absolute eigenvalues
+        xsig, ysig = nstd * np.sqrt(np.abs(vals))  # n sigmas
         ell = matplotlib.patches.Ellipse(
             xy=mean.flatten(), width=2 * xsig, height=2 * ysig, angle=theta[:1]
         )
@@ -435,6 +440,10 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
     """
     pca = PCA(n_components=2)
     pca.fit(comp)
+
+    if ax is None:
+        fig, ax = plt.subplots(1)
+
     for variance, vector in zip(pca.explained_variance_, pca.components_):
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):

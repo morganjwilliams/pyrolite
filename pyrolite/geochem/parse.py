@@ -17,7 +17,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def tochem(strings: list, abbrv=["ID", "IGSN"], split_on="[\s_]+"):
+def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
     """
     Converts a list of strings containing come chemical compounds to
     appropriate case.

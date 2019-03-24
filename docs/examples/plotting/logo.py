@@ -102,8 +102,8 @@ from pathlib import Path
 import svgutils
 dpi = 600
 save_at = Path("./../../source/_static/")
-fmts = ["svg", "png", "jpg"]
-save_axes(ax[1], name="icon", save_at=save_at, save_fmts=fmts, dpi=dpi)
+fmts = ["png", "jpg"]
+save_axes(ax[1], name="icon", save_at=save_at, save_fmts=fmts+['svg'], dpi=dpi)
 
 ax[0].set_title("Synthetic Data")
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
