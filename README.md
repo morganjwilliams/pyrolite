@@ -1,6 +1,6 @@
 # `pyrolite`
 
-<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/source/_static/icon.png" alt="pyrolite Logo" width="30%" align="right">
+<img src="https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/source/_static/icon.jpg" alt="pyrolite Logo" width="30%" align="right">
 
 <p align="left">
   <a href="https://pypi.python.org/pypi/pyrolite/">
