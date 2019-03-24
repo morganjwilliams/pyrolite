@@ -722,8 +722,9 @@ def get_full_extent(ax, pad=0.0):
     -----------
     ax : :class:`matplotlib.axes.Axes`
         Axes of which to check items to get full extent.
-    pad : :class:`float`
-        Amount of padding to add to the full extent prior to returning.
+    pad : :class:`float` | :class:`tuple`
+        Amount of padding to add to the full extent prior to returning. If a tuple is
+        passed, the padding will be as above, but for x and y directions, respectively.
 
     Returns
     --------
@@ -748,5 +749,10 @@ def get_full_extent(ax, pad=0.0):
             items += t_lb
 
     bbox = Bbox.union([item.get_window_extent(renderer) for item in items])
-    full_extent = bbox.expanded(1.0 + pad, 1.0 + pad)
+    if isinstance(pad, (float, int)):
+        full_extent = bbox.expanded(1.0 + pad, 1.0 + pad)
+    elif isinstance(pad, (list, tuple)):
+        full_extent = bbox.expanded(1.0 + pad[0], 1.0 + pad[1])
+    else:
+        raise NotImplementedError
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
