@@ -1,4 +1,33 @@
 from numpydoc.docscrape import FunctionDoc, ClassDoc
+import inspect
+
+
+def subkwargs(kwargs, f):
+    """
+    Get a subset of keyword arguments which are accepted by a function.
+
+    Parameters
+    ----------
+    kwargs : :class:`dict`
+        Dictionary of keyword arguments.
+    f : :class:`callable`
+        Function to check.
+    """
+    return {k: v for k, v in kwargs.items() if inargs(k, f)}
+
+
+def inargs(name, f):
+    """
+    Check if an argument is a possible input for a specific function.
+
+    Parameters
+    ----------
+    name : :class:`str`
+        Argument name.
+    f : :class:`callable`
+        Function to check.
+    """
+    return name in inspect.getfullargspec(f).args
 
 
 def numpydoc_str_param_list(iterable, indent=4):

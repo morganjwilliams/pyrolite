@@ -17,6 +17,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 try:
+    from sklearn.model_selection import GridSearchCV
     from sklearn.base import TransformerMixin, BaseEstimator
     from sklearn.metrics import confusion_matrix
 except ImportError:
@@ -76,7 +77,7 @@ def fit_save_classifier(
         ) as fp:
             fp.write(",".join(components))
     _ = joblib.dump(clf, fpath, compress=9)
-    return gs
+    return clf
 
 
 def plot_confusion_matrix(

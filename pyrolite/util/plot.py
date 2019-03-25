@@ -4,6 +4,7 @@ from copy import copy
 from types import MethodType
 from pathlib import Path
 import numpy as np
+from numpy.linalg import LinAlgError
 import pandas as pd
 from scipy.stats.kde import gaussian_kde
 import scipy.spatial
@@ -15,11 +16,26 @@ import matplotlib.patches
 import matplotlib.path
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
+
 from matplotlib.transforms import Bbox
 from sklearn.decomposition import PCA
 import logging
 
-from ..util.math import eigsorted, nancov
+try:
+    import statsmodels.api as sm
+
+    HAVE_SM = True
+except ImportError:
+    HAVE_SM = False
+
+from ..util.math import (
+    eigsorted,
+    nancov,
+    interpolate_line,
+    flattengrid,
+    linspc_,
+    logspc_,
+)
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -308,6 +324,143 @@ def ternary_heatmap(
     if ret_centres:
         return xe, ye, H, centres
     return xe, ye, H
+
+
+def conditional_prob_density(
+    y,
+    x=None,
+    logy=False,
+    resolution=5,
+    ybins=100,
+    rescale=True,
+    mode="binkde",
+    ret_centres=False,
+):
+    """
+    Estimate the conditional probability density of one dependent variable.
+
+    Parameters
+    -----------
+    y : :class:`np.ndarray`
+        Dependent variable for which to calculate conditional probability P(y | X=x)
+    x : :class:`np.ndarray`, :code:`None`
+        Optionally-specified independent index.
+    logy : :class:`bool`
+        Whether to use a logarithmic bin spacing on the y axis.
+    resolution : :class:`int`
+        Points added per segment via interpolation along the x axis.
+    ybins : :class:`int`
+        Bins for histograms and grids along the independent axis.
+    rescale : :class:`bool`
+        Whether to rescale bins to give the same max Z across x.
+    mode : :class:`str`
+        Mode of computation.
+
+            If mode is :code:`"ckde"`, use
+            :func:`statsmodels.nonparametric.KDEMultivariateConditional` to compute a
+            conditional kernel density estimate. If mode is :code:`"kde"`, use a normal
+            gaussian kernel density estimate. If mode is :code:`"binkde"`, use a gaussian
+            kernel density estimate over y for each bin. If mode is :code:`"hist"`,
+            compute a histogram.
+    ret_centres : :class:`bool`
+        Whether to return bin centres in addtion to histogram edges,
+        e.g. for later contouring.
+
+    Returns
+    -------
+    :class:`tuple` of :class:`numpy.ndarray`
+        :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density
+        estimates :code:`Z`. If :code:`ret_centres` is :code:`True`, the last two return
+        values will contain the bin centres :code:`xi`, :code:`yi`.
+
+
+    Notes
+    ------
+        * Bins along the x axis are defined such that the x points (including
+            interpolated points) are the centres.
+
+    Todo
+    -----
+        * Tests
+        * Implement log grids (for y)
+        * Add approach for interpolation? (need resolution etc) - this will resolve lines, not points!
+    """
+    # check for shapes
+    assert not ((x is None) and (y is None))
+    if y is None:  # Swap the variables. Create an index for x
+        y = x
+        x = None
+
+    if x is None:  # Create a simple arange-based index
+        x = np.arange(y.shape[1])
+
+    if not x.shape == y.shape:
+        try:  # x is an index to be tiled
+            assert y.shape[1] == x.shape[0]
+            x = np.tile(x, y.shape[0]).reshape(*y.shape)
+        except AssertionError:
+            # shape mismatch
+            msg = "Mismatched shapes: x: {}, y: {}. Needs either ".format(
+                x.shape, y.shape
+            )
+            raise AssertionError(msg)
+
+    if resolution:
+        xy = np.array([x, y])
+        xy = np.swapaxes(xy, 1, 0)
+        xy = interpolate_line(xy, n=resolution)
+        x, y = np.swapaxes(xy, 0, 1)
+    xx, yy = (
+        np.sort(x[0]),
+        [linspc_, logspc_][logy](np.nanmin(y), np.nanmax(y), bins=ybins),
+    )
+    xi, yi = np.meshgrid(xx, yy)
+    xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
+    # scipy.interpolate.bisplrep
+    if mode == "ckde":
+        if HAVE_SM:
+            dens_c = sm.nonparametric.KDEMultivariateConditional(
+                endog=[y.flatten()],
+                exog=[x.flatten()],
+                dep_type="c",
+                indep_type="c",
+                bw="normal_reference",
+            )
+        else:
+            raise ImportError("Requires statsmodels.")
+        # statsmodels pdf takes values in reverse order
+        zi = dens_c.pdf(*flattengrid([yi, xi]).T).reshape(xi.shape)
+    elif mode == "kde":  # kde of dataset
+        try:
+            kde = gaussian_kde(np.vstack([x.flatten(), y.flatten()]))
+        except LinAlgError:  # singular matrix, need to add miniscule noise on x?
+            logger.warn("Singular Matrix")
+            logger.x = x + np.random.randn(*x.shape) * np.finfo(np.float).eps
+            kde = gaussian_kde(flattengrid([x, y]))
+
+        xkde = gaussian_kde(x.flatten())
+        zi = (kde(flattengrid([xi, yi]).T) / xkde(x)).T.reshape(xi.shape)
+    elif mode == "binkde":  # calclate a kde per bin
+        zi = np.zeros(xi.shape)
+        for bin in range(x.shape[1]):
+            kde = gaussian_kde(y[:, bin])
+            zi[:, bin] = kde(yi[:, bin])
+    elif "hist" in mode.lower():  # simply compute the histogram
+        H, hedges = np.histogramdd(
+            flattengrid([x, y]),
+            bins=[bin_centres_to_edges(xx), bin_centres_to_edges(yy)],
+        )
+        zi = H.T.reshape(xi.shape)
+    else:
+        raise NotImplementedError
+
+    if rescale:  # rescale bins across x
+        xzfactors = np.nanmax(zi) / np.nanmax(zi, axis=0)
+        zi *= xzfactors[np.newaxis, :]
+
+    if ret_centres:
+        return xe, ye, zi, xi, yi
+    return xe, ye, zi
 
 
 def proxy_rect(**kwargs):

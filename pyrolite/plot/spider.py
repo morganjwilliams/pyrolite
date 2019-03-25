@@ -7,8 +7,13 @@ logger = logging.getLogger(__name__)
 
 from ..geochem import get_ionic_radii, REE
 from ..util.general import iscollection
-from ..util.plot import __DEFAULT_CONT_COLORMAP__, __DEFAULT_DISC_COLORMAP__
-from ..util.meta import get_additional_params
+from ..util.plot import (
+    __DEFAULT_CONT_COLORMAP__,
+    __DEFAULT_DISC_COLORMAP__,
+    conditional_prob_density,
+    plot_Z_percentiles,
+)
+from ..util.meta import get_additional_params, subkwargs
 
 
 def spider(
@@ -20,13 +25,11 @@ def spider(
     norm=None,
     alpha=1.0,
     marker="D",
-    markersize=5.0,
+    markersize=3.0,
     label=None,
     figsize=None,
     logy=True,
-    plot=True,
-    fill=False,
-    density=False,
+    mode="plot",
     **kwargs
 ):
     """
@@ -58,12 +61,9 @@ def spider(
         Label for the individual series.
     figsize : :class:`tuple`, `None`
         Size of the figure to be generated, if not using an existing :class:`~matplotlib.axes.Axes`.
-    plot : :class:`bool`, `True`
-        Whether to plot lines and markers.
-    fill : :class:`bool`, `False`
-        Whether to add a patch representing the full range.
-    density : :class:`bool`, `False`
-        Whether to add a conditional kernel density estimate over the index.
+    mode : :class:`str`,  :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+        Mode for plot. Plot will produce a line-scatter diagram. Fill will return
+        a filled range. Density will return a conditional density diagram.
 
     {otherparams}
 
@@ -115,12 +115,6 @@ def spider(
     if indexes.ndim < arr.ndim:
         indexes = np.tile(indexes0, (arr.shape[0], 1))
 
-    try:
-        assert plot or fill
-    except:
-        msg = "Please select to either plot values or fill between ranges."
-        raise AssertionError(msg)
-
     sty = {}
 
     # Color ----------------------------------------------------------
@@ -145,27 +139,26 @@ def spider(
 
     sty["alpha"] = alpha
 
-    if fill:
+    if "fill" in mode.lower():
         mins = arr.min(axis=0)
         maxs = arr.max(axis=0)
         plycol = ax.fill_between(indexes0, mins, maxs, **sty)
         # Use the first (typically only) element for color
         if (sty.get("color") is None) and (sty.get("c") is None):
             sty["color"] = plycol.get_facecolor()[0]
+    elif "plot" in mode.lower():
+        sty["marker"] = marker
+        sty["markersize"] = markersize
+        # Use the default color cycling to provide a single color
+        if sty.get("color") is None and _c is None:
+            sty["color"] = next(ax._get_lines.prop_cycler)["color"]
 
-    sty["marker"] = marker
-
-    # Use the default color cycling to provide a single color
-    if sty.get("color") is None and _c is None:
-        sty["color"] = next(ax._get_lines.prop_cycler)["color"]
-
-    if plot:
-        ls = ax.plot(indexes0, arr.T, **sty)
+        ls = ax.plot(indexes.T, arr.T, **sty)
         if variable_colors:
             for l, c in zip(ls, _c):
                 l.set_color(c)
 
-        sty["s"] = markersize
+        sty["s"] = sty.pop("markersize")
         if (sty.get("color") is None) and (_c is None):
             sty["color"] = ls[0].get_color()
 
@@ -180,6 +173,22 @@ def spider(
                 _c = np.tile(_c, (len(components), 1))
 
         sc = ax.scatter(indexes.T, arr.T, **sty)
+    elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
+        xe, ye, zi, xi, yi = conditional_prob_density(
+            arr,
+            x=indexes0,
+            logy=logy,
+            mode=mode,
+            ret_centres=True,
+            **subkwargs(kwargs, conditional_prob_density)
+        )
+
+        if "percentiles" in kwargs:
+            plot_Z_percentiles(
+                xi, yi, zi, ax=ax, **subkwargs(kwargs, plot_Z_percentiles)
+            )
+        else:
+            ax.pcolormesh(xe, ye, zi, cmap=cmap, **subkwargs(kwargs, ax.pcolormesh))
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
@@ -189,7 +198,7 @@ def spider(
 
 
 def REE_v_radii(
-    arr=None, ax=None, ree=REE(), mode="radii", tl_rotation=60, **kwargs
+    arr=None, ax=None, ree=REE(), index="radii", mode="plot", tl_rotation=60, **kwargs
 ):
     """
     Creates an axis for a REE diagram with ionic radii along the x axis.
@@ -202,10 +211,13 @@ def REE_v_radii(
         Optional designation of axes to reconfigure.
     ree : :class:`list`
         List of REE to use as an index.
-    mode : :class:`str`
+    index : :class:`str`
         Whether to plot using radii on the x-axis ('radii'), or elements ('elements').
     tl_rotation : :class:`float`
         Rotation of the numerical index labels in degrees.
+    mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+        Mode for plot. Plot will produce a line-scatter diagram. Fill will return
+        a filled range. Density will return a conditional density diagram.
 
     {otherparams}
 
@@ -234,7 +246,7 @@ def REE_v_radii(
     xlabelrotation, _xlabelrotation = tl_rotation, 0
     xtitle, _xtitle = r"Ionic Radius ($\mathrm{\AA}$)", "Element"
 
-    if mode == "radii":
+    if index == "radii":
         indexes = radii
         xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
     else:  # mode == 'elements'
@@ -248,7 +260,7 @@ def REE_v_radii(
         _xlabelrotation, xlabelrotation = xlabelrotation, _xlabelrotation
 
     if arr is not None:
-        ax = spider(arr, indexes=indexes, ax=ax, logy=True, **kwargs)
+        ax = spider(arr, indexes=indexes, ax=ax, logy=True, mode=mode, **kwargs)
 
     ax.axhline(1.0, ls="--", c="k", lw=0.5)
     ax.set_xlabel(xtitle)
