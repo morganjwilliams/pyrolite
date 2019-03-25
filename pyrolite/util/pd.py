@@ -202,10 +202,6 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     Takes a list of .csv filenames and converts to a single DataFrame.
     Combines columns across dataframes, preserving order of the first entered.
 
-    TODO: Attempt to preserve column ordering across column sets, assuming
-    they are generally in the same order but preserving only some of the
-    information.
-
     E.g.
     SiO2, Al2O3, MgO, MnO, CaO
     SiO2, MgO, FeO, CaO
@@ -214,6 +210,12 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     SiO2, Na2O, Al2O3, MgO, FeO, MnO, CaO
     - Existing neighbours take priority (i.e. FeO won't be inserted bf Al2O3)
     - Earlier inputs take priority (where ordering is ambiguous, place the earlier first)
+
+    Todo
+    -----
+        Attempt to preserve column ordering across column sets, assuming
+        they are generally in the same order but preserving only some of the
+        information.
     """
     cols = []
     dfs = []

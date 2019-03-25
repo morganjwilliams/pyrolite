@@ -337,11 +337,14 @@ def draw_vector(v0, v1, ax=None, **kwargs):
     Plots an arrow represnting the direction and magnitue of a principal
     component on a biaxial plot.
 
-    Todo: update for ternary plots.
-
     Modified after Jake VanderPlas' Python Data Science Handbook
     https://jakevdp.github.io/PythonDataScienceHandbook/ \
     05.09-principal-component-analysis.html
+
+    Todo
+    -----
+        Update for ternary plots.
+
     """
     ax = ax
     arrowprops = dict(arrowstyle="->", linewidth=2, shrinkA=0, shrinkB=0)
