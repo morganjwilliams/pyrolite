@@ -23,7 +23,6 @@ import logging
 
 try:
     import statsmodels.api as sm
-
     HAVE_SM = True
 except ImportError:
     HAVE_SM = False
@@ -429,17 +428,17 @@ def conditional_prob_density(
         else:
             raise ImportError("Requires statsmodels.")
         # statsmodels pdf takes values in reverse order
-        zi = dens_c.pdf(*flattengrid([yi, xi]).T).reshape(xi.shape)
+        zi = dens_c.pdf(*flattengrid([yi, xi])).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
         try:
             kde = gaussian_kde(np.vstack([x.flatten(), y.flatten()]))
         except LinAlgError:  # singular matrix, need to add miniscule noise on x?
             logger.warn("Singular Matrix")
             logger.x = x + np.random.randn(*x.shape) * np.finfo(np.float).eps
-            kde = gaussian_kde(flattengrid([x, y]))
+            kde = gaussian_kde(flattengrid([x, y]).T)
 
-        xkde = gaussian_kde(x.flatten())
-        zi = (kde(flattengrid([xi, yi]).T) / xkde(x)).T.reshape(xi.shape)
+        xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
+        zi = kde(flattengrid([xi, yi])).T.reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
@@ -447,7 +446,7 @@ def conditional_prob_density(
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
         H, hedges = np.histogramdd(
-            flattengrid([x, y]),
+            flattengrid([x, y]).T,
             bins=[bin_centres_to_edges(xx), bin_centres_to_edges(yy)],
         )
         zi = H.T.reshape(xi.shape)

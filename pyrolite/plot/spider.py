@@ -189,6 +189,10 @@ def spider(
             )
         else:
             ax.pcolormesh(xe, ye, zi, cmap=cmap, **subkwargs(kwargs, ax.pcolormesh))
+    else:
+        raise NotImplementedError(
+            "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
+        )
 
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):

@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 try:
     import statsmodels.api as sm
 
@@ -48,20 +49,17 @@ class TestSpiderplot(unittest.TestCase):
 
     def test_modes(self):
         """Test all mode functionality is available."""
-        for mode in ["plot", "fill", "binkde", "ckde", "kde", "hist"]:
+        for mode in ["plot", "fill", "binkde", "kde", "hist"]:
             with self.subTest(mode=mode):
                 ax = spider(self.arr, mode=mode)
-                self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     @unittest.skipUnless(HAVE_SM, "Requires statsmodels")
     def test_mode_ckde(self):
         for mode in ["ckde"]:
             with self.subTest(mode=mode):
                 ax = spider(self.arr, mode=mode)
-                self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
     def test_invalid_mode_raises_notimplemented(self):
-        """Test failure on no-plot no-fill options."""
         with self.assertRaises(NotImplementedError):
             for arr in [self.arr]:
                 ax = spider(arr, mode="notamode")
@@ -117,10 +115,15 @@ class TestREERadiiPlot(unittest.TestCase):
             with self.subTest(index=index):
                 ax = REE_v_radii(self.arr, ree=self.reels, index=index)
 
-
     def test_modes(self):
         """Test all mode functionality is available."""
-        for mode in ["plot", "fill", "binkde", "ckde", "kde", "hist"]:
+        for mode in ["plot", "fill", "binkde", "kde", "hist"]:
+            with self.subTest(mode=mode):
+                ax = REE_v_radii(self.arr, ree=self.reels, mode=mode)
+
+    @unittest.skipUnless(HAVE_SM, "Requires statsmodels")
+    def test_mode_ckde(self):
+        for mode in ["ckde"]:
             with self.subTest(mode=mode):
                 ax = REE_v_radii(self.arr, ree=self.reels, mode=mode)
 
