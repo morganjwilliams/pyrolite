@@ -25,8 +25,6 @@ def scale_multiplier(in_unit, target_unit="ppm"):
     """
     Provides the scale difference between to mass units.
 
-    Todo: implement different inputs - string, list, pandas series
-
     Parameters
     ----------
     in_unit: current units

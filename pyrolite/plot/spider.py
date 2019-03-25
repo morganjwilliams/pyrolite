@@ -72,13 +72,13 @@ def spider(
     :class:`matplotlib.axes.Axes`
         Axes on which the spiderplot is plotted.
 
-    Note
-    -----
+    Notes
+    ------
         By using separate lines and scatterplots, values between two missing
         items are still presented.
 
     Todo
-    ----
+    -----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
         * Conditional density plot.
 

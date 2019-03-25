@@ -33,7 +33,7 @@ def _little_sweep(G, k: int = 0, verify=False):
         Little R. J. A. and Rubin D. B. (2014).
         Statistical analysis with missing data. 2nd ed., Wiley, Hoboken, N.J.
 
-    Note
+    Notes
     ------
         The sweep operator is defined for symmetric matrices as follows. A p x p
         symmetric matrix G is said to be swept on row and column k if it is replaced by

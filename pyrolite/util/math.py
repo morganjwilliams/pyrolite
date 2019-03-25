@@ -49,7 +49,7 @@ def augmented_covariance_matrix(M, C):
     :class:`numpy.ndarray`
         Augmented covariance matrix A.
 
-    Note
+    Notes
     ------
         Augmented covariance matrix constructed from mean of shape (D, ) and covariance
         matrix of shape (D, D) as follows:
@@ -418,8 +418,8 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
     :class:`float`
         Reformatted number.
 
-    Note
-    ----
+    Notes
+    -----
         * Will not pad 0s at the end or before floats.
     """
 
@@ -479,8 +479,8 @@ def orthogonal_basis_from_array(X: np.ndarray, **kwargs):
     :class:`numpy.ndarray`
         (D-1, D) helmert matrix corresponding to default orthogonal basis.
 
-    Note
-    ----
+    Notes
+    -----
         * Currently returns the default set of basis vectors for an array of given dim.
 
     Todo
@@ -556,8 +556,8 @@ def OP_constants(xs, degree=3, tol=10 ** -14):
         components. I.e the first tuple will be empty, the second will contain a single
         coefficient etc.
 
-    Note
-    ----
+    Notes
+    -----
         Parameters are used to construct orthogonal polymomials of the general form:
 
         .. math::
@@ -761,7 +761,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     :func:`~pyrolite.util.math.OP_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
-    Note
+    Notes
     -----
         .. [#note_1] Only needed if parameters are not supplied
     """

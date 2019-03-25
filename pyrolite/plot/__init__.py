@@ -25,10 +25,10 @@ class pyroplot(object):
     """
     Custom dataframe accessor for pyrolite plotting.
 
-    Note
+    Notes
     -----
-    This accessor enables the coexistence of array-based plotting functions and
-    methods for pandas objects. This enables some separation of concerns.
+        This accessor enables the coexistence of array-based plotting functions and
+        methods for pandas objects. This enables some separation of concerns.
     """
 
     def __init__(self, obj):
@@ -174,12 +174,12 @@ class pyroplot(object):
             Axes on which the spider diagram is plotted.
 
         Todo
-        ----
+        -----
             * Add 'compositional data' filter for default components if None is given
         """
         obj = to_frame(self._obj)
 
-        if components is None:  # default to plotting elemental data, TODO
+        if components is None:  # default to plotting elemental data
             components = [el for el in obj.columns if el in common_elements()]
 
         assert len(components) != 0

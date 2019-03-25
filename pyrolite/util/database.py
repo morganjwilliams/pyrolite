@@ -40,10 +40,12 @@ def open_db_connection(
     backend=pyodbc,
 ):
     """
-    Todo: Implement pooled connections.
-    http://initd.org/psycopg/docs/pool.html
-
     https://github.com/mkleehammer/pyodbc/wiki/Unicode
+
+    Todo
+    ------
+        Implement pooled connections.
+        http://initd.org/psycopg/docs/pool.html
     """
     if isinstance(connection_params, str):
         connection = backend.connect(connection_params)

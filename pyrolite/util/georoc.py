@@ -428,7 +428,9 @@ def georoc_munge(df):
     """
     Collection of munging and feature adding functions for GEROROC data.
 
-    Todo: GEOL + AGE = AGE
+    Todo
+    ------
+        * combine GEOL and AGE columns for geological ages
     """
     mulitiple_cations = check_multiple_cation_inclusion(df)
     df = aggregate_cation(df, "Ti", form="element")
