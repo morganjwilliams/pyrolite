@@ -93,6 +93,53 @@ def interpolate_line(xy, n=0):
     return np.vstack([_x, _y])
 
 
+def grid_from_ranges(X, bins=100, **kwargs):
+    """
+    Create a meshgrid based on the ranges along columns of array X.
+
+    Parameters
+    -----------
+    X : :class:`numpy.ndarray`
+        Array of shape :code:`(samples, dimensions)` to create a meshgrid from.
+    bins : :class:`int` | :class:`tuple`
+        Shape of the meshgrid. If an integer, provides a square mesh. If a tuple,
+        values for each column are required.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+
+    Notes
+    -------
+    Can pass keyword arg indexing = {'xy', 'ij'}
+    """
+    dim = X.shape[1]
+    if isinstance(bins, int):  # expand to list of len == dimensions
+        bins = [bins for ix in range(dim)]
+    mmb = [(np.nanmin(X[:, ix]), np.nanmax(X[:, ix]), bins[ix]) for ix in range(dim)]
+    grid = np.meshgrid(*[np.linspace(*i) for i in mmb], **kwargs)
+    return grid
+
+
+def flattengrid(grid):
+    """
+    Convert a collection of arrays to a concatenated array of flattened components.
+    Useful for passing meshgrid values to a function which accepts argumnets of shape
+    :code:`(samples, dimensions)`.
+
+    Parameters
+    -----------
+    grid : :class:`list`
+        Collection of arrays (e.g. a meshgrid) to flatten and concatenate.
+
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+    """
+    return np.c_[[g.ravel() for g in grid]].T
+
+
 def linspc_(_min, _max, step=0.0, bins=20):
     """
     Linear spaced array, with optional step for grid margins.
