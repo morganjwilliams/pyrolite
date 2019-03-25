@@ -47,4 +47,5 @@ REE Radii Plots
    :align: center
 
 .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
-             `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__
+             `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+             `Spider Density Diagrams <conditionaldensity.html>`__,

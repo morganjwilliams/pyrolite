@@ -4,7 +4,7 @@
 `Pyrolite`
 ====================================
 
-.. image:: ./_static/icon.svg
+.. image:: ./_static/icon.png
    :width: 70%
    :align: right
 

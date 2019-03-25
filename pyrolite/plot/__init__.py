@@ -197,8 +197,6 @@ class pyroplot(object):
         ax = spider.spider(
             obj.loc[:, components].values, indexes=indexes, ax=ax, mode=mode, **kwargs
         )
-
-        ax.set_xlabel("Element")
         ax.set_xticklabels(components, rotation=60)
         return ax
 

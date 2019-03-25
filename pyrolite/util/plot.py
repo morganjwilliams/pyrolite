@@ -857,7 +857,7 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
         extent_items = []
         for a in ax:
             extent_items.append(get_full_extent(a, pad=pad))
-        figure = axes[0].figure
+        figure = ax[0].figure
         extent = Bbox.union([item for item in extent_items])
     save_figure(
         figure,
