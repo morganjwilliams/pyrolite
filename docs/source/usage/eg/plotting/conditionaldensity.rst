@@ -6,7 +6,7 @@ various modes:
 
 .. literalinclude:: ../../../../examples/plotting/conditionalspider.py
    :language: python
-
+   :end-before: # %% save figure
 
 .. image:: ../../../_static/spider_modes.png
    :width: 100%

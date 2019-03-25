@@ -29,8 +29,9 @@ modes = [
 ]
 
 fig, ax = plt.subplots(
-    len(modes), len(ss), sharey=True, figsize=(len(ss) * 2.5, 1.5 * len(modes))
+    len(modes), len(ss), sharey=True, figsize=(len(ss) * 2.5, 2 * len(modes))
 )
+ax[0, 0].set_ylim((0.1, 100))
 
 for a, (m, name, args, kwargs) in zip(ax, modes):
     a[0].annotate(  # label the axes rows
@@ -47,17 +48,13 @@ for ix, s in enumerate(ss):
     y = np.tile(y, nobs).reshape(nobs, nindex)
     y += np.random.normal(0, s / 2, size=(nobs, nindex))  # noise
     y += np.random.normal(0, s, size=(1, nobs)).T  # random pattern offset
-    y[:, 3] += 1.0  # significant offset
-    df = pd.DataFrame(np.exp(y), columns=components)
+    df = pd.DataFrame(y, columns=components)
+    df["Eu"] += 1.0  # significant offset
+    df = df.applymap(np.exp)
     for mix, (m, name, args, kwargs) in enumerate(modes):
         df.pyroplot.spider(indexes=x, mode=m, ax=ax[mix, ix], *args, **kwargs)
 
 plt.tight_layout()
-# %% -----
+# %% save figure
 from pyrolite.util.plot import save_figure, save_axes
-
-save_figure(
-    fig,
-    save_at="../../source/_static",
-    name="spider_modes",
-)
+save_figure(fig, save_at="../../source/_static", name="spider_modes")
