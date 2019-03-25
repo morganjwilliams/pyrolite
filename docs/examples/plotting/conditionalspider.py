@@ -26,8 +26,8 @@ for ix, s in enumerate(ss):
     df.pyroplot.spider(
         indexes=x, c="k", alpha=max(0.01, s / np.log(nobs)), mode="plot", ax=ax[0, ix]
     )
-    df.pyroplot.spider(indexes=x, mode="binkde", ax=ax[1, ix], resolution=10)
+    df.pyroplot.spider(indexes=x, mode="histogram", ax=ax[1, ix], resolution=5)
     df.pyroplot.spider(
-        indexes=x, mode="binkde", ax=ax[2, ix], percentiles=[0.95, 0.5], resolution=10
+        indexes=x, mode="histogram", ax=ax[2, ix], percentiles=[0.95, 0.5], resolution=5
     )
 plt.tight_layout()

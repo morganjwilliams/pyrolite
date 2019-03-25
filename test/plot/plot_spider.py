@@ -5,9 +5,17 @@ import pandas as pd
 import numpy as np
 from pyrolite.geochem import REE
 from pyrolite.plot.spider import spider, REE_v_radii
+from pyrolite.util.synthetic import random_composition
 import logging
 
 logger = logging.getLogger(__name__)
+
+try:
+    import statsmodels.api as sm
+
+    HAVE_SM = True
+except ImportError:
+    HAVE_SM = False
 
 
 class TestSpiderplot(unittest.TestCase):
@@ -16,8 +24,7 @@ class TestSpiderplot(unittest.TestCase):
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
         self.els = REE()
-        self.arr = np.random.rand(10, len(self.els))
-
+        self.arr = random_composition(size=10, D=len(self.els))
 
     def test_none(self):
         """Test generation of plot with no data."""
@@ -39,21 +46,29 @@ class TestSpiderplot(unittest.TestCase):
         ax = spider(self.arr, ax=self.ax)
         self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
-    def test_fill(self):
-        """Test fill functionality is available."""
-        for plot, fill in [(False, True), (True, True)]:
-            ax = spider(self.arr, plot=plot, fill=fill)
-            self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
+    def test_modes(self):
+        """Test all mode functionality is available."""
+        for mode in ["plot", "fill", "binkde", "ckde", "kde", "hist"]:
+            with self.subTest(mode=mode):
+                ax = spider(self.arr, mode=mode)
+                self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
-    @unittest.expectedFailure
-    def test_noplot_nofill(self):
+    @unittest.skipUnless(HAVE_SM, "Requires statsmodels")
+    def test_mode_ckde(self):
+        for mode in ["ckde"]:
+            with self.subTest(mode=mode):
+                ax = spider(self.arr, mode=mode)
+                self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
+
+    def test_invalid_mode_raises_notimplemented(self):
         """Test failure on no-plot no-fill options."""
-        for arr in [self.arr]:
-            ax = spider(arr, plot=False, fill=False)
+        with self.assertRaises(NotImplementedError):
+            for arr in [self.arr]:
+                ax = spider(arr, mode="notamode")
 
     def test_valid_style(self):
         """Test valid styling options."""
-        for sty in [{"c":'k'}]:
+        for sty in [{"c": "k"}]:
             ax = spider(self.arr, **sty)
             self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
@@ -64,7 +79,6 @@ class TestSpiderplot(unittest.TestCase):
             # with self.assertWarns(UserWarning):
             for arr in [self.arr]:
                 ax = spider(arr, **style)
-
 
     @unittest.expectedFailure
     def test_invalid_style_options(self):
@@ -98,16 +112,23 @@ class TestREERadiiPlot(unittest.TestCase):
         for arr in [self.arr]:
             ax = REE_v_radii(arr, ree=self.reels)
 
-    def test_mode(self):
-        for mode in ['radii', 'elements']:
-            ax = REE_v_radii(self.arr, ree=self.reels, mode=mode)
+    def test_index(self):
+        for index in ["radii", "elements"]:
+            with self.subTest(index=index):
+                ax = REE_v_radii(self.arr, ree=self.reels, index=index)
+
+
+    def test_modes(self):
+        """Test all mode functionality is available."""
+        for mode in ["plot", "fill", "binkde", "ckde", "kde", "hist"]:
+            with self.subTest(mode=mode):
+                ax = REE_v_radii(self.arr, ree=self.reels, mode=mode)
 
     def test_external_ax(self):
         ax = REE_v_radii(self.arr, ree=self.reels, ax=self.ax)
 
     def tearDown(self):
         plt.close("all")
-
 
 
 if __name__ == "__main__":
