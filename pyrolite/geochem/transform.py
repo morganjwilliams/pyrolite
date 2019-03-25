@@ -480,10 +480,12 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
 
     # Last Minute Checks ---------------------------------------------------------------
     remaining = [i for i in to if i not in df.columns]
+    df_comp_c = [i for i in df.columns if i in c_components]
     assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
     if renorm:
-        logger.info("Recalculation Done, Renormalising")
-        return renormalise(df.loc[:, to])
+        logger.info("Recalculation Done, Renormalising compositional components.")
+        df.loc[:, df_comp_c] = renormalise(df.loc[:, df_comp_c])
+        return df.loc[:, to]
     else:
         logger.info("Recalculation Done. Data not renormalised.")
         return df.loc[:, to]
