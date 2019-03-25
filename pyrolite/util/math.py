@@ -70,14 +70,18 @@ def augmented_covariance_matrix(M, C):
     return A
 
 
-def interpolate_line(xy, n=0):
+def interpolate_line(xy, n=0, logy=False):
     """
     Add intermediate evenly spaced points interpolated between given x-y coordinates.
     """
     xy = np.squeeze(xy)
     if xy.ndim > 2:
-        return np.array(list(map(lambda line: interpolate_line(line, n=n), xy)))
+        return np.array(
+            list(map(lambda line: interpolate_line(line, n=n, logy=logy), xy))
+        )
     x, y = xy
+    if logy:  # perform interpolation against logy, then revert with exp
+        y = np.log(y)
     intervals = x[1:] - x[:-1]
     current = x[:-1].copy()
     _x = current.copy().astype(np.float)
@@ -90,6 +94,8 @@ def interpolate_line(xy, n=0):
     _x = np.sort(_x)
     _y = np.interp(_x, x, y)
     assert all([i in _x for i in x])
+    if logy:
+        _y = np.exp(_y)
     return np.vstack([_x, _y])
 
 

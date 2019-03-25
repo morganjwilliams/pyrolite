@@ -5,7 +5,7 @@
 ====================================
 
 .. image:: ./_static/icon.png
-   :width: 70%
+   :width: 40%
    :align: right
 
 .. toctree::

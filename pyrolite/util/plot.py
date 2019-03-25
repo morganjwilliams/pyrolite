@@ -407,7 +407,7 @@ def conditional_prob_density(
     if resolution:
         xy = np.array([x, y])
         xy = np.swapaxes(xy, 1, 0)
-        xy = interpolate_line(xy, n=resolution)
+        xy = interpolate_line(xy, n=resolution, logy=logy)
         x, y = np.swapaxes(xy, 0, 1)
     xx, yy = (
         np.sort(x[0]),
