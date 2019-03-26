@@ -16,16 +16,16 @@ ss = [0.1, 0.2, 0.5]  # sigmas for noise
 modes = [
     ("plot", "plot", [], dict(color="k", alpha=0.01)),
     ("fill", "fill", [], dict()),
-    ("binkde", "binkde", [], dict(resolution=5)),
+    ("binkde", "binkde", [], dict(resolution=10)),
     (
         "binkde",
         "binkde contours specified",
         [],
-        dict(contours=[0.95, 0.5], resolution=5),
+        dict(contours=[0.95], resolution=10),  # 95th percentile contour
     ),
     ("ckde", "ckde", [], dict(resolution=5)),
     ("kde", "kde", [], dict(resolution=5)),
-    ("histogram", "histogram", [], dict(resolution=5)),
+    ("histogram", "histogram", [], dict(resolution=5, ybins=30)),
 ]
 
 fig, ax = plt.subplots(
@@ -53,11 +53,11 @@ for ix, s in enumerate(ss):
     df = df.applymap(np.exp)
     for mix, (m, name, args, kwargs) in enumerate(modes):
         df.pyroplot.spider(
-            indexes=x,
+            indexes=x,  # optionally specified numerical indexes along x
             mode=m,
             ax=ax[mix, ix],
             cmap="viridis",
-            vmin=0.05,
+            vmin=0.05,  # minimum percentile
             *args,
             **kwargs
         )

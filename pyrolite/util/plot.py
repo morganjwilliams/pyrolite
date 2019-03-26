@@ -23,6 +23,7 @@ import logging
 
 try:
     import statsmodels.api as sm
+
     HAVE_SM = True
 except ImportError:
     HAVE_SM = False
@@ -409,13 +410,15 @@ def conditional_prob_density(
         xy = np.swapaxes(xy, 1, 0)
         xy = interpolate_line(xy, n=resolution, logy=logy)
         x, y = np.swapaxes(xy, 0, 1)
-    xx, yy = (
-        np.sort(x[0]),
-        [linspc_, logspc_][logy](np.nanmin(y), np.nanmax(y), bins=ybins),
-    )
+
+
+    xx = np.sort(x[0])
+    ymin, ymax = np.nanmin(y), np.nanmax(y)
+    ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
+    yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=ybins)
+    # yy is backwards?
     xi, yi = np.meshgrid(xx, yy)
     xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
-    # scipy.interpolate.bisplrep
     if mode == "ckde":
         if HAVE_SM:
             dens_c = sm.nonparametric.KDEMultivariateConditional(
@@ -445,6 +448,7 @@ def conditional_prob_density(
             kde = gaussian_kde(y[:, bin])
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
+        # histogram monotonically increasing bins
         H, hedges = np.histogramdd(
             flattengrid([x, y]).T,
             bins=[bin_centres_to_edges(xx), bin_centres_to_edges(yy)],
