@@ -49,7 +49,7 @@ def augmented_covariance_matrix(M, C):
     :class:`numpy.ndarray`
         Augmented covariance matrix A.
 
-    Note
+    Notes
     ------
         Augmented covariance matrix constructed from mean of shape (D, ) and covariance
         matrix of shape (D, D) as follows:
@@ -70,14 +70,18 @@ def augmented_covariance_matrix(M, C):
     return A
 
 
-def interpolate_line(xy, n=0):
+def interpolate_line(xy, n=0, logy=False):
     """
     Add intermediate evenly spaced points interpolated between given x-y coordinates.
     """
     xy = np.squeeze(xy)
     if xy.ndim > 2:
-        return np.array(list(map(lambda line: interpolate_line(line, n=n), xy)))
+        return np.array(
+            list(map(lambda line: interpolate_line(line, n=n, logy=logy), xy))
+        )
     x, y = xy
+    if logy:  # perform interpolation against logy, then revert with exp
+        y = np.log(y)
     intervals = x[1:] - x[:-1]
     current = x[:-1].copy()
     _x = current.copy().astype(np.float)
@@ -90,7 +94,56 @@ def interpolate_line(xy, n=0):
     _x = np.sort(_x)
     _y = np.interp(_x, x, y)
     assert all([i in _x for i in x])
+    if logy:
+        _y = np.exp(_y)
     return np.vstack([_x, _y])
+
+
+def grid_from_ranges(X, bins=100, **kwargs):
+    """
+    Create a meshgrid based on the ranges along columns of array X.
+
+    Parameters
+    -----------
+    X : :class:`numpy.ndarray`
+        Array of shape :code:`(samples, dimensions)` to create a meshgrid from.
+    bins : :class:`int` | :class:`tuple`
+        Shape of the meshgrid. If an integer, provides a square mesh. If a tuple,
+        values for each column are required.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+
+    Notes
+    -------
+    Can pass keyword arg indexing = {'xy', 'ij'}
+    """
+    dim = X.shape[1]
+    if isinstance(bins, int):  # expand to list of len == dimensions
+        bins = [bins for ix in range(dim)]
+    mmb = [(np.nanmin(X[:, ix]), np.nanmax(X[:, ix]), bins[ix]) for ix in range(dim)]
+    grid = np.meshgrid(*[np.linspace(*i) for i in mmb], **kwargs)
+    return grid
+
+
+def flattengrid(grid):
+    """
+    Convert a collection of arrays to a concatenated array of flattened components.
+    Useful for passing meshgrid values to a function which accepts argumnets of shape
+    :code:`(samples, dimensions)`.
+
+    Parameters
+    -----------
+    grid : :class:`list`
+        Collection of arrays (e.g. a meshgrid) to flatten and concatenate.
+
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+    """
+    return np.vstack([g.flatten() for g in grid])
 
 
 def linspc_(_min, _max, step=0.0, bins=20):
@@ -418,8 +471,8 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
     :class:`float`
         Reformatted number.
 
-    Note
-    ----
+    Notes
+    -----
         * Will not pad 0s at the end or before floats.
     """
 
@@ -479,8 +532,8 @@ def orthogonal_basis_from_array(X: np.ndarray, **kwargs):
     :class:`numpy.ndarray`
         (D-1, D) helmert matrix corresponding to default orthogonal basis.
 
-    Note
-    ----
+    Notes
+    -----
         * Currently returns the default set of basis vectors for an array of given dim.
 
     Todo
@@ -556,8 +609,8 @@ def OP_constants(xs, degree=3, tol=10 ** -14):
         components. I.e the first tuple will be empty, the second will contain a single
         coefficient etc.
 
-    Note
-    ----
+    Notes
+    -----
         Parameters are used to construct orthogonal polymomials of the general form:
 
         .. math::
@@ -761,7 +814,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     :func:`~pyrolite.util.math.OP_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
-    Note
+    Notes
     -----
         .. [#note_1] Only needed if parameters are not supplied
     """

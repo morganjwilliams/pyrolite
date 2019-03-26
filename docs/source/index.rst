@@ -4,8 +4,8 @@
 `Pyrolite`
 ====================================
 
-.. image:: ./_static/icon.svg
-   :width: 70%
+.. image:: ./_static/icon.png
+   :width: 40%
    :align: right
 
 .. toctree::

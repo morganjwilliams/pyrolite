@@ -71,6 +71,7 @@ def random_composition(
 
     Todo
     ------
+        * Add feature to translate rough covariance in D to logcovariance in D-1
         * Update the `:code:`missing = "MAR"`` example to be more realistic/variable.
     """
     data = None

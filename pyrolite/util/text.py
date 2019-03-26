@@ -47,7 +47,10 @@ def titlecase(
     """
     Formats strings in CamelCase, with exceptions for simple articles
     and omitted abbreviations which retain their capitalization.
-    TODO: Option for retaining original CamelCase.
+
+    Todo
+    -----
+        * Option for retaining original CamelCase.
     """
     # Check if abbrv in string, in which case it'll need to be split first?
     words = re.split(split_on, s)

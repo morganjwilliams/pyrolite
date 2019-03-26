@@ -25,10 +25,10 @@ class pyroplot(object):
     """
     Custom dataframe accessor for pyrolite plotting.
 
-    Note
+    Notes
     -----
-    This accessor enables the coexistence of array-based plotting functions and
-    methods for pandas objects. This enables some separation of concerns.
+        This accessor enables the coexistence of array-based plotting functions and
+        methods for pandas objects. This enables some separation of concerns.
     """
 
     def __init__(self, obj):
@@ -140,7 +140,7 @@ class pyroplot(object):
             tax.right_axis_label(components[0], fontsize=fontsize)
             tax.left_axis_label(components[1], fontsize=fontsize)
             tax.bottom_axis_label(components[2], fontsize=fontsize)
-        elif len(tax._labels.keys()): # are labels, should be none
+        elif len(tax._labels.keys()):  # are labels, should be none
             tax.right_axis_label(None)
             tax.left_axis_label(None)
             tax.bottom_axis_label(None)
@@ -151,7 +151,14 @@ class pyroplot(object):
         ax.set_aspect("equal")
         return ax
 
-    def spider(self, components: list = None, indexes: list = None, ax=None, **kwargs):
+    def spider(
+        self,
+        components: list = None,
+        indexes: list = None,
+        ax=None,
+        mode="plot",
+        **kwargs
+    ):
         r"""
         Method for spider plots. Convenience access function to
         :func:`~pyrolite.plot.spider.spider` (see `Other Parameters`, below), where
@@ -165,6 +172,9 @@ class pyroplot(object):
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
+        mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+            Mode for plot. Plot will produce a line-scatter diagram. Fill will return
+            a filled range. Density will return a conditional density diagram.
 
         {otherparams}
 
@@ -174,34 +184,35 @@ class pyroplot(object):
             Axes on which the spider diagram is plotted.
 
         Todo
-        ----
+        -----
             * Add 'compositional data' filter for default components if None is given
         """
         obj = to_frame(self._obj)
 
-        if components is None:  # default to plotting elemental data, TODO
+        if components is None:  # default to plotting elemental data
             components = [el for el in obj.columns if el in common_elements()]
 
         assert len(components) != 0
 
         ax = spider.spider(
-            obj.loc[:, components].values, indexes=indexes, ax=ax, **kwargs
+            obj.loc[:, components].values, indexes=indexes, ax=ax, mode=mode, **kwargs
         )
-
-        ax.set_xlabel("Element")
         ax.set_xticklabels(components, rotation=60)
         return ax
 
-    def REE(self, mode="radii", ax=None, **kwargs):
+    def REE(self, index="radii", ax=None, mode="plot", **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
         ------------
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
-        mode : :class:`str`
-            Whether to plot using radii on the x-axis ('radii'), or elements
+        index : :class:`str`
+            Whether to plot radii ('radii') on the principal x-axis, or elements
             ('elements').
+        mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+            Mode for plot. Plot will produce a line-scatter diagram. Fill will return
+            a filled range. Density will return a conditional density diagram.
 
         {otherparams}
 

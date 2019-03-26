@@ -70,8 +70,8 @@ save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_fill")
 fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
 
 df1.pyroplot.REE(ax=ax[0])
-# we can also change the mode of the second figure
-ax1 = df2.pyroplot.REE(ax=ax[1], color='k', mode='elements')
+# we can also change the index of the second figure
+ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='elements')
 plt.tight_layout()
 
 # %% Save Figure

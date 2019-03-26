@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from functools import partial
 import itertools
+import joblib
 from ..geochem import *
 from ..geochem.ind import __common_elements__, __common_oxides__
 from ..comp.codata import *
@@ -16,6 +17,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 try:
+    from sklearn.model_selection import GridSearchCV
     from sklearn.base import TransformerMixin, BaseEstimator
     from sklearn.metrics import confusion_matrix
 except ImportError:
@@ -35,10 +37,47 @@ except ImportError:
     logger.warning(msg)
 
 
-def get_confusion_matrix(clf, test_X, test_y):
-    y_true = test_y
-    y_pred = clf.predict(test_X)
-    return confusion_matrix(y_true, y_pred)
+def fit_save_classifier(
+    clf, X_train, y_train, dir=".", name="clf", extension=".joblib"
+):
+    """
+    Fit and save a classifier model. Also save relevant metadata where possible.
+
+    Parameters
+    -----------
+    clf : :class:`sklearn.base.BaseEstimator`
+        Classifier or gridsearch.
+    X_train : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+        Training data.
+    y_train : :class:`numpy.ndarray` | :class:`pandas.Series`
+        Training true classes.
+    dir : :class:`str` | :class:`pathlib.Path`
+        Path to the save directory.
+    name : :class:`str`
+        Name of the classifier.
+    extension : :class:`str`
+        Extension to give the saved classifier pickled witih joblib.
+
+    Returns
+    --------
+    clf : :class:`sklearn.base.BaseEstimator`
+        Fitted classifier.
+    """
+    clf_dir = Path(dir) / name
+    if not clf_dir.exists():
+        clf_dir.mkdir(parents=True)
+
+    clf.fit(X_train, y_train)
+    fpath = (clf_dir / name).with_suffix(extension)
+    # save metadata
+    if isinstance(X_train, pd.DataFrame):  # save the features used in the model for ref
+        components = [i for i in X_train.columns]
+        with open(
+            clf_dir / "{}_features.txt".format(name), "w", encoding="utf-8"
+        ) as fp:
+            fp.write(",".join(components))
+    _ = joblib.dump(clf, fpath, compress=9)
+    return clf
 
 
 def plot_confusion_matrix(
@@ -57,7 +96,8 @@ def plot_confusion_matrix(
     if len(args) == 1:
         cm = args[0]
     else:
-        cm = get_confusion_matrix(*args)
+        clf, X_test, y_test = args
+        cm = confusion_matrix(y_test, clf.predict(X_test))
         if not classes:
             if hasattr(args[0], "classes_"):
                 classes = list(args[0].classes_)
@@ -579,14 +619,11 @@ class RedoxAggregator(BaseEstimator, TransformerMixin):
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
         if self.to_oxidised:
-            Fe_form = 'Fe2O3T'
+            Fe_form = "Fe2O3T"
         else:
-            Fe_form = 'FeOT'
+            Fe_form = "FeOT"
         return recalculate_Fe(
-            X,
-            to=Fe_form,
-            renorm=self.renorm,
-            total_suffix=self.total_suffix,
+            X, to=Fe_form, renorm=self.renorm, total_suffix=self.total_suffix
         )
 
 

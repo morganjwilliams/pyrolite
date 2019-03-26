@@ -28,7 +28,7 @@ def close(X: np.ndarray, sumf=np.sum):
     :class:`numpy.ndarray`
         Closed array.
 
-    Note
+    Notes
     ------
         * Does not check for non-positive entries.
     """

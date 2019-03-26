@@ -42,8 +42,8 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
     :class:`list` | :class:`set`
         List of elements.
 
-    Note
-    -----
+    Notes
+    ------
         Formulae cannot be used as members of a set, and hence sets returned will
         instead consist only of strings.
 
@@ -130,8 +130,8 @@ def common_oxides(
     :class:`list` | :class:`set`
         List of oxides.
 
-    Note
-    -----
+    Notes
+    ------
         Formulae cannot be used as members of a set, and hence sets returned will
         instead consist only of strings.
 

@@ -116,4 +116,5 @@ are specified:
           where the edges of bins within a ``pcolormesh`` image (used for plotting the
           KDE estimate) are over-emphasized, giving a gridded look.
 
-.. seealso:: `Ternary Plots <../plotting/ternary.html>`__
+.. seealso:: `Ternary Plots <../plotting/ternary.html>`__,
+             `Spider Density Diagrams <conditionaldensity.html>`__,

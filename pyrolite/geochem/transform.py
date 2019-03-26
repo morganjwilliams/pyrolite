@@ -464,9 +464,10 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         # can't deal with more than one component/component speciation
         if len(get_fe) > 1:
             raise NotImplementedError
-        get_fe = get_fe[0]
-        df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
-        logger.info("Reducing {} to {}.".format(c_fe_str, get_fe))
+        else:
+            get_fe = get_fe[0]
+            df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
+            logger.info("Transforming {} to {}.".format(c_fe_str, get_fe))
 
     # Try to get some ratios -----------------------------------------------------------
     ratios = [i for i in to if "/" in i and i in get]
@@ -479,12 +480,14 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
 
     # Last Minute Checks ---------------------------------------------------------------
     remaining = [i for i in to if i not in df.columns]
+    df_comp_c = [i for i in df.columns if i in c_components]
     assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
     if renorm:
-        logger.info("Recalculation Done, Renormalising")
-        return renormalise(df.loc[:, to])
+        logger.info("Recalculation Done, Renormalising compositional components.")
+        df.loc[:, df_comp_c] = renormalise(df.loc[:, df_comp_c])
+        return df.loc[:, to]
     else:
-        logger.info("Recalculation Done.")
+        logger.info("Recalculation Done. Data not renormalised.")
         return df.loc[:, to]
 
 

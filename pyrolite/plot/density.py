@@ -117,13 +117,11 @@ def density(
         vmin = 0.02  # 2% max height | 98th percentile
 
     ax = ax or plt.subplots(1, figsize=figsize)[1]
-    background_color = (*ax.patch.get_facecolor()[:-1], 0.0)  # background with 0 alpha
 
+    background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
-        cmap.set_under(color=(1, 1, 1, 0.0))
-
-    cmap.set_under(color=background_color)
+    cmap.set_under(color=(1, 1, 1, 0))
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"

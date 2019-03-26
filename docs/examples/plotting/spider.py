@@ -22,9 +22,9 @@ save_figure(ax.figure, save_at="../../source/_static", name="spider_minimal")
 
 # %% Fill Plot -------------------------------------------------------------------------
 # This behaviour can be modified (see spider docs) to provide filled ranges:
-ax = spider(df.values, fill=True, plot=False, color="k", alpha=0.5)
+ax = spider(df.values, mode='fill', color="k", alpha=0.5)
 # or, alternatively directly from the dataframe:
-ax = df.pyroplot.spider(fill=True, plot=False, color="k", alpha=0.5)
+ax = df.pyroplot.spider(mode='fill', color="k", alpha=0.5)
 ax.set_ylabel('Abundance')
 # %% Save Figure
 save_figure(ax.figure, save_at="../../source/_static", name="spider_fill")
