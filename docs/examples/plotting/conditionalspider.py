@@ -11,7 +11,7 @@ rn = rc["EMORB_SM89"]  # emorb composition as a starting point
 components = [i for i in rn.data.index if i in REE()]
 data = rn[components]["value"]
 nindex, nobs = data.index.size, 200
-ss = [0.05, 0.1, 0.2, 0.5]  # sigmas for noise
+ss = [0.1, 0.2, 0.5]  # sigmas for noise
 
 modes = [
     ("plot", "plot", [], dict(color="k", alpha=0.01)),
@@ -29,7 +29,7 @@ modes = [
 ]
 
 fig, ax = plt.subplots(
-    len(modes), len(ss), sharey=True, figsize=(len(ss) * 2.5, 2 * len(modes))
+    len(modes), len(ss), sharey=True, figsize=(len(ss) * 3, 2 * len(modes))
 )
 ax[0, 0].set_ylim((0.1, 100))
 
@@ -52,9 +52,18 @@ for ix, s in enumerate(ss):
     df["Eu"] += 1.0  # significant offset
     df = df.applymap(np.exp)
     for mix, (m, name, args, kwargs) in enumerate(modes):
-        df.pyroplot.spider(indexes=x, mode=m, ax=ax[mix, ix], *args, **kwargs)
+        df.pyroplot.spider(
+            indexes=x,
+            mode=m,
+            ax=ax[mix, ix],
+            cmap="viridis",
+            vmin=0.05,
+            *args,
+            **kwargs
+        )
 
 plt.tight_layout()
 # %% save figure
 from pyrolite.util.plot import save_figure, save_axes
+
 save_figure(fig, save_at="../../source/_static", name="spider_modes")

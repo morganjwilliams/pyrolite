@@ -12,6 +12,7 @@ from ..util.plot import (
     __DEFAULT_DISC_COLORMAP__,
     conditional_prob_density,
     plot_Z_percentiles,
+    percentile_contour_values_from_meshz,
 )
 from ..util.meta import get_additional_params, subkwargs
 
@@ -131,6 +132,7 @@ def spider(
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
+        cmap.set_under(color=(1, 1, 1, 0.0))
 
     if (_c is not None) and (cmap is not None):
         if norm is not None:
@@ -183,12 +185,16 @@ def spider(
             **subkwargs(kwargs, conditional_prob_density)
         )
 
+        vmin = kwargs.pop("vmin", 0)
+        vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "percentiles" in kwargs:
             plot_Z_percentiles(
-                xi, yi, zi, ax=ax, **subkwargs(kwargs, plot_Z_percentiles)
+                xi, yi, zi, ax=ax, cmap=cmap, **subkwargs(kwargs, plot_Z_percentiles)
             )
         else:
-            ax.pcolormesh(xe, ye, zi, cmap=cmap, **subkwargs(kwargs, ax.pcolormesh))
+            ax.pcolormesh(
+                xe, ye, zi, cmap=cmap, vmin=vmin, *subkwargs(kwargs, ax.pcolormesh)
+            )
     else:
         raise NotImplementedError(
             "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
