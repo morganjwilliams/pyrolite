@@ -449,7 +449,8 @@ def conditional_prob_density(
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins
         bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
-        H, edges = np.histogramdd(flattengrid([x, y]), bins=bins)
+        assert len(bins) == 2
+        H, xedges, yedges = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError
