@@ -191,8 +191,8 @@ def logspc_(_min, _max, step=1.0, bins=20):
     :class:`numpy.ndarray`
         Log-spaced array.
     """
-    if step < 1:
-        step = 1/step
+    if step < 1.:
+        step = 1./step
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 

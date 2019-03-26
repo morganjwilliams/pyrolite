@@ -139,8 +139,9 @@ def bin_centres_to_edges(centres):
     ------
         * This can be updated to unevenly spaced bins, just need to calculate outer bins.
     """
-    step = (centres[1] - centres[0]) / 2
-    return np.append(centres - step, centres[-1] + step)
+    sortcentres = np.sort(centres.flatten())
+    step = (sortcentres[1] - sortcentres[0]) / 2.
+    return np.append(sortcentres - step, [sortcentres[-1] + step])
 
 
 def bin_edges_to_centres(edges):
@@ -447,10 +448,14 @@ def conditional_prob_density(
             kde = gaussian_kde(y[:, bin])
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
-        # histogram monotonically increasing bins
+        # histogram monotonically increasing bins, requires logbins be transformed
+        # calculate histogram in logy if needed
+        if logy:
+            y, yy = np.log(y), np.log(yy)
         bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
-        assert len(bins) == 2
-        H, xedges, yedges = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
+        H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
+        if logy:
+            y, yy, yedges = np.exp(y), np.exp(yy), np.exp(ye)
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError
