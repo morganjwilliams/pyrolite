@@ -75,6 +75,28 @@ class TestPyroPlot(unittest.TestCase):
     def test_density_with_more_components_specified_ternary(self):
         self.multidf.pyroplot.density(components=self.multidf.columns[:3])
 
+    def test_cooccurence_default(self):
+        self.multidf.pyroplot.cooccurence()
+
+    def test_cooccurence_normalize(self):
+        for normalize in [True, False]:
+            with self.subTest(normalize=normalize):
+                self.multidf.pyroplot.cooccurence(normalize=normalize)
+
+    def test_cooccurence_log(self):
+        for log in [True, False]:
+            with self.subTest(log=log):
+                self.multidf.pyroplot.cooccurence(log=log)
+
+    def test_cooccurence_colorbar(self):
+        for colorbar in [True, False]:
+            with self.subTest(colorbar=colorbar):
+                self.multidf.pyroplot.cooccurence(colorbar=colorbar)
+
+    def test_cooccurencet_external_ax(self):
+        fig, ax = plt.subplots(1)
+        self.multidf.pyroplot.cooccurence(ax=ax)
+
     def tearDown(self):
         plt.close("all")
 

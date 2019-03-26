@@ -10,7 +10,6 @@ omit =
     # Omit extensions with extra dependencies
     pyrolite/util/wfs.py
     pyrolite/util/database.py
-    pyrolite/util/skl.py
 
     # Ignore _version.py
     */_version.py

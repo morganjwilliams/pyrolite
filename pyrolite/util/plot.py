@@ -36,6 +36,7 @@ from ..util.math import (
     linspc_,
     logspc_,
 )
+from ..util.missing import cooccurence_pattern
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -139,8 +140,9 @@ def bin_centres_to_edges(centres):
     ------
         * This can be updated to unevenly spaced bins, just need to calculate outer bins.
     """
-    step = (centres[1] - centres[0]) / 2
-    return np.append(centres - step, centres[-1] + step)
+    sortcentres = np.sort(centres.flatten())
+    step = (sortcentres[1] - sortcentres[0]) / 2.0
+    return np.append(sortcentres - step, [sortcentres[-1] + step])
 
 
 def bin_edges_to_centres(edges):
@@ -411,7 +413,6 @@ def conditional_prob_density(
         xy = interpolate_line(xy, n=resolution, logy=logy)
         x, y = np.swapaxes(xy, 0, 1)
 
-
     xx = np.sort(x[0])
     ymin, ymax = np.nanmin(y), np.nanmax(y)
     ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
@@ -431,7 +432,7 @@ def conditional_prob_density(
         else:
             raise ImportError("Requires statsmodels.")
         # statsmodels pdf takes values in reverse order
-        zi = dens_c.pdf(*flattengrid([yi, xi])).reshape(xi.shape)
+        zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
         try:
             kde = gaussian_kde(np.vstack([x.flatten(), y.flatten()]))
@@ -441,18 +442,21 @@ def conditional_prob_density(
             kde = gaussian_kde(flattengrid([x, y]).T)
 
         xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
-        zi = kde(flattengrid([xi, yi])).T.reshape(xi.shape) / xkde[np.newaxis, :]
+        zi = kde(flattengrid([xi, yi]).T).reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
             kde = gaussian_kde(y[:, bin])
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
-        # histogram monotonically increasing bins
-        H, hedges = np.histogramdd(
-            flattengrid([x, y]).T,
-            bins=[bin_centres_to_edges(xx), bin_centres_to_edges(yy)],
-        )
+        # histogram monotonically increasing bins, requires logbins be transformed
+        # calculate histogram in logy if needed
+        if logy:
+            y, yy = np.log(y), np.log(yy)
+        bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
+        H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
+        if logy:
+            y, yy, yedges = np.exp(y), np.exp(yy), np.exp(ye)
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError
@@ -741,6 +745,40 @@ def plot_Z_percentiles(
 
         [l.set_text(t) for l, t in zip(lbls, _labels)]
     return cs
+
+
+def plot_cooccurence(arr, ax=None, normalize=True, log=False, colorbar=False, **kwargs):
+    """
+    Plot the co-occurence frequency matrix for a given input.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        The subplot to draw on.
+    normalize : :class:`bool`
+        Whether to normalize the cooccurence to compare disparate variables.
+    log : :class:`bool`
+        Whether to take the log of the cooccurence.
+    colorbar : :class:`bool`
+        Whether to append a colorbar.
+
+    Returns
+    --------
+    :class:`matplotlib.axes.Axes`
+        Axes on which the cooccurence plot is added.
+    """
+    arr = np.array(arr)
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(4 + [0.0, 0.2][colorbar], 4))
+    co_occur = cooccurence_pattern(arr, normalize=normalize, log=log)
+    heatmap = ax.pcolor(co_occur, **kwargs)
+    ax.set_yticks(np.arange(co_occur.shape[0]) + 0.5, minor=False)
+    ax.set_xticks(np.arange(co_occur.shape[1]) + 0.5, minor=False)
+    ax.invert_yaxis()
+    ax.xaxis.tick_top()
+    if colorbar:
+        add_colorbar(heatmap, **kwargs)
+    return ax
 
 
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
