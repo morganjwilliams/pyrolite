@@ -188,8 +188,12 @@ def spider(
         vmin = kwargs.pop("vmin", 0)
         vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "contours" in kwargs:
-            plot_Z_percentiles( # pass all relevant kwargs including contours
-                xi, yi, zi, ax=ax, cmap=cmap, **subkwargs(kwargs, plot_Z_percentiles)
+            pzpkwargs = { # keyword arguments to forward to plot_Z_percentiles
+                **subkwargs(kwargs, plot_Z_percentiles),
+                **{"percentiles": kwargs["contours"]},
+            }
+            plot_Z_percentiles(  # pass all relevant kwargs including contours
+                xi, yi, zi, ax=ax, cmap=cmap, **pzpkwargs
             )
         else:
             ax.pcolormesh(
