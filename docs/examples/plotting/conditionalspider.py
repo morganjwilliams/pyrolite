@@ -19,9 +19,9 @@ modes = [
     ("binkde", "binkde", [], dict(resolution=5)),
     (
         "binkde",
-        "binkde percentiles specified",
+        "binkde contours specified",
         [],
-        dict(percentiles=[0.95, 0.5], resolution=5),
+        dict(contours=[0.95, 0.5], resolution=5),
     ),
     ("ckde", "ckde", [], dict(resolution=5)),
     ("kde", "kde", [], dict(resolution=5)),
