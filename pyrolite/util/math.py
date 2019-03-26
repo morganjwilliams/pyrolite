@@ -166,6 +166,8 @@ def linspc_(_min, _max, step=0.0, bins=20):
     :class:`numpy.ndarray`
         Linearly-spaced array.
     """
+    if step < 0:
+        step = -step
     return np.linspace(_min - step, _max + step, bins + 1)
 
 
@@ -189,6 +191,8 @@ def logspc_(_min, _max, step=1.0, bins=20):
     :class:`numpy.ndarray`
         Log-spaced array.
     """
+    if step < 1:
+        step = 1/step
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 
