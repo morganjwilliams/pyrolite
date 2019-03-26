@@ -121,7 +121,7 @@ def density(
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
-        cmap.set_under(color=background_color) # could also use background_color
+    cmap.set_under(color=(1, 1, 1, 0))
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
