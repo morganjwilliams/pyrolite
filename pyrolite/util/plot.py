@@ -411,7 +411,6 @@ def conditional_prob_density(
         xy = interpolate_line(xy, n=resolution, logy=logy)
         x, y = np.swapaxes(xy, 0, 1)
 
-
     xx = np.sort(x[0])
     ymin, ymax = np.nanmin(y), np.nanmax(y)
     ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
@@ -431,7 +430,7 @@ def conditional_prob_density(
         else:
             raise ImportError("Requires statsmodels.")
         # statsmodels pdf takes values in reverse order
-        zi = dens_c.pdf(*flattengrid([yi, xi])).reshape(xi.shape)
+        zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
         try:
             kde = gaussian_kde(np.vstack([x.flatten(), y.flatten()]))
@@ -441,7 +440,7 @@ def conditional_prob_density(
             kde = gaussian_kde(flattengrid([x, y]).T)
 
         xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
-        zi = kde(flattengrid([xi, yi])).T.reshape(xi.shape) / xkde[np.newaxis, :]
+        zi = kde(flattengrid([xi, yi]).T).reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
@@ -449,10 +448,8 @@ def conditional_prob_density(
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins
-        H, hedges = np.histogramdd(
-            flattengrid([x, y]).T,
-            bins=[bin_centres_to_edges(xx), bin_centres_to_edges(yy)],
-        )
+        bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
+        H, edges = np.histogramdd(flattengrid([x, y]), bins=bins)
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError

@@ -143,7 +143,7 @@ def flattengrid(grid):
     --------
     :class:`numpy.ndarray`
     """
-    return np.vstack([g.flatten() for g in grid])
+    return np.vstack([g.flatten() for g in grid]).T
 
 
 def linspc_(_min, _max, step=0.0, bins=20):
