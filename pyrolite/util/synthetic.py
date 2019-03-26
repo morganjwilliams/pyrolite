@@ -18,9 +18,14 @@ def random_cov_matrix(dim, validate=False):
     --------
     :class:`numpy.ndarray`
         Covariance matrix of shape :code:`(dim, dim)`.
+
+    Todo
+    -----
+        * Implement a characteristic scale for the covariance matrix.
     """
     cov = np.random.randn(dim, dim)
     cov = np.dot(cov, cov.T)
+
     if validate:
         try:
             assert (cov == cov.T).all()

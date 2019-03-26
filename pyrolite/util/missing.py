@@ -46,3 +46,37 @@ def md_pattern(Y):
     for ID in np.unique(pID).astype(int):
         pD[ID]["freq"] = np.sum(pID == ID)
     return pID, pD
+
+
+def cooccurence_pattern(Y, normalize=False, log=False):
+    """
+    Get the co-occurence patterns from an array.
+
+    Parameters
+    ------------
+    Y : :class:`numpy.ndarray`
+        Input dataset.
+    normalize : :class:`bool`
+        Whether to normalize the cooccurence to compare disparate variables.
+    log : :class:`bool`
+        Whether to take the log of the cooccurence.
+
+    Returns
+    ---------
+    co_occur : :class:`numpy.ndarray`
+        Cooccurence frequency array.
+    """
+    _Y = Y.copy()
+    _Y[~np.isfinite(_Y)] = 0
+    _Y[_Y > 0] = 1
+    _Y = _Y.astype(int)
+    co_occur = _Y.T @ _Y
+    d = co_occur.shape[0]
+    if normalize:
+        diags = np.diagonal(co_occur)
+        for i in range(d):
+            for j in range(d):
+                co_occur[i, j] = co_occur[i, j] / np.max([diags[i], diags[j]])
+    if log:
+        co_occur = np.log(co_occur)
+    return co_occur

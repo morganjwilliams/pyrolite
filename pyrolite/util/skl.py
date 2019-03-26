@@ -188,37 +188,6 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     return ax
 
 
-def plot_cooccurence(
-    df,
-    ax=None,
-    normalize=True,
-    log=False,
-    norm=mplc.Normalize(vmin=0, vmax=1.0),
-    **kwargs
-):
-    if ax is None:
-        fig, ax = plt.subplots(1, figsize=(4.2, 4))
-    co_occur = df.fillna(0)
-    co_occur[co_occur > 0] = 1
-    co_occur = co_occur.T.dot(co_occur).astype(int)
-    if normalize:
-        diags = np.diagonal(co_occur)
-        for i in range(diags.shape[0]):
-            for j in range(diags.shape[0]):
-                co_occur.iloc[i, j] = co_occur.iloc[i, j] / np.max([diags[i], diags[j]])
-    if log:
-        co_occur = co_occur.applymap(np.log)
-    heatmap = ax.pcolor(co_occur, norm=norm, **kwargs)
-    ax.set_yticks(np.arange(co_occur.shape[0]) + 0.5, minor=False)
-    ax.set_xticks(np.arange(co_occur.shape[1]) + 0.5, minor=False)
-    ax.invert_yaxis()
-    ax.xaxis.tick_top()
-    ax.set_xticklabels(df.columns, minor=False, rotation=90)
-    ax.set_yticklabels(df.columns, minor=False)
-    add_colorbar(heatmap)
-    return ax
-
-
 class DropBelowZero(BaseEstimator, TransformerMixin):
     """
     Transformer for scikit-learn like use.

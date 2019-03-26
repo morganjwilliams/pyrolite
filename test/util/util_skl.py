@@ -21,32 +21,7 @@ except ImportError:
     HAVE_SKLEARN = False
 
 if HAVE_SKLEARN:
-    from pyrolite.util.skl import (
-        LinearTransform,
-        ExpTransform,
-        LogTransform,
-        ALRTransform,
-        CLRTransform,
-        ILRTransform,
-        BoxCoxTransform,
-        BoxCoxTransform,
-        DropBelowZero,
-        ColumnSelector,
-        TypeSelector,
-        CompositionalSelector,
-        MajorsSelector,
-        ElementSelector,
-        REESelector,
-        Devolatilizer,
-        RedoxAggregator,
-        ElementAggregator,
-        PdUnion,
-        LambdaTransformer,
-        MultipleImputer,
-        PdSoftImputer,
-        plot_confusion_matrix,
-        plot_gs_results,
-    )
+    from pyrolite.util.skl import *
 try:
     import imblearn
 

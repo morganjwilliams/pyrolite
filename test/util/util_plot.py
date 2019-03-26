@@ -206,6 +206,36 @@ class TestLegendProxies(unittest.TestCase):
         plt.close("all")
 
 
+class TestPlotCooccurence(unittest.TestCase):
+    def setUp(self):
+        self.rdata = pd.DataFrame(
+            random_composition(size=200, D=4, missing="MCAR"),
+            columns=["MgO", "SiO2", "CaO", "TiO2"],
+        )
+
+    def test_default(self):
+        ax = plot_cooccurence(self.rdata)
+
+    def test_normalize(self):
+        for normalize in [True, False]:
+            with self.subTest(normalize=normalize):
+                ax = plot_cooccurence(self.rdata, normalize=normalize)
+
+    def test_log(self):
+        for log in [True, False]:
+            with self.subTest(log=log):
+                ax = plot_cooccurence(self.rdata, log=log)
+
+    def test_colorbar(self):
+        for colorbar in [True, False]:
+            with self.subTest(colorbar=colorbar):
+                ax = plot_cooccurence(self.rdata, colorbar=colorbar)
+
+    def test_external_ax(self):
+        fig, ax = plt.subplots(1)
+        ax = plot_cooccurence(self.rdata, ax=ax)
+
+
 class TestPlotStDevEllipses(unittest.TestCase):
     def setUp(self):
 

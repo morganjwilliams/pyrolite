@@ -6,6 +6,7 @@ import numpy as np
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+from ..util.plot import plot_cooccurence
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params
 from ..geochem import common_elements, REE
@@ -19,6 +20,7 @@ __all__ = ["density", "spider", "tern", "pyroplot"]
 import pandas as pd
 
 
+# note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyroplot")
 @pd.api.extensions.register_dataframe_accessor("pyroplot")
 class pyroplot(object):
@@ -224,9 +226,45 @@ class pyroplot(object):
         obj = to_frame(self._obj)
         ree = REE()
 
-        reedata = obj.loc[:, ree].values
-        ax = spider.REE_v_radii(reedata, ree=ree, mode=mode, ax=ax, **kwargs)
+        ax = spider.REE_v_radii(
+            obj.loc[:, ree].values, ree=ree, mode=mode, ax=ax, **kwargs
+        )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+        return ax
+
+    def cooccurence(
+        self,
+        ax=None,
+        normalize=True,
+        log=False,
+        colorbar=False,
+        **kwargs
+    ):
+        """
+        Plot the co-occurence frequency matrix for a given input.
+
+        Parameters
+        -----------
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        normalize : :class:`bool`
+            Whether to normalize the cooccurence to compare disparate variables.
+        log : :class:`bool`
+            Whether to take the log of the cooccurence.
+        colorbar : :class:`bool`
+            Whether to append a colorbar.
+
+        Returns
+        --------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the cooccurence plot is added.
+        """
+        obj = to_frame(self._obj)
+        ax = plot_cooccurence(
+            obj.values, ax=ax, normalize=normalize, log=log, colorbar=colorbar, **kwargs
+        )
+        ax.set_xticklabels(obj.columns, minor=False, rotation=90)
+        ax.set_yticklabels(obj.columns, minor=False)
         return ax
 
 
