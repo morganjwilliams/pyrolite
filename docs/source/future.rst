@@ -46,8 +46,8 @@ planned be integrated over the longer term.
 
 :code:`pyrolite.comp.impute`
 
-  Compositional data imputation algorithms (including EMCOMP,
-  `Issue #6 <https://github.com/morganjwilliams/pyrolite/issues/6>`__)
+  Expansion of compositional data imputation algorithms beyond EMCOMP
+  (`Issue #6 <https://github.com/morganjwilliams/pyrolite/issues/6>`__).
 
 :code:`pyrolite.geochem.isotope`
 
@@ -56,11 +56,8 @@ planned be integrated over the longer term.
 
 :code:`pyrolite.plot`
 
-  A few improvements to plotting functionality are on the horizon:
-    * Native integration of a ternary projection for :code:`matplotlib`.
-    * Conditional probability density plot for :code:`scatterplot` like diagrams with a
-      non-continuous index on the x-axis (
-      `Issue #10 <https://github.com/morganjwilliams/pyrolite/issues/10>`__)
+  A few improvements to plotting functionality are on the horizon, including native
+  integration of a ternary projection for :code:`matplotlib`.
 
 :code:`pyrolite.geochem.magma`
 
