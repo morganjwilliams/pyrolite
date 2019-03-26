@@ -9,6 +9,18 @@ try:
     from sklearn.svm import SVC
     from sklearn.model_selection import GridSearchCV, train_test_split
 
+    HAVE_SKLEARN = True
+
+    def test_classifier():
+        param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
+        gs = GridSearchCV(SVC(), param_grid, cv=2)
+        return gs
+
+
+except ImportError:
+    HAVE_SKLEARN = False
+
+if HAVE_SKLEARN:
     from pyrolite.util.skl import (
         LinearTransform,
         ExpTransform,
@@ -32,22 +44,9 @@ try:
         LambdaTransformer,
         MultipleImputer,
         PdSoftImputer,
-        get_confusion_matrix,
         plot_confusion_matrix,
         plot_gs_results,
     )
-
-    HAVE_SKLEARN = True
-
-    def test_classifier():
-        param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
-        gs = GridSearchCV(SVC(), param_grid, cv=2)
-        return gs
-
-
-except ImportError:
-    HAVE_SKLEARN = False
-HAVE_SKLEARN
 try:
     import imblearn
 
@@ -61,25 +60,6 @@ try:
     HAVE_IMPUTE = True
 except ImportError:
     HAVE_IMPUTE = False
-
-
-@unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
-class TestGetConfusionMatrix(unittest.TestCase):
-    """Checks the confusion matrix function."""
-
-    def setUp(self):
-        self.X = test_df(index_length=20).apply(close, axis=1)
-        self.gs = test_classifier()
-        self.y = np.ones(self.X.index.size)
-        self.y[4:] += 1
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.X, self.y, test_size=0.3, stratify=self.y
-        )
-        self.gs.fit(self.X_train, self.y_train)
-        self.clf = self.gs.best_estimator_
-
-    def test_confusion_matrix(self):
-        get_confusion_matrix(self.clf, self.X_test, self.y_test)
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
