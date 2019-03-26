@@ -111,11 +111,38 @@ ax[1].set_title("Covariance Ellipses and PCA Vectors")
 ax[-2].set_title("Individual Density, with Contours")
 ax[-1].set_title("Overall Density")
 
-save_axes(ax[0], name="logo_eg_points", save_at=save_at, save_fmts=fmts, dpi=dpi)
-save_axes(ax[1], name="logo_eg_ellipses", save_at=save_at, save_fmts=fmts, dpi=dpi)
-save_axes(ax[2], name="logo_eg_contours", save_at=save_at, save_fmts=fmts, dpi=dpi)
-save_axes(ax[3], name="logo_eg_density", save_at=save_at, save_fmts=fmts, dpi=dpi)
+save_axes(
+    ax[0],
+    name="logo_eg_points",
+    save_at=save_at,
+    save_fmts=fmts,
+    dpi=dpi,
+    pad=[0, -0.01],
+)
+save_axes(
+    ax[1],
+    name="logo_eg_ellipses",
+    save_at=save_at,
+    save_fmts=fmts,
+    dpi=dpi,
+    pad=[0, -0.01],
+)
+save_axes(
+    ax[2],
+    name="logo_eg_contours",
+    save_at=save_at,
+    save_fmts=fmts,
+    dpi=dpi,
+)
+save_axes(
+    ax[3],
+    name="logo_eg_density",
+    save_at=save_at,
+    save_fmts=fmts,
+    dpi=dpi,
+)
 plt.tight_layout()
+
 save_figure(fig, name="logo_eg_all", save_at=save_at, save_fmts=fmts, dpi=dpi)
 
 """
