@@ -393,8 +393,9 @@ def conditional_prob_density(
         y = x
         x = None
 
+    nvar = y.shape[1]
     if x is None:  # Create a simple arange-based index
-        x = np.arange(y.shape[1])
+        x = np.arange(nvar)
 
     if not x.shape == y.shape:
         try:  # x is an index to be tiled
@@ -415,16 +416,23 @@ def conditional_prob_density(
 
     xx = np.sort(x[0])
     ymin, ymax = np.nanmin(y), np.nanmax(y)
+
+    # remove non finite values for kde functions
     ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
     yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=ybins)
+    if logy: # make grid equally spaced, evaluate in log then transform back
+        y, yy = np.log(y), np.log(yy)
     # yy is backwards?
     xi, yi = np.meshgrid(xx, yy)
     xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
+
     if mode == "ckde":
+        fltr = np.isfinite(y.flatten())
+        x, y = x.flatten()[fltr], y.flatten()[fltr]
         if HAVE_SM:
             dens_c = sm.nonparametric.KDEMultivariateConditional(
-                endog=[y.flatten()],
-                exog=[x.flatten()],
+                endog=[y],
+                exog=[x],
                 dep_type="c",
                 indep_type="c",
                 bw="normal_reference",
@@ -434,29 +442,29 @@ def conditional_prob_density(
         # statsmodels pdf takes values in reverse order
         zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
+        fltr = np.isfinite(y.flatten())
+        xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
+        x, y = x.flatten()[fltr], y.flatten()[fltr]
         try:
-            kde = gaussian_kde(np.vstack([x.flatten(), y.flatten()]))
+            kde = gaussian_kde(np.vstack([x, y]))
         except LinAlgError:  # singular matrix, need to add miniscule noise on x?
             logger.warn("Singular Matrix")
             logger.x = x + np.random.randn(*x.shape) * np.finfo(np.float).eps
-            kde = gaussian_kde(flattengrid([x, y]).T)
+            kde = gaussian_kde(np.vstack(([x, y])).T)
 
-        xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
         zi = kde(flattengrid([xi, yi]).T).reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
-            kde = gaussian_kde(y[:, bin])
+            kde = gaussian_kde(y[np.isfinite(y[:, bin]), bin])
             zi[:, bin] = kde(yi[:, bin])
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins, requires logbins be transformed
         # calculate histogram in logy if needed
-        if logy:
-            y, yy = np.log(y), np.log(yy)
+
         bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
         H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
-        if logy:
-            y, yy, yedges = np.exp(y), np.exp(yy), np.exp(ye)
+
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError
@@ -465,6 +473,8 @@ def conditional_prob_density(
         xzfactors = np.nanmax(zi) / np.nanmax(zi, axis=0)
         zi *= xzfactors[np.newaxis, :]
 
+    if logy:
+        yi, ye = np.exp(yi), np.exp(ye)
     if ret_centres:
         return xe, ye, zi, xi, yi
     return xe, ye, zi

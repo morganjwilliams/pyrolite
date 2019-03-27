@@ -132,7 +132,7 @@ def spider(
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
-        cmap.set_under(color=(1, 1, 1, 0.0))
+    cmap.set_under(color=(1, 1, 1, 0.0))
 
     if (_c is not None) and (cmap is not None):
         if norm is not None:
@@ -207,7 +207,7 @@ def spider(
     unused_keys = [i for i in kwargs if i not in list(sty.keys())]
     if len(unused_keys):
         logger.info("Styling not yet implemented for:{}".format(unused_keys))
-
+    # consider relimiting here
     return ax
 
 
