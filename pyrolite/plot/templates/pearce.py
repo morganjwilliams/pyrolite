@@ -38,13 +38,12 @@ def pearceThNbYb(ax=None, relim=True, color="k", lw=0.5, **kwargs):
             [ax_ylim, ylim][np.allclose(ax_ylim, defaults)],
         )
 
-
     geom = GeometryCollection(
         Linear2D(slope=12.5, name="Upper Crustal Limit"),
         Linear2D(slope=0.1, name="Upper MORB-OIB Array"),
         Linear2D(slope=0.1 / 3, name="Lower MORB-OIB Array"),
     )
-    xs = np.logspace(*np.log([*xlim]), 100, base=np.e)
+    xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
     geom.add_to_axes(ax, xs=xs, color=color, lw=lw, **kwargs)
 
     if relim:
@@ -55,7 +54,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", lw=0.5, **kwargs):
     return ax
 
 
-def pearceTiNbYb(ax=None, relim=True, color="k", lw=0.5, annotate=True, **kwargs):
+def pearceTiNbYb(ax=None, relim=True, color="k", linewidth=0.5, annotate=True, **kwargs):
     """
     Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
 
@@ -88,27 +87,30 @@ def pearceTiNbYb(ax=None, relim=True, color="k", lw=0.5, annotate=True, **kwargs
             [ax_xlim, xlim][np.allclose(ax_xlim, defaults)],
             [ax_ylim, ylim][np.allclose(ax_ylim, defaults)],
         )
-    logxlim = np.log([*xlim])
-    xs = np.logspace(*logxlim, 1000, base=np.e)
+    xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
     geom = GeometryCollection(
         LogLinear2D(p0=[0.1, 2], p1=[100, 2.6], name="Upper OIB Limit"),
         LogLinear2D(p0=[0.1, 0.58], p1=[100, 0.75], name="Upper MORB Array"),
         LogLinear2D(p0=[0.1, 0.27], p1=[100, 0.35], name="Lower MORB-OIB Array"),
+        Point([0.7, 0.41], c=color, name="NMORB"),
+        Point([3.38, 0.41], c=color, name="EMORB"),
+        Point([22.35, 1.35], c=color, name="OIB"),
     )
     geom += geom["Lower MORB-OIB Array"].perpendicular_line(
         centre=(1.45, geom["Lower MORB-OIB Array"](1.45)),
         ylim=(geom["Lower MORB-OIB Array"], geom["Upper MORB Array"]),
-        name="NMORB - EMORB Dividee",
+        name="NMORB - EMORB Divide",
+        ls="--",
     )
+    geom += LogLinear2D(
+        p0=[60, 0.1],
+        p1=[10, 3.5],
+        ylim=(geom["Upper OIB Limit"], geom["Upper MORB Array"]),
+        name="Tholeiitic - Alkalic Divide",
+        ls="--",
+    )
+
     geom.add_to_axes(ax, xs=xs, color=color, lw=lw, **kwargs)
-
-    if annotate:
-        NM = (0.70, 0.41)
-        EM = (3.38, 0.41)
-        OIB = (23.35, 1.35)
-
-        for x, y in [NM, EM, OIB]:
-            ax.scatter(x, y)
 
     if relim:
         ax.set_xscale("log")

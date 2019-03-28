@@ -1,4 +1,8 @@
 import numpy as np
+from pyrolite.util.meta import subkwargs
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.collections import PathCollection
 
 
 class GeometryCollection(object):
@@ -18,9 +22,16 @@ class GeometryCollection(object):
     def lines(self):
         return (i for i in self.objects if isinstance(i, (Linear2D, LogLinear2D)))
 
+    @property
+    def points(self):
+        return (i for i in self.objects if isinstance(i, (Point)))
+
     def add_to_axes(self, ax, **kwargs):
         for line in self.lines:
             line.add_to_axes(ax, **kwargs)
+
+        for p in self.points:
+            p.add_to_axes(ax, **kwargs)
 
     def __add__(self, object):
         self.objects.append(object)
@@ -32,6 +43,39 @@ class GeometryCollection(object):
 
     def __iter__(self):
         return (i for i in self.objects)
+
+
+class Point(object):
+    """
+    Simple container for a 2D point object with basic utility functions.
+    """
+
+    def __init__(self, point, name=None, **kwargs):
+        # todo: add ability to define loglinear lines
+        self.name = name or None
+        self.x, self.y = point
+        self.kwargs = kwargs
+
+    def add_to_axes(self, ax, label=False, **kwargs):
+        """
+        Plot this point on an :class:`~matplotlib.axes.Axes`.
+
+        Parameters
+        ----------
+        ax : :class:`~matplotlib.axes.Axes`.
+            Axes to plot the line on.
+
+        Returns
+        --------
+        :class:`matplotlib.collections.PathCollection`
+            PathCollection as plotted on the axes.
+        """
+        return ax.scatter(
+            self.x,
+            self.y,
+            label=[None, self.name][label],
+            **{**self.kwargs, **subkwargs(kwargs, ax.scatter, PathCollection)}
+        )
 
 
 class Linear2D(object):
@@ -51,7 +95,14 @@ class Linear2D(object):
         return np.array(x)
 
     def __init__(
-        self, p0=np.array([0, 0]), p1=None, slope=None, name=None, xlim=None, ylim=None
+        self,
+        p0=np.array([0, 0]),
+        p1=None,
+        slope=None,
+        name=None,
+        xlim=None,
+        ylim=None,
+        **kwargs
     ):
         # todo: add ability to define loglinear lines
         self.name = name or None
@@ -60,6 +111,7 @@ class Linear2D(object):
         self.set_params(p0=p0, p1=p1, slope=slope)
         self.set_xlim(xlim)
         self.set_ylim(ylim)
+        self.kwargs = kwargs
 
     def set_params(self, p0=np.array([0, 0]), p1=None, slope=None):
         self.p0 = self.in_tfm(np.array(p0))
@@ -87,6 +139,18 @@ class Linear2D(object):
         return line
 
     @property
+    def invfunc(self):
+        """
+        Get the function corresponding to the line parameterised as
+        x = (y-c) /m
+        """
+
+        def line(ys):
+            return (ys - self.intercept) / self.slope
+
+        return line
+
+    @property
     def equation(self):
         return " y = {slope} x + {c}".format(slope=self.slope, c=self.intercept)
 
@@ -105,7 +169,7 @@ class Linear2D(object):
     def intersect(self, line):
         x = (line.intercept - self.intercept) / (self.slope - line.slope)
         y = self.func(x)
-        return np.array([x, y])
+        return self.out_tfm(np.array([x, y]))
 
     def set_xlim(self, xlim):
         # get the x value of the line intersection if a line is passed
@@ -140,7 +204,7 @@ class Linear2D(object):
         """
         return self.out_tfm(self.func(self.in_tfm(x)))
 
-    def add_to_axes(self, ax, xs=None, **kwargs):
+    def add_to_axes(self, ax, xs=None, label=False, **kwargs):
         """
         Plot this line on an :class:`~matplotlib.axes.Axes`.
 
@@ -166,24 +230,40 @@ class Linear2D(object):
                 validity limits of the line, or finally use the limits of the axes.
         """
         if xs is None and self.xlim is not None:
-            xlim = self.xlim
-            xs = np.logspace(*np.log(xlim), 100, base=np.e)
+            xmin, xmax = self.xlim
         elif xs is None and self.xlim is None:  # use the axes limits
-            xlim = ax.get_xlim()
-            xs = np.logspace(*np.log(xlim), 100, base=np.e)
+            xmin, xmax = ax.get_xlim()
         else:
-            xlim = np.nanmin(xs), np.nanmax(xs)
+            xmin, xmax = np.nanmin(xs), np.nanmax(xs)
 
-        # range validation
-        xmin, xmax = max(xlim[0], np.nanmin(xs)), min(xlim[1], np.nanmax(xs))
+        if xs is None:
+            linexs = np.logspace(np.log(xmin), np.log(xmax), 100, base=np.e)
+        else:
+            linexs = xs
+        xmin, xmax = max(xmin, np.nanmin(linexs)), min(xmax, np.nanmax(linexs))
+        ybounds = [self(xmin), self(xmax)]
+        ymin, ymax = min(*ybounds), max(*ybounds)
+        if self.ylim is not None:
+            ymin, ymax = max(self.ylim[0], ymin), min(self.ylim[1], ymax)
+
         if not xmin > xmax:
-            linexs = np.logspace(xmin, xmax, xs.size, base=np.e)
-            ys = self.out_tfm(self.func(self.in_tfm(xs)))
-            if self.ylim is not None:
-                fltr = np.ones(xs.shape).astype(bool)
-                fltr = (ys >= self.ylim[0]) & (ys <= self.ylim[1])
-                xs, ys = xs[fltr], ys[fltr]
-            return ax.plot(xs, ys, **kwargs)
+            if np.abs(self.slope) > 1.0:  # more vertical than horizonal
+                lineys = np.logspace(np.log(ymin), np.log(ymax), xs.size, base=np.e)
+                linexs = self.out_tfm(self.invfunc(self.in_tfm(lineys)))
+            else:
+                lineys = self.out_tfm(self.func(self.in_tfm(linexs)))
+
+            # fltr = np.ones(linexs.shape).astype(bool)
+            # fltr = (lineys >= ymin) & (lineys <= ymax)
+            # fltr = (linexs >= xmin) & (linexs <= xmax)
+            # linexs, lineys = linexs[fltr], lineys[fltr]
+            # append self-styling to the output, but let it be overridden
+            return ax.plot(
+                linexs,
+                lineys,
+                label=[None, self.name][label],
+                **{**self.kwargs, **subkwargs(kwargs, ax.plot, Line2D)}
+            )
 
     def __add__(self, object):
         return GeometryCollection(self, object)
