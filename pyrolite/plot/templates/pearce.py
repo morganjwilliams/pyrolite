@@ -5,7 +5,7 @@ from ...util.meta import sphinx_doi_link
 from .components import *
 
 
-def pearceThNbYb(ax=None, relim=True, color="k", lw=0.5, **kwargs):
+def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     """
     Adds the Th-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
     This configuration uses
@@ -44,8 +44,10 @@ def pearceThNbYb(ax=None, relim=True, color="k", lw=0.5, **kwargs):
         Linear2D(slope=0.1 / 3, name="Lower MORB-OIB Array"),
     )
     xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
-    geom.add_to_axes(ax, xs=xs, color=color, lw=lw, **kwargs)
+    geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
 
+    ax.set_ylabel('Th/Yb')
+    ax.set_xlabel('Nb/Yb')
     if relim:
         ax.set_xscale("log")
         ax.set_yscale("log")
@@ -54,7 +56,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", lw=0.5, **kwargs):
     return ax
 
 
-def pearceTiNbYb(ax=None, relim=True, color="k", linewidth=0.5, annotate=True, **kwargs):
+def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     """
     Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
 
@@ -110,8 +112,9 @@ def pearceTiNbYb(ax=None, relim=True, color="k", linewidth=0.5, annotate=True, *
         ls="--",
     )
 
-    geom.add_to_axes(ax, xs=xs, color=color, lw=lw, **kwargs)
-
+    geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
+    ax.set_ylabel('TiO$_2$/Yb')
+    ax.set_xlabel('Nb/Yb')
     if relim:
         ax.set_xscale("log")
         ax.set_yscale("log")
