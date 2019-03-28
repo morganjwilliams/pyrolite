@@ -240,6 +240,11 @@ def REE_v_radii(
     :class:`matplotlib.axes.Axes`
         Axes on which the REE_v_radii plot is added.
 
+
+    Todo
+    -----
+        * Turn this into a plot template within pyrolite.plot.templates submodule
+
     See Also
     ---------
     :func:`matplotlib.pyplot.plot`

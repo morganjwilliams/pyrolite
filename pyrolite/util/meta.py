@@ -2,6 +2,10 @@ from numpydoc.docscrape import FunctionDoc, ClassDoc
 import inspect
 
 
+def sphinx_doi_link(doi):
+    return "`{} <https://dx.doi.org/{}>`__".format(doi, doi)
+
+
 def subkwargs(kwargs, f):
     """
     Get a subset of keyword arguments which are accepted by a function.
