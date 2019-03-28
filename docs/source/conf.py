@@ -236,6 +236,11 @@ rst_prolog = """
 
     {rc}
 
+.. |doibadage| raw:: html
+
+    <a href="https://zenodo.org/badge/latestdoi/137172322">
+     <img src="https://zenodo.org/badge/137172322.svg" alt="DOI">
+    </a>
 """.format(
     rc=refcomps
 )
