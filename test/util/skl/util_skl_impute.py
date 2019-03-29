@@ -11,7 +11,7 @@ try:
 
     def test_classifier():
         param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
-        gs = GridSearchCV(SVC(), param_grid, cv=2)
+        gs = GridSearchCV(SVC(gamma='scale'), param_grid, cv=2)
         return gs
 
 

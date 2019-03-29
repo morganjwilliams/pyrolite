@@ -2,8 +2,11 @@ import logging
 import itertools
 import numpy as np
 import pandas as pd
+import scipy.stats
+import scipy.special
 import matplotlib.pyplot as plt
 import matplotlib.colors
+from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -11,6 +14,7 @@ logger = logging.getLogger(__name__)
 try:
     from sklearn.model_selection import GridSearchCV
     from sklearn.metrics import confusion_matrix
+    import sklearn.datasets
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
@@ -127,6 +131,7 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     ax.scatter(x, y, marker="D", s=100, c="k")
     return ax
 
+
 def plot_mapping(
     X,
     Y,
@@ -197,11 +202,13 @@ def plot_mapping(
             raise NotImplementedError
         mapped = tfm.fit_transform(X)
     elif isinstance(
-        mapped, (sklearn.base.TransformerMixin)
-    ):  # update with other manifolds?
+        mapping, (sklearn.base.TransformerMixin, sklearn.base.BaseEstimator)
+    ): # manifold transforms can be either
+        tfm = mapping
         mapped = tfm.fit_transform(X)
     else:  # mapping is already performedata, expect a numpy.ndarray
-        pass
+        mapped = mapping
+        tfm = None
     assert mapped.shape[0] == X.shape[0]
 
     if ax is None:
@@ -219,15 +226,17 @@ def plot_mapping(
             netzero = 1.0 / ps.shape[1] * np.ones(ps.shape[1])
             if alpha_method == "entropy":
                 # uniform distribution has maximum entropy
-                max_H = entropy(netzero)
-                H = np.apply_along_axis(entropy, 1, ps)
+                max_H = scipy.stats.entropy(netzero)
+                H = np.apply_along_axis(scipy.stats.entropy, 1, ps)
                 min_H = np.min(H, axis=0)
                 rel_H = (H - min_H) / (max_H - min_H)
                 a = 1 - rel_H
                 a *= alpha
             else:
                 # alpha as sum of information gain
-                a = np.apply_along_axis(kl_div, 1, ps, netzero).sum(axis=1)
+                a = np.apply_along_axis(scipy.special.kl_div, 1, ps, netzero).sum(
+                    axis=1
+                )
                 a = a / np.max(alpha, axis=0)
                 a *= alpha
             c[:, -1] = a

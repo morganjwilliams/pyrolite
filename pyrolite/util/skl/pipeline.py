@@ -142,7 +142,8 @@ def SVC_pipeline(
     scaler : :class:`sklearn.base.TransformerMixin`
         Scale transformer.
     kernel : :class:`str` | :class:`callable`
-        Name of kernel to use for the support vector classifier. Optionally, a custom
+        Name of kernel to use for the support vector classifier
+        (:code:`'linear'|'rbf'|'poly'|'sigmoid'`). Optionally, a custom
         kernel function can be supplied (see :mod:`sklearn` docs for more info).
     decision_function_shape : :class:`str`, :code:`'ovo' or 'ovr'`
         Shape of the decision function surface. :code:`'ovo'` one-vs-one classifier
@@ -185,6 +186,7 @@ def SVC_pipeline(
         "probability": probability,
         "decision_function_shape": decision_function_shape,
         "cache_size": cache_size,
+        "gamma": "scale", # suppress warnings; 'auto' deprecated, likely changes with gs
         **kwargs,
     }
 
