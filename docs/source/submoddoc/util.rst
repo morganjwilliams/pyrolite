@@ -42,9 +42,10 @@ pyrolite\.util\.georoc
 
 pyrolite\.util\.skl
 -------------------------------
-  .. automodule:: pyrolite.util.skl
-      :members:
-      :undoc-members:
+  .. toctree::
+     :maxdepth: 2
+
+     skl
 
 pyrolite\.util\.classification
 -------------------------------
