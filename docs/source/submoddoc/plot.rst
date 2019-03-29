@@ -21,3 +21,10 @@ pyrolite\.plot\.tern
   .. automodule:: pyrolite.plot.tern
       :members:
       :undoc-members:
+
+pyrolite\.plot\.templates
+-------------------------------
+  .. automodule:: pyrolite.plot.templates
+      :members:
+      :undoc-members:
+      :imported-members:
