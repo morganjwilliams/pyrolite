@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.util.meta import sphinx_doi_link
-from ...util.meta import sphinx_doi_link
+from ...util.meta import sphinx_doi_link, update_docstring_references
 from .components import *
 
-
+@update_docstring_references
 def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     """
     Adds the Th-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
@@ -55,10 +55,10 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
         ax.set_ylim(ylim)
     return ax
 
-
+@update_docstring_references
 def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     """
-    Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
+    Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_  to an axes.
 
     Parameters
     ----------
