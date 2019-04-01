@@ -167,6 +167,7 @@ def plot_mapping(
         entropy relative to null-scenario of equal distribution across classes, while
         :code:`'kl_div'` calculates the information gain relative to the same
         null-scenario.
+        
     Returns
     --------
     ax : :class:`~matplotlib.axes.Axes`
