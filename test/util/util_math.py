@@ -34,7 +34,7 @@ class TestInterpolateLine(unittest.TestCase):
             )
 
 
-class TestIndexsRanges(unittest.TestCase):
+class TestIndexesRanges(unittest.TestCase):
     def setUp(self):
         self.x = np.linspace(1, 10, 10)
 
@@ -62,6 +62,20 @@ class TestIndexsRanges(unittest.TestCase):
         self.assertTrue(np.isclose(rng[1], self.x.max()))
 
 
+class TestGridFromRanges(unittest.TestCase):
+    def setUp(self):
+        self.x = np.random.randn(10, 2)
+
+    def test_default(self):
+        out = grid_from_ranges(self.x)
+        # default bins = 100
+        self.assertTrue(out[0].size == 100**2)
+
+    def test_bins(self):
+        for bins in [2, 10, 50]:
+            out = grid_from_ranges(self.x, bins=bins)
+
+
 class TestIsClose(unittest.TestCase):
     def test_non_nan(self):
         self.assertTrue(isclose(1.0, 1.0))
@@ -77,8 +91,7 @@ class TestIsClose(unittest.TestCase):
 
 class TestIsNumeric(unittest.TestCase):
     """
-    Tests round_sig function.
-    round_sig(x, sig=2)
+    Tests is_numeric function.
     """
 
     def test_numeric_collection_instances(self):
@@ -184,8 +197,13 @@ class TestSignificantFigures(unittest.TestCase):
         self.unc_expect = np.array([0, 2, 2, 1, 3, 6, 3, 0, 0])
 
     def test_unc(self):
-        sfs = significant_figures(self.values, unc=self.unc)
-        self.assertTrue(np.isclose(sfs, self.unc_expect, equal_nan=True).all())
+        for vals, unc, expect in [
+            (self.values, self.unc, self.unc_expect),
+            (self.values[3], self.unc[3], self.unc_expect[3]),
+        ]:
+            with self.subTest(vals=vals, unc=unc):
+                sfs = significant_figures(vals, unc=unc)
+                self.assertTrue(np.isclose(sfs, expect, equal_nan=True).all())
 
     def test_max_sf(self):
         for max_sf in range(1, 10):
@@ -352,7 +370,7 @@ class TestNaNCov(unittest.TestCase):
     """Tests the numpy nan covariance matrix utility."""
 
     def setUp(self):
-        self.X = np.vstack((np.arange(10.), -np.arange(10.))).T
+        self.X = np.vstack((np.arange(10.0), -np.arange(10.0))).T
         self.X -= np.nanmean(self.X, axis=0)[np.newaxis, :]
         self.target = np.eye(2) + -1.0 * np.eye(2)[::-1, :]
 
@@ -480,8 +498,18 @@ class TestLambdaPolyFunc(unittest.TestCase):
         self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
         self.xs = np.linspace(0.9, 1.1, 5)
 
-    def test_function_generation(self):
-        ret = lambda_poly_func(self.lambdas, self.xs)
+    def test_noparams(self):
+        ret = lambda_poly_func(self.lambdas, pxs=self.xs)
+        self.assertTrue(callable(ret))
+
+    def test_noparams_noxs(self):
+        with self.assertRaises(AssertionError):
+            ret = lambda_poly_func(self.lambdas)
+            self.assertTrue(callable(ret))
+
+    def test_function_params(self):
+        params = OP_constants(self.xs, degree=len(self.lambdas))
+        ret = lambda_poly_func(self.lambdas, params=params)
         self.assertTrue(callable(ret))
 
 
