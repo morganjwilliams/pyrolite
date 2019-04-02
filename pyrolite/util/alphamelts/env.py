@@ -1,17 +1,11 @@
 import os
 import logging
-import os
 from pyrolite.util.env import environment_manager, validate_update_envvar
 from pyrolite.util.text import remove_prefix
-from pyrolite.data.melts.env import MELTS_environment_variables
+from pyrolite.data.alphamelts.env import MELTS_environment_variables
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-from .download import *
-from .meltsfile import *
-from .parse import *
-from .tables import *
 
 
 def output_formatter(value):
@@ -26,7 +20,6 @@ class MELTS_Env(object):
     def __init__(
         self, prefix="ALPHAMELTS_", variable_model=MELTS_environment_variables
     ):
-        super().__init__(self)
         self.prefix = prefix
         self.spec = variable_model
         self.force_active = False
@@ -107,31 +100,3 @@ class MELTS_Env(object):
         return "{}({})".format(
             self.__class__.__name__, self.dump(unset_variables=False)
         ).replace(",", ",\n\t\t")
-
-
-def run_wds_command(command):
-    """
-    Run a command within command prompt on Windows.
-
-    Here can be used to run alphamelts by specifing 'alphamelts'.
-    """
-    os.system("start /wait cmd /c {}".format(command))
-
-
-class MeltsSystem:
-    def __init__(self, composition):
-
-        self.composition = composition
-        self.liquid = None
-        self.solid = None
-        self.potentialSolid = None
-        self.parameters = None
-
-    def equilirate(self):
-        method = "equilibrate"
-
-    def findLiquidus(self):
-        method = "findLiquidus"
-
-    def findWetLiquidus(self):
-        method = "findWetLiquidus"

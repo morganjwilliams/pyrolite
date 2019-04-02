@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import periodictable as pt
-from pyrolite.util.melts.parse import *
+from pyrolite.util.alphamelts.parse import *
 
 
 class TestParseMELTSComposition(unittest.TestCase):
@@ -11,12 +11,12 @@ class TestParseMELTSComposition(unittest.TestCase):
     def test_parse_dict(self):
         ret = from_melts_cstr(self.cstring, formula=False)
         self.assertTrue(isinstance(ret, dict))
-        self.assertTrue("Fe2+" in ret.keys())
-        self.assertTrue(np.isclose(ret["Fe2+"], 0.18))
+        self.assertTrue("Fe{2+}" in ret.keys())
+        self.assertTrue(np.isclose(ret["Fe{2+}"], 0.18))
 
     def test_parse_formula(self):
         ret = from_melts_cstr(self.cstring, formula=True)
-        self.assertTrue(isinstance(ret, pt.formulas.formula))
+        self.assertTrue(isinstance(ret, pt.formulas.Formula))
 
 
 if __name__ == "__main__":

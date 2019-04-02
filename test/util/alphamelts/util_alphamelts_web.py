@@ -1,7 +1,7 @@
 import unittest
 from pyrolite.util.general import internet_connection
-from pyrolite.util.melts.util import default_data_dictionary
-from pyrolite.util.melts.web import *
+from pyrolite.util.alphamelts.util import default_data_dictionary
+from pyrolite.util.alphamelts.web import *
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestWebService(unittest.TestCase):
@@ -23,4 +23,4 @@ class TestWebService(unittest.TestCase):
         result = melts_phases(self.dict)
 
 if __name__ == '__main__':
-    unittest.main(argv=[''], exit=False)
+    unittest.main()

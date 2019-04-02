@@ -1,7 +1,7 @@
 import unittest
-from pyrolite.data.melts.env import MELTS_environment_variables
+from pyrolite.data.alphamelts.env import MELTS_environment_variables
 from pyrolite.util.text import remove_prefix
-from melts import *
+from pyrolite.util.alphamelts.env import *
 
 
 class TestMELTSEnv(unittest.TestCase):
@@ -47,4 +47,4 @@ class TestMELTSEnv(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(argv=[""], exit=False)
+    unittest.main()

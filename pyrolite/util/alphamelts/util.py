@@ -1,4 +1,10 @@
+import logging
 from collections import OrderedDict
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger()
+
 
 def default_data_dictionary():
     d = OrderedDict()

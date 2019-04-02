@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 from pyrolite.util.pd import to_frame, to_ser
 from pyrolite.geochem.ind import __common_elements__, __common_oxides__
-from pyrolite.util.melts.parse import from_melts_cstr
+from .parse import from_melts_cstr
 from .meltsfile import to_meltsfiles
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

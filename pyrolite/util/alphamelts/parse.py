@@ -23,7 +23,7 @@ def from_melts_cstr(composition_str, formula=True):
     ------
         * Enable parsing of nested brackets in composition.
     """
-    regex = r"""(?P<el>[a-zA-Z'[^.-]]+)(?P<num>[^a-zA-Z()]+)"""
+    regex = r"""(?P<el>[a-zA-Z']+)(?P<num>[^a-zA-Z()]+)"""
     sub = r"""[\']+"""
 
     def repl(m):

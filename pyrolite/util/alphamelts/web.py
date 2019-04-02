@@ -1,5 +1,5 @@
-import requests
 import logging
+import requests
 import dicttoxml, xmljson
 from xml.etree import ElementTree as ET
 from pyrolite.util.general import internet_connection
