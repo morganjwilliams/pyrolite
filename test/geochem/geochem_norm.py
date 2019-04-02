@@ -137,7 +137,7 @@ class TestRefcomp(unittest.TestCase):
         unnorm = CH.denormalize(norm)
         # Test that type isn't changed
         self.assertTrue(type(unnorm) == type(self.df))
-        self.assertTrue(np.allclose(unnorm.values, self.df.values))
+        self.assertTrue(np.allclose(unnorm.values.astype(float), self.df.values))
 
     def test_ratio_present(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)

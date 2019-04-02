@@ -5,8 +5,10 @@ from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.alphamelts.meltsfile import *
 
+
 def str_as_file(str):
-    return io.BytesIO(str.encode('UTF-8'))
+    return io.BytesIO(str.encode("UTF-8"))
+
 
 KM0417_RC12_ser = to_numeric(
     pd.DataFrame(
