@@ -2,7 +2,11 @@ from numpydoc.docscrape import FunctionDoc, ClassDoc
 import inspect
 
 
-def subkwargs(kwargs, f):
+def sphinx_doi_link(doi):
+    return "`{} <https://dx.doi.org/{}>`__".format(doi, doi)
+
+
+def subkwargs(kwargs, *f):
     """
     Get a subset of keyword arguments which are accepted by a function.
 
@@ -11,12 +15,12 @@ def subkwargs(kwargs, f):
     kwargs : :class:`dict`
         Dictionary of keyword arguments.
     f : :class:`callable`
-        Function to check.
+        Function(s) to check.
     """
-    return {k: v for k, v in kwargs.items() if inargs(k, f)}
+    return {k: v for k, v in kwargs.items() if inargs(k, *f)}
 
 
-def inargs(name, f):
+def inargs(name, *f):
     """
     Check if an argument is a possible input for a specific function.
 
@@ -25,9 +29,12 @@ def inargs(name, f):
     name : :class:`str`
         Argument name.
     f : :class:`callable`
-        Function to check.
+        Function(s) to check.
     """
-    return name in inspect.getfullargspec(f).args
+    args = []
+    for f in f:
+        args += inspect.getfullargspec(f).args
+    return name in args
 
 
 def numpydoc_str_param_list(iterable, indent=4):

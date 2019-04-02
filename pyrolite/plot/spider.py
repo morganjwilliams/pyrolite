@@ -21,7 +21,7 @@ def spider(
     arr,
     indexes=None,
     ax=None,
-    color="0.5",
+    color=None,
     cmap=__DEFAULT_CONT_COLORMAP__,
     norm=None,
     alpha=1.0,
@@ -239,6 +239,11 @@ def REE_v_radii(
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the REE_v_radii plot is added.
+
+
+    Todo
+    -----
+        * Turn this into a plot template within pyrolite.plot.templates submodule
 
     See Also
     ---------

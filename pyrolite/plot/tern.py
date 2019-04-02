@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def ternary(
     arr,
     ax=None,
-    color="0.5",
+    color=None,
     alpha=1.0,
     marker="D",
     label=None,

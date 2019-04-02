@@ -58,6 +58,10 @@ def scale_multiplier(in_unit, target_unit="ppm"):
 class RefComp(object):
     """
     Reference compositional model object, principally used for normalisation.
+
+    Todo
+    ----
+        * Ensure correct types are returned - i.e. floats vs. objects
     """
 
     def __init__(self, filename, **kwargs):

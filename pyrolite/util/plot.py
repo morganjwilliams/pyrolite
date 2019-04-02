@@ -16,18 +16,7 @@ import matplotlib.patches
 import matplotlib.path
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
-
 from matplotlib.transforms import Bbox
-from sklearn.decomposition import PCA
-import logging
-
-try:
-    import statsmodels.api as sm
-
-    HAVE_SM = True
-except ImportError:
-    HAVE_SM = False
-
 from ..util.math import (
     eigsorted,
     nancov,
@@ -38,9 +27,24 @@ from ..util.math import (
 )
 from ..util.missing import cooccurence_pattern
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
+import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger()
+
+try:
+    from sklearn.decomposition import PCA
+except ImportError:
+    msg = "scikit-learn not installed"
+    logger.warning(msg)
+
+try:
+    import statsmodels.api as sm
+
+    HAVE_SM = True
+except ImportError:
+    HAVE_SM = False
+
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
@@ -420,7 +424,7 @@ def conditional_prob_density(
     # remove non finite values for kde functions
     ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
     yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=ybins)
-    if logy: # make grid equally spaced, evaluate in log then transform back
+    if logy:  # make grid equally spaced, evaluate in log then transform back
         y, yy = np.log(y), np.log(yy)
     # yy is backwards?
     xi, yi = np.meshgrid(xx, yy)
@@ -431,11 +435,7 @@ def conditional_prob_density(
         x, y = x.flatten()[fltr], y.flatten()[fltr]
         if HAVE_SM:
             dens_c = sm.nonparametric.KDEMultivariateConditional(
-                endog=[y],
-                exog=[x],
-                dep_type="c",
-                indep_type="c",
-                bw="normal_reference",
+                endog=[y], exog=[x], dep_type="c", indep_type="c", bw="normal_reference"
             )
         else:
             raise ImportError("Requires statsmodels.")
@@ -610,6 +610,12 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
     Returns
     -------
     ax :  :class:`matplotlib.axes.Axes`
+
+    Todo
+    -----
+        * Minor reimplementation of the sklearn PCA to avoid dependency.
+
+            https://en.wikipedia.org/wiki/Principal_component_analysis
     """
     pca = PCA(n_components=2)
     pca.fit(comp)

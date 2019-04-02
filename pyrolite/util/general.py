@@ -56,23 +56,28 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-def stream_log(package_name, level="INFO"):
+def stream_log(module, level="INFO"):
     """
     Stream the log from a specific package or subpackage.
 
     Parameters
     ----------
-    package_name : :class:`str`
-        Name of the package to monitor logging from.
+    module : :class:`str` | :class:`logging.Logger`
+        Name of the module to monitor logging from.
     level : :class:`str`, :code:`'INFO'`
         Logging level at which to set the handler output.
 
     Returns
     -------
-    :class:`logging.logger`
+    :class:`logging.Logger`
         Logger for the specified package with stream handler added.
     """
-    logger = logging.getLogger(package_name)
+    if isinstance(module, str):
+        logger = logging.getLogger(module)
+    elif isinstance(module, logging.Logger):
+        logger = module  # enable passing a logger instance
+    else:
+        raise NotImplementedError
     ch = logging.StreamHandler()
     fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(fmt)
