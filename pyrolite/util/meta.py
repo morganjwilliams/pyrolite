@@ -1,6 +1,9 @@
 from numpydoc.docscrape import FunctionDoc, ClassDoc
+import webbrowser
 import inspect
 
+def take_me_to_the_docs():
+    webbrowser.open('https://pyrolite.rtfd.io')
 
 def sphinx_doi_link(doi):
     return "`{} <https://dx.doi.org/{}>`__".format(doi, doi)
