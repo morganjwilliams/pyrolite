@@ -21,7 +21,7 @@ def spider(
     arr,
     indexes=None,
     ax=None,
-    color="0.5",
+    color=None,
     cmap=__DEFAULT_CONT_COLORMAP__,
     norm=None,
     alpha=1.0,
