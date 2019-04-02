@@ -69,7 +69,7 @@ class TestGridFromRanges(unittest.TestCase):
     def test_default(self):
         out = grid_from_ranges(self.x)
         # default bins = 100
-        self.assertTrue(out[0].size == 100**2)
+        self.assertTrue(out[0].size == 100 ** 2)
 
     def test_bins(self):
         for bins in [2, 10, 50]:
@@ -183,7 +183,8 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
-
+import numpy as np
+np.allclose(np.array([1, 2]), np.array([1, 2]))
 class TestSignificantFigures(unittest.TestCase):
     """
     Tests significant_figures function.
@@ -203,7 +204,7 @@ class TestSignificantFigures(unittest.TestCase):
         ]:
             with self.subTest(vals=vals, unc=unc):
                 sfs = significant_figures(vals, unc=unc)
-                self.assertTrue(np.isclose(sfs, expect, equal_nan=True).all())
+                self.assertTrue(np.allclose(sfs, expect, equal_nan=True))
 
     def test_max_sf(self):
         for max_sf in range(1, 10):
