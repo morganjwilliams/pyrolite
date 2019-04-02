@@ -37,9 +37,18 @@ class TestLinear2D(unittest.TestCase):
         line = Linear2D(self.xy, slope=self.slope)
         line.add_to_axes(ax)
 
+    def test_invert_axes(self):
+        line = Linear2D(self.xy, slope=self.slope)
+        line.invert_axes()
+
     def test_perpendicular_line(self):
         line = Linear2D(self.xy, slope=self.slope)
-        perline = line.perpendicular_line(self.xy)
+        perpline = line.perpendicular_line(self.xy)
+
+    def test_perpendicular_intersect(self):
+        line = Linear2D(self.xy, slope=self.slope)
+        perpline = line.perpendicular_line(self.xy)
+        line.intersect(perpline)
 
     def tearDown(self):
         plt.close("all")
@@ -62,9 +71,18 @@ class TestLogLinear2D(unittest.TestCase):
         line = LogLinear2D(self.xy, p1=self.xy2)
         line.add_to_axes(ax)
 
+    def test_invert_axes(self):
+        line = LogLinear2D(self.xy, p1=self.xy2)
+        line.invert_axes()
+
     def test_perpendicular_line(self):
         line = LogLinear2D(self.xy, slope=self.slope)
-        perline = line.perpendicular_line(self.xy)
+        perpline = line.perpendicular_line(self.xy)
+
+    def test_perpendicular_intersect(self):
+        line = LogLinear2D(self.xy, slope=self.slope)
+        perpline = line.perpendicular_line(self.xy)
+        line.intersect(perpline)
 
     def tearDown(self):
         plt.close("all")
