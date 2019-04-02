@@ -1,9 +1,12 @@
 import unittest
-import io
 import pandas as pd
+import io
 from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.alphamelts.meltsfile import *
+
+def str_as_file(str):
+    return io.BytesIO(str.encode('UTF-8'))
 
 KM0417_RC12_ser = to_numeric(
     pd.DataFrame(
@@ -172,7 +175,7 @@ class Test2MELTSFiles(unittest.TestCase):
         """
         Test the directed replication of specific meltsfiles.
         """
-        for fileobj in [WH_DMM_with_REE, KM0417_RC12]:
+        for fileobj in [str_as_file(WH_DMM_with_REE), str_as_file(KM0417_RC12)]:
             pass
 
 
@@ -181,7 +184,8 @@ class TestFromMELTSFiles(unittest.TestCase):
         pass
 
     def test_from_melts_file(self):
-        from_meltsfile(KM0417_RC12)
+        file = str_as_file(KM0417_RC12)
+        out = from_meltsfile(file)
 
     def test_df_to_melts_files(self):
         pass
@@ -191,8 +195,8 @@ class TestFromMELTSFiles(unittest.TestCase):
         Test the directed replication of specific meltsfile dataframes.
         """
         for ser, file in [
-            (WH_DMM_with_REE_ser, WH_DMM_with_REE),
-            (KM0417_RC12_ser, KM0417_RC12),
+            (WH_DMM_with_REE_ser, str_as_file(WH_DMM_with_REE)),
+            (KM0417_RC12_ser, str_as_file(KM0417_RC12)),
         ]:
             df = to_numeric(ser.to_frame().T, errors="ignore")
             imported = to_numeric(from_meltsfile(file).to_frame().T, errors="ignore")
