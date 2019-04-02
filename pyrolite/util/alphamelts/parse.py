@@ -27,7 +27,9 @@ def from_melts_cstr(composition_str, formula=True):
     sub = r"""[\']+"""
 
     def repl(m):
-        return "{" + str(m[0].count("""'""")) + "+" + "}"  # replace ' with count(')
+        return (
+            "{" + str(m.group(0).count("""'""")) + "+" + "}"
+        )  # replace ' with count(')
 
     tfm = lambda s: re.sub(sub, repl, s)
     if not formula:
