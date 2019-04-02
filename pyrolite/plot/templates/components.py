@@ -1,8 +1,12 @@
+import logging
 import numpy as np
 from pyrolite.util.meta import subkwargs
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.collections import PathCollection
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 class GeometryCollection(object):

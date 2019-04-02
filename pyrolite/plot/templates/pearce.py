@@ -1,8 +1,14 @@
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.util.meta import sphinx_doi_link
 from ...util.meta import sphinx_doi_link, update_docstring_references
 from .components import *
+
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
 
 @update_docstring_references
 def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
