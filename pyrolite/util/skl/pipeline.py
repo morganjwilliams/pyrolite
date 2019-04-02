@@ -18,10 +18,11 @@ except ImportError:
     logger.warning(msg)
 
 try:
-    import imblearn.pipeline
+    from imblearn.pipeline import make_pipeline
 except ImportError:
     msg = "imbalanced-learn not installed"
     logger.warning(msg)
+    from sklearn.pipeline import make_pipeline # fallback to default skl
 
 from .vis import plot_confusion_matrix, plot_gs_results
 
@@ -204,7 +205,7 @@ def SVC_pipeline(
         stages.append(scaler)
 
     stages.append(sklearn.svm.SVC(**classifier_kwargs))  # add the classifier itself
-    pipe = imblearn.pipeline.make_pipeline(*stages)
+    pipe = make_pipeline(*stages)
     gs = GridSearchCV(
         estimator=pipe, param_grid=param_grid, cv=cv, n_jobs=n_jobs, verbose=verbose
     )
