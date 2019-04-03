@@ -7,6 +7,7 @@ import scipy.special
 import matplotlib.pyplot as plt
 import matplotlib.colors
 from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
+from pyrolite.util.meta import inargs, subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -15,6 +16,7 @@ try:
     from sklearn.model_selection import GridSearchCV
     from sklearn.metrics import confusion_matrix
     import sklearn.datasets
+    import sklearn.manifold
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
@@ -167,7 +169,7 @@ def plot_mapping(
         entropy relative to null-scenario of equal distribution across classes, while
         :code:`'kl_div'` calculates the information gain relative to the same
         null-scenario.
-        
+
     Returns
     --------
     ax : :class:`~matplotlib.axes.Axes`
@@ -192,19 +194,23 @@ def plot_mapping(
         mapped = tfm.fit_transform(X)
     elif isinstance(mapping, str):
         if mapping.lower() == "mds":
-            tfm = sklearn.manifold.MDS(n_components=2, metric=True, **kwargs)
+            cls = sklearn.manifold.MDS
+            kw = dict(n_components=2, metric=True)
         elif mapping.lower() == "isomap":
             # not necessarily  consistent orientation, but consistent shape
-            tfm = sklearn.manifold.Isomap(n_components=2, **kwargs)
+            cls = sklearn.manifold.Isomap
+            kw = dict(n_components=2)
         elif mapping.lower() == "tsne":
             # likely need to optimise!
-            tfm = sklearn.manifold.TSNE(n_components=2, **kwargs)
+            tfm = sklearn.manifold.TSNE
+            kw = dict(n_components=2)
         else:
             raise NotImplementedError
+        tfm = cls(**{**kw, **subkwargs(kwargs, cls)})
         mapped = tfm.fit_transform(X)
     elif isinstance(
         mapping, (sklearn.base.TransformerMixin, sklearn.base.BaseEstimator)
-    ): # manifold transforms can be either
+    ):  # manifold transforms can be either
         tfm = mapping
         mapped = tfm.fit_transform(X)
     else:  # mapping is already performedata, expect a numpy.ndarray
@@ -230,15 +236,15 @@ def plot_mapping(
                 max_H = scipy.stats.entropy(netzero)
                 H = np.apply_along_axis(scipy.stats.entropy, 1, ps)
                 min_H = np.min(H, axis=0)
-                rel_H = (H - min_H) / (max_H - min_H)
-                a = 1 - rel_H
+                rel_H = (H - min_H) / (max_H - min_H)  # between zero and one
+                a = 1.0 - rel_H
                 a *= alpha
             else:
                 # alpha as sum of information gain
                 a = np.apply_along_axis(scipy.special.kl_div, 1, ps, netzero).sum(
                     axis=1
                 )
-                a = a / np.max(alpha, axis=0)
+                a = a / np.max(a, axis=0)
                 a *= alpha
             c[:, -1] = a
         else:
