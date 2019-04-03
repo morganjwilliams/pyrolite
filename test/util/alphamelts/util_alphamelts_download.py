@@ -1,6 +1,6 @@
 import unittest
+from pyrolite.util.web import internet_connection
 from pyrolite.util.general import (
-    internet_connection,
     check_perl,
     temp_path,
     remove_tempdir,
