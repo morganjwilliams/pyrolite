@@ -10,7 +10,7 @@ from ...text import titlecase
 from ...general import temp_path, pyrolite_datafolder
 from ...web import urlify, internet_connection, download_file
 
-from .schema import format_GEOROC_response
+from .schema import parse_GEOROC_response
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def bulk_download(
             logger.info(msg)
             try:
                 df = download_file(
-                    url, encoding="latin-1", postprocess=format_GEOROC_response
+                    url, encoding="latin-1", postprocess=parse_GEOROC_response
                 )
                 df.to_csv(outfile.with_suffix(".csv"))
             except requests.exceptions.HTTPError as e:

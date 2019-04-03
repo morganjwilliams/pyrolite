@@ -2,8 +2,9 @@ import logging
 import re
 from functools import partial
 import pandas as pd
-from ...text import parse_entry, split_records
-from ...general import iscollection
+from ...text import parse_entry, split_records, titlecase
+from ...types import iscollection
+from ....geochem.parse import tochem
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -12,6 +13,15 @@ __value_rx__ = r"(\s)*?(?P<value>[\.,\s\w]+\b)((\s)*?\[)?(?P<key>\w*)(\])?(\s)*?
 __cit_rx__ = r"(\s)*?(\[)?(?P<key>\w*)(\])?(\s)*?(?P<value>[\.\w]+)(\s)*?"
 __full_cit_rx__ = r"(\s)*?\[(?P<key>\w*)\](\s)*(?P<value>.+)$"
 __doi_rx__ = r"(.)*(doi(\s)*?:*)(\s)*(?P<value>\S*)"
+
+
+def columns_to_namesunits(names):
+    _units = [re.findall("\((.+)\)", n) for n in names]
+    _units = [i[0].lower().replace(".", "") if i else None for i in _units]
+    _unitless = [re.sub("\(.+\)", "", n) for n in names]
+    _tnames = [titlecase(n, abbrv=["ID"]) for n in _unitless]  # titlecase/camelcase
+    _chemnames = [tochem(n) for n in _tnames]
+    return _chemnames, _units
 
 
 def subsitute_commas(entry):

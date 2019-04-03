@@ -3,16 +3,18 @@ import re
 import pandas as pd
 import numpy as np
 from ...text import titlecase, split_records
-from ....geochem.parse import tochem, check_multiple_cation_inclusion
+from ....geochem.parse import check_multiple_cation_inclusion
 from ....geochem.transform import aggregate_cation
 from ....geochem.norm import scale_multiplier
-from .parse import parse_citations, parse_values, parse_DOI
+from ....geochem.ind import __common_elements__, __common_oxides__
+from ....geochem.validate import is_isotoperatio
+from .parse import parse_citations, parse_values, parse_DOI, columns_to_namesunits
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def format_GEOROC_response(content: str, start_chem="SiO2", end_chem="Nd143Nd144"):
+def parse_GEOROC_response(content: str):
     """
     Formats decoded content from GEOROC as a :class:`pandas.DataFrame`
 
@@ -29,96 +31,132 @@ def format_GEOROC_response(content: str, start_chem="SiO2", end_chem="Nd143Nd144
     -------
     :class:`pandas.DataFrame`
     """
-    # GEOROC Specific Data Working
+    # parse the data and references separately
     data, ref = re.split("\s?References:\s+", content)
-    datalines = [re.split(r'"\s?,\s?"', line) for line in re.split(r",\r", data)]
+    datadf = format_GEOROC_table(data)
+    refdf = format_GEOROC_references(ref)
+    names, units = [i[0] for i in datadf.columns], [i[1] for i in datadf.columns]
+    datadf.index.name = datadf.index.name[0]
+    datadf.columns = names
+    duplicated = list(datadf.columns[datadf.columns.duplicated()])
+    if duplicated:  # could deal with duplicated columns here
+        logger.warning("Duplicated columns: {}".format(", ".join(duplicated)))
+
+    # Replace the reference indexes with references.
+    datadf.Citations = datadf.Citations.apply(
+        lambda lst: "; ".join([refdf.loc[x, "value"] for x in lst])
+    )
+    datadf["doi"] = datadf.Citations.apply(parse_DOI)
+    return datadf
+
+
+def format_GEOROC_table(content):
+    """
+    Parameters
+    ---------
+    content : :class:`str`
+        Decoded string from GEOROC response.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+    """
+    datalines = [re.split(r'"\s?,\s?"', line) for line in re.split(r",\r", content)]
+
+    logger.info("Translating Columns")
     cols = [i.replace('"', "").replace(",", "") for i in datalines[0]]
-    cols = [titlecase(h, abbrv=["ID"]) for h in cols]
-    start = 1
+    translate = {
+        c: {"fmt": f, "units": u} for c, f, u in zip(cols, *columns_to_namesunits(cols))
+    }
+    # use composite tuple (name, units) headers to ensure unique column names
+    cols = [(translate[c]["fmt"], translate[c]["units"]) for c in cols]
+    ppm_columns = [c for c in cols if c[1] == "ppm"]
+
+    logger.info("Constructing DataFrame")
     finish = len(datalines)
     if datalines[-1][0].strip().startswith("Abbreviations"):
         finish -= 1
-    df = pd.DataFrame(datalines[start:finish], columns=cols)
-    cols = list(df.columns)
-    df = df.applymap(lambda x: str(x).replace('"', ""))
+    df = pd.DataFrame(datalines[1:finish], columns=cols)
 
+    duplicated = list(df.columns[df.columns.duplicated()])
+    if duplicated:
+        msg = "Duplicate columns detected: {}".format(duplicated)
+        logger.warning(msg)
+    logger.info("Cleaning DataFrame")
+    df = df.applymap(lambda x: str(x).replace('"', ""))  # remove extraneous "
     # Location names are extended with newlines
-    df.Location = df.Location.apply(lambda x: str(x).replace("\r\n", " / "))
+    df[("Location", None)] = df[("Location", None)].apply(
+        lambda x: str(x).replace("\r\n", " / ")
+    )
+    # convert citations string to list of citation #s
+    df[("Citations", None)] = df[("Citations", None)].apply(
+        lambda x: re.findall(r"[\d]+", x)
+    )
 
-    df.Citations = df.Citations.apply(lambda x: re.findall(r"[\d]+", x))
-    # df = df.drop(index=df.index[~df.Citations.apply(lambda x: len(x))])
-    # Drop Empty Rows
+    logger.info("Dropping Empty Rows")
     df = df.dropna(how="all", axis=0)
-    df = df.set_index("UniqueID", drop=True)
+    logger.info("Reindexing")
+    df = df.set_index(("UniqueID", None), drop=True)
+    logger.info("Parsing Data")
     df = df.apply(parse_values, axis=1)
 
-    # Translate headers and data units
-    cols = tochem([c.replace("(wt%)", "").replace("(ppm)", "") for c in df.columns])
-    start = cols.index("SiO2")
-    end = cols.index("143Nd144Nd")
-    where_ppm = [
-        (("ppm" in t) and (ix >= start and ix <= end))
-        for ix, t in enumerate(df.columns)
-    ]
-
-    # Rename columns
-    df.columns = cols
-    headercols = list(df.columns[:start])
-    chemcols = list(df.columns[start:end])
-    trailingcols = list(df.columns[end:])  # trailing are generally isotope ratios
-    # Numeric data
+    chems = __common_oxides__ | __common_elements__
+    chemcols = [i for i in df.columns if i[0] in chems]
+    isocols = [c for c in df.columns if is_isotoperatio(c[0])]  # isotope ratios
+    iniisocols = [
+        c
+        for c in df.columns
+        if is_isotoperatio(c[0].replace("Ini", "")) and (not is_isotoperatio(c[0]))
+    ]  # initial isotope ratios
 
     numheaders = [
-        "ElevationMin",
-        "ElevationMax",
-        "LatitudeMin",
-        "LatitudeMax",
-        "LongitudeMin",
-        "LongitudeMax",
-        "Min.Age(yrs.)",
-        "Max.Age(yrs.)",
+        c
+        for c in df.columns
+        if c[0]
+        in [
+            "ElevationMin",
+            "ElevationMax",
+            "LatitudeMin",
+            "LatitudeMax",
+            "LongitudeMin",
+            "LongitudeMax",
+            "MinAge",
+            "MaxAge",
+        ]
     ]
 
-    numeric_cols = numheaders + chemcols + trailingcols
-    # can include duplicates at this stage.
-    numeric_cols = [i for i in df.columns if i in numeric_cols]
-    numeric_ixs = [ix for ix, i in enumerate(df.columns) if i in numeric_cols]
-    df[numeric_cols] = df.iloc[:, numeric_ixs].apply(
+    numeric_cols = numheaders + chemcols + isocols + iniisocols
+    logger.info("Converting numeric data for columns : {}".format(numeric_cols))
+    df[numeric_cols] = df.loc[:, numeric_cols].apply(
         pd.to_numeric, errors="coerce", axis=1
     )
     # remove <0.
-    chem_ixs = [ix for ix, i in enumerate(df.columns) if i in chemcols]
-    df.iloc[:, chem_ixs] = df.iloc[:, chem_ixs].mask(
-        df.iloc[:, chem_ixs] <= 0.0, other=np.nan
+    df.loc[:, chemcols] = df.loc[:, chemcols].mask(
+        df.loc[:, chemcols] <= 0.0, other=np.nan
     )
-
     # units conversion -- convert to Wt%
-    df.iloc[:, where_ppm] *= scale_multiplier("ppm", "Wt%")
+    logger.info("Converting ppm data to Wt%")
+    df.loc[:, ppm_columns] *= scale_multiplier("ppm", "Wt%")
+    df.columns = [(i[0], "wt%") if i in ppm_columns else i for i in df.columns]
+    return df
 
-    # deal with duplicate columns
-    collist = list(df.columns)
-    dup_chemcols = df.columns[
-        df.columns.duplicated() & [i in chemcols for i in collist]
-    ]
-    for chem in dup_chemcols:
-        # replace the first (non-duplicated) column with the sum
-        ix = collist.index(chem)
-        df.iloc[:, ix] = df.loc[:, chem].apply(np.nansum, axis=1)
 
-    df = df.iloc[:, ~df.columns.duplicated()]
+def format_GEOROC_references(content):
+    """
+    Parameters
+    ---------
+    content : :class:`str`
+        Decoded string from GEOROC response.
 
-    # Process the reference data.
-    reflines = split_records(ref)
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+    """
+    reflines = split_records(content)
     reflines = [line.replace('"', "") for line in reflines]
     reflines = [line.replace("\r\n", "") for line in reflines]
     reflines = [parse_citations(i) for i in reflines if i]
-    refdf = pd.DataFrame.from_records(reflines).set_index("key", drop=True)
-    # Replace the reference indexes with references.
-    df.Citations = df.Citations.apply(
-        lambda lst: "; ".join([refdf.loc[x, "value"] for x in lst])
-    )
-    df["doi"] = df.Citations.apply(parse_DOI)
-    return df
+    return pd.DataFrame.from_records(reflines).set_index("key", drop=True)
 
 
 def georoc_munge(df):
@@ -130,7 +168,7 @@ def georoc_munge(df):
         * combine GEOL and AGE columns for geological ages
     """
     df = aggregate_cation(df, "Ti", form="element")
-    df.loc[:, "GeolAge"] = df.loc[:, "Geol."].replace("None", "") + df.Age
+    df.loc[:, "GeolAge"] = df.loc[:, "Geol"].replace("None", "") + df.Age
 
     df.loc[:, "Lat"] = (df.LatitudeMax + df.LatitudeMin) / 2.0
     df.loc[:, "Long"] = (df.LongitudeMax + df.LongitudeMin) / 2.0

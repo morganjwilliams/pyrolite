@@ -1,9 +1,42 @@
 from numpydoc.docscrape import FunctionDoc, ClassDoc
 import webbrowser
 import inspect
+import logging
+
+
+def stream_log(module, level="INFO"):
+    """
+    Stream the log from a specific package or subpackage.
+
+    Parameters
+    ----------
+    module : :class:`str` | :class:`logging.Logger`
+        Name of the module to monitor logging from.
+    level : :class:`str`, :code:`'INFO'`
+        Logging level at which to set the handler output.
+
+    Returns
+    -------
+    :class:`logging.Logger`
+        Logger for the specified package with stream handler added.
+    """
+    if isinstance(module, str):
+        logger = logging.getLogger(module)
+    elif isinstance(module, logging.Logger):
+        logger = module  # enable passing a logger instance
+    else:
+        raise NotImplementedError
+    ch = logging.StreamHandler()
+    fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(fmt)
+    logger.addHandler(ch)
+    logger.setLevel(getattr(logging, level))
+    return logger
+
 
 def take_me_to_the_docs():
-    webbrowser.open('https://pyrolite.rtfd.io')
+    webbrowser.open("https://pyrolite.rtfd.io")
+
 
 def sphinx_doi_link(doi):
     return "`{} <https://dx.doi.org/{}>`__".format(doi, doi)

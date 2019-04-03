@@ -1,6 +1,6 @@
 import unittest
 from pyrolite.util.web import internet_connection, download_file
-from pyrolite.util.repositories.georoc import format_GEOROC_response, georoc_munge
+from pyrolite.util.repositories.georoc import parse_GEOROC_response, georoc_munge
 from pyrolite.geochem.parse import check_multiple_cation_inclusion
 
 
@@ -15,7 +15,7 @@ class TestGEOROCMunge(unittest.TestCase):
         )
 
         self.df = download_file(
-            self.test_url, encoding="latin-1", postprocess=format_GEOROC_response
+            self.test_url, encoding="latin-1", postprocess=parse_GEOROC_response
         )
 
     def test_munge(self):

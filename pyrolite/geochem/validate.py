@@ -52,6 +52,10 @@ def is_isotoperatio(s):
     Returns
     --------
     :class:`bool`
+
+    Todo
+    -----
+        * Validate the isotope masses vs natural isotopes
     """
     if s not in __common_oxides__:
         isotopes = get_isotopes(s)

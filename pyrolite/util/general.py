@@ -50,36 +50,6 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-def stream_log(module, level="INFO"):
-    """
-    Stream the log from a specific package or subpackage.
-
-    Parameters
-    ----------
-    module : :class:`str` | :class:`logging.Logger`
-        Name of the module to monitor logging from.
-    level : :class:`str`, :code:`'INFO'`
-        Logging level at which to set the handler output.
-
-    Returns
-    -------
-    :class:`logging.Logger`
-        Logger for the specified package with stream handler added.
-    """
-    if isinstance(module, str):
-        logger = logging.getLogger(module)
-    elif isinstance(module, logging.Logger):
-        logger = module  # enable passing a logger instance
-    else:
-        raise NotImplementedError
-    ch = logging.StreamHandler()
-    fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-    ch.setFormatter(fmt)
-    logger.addHandler(ch)
-    logger.setLevel(getattr(logging, level))
-    return logger
-
-
 def pyrolite_datafolder(subfolder=None):
     """Returns the path of the pyrolite data folder."""
     pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
@@ -95,33 +65,10 @@ def pathify(path):
     return path
 
 
-
 def temp_path(suffix=""):
     """Return the path of a temporary directory."""
     dir = mkdtemp(suffix=suffix)
     return Path(dir)
-
-
-def iscollection(obj):
-    """
-    Checks whether an object is an iterable collection.
-
-    Parameters
-    ----------
-    obj : :class:`object`
-        Object to check.
-
-    Returns
-    -------
-    :class:`bool`
-        Boolean indication of whether the object is a collection.
-    """
-
-    for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
-        if isinstance(obj, ty):
-            return True
-
-    return False
 
 
 def check_perl():

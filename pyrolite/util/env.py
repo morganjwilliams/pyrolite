@@ -1,6 +1,6 @@
 import os, sys
 from contextlib import contextmanager
-from .general import iscollection
+from .types import iscollection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
