@@ -23,13 +23,17 @@ def parse_GEOROC_response(content: str):
     content : :class:`str`
         Decoded string from GEOROC response.
 
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+
     Notes
     -----
         * Chemical abundance data are output as Wt% by default.
 
-    Returns
-    -------
-    :class:`pandas.DataFrame`
+    Todo
+    ------
+        * Use custom types as column headers to avoid needing tuples
     """
     # parse the data and references separately
     data, ref = re.split("\s?References:\s+", content)
@@ -60,10 +64,18 @@ def format_GEOROC_table(content):
     Returns
     -------
     :class:`pandas.DataFrame`
+
+    Notes
+    -----
+        * Chemical abundance data are output as Wt% by default.
+
+    Todo
+    ------
+        * Use custom types as column headers to avoid needing tuples
     """
     datalines = [re.split(r'"\s?,\s?"', line) for line in re.split(r",\r", content)]
 
-    logger.info("Translating Columns")
+    logger.debug("Translating Columns")
     cols = [i.replace('"', "").replace(",", "") for i in datalines[0]]
     translate = {
         c: {"fmt": f, "units": u} for c, f, u in zip(cols, *columns_to_namesunits(cols))
@@ -72,7 +84,7 @@ def format_GEOROC_table(content):
     cols = [(translate[c]["fmt"], translate[c]["units"]) for c in cols]
     ppm_columns = [c for c in cols if c[1] == "ppm"]
 
-    logger.info("Constructing DataFrame")
+    logger.debug("Constructing DataFrame")
     finish = len(datalines)
     if datalines[-1][0].strip().startswith("Abbreviations"):
         finish -= 1
@@ -82,7 +94,7 @@ def format_GEOROC_table(content):
     if duplicated:
         msg = "Duplicate columns detected: {}".format(duplicated)
         logger.warning(msg)
-    logger.info("Cleaning DataFrame")
+    logger.debug("Cleaning DataFrame")
     df = df.applymap(lambda x: str(x).replace('"', ""))  # remove extraneous "
     # Location names are extended with newlines
     df[("Location", None)] = df[("Location", None)].apply(
@@ -93,11 +105,11 @@ def format_GEOROC_table(content):
         lambda x: re.findall(r"[\d]+", x)
     )
 
-    logger.info("Dropping Empty Rows")
+    logger.debug("Dropping Empty Rows")
     df = df.dropna(how="all", axis=0)
-    logger.info("Reindexing")
+    logger.debug("Reindexing")
     df = df.set_index(("UniqueID", None), drop=True)
-    logger.info("Parsing Data")
+    logger.debug("Parsing Data")
     df = df.apply(parse_values, axis=1)
 
     chems = __common_oxides__ | __common_elements__
@@ -126,7 +138,7 @@ def format_GEOROC_table(content):
     ]
 
     numeric_cols = numheaders + chemcols + isocols + iniisocols
-    logger.info("Converting numeric data for columns : {}".format(numeric_cols))
+    logger.debug("Converting numeric data for columns : {}".format(numeric_cols))
     df[numeric_cols] = df.loc[:, numeric_cols].apply(
         pd.to_numeric, errors="coerce", axis=1
     )
@@ -135,7 +147,7 @@ def format_GEOROC_table(content):
         df.loc[:, chemcols] <= 0.0, other=np.nan
     )
     # units conversion -- convert to Wt%
-    logger.info("Converting ppm data to Wt%")
+    logger.debug("Converting ppm data to Wt%")
     df.loc[:, ppm_columns] *= scale_multiplier("ppm", "Wt%")
     df.columns = [(i[0], "wt%") if i in ppm_columns else i for i in df.columns]
     return df
@@ -165,7 +177,7 @@ def georoc_munge(df):
 
     Todo
     ------
-        * combine GEOL and AGE columns for geological ages
+        * Combine GEOL and AGE columns for geological ages
     """
     df = aggregate_cation(df, "Ti", form="element")
     df.loc[:, "GeolAge"] = df.loc[:, "Geol"].replace("None", "") + df.Age
