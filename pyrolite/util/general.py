@@ -15,12 +15,6 @@ import datetime
 import logging
 
 
-try:
-    import httplib
-except:
-    import http.client as httplib
-
-
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
@@ -100,36 +94,6 @@ def pathify(path):
         path = Path(path)
     return path
 
-
-def urlify(url):
-    """Strip a string to return a valid URL."""
-    return url.strip().replace(" ", "_")
-
-
-def internet_connection(target="www.google.com"):
-    """
-    Tests for an active internet connection, based on an optionally specified
-    target.
-
-    Parameters
-    ----------
-    target : :class:`str`
-        URL to check connectivity, defaults to www.google.com
-
-    Returns
-    -------
-    :class:`bool`
-        Boolean indication of whether a HTTP connection can be established at the given
-        url.
-    """
-    conn = httplib.HTTPConnection(target, timeout=5)
-    try:
-        conn.request("HEAD", "/")
-        conn.close()
-        return True
-    except:
-        conn.close()
-        return False
 
 
 def temp_path(suffix=""):
