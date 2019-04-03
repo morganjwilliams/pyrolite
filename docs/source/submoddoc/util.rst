@@ -34,11 +34,13 @@ pyrolite\.util\.math
       :members:
       :undoc-members:
 
-pyrolite\.util\.georoc
+pyrolite\.util\.repositories
 -------------------------------
-  .. automodule:: pyrolite.util.georoc
-      :members:
-      :undoc-members:
+  .. toctree::
+     :maxdepth: 2
+
+     repositories
+
 
 pyrolite\.util\.skl
 -------------------------------

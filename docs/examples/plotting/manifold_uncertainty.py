@@ -18,9 +18,9 @@ gs = svc.fit(data, target)
 fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 ax[0].set_title("Mapping - True Classes")
 ax[1].set_title("Mapping - Classification & Certainty")
-a, tfm, mapped = plot_mapping(data, gs.best_estimator_, ax=ax[1], s=10, init="pca")
-ax[0].scatter(*mapped.T, c=__DEFAULT_DISC_COLORMAP__(target), s=10)
-# %% --
+a, tfm, mapped = plot_mapping(data, gs.best_estimator_, ax=ax[1], s=30, init="pca")
+ax[0].scatter(*mapped.T, c=__DEFAULT_DISC_COLORMAP__(target), s=30)
+# %% Save Figure
 from pyrolite.util.plot import save_figure
 
-save_figure(fig, save_at="../../source/_static", name="PlotMapping")
+save_figure(fig, save_at="../../source/_static", name="manifold_uncertainty")
