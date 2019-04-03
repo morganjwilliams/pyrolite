@@ -4,22 +4,22 @@ import time
 from pyrolite.util.web import internet_connection
 from pyrolite.util.general import temp_path, remove_tempdir
 from pyrolite.util.repositories.georoc.download import (
-    get_georoc_links,
-    update_georoc_filelist,
-    bulk_GEOROC_download,
+    get_filelinks,
+    update_filelist,
+    bulk_download,
 )
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestGetGEOROCLinks(unittest.TestCase):
     def test_get_links(self):
-        links = get_georoc_links(exclude=[])
+        links = get_filelinks(exclude=[])
         self.assertIn("Minerals", links.keys())
 
     def test_exclude(self):
         for exclude in [["Minerals"], ["Minerals", "Rocks"]]:
             with self.subTest(exclude=exclude):
-                links = get_georoc_links(exclude=exclude)
+                links = get_filelinks(exclude=exclude)
                 for i in exclude:
                     self.assertNotIn(i, links.keys())
 
@@ -34,7 +34,7 @@ class TestUpdateGEOROCFilelist(unittest.TestCase):
         self.initial_last_modification_time = os.stat(str(self.filepath)).st_mtime
 
     def test_update_filelist(self):
-        update_georoc_filelist(filepath=self.filepath)
+        update_filelist(filepath=self.filepath)
         time.sleep(2)  # sleep two seconds to allow updating
         new_modification_time = os.stat(str(self.filepath)).st_mtime
         self.assertTrue(self.filepath.exists())
@@ -53,11 +53,14 @@ class TestBulkGEOROCCompilation(unittest.TestCase):
         self.res = ["OBFB"]
 
     def test_dataframe_return(self):
-        bulk_GEOROC_download(output_folder=self.temp_dir, reservoirs=self.res)
+        bulk_download(output_folder=self.temp_dir, collections=self.res)
 
     def tearDown(self):
         remove_tempdir(self.temp_dir)
 
 
+from pyrolite.util.repositories.georoc.download import __CONTENTS__
+
+[__CONTENTS__[k]["abbrv"] for k in __CONTENTS__]
 if __name__ == "__main__":
     unittest.main()

@@ -21,6 +21,10 @@ def format_GEOROC_response(content: str, start_chem="SiO2", end_chem="Nd143Nd144
     content : :class:`str`
         Decoded string from GEOROC response.
 
+    Notes
+    -----
+        * Chemical abundance data are output as Wt% by default.
+
     Returns
     -------
     :class:`pandas.DataFrame`

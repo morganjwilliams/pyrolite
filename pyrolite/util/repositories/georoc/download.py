@@ -18,144 +18,108 @@ logger = logging.getLogger(__name__)
 __contents_file__ = pyrolite_datafolder(subfolder="georoc") / "contents.json"
 
 
-def bulk_GEOROC_download(
-    output_folder=Path("~/Downloads/GEOROC"),
-    reservoirs=None,
-    redownload: bool = False,
-    write_hdf: bool = False,
-    write_pickle: bool = False,
+def bulk_download(
+    output_folder=Path("~/Downloads/GEOROC"), collections=None, redownload: bool = False
 ):
     """
     Download utility for GEOROC data. Facilitates incremental and resumed
-    downloadsself. Output data will be organised into folders by reservoir, and
-    stored as both i) individual CSVs and ii) a picked pd.DataFrame.
-
-    Notes
-    -----
-        Chemical abundance data are output as Wt% by default.
-
+    downloads. Output data will be organised into folders by reservoir, and
+    stored as individual CSVs.
 
     Parameters
     ----------
     output_folder : :class:`str` | :class:`pathlib.Path`
         Path to folder to store output data.
-    reservoirs : :class:`list`, :code:`None`
-        List of names (e.g. 'ConvergentMargins') or abbrevaitions (e.g. 'CM') for
+    collections : :class:`list`, :code:`None`
+        List of names (e.g. 'ConvergentMargins') or abbreviations (e.g. 'CM') for
         GEOROC compilations to download.
     redownload : :class:`bool`, :code:`False`
         Whether to redownload prevoiusly downloaded compilations.
-    write_hdf : :class:`bool`, :code:`False`
-        Whether to create HDF5 files for each compilation.
-    write_pickle : :class:`bool`, :code:`False`
-        Whether to create pickle files for each compilation.
     """
 
     output_folder = output_folder or temp_path()
     output_folder = Path(output_folder)
     output_folder = output_folder.expanduser()
 
-    update_georoc_filelist()
+    update_filelist()
 
-    reservoirs = reservoirs or __CONTENTS__.keys()
-    abbrvs = {__CONTENTS__[k]["abbrv"]: k for k in __CONTENTS__}
+    # construct a dictionary of form {name : filelist}
+    if collections is None:  # unspecified, get everything
+        __colls__ = __CONTENTS__
+    elif isinstance(collections, dict):
+        # get all the dictionary values are dictionaries, try to get the files attr
+        __colls__ = {c: getattr(v, "files", v) for c, v in collections.items()}
+    elif isinstance(collections, (list, tuple)):
+        if isinstance(collections[0], (list, tuple)):  # list of lists
+            # specifiying collections and list of files
+            __colls__ = {c: v for c, v in collections}
+        else:  # list of names
+            # subset of georoc collections
+            __colls__ = {}
+            abbrvs = {__CONTENTS__[c]["abbrv"]: __CONTENTS__[c] for c in __CONTENTS__}
+            subset = [i for i in collections if i in __CONTENTS__ or i in abbrvs]
+            for c in collections:
+                if c in __CONTENTS__:
+                    __colls__ = {**__colls__, **{c: __CONTENTS__[c]["files"]}}
+                elif c in abbrvs:
+                    __colls__ = {**__colls__, **{c: abbrvs[c]["files"]}}
+                else:
+                    logger.warn("Collection not recognised : {}".format(c))
+    else:
+        logger.warn("Format of collections not recognised.")
 
-    if not redownload:
-        logger.info("Bulk download for {} beginning.".format(", ".join(reservoirs)))
+    logger.info("Beginning bulk download for {}.".format(", ".join(__colls__.keys())))
 
     completed = []
-    for res in reservoirs:
-        if res in __CONTENTS__.keys():
-            resname = res
-            resabbrv = v["abbrv"]
-        elif res in abbrvs:
-            resname = abbrvs[res]
-            resabbrv = res
-        else:
-            msg = "Unknown reservoir requested: {}".format(res)
-            logger.warn(msg)
-        if resname:
-            v = __CONTENTS__[resname]
+    for res in __colls__:
+        resdir = output_folder / res
+        if not resdir.exists():
+            resdir.mkdir(parents=True)
 
-            resdir = output_folder / res
-            if not resdir.exists():
-                resdir.mkdir(parents=True)
+        files = __colls__[res]  # Compilation List of Targets
+        base_url = r"http://georoc.mpch-mainz.gwdg.de" + "/georoc/Csv_Downloads"
 
-            out_aggfile = resdir / ("_" + res)
+        if not redownload:
+            # Just get the ones we don't have, continuing from last 'save'
+            logger.info("Downloading only undownloaded files.")
+            stems = [(resdir / urlify(f)).stem for f in files]
+            current_files = [f.stem for f in resdir.iterdir() if f.is_file()]
+            files = [f for f, s in zip(files, stems) if not s in current_files]
 
-            # Compilation List of Targets
-            filenames = v["files"]
+        dataseturls = [
+            (urlify(d), base_url + r"/" + urlify(d)) for d in files if d.strip()
+        ]
 
-            # URL target
-            host = r"http://georoc.mpch-mainz.gwdg.de"
-            base_url = host + "/georoc/Csv_Downloads"
-
-            # Files yet to download, continuing from last 'save'
-            dwnld_fns = filenames
-            if not redownload:
-                # Just get the ones we don't have,
-                logger.info("Downloading only undownloaded files.")
-                dwnld_stems = [(resdir / urlify(f)).stem for f in dwnld_fns]
-                current_files = [f.stem for f in resdir.iterdir() if f.is_file()]
-                dwnld_fns = [
-                    f for f, s in zip(dwnld_fns, dwnld_stems) if not s in current_files
-                ]
-
-            dataseturls = [
-                (urlify(d), base_url + r"/" + urlify(d)) for d in dwnld_fns if d.strip()
-            ]
-
-            for name, url in dataseturls:
-                if "/" in name:
-                    name = name.split("/")[-1]
-                outfile = (resdir / name).with_suffix("")
-                msg = "Downloading {} {} dataset to {}.".format(res, name, outfile)
-                logger.info(msg)
-                try:
-                    df = download_file(
-                        url, encoding="latin-1", postprocess=format_GEOROC_response
-                    )
-                    df.to_csv(outfile.with_suffix(".csv"))
-                except requests.exceptions.HTTPError as e:
-                    pass
-
-            if write_hdf or write_pickle:
-                aggdf = df_from_csvs(resdir.glob("*.csv"), ignore_index=True)
-                msg = "Aggregated {} datasets ({} records).".format(
-                    res, aggdf.index.size
+        for name, url in dataseturls:
+            if "/" in name:
+                name = name.split("/")[-1]
+            outfile = (resdir / name).with_suffix("")
+            msg = "Downloading {} {} dataset to {}.".format(res, name, outfile)
+            logger.info(msg)
+            try:
+                df = download_file(
+                    url, encoding="latin-1", postprocess=format_GEOROC_response
                 )
-                logger.info(msg)
-
-                # Save the compilation
-                if write_pickle:
-                    sparse_pickle_df(aggdf, out_aggfile)
-
-                if write_hdf:
-                    min_itemsize = {
-                        c: 100 for c in aggdf.columns[aggdf.dtypes == "object"]
-                    }
-                    min_itemsize.update({"Citations": 1200})
-                    aggdf.to_hdf(
-                        out_aggfile.with_suffix(".h5"),
-                        out_aggfile.stem,
-                        min_itemsize=min_itemsize,
-                        mode="w",
-                    )
-
-            logger.info("Download and aggregation for {} finished.".format(res))
-            completed.append(res)
+                df.to_csv(outfile.with_suffix(".csv"))
+            except requests.exceptions.HTTPError as e:
+                pass
+        logger.info("Download and aggregation for {} finished.".format(res))
+        completed.append(res)
     logger.info("Bulk download for {} completed.".format(", ".join(completed)))
 
 
-def get_georoc_links(
+def get_filelinks(
     page="http://georoc.mpch-mainz.gwdg.de/georoc/CompFiles.aspx",
     exclude=["Minerals", "Rocks", "Inclusions", "Georoc"],
 ):
     """
+    Get the links for all compliation files from the GEOROC website.
+
     Parameters
     ------------
-    page: {str, HTTPResponse}
+    page : :class:`str` | :class:`http.client.HTTPResponse`
         String URL or http.client.HTTPResponse to scrape for links.
-    exclude: list
+    exclude : :class:`list`
         List of collections not to get links for.
     """
     if isinstance(page, str):
@@ -181,21 +145,31 @@ def get_georoc_links(
     return contents
 
 
-def update_georoc_filelist(
-    filepath=pyrolite_datafolder(subfolder="georoc") / "contents.json"
-):
+def update_filelist(filepath=pyrolite_datafolder(subfolder="georoc") / "contents.json"):
     """
     Update a local copy listing the compilations available from GEOROC.
+
+    Parameters
+    ----------
+    filepath : :class:`str` | :class:`pathlib.Path`
+        Path at which to save the filelist dictionary.
+
+    Returns
+    -------
+    :class:`dict`
+        Dictionary of GEOROC section compilations.
     """
     try:
         assert internet_connection(target="georoc.mpch-mainz.gwdg.de")
-        contents = get_georoc_links()
+        contents = get_filelinks()
 
         with open(str(filepath), "w+") as fh:
             fh.write(json.dumps(contents))
     except AssertionError:
         msg = "Unable to make onnection to GEOROC to update compilation lists."
         logger.warning(msg)
+
+    return contents
 
 
 if __contents_file__.exists():
@@ -205,6 +179,6 @@ else:
     if not __contents_file__.parent.exists():
         __contents_file__.parent.mkdir(parents=True)
     __CONTENTS__ = {}
-    update_georoc_filelist()
+    update_filelist()
     with open(str(__contents_file__)) as fh:
         __CONTENTS__ = json.loads(fh.read())
