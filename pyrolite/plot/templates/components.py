@@ -199,6 +199,11 @@ class Linear2D(object):
         -----------
         centre : :class:`numpy.ndarray`
             Array containing the point which the perpendicular line passes through.
+
+        Returns
+        --------
+        :class:`Linear2D`
+            Line instance.
         """
         return self.__class__(np.array(centre), slope=-1 / self.slope, **kwargs)
 

@@ -42,12 +42,13 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
         listified = True
 
     # translate elements and oxides
-    chems = __common_elements__ | __common_oxides__
+    # elements second, Co guaranteed to override CO for python 3.6 +
+    chems = __common_oxides__ | __common_elements__
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
 
     # translate potential isotope ratios
-    strings = [repr_isotope_ratio(h) for h in strings]
+    strings = [h if (h in chems) else repr_isotope_ratio(h) for h in strings]
     if listified:
         strings = strings[0]
     return strings

@@ -3,7 +3,7 @@ import numpy as np
 from .general import pyrolite_datafolder
 from .pd import to_frame, to_numeric
 from .text import titlecase, string_variations
-from .general import iscollection
+from .types import iscollection
 from collections import ChainMap, defaultdict
 import logging
 

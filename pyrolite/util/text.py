@@ -41,7 +41,7 @@ def titlecase(
     exceptions=["and", "in", "a"],
     abbrv=["ID", "IGSN", "CIA", "CIW", "PIA", "SAR", "SiTiIndex", "WIP"],
     capitalize_first=True,
-    split_on="[\s_-]+",
+    split_on="[\.\s_-]+",
     delim="",
 ):
     """

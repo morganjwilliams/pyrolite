@@ -8,9 +8,9 @@ from pyrolite.util.general import (
     copy_file,
     extract_zip,
     remove_tempdir,
-    internet_connection,
     check_perl,
 )
+from pyrolite.util.web import internet_connection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

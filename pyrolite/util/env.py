@@ -1,28 +1,10 @@
 import os, sys
 from contextlib import contextmanager
-from .general import iscollection
+from .types import iscollection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-@contextmanager
-def environment_manager(env):
-    """
-    Temporarily set environment variables inside the context manager and
-    fully restore previous environment afterwards.
-    """
-    original_env = {key: os.getenv(key) for key in env}
-    os.environ.update(env)
-    try:
-        yield
-    finally:
-        for key, value in original_env.items():
-            if value is None:
-                del os.environ[key]
-            else:
-                os.environ[key] = value
 
 
 def validate_value(value, validator):
@@ -40,7 +22,7 @@ def validate_update_envvar(
     """
     Updates an environment variable after validation.
 
-    parameters
+    Parameters
 
     """
     schema = variable_model.get(key, None)
