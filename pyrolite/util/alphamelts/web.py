@@ -2,7 +2,7 @@ import logging
 import requests
 import dicttoxml, xmljson
 from xml.etree import ElementTree as ET
-from pyrolite.util.general import internet_connection
+from pyrolite.util.web import internet_connection
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -14,10 +14,14 @@ def melts_query(data_dict, url_sfx="Compute"):
 
     Parameters
     ----------
-    data_dict : dict
+    data_dict : :class:`dict`
         Dictionary containing data to be sent to the web query.
-    url_sfx : str, Compute
+    url_sfx : :class:`str`, :code:`Compute`
         URL suffix to denote specific web service (Compute | Oxides | Phases).
+
+    Returns
+    --------
+    :class:`dict`
     """
     try:
         assert internet_connection()
@@ -40,8 +44,12 @@ def melts_compute(data_dict):
 
     Parameters
     ----------
-    data_dict : dict
+    data_dict : :class:`dict`
         Dictionary containing data to be sent to the Compute web query.
+
+    Returns
+    --------
+    :class:`dict`
     """
     url_sfx = "Compute"
     result = melts_query(data_dict, url_sfx=url_sfx)
@@ -55,8 +63,12 @@ def melts_oxides(data_dict):
 
     Parameters
     ----------
-    data_dict : dict
+    data_dict : :class:`dict`
         Dictionary containing data to be sent to the Oxides web query.
+
+    Returns
+    --------
+    :class:`dict`
     """
     model = data_dict["initialize"].pop("modelSelection", "MELTS_v1.0.x")
     data_dict = {"modelSelection": model}
@@ -71,8 +83,12 @@ def melts_phases(data_dict):
 
     Parameters
     ----------
-    data_dict : dict
+    data_dict : :class:`dict`
         Dictionary containing data to be sent to the Phases web query.
+
+    Returns
+    --------
+    :class:`dict`
     """
     model = data_dict["initialize"].pop("modelSelection", "MELTS_v1.0.x")
     data_dict = {"modelSelection": model}

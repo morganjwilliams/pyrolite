@@ -1,5 +1,5 @@
 import unittest
-from pyrolite.util.general import internet_connection
+from pyrolite.util.web import internet_connection
 from pyrolite.util.alphamelts.util import default_data_dictionary
 from pyrolite.util.alphamelts.web import *
 
