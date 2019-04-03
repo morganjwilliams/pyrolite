@@ -1,6 +1,6 @@
 import os
 import logging
-from pyrolite.util.env import environment_manager, validate_update_envvar
+from pyrolite.util.env import validate_update_envvar
 from pyrolite.util.text import remove_prefix
 from pyrolite.data.alphamelts.env import MELTS_environment_variables
 
