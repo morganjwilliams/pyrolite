@@ -6,7 +6,7 @@ import pandas_flavor as pf
 from ..util.pd import to_frame
 from ..comp.codata import renormalise, close
 from ..util.text import titlecase
-from ..util.general import iscollection
+from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
 from .norm import ReferenceCompositions, RefComp, scale_multiplier
