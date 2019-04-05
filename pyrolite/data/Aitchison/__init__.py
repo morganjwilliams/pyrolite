@@ -14,6 +14,7 @@ import logging
 from ...util.meta import pyrolite_datafolder, sphinx_doi_link
 from ...util.text import titlecase
 from ...comp.codata import renormalise
+
 __doc__ = __doc__.format(aitchison1984=sphinx_doi_link("10.1007/BF01029316"))
 __doc__ = str(__doc__).replace("ref", __name__)
 
@@ -22,12 +23,13 @@ logger = logging.getLogger(__name__)
 
 __folder__ = pyrolite_datafolder(subfolder="Aitchison")
 
+
 def _load_frame(filename):
     path = __folder__ / filename
     df = pd.read_csv(path)
     df.loc[:, ["A", "B", "C", "D", "E"]] = df.loc[
         :, ["A", "B", "C", "D", "E"]
-    ].renormalise() # some of these are not closed to 100%
+    ].renormalise()  # some of these are not closed to 100%
     df = df.set_index("Specimen")
     df.name = titlecase(path.stem)
     return df
