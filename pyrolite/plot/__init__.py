@@ -136,19 +136,21 @@ class pyroplot(object):
             obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
         )
         tax = ax.tax
-        # python-ternary uses "right, top, left"
-        # Check if there's already labels
+
+        def set_labels(labels): # local function to set ternary labels
+            tax.right_axis_label(labels[0], fontsize=fontsize)
+            tax.left_axis_label(labels[1], fontsize=fontsize)
+            tax.bottom_axis_label(labels[2], fontsize=fontsize)
+
         if axlabels is not None:
             if not len(tax._labels.keys()) and axlabels:
-                tax.right_axis_label(components[0], fontsize=fontsize)
-                tax.left_axis_label(components[1], fontsize=fontsize)
-                tax.bottom_axis_label(components[2], fontsize=fontsize)
+                set_labels(components)
             elif len(tax._labels.keys()) and not axlabels:  # are labels, should be none
-                tax.right_axis_label(None)
-                tax.left_axis_label(None)
-                tax.bottom_axis_label(None)
+                set_labels([None, None None])
             else:
                 pass
+        else:  # label by default
+            set_labels(components)
         ax.set_aspect("equal")
         return ax
 
