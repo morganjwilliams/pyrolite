@@ -44,3 +44,4 @@ ax.tax.scatter(
     color="r",
     label="LogMean",
 )
+ax.figure
