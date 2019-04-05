@@ -12,7 +12,11 @@ Compositional Data?
 .. literalinclude:: ../../../../examples/comp/compositional_data.py
   :language: python
   :start-after: # %% Data
-  :end-before: # %% Simple Means and covariance
+  :end-before: # %% Save Figure
+
+.. image:: ../../../_static/KongiteDataHist.png
+  :width: 100%
+  :align: center
 
 .. literalinclude:: ../../../../examples/comp/compositional_data.py
   :language: python
