@@ -2,6 +2,7 @@ import unittest
 import pyrolite
 from pyrolite.util.synthetic import test_df
 from pyrolite.util.units import *
+from pyrolite.util.units import scale, __UNITS__
 
 
 class TestScaleFunction(unittest.TestCase):
@@ -9,7 +10,7 @@ class TestScaleFunction(unittest.TestCase):
 
     def setUp(self):
         self.df = pd.DataFrame()
-        self.df["units"] = pd.Series(RELMASSS_UNITS.keys())
+        self.df["units"] = pd.Series(__UNITS__.keys())
         self.df["values"] = pd.Series(np.random.rand(self.df.index.size))
 
     def test_same_units(self):
@@ -27,14 +28,14 @@ class TestScaleFunction(unittest.TestCase):
 
     def test_different_units(self):
         """Checks exchange between values with different units isn't unity."""
-        fm_units = RELMASSS_UNITS.keys()
-        to_units = RELMASSS_UNITS.keys()
+        fm_units = __UNITS__.keys()
+        to_units = __UNITS__.keys()
         for to in to_units:
             for fm in [fu for fu in fm_units if not fu == to]:
                 with self.subTest(fm=fm, to=to):
                     mult = scale(fm, target_unit=to)
                     self.assertFalse(np.isnan(mult))
-                    if not RELMASSS_UNITS[to] == RELMASSS_UNITS[fm]:
+                    if not __UNITS__[to] == __UNITS__[fm]:
                         self.assertFalse(
                             np.isclose(
                                 self.df["values"].values * mult,
@@ -46,13 +47,13 @@ class TestScaleFunction(unittest.TestCase):
     def test_failure_on_unknown_unit_in(self):
         """Checks the function raises when unknown units are used for "from"."""
         fm_units = ["notaunit", "N/km2", "m/s", "ms-1"]
-        to_units = RELMASSS_UNITS.keys()
+        to_units = __UNITS__.keys()
         for fm in fm_units:
             for to in to_units:
                 with self.subTest(fm=fm, to=to):
                     mult = scale(fm, target_unit=to)
                     self.assertFalse(np.isnan(mult))
-                    if not RELMASSS_UNITS[to] == RELMASSS_UNITS[fm]:
+                    if not __UNITS__[to] == __UNITS__[fm]:
                         self.assertFalse(
                             np.isclose(
                                 self.df["values"].values * mult,
@@ -63,14 +64,14 @@ class TestScaleFunction(unittest.TestCase):
     @unittest.expectedFailure
     def test_failure_on_unknown_unit_out(self):
         """Checks the function raises when unknown units are used for "to"."""
-        fm_units = RELMASSS_UNITS.keys()
+        fm_units = __UNITS__.keys()
         to_units = ["notaunit", "N/km2", "m/s", "ms-1"]
         for fm in fm_units:
             for to in to_units:
                 with self.subTest(fm=fm, to=to):
                     mult = scale(fm, target_unit=to)
                     self.assertFalse(np.isnan(mult))
-                    if not RELMASSS_UNITS[to] == RELMASSS_UNITS[fm]:
+                    if not __UNITS__[to] == __UNITS__[fm]:
                         self.assertFalse(
                             np.isclose(
                                 self.df["values"].values * mult,
