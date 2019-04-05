@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.synthetic import *
 
-
 class TestRandomCovMatrix(unittest.TestCase):
     """
     Check that the random covariance matrix produces a symmetric postive-semidefinite
@@ -24,9 +23,10 @@ class TestRandomCovMatrix(unittest.TestCase):
 
     def test_validate(self):
         """Check that the covariance matrix can be checked at creation time."""
+        shape = 3
         for validate in [True, False]:
             with self.subTest(validate=validate):
-                mat = random_cov_matrix(3, validate=validate)
+                mat = random_cov_matrix(shape, validate=validate)
                 self.assertTrue(mat.shape == (shape, shape))  # shape
                 self.assertTrue(np.allclose(mat, mat.T))  # symmetry
                 for i in range(shape):
@@ -86,23 +86,6 @@ class TestRandomComposition(unittest.TestCase):
                 rc = random_composition(
                     size=self.size, D=self.D, propnan=propnan, missing="MCAR"
                 )
-
-
-class TestRandomCovMatrix(unittest.TestCase):
-    """
-    Check that the random covariance matrix produces a symmetric postive-semidefinite
-    covariance matrix.
-    """
-
-    def test_shape(self):
-        for shape in [2, 5]:
-            mat = random_cov_matrix(shape)
-            self.assertTrue(mat.shape == (shape, shape))  # shape
-            self.assertTrue(np.allclose(mat, mat.T))  # symmetry
-            for i in range(shape):
-                self.assertTrue(
-                    np.linalg.det(mat[0:i, 0:i]) > 0.0
-                )  # sylvesters criterion
 
 
 if __name__ == "__main__":

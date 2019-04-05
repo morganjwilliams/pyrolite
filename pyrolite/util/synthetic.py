@@ -26,8 +26,8 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
         * Implement a characteristic scale for the covariance matrix.
     """
     # create a matrix of correlation coefficients
-    corr = (np.random.rand(dim, dim) - 0.5) * 2
-    corr = np.dot(corr, corr.T)
+    corr = (np.random.rand(dim, dim) - 0.5) * 2  # values between -1 and 1
+    corr[np.tril_indices(dim)] = corr.T[np.tril_indices(dim)]  # lower=upper
     corr[np.arange(dim), np.arange(dim)] = 1.0
 
     if sigmas is None:
@@ -35,8 +35,10 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
     else:
         sigmas = sigmas.reshape(1, dim)
 
-    cov = (sigmas.T @ sigmas)  # multiply by ~ variance
+    cov = sigmas.T @ sigmas  # multiply by ~ variance
     cov *= corr
+    cov = np.sign(cov) * np.sqrt(np.abs(cov) / dim)
+    cov = cov @ cov.T
 
     if validate:
         try:
