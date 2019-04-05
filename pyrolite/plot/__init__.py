@@ -149,7 +149,6 @@ class pyroplot(object):
         else:
 
             pass
-        ax.patch.set_facecolor(None)
         ax.set_aspect("equal")
         return ax
 
