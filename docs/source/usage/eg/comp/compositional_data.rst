@@ -15,7 +15,7 @@ Compositional Data?
   :end-before: # %% Save Figure
 
 .. image:: ../../../_static/KongiteDataHist.png
-  :width: 100%
+  :width: 60%
   :align: center
 
 .. literalinclude:: ../../../../examples/comp/compositional_data.py
