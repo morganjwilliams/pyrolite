@@ -3,7 +3,7 @@ import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
 
 
-def random_cov_matrix(dim, validate=False):
+def random_cov_matrix(dim, sigmas=None, validate=False):
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
 
@@ -11,6 +11,8 @@ def random_cov_matrix(dim, validate=False):
     -----------
     dim : :class:`int`
         Dimensionality of the covariance matrix.
+    sigmas : :class:`numpy.ndarray`
+        Optionally specified sigmas for the variables.
     validate : :class:`bool`
         Whether to validate output.
 
@@ -23,8 +25,18 @@ def random_cov_matrix(dim, validate=False):
     -----
         * Implement a characteristic scale for the covariance matrix.
     """
-    cov = np.random.randn(dim, dim)
-    cov = np.dot(cov, cov.T)
+    # create a matrix of correlation coefficients
+    corr = (np.random.rand(dim, dim) - 0.5) * 2
+    corr = np.dot(corr, corr.T)
+    corr[np.arange(dim), np.arange(dim)] = 1.0
+
+    if sigmas is None:
+        sigmas = np.ones(dim).reshape(1, dim)
+    else:
+        sigmas = sigmas.reshape(1, dim)
+
+    cov = (sigmas.T @ sigmas)  # multiply by ~ variance
+    cov *= corr
 
     if validate:
         try:
@@ -80,6 +92,7 @@ def random_composition(
         * Update the `:code:`missing = "MAR"`` example to be more realistic/variable.
     """
     data = None
+    # dimensions
     if mean is None and cov is None:
         pass
     elif mean is None:
@@ -91,14 +104,7 @@ def random_composition(
         D = mean.size
         mean = mean.reshape(1, -1)
 
-    if cov is None:
-        if D != 1:
-            cov = random_cov_matrix(D - 1)
-        else:
-            cov = np.array([[1]])
-
-    assert cov.shape in [(D - 1, D - 1), (1, 1)]
-
+    # mean
     if mean is None:
         if D > 1:
             mean = np.random.randn(D - 1).reshape(1, -1)
@@ -111,6 +117,15 @@ def random_composition(
             1, -1
         )  # ilr of a (1, D) mean to (1, D-1)
         mean += np.random.randn(*mean.shape) * 0.01  # minor noise
+
+    # covariance
+    if cov is None:
+        if D != 1:
+            cov = random_cov_matrix(D - 1, sigmas=np.abs(mean) * 0.1)  # 10% sigmas
+        else:
+            cov = np.array([[1]])
+
+    assert cov.shape in [(D - 1, D - 1), (1, 1)]
 
     if size == 1:  # single sample
         data = inverse_ilr(mean).reshape(size, D)
