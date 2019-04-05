@@ -3,14 +3,6 @@ import pandas as pd
 import itertools
 import matplotlib.pyplot as plt
 from pyrolite.data.Aitchison import *
-from pyrolite.comp.codata import clr, inverse_clr
-
-
-def logmean(df):
-    return pd.Series(
-        inverse_clr(np.mean(clr(df.values), axis=0)[np.newaxis, :])[0], index=df.columns
-    )
-
 
 # %% Data
 df = load_kongite()
@@ -20,7 +12,6 @@ bins = np.linspace(0, 50, 51) * 2
 for column in df:
     df[column].plot.hist(ax=ax, bins=bins, alpha=0.5, label=column)
 # %% Simple Means and covariance
-
 # For compostitional data, everything is relative, so we tend to use ratios
 # Say you want to know the average ratio between A and B
 A_on_B = df["A"] / df["B"]
@@ -45,6 +36,8 @@ np.isclose(
 )
 
 # %% Higher Dimensional Visualisation of Mean
+from pyrolite.comp.codata import clr, inverse_clr, logratiomean
+
 # This issue of accuracy/validity of means is also seen in higher dimensions:
 df = load_kongite()
 
@@ -53,13 +46,18 @@ ax = ax.flat
 
 for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     columns = list(columns)
+
     df.loc[:, columns].pyroplot.ternary(ax=a, color="k", label=df.name, no_ticks=True)
+
     df.mean().loc[columns].pyroplot.ternary(
         ax=a, color="red", label="Arithmetic Mean", no_ticks=True
     )
-    print(logmean(df.loc[:, columns]))
 
-    logmean(df.loc[:, columns]).pyroplot.ternary(
+    logratiomean(df.loc[:, columns]).pyroplot.ternary(
         ax=a, s=30, color="green", label="Geometric Mean", axlabels=True, no_ticks=True
     )
     a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
+# %% Save Figure --
+from pyrolite.util.plot import save_figure
+
+save_figure(fig, save_at="../../source/_static", name="LogRatioMeansTernary")

@@ -321,3 +321,27 @@ def inverse_boxcox(Y: np.ndarray, lmbda):
         Inverse Box-Cox transformed array.
     """
     return scpspec.inv_boxcox(Y, lmbda)
+
+
+def logratiomean(df, transform=clr, inverse_transform=inverse_clr):
+    """
+    Take a mean of log-ratios along the index of a dataframe.
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe from which to compute a mean along the index.
+    transform : :class:`callable`
+        Log transform to use.
+    inverse_transform : :class:`callable`
+        Inverse of log transform.
+
+    Returns
+    ---------
+    :class:`pandas.Series`
+        Mean values as a pandas series.
+    """
+    return pd.Series(
+        inverse_transform(np.mean(transform(df.values), axis=0)[np.newaxis, :])[0],
+        index=df.columns,
+    )
