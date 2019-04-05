@@ -8,9 +8,17 @@ from pyrolite.data.Aitchison import *
 df = load_kongite()
 
 fig, ax = plt.subplots(1)
-bins = np.linspace(0, 50, 51) * 2
+no_bins = 50
+bins = np.linspace(0, no_bins, no_bins+1) * 100/no_bins
 for column in df:
     df[column].plot.hist(ax=ax, bins=bins, alpha=0.5, label=column)
+
+plt.title('Aitchison Kongite Compositional Data')
+plt.legend(loc=0, frameon=False, facecolor=None)
+# %% Save Figure
+from pyrolite.util.plot import save_figure
+
+save_figure(fig, save_at="../../source/_static", name="KongiteDataHist")
 # %% Simple Means and covariance
 # For compostitional data, everything is relative, so we tend to use ratios
 # Say you want to know the average ratio between A and B
@@ -58,6 +66,4 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     )
     a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
 # %% Save Figure --
-from pyrolite.util.plot import save_figure
-
 save_figure(fig, save_at="../../source/_static", name="LogRatioMeansTernary")
