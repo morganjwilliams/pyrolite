@@ -3,7 +3,7 @@ import numpy as np
 import ternary as pyternary
 import logging
 from ..util.plot import ABC_to_xy, __DEFAULT_CONT_COLORMAP__, __DEFAULT_DISC_COLORMAP__
-from ..util.meta import get_additional_params
+from ..util.meta import get_additional_params, subkwargs
 from ..comp.codata import close
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -96,6 +96,8 @@ def ternary(
         config = dict(c=color, marker=marker, alpha=alpha, label=label)
         if isinstance(color, (str, tuple)):
             config["color"] = config.pop("c")
+
+        config = {**config, **subkwargs(kwargs, tax.scatter)}
         tax.scatter(points, **config)
 
     if label is not None:

@@ -95,7 +95,7 @@ class pyroplot(object):
 
         return ax
 
-    def ternary(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def ternary(self, components: list = None, ax=None, axlabels=None, **kwargs):
         r"""
         Method for ternary scatter plots. Convenience access function to
         :func:`~pyrolite.plot.tern.ternary` (see `Other Parameters`, below), where
@@ -138,17 +138,17 @@ class pyroplot(object):
         tax = ax.tax
         # python-ternary uses "right, top, left"
         # Check if there's already labels
-        if not len(tax._labels.keys()) and axlabels:
-            tax.right_axis_label(components[0], fontsize=fontsize)
-            tax.left_axis_label(components[1], fontsize=fontsize)
-            tax.bottom_axis_label(components[2], fontsize=fontsize)
-        elif len(tax._labels.keys()):  # are labels, should be none
-            tax.right_axis_label(None)
-            tax.left_axis_label(None)
-            tax.bottom_axis_label(None)
-        else:
-
-            pass
+        if axlabels is not None:
+            if not len(tax._labels.keys()) and axlabels:
+                tax.right_axis_label(components[0], fontsize=fontsize)
+                tax.left_axis_label(components[1], fontsize=fontsize)
+                tax.bottom_axis_label(components[2], fontsize=fontsize)
+            elif len(tax._labels.keys()) and not axlabels:  # are labels, should be none
+                tax.right_axis_label(None)
+                tax.left_axis_label(None)
+                tax.bottom_axis_label(None)
+            else:
+                pass
         ax.set_aspect("equal")
         return ax
 
@@ -231,14 +231,7 @@ class pyroplot(object):
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
-    def cooccurence(
-        self,
-        ax=None,
-        normalize=True,
-        log=False,
-        colorbar=False,
-        **kwargs
-    ):
+    def cooccurence(self, ax=None, normalize=True, log=False, colorbar=False, **kwargs):
         """
         Plot the co-occurence frequency matrix for a given input.
 
