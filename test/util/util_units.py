@@ -15,7 +15,7 @@ class TestScaleFunction(unittest.TestCase):
 
     def test_same_units(self):
         """Checks exchange between values with the same units is unity."""
-        for to in RELMASSS_UNITS.keys():
+        for to in __UNITS__.keys():
             with self.subTest(to=to):
                 fm = to
                 mult = scale(fm, target_unit=to)
