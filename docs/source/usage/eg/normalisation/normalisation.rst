@@ -36,13 +36,12 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 
 .. code-block:: python
 
-  >>> from pyrolite.plot import spiderplot
   >>> refcomp = ReferenceCompositions()
   >>> CH = refcomp['Chondrite_PON']
   >>> DMM = refcomp['DMM_WH2005']
 
   >>> df = DMM.data.loc[REE(), ['value']]
-  >>> spiderplot(CH.normalize(df), label=f'{DMM.Reference}')
+  >>> CH.normalize(df).pyroplot.spider(label=f'{DMM.Reference}')
 
 
 .. image:: ../../../_static/NormSpiderplot.png
