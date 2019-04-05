@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from ..comp import *
 from ..util.pd import to_frame, to_numeric
+from ..util.units import scale
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
