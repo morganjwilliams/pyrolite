@@ -10,7 +10,7 @@ from .parse import from_melts_cstr
 from .meltsfile import to_meltsfiles
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class MeltsOutput(object):

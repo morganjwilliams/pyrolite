@@ -9,7 +9,7 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import logging
 import joblib
-from pyrolite.util.general import pyrolite_datafolder
+from pyrolite.util.meta import pyrolite_datafolder
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

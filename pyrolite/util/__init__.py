@@ -11,3 +11,8 @@
 # from .spatial import *
 # from .wfs import *
 # from .skl import *
+
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)

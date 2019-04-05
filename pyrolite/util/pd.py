@@ -9,7 +9,7 @@ import inspect
 from .general import pathify
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def column_ordered_append(df1, df2, **kwargs):

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from .general import pyrolite_datafolder
+from .meta import pyrolite_datafolder
 from .pd import to_frame, to_numeric
 from .text import titlecase, string_variations
 from .types import iscollection
@@ -8,7 +8,7 @@ from collections import ChainMap, defaultdict
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 __DATA__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_spans.csv"

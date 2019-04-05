@@ -5,7 +5,7 @@ import logging
 from pyrolite.util.math import isclose
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def _spherical_law_cosinse_GC_distance(ps):

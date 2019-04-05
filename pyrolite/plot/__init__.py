@@ -146,7 +146,7 @@ class pyroplot(object):
             if not len(tax._labels.keys()) and axlabels:
                 set_labels(components)
             elif len(tax._labels.keys()) and not axlabels:  # are labels, should be none
-                set_labels([None, None None])
+                set_labels([None, None, None])
             else:
                 pass
         else:  # label by default

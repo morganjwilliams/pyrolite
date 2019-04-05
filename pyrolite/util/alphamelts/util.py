@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def default_data_dictionary():

@@ -50,13 +50,6 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-def pyrolite_datafolder(subfolder=None):
-    """Returns the path of the pyrolite data folder."""
-    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
-    if subfolder:
-        pth /= subfolder
-    return pth
-
 
 def pathify(path):
     """Converts strings to pathlib.Path objects."""

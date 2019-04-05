@@ -1,7 +1,20 @@
+import os, sys
 from numpydoc.docscrape import FunctionDoc, ClassDoc
 import webbrowser
 import inspect
+from pathlib import Path
 import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
+
+def pyrolite_datafolder(subfolder=None):
+    """Returns the path of the pyrolite data folder."""
+    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
+    if subfolder:
+        pth /= subfolder
+    return pth
 
 
 def stream_log(module, level="INFO"):

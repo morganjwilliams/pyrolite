@@ -9,7 +9,8 @@ from ..util.text import titlecase
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from .norm import ReferenceCompositions, RefComp, scale_multiplier
+from .norm import ReferenceCompositions, RefComp
+from ..util.units import scale
 from .ind import (
     REE,
     get_ionic_radii,
@@ -256,7 +257,7 @@ def aggregate_cation(
     cation=None,
     oxide=None,
     form="oxide",
-    unit_scale=scale_multiplier("Wt%", "Wt%"),
+    unit_scale=scale("Wt%", "Wt%"),
     logdata=False,
 ):
     """

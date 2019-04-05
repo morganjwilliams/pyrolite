@@ -9,7 +9,7 @@ except:
     pass
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def to_width(multiline_string, width=79, **kwargs):

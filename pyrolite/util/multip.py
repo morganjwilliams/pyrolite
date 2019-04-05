@@ -6,7 +6,7 @@ except ImportError:
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 # Note : Using pathos multiprocessing which leverages dill over standard
 # pickle, which has a hard time serializing even simple objects
