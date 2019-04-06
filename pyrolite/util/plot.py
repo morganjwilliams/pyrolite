@@ -819,6 +819,53 @@ def plot_cooccurence(arr, ax=None, normalize=True, log=False, colorbar=False, **
     return ax
 
 
+def subaxes(ax, side="bottom", width=0.2, moveticks=True):
+    """
+    Append a sub-axes to one side of an axes.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to append a sub-axes to.
+    side : :class:`str`
+        Which side to append the axes on.
+    width : :class:`float`
+        Fraction of width to give to the subaxes.
+    moveticks : :class:`bool`
+        Whether to move ticks to the outer axes.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.Axes`
+        Subaxes instance.
+    """
+    div = make_axes_locatable(ax)
+    ax.divider = div
+
+    if side in ["bottom", "top"]:
+        which = "x"
+        subax = div.append_axes(side, width, pad=0, sharex=ax)
+        div.subax = subax
+        subax.yaxis.set_visible(False)
+        subax.spines["left"].set_visible(False)
+        subax.spines["right"].set_visible(False)
+
+    else:
+        which = "y"
+        subax = div.append_axes(side, width, pad=0, sharex=ax)
+        div.subax = subax
+        subax.yaxis.set_visible(False)
+        subax.spines["top"].set_visible(False)
+        subax.spines["bottom"].set_visible(False)
+
+    share_axes([ax, subax], which=which)
+    if moveticks:
+        ax.tick_params(
+            axis=which, which="both", bottom=False, top=False, labelbottom=False
+        )
+    return subax
+
+
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     """
     Scatter plot with additional marginal axes to plot data for which data is partially
@@ -850,29 +897,10 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanaxx = div.nanaxx
         nanaxy = div.nanaxy
     else:  # Build axes
-        ax.yaxis.set_tick_params(labelleft=False, left=False)
-        ax.xaxis.set_tick_params(labelbottom=False, bottom=False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-
-        div = make_axes_locatable(ax)
-        ax.divider = div
-
-        nanaxx = div.append_axes("bottom", axes_width, pad=0, sharex=ax)
-        div.nanaxx = nanaxx
+        nanaxx = subaxes(ax, side="bottom", width=axes_width)
         nanaxx.invert_yaxis()
-        nanaxx.yaxis.set_visible(False)
-        nanaxx.spines["left"].set_visible(False)
-        nanaxx.spines["right"].set_visible(False)
-        nanaxx.set_facecolor("none")
-
-        nanaxy = div.append_axes("left", axes_width, pad=0, sharey=ax)
-        div.nanaxy = nanaxy
+        nanaxy = subaxes(ax, side="left", width=axes_width)
         nanaxy.invert_xaxis()
-        nanaxy.xaxis.set_visible(False)
-        nanaxy.spines["top"].set_visible(False)
-        nanaxy.spines["bottom"].set_visible(False)
-        nanaxy.set_facecolor("none")
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
     nanydata = ydata[(np.isnan(xdata) & np.isfinite(ydata))]
