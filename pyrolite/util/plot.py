@@ -50,6 +50,28 @@ __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 
+def share_axes(axes, which="xy"):
+    """
+    Link the x, y or both axes across a group of :class:`~matplotlib.axes.Axes`.
+
+    Parameters
+    -----------
+    axes : :class:`list`
+        List of axes to link.
+    which : :class:`str`
+        Which axes to link. If :code:`x`, link the x-axes; if :code:`y` link the y-axes,
+        otherwise link both.
+    """
+    for ax in axes:
+        if which == "x":
+            ax.get_shared_x_axes().join(*axes)
+        elif which == "y":
+            ax.get_shared_y_axes().join(*axes)
+        else:
+            ax.get_shared_x_axes().join(*axes)
+            ax.get_shared_y_axes().join(*axes)
+
+
 def modify_legend_handles(ax, **kwargs):
     """
     Modify the handles of a legend based for a single axis.

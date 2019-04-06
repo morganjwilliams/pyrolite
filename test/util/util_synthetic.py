@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.synthetic import *
 
+
 class TestRandomCovMatrix(unittest.TestCase):
     """
     Check that the random covariance matrix produces a symmetric postive-semidefinite

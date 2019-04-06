@@ -22,6 +22,43 @@ except ImportError:
     HAVE_SKLEARN = False
 
 
+class TestShareAxes(unittest.TestCase):
+    """
+    Tests the share_axes utility function.
+    """
+
+    def test_default(self):
+        fig, ax = plt.subplots(5)
+        share_axes(ax)
+        for a in ax:
+            self.assertTrue(
+                all([i in a.get_shared_x_axes().get_siblings(a) for i in ax])
+            )
+            self.assertTrue(
+                all([i in a.get_shared_y_axes().get_siblings(a) for i in ax])
+            )
+
+    def test_which(self):
+        for which, methods in [
+            ("xy", ["get_shared_x_axes", "get_shared_y_axes"]),
+            ("x", ["get_shared_x_axes"]),
+            ("y", ["get_shared_y_axes"]),
+            ("both", ["get_shared_x_axes", "get_shared_y_axes"]),
+        ]:
+            with self.subTest(which=which, methods=methods):
+                fig, ax = plt.subplots(5)
+                share_axes(ax, which=which)
+                for a in ax:
+                    for m in methods:
+                        self.assertTrue(
+                            all([i in getattr(a, m)().get_siblings(a) for i in ax])
+                        )
+                plt.close("all")
+
+    def tearDown(self):
+        plt.close("all")
+
+
 class TestAddColorbar(unittest.TestCase):
     """
     Tests the add_colorbar utility function.
