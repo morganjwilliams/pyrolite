@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 # %% Data
 # pyrolite comes with a few datasets from Aitchison (1984) built in which we can use
 # ax examples:
 from pyrolite.data.Aitchison import load_kongite
+
 df = load_kongite()
 # %% Simple Means and covariance
 # Say you want to know the average ratio between A and B
@@ -30,6 +32,7 @@ np.exp(logA_on_B.mean())  # 2.4213410747400514
 
 # %% Ratios of Poisson Data
 from scipy.stats import norm, poisson, lognorm
+
 means = [[10, 10], [10, 20], [20, 100], [1000, 50]]
 fig, ax = plt.subplots(len(means), 3, figsize=(9, 8))
 ax[-1, 0].set_xlabel("A")
@@ -78,10 +81,12 @@ for ix, (m1, m2) in enumerate(means):
 plt.tight_layout()
 # %% Save Figure
 from pyrolite.util.plot import save_figure
+
 save_figure(fig, save_at="../../source/_static", name="PoissonLognormals")
 # %% Compositional data distributions
 from pyrolite.util.plot import share_axes, subaxes
 from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
+
 # starting from a normal distribution, then creating similar non-normal distributions
 mean, sd = 2.5, 1.5  #
 logmu, logs = norm_to_lognorm(mean, sd)  # parameters for equival
@@ -135,6 +140,7 @@ fig.suptitle("Data Distributions: Normal, Lognormal, Poisson", y=1.1)
 plt.tight_layout()
 # %% Save Figure
 from pyrolite.util.plot import save_figure
+
 save_figure(fig, save_at="../../source/_static", name="CompositionalDistributions")
 # %% Higher Dimensional Visualisation of Mean
 from pyrolite.comp.codata import logratiomean
@@ -146,16 +152,32 @@ ax = ax.flat
 for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     columns = list(columns)
 
-    df.loc[:, columns].pyroplot.ternary(ax=a, color="k", label=df.name, no_ticks=True)
+    df.loc[:, columns].pyroplot.ternary(
+        ax=a, color="k", marker=".", label=df.name, no_ticks=True
+    )
 
     df.mean().loc[columns].pyroplot.ternary(
-        ax=a, color="red", label="Arithmetic Mean", no_ticks=True
+        ax=a,
+        edgecolors="red",
+        linewidths=2,
+        c="none",
+        s=50,
+        label="Arithmetic Mean",
+        no_ticks=True,
     )
 
     logratiomean(df.loc[:, columns]).pyroplot.ternary(
-        ax=a, s=30, color="green", label="Geometric Mean", axlabels=True, no_ticks=True
+        ax=a,
+        edgecolors="k",
+        linewidths=2,
+        c="none",
+        s=50,
+        label="Geometric Mean",
+        axlabels=True,
+        no_ticks=True,
     )
     a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
 # %% Save Figure --
 from pyrolite.util.plot import save_figure
+
 save_figure(fig, save_at="../../source/_static", name="LogRatioMeansTernary")
