@@ -39,3 +39,9 @@ pyrolite\.geochem\.magma
   .. automodule:: pyrolite.geochem.magma
       :members:
       :undoc-members:
+
+pyrolite\.geochem\.isotope
+-------------------------------
+  .. automodule:: pyrolite.geochem.isotope
+      :members:
+      :undoc-members:
