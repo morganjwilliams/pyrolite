@@ -95,8 +95,8 @@ def ternary(
         fig, tax = pyternary.figure(ax=ax, scale=scale)
 
     if not hasattr(tax, 'patch'):
-        tax.patch =  ternary_patch(scale=scale, color=ax.patch.get_facecolor())
-        ax.add_artist(tax.patch, zorder=-10)
+        tax.patch =  ternary_patch(scale=scale, color=ax.patch.get_facecolor(),zorder=-10)
+        ax.add_artist(tax.patch)
     # Set attribute for future reference
     ax.tax = tax
     points = close(arr) * scale
