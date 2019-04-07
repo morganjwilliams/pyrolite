@@ -67,7 +67,8 @@ standardised statistical measures - as long as you're log-transforming your data
 When performing multivariate analysis, use log-ratio transformations (including the
 additive logratio :func:`~pyrolite.comp.codata.alr`, centred logratio
 :func:`~pyrolite.comp.codata.clr` and isometric logratio
-:func:`~pyrolite.comp.codata.ilr`):
+:func:`~pyrolite.comp.codata.ilr`). In this case, the logratio-mean is implemented for
+you:
 
 .. literalinclude:: ../../../../examples/comp/compositional_data.py
   :language: python

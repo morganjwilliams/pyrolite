@@ -1,14 +1,10 @@
 import numpy as np
 import pandas as pd
-import itertools
 import matplotlib.pyplot as plt
-from scipy.stats import norm, poisson, lognorm
-from pyrolite.data.Aitchison import *
-from pyrolite.util.plot import share_axes, subaxes
-from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
-
 # %% Data
-# pyrolite comes with a few datasets from Aitchison (1984) built in:
+# pyrolite comes with a few datasets from Aitchison (1984) built in which we can use
+# ax examples:
+from pyrolite.data.Aitchison import load_kongite
 df = load_kongite()
 # %% Simple Means and covariance
 # Say you want to know the average ratio between A and B
@@ -33,6 +29,7 @@ np.exp(logA_on_B.mean())  # 2.4213410747400514
 (np.std(logB_on_A) / logB_on_A.mean()) ** 2  # 0.36598579018127086
 
 # %% Ratios of Poisson Data
+from scipy.stats import norm, poisson, lognorm
 means = [[10, 10], [10, 20], [20, 100], [1000, 50]]
 fig, ax = plt.subplots(len(means), 3, figsize=(9, 8))
 ax[-1, 0].set_xlabel("A")
@@ -81,9 +78,10 @@ for ix, (m1, m2) in enumerate(means):
 plt.tight_layout()
 # %% Save Figure
 from pyrolite.util.plot import save_figure
-
 save_figure(fig, save_at="../../source/_static", name="PoissonLognormals")
 # %% Compositional data distributions
+from pyrolite.util.plot import share_axes, subaxes
+from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
 # starting from a normal distribution, then creating similar non-normal distributions
 mean, sd = 2.5, 1.5  #
 logmu, logs = norm_to_lognorm(mean, sd)  # parameters for equival
@@ -114,7 +112,7 @@ for ix, dist in enumerate([normrv, lognormrv, poissonrv]):
     _ys = -0.05 + np.random.randn(10000) / 100  # random offsets for visualisation
     for a in [ax[ix], ax[ix + 3]]:
         a.annotate(
-            "mu={:.2f}, var={:.2f}".format(np.mean(_xs), np.var(_xs)),
+            "mean={:.2f}, var={:.2f}".format(np.mean(_xs), np.var(_xs)),
             xy=(0.05, 1.05),
             ha="left",
             va="bottom",
@@ -137,14 +135,10 @@ fig.suptitle("Data Distributions: Normal, Lognormal, Poisson", y=1.1)
 plt.tight_layout()
 # %% Save Figure
 from pyrolite.util.plot import save_figure
-
 save_figure(fig, save_at="../../source/_static", name="CompositionalDistributions")
-
 # %% Higher Dimensional Visualisation of Mean
-from pyrolite.comp.codata import clr, inverse_clr, logratiomean
-
-# This issue of accuracy/validity of means is also seen in higher dimensions:
-df = load_kongite()
+from pyrolite.comp.codata import logratiomean
+import itertools
 
 fig, ax = plt.subplots(2, 2, figsize=(12, 12))
 ax = ax.flat
@@ -163,4 +157,5 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     )
     a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
 # %% Save Figure --
+from pyrolite.util.plot import save_figure
 save_figure(fig, save_at="../../source/_static", name="LogRatioMeansTernary")
