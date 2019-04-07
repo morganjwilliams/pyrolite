@@ -1,3 +1,6 @@
+"""
+Various utilities used by other submodules.
+"""
 # from .general import *
 # from .pd import *
 # from .plot import *

@@ -1,3 +1,6 @@
+"""
+Submodule for working with geochemical data.
+"""
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -1,3 +1,6 @@
+"""
+Utilities for working with the alphaMELTS executable and associated tabular data.
+"""
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

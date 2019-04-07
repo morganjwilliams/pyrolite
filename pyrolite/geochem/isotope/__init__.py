@@ -8,12 +8,16 @@ Todo
     * Add noise-corrected quasi-unbiased ratios of Coath et al. (2012) [#ref_2]_
     * Deadtime methods [#ref_3]_ [#ref_4]_ [#ref_5]_
     * Synthetic data, file format parsing
-    * U-Pb, U-series data reduction and uncertainty propagation
     * Capability for dealing with reference materials
 
         This would be handy for :mod:`pyrolite.geochem` in general, and could be
         implemented in a similar way to how :mod:`pyrolite.geochem.norm` handles
         reference compositions.
+
+    * Stable isotope calculations
+    * Simple radiogenic isotope system calculations and plots
+    * U-Pb, U-series data reduction and uncertainty propagation
+
 
 References
 -----------
@@ -53,3 +57,5 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+from .count import deadtime_correction

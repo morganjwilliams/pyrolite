@@ -1,3 +1,6 @@
+"""
+Submodule with various plotting and visualisation functions.
+"""
 import matplotlib.pyplot as plt
 import pandas as pd
 import logging

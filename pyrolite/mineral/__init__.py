@@ -1,3 +1,6 @@
+"""
+Submodule for working with mineral data.
+"""
 import logging
 from .mineral import Mineral
 
