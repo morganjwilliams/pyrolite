@@ -34,10 +34,15 @@ np.exp(logA_on_B.mean())  # 2.4213410747400514
 from scipy.stats import norm, poisson, lognorm
 
 means = [[10, 10], [10, 20], [20, 100], [1000, 50]]
-fig, ax = plt.subplots(len(means), 3, figsize=(9, 8))
+fig, ax = plt.subplots(len(means), 4, figsize=(11, 8))
+ax[0, 0].set_title('A')
+ax[0, 1].set_title('B')
+ax[0, 2].set_title('Normal Fit to B/A')
+ax[0, 3].set_title('Lognormal Fit to B/A')
 ax[-1, 0].set_xlabel("A")
 ax[-1, 1].set_xlabel("B")
 ax[-1, 2].set_xlabel("B/A")
+ax[-1, 3].set_xlabel("B/A")
 for ix, (m1, m2) in enumerate(means):
     p1, p2 = poisson(mu=m1), poisson(mu=m2)
     y1, y2 = p1.rvs(2000), p2.rvs(2000)
@@ -59,24 +64,29 @@ for ix, (m1, m2) in enumerate(means):
         label="B",
         bins=np.linspace(y2min - 0.5, y2max + 0.5, (y2max - y2min) + 1),
     )
+
+    # normal distribution fit
     H, binedges, patches = ax[ix, 2].hist(
         ratios, color="Purple", alpha=0.6, label="Ratios", bins=100
     )
-    s, loc, scale = lognorm.fit(ratios, loc=0)
-    pdf = lognorm.pdf(binedges, s, loc, scale)
+    loc, scale = norm.fit(ratios, loc=0)
+    pdf = norm.pdf(binedges, loc, scale)
     twin2 = ax[ix, 2].twinx()
     twin2.set_ylim(0, 1.1 * np.max(pdf))
-    twin2.plot(
-        binedges,
-        lognorm.pdf(binedges, s, loc, scale),
-        color="k",
-        ls="--",
-        label="Lognormal Fit",
+    twin2.plot(binedges, pdf, color="k", ls="--", label="Normal Fit")
+
+    # log-normal distribution fit
+    H, binedges, patches = ax[ix, 3].hist(
+        ratios, color="Green", alpha=0.6, label="Ratios", bins=100
     )
-    for a in [*ax[ix, :], twin2]:
+    s, loc, scale = lognorm.fit(ratios, loc=0)
+    pdf = lognorm.pdf(binedges, s, loc, scale)
+    twin3 = ax[ix, 3].twinx()
+    twin3.set_ylim(0, 1.1 * np.max(pdf))
+    twin3.plot(binedges, pdf, color="k", ls="--", label="Lognormal Fit")
+
+    for a in [*ax[ix, :], twin2, twin3]:
         a.set_yticks([])
-    ax[ix, 2].legend(loc=(1.05, 0.8), frameon=False)
-    twin2.legend(loc=(1.05, 0.6), frameon=False)
 
 plt.tight_layout()
 # %% Save Figure
