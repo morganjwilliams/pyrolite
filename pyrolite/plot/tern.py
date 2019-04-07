@@ -68,6 +68,11 @@ def ternary(
         * Create Ternary class for separate scatter, plot methods; layer of abstraction
         * Changing `clockwise` can render the plot invalid. Update to fix.
 
+    Notes
+    -------
+        * To create unfilled markers, pass :code:`edgecolors=<color>, c="none"`
+        * To edit marker edgewiths, pass :code:`linewidths=<width>`
+
     See Also
     ---------
     :func:`matplotlib.pyplot.plot`
@@ -97,7 +102,7 @@ def ternary(
         if isinstance(color, (str, tuple)):
             config["color"] = config.pop("c")
 
-        config = {**config, **subkwargs(kwargs, tax.scatter)}
+        config = {**config, **subkwargs(kwargs, ax.scatter)}
         tax.scatter(points, **config)
 
     if label is not None:
