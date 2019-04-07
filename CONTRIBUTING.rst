@@ -10,6 +10,9 @@ documentation. All individuals contributing to the project are expected to follo
 `Code of Conduct <conduct.html>`__, which outlines community expectations and
 responsibilities.
 
+Also, be sure to add your name or GitHub username to the
+`contributors list <./contributors.html>`__.
+
 Feature Requests
 -------------------------
 

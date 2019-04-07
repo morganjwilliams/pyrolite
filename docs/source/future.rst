@@ -2,7 +2,7 @@ Future
 ========
 
 This page details some of the under-development and planned features for
-:code:`pyrolite`. Note that while no schedules are attached, features under development
+:mod:`pyrolite`. Note that while no schedules are attached, features under development
 are likely to be completed with weeks to months, while those 'On The Horizon' may be
 significantly further away (or in some cases may not make it to release).
 
@@ -11,7 +11,7 @@ Under Development
 
 These features are under development and should be released in the near future.
 
-:code:`pyrolite.mineral`
+:mod:`pyrolite.mineral`
 
   There are a few components which will make better use of mineral chemistry data,
   and facilitate better comparison of whole-rock and mineral data
@@ -20,7 +20,17 @@ These features are under development and should be released in the near future.
     * Normative mineral calculations
     * Mineral formulae recalculation, site partitioning, endmember calculations
 
-:code:`pyrolite.util.spatial`
+:mod:`pyrolite.geochem.isotope`
+
+  * Stable isotope calculations
+  * Simple radiogenic isotope system calculations and plots
+
+:mod:`pyrolite.comp.impute`
+
+  Expansion of compositional data imputation algorithms beyond EMCOMP
+  (`Issue #6 <https://github.com/morganjwilliams/pyrolite/issues/6>`__).
+
+:mod:`pyrolite.util.spatial`
 
   Expansion of current minor utilities to a broader suite.
   Spatial in the 'from here to there' sense, but also the geometric sense.
@@ -38,28 +48,27 @@ These features are under development and should be released in the near future.
             geospatial or geostatistical functionality here.
 
 
+:mod:`pyrolite.util.alphamelts`
+
+  * Wrapper for the :code:`alphaMELTS` executable
+  * Working with :code:`alphaMELTS` tables
+  * Links to *under-development* python-MELTS.
+
+  .. note:: There are some great things happening on the MELTS-for-scripting front;
+            these utilities will be intended to link your data to these tools.
+
 On the Horizon, Potential Future Updates
 ----------------------------------------
 
 These are a number of features which are in various stages of development, which are
 planned be integrated over the longer term.
 
-:code:`pyrolite.comp.impute`
-
-  Expansion of compositional data imputation algorithms beyond EMCOMP
-  (`Issue #6 <https://github.com/morganjwilliams/pyrolite/issues/6>`__).
-
-:code:`pyrolite.geochem.isotope`
-
-  * Stable isotope calculations
-  * Simple radiogenic isotope system calculations and plots
-
-:code:`pyrolite.plot`
+:mod:`pyrolite.plot`
 
   A few improvements to plotting functionality are on the horizon, including native
-  integration of a ternary projection for :code:`matplotlib`.
+  integration of a ternary projection for :mod:`matplotlib`.
 
-:code:`pyrolite.geochem.magma`
+:mod:`pyrolite.geochem.magma`
 
   Utilities for simple melting and fractionation models.
 
@@ -69,11 +78,3 @@ planned be integrated over the longer term.
     * assessing data quality
     * identifying potential analytical artefacts
     * assessing uncertainties
-
-:code:`pyrolite.util.melts`
-
-  * Wrapper for the :code:`alphaMELTS` executable
-  * Links to *under-development* python-MELTS.
-
-  .. note:: There are some great things happening on the MELTS-for-scripting front;
-            these utilities will be intended to link your data to these tools.

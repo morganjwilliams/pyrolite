@@ -2,7 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ternary as pyternary
 import logging
-from ..util.plot import ABC_to_xy, __DEFAULT_CONT_COLORMAP__, __DEFAULT_DISC_COLORMAP__
+from ..util.plot import (
+    ABC_to_xy,
+    __DEFAULT_CONT_COLORMAP__,
+    __DEFAULT_DISC_COLORMAP__,
+    ternary_patch,
+)
+from pyrolite.util.plot import ternary_patch
 from ..util.meta import get_additional_params, subkwargs
 from ..comp.codata import close
 
@@ -88,6 +94,9 @@ def ternary(
     if tax is None:
         fig, tax = pyternary.figure(ax=ax, scale=scale)
 
+    if not hasattr(tax, 'patch'):
+        tax.patch =  ternary_patch(scale=scale, color=ax.patch.get_facecolor())
+        ax.add_artist(tax.patch, zorder=-10)
     # Set attribute for future reference
     ax.tax = tax
     points = close(arr) * scale

@@ -502,6 +502,12 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
+def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
+    return matplotlib.patches.Polygon(
+        ABC_to_xy(np.eye(3), yscale=yscale, xscale=xscale) * scale, **kwargs
+    )
+
+
 def proxy_rect(**kwargs):
     """
     Generates a legend proxy for a filled region.
