@@ -18,6 +18,11 @@ def from_melts_cstr(composition_str, formula=True):
     formula : :class:`bool`
         Whether to output a :class:`periodictable.formula.Formula`
 
+    Returns
+    --------
+    :class:`dict` | :class:`periodictable.formulas.Formula`
+        Dictionary containing components, or alternatively if :code:`formula = True`,
+        a :class:`~periodictable.formulas.Formula` representation of the composition.
 
     Todo
     ------

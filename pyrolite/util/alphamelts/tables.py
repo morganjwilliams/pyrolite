@@ -38,6 +38,14 @@ class MeltsOutput(object):
 
     @property
     def tables(self):
+        """
+        Get the set of tables accesible from the output object.
+
+        Returns
+        -------
+        :class:`set`
+            Tables accesible from the :class:`MeltsOutput` object.
+        """
         return {
             "bulkcomp",
             "solidcomp",
@@ -69,7 +77,17 @@ class MeltsOutput(object):
 
     def read_table(self, filepath, **kwargs):
         """
-        Read a melts table (a space-separated value file)
+        Read a melts table (a space-separated value file).
+
+        Parameters
+        -----------
+        filepath : :class:`str` | :class:`pathlib.Path`
+            Filepath to the melts table.
+
+        Returns
+        -------
+        :class:`pandas.DataFrame`
+            DataFrame with table information.
         """
         path = Path(filepath)
         if path.exists and path.is_file:

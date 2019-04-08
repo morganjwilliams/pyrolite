@@ -42,3 +42,36 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
 
     env = Path(env)
     copy_file(env, filepath.parent / env.name)
+
+
+class MeltsExperiment(object):
+    """
+    Melts Experiment Object
+
+    Currently in-development for automation of calling melts across a grid of
+    parameters.
+
+    Todo
+    ----
+        * Automated creation of folders for experiment results
+        * Being able to run melts
+        * Compressed export/save function
+    """
+
+    def __init__(self):
+        pass
+
+    def run(self):
+        """
+        Call 'run_alphamelts.command'.
+        """
+        if system == "Windows":
+            pass
+        elif system == "Linux":
+            if ("Microsoft" in release) or ("Microsoft" in version):
+                pass
+            else:
+                pass
+        elif system == "Darwin":
+            pass
+        # os.system("start /wait cmd /c {}".format(command))

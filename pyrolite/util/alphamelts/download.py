@@ -21,14 +21,16 @@ def download_melts(directory, version="1.9"):
     """
     Download and extract melts zip file to a given directory.
 
-    TODO:
-    #2. Check install folder doens't have current installation
-    #3. If it does, and update is True - overwrite
-
     Parameters
     ----------
-    directory : str | pathlib.Path
+    directory :  :class:`str` |  :class:`pathlib.Path`
         Directory into which to extract melts.
+    version : :class:`str`
+        Which alphamelts version to use.
+
+    Todo
+    -----
+        * Check version, enable update-style overwrite
     """
     try:
         assert internet_connection()
@@ -83,7 +85,7 @@ def install_melts(
     """
     Parameters
     ----------
-    install_dir : s:class:`str` | :class:`pathlib.Path`
+    install_dir : :class:`str` | :class:`pathlib.Path`
         Directory into which to install melts executable.
     link_dir : :class:`str` | :class:`pathlib.Path`
         Directory into which to deposit melts links.

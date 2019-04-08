@@ -19,7 +19,28 @@ def to_meltsfile(
     and 'initial composition' lines, major elements to be represented as oxides
     in Wt% and trace elements in µg/g.
 
-    # Todo: parameter validation.
+    Parameters
+    ----------
+    ser : :class:`pandas.Series`
+        Series to convert to a melts file.
+    linesep : :class:`str`
+        Line separation character.
+    writetraces : :class:`bool`
+        Whether to include traces in the output file.
+    modes : :class:`list`
+        List of modes to use (e.g. 'isobaric', 'fractionate solids').
+    exclude : :class:`list`
+        List of chemical components to exclude from the meltsfile.
+
+    Returns
+    -------
+    :class:`str`
+        String representation of the meltsfile, which can be immediately written to a
+        file object.
+
+    Todo
+    -----
+        * Parameter validation.
     """
     lines = []
     ser = to_ser(ser)
@@ -67,6 +88,18 @@ def to_meltsfile(
 def to_meltsfiles(df, linesep=os.linesep, **kwargs):
     """
     Creates a number of melts files from a dataframe.
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe from which to take the rows and create melts files.
+    linesep : :class:`str`
+        Line separation character.
+
+    Returns
+    -------
+    :class:`list`
+        List of strings which can be written to file objects.
     """
 
     # Type checking such that series will be passed directly to MELTSfiles
@@ -80,7 +113,19 @@ def to_meltsfiles(df, linesep=os.linesep, **kwargs):
 
 
 def from_meltsfile(filename):
-    """Read from a meltsfile into a pandas.DataFrame."""
+    """
+    Read from a meltsfile into a :class:`pandas.DataFrame`.
+
+    Parameters
+    -----------
+    filename : :class:`str` | :class:`pathlib.Path` | :class:`io.BytesIO`
+        Filename, filepath or bytes object to read from.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Dataframe containing meltsfile parameters.
+    """
     if isinstance(filename, io.BytesIO):
         file = filename.getvalue().decode()
     elif isinstance(filename, io.StringIO):
