@@ -20,13 +20,13 @@ __UNITS__ = {**__massunits__}
 
 def scale(in_unit, target_unit="ppm"):
     """
-    Provides the scale difference between to mass units.
+    Provides the scale difference between two mass units.
 
     Parameters
     ----------
-    in_unit: current units
+    in_unit : :class:`str`
         Units to be converted from
-    target_unit: target mass unit, ppm
+    target_unit : :class:`str`, :code:`"ppm"`
         Units to scale to.
 
     Todo

@@ -41,7 +41,8 @@ def norm_to_lognorm(mean, sigma, scipy=True):
     sigma : :class:`float`
         :code:`sigma` of the normal distribution.
     scipy : :class:`bool`
-        If using the scipy parameterisation; this uses scale = np.exp(mu).
+        If using the :mod:`scipy.stats` parameterisation; this uses
+        :code:`scale = np.exp(mu)`.
 
     Returns
     --------
