@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
     """
     Create a folder for a given meltsfile, including the default environment file.
+    From this folder, pass these to alphamelts with
+    :code:`run_alphamelts.command -m <meltsfile> -f <envfile>`.
 
     Parameters
     -----------
@@ -27,8 +29,7 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         Path to the base directory to create melts folders in.
     env : :class:`str` | :class:`pathlib.Path`
         Path to a specific environment file to use as the default environment for the
-        experiment. Pass this to alphamelts with
-        :code:`run_alphamelts.command -f <envfile>`.
+        experiment.
     """
     if dir is None:
         dir = Path("./")
