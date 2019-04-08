@@ -89,6 +89,11 @@ pyrolite\.util\.alphamelts
       :members:
       :undoc-members:
 
+  .. toctree::
+     :maxdepth: 2
+
+     alphamelts
+
 pyrolite\.util\.repositories
 -------------------------------
   .. automodule:: pyrolite.util.repositories
