@@ -1,7 +1,7 @@
 Contributing
 =============
 
-The long-term aim of this project is to be designed, build and supported by and for
+The long-term aim of this project is to be designed, built and supported by (and for)
 the geochemistry community. In the present, the majority of the work involves
 incorporating geological knowledge and frameworks into a practically useful core set of
 tools which can be later be expanded. As such, requests for features and bug reports
