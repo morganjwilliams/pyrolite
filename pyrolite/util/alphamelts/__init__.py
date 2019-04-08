@@ -13,3 +13,4 @@ from .tables import *
 from .util import *
 from .web import *
 from .env import *
+from .automation import *
