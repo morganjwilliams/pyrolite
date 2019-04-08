@@ -83,6 +83,12 @@ pyrolite\.util\.meta
       :members:
       :undoc-members:
 
+pyrolite\.util\.alphamelts
+-------------------------------
+  .. automodule:: pyrolite.util.alphamelts
+      :members:
+      :undoc-members:
+
 pyrolite\.util\.repositories
 -------------------------------
   .. automodule:: pyrolite.util.repositories
