@@ -1,3 +1,6 @@
+"""
+Various utilities used by other submodules.
+"""
 # from .general import *
 # from .pd import *
 # from .plot import *
@@ -11,3 +14,8 @@
 # from .spatial import *
 # from .wfs import *
 # from .skl import *
+
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)

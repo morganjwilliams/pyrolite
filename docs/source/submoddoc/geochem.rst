@@ -1,3 +1,10 @@
+pyrolite\.geochem
+=======================
+
+.. automodule:: pyrolite.geochem
+    :members:
+    :undoc-members:
+
 pyrolite\.geochem\.ind
 -------------------------------
   .. automodule:: pyrolite.geochem.ind
@@ -37,5 +44,11 @@ pyrolite\.geochem\.alteration
 pyrolite\.geochem\.magma
 -------------------------------
   .. automodule:: pyrolite.geochem.magma
+      :members:
+      :undoc-members:
+
+pyrolite\.geochem\.isotope
+-------------------------------
+  .. automodule:: pyrolite.geochem.isotope
       :members:
       :undoc-members:

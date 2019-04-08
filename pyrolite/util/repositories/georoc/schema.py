@@ -5,7 +5,7 @@ import numpy as np
 from ...text import titlecase, split_records
 from ....geochem.parse import check_multiple_cation_inclusion
 from ....geochem.transform import aggregate_cation
-from ....geochem.norm import scale_multiplier
+from ...units import scale
 from ....geochem.ind import __common_elements__, __common_oxides__
 from ....geochem.validate import is_isotoperatio
 from .parse import parse_citations, parse_values, parse_DOI, columns_to_namesunits
@@ -148,7 +148,7 @@ def format_GEOROC_table(content):
     )
     # units conversion -- convert to Wt%
     logger.debug("Converting ppm data to Wt%")
-    df.loc[:, ppm_columns] *= scale_multiplier("ppm", "Wt%")
+    df.loc[:, ppm_columns] *= scale("ppm", "Wt%")
     df.columns = [(i[0], "wt%") if i in ppm_columns else i for i in df.columns]
     return df
 

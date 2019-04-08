@@ -1,3 +1,6 @@
+"""
+Submodule for working with compositional data.
+"""
 # from .aggregate import *
 # from .impute import *
 # from .codata import *

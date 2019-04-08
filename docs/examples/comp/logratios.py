@@ -25,7 +25,7 @@ def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
 
 
 m1, m2 = np.array([[0.3, 0.1, 2.1]]), np.array([[0.5, 2.5, 0.05]])
-c1, c2 = np.eye(2) / 100, np.eye(2) / 100
+c1, c2 = np.eye(2) / 100, np.eye(2) / 100 # Update these to random covariance matricies
 
 trend = pd.DataFrame(
     random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000)
@@ -44,3 +44,4 @@ ax.tax.scatter(
     color="r",
     label="LogMean",
 )
+ax.figure

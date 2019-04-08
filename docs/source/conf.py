@@ -32,7 +32,6 @@ from recommonmark.transform import AutoStructify
 import pyrolite
 
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
-version
 release = version
 """
 from mock import Mock as MagicMock
@@ -80,7 +79,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pyrolite"
-copyright = '2018-%s, Morgan Williams' % date.today().year
+copyright = "2018-%s, Morgan Williams" % date.today().year
 
 author = "Morgan Williams"
 
@@ -114,7 +113,7 @@ html_theme = "sphinx_rtd_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {"logo_only": True, "prev_next_buttons_location": None}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -123,22 +122,21 @@ html_static_path = ["_static"]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
-#
-# This is required for the alabaster theme
-# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     "**": [
-        "relations.html",  # needs 'show_related': True theme option to display
+        "globaltoc.html",
+        "sourcelink.html",
+        # "relations.html",  # needs 'show_related': True theme option to display
         "searchbox.html",
     ]
 }
-
+html_logo = "./_static/icon_small.png"
 html_context = {
-    "display_github": True, # Integrate GitHub
-    "github_user": "morganjwilliams", # Username
-    "github_repo": "pyrolite", # Repo name
-    "github_version": "develop", # Version
-    "conf_py_path": "/docs/source/", # Path in the checkout to the docs root
+    "display_github": True,  # Integrate GitHub
+    "github_user": "morganjwilliams",  # Username
+    "github_repo": "pyrolite",  # Repo name
+    "github_version": "develop",  # Version
+    "conf_py_path": "/docs/source/",  # Path in the checkout to the docs root
 }
 
 
@@ -208,7 +206,8 @@ intersphinx_mapping = {
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("http://scikit-learn.org/stable", None),
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
-    "statsmodels": ("https://www.statsmodels.org/stable", None)
+    "statsmodels": ("https://www.statsmodels.org/stable", None),
+    "pytest": ("https://docs.pytest.org/en/latest/", None),
 }
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
@@ -232,6 +231,14 @@ rst_prolog = """
 
    <br />
 
+.. |year| raw:: html
+
+    {year}
+
+.. |version| raw:: html
+
+    {version}
+
 .. |refcomps| raw:: html
 
     {rc}
@@ -242,7 +249,7 @@ rst_prolog = """
      <img src="https://zenodo.org/badge/137172322.svg" alt="DOI">
     </a>
 """.format(
-    rc=refcomps
+    rc=refcomps, year=str(date.today().year), version=version
 )
 
 
@@ -315,13 +322,13 @@ def linkcode_resolve(domain, info):
         if m:  # link to development version; line numbers could be off by a bit
             return "https://github.com/morganjwilliams/pyrolite/blob/develop/%s%s" % (
                 fn,
-                linespec
+                linespec,
             )
         else:
             return "https://github.com/morganjwilliams/pyrolite/blob/master/%s%s" % (
                 pyrolite.__version__,
                 fn,
-                linespec
+                linespec,
             )
     else:
         return None

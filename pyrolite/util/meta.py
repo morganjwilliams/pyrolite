@@ -1,7 +1,31 @@
+import os, sys
 from numpydoc.docscrape import FunctionDoc, ClassDoc
 import webbrowser
 import inspect
+from pathlib import Path
 import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
+
+def pyrolite_datafolder(subfolder=None):
+    """
+    Returns the path of the pyrolite data folder.
+
+    Parameters
+    -----------
+    subfolder : :class:`str`
+        Subfolder within the pyrolite data folder.
+
+    Returns
+    -------
+    :class:`pathlib.Path`
+    """
+    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
+    if subfolder:
+        pth /= subfolder
+    return pth
 
 
 def stream_log(module, level="INFO"):
@@ -35,10 +59,23 @@ def stream_log(module, level="INFO"):
 
 
 def take_me_to_the_docs():
+    """Opens the pyrolite documentation in a webbrowser."""
     webbrowser.open("https://pyrolite.rtfd.io")
 
 
 def sphinx_doi_link(doi):
+    """
+    Generate a string with a restructured text link to a given DOI.
+
+    Parameters
+    ----------
+    doi : :class:`str`
+
+    Returns
+    --------
+    :class:`str`
+        String with doi link.
+    """
     return "`{} <https://dx.doi.org/{}>`__".format(doi, doi)
 
 
@@ -52,6 +89,11 @@ def subkwargs(kwargs, *f):
         Dictionary of keyword arguments.
     f : :class:`callable`
         Function(s) to check.
+
+    Returns
+    --------
+    :class:`dict`
+        Dictionary containing only relevant keyword arguments.
     """
     return {k: v for k, v in kwargs.items() if inargs(k, *f)}
 
@@ -66,6 +108,10 @@ def inargs(name, *f):
         Argument name.
     f : :class:`callable`
         Function(s) to check.
+
+    Returns
+    --------
+    :class:`bool`
     """
     args = []
     for f in f:
@@ -75,6 +121,8 @@ def inargs(name, *f):
 
 def numpydoc_str_param_list(iterable, indent=4):
     """
+    Format a list of numpydoc parameters.
+
     Parameters
     -------------
     iterable : :class:`list`
@@ -171,11 +219,23 @@ def get_additional_params(
     return section
 
 
-def update_docstring_references(func, ref="ref"):
+def update_docstring_references(obj, ref="ref"):
     """
     Updates docstring reference names to strings including the function name.
     Decorator will return the same function with a modified docstring. Sphinx
     likes unique names - specifically for citations, not so much for footnotes.
+
+    Parameters
+    -----------
+    obj : :class:`func` | :class:`class`
+        Class or function for which to update documentation references.
+    ref : :class:`str`
+        String to replace with the object name.
+
+    Returns
+    -------
+    :class:`func` | :class:`class`
+        Object with modified docstring.
     """
-    func.__doc__ = str(func.__doc__).replace(ref, func.__name__)
-    return func
+    obj.__doc__ = str(obj.__doc__).replace(ref, obj.__name__)
+    return obj

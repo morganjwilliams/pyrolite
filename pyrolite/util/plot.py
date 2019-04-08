@@ -30,7 +30,7 @@ from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, invers
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 try:
     from sklearn.decomposition import PCA
@@ -48,6 +48,28 @@ except ImportError:
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+
+
+def share_axes(axes, which="xy"):
+    """
+    Link the x, y or both axes across a group of :class:`~matplotlib.axes.Axes`.
+
+    Parameters
+    -----------
+    axes : :class:`list`
+        List of axes to link.
+    which : :class:`str`
+        Which axes to link. If :code:`x`, link the x-axes; if :code:`y` link the y-axes,
+        otherwise link both.
+    """
+    for ax in axes:
+        if which == "x":
+            ax.get_shared_x_axes().join(*axes)
+        elif which == "y":
+            ax.get_shared_y_axes().join(*axes)
+        else:
+            ax.get_shared_x_axes().join(*axes)
+            ax.get_shared_y_axes().join(*axes)
 
 
 def modify_legend_handles(ax, **kwargs):
@@ -480,6 +502,12 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
+def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
+    return matplotlib.patches.Polygon(
+        ABC_to_xy(np.eye(3), yscale=yscale, xscale=xscale) * scale, **kwargs
+    )
+
+
 def proxy_rect(**kwargs):
     """
     Generates a legend proxy for a filled region.
@@ -797,6 +825,53 @@ def plot_cooccurence(arr, ax=None, normalize=True, log=False, colorbar=False, **
     return ax
 
 
+def subaxes(ax, side="bottom", width=0.2, moveticks=True):
+    """
+    Append a sub-axes to one side of an axes.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to append a sub-axes to.
+    side : :class:`str`
+        Which side to append the axes on.
+    width : :class:`float`
+        Fraction of width to give to the subaxes.
+    moveticks : :class:`bool`
+        Whether to move ticks to the outer axes.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.Axes`
+        Subaxes instance.
+    """
+    div = make_axes_locatable(ax)
+    ax.divider = div
+
+    if side in ["bottom", "top"]:
+        which = "x"
+        subax = div.append_axes(side, width, pad=0, sharex=ax)
+        div.subax = subax
+        subax.yaxis.set_visible(False)
+        subax.spines["left"].set_visible(False)
+        subax.spines["right"].set_visible(False)
+
+    else:
+        which = "y"
+        subax = div.append_axes(side, width, pad=0, sharex=ax)
+        div.subax = subax
+        subax.yaxis.set_visible(False)
+        subax.spines["top"].set_visible(False)
+        subax.spines["bottom"].set_visible(False)
+
+    share_axes([ax, subax], which=which)
+    if moveticks:
+        ax.tick_params(
+            axis=which, which="both", bottom=False, top=False, labelbottom=False
+        )
+    return subax
+
+
 def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     """
     Scatter plot with additional marginal axes to plot data for which data is partially
@@ -828,29 +903,10 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanaxx = div.nanaxx
         nanaxy = div.nanaxy
     else:  # Build axes
-        ax.yaxis.set_tick_params(labelleft=False, left=False)
-        ax.xaxis.set_tick_params(labelbottom=False, bottom=False)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-
-        div = make_axes_locatable(ax)
-        ax.divider = div
-
-        nanaxx = div.append_axes("bottom", axes_width, pad=0, sharex=ax)
-        div.nanaxx = nanaxx
+        nanaxx = subaxes(ax, side="bottom", width=axes_width)
         nanaxx.invert_yaxis()
-        nanaxx.yaxis.set_visible(False)
-        nanaxx.spines["left"].set_visible(False)
-        nanaxx.spines["right"].set_visible(False)
-        nanaxx.set_facecolor("none")
-
-        nanaxy = div.append_axes("left", axes_width, pad=0, sharey=ax)
-        div.nanaxy = nanaxy
+        nanaxy = subaxes(ax, side="left", width=axes_width)
         nanaxy.invert_xaxis()
-        nanaxy.xaxis.set_visible(False)
-        nanaxy.spines["top"].set_visible(False)
-        nanaxy.spines["bottom"].set_visible(False)
-        nanaxy.set_facecolor("none")
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
     nanydata = ydata[(np.isnan(xdata) & np.isfinite(ydata))]

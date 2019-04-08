@@ -18,7 +18,7 @@ import logging
 from .text import *
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def check_access_driver():

@@ -9,7 +9,7 @@ import inspect
 from .general import pathify
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def column_ordered_append(df1, df2, **kwargs):
@@ -35,7 +35,24 @@ def column_ordered_append(df1, df2, **kwargs):
 
 def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     """
-    Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single frame.
+    Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single
+    frame.
+
+    Parameters
+    -----------
+    dfs : :class:`list`
+        Sequence of dataframes.
+    ignore_index : :class:`bool`
+        Whether to ignore the indexes upon joining.
+    trace_source : :class:`bool`
+        Whether to retain a reference to the source of the data rows.
+    names : :class:`list
+        Names to use in place of indexes for source names.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Accumulated dataframe.
     """
     acc = None
     for ix, df in enumerate(dfs):
@@ -51,18 +68,27 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     return acc
 
 
-def to_frame(df):
+def to_frame(ser):
     """
     Simple utility for converting to :class:`pandas.DataFrame`.
+
+    Parameters
+    ----------
+    df : :class:`pandas.Series` | :class:`pandas.DataFrame`
+        Pandas object to ensure is in the form of a dataframe.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
     """
 
-    if type(df) == pd.Series:  # using series instead of dataframe
-        df = df.to_frame().T
-    elif type(df) == pd.DataFrame:  # 1 column slice
-        if df.columns.size == 1:
-            df = df.T
+    if type(ser) == pd.Series:  # using series instead of dataframe
+        df = ser.to_frame().T
+    elif type(ser) == pd.DataFrame:  # 1 column slice
+        if ser.columns.size == 1:
+            df = ser.T
     else:
-        msg = "Conversion from {} to dataframe not yet implemented".format(type(df))
+        msg = "Conversion from {} to dataframe not yet implemented".format(type(ser))
         raise NotImplementedError(msg)
 
     return df
@@ -72,6 +98,15 @@ def to_ser(df):
     """
     Simple utility for converting single column :class:`pandas.DataFrame`
     to :class:`pandas.Series`.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+        Pandas object to ensure is in the form of a series.
+
+    Returns
+    --------
+    :class:`pandas.Series`
     """
     if isinstance(df, pd.Series):  # passed series instead of dataframe
         ser = df
@@ -97,8 +132,8 @@ def to_numeric(df, errors: str = "coerce"):
 
     Notes
     -----
-    Avoid using .loc or .iloc on the LHS to make sure that data dtypes
-    are propagated.
+        * Avoid using .loc or .iloc on the LHS to make sure that data dtypes
+            are propagated.
     """
     return df.apply(pd.to_numeric, errors=errors)
 

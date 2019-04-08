@@ -22,6 +22,7 @@ def melts_query(data_dict, url_sfx="Compute"):
     Returns
     --------
     :class:`dict`
+        Dictionary containing results.
     """
     try:
         assert internet_connection()
@@ -50,6 +51,7 @@ def melts_compute(data_dict):
     Returns
     --------
     :class:`dict`
+        Dictionary containing results.
     """
     url_sfx = "Compute"
     result = melts_query(data_dict, url_sfx=url_sfx)
@@ -69,6 +71,7 @@ def melts_oxides(data_dict):
     Returns
     --------
     :class:`dict`
+        Dictionary containing results.
     """
     model = data_dict["initialize"].pop("modelSelection", "MELTS_v1.0.x")
     data_dict = {"modelSelection": model}
@@ -89,6 +92,7 @@ def melts_phases(data_dict):
     Returns
     --------
     :class:`dict`
+        Dictionary containing results.
     """
     model = data_dict["initialize"].pop("modelSelection", "MELTS_v1.0.x")
     data_dict = {"modelSelection": model}

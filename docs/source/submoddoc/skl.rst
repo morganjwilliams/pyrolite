@@ -1,4 +1,3 @@
-
 pyrolite\.util\.skl\.vis
 -------------------------------
   .. automodule:: pyrolite.util.skl.vis

@@ -1,0 +1,256 @@
+"""
+This file contains functions for automated execution, plotting and reporting from
+alphamelts 1.9.
+"""
+import logging
+import time
+import os, sys, platform
+from pathlib import Path
+import subprocess
+import threading
+import queue
+import shlex
+from ..general import copy_file
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+
+
+
+
+
+def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
+    """
+    Create a folder for a given meltsfile, including the default environment file.
+    From this folder, pass these to alphamelts with
+    :code:`run_alphamelts.command -m <meltsfile> -f <envfile>`.
+
+    Parameters
+    -----------
+    meltsfile : :class:`str`
+        String containing meltsfile info.
+    title : :class:`str`
+        Title of the experiment
+    dir : :class:`str` | :class:`pathlib.Path`
+        Path to the base directory to create melts folders in.
+    env : :class:`str` | :class:`pathlib.Path`
+        Path to a specific environment file to use as the default environment for the
+        experiment.
+
+    Returns
+    --------
+    :class:`pathlib.Path`
+        Path to melts folder.
+    """
+    if dir is None:
+        dir = Path("./")
+    else:
+        dir = Path(dir)
+    filepath = dir / title / (title + ".melts")
+    if not filepath.parent.exists():
+        filepath.parent.mkdir(parents=True)
+    with open(filepath, "w") as f:
+        f.write(meltsfile)
+
+    env = Path(env)
+    copy_file(env, filepath.parent / env.name)
+
+    return filepath.parent  # return the folder name
+
+
+class MeltsExperiment(object):
+    """
+    Melts Experiment Object. Currently in-development for automation of calling melts
+    across a grid of parameters.
+
+    Todo
+    ----
+        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
+        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
+        * Compressed export/save function
+    """
+
+    def __init__(self, dir="./"):
+        self.dir = dir
+        self.log = []
+
+    def run(self, meltsfile=None, env=None):
+        """
+        Call 'run_alphamelts.command'.
+        """
+        mp = MeltsProcess(
+            env=env,
+            meltsfile=meltsfile,
+            fromdir=self.dir,
+            log=lambda x: self.log.append(x),
+        )
+
+def enqueue_output(out, queue):
+    """
+    Send output to a queue.
+
+    Parameters
+    -----------
+    out
+        Readable output object.
+    queue : :class:`queue.Queue`
+        Queue to send ouptut to.
+    """
+    for line in iter(out.readline, b""):
+        queue.put(line)
+    out.close()
+
+class MeltsProcess(object):
+    def __init__(
+        self,
+        executable="run_alphamelts.command",
+        env="alphamelts_default_env.txt",
+        meltsfile=None,
+        fromdir=r"./",
+        log=print,
+    ):
+        """
+        Parameters
+        ----------
+        executable : :class:`str`
+            Executable to run. In this case defaults to the `run_alphamelts.command `
+            script.
+        env : :class:`str` | :class:`pathlib.Path`
+            Environment file to use.
+        meltsfile : :class:`str` | :class:`pathlib.Path`
+            Path to meltsfile to use for calculations.
+        fromdir : :class:`str` | :class:`pathlib.Path`
+            Directory to use as the working directory for the execution.
+        log : :class:`callable`
+            Function for logging output.
+        """
+        self.env = None
+        self.meltsfile = None
+        self.fromdir = None
+        self.log = log
+        if fromdir is not None:
+            self.log("Setting working directory: {}".format(fromdir))
+            fromdir = Path(fromdir)
+            assert fromdir.exists() and fromdir.is_dir()
+            self.fromdir = Path(fromdir)
+
+        self.executable = [executable]  # executable file
+
+        self.init_args = []  # initial arguments to pass to the exec before returning
+        if meltsfile is not None:
+            self.log("Setting meltsfile: {}".format(meltsfile))
+            self.meltsfile = Path(meltsfile)
+            self.executable += ["-m"]
+            self.executable += [str(meltsfile)]
+            self.init_args += ["1", str(meltsfile)]  # enter meltsfile
+        if env is not None:
+            self.log("Setting environment file: {}".format(env))
+            self.env = Path(env)
+            self.executable += ["-f", str(env)]
+
+        self.start()
+        time.sleep(0.5)
+        for a in self.init_args:
+            self.log("Passing Inital Variable: " + a)
+            self.write(a)
+
+    def log_output(self):
+        """
+        Log output to the configured logger.
+        """
+        self.log("\n" + self.read())
+
+    def start(self):
+        """
+        Start the process.
+
+        Returns
+        --------
+        :class:`subprocess.Popen`
+            Melts process object.
+        """
+        self.log("Starting Melts Process with: " + " ".join(self.executable))
+        config = dict(
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=sys.stderr,
+            cwd=self.fromdir,
+        )
+        self.process = subprocess.Popen(self.executable, **config)
+        self.q = queue.Queue()
+        self.T = threading.Thread(
+            target=enqueue_output, args=(self.process.stdout, self.q)
+        )
+        self.T.daemon = True  # kill when process dies
+        self.T.start()  # start the output thread
+        return self.process
+
+    def read(self):
+        """
+        Read from the output queue.
+
+        Returns
+        ---------
+        :class:`str`
+            Concatenated output from the output queue.
+        """
+        lines = []
+        while not self.q.empty():
+            lines.append(self.q.get_nowait().decode())
+        return "".join(lines)
+
+    def wait(self, step=0.5):
+        """
+        Wait until addtions to process.stdout stop.
+
+        Parameters
+        -----------
+        step : :class:`float`
+            Step in seconds at which to check the stdout queue.
+        """
+        while True:
+            size = self.q.qsize()
+            time.sleep(step)
+            if size == self.q.qsize():
+                break
+
+    def write(self, *messages, wait=False, log=False):
+        """
+        Send commands to the process.
+
+        Parameters
+        -----------
+        messages
+            Sequence of messages/commands to send.
+        wait : :class:`bool`
+            Whether to wait for process.stdout to finish.
+        log : :class:`bool`
+            Whether to log output to the logger.
+        """
+        for message in messages:
+            msg = "{}\n".format(str(message).strip()).encode("utf-8")
+            self.process.stdin.write(msg)
+            self.process.stdin.flush()
+            if wait:
+                self.wait()
+            if log:
+                self.log(message)
+                self.log_output()
+
+    def terminate(self):
+        """
+        Terminate the process.
+
+        Notes
+        -------
+            * Will likely terminate as expected using the command '0' to exit.
+            * Otherwise will attempt to cleanup the process.
+        """
+        self.write("0")
+        time.sleep(0.5)
+        try:
+            self.process.stdin.close()
+            self.process.terminate()
+            self.process.wait(timeout=0.2)
+        except ProcessLookupError:
+            logger.debug("Process Terminated Successfully")

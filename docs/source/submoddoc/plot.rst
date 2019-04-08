@@ -1,8 +1,9 @@
 pyrolite\.plot
--------------------------------
-  .. automodule:: pyrolite.plot
-      :members:
-      :undoc-members:
+===============
+
+.. automodule:: pyrolite.plot
+    :members:
+    :undoc-members:
 
 pyrolite\.plot\.spider
 -------------------------------

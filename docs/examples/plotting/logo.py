@@ -14,6 +14,7 @@ from pyrolite.util.plot import (
     percentile_contour_values_from_meshz,
     bin_centres_to_edges,
     bin_edges_to_centres,
+    ternary_patch,
 )
 from pyrolite.util.skl import ILRTransform, ALRTransform
 from pyrolite.util.synthetic import random_composition
@@ -60,6 +61,10 @@ ax = ax.flat
 for a in ax:  # append ternary axes
     _, a.tax = pyternary.figure(ax=a, scale=scale)
     a.tax.boundary(linewidth=1.0)
+    a.tax.patch = ternary_patch(
+        scale=scale, yscale=np.sqrt(3) / 2, color=a.patch.get_facecolor(), zorder=-10
+    )
+    a.add_artist(a.tax.patch)
 # %% scatter ---------------------------------------------------------------------------
 kwargs = dict(marker="D", alpha=0.1, s=3, no_ticks=True, axlabels=False)
 for ix, sample in enumerate(df.Sample.unique()):
@@ -92,10 +97,8 @@ for a in ax:
         a.spines[side].set_visible(False)
     a.get_xaxis().set_ticks([])
     a.get_yaxis().set_ticks([])
-    a.patch.set_facecolor(None)
-    a.patch.set_visible(False)
     a.set_aspect("equal")
-
+    a.patch.set_visible(False)
 # %% Save Figure
 from pyrolite.util.plot import save_axes, save_figure
 from pathlib import Path
@@ -105,7 +108,7 @@ dpi = 600
 save_at = Path("./../../source/_static/")
 fmts = ["png", "jpg"]
 save_axes(ax[1], name="icon", save_at=save_at, save_fmts=fmts, dpi=dpi)
-
+save_axes(ax[1], name="icon_small", save_at=save_at, save_fmts=fmts, dpi=60)
 ax[0].set_title("Synthetic Data")
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 ax[-2].set_title("Individual Density, with Contours")
@@ -127,20 +130,8 @@ save_axes(
     dpi=dpi,
     pad=[0, -0.01],
 )
-save_axes(
-    ax[2],
-    name="logo_eg_contours",
-    save_at=save_at,
-    save_fmts=fmts,
-    dpi=dpi,
-)
-save_axes(
-    ax[3],
-    name="logo_eg_density",
-    save_at=save_at,
-    save_fmts=fmts,
-    dpi=dpi,
-)
+save_axes(ax[2], name="logo_eg_contours", save_at=save_at, save_fmts=fmts, dpi=dpi)
+save_axes(ax[3], name="logo_eg_density", save_at=save_at, save_fmts=fmts, dpi=dpi)
 plt.tight_layout()
 
 save_figure(fig, name="logo_eg_all", save_at=save_at, save_fmts=fmts, dpi=dpi)

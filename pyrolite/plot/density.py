@@ -277,7 +277,6 @@ def density(
             ax.spines["right"].set_visible(False)
             ax.spines["bottom"].set_visible(False)
             ax.spines["left"].set_visible(False)
-            ax.patch.set_facecolor(None)
             ax.set_aspect("equal")
         else:
             if not arr.ndim in [0, 1, 2]:

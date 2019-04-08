@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 from http.client import HTTPResponse
 
 from ...text import titlecase
-from ...general import temp_path, pyrolite_datafolder
+from ...general import temp_path
+from ...meta import pyrolite_datafolder
 from ...web import urlify, internet_connection, download_file
 
 from .schema import parse_GEOROC_response

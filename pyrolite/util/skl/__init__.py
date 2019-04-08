@@ -1,3 +1,6 @@
+"""
+Utilities for use with scikit-learn.
+"""
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

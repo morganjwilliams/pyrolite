@@ -10,12 +10,13 @@ from .parse import from_melts_cstr
 from .meltsfile import to_meltsfiles
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class MeltsOutput(object):
-    def __init__(self, directory):
+    def __init__(self, directory, kelvin=True):
         self.title = None
+        self.kelvin = kelvin
         self.phasenames = set([])
         self.majors = set([])
         self.traces = set([])
@@ -33,7 +34,27 @@ class MeltsOutput(object):
         ]:
             tpath = dir / table
             setattr(self, name, load(tpath))
-            #logger.warning("Error on table import: {}".format(tpath))
+            # logger.warning("Error on table import: {}".format(tpath))
+
+    @property
+    def tables(self):
+        """
+        Get the set of tables accesible from the output object.
+
+        Returns
+        -------
+        :class:`set`
+            Tables accesible from the :class:`MeltsOutput` object.
+        """
+        return {
+            "bulkcomp",
+            "solidcomp",
+            "liquidcomp",
+            "phasemass",
+            "phasevol",
+            "tracecomp",
+            "system",
+        }
 
     def _set_title(self, title):
         if self.title is None:
@@ -56,13 +77,25 @@ class MeltsOutput(object):
 
     def read_table(self, filepath, **kwargs):
         """
-        Read a melts table (a space-separated value file)
+        Read a melts table (a space-separated value file).
+
+        Parameters
+        -----------
+        filepath : :class:`str` | :class:`pathlib.Path`
+            Filepath to the melts table.
+
+        Returns
+        -------
+        :class:`pandas.DataFrame`
+            DataFrame with table information.
         """
         path = Path(filepath)
         if path.exists and path.is_file:
             self._set_title(self._get_table_title(filepath))
             df = pd.read_csv(filepath, sep=" ", **kwargs)
             df = df.dropna(how="all", axis=1)
+            if ("Temperature" in df.columns) and not self.kelvin:
+                df.Temperature -= 273.15
             return df
         else:
             logger.warning("Expected file {} does not exist.".format(filepath))
@@ -122,6 +155,8 @@ class MeltsOutput(object):
                     table.loc[:, "formula"] = table.loc[:, "formula"].apply(
                         from_melts_cstr
                     )
+                if ("Temperature" in table.columns) and not self.kelvin:
+                    table.Temperature -= 273.15
                 self.phases[phase] = table
 
     def _read_logfile(filepath):

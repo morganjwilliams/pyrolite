@@ -2,8 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ternary as pyternary
 import logging
-from ..util.plot import ABC_to_xy, __DEFAULT_CONT_COLORMAP__, __DEFAULT_DISC_COLORMAP__
-from ..util.meta import get_additional_params
+from ..util.plot import (
+    ABC_to_xy,
+    __DEFAULT_CONT_COLORMAP__,
+    __DEFAULT_DISC_COLORMAP__,
+    ternary_patch,
+)
+from pyrolite.util.plot import ternary_patch
+from ..util.meta import get_additional_params, subkwargs
 from ..comp.codata import close
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -68,6 +74,11 @@ def ternary(
         * Create Ternary class for separate scatter, plot methods; layer of abstraction
         * Changing `clockwise` can render the plot invalid. Update to fix.
 
+    Notes
+    -------
+        * To create unfilled markers, pass :code:`edgecolors=<color>, c="none"`
+        * To edit marker edgewiths, pass :code:`linewidths=<width>`
+
     See Also
     ---------
     :func:`matplotlib.pyplot.plot`
@@ -83,6 +94,9 @@ def ternary(
     if tax is None:
         fig, tax = pyternary.figure(ax=ax, scale=scale)
 
+    if not hasattr(tax, 'patch'):
+        tax.patch =  ternary_patch(scale=scale, color=ax.patch.get_facecolor(),zorder=-10)
+        ax.add_artist(tax.patch)
     # Set attribute for future reference
     ax.tax = tax
     points = close(arr) * scale
@@ -96,6 +110,8 @@ def ternary(
         config = dict(c=color, marker=marker, alpha=alpha, label=label)
         if isinstance(color, (str, tuple)):
             config["color"] = config.pop("c")
+
+        config = {**config, **subkwargs(kwargs, ax.scatter)}
         tax.scatter(points, **config)
 
     if label is not None:

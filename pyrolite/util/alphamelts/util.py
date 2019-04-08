@@ -3,10 +3,19 @@ from collections import OrderedDict
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def default_data_dictionary():
+    """
+    Data dictionary with sufficient default values to be passed to MELTS REST services
+    for testing purposes.
+
+    Returns
+    --------
+    :class:`dict`
+        Dictionary with some default values.
+    """
     d = OrderedDict()
     d["title"] = ("TestREST",)
     d["initialize"] = {
