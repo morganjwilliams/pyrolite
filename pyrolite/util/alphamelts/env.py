@@ -132,7 +132,7 @@ class MELTS_Env(object):
         return preamble + "\n".join(
             [
                 ["", "!"][v is None] + "{} {}".format(k, v)
-                for k, v in self.dump(prefix=True, unset_variables=unset).items()
+                for k, v in self.dump(prefix=True, unset_variables=unset_variables).items()
             ]
         )
 
