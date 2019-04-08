@@ -16,10 +16,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b""):
-        queue.put(line)
-    out.close()
+
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
@@ -58,50 +55,50 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
     env = Path(env)
     copy_file(env, filepath.parent / env.name)
 
-    return filepath.parent # return the folder name
+    return filepath.parent  # return the folder name
 
 
 class MeltsExperiment(object):
     """
-    Melts Experiment Object
-
-    Currently in-development for automation of calling melts across a grid of
-    parameters.
+    Melts Experiment Object. Currently in-development for automation of calling melts
+    across a grid of parameters.
 
     Todo
     ----
-        * Automated creation of folders for experiment results
-        * Being able to run melts
+        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
+        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
         * Compressed export/save function
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, dir="./"):
+        self.dir = dir
+        self.log = []
 
     def run(self, meltsfile=None, env=None):
         """
         Call 'run_alphamelts.command'.
         """
-        args = ["run_alphamelts.command"]
-        meltsargs = []
-        if meltsfile is not None:
-            args += ["-m", str(meltsfile)]
-            meltsargs += ["1", str(meltsfile)]  # enter meltsfile
-        if env is not None:
-            args += ["-f", str(env)]
-        if system == "Windows":
-            pass
-        elif system == "Linux":
-            if ("Microsoft" in release) or ("Microsoft" in version):
-                pass
-            else:
-                pass
-        elif system == "Darwin":
-            pass
+        mp = MeltsProcess(
+            env=env,
+            meltsfile=meltsfile,
+            fromdir=self.dir,
+            log=lambda x: self.log.append(x),
+        )
 
-        meltsargs += ["3", "1"]  # try superliquidus start
-        subprocess.check_call(args)
+def enqueue_output(out, queue):
+    """
+    Send output to a queue.
 
+    Parameters
+    -----------
+    out
+        Readable output object.
+    queue : :class:`queue.Queue`
+        Queue to send ouptut to.
+    """
+    for line in iter(out.readline, b""):
+        queue.put(line)
+    out.close()
 
 class MeltsProcess(object):
     def __init__(
@@ -110,7 +107,7 @@ class MeltsProcess(object):
         env="alphamelts_default_env.txt",
         meltsfile=None,
         fromdir=r"./",
-        log=print
+        log=print,
     ):
         """
         Parameters
@@ -124,6 +121,8 @@ class MeltsProcess(object):
             Path to meltsfile to use for calculations.
         fromdir : :class:`str` | :class:`pathlib.Path`
             Directory to use as the working directory for the execution.
+        log : :class:`callable`
+            Function for logging output.
         """
         self.env = None
         self.meltsfile = None
@@ -156,15 +155,26 @@ class MeltsProcess(object):
             self.write(a)
 
     def log_output(self):
+        """
+        Log output to the configured logger.
+        """
         self.log("\n" + self.read())
 
     def start(self):
-        logger.info("Starting Melts Process with: " + " ".join(self.executable))
+        """
+        Start the process.
+
+        Returns
+        --------
+        :class:`subprocess.Popen`
+            Melts process object.
+        """
+        self.log("Starting Melts Process with: " + " ".join(self.executable))
         config = dict(
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=sys.stderr,
-            cwd=self.fromdir
+            cwd=self.fromdir,
         )
         self.process = subprocess.Popen(self.executable, **config)
         self.q = queue.Queue()
@@ -176,6 +186,14 @@ class MeltsProcess(object):
         return self.process
 
     def read(self):
+        """
+        Read from the output queue.
+
+        Returns
+        ---------
+        :class:`str`
+            Concatenated output from the output queue.
+        """
         lines = []
         while not self.q.empty():
             lines.append(self.q.get_nowait().decode())
@@ -183,15 +201,32 @@ class MeltsProcess(object):
 
     def wait(self, step=0.5):
         """
-        Wait until process.stdout stops.
+        Wait until addtions to process.stdout stop.
+
+        Parameters
+        -----------
+        step : :class:`float`
+            Step in seconds at which to check the stdout queue.
         """
         while True:
-            size =  self.q.qsize()
+            size = self.q.qsize()
             time.sleep(step)
             if size == self.q.qsize():
                 break
 
     def write(self, *messages, wait=False, log=False):
+        """
+        Send commands to the process.
+
+        Parameters
+        -----------
+        messages
+            Sequence of messages/commands to send.
+        wait : :class:`bool`
+            Whether to wait for process.stdout to finish.
+        log : :class:`bool`
+            Whether to log output to the logger.
+        """
         for message in messages:
             msg = "{}\n".format(str(message).strip()).encode("utf-8")
             self.process.stdin.write(msg)
@@ -203,6 +238,14 @@ class MeltsProcess(object):
                 self.log_output()
 
     def terminate(self):
+        """
+        Terminate the process.
+
+        Notes
+        -------
+            * Will likely terminate as expected using the command '0' to exit.
+            * Otherwise will attempt to cleanup the process.
+        """
         self.write("0")
         time.sleep(0.5)
         try:
@@ -210,4 +253,4 @@ class MeltsProcess(object):
             self.process.terminate()
             self.process.wait(timeout=0.2)
         except ProcessLookupError:
-            logger.debug('Process Terminated Successfully')
+            logger.debug("Process Terminated Successfully")
