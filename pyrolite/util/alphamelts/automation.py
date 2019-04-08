@@ -110,6 +110,7 @@ class MeltsProcess(object):
         env="alphamelts_default_env.txt",
         meltsfile=None,
         fromdir=r"./",
+        log=print
     ):
         """
         Parameters
@@ -127,8 +128,9 @@ class MeltsProcess(object):
         self.env = None
         self.meltsfile = None
         self.fromdir = None
+        self.log = log
         if fromdir is not None:
-            logger.debug("Setting working directory: {}".format(fromdir))
+            self.log("Setting working directory: {}".format(fromdir))
             fromdir = Path(fromdir)
             assert fromdir.exists() and fromdir.is_dir()
             self.fromdir = Path(fromdir)
@@ -137,24 +139,24 @@ class MeltsProcess(object):
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
-            logger.debug("Setting meltsfile: {}".format(meltsfile))
+            self.log("Setting meltsfile: {}".format(meltsfile))
             self.meltsfile = Path(meltsfile)
             self.executable += ["-m"]
             self.executable += [str(meltsfile)]
             self.init_args += ["1", str(meltsfile)]  # enter meltsfile
         if env is not None:
-            logger.debug("Setting environment file: {}".format(env))
+            self.log("Setting environment file: {}".format(env))
             self.env = Path(env)
             self.executable += ["-f", str(env)]
 
         self.start()
         time.sleep(0.5)
         for a in self.init_args:
-            logger.debug("Passing Inital Variable: " + a)
+            self.log("Passing Inital Variable: " + a)
             self.write(a)
 
     def log_output(self):
-        logger.info("\n" + self.read())
+        self.log("\n" + self.read())
 
     def start(self):
         logger.info("Starting Melts Process with: " + " ".join(self.executable))
@@ -192,16 +194,17 @@ class MeltsProcess(object):
     def write(self, *messages, wait=False, log=False):
         for message in messages:
             msg = "{}\n".format(str(message).strip()).encode("utf-8")
-            logger.info("\n" + str(message))
             self.process.stdin.write(msg)
             self.process.stdin.flush()
             if wait:
                 self.wait()
             if log:
-                self.process.log_output()
+                self.log(message)
+                self.log_output()
 
     def terminate(self):
         self.write("0")
+        time.sleep(0.5)
         try:
             self.process.stdin.close()
             self.process.terminate()
