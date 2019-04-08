@@ -70,7 +70,6 @@ class MELTS_Env(object):
         ]
 
         # Evironment variable are always imported as strings
-        print([(k, v) for k, p, v, t in zip(keys, pkeys, values, types)])
         _env = [
             (k, t(v)) if v and (v not in [None, "None"]) else (k, None)
             for k, p, v, t in zip(keys, pkeys, values, types)
