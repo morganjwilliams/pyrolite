@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class MeltsOutput(object):
-    def __init__(self, directory):
+    def __init__(self, directory, kelvin=True):
         self.title = None
+        self.kelvin = kelvin
         self.phasenames = set([])
         self.majors = set([])
         self.traces = set([])
@@ -33,7 +34,19 @@ class MeltsOutput(object):
         ]:
             tpath = dir / table
             setattr(self, name, load(tpath))
-            #logger.warning("Error on table import: {}".format(tpath))
+            # logger.warning("Error on table import: {}".format(tpath))
+
+    @property
+    def tables(self):
+        return {
+            "bulkcomp",
+            "solidcomp",
+            "liquidcomp",
+            "phasemass",
+            "phasevol",
+            "tracecomp",
+            "system",
+        }
 
     def _set_title(self, title):
         if self.title is None:
@@ -63,6 +76,8 @@ class MeltsOutput(object):
             self._set_title(self._get_table_title(filepath))
             df = pd.read_csv(filepath, sep=" ", **kwargs)
             df = df.dropna(how="all", axis=1)
+            if ("Temperature" in df.columns) and not self.kelvin:
+                df.Temperature -= 273.15
             return df
         else:
             logger.warning("Expected file {} does not exist.".format(filepath))
@@ -122,6 +137,8 @@ class MeltsOutput(object):
                     table.loc[:, "formula"] = table.loc[:, "formula"].apply(
                         from_melts_cstr
                     )
+                if ("Temperature" in table.columns) and not self.kelvin:
+                    table.Temperature -= 273.15
                 self.phases[phase] = table
 
     def _read_logfile(filepath):
