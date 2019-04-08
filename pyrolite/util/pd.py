@@ -74,7 +74,7 @@ def to_frame(ser):
 
     Parameters
     ----------
-    df : :class:`pandas.Series` | :class:`pandas.DataFrame`
+    ser : :class:`pandas.Series` | :class:`pandas.DataFrame`
         Pandas object to ensure is in the form of a dataframe.
 
     Returns
@@ -82,11 +82,13 @@ def to_frame(ser):
     :class:`pandas.DataFrame`
     """
 
-    if type(ser) == pd.Series:  # using series instead of dataframe
+    if isinstance(ser, pd.Series):  # using series instead of dataframe
         df = ser.to_frame().T
-    elif type(ser) == pd.DataFrame:  # 1 column slice
+    elif isinstance(ser, pd.DataFrame):  # 1 column slice
         if ser.columns.size == 1:
             df = ser.T
+        else:
+            df = ser
     else:
         msg = "Conversion from {} to dataframe not yet implemented".format(type(ser))
         raise NotImplementedError(msg)
