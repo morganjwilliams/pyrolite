@@ -11,12 +11,10 @@ import threading
 import queue
 import shlex
 from ..general import copy_file
+from ..meta import pyrolite_datafolder
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
@@ -85,6 +83,7 @@ class MeltsExperiment(object):
             log=lambda x: self.log.append(x),
         )
 
+
 def enqueue_output(out, queue):
     """
     Send output to a queue.
@@ -100,10 +99,11 @@ def enqueue_output(out, queue):
         queue.put(line)
     out.close()
 
+
 class MeltsProcess(object):
     def __init__(
         self,
-        executable="run_alphamelts.command",
+        executable=None,
         env="alphamelts_default_env.txt",
         meltsfile=None,
         fromdir=r"./",
@@ -112,9 +112,10 @@ class MeltsProcess(object):
         """
         Parameters
         ----------
-        executable : :class:`str`
-            Executable to run. In this case defaults to the `run_alphamelts.command `
-            script.
+        executable : :class:`str` | :class:`pathlib.Path`
+            Executable to run. Enter path to the the `run_alphamelts.command `
+            script. Falls back to local installation if no exectuable is specified
+            and a local instllation exists.
         env : :class:`str` | :class:`pathlib.Path`
             Environment file to use.
         meltsfile : :class:`str` | :class:`pathlib.Path`
@@ -123,6 +124,14 @@ class MeltsProcess(object):
             Directory to use as the working directory for the execution.
         log : :class:`callable`
             Function for logging output.
+
+        Todo
+        -----
+            * Recognise errors from stdout
+            * Input validation (graph of available options vs menu level)
+            * Logging of failed runs
+            * Facilitation of interactive mode upon error
+            * Error recovery methods (e.g. change the temperature)
         """
         self.env = None
         self.meltsfile = None
@@ -134,7 +143,30 @@ class MeltsProcess(object):
             assert fromdir.exists() and fromdir.is_dir()
             self.fromdir = Path(fromdir)
 
-        self.executable = [executable]  # executable file
+        if executable is None:
+            # check for local install
+            if platform.system() == "Windows":
+                local_run = (
+                    pyrolite_datafolder(subfolder="alphamelts")
+                    / "localinstall"
+                    / "links"
+                    / "run_alphamelts.bat"
+                )
+
+            else:
+                local_run = (
+                    pyrolite_datafolder(subfolder="alphamelts")
+                    / "localinstall"
+                    / "run_alphamelts.command"
+                )
+            if local_run.exists() and local_run.is_file():
+                executable = local_run
+                self.log("Using local executable meltsfile: {}".format(executable.name))
+
+        assert (
+            executable is not None
+        ), "Need to specify an installable or perform a local installation of alphamelts."
+        self.executable = [str(executable)]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
@@ -173,16 +205,26 @@ class MeltsProcess(object):
         config = dict(
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=sys.stderr,
+            stderr=subprocess.PIPE,
             cwd=self.fromdir,
+            close_fds=(os.name == "posix"),
         )
         self.process = subprocess.Popen(self.executable, **config)
         self.q = queue.Queue()
+
         self.T = threading.Thread(
             target=enqueue_output, args=(self.process.stdout, self.q)
         )
+
         self.T.daemon = True  # kill when process dies
         self.T.start()  # start the output thread
+
+        self.errq = queue.Queue()
+        self.errT = threading.Thread(  # separate thread for error reporting
+            target=enqueue_output, args=(self.process.stderr, self.errq)
+        )
+        self.errT.daemon = True  # kill when process dies
+        self.errT.start()  # start the err output thread
         return self.process
 
     def read(self):

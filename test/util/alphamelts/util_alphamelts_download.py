@@ -1,10 +1,6 @@
 import unittest
 from pyrolite.util.web import internet_connection
-from pyrolite.util.general import (
-    check_perl,
-    temp_path,
-    remove_tempdir,
-)
+from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.download import *
 
 
@@ -67,9 +63,31 @@ class TestInstall(unittest.TestCase):
                 if keeptemp:
                     self.assertTrue(self.temp_dir.exists() & self.temp_dir.is_dir())
 
+    def test_local_install(self):
+        """
+        Checks that the local install procedure works.
+        """
+        dir = pyrolite_datafolder() / "alphamelts" / "localinstall"
+        for keeptemp in [False, True]:
+            with self.subTest(keeptemp=keeptemp):
+                install_melts(
+                    native=True,
+                    temp_dir=self.temp_dir,
+                    keep_tempdir=keeptemp,
+                    local=True,
+                )
+
+                self.assertTrue(dir.exists())
+                self.assertTrue((dir / "file_format.command").exists())
+                if keeptemp:
+                    self.assertTrue(self.temp_dir.exists() & self.temp_dir.is_dir())
+
     def tearDown(self):
-        remove_tempdir(self.dir)
-        remove_tempdir(self.temp_dir)
+         # may have been removed already, or not created (for local)
+        if self.dir.exists():
+            remove_tempdir(self.dir)
+        if self.temp_dir.exists():
+            remove_tempdir(self.temp_dir)
 
 
 if __name__ == "__main__":

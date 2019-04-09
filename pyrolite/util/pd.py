@@ -46,7 +46,7 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
         Whether to ignore the indexes upon joining.
     trace_source : :class:`bool`
         Whether to retain a reference to the source of the data rows.
-    names : :class:`list
+    names : :class:`list`
         Names to use in place of indexes for source names.
 
     Returns

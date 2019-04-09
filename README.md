@@ -44,6 +44,6 @@ pip install pyrolite
 
 ### Contributing
 
-The long-term aim of this project is to be designed, build and supported by and for
+The long-term aim of this project is to be designed, built and supported by (and for)
 the geochemistry community. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
 Contributing page](https://pyrolite.readthedocs.io/en/latest/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/latest/conduct.html).
