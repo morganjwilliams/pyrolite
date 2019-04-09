@@ -2,9 +2,9 @@
 This file contains functions for automated execution, plotting and reporting from
 alphamelts 1.9.
 """
+import os, sys, platform
 import logging
 import time
-import os, sys, platform
 from pathlib import Path
 import subprocess
 import threading
@@ -12,9 +12,39 @@ import queue
 import shlex
 from ..general import copy_file
 from ..meta import pyrolite_datafolder
+from .tables import MeltsOutput
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def get_experiments_summary(dir, **kwargs):
+    """
+    Aggregate alphaMELTS experiment results across folders.
+
+    Parameters
+    -----------
+    dir : :class:`str` | :class:`pathlib.Path` | :class:`list`
+        Directory to aggregate folders from, or list of folders.
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    if isinstance(dir, list):
+        target_folders = dir
+    else:
+        dir = Path(dir)
+        target_folders = [p for p in dir.iterdir() if p.is_dir()]
+    summary = {}
+    for ix, t in enumerate(target_folders):
+        output = MeltsOutput(t, **kwargs)
+        summary[output.title] = {}
+        summary[output.title]["phases"] = {
+            i[: i.find("_")] if i.find("_") > 0 else i for i in output.phasenames
+        }
+        summary[output.title]["output"] = output
+    return summary
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
