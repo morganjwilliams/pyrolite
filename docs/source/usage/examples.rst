@@ -59,6 +59,15 @@ Indexes
   eg/indexes/*
 
 
+alphaMELTS Utilities
+----------------------
+.. toctree::
+  :glob:
+  :maxdepth: 2
+
+  eg/alphamelts/*
+
+
 Classification
 -----------------
 .. toctree::
