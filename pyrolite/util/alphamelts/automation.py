@@ -16,9 +16,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-
-
-
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
     """
     Create a folder for a given meltsfile, including the default environment file.
@@ -85,6 +82,7 @@ class MeltsExperiment(object):
             log=lambda x: self.log.append(x),
         )
 
+
 def enqueue_output(out, queue):
     """
     Send output to a queue.
@@ -100,10 +98,11 @@ def enqueue_output(out, queue):
         queue.put(line)
     out.close()
 
+
 class MeltsProcess(object):
     def __init__(
         self,
-        executable="run_alphamelts.command",
+        executable=None,
         env="alphamelts_default_env.txt",
         meltsfile=None,
         fromdir=r"./",
@@ -112,9 +111,10 @@ class MeltsProcess(object):
         """
         Parameters
         ----------
-        executable : :class:`str`
-            Executable to run. In this case defaults to the `run_alphamelts.command `
-            script.
+        executable : :class:`str` | :class:`pathlib.Path`
+            Executable to run. Enter path to the the `run_alphamelts.command `
+            script. Falls back to local installation if no exectuable is specified
+            and a local instllation exists.
         env : :class:`str` | :class:`pathlib.Path`
             Environment file to use.
         meltsfile : :class:`str` | :class:`pathlib.Path`
@@ -134,7 +134,21 @@ class MeltsProcess(object):
             assert fromdir.exists() and fromdir.is_dir()
             self.fromdir = Path(fromdir)
 
-        self.executable = [executable]  # executable file
+        if executable is None:
+            # check for local install
+            local_run = (
+                pyrolite_datafolder(subfolder="alphamelts")
+                / "localinstall"
+                / "links"
+                / "run_alphamelts.command"
+            )
+            if local_run.exists() and local_run.is_file():
+                executable = local_run
+
+        assert (
+            executable is not None
+        ), "Need to specify an installable or perform a local installation of alphamelts."
+        self.executable = [str(executable)]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
