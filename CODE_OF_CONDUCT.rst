@@ -73,8 +73,16 @@ members of the project's leadership.
 Attribution
 -----------
 
-This Code of Conduct is adapted from the `Contributor Covenant`__ version 1.4,
+This Code of Conduct is adapted from the `Contributor Covenant`__ Version 1.4,
 available at https://www.contributor-covenant.org/version/1/4/code-of-conduct.html.
+The Contributor Covenant is released under the
+`Creative Commons Attribution 4.0 License <http://creativecommons.org/licenses/by/4.0/>`__.
+
+.. raw:: html
+
+  <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+    <img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" />
+  </a>
 
 .. __ : https://www.contributor-covenant.org
 
