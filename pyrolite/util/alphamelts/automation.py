@@ -124,6 +124,14 @@ class MeltsProcess(object):
             Directory to use as the working directory for the execution.
         log : :class:`callable`
             Function for logging output.
+
+        Todo
+        -----
+            * Recognise errors from stdout
+            * Input validation (graph of available options vs menu level)
+            * Logging of failed runs
+            * Facilitation of interactive mode upon error
+            * Error recovery methods (e.g. change the temperature)
         """
         self.env = None
         self.meltsfile = None
@@ -199,6 +207,7 @@ class MeltsProcess(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             cwd=self.fromdir,
+            close_fds=(os.name == "posix"),
         )
         self.process = subprocess.Popen(self.executable, **config)
         self.q = queue.Queue()
@@ -211,7 +220,7 @@ class MeltsProcess(object):
         self.T.start()  # start the output thread
 
         self.errq = queue.Queue()
-        self.errT = threading.Thread(
+        self.errT = threading.Thread(  # separate thread for error reporting
             target=enqueue_output, args=(self.process.stderr, self.errq)
         )
         self.errT.daemon = True  # kill when process dies
