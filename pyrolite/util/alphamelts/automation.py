@@ -11,6 +11,7 @@ import threading
 import queue
 import shlex
 from ..general import copy_file
+from ..meta import pyrolite_datafolder
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -136,14 +137,23 @@ class MeltsProcess(object):
 
         if executable is None:
             # check for local install
-            local_run = (
-                pyrolite_datafolder(subfolder="alphamelts")
-                / "localinstall"
-                / "links"
-                / "run_alphamelts.command"
-            )
+            if platform.system() == "Windows":
+                local_run = (
+                    pyrolite_datafolder(subfolder="alphamelts")
+                    / "localinstall"
+                    / "links"
+                    / "run_alphamelts.bat"
+                )
+
+            else:
+                local_run = (
+                    pyrolite_datafolder(subfolder="alphamelts")
+                    / "localinstall"
+                    / "run_alphamelts.command"
+                )
             if local_run.exists() and local_run.is_file():
                 executable = local_run
+                self.log("Using local executable meltsfile: {}".format(executable.name))
 
         assert (
             executable is not None
@@ -187,16 +197,25 @@ class MeltsProcess(object):
         config = dict(
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=sys.stderr,
+            stderr=subprocess.PIPE,
             cwd=self.fromdir,
         )
         self.process = subprocess.Popen(self.executable, **config)
         self.q = queue.Queue()
+
         self.T = threading.Thread(
             target=enqueue_output, args=(self.process.stdout, self.q)
         )
+
         self.T.daemon = True  # kill when process dies
         self.T.start()  # start the output thread
+
+        self.errq = queue.Queue()
+        self.errT = threading.Thread(
+            target=enqueue_output, args=(self.process.stderr, self.errq)
+        )
+        self.errT.daemon = True  # kill when process dies
+        self.errT.start()  # start the err output thread
         return self.process
 
     def read(self):
