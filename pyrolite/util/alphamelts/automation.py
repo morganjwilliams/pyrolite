@@ -18,6 +18,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
+
 def get_experiments_summary(dir, **kwargs):
     """
     Aggregate alphaMELTS experiment results across folders.
@@ -84,34 +85,6 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
     copy_file(env, filepath.parent / env.name)
 
     return filepath.parent  # return the folder name
-
-
-class MeltsExperiment(object):
-    """
-    Melts Experiment Object. Currently in-development for automation of calling melts
-    across a grid of parameters.
-
-    Todo
-    ----
-        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
-        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
-        * Compressed export/save function
-    """
-
-    def __init__(self, dir="./"):
-        self.dir = dir
-        self.log = []
-
-    def run(self, meltsfile=None, env=None):
-        """
-        Call 'run_alphamelts.command'.
-        """
-        mp = MeltsProcess(
-            env=env,
-            meltsfile=meltsfile,
-            fromdir=self.dir,
-            log=lambda x: self.log.append(x),
-        )
 
 
 def enqueue_output(out, queue):
@@ -326,3 +299,40 @@ class MeltsProcess(object):
             self.process.wait(timeout=0.2)
         except ProcessLookupError:
             logger.debug("Process Terminated Successfully")
+
+
+class MeltsExperiment(object):
+    """
+    Melts Experiment Object. For a single call to melts, with one set of outputs.
+
+    Todo
+    ----
+        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
+        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
+        * Compressed export/save function
+    """
+
+    def __init__(self, dir="./"):
+        self.dir = dir
+        self.log = []
+
+    def run(self, meltsfile=None, env=None):
+        """
+        Call 'run_alphamelts.command'.
+        """
+        mp = MeltsProcess(
+            env=env,
+            meltsfile=meltsfile,
+            fromdir=self.dir,
+            log=lambda x: self.log.append(x),
+        )
+
+
+class MeltsBatch(object):
+    """
+    Batch of :class:`MeltsExperiment`s, which may represent evaluation over a grid of
+    parameters or configurations.
+    """
+
+    def __init__(self):
+        pass

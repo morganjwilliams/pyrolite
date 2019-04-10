@@ -8,6 +8,10 @@ See the `alphaMELTS site <https://magmasource.caltech.edu/alphamelts/>`__ for mo
 Todo
 -----
      * As it is developed, also make use of python-melts.
+     * MeltsBatch object
+     * Develop functions for automation over a grid (of P, T, H2O, fO2, X)
+     * Have an option to aggregate summary data, and options to discard experiment data
+     * Expansion of documentation
 
 References
 -----------
