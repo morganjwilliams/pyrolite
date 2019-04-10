@@ -18,7 +18,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-
 def get_experiments_summary(dir, **kwargs):
     """
     Aggregate alphaMELTS experiment results across folders.
@@ -75,16 +74,33 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         dir = Path("./")
     else:
         dir = Path(dir)
-    filepath = dir / title / (title + ".melts")
-    if not filepath.parent.exists():
-        filepath.parent.mkdir(parents=True)
-    with open(filepath, "w") as f:
-        f.write(meltsfile)
+    title = str(title)
+    experiment_folder = dir / title
+    if not experiment_folder.exists():
+        experiment_folder.mkdir(parents=True)
 
-    env = Path(env)
-    copy_file(env, filepath.parent / env.name)
+    meltstarget = experiment_folder / (title + ".melts")
+    if isinstance(meltsfile, Path):
+        _src = meltsfile
+        copy_file(_src, meltstarget)
+    elif isinstance(meltsfile, str):
+        if "\n" in meltsfile:  # multiline string
+            with open(meltstarget, "w") as f:
+                f.write(meltsfile)
+        else:  # path, copy file
+            _src = Path(meltsfile)
+            copy_file(_src, meltstarget)
 
-    return filepath.parent  # return the folder name
+    if isinstance(env, Path):
+        copy_file(env, experiment_folder / env.name)
+    elif isinstance(env, str):
+        if "\n" in env:  # multiline string
+            with open(experiment_folder / env.name, "w") as f:
+                f.write(env)
+        else:  # path, copy file
+            copy_file(Path(env), experiment_folder / Path(env).name)
+
+    return experiment_folder # return the folder name
 
 
 def enqueue_output(out, queue):
@@ -169,24 +185,29 @@ class MeltsProcess(object):
         assert (
             executable is not None
         ), "Need to specify an installable or perform a local installation of alphamelts."
-        self.executable = [str(executable)]  # executable file
+
+        if isinstance(executable, Path):
+            self.exname = str(executable.name)
+        else:
+            self.exname = str(executable)
+        self.executable = str(executable)
+        self.run = [str(self.executable)]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
             self.log("Setting meltsfile: {}".format(meltsfile))
             self.meltsfile = Path(meltsfile)
-            self.executable += ["-m"]
-            self.executable += [str(meltsfile)]
-            self.init_args += ["1", str(meltsfile)]  # enter meltsfile
+            self.run += ["-m", str(self.meltsfile)]
+            self.init_args += ["1", str(self.meltsfile)]  # enter meltsfile
         if env is not None:
             self.log("Setting environment file: {}".format(env))
             self.env = Path(env)
-            self.executable += ["-f", str(env)]
+            self.run += ["-f", str(env)]
 
         self.start()
         time.sleep(0.5)
+        self.log("Passing Inital Variables: " + " ".join(self.init_args))
         for a in self.init_args:
-            self.log("Passing Inital Variable: " + a)
             self.write(a)
 
     def log_output(self):
@@ -204,7 +225,9 @@ class MeltsProcess(object):
         :class:`subprocess.Popen`
             Melts process object.
         """
-        self.log("Starting Melts Process with: " + " ".join(self.executable))
+        self.log(
+            "Starting Melts Process with: " + " ".join([self.exname] + self.run[1:])
+        )
         config = dict(
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -212,7 +235,7 @@ class MeltsProcess(object):
             cwd=self.fromdir,
             close_fds=(os.name == "posix"),
         )
-        self.process = subprocess.Popen(self.executable, **config)
+        self.process = subprocess.Popen(self.run, **config)
         self.q = queue.Queue()
 
         self.T = threading.Thread(
@@ -312,9 +335,12 @@ class MeltsExperiment(object):
         * Compressed export/save function
     """
 
-    def __init__(self, dir="./"):
+    def __init__(self, dir="./", env=None):
         self.dir = dir
         self.log = []
+        self.env = MELTS_Env()
+        if not env is None:
+            pass  # parse env
 
     def run(self, meltsfile=None, env=None):
         """
