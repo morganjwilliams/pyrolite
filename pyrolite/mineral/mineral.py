@@ -326,7 +326,7 @@ class Mineral(object):
                 composition = parse_composition(composition)
 
             if composition is None:
-                logger.warn('Composition not set. Cannot calculate occupancy.')
+                logger.warn("Composition not set. Cannot calculate occupancy.")
 
             affinities = pd.DataFrame(
                 [site.affinities for site in self.template.structure]
@@ -407,7 +407,7 @@ class Mineral(object):
             self.template.site_occupancy = occupancy
             return occupancy
         else:
-            logger.warn('Template not yet set. Cannot calculate occupancy.')
+            logger.warn("Template not yet set. Cannot calculate occupancy.")
 
     def get_site_occupancy(self):
         """
@@ -509,7 +509,10 @@ def parse_composition(composition):
 @pf.register_series_method
 @pf.register_dataframe_method
 def recalc_cations(
-    df, ideal_cations=4, ideal_oxygens=6, Fe_species=["FeO", "Fe", "Fe2O3"],
+    df,
+    ideal_cations=4,
+    ideal_oxygens=6,
+    Fe_species=["FeO", "Fe", "Fe2O3"],
     oxygen_constrained=False,
 ):
     """
@@ -527,7 +530,8 @@ def recalc_cations(
     if not oxygen_constrained:
         if count_iron_species > 1:  # check that only one is defined
             oxygen_constrained = (
-                count_iron_species - pd.isnull(moles.loc[:, Fe_species]).all(axis=1).sum()
+                count_iron_species
+                - pd.isnull(moles.loc[:, Fe_species]).all(axis=1).sum()
             ) > 1
 
             if oxygen_constrained:
@@ -535,7 +539,7 @@ def recalc_cations(
             else:
                 logger.info("Single iron species defined. Calculating using cations.")
 
-        components = moles.columns
+    components = moles.columns
     as_oxides = len(list(pt.formula(components[0]).atoms)) > 1
     schema = []
     # if oxygen_constrained:  # need to specifically separate Fe2 and Fe3
@@ -563,12 +567,14 @@ def recalc_cations(
     ref = pd.DataFrame(data=schema)
     ref.columns = ref.columns.map(str)
     ref.index = components
+
     cation_masses = {c: pt.formula(c).mass for c in ref.columns}
     oxygen_index = [i for i in ref.columns if "O" in i][0]
     ref = ref.loc[:, [i for i in ref.columns if not i == oxygen_index] + [oxygen_index]]
-    moles_ref = ref.copy()
-
-    moles_ref.loc[:, :] = ref.values * moles.T.values
+    moles_ref = ref.copy(deep=True)
+    moles_ref.loc[:, :] = (
+        ref.values * moles.T.values
+    )  # this works for series, not for frame
 
     moles_O = moles_ref[oxygen_index].sum()
     moles_cations = (
