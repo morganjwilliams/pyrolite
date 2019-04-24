@@ -1,7 +1,7 @@
 Stem Plots
-==================================
+============
 
-Stem and leaf plots are commonly used to visualise discrete distributions of data,
+Stem plots are commonly used to visualise discrete distributions of data,
 and are useful to highlight discrete observations where the precision of values along
 one axis is high (e.g. a spatial measure like depth) and the other is less so.
 
