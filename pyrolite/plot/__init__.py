@@ -16,6 +16,7 @@ from ..geochem import common_elements, REE
 from . import density
 from . import spider
 from . import tern
+from . import stem
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "tern", "pyroplot"]
@@ -140,7 +141,7 @@ class pyroplot(object):
         )
         tax = ax.tax
 
-        def set_labels(labels): # local function to set ternary labels
+        def set_labels(labels):  # local function to set ternary labels
             tax.right_axis_label(labels[0], fontsize=fontsize)
             tax.left_axis_label(labels[1], fontsize=fontsize)
             tax.bottom_axis_label(labels[2], fontsize=fontsize)
@@ -236,6 +237,63 @@ class pyroplot(object):
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
+    def stem(
+        self,
+        components: list = None,
+        ax=None,
+        orientation="horizontal",
+        axlabels=True,
+        **kwargs
+    ):
+        r"""
+        Method for creating stem plots. Convenience access function to
+        :func:`~pyrolite.plot.stem.stem` (see `Other Parameters`, below), where
+        further parameters for relevant `matplotlib` functions are also listed.
+
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Elements or compositional components to plot.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        orientation : :class:`str`
+            Orientation of the plot (horizontal or vertical).
+        axlabels : :class:`bool`, True
+            Whether to add x-y axis labels.
+
+        Other Parameters
+        ------------------
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the density diagram is plotted.
+        """
+        obj = to_frame(self._obj)
+        try:
+            if obj.columns.size not in [2, 3]:
+                assert len(components) in [2, 3]
+
+            if components is None:
+                components = obj.columns.values
+        except:
+            msg = "Suggest components or provide a slice of the dataframe."
+            raise AssertionError(msg)
+        ax = stem.stem(
+            obj[components[0]].values,
+            obj[components[1]].values,
+            ax=ax,
+            orientation=orientation,
+            **kwargs
+        )
+        fontsize = kwargs.get("fontsize", 8.0)
+        if axlabels:
+            ax.set_xlabel(components[0], fontsize=fontsize)
+            ax.set_ylabel(components[1], fontsize=fontsize)
+
+        return ax
+
     def cooccurence(self, ax=None, normalize=True, log=False, colorbar=False, **kwargs):
         """
         Plot the co-occurence frequency matrix for a given input.
@@ -312,8 +370,21 @@ pyroplot.REE.__doc__ = pyroplot.REE.__doc__.format(
     otherparams=[
         "",
         get_additional_params(
-            REE,
+            pyroplot.REE,
             spider.REE_v_radii,
+            header="Other Parameters",
+            indent=8,
+            subsections=True,
+        ),
+    ][_add_additional_parameters]
+)
+
+pyroplot.stem.__doc__ = pyroplot.stem.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            pyroplot.stem,
+            stem.stem,
             header="Other Parameters",
             indent=8,
             subsections=True,
