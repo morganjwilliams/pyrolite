@@ -268,7 +268,7 @@ class pyroplot(object):
         Returns
         -------
         :class:`matplotlib.axes.Axes`
-            Axes on which the density diagram is plotted.
+            Axes on which the stem diagram is plotted.
         """
         obj = to_frame(self._obj)
         try:
