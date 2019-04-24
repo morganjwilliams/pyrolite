@@ -287,8 +287,11 @@ class pyroplot(object):
             orientation=orientation,
             **kwargs
         )
+
         fontsize = kwargs.get("fontsize", 8.0)
         if axlabels:
+            if 'h' not in  orientation:
+                components = components[::-1]
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
 
