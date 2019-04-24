@@ -193,21 +193,22 @@ def get_additional_params(
         new = [o for o in d[t] if not (o[0] in p0 or o[0] in pars)]
         if subsections:
             subsection = numpydoc_str_param_list(new, indent=indent)
-            subsection = ("\n" + " " * indent) + ("\n" + " " * indent).join(
-                [
-                    ("\n" + " " * indent).join(
-                        [subsection_delim, "-" * (len(subsection_delim) + 1)]
-                    )
-                ]
-                + [
-                    "The following additional parameters are from :func:`{}`.".format(
-                        ".".join([f.__module__, f.__name__])
-                    )
-                ]
-                + [("\n" + " " * indent).join([header, "-" * (len(header) + 1)])]
-                + [subsection]
-            )
-            subsects.append(subsection)
+            if subsection:
+                subsection = ("\n" + " " * indent) + ("\n" + " " * indent).join(
+                    [
+                        ("\n" + " " * indent).join(
+                            [subsection_delim, "-" * (len(subsection_delim) + 1)]
+                        )
+                    ]
+                    + [
+                        "The following additional parameters are from :func:`{}`.".format(
+                            ".".join([f.__module__, f.__name__])
+                        )
+                    ]
+                    + [("\n" + " " * indent).join([header, "-" * (len(header) + 1)])]
+                    + [subsection]
+                )
+                subsects.append(subsection)
         else:
             pars += new
 
