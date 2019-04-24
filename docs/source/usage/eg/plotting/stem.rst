@@ -31,5 +31,5 @@ discrete observations down a drill hole:
    :end-before: # %% Save Figure
 
 .. image:: ../../../_static/stem_vertical.png
-   :width: 50%
+   :width: 35%
    :align: center
