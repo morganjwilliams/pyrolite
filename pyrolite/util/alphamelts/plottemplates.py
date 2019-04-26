@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 def plot_phasetable(
     summary,
-    table="phasevolume",
+    table="phasevol",
     xvar="Temperature",
-    figsize=(12, 20),
+    figsize=None,
     plotswide=2,
     yscale="linear",
 ):
@@ -30,8 +30,11 @@ def plot_phasetable(
     fig, ax = plt.subplots(
         nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
     )
-    for axix in ax:
-        axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+    if nkeys // plotswide > 1:
+        for axix in ax:
+            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+    else:
+        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
 
     ax = ax.flat
 
@@ -51,7 +54,7 @@ def plot_phasetable(
             getattr(output, table).loc[:, [p, xvar]].plot(x=xvar, ax=ax[ix], **config)
             plotted.append(phase)
         ax[ix].legend(
-            loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False, facecolor=None
+            loc="upper left", bbox_to_anchor=(1.05, 1.0), frameon=False, facecolor=None
         )
         ax[ix].set_title(d["output"].title)
     ax[0].set_yscale(yscale)
@@ -82,8 +85,12 @@ def plot_comptable(
     fig, ax = plt.subplots(
         nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
     )
-    for axix in ax:
-        axix[0].set_ylabel("Wt%")
+    if nkeys // plotswide > 1:
+        for axix in ax:
+            axix[0].set_ylabel("Wt%")
+    else:
+        ax[0].set_ylabel("Wt%")
+
     ax = ax.flat
 
     if nkeys % plotswide:
@@ -100,7 +107,7 @@ def plot_comptable(
             config = dict(color=__DEFAULT_DISC_COLORMAP__(colors[c]))
             comptable.loc[:, [c, xvar]].plot(x=xvar, ax=ax[ix], **config, label=c)
         ax[ix].legend(
-            loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False, facecolor=None
+            loc="upper left", bbox_to_anchor=(1.05, 1.0), frameon=False, facecolor=None
         )
         ax[ix].set_title(d["output"].title)
     ax[0].set_yscale(yscale)
@@ -137,8 +144,11 @@ def plot_phase_composition(
     fig, ax = plt.subplots(
         nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
     )
-    for axix in ax:
-        axix[0].set_ylabel("Wt %")
+    if nkeys // plotswide > 1:
+        for axix in ax:
+            axix[0].set_ylabel("Wt%")
+    else:
+        ax[0].set_ylabel("Wt%")
 
     ax = ax.flat
 
@@ -169,7 +179,7 @@ def plot_phase_composition(
                         pass
             plotted.append(phase)
         ax[ix].legend(
-            loc="upper left", bbox_to_anchor=(1.0, 1.0), frameon=False, facecolor=None
+            loc="upper left", bbox_to_anchor=(1.05, 1.0), frameon=False, facecolor=None
         )
         ax[ix].set_title(d["output"].title)
     ax[0].set_yscale(yscale)

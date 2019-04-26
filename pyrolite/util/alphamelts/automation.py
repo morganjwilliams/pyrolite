@@ -3,6 +3,7 @@ This file contains functions for automated execution, plotting and reporting fro
 alphamelts 1.9.
 """
 import os, sys, platform
+import psutil
 import logging
 import time
 from pathlib import Path
@@ -10,9 +11,11 @@ import subprocess
 import threading
 import queue
 import shlex
-from ..general import copy_file
+from ..general import copy_file, get_process_tree
 from ..meta import pyrolite_datafolder
 from .tables import MeltsOutput
+from .meltsfile import to_meltsfile
+from .env import MELTS_Env
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -100,7 +103,7 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         else:  # path, copy file
             copy_file(Path(env), experiment_folder / Path(env).name)
 
-    return experiment_folder # return the folder name
+    return experiment_folder  # return the folder name
 
 
 def enqueue_output(out, queue):
@@ -117,6 +120,106 @@ def enqueue_output(out, queue):
     for line in iter(out.readline, b""):
         queue.put(line)
     out.close()
+
+
+def _file_from_obj(fileobj):
+    """
+    Read in file data either from a file path or a string.
+
+    Parameters
+    ------------
+    fileobj : :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid file, or a multiline string representation of a
+        file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of a file.
+    path
+        Path to the original file, if it exists.
+
+    Notes
+    ------
+        This function deconvolutes the possible ways in which one can pass either
+        a file, or reference to a file.
+
+    Todo
+    ----
+        * Could be passed an open file object
+    """
+    path, file = None
+    if isinstance(fileobj, Path):
+        path = fileobj
+    elif isinstance(fileobj, str):
+        if len(re.split("[\r\n]", fileobj)) > 1:  # multiline string passed as a file
+            file = fileobj
+        else:  # path passed as a string
+            path = fileobj
+    else:
+        pass
+    if (path is not None) and (file is None):
+        file = open(path).read()
+
+    assert file is not None  # can't not have a meltsfile
+    return file, path
+
+
+def _read_meltsfile(meltsfile):
+    """
+    Read in a melts file from a :class:`~pandas.Series`, :class:`~pathlib.Path` or
+    string.
+
+    Parameters
+    ------------
+    meltsfile : :class:`pandas.Series` | :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid melts file, a :class:`pandas.Series`, or a
+        multiline string representation of a melts file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of a meltsfile.
+    path
+        Path to the original file, if it exists.
+
+    Notes
+    ------
+        This function deconvolutes the possible ways in which one can pass either
+        a meltsfile, or reference to a meltsfile.
+    """
+    path, file = None, None
+    if isinstance(meltsfile, pd.Series):
+        file = to_meltsfile(meltsfile, **kwargs)
+    else:
+        file, path = _file_from_obj(meltsfile)
+    return file, path
+
+
+def _read_envfile(envfile):
+    """
+    Read in a environment file from a  :class:`~pyrolite.util.alphamelts.env.MELTS_Env`,
+    :class:`~pathlib.Path` or string.
+
+    Parameters
+    ------------
+    envfile : :class:`~pyrolite.util.alphamelts.env.MELTS_Env` | :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid environment file, a :class:`pandas.Series`, or a
+        multiline string representation of a environment file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of an environment file.
+    path
+        Path to the original file, if it exists.
+    """
+    path, file = None, None
+    if isinstance(envfile, MELTS_Env):
+        file = MELTS_Env.to_envfile(**kwargs)
+    else:
+        file, path = _file_from_obj(envfile)
+    return file, path
 
 
 class MeltsProcess(object):
@@ -151,15 +254,22 @@ class MeltsProcess(object):
             * Logging of failed runs
             * Facilitation of interactive mode upon error
             * Error recovery methods (e.g. change the temperature)
+
+        Notes
+        ------
+            * Need to get full paths for melts files, directories etc
         """
         self.env = None
         self.meltsfile = None
-        self.fromdir = None
+        self.fromdir = None  # default to None, runs from cwd
         self.log = log
         if fromdir is not None:
             self.log("Setting working directory: {}".format(fromdir))
             fromdir = Path(fromdir)
-            assert fromdir.exists() and fromdir.is_dir()
+            try:
+                assert fromdir.exists() and fromdir.is_dir()
+            except AssertionError:
+                fromdir.mkdir(parents=True)
             self.fromdir = Path(fromdir)
 
         if executable is None:
@@ -236,12 +346,12 @@ class MeltsProcess(object):
             close_fds=(os.name == "posix"),
         )
         self.process = subprocess.Popen(self.run, **config)
+        logger.debug("Process Started with ID {}".format(self.process.pid))
+        # Queues and Logging
         self.q = queue.Queue()
-
         self.T = threading.Thread(
             target=enqueue_output, args=(self.process.stdout, self.q)
         )
-
         self.T.daemon = True  # kill when process dies
         self.T.start()  # start the output thread
 
@@ -314,6 +424,9 @@ class MeltsProcess(object):
             * Will likely terminate as expected using the command '0' to exit.
             * Otherwise will attempt to cleanup the process.
         """
+        alphamelts_ex = [
+            p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
+        ]
         self.write("0")
         time.sleep(0.5)
         try:
@@ -323,41 +436,98 @@ class MeltsProcess(object):
         except ProcessLookupError:
             logger.debug("Process Terminated Successfully")
 
+        for p in alphamelts_ex:  # kill the children executables
+            try:
+                # kill the alphamelts executable which can hang
+                logger.debug("Terminating {}".format(p.name()))
+                p.kill()
+            except psutil.NoSuchProcess:
+                pass
+
 
 class MeltsExperiment(object):
     """
     Melts Experiment Object. For a single call to melts, with one set of outputs.
+    Autmatically creates the experiment folder, meltsfile and environment file, runs
+    alphaMELTS and collects the results.
 
     Todo
     ----
         * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
         * Being able to run melts in an automated way (see :class:`MeltsProcess`)
         * Compressed export/save function
+        * Post-processing functions for i) validation and ii) plotting
     """
 
-    def __init__(self, dir="./", env=None):
+    def __init__(self, dir="./", meltsfile=None, env=None, exec=None):
         self.dir = dir
         self.log = []
         self.env = MELTS_Env()
         if not env is None:
             pass  # parse env
 
-    def run(self, meltsfile=None, env=None):
+    def set_meltsfile(self, meltsfile, **kwargs):
+        """
+        Set the meltsfile for the experiment.
+
+        Parameters
+        ------------
+        meltsfile : :class:`pandas.Series` | :class:`str` | :class:`pathlib.Path`
+            Either a path to a valid melts file, a :class:`pandas.Series`, or a
+            multiline string representation of a melts file object.
+        """
+        self.meltsfile, self.meltsfilepath = _read_meltsfile(meltsfile)
+
+    def set_envfile(self, env):
+        """
+        Set the environment for the experiment.
+
+        Parameters
+        ------------
+        env : :class:`str` | :class:`pathlib.Path`
+            Either a path to a valid environment file, a :class:`pandas.Series`, or a
+            multiline string representation of a environment file object.
+        """
+        self.envfilepath = env
+
+    def _make_folder(self, startdir=None):
+        """
+        Create the experiment folder.
+        """
+        self.folder = make_meltsfolder(
+            meltsfile=self.meltsfile,
+            title=self.title,
+            dir=startdir,
+            env=self.envfilepath,
+        )
+
+    def run(self, meltsfile=None, env=None, log=False, superliquidus_start=True):
         """
         Call 'run_alphamelts.command'.
         """
         mp = MeltsProcess(
-            env=env,
-            meltsfile=meltsfile,
-            fromdir=self.dir,
+            meltsfile=meltsfile or self.meltsfilepath,
+            env=env or self.envfilepath,
+            fromdir=self.folder,
             log=lambda x: self.log.append(x),
         )
+        mp.write(3, [0, 1][superliquidus_start], 4, wait=True, log=log)
+        mp.terminate()
+
+    def cleanup(self):
+        pass
 
 
 class MeltsBatch(object):
     """
-    Batch of :class:`MeltsExperiment`s, which may represent evaluation over a grid of
+    Batch of :class:`MeltsExperiment`, which may represent evaluation over a grid of
     parameters or configurations.
+
+    Todo
+    ------
+        * Can start with a single composition or multiple compositions in a dataframe
+        * Enable grid search for individual parameters
+        * Improved output logging/reporting
     """
 
     def __init__(self):
