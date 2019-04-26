@@ -30,6 +30,8 @@ class TestMakeMeltsFolder(unittest.TestCase):
         self.envfile = _env  # use default
 
     def test_default(self):
+        assert self.meltsfile.parent.exists()
+        print(list(self.meltsfile.parent.iterdir()))
         path = make_meltsfolder(self.meltsfile, "MORB", env=self.envfile, dir=self.dir)
 
     def tearDown(self):
