@@ -7,6 +7,9 @@ from pyrolite.util.alphamelts.download import install_melts
 from pyrolite.util.meta import pyrolite_datafolder
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.automation import *
+from pyrolite.util.meta import stream_log
+
+stream_log("pyrolite.util.alphamelts", level="DEBUG")
 
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
