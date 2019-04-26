@@ -18,16 +18,11 @@ matrix:
     - python: "3.7"
 
 install:
+  - sudo apt-get install -y perl # install perl for alphamelts utility testing
   - pip install -q pytest pytest-runner pytest-cov coverage
   - pip install coveralls
   - pip install -e .[skl] # install skl dependencies
   - python setup.py install
-
-#before_script: # configure a headless display to test plot generation
-#  - if [ "$PYVERSION" != "37" ]; then #######; fi
-#  - "export DISPLAY=:99.0"
-#  - "sh -e /etc/init.d/xvfb start"
-#  - sleep 3 # give xvfb some time to start
 
 script:
   - xvfb-run python setup.py test
