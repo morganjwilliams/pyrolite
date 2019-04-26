@@ -19,7 +19,7 @@ _melts = (
     pyrolite_datafolder(subfolder="alphamelts")
     / "localinstall"
     / "examples"
-    / "morb.melts"
+    / "Morb.melts"
 )
 
 
