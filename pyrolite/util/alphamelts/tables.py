@@ -174,3 +174,34 @@ class MeltsOutput(object):
 
     def _read_logfile(filepath):
         pass
+
+
+def get_experiments_summary(dir, **kwargs):
+    """
+    Aggregate alphaMELTS experiment results across folders within a directory,
+    or for a list of directories.
+
+    Parameters
+    -----------
+    dir : :class:`str` | :class:`pathlib.Path` | :class:`list`
+        Directory to aggregate folders from, or list of folders.
+
+    Returns
+    --------
+    :class:`dict`
+        Dictonary of experiment outputs indexed by titles.
+    """
+    if isinstance(dir, list):
+        target_folders = dir
+    else:
+        dir = Path(dir)
+        target_folders = [p for p in dir.iterdir() if p.is_dir()]
+    summary = {}
+    for ix, t in enumerate(target_folders):
+        output = MeltsOutput(t, **kwargs)
+        summary[output.title] = {}
+        summary[output.title]["phases"] = {
+            i[: i.find("_")] if i.find("_") > 0 else i for i in output.phasenames
+        }
+        summary[output.title]["output"] = output
+    return summary

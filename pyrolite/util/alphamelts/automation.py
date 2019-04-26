@@ -13,41 +13,12 @@ import queue
 import shlex
 from ..general import copy_file, get_process_tree
 from ..meta import pyrolite_datafolder
-from .tables import MeltsOutput
-from .meltsfile import to_meltsfile
-from .env import MELTS_Env
+from .tables import MeltsOutput, get_experiments_summary
+from .parse import read_envfile, read_meltsfile
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-def get_experiments_summary(dir, **kwargs):
-    """
-    Aggregate alphaMELTS experiment results across folders.
-
-    Parameters
-    -----------
-    dir : :class:`str` | :class:`pathlib.Path` | :class:`list`
-        Directory to aggregate folders from, or list of folders.
-
-    Returns
-    --------
-    :class:`dict`
-    """
-    if isinstance(dir, list):
-        target_folders = dir
-    else:
-        dir = Path(dir)
-        target_folders = [p for p in dir.iterdir() if p.is_dir()]
-    summary = {}
-    for ix, t in enumerate(target_folders):
-        output = MeltsOutput(t, **kwargs)
-        summary[output.title] = {}
-        summary[output.title]["phases"] = {
-            i[: i.find("_")] if i.find("_") > 0 else i for i in output.phasenames
-        }
-        summary[output.title]["output"] = output
-    return summary
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
@@ -72,6 +43,10 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
     --------
     :class:`pathlib.Path`
         Path to melts folder.
+
+    Todo
+    ------
+        * Options for naming environment files
     """
     if dir is None:
         dir = Path("./")
@@ -102,11 +77,14 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
                 f.write(env)
         else:  # path, copy file
             copy_file(Path(env), experiment_folder / Path(env).name)
+    elif isinstance(env, MELTS_Env): # passed an environment object
+        with open(experiment_folder / 'environment.txt', "w") as f:
+            f.write(env.to_envfile(unset_variables=False))
 
     return experiment_folder  # return the folder name
 
 
-def enqueue_output(out, queue):
+def _enqueue_output(out, queue):
     """
     Send output to a queue.
 
@@ -120,106 +98,6 @@ def enqueue_output(out, queue):
     for line in iter(out.readline, b""):
         queue.put(line)
     out.close()
-
-
-def _file_from_obj(fileobj):
-    """
-    Read in file data either from a file path or a string.
-
-    Parameters
-    ------------
-    fileobj : :class:`str` | :class:`pathlib.Path`
-        Either a path to a valid file, or a multiline string representation of a
-        file object.
-
-    Returns
-    --------
-    file : :class:`str`
-        Multiline string representation of a file.
-    path
-        Path to the original file, if it exists.
-
-    Notes
-    ------
-        This function deconvolutes the possible ways in which one can pass either
-        a file, or reference to a file.
-
-    Todo
-    ----
-        * Could be passed an open file object
-    """
-    path, file = None
-    if isinstance(fileobj, Path):
-        path = fileobj
-    elif isinstance(fileobj, str):
-        if len(re.split("[\r\n]", fileobj)) > 1:  # multiline string passed as a file
-            file = fileobj
-        else:  # path passed as a string
-            path = fileobj
-    else:
-        pass
-    if (path is not None) and (file is None):
-        file = open(path).read()
-
-    assert file is not None  # can't not have a meltsfile
-    return file, path
-
-
-def _read_meltsfile(meltsfile):
-    """
-    Read in a melts file from a :class:`~pandas.Series`, :class:`~pathlib.Path` or
-    string.
-
-    Parameters
-    ------------
-    meltsfile : :class:`pandas.Series` | :class:`str` | :class:`pathlib.Path`
-        Either a path to a valid melts file, a :class:`pandas.Series`, or a
-        multiline string representation of a melts file object.
-
-    Returns
-    --------
-    file : :class:`str`
-        Multiline string representation of a meltsfile.
-    path
-        Path to the original file, if it exists.
-
-    Notes
-    ------
-        This function deconvolutes the possible ways in which one can pass either
-        a meltsfile, or reference to a meltsfile.
-    """
-    path, file = None, None
-    if isinstance(meltsfile, pd.Series):
-        file = to_meltsfile(meltsfile, **kwargs)
-    else:
-        file, path = _file_from_obj(meltsfile)
-    return file, path
-
-
-def _read_envfile(envfile):
-    """
-    Read in a environment file from a  :class:`~pyrolite.util.alphamelts.env.MELTS_Env`,
-    :class:`~pathlib.Path` or string.
-
-    Parameters
-    ------------
-    envfile : :class:`~pyrolite.util.alphamelts.env.MELTS_Env` | :class:`str` | :class:`pathlib.Path`
-        Either a path to a valid environment file, a :class:`pandas.Series`, or a
-        multiline string representation of a environment file object.
-
-    Returns
-    --------
-    file : :class:`str`
-        Multiline string representation of an environment file.
-    path
-        Path to the original file, if it exists.
-    """
-    path, file = None, None
-    if isinstance(envfile, MELTS_Env):
-        file = MELTS_Env.to_envfile(**kwargs)
-    else:
-        file, path = _file_from_obj(envfile)
-    return file, path
 
 
 class MeltsProcess(object):
@@ -350,14 +228,14 @@ class MeltsProcess(object):
         # Queues and Logging
         self.q = queue.Queue()
         self.T = threading.Thread(
-            target=enqueue_output, args=(self.process.stdout, self.q)
+            target=_enqueue_output, args=(self.process.stdout, self.q)
         )
         self.T.daemon = True  # kill when process dies
         self.T.start()  # start the output thread
 
         self.errq = queue.Queue()
         self.errT = threading.Thread(  # separate thread for error reporting
-            target=enqueue_output, args=(self.process.stderr, self.errq)
+            target=_enqueue_output, args=(self.process.stderr, self.errq)
         )
         self.errT.daemon = True  # kill when process dies
         self.errT.start()  # start the err output thread
@@ -476,7 +354,7 @@ class MeltsExperiment(object):
             Either a path to a valid melts file, a :class:`pandas.Series`, or a
             multiline string representation of a melts file object.
         """
-        self.meltsfile, self.meltsfilepath = _read_meltsfile(meltsfile)
+        self.meltsfile, self.meltsfilepath = read_meltsfile(meltsfile)
 
     def set_envfile(self, env):
         """
@@ -488,7 +366,7 @@ class MeltsExperiment(object):
             Either a path to a valid environment file, a :class:`pandas.Series`, or a
             multiline string representation of a environment file object.
         """
-        self.envfilepath = env
+        self.envfile, self.envfilepath = read_envfile(env)
 
     def _make_folder(self, startdir=None):
         """
@@ -498,7 +376,7 @@ class MeltsExperiment(object):
             meltsfile=self.meltsfile,
             title=self.title,
             dir=startdir,
-            env=self.envfilepath,
+            env=self.envfile,
         )
 
     def run(self, meltsfile=None, env=None, log=False, superliquidus_start=True):

@@ -17,7 +17,7 @@ env.MINT = 700
 env.MINP = 2000
 env.DELTAT = -3
 
-with open("pyrolite_envfile.txt", "w") as f: # write the environment to a file
+with open("pyrolite_envfile.txt", "w") as f:  # write the environment to a file
     f.write(env.to_envfile(unset_variables=False))
 # %% setup dataframe
 # taking a dataframe with oxide/element headers, set up experiment info
@@ -30,7 +30,7 @@ df["Log fO2 Path"] = "FMQ"
 # %% autorun
 # we can create melts files from each of these data rows, and run an automated experiment
 for ix in df.index:
-    meltsfile = to_meltsfile(  # write
+    meltsfile = to_meltsfile(
         df.loc[ix, :],  # take the specific row
         writetraces=False,  # ignore trace element data
         modes=[

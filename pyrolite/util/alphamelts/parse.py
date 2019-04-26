@@ -1,10 +1,114 @@
 import re
+import pandas as pd
+from pathlib import Path
 import logging
 import periodictable as pt
-from pyrolite.mineral.mineral import merge_formulae
+from ...mineral.mineral import merge_formulae
+from .env import MELTS_Env
+from .meltsfile import to_meltsfile
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def _file_from_obj(fileobj):
+    """
+    Read in file data either from a file path or a string.
+
+    Parameters
+    ------------
+    fileobj : :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid file, or a multiline string representation of a
+        file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of a file.
+    path
+        Path to the original file, if it exists.
+
+    Notes
+    ------
+        This function deconvolutes the possible ways in which one can pass either
+        a file, or reference to a file.
+
+    Todo
+    ----
+        * Could be passed an open file object
+    """
+    path, file = None, None
+    if isinstance(fileobj, Path):
+        path = fileobj
+    elif isinstance(fileobj, str):
+        if len(re.split("[\r\n]", fileobj)) > 1:  # multiline string passed as a file
+            file = fileobj
+        else:  # path passed as a string
+            path = fileobj
+    else:
+        pass
+    if (path is not None) and (file is None):
+        file = open(path).read()
+
+    assert file is not None  # can't not have a meltsfile
+    return file, path
+
+
+def read_meltsfile(meltsfile):
+    """
+    Read in a melts file from a :class:`~pandas.Series`, :class:`~pathlib.Path` or
+    string.
+
+    Parameters
+    ------------
+    meltsfile : :class:`pandas.Series` | :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid melts file, a :class:`pandas.Series`, or a
+        multiline string representation of a melts file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of a meltsfile.
+    path
+        Path to the original file, if it exists.
+
+    Notes
+    ------
+        This function deconvolutes the possible ways in which one can pass either
+        a meltsfile, or reference to a meltsfile.
+    """
+    path, file = None, None
+    if isinstance(meltsfile, pd.Series):
+        file = to_meltsfile(meltsfile, **kwargs)
+    else:
+        file, path = _file_from_obj(meltsfile)
+    return file, path
+
+
+def read_envfile(envfile):
+    """
+    Read in a environment file from a  :class:`~pyrolite.util.alphamelts.env.MELTS_Env`,
+    :class:`~pathlib.Path` or string.
+
+    Parameters
+    ------------
+    envfile : :class:`~pyrolite.util.alphamelts.env.MELTS_Env` | :class:`str` | :class:`pathlib.Path`
+        Either a path to a valid environment file, a :class:`pandas.Series`, or a
+        multiline string representation of a environment file object.
+
+    Returns
+    --------
+    file : :class:`str`
+        Multiline string representation of an environment file.
+    path
+        Path to the original file, if it exists.
+    """
+    path, file = None, None
+    if isinstance(envfile, MELTS_Env):
+        file = MELTS_Env.to_envfile(**kwargs)
+    else:
+        file, path = _file_from_obj(envfile)
+    return file, path
 
 
 def from_melts_cstr(composition_str, formula=True):

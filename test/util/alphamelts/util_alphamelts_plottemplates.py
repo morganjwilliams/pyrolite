@@ -1,8 +1,12 @@
 import unittest
+import pandas as pd
+import io
+from pyrolite.util.pd import to_numeric
+from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.alphamelts.download import install_melts
-from pyrolite.util.meta import pyrolite_datafolder
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
-from pyrolite.util.alphamelts.tables import get_experiments_summary, MeltsOutput
+from pyrolite.util.alphamelts.automation import *
+from pyrolite.util.alphamelts.plottemplates import *
 
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
@@ -17,21 +21,6 @@ _melts = (
     / "examples"
     / "morb.melts"
 )
-
-
-class TestGetExperimentsSummary(unittest.TestCase):
-    def setUp(self):
-        self.dir = temp_path() / "test_melts_temp"
-        self.dir.mkdir()
-
-    def test_default(self):
-        pass
-        #summary = get_experiments_summary(self.dir)
-
-    def tearDown(self):
-        if self.dir.exists():
-            remove_tempdir(self.dir)
-
 
 if __name__ == "__main__":
     if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
