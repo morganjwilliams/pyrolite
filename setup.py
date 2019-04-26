@@ -48,6 +48,7 @@ setup(
     packages=find_packages(exclude=["test*"]),
     install_requires=[
         "pathlib",
+        "psutil",
         "numpy",
         "scipy",
         "mpmath",
