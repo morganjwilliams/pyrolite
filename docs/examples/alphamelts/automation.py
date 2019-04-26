@@ -7,6 +7,18 @@ from pyrolite.util.synthetic import test_df
 
 df = test_df(cols=["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "P2O5"])
 df["Sample"] = np.arange(df.index.size)
+# %% setup environment
+from pyrolite.util.alphamelts.env import MELTS_Env
+
+env = MELTS_Env()
+env.VERSION = "MELTS"  # crustal processes, pMELTS > 1GPA/10kbar
+env.MODE = "isobaric"
+env.MINT = 700
+env.MINP = 2000
+env.DELTAT = -3
+
+with open("pyrolite_envfile.txt", "w") as f: # write the environment to a file
+    f.write(env.to_envfile(unset_variables=False))
 # %% setup dataframe
 # taking a dataframe with oxide/element headers, set up experiment info
 df["Title"] = df.Sample
