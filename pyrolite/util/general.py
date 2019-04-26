@@ -74,13 +74,13 @@ def check_perl():
         Boolean indication of whether there is an executable perl installation.
     """
     try:
-        p = subprocess.check_output("perl -v")
+        p = subprocess.check_output(["perl", "-v"])
         returncode = 0
     except subprocess.CalledProcessError as e:
         output = e.output
         returncode = e.returncode
     except FileNotFoundError:
-        returncode = 1.0
+        returncode = 1
 
     return returncode == 0
 
