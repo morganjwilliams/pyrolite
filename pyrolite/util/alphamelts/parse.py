@@ -39,7 +39,7 @@ def _file_from_obj(fileobj):
     """
     path, file = None, None
     if isinstance(fileobj, Path):
-        path = fileobj
+        path = str(fileobj)
     elif isinstance(fileobj, str):
         if len(re.split("[\r\n]", fileobj)) > 1:  # multiline string passed as a file
             file = fileobj
