@@ -14,7 +14,7 @@ def plot_phasetable(
     table="phasevol",
     xvar="Temperature",
     figsize=None,
-    plotswide=2,
+    plotswide=1,
     yscale="linear",
 ):
     all_phases = set()
@@ -66,8 +66,8 @@ def plot_comptable(
     summary,
     table="liquidcomp",
     xvar="Temperature",
-    figsize=(12, 20),
-    plotswide=2,
+    figsize=None,
+    plotswide=1,
     yscale="linear",
 ):
     all_components = set()
@@ -119,8 +119,8 @@ def plot_phase_composition(
     summary,
     phase="olivine",
     xvar="Temperature",
-    figsize=(12, 20),
-    plotswide=2,
+    figsize=None,
+    plotswide=1,
     yscale="linear",
 ):
     all_phases = set()
