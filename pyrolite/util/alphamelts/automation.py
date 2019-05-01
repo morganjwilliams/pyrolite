@@ -121,6 +121,7 @@ class MeltsProcess(object):
 
         Notes
         ------
+            * Need to specify an exectuable or perform a local installation of alphamelts.
             * Need to get full paths for melts files, directories etc
         """
         self.env = None
@@ -153,27 +154,19 @@ class MeltsProcess(object):
                     / "run_alphamelts.command"
                 )
 
-            if local_run.exists() and local_run.is_file():
-                executable = local_run
+            executable = local_run
+            self.log("Using local executable meltsfile: {}".format(executable.name))
 
-                self.log("Using local executable meltsfile: {}".format(executable.name))
-
-        assert (
-            executable is not None
-        ), "Need to specify an installable or perform a local installation of alphamelts."
-
-        if isinstance(executable, Path):
-            self.exname = str(executable.name)
-        else:
-            self.exname = str(executable)
-
-        self.executable = str(executable)
+        executable = Path(executable)
+        assert executable.exists() and executable.is_file()
+        self.exname = str(executable.name)
 
         st = os.stat(executable)
         mode = st.st_mode
-        assert bool(mode & stat.S_IXUSR), "User needs execution permission."
 
-        self.run = [str(self.executable)]  # executable file
+        assert bool(mode & stat.S_IXUSR), "User needs execution permission."
+        self.executable = str(executable)
+        self.run = [self.executable]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
