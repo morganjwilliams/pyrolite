@@ -21,10 +21,11 @@ install:
   - pip install -q pytest pytest-runner pytest-cov coverage
   - pip install coveralls
   - pip install -e .[skl] # install skl dependencies
-  - chmod -R 777 ./pyrolite/data/ # make the data folders RWX permissible
 
 script:
+  - chmod -R 777 ./pyrolite/data/ # make the data folders RWX permissible
   - xvfb-run python setup.py test
+  - ls -lR ./pyrolite/data/ # log permissions within the data folder
 
 after_success:
   - "ls -lr htmlcov"
