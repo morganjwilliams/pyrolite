@@ -23,7 +23,6 @@ install:
   - pip install -e .[skl] # install skl dependencies
 
 script:
-  - chmod -R 777 ./pyrolite/data/ # make the data folders RWX permissible
   - xvfb-run python setup.py test
   - ls -lR ./pyrolite/data/ # log permissions within the data folder
 
