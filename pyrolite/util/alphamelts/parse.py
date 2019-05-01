@@ -54,7 +54,7 @@ def _file_from_obj(fileobj):
     return file, path
 
 
-def read_meltsfile(meltsfile):
+def read_meltsfile(meltsfile, **kwargs):
     """
     Read in a melts file from a :class:`~pandas.Series`, :class:`~pathlib.Path` or
     string.
@@ -85,7 +85,7 @@ def read_meltsfile(meltsfile):
     return file, path
 
 
-def read_envfile(envfile):
+def read_envfile(envfile, **kwargs):
     """
     Read in a environment file from a  :class:`~pyrolite.util.alphamelts.env.MELTS_Env`,
     :class:`~pathlib.Path` or string.
