@@ -203,11 +203,8 @@ def install_melts(
                 # with_readline
 
             # getting files to copy
-            files_to_copy += [
-                (eg_dir, egs),
-                (install_dir, comms),
-                (install_dir, [alphafile]),
-            ]
+            non_executables += [(eg_dir, egs), (install_dir, comms)]
+            executables = [(install_dir, [alphafile])]
 
             if system == "Windows":
                 bats = comms + [temp_dir / "alphamelts"]
@@ -225,13 +222,17 @@ def install_melts(
                     with open(str(b), "w") as fout:
                         fout.write(batdata[b.stem])  # dummy bats
 
-                files_to_copy += [(link_dir, bats)]
+                executables += [(link_dir, bats)]
 
                 # regs = ['command', 'command_auto_file', 'path', 'perl']
 
-            for (target, files) in files_to_copy:
+            for (target, files) in non_executables:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
+
+            for (target, files) in executables:
+                for fn in files:  # executable files will need permissions
+                    copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
     except AssertionError:
         raise AssertionError
     finally:

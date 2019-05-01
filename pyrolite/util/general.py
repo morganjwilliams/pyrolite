@@ -163,7 +163,7 @@ def swap_item(list: list, pull: object, push: object):
     return [[i, push][i == pull] for i in list]
 
 
-def copy_file(src, dst, ext=None):
+def copy_file(src, dst, ext=None, permissions=None):
     """
     Copy a file from one place to another.
     Uses the full filepath including name.
@@ -186,6 +186,9 @@ def copy_file(src, dst, ext=None):
     with open(str(src), "rb") as fin:
         with open(str(dst), "wb") as fout:
             shutil.copyfileobj(fin, fout)
+
+    if permissions is not None:
+        os.chmod(str(dst), permissions)
 
 
 def remove_tempdir(directory):
