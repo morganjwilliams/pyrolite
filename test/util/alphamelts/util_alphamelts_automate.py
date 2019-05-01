@@ -23,6 +23,9 @@ _melts = (
     / "Morb.melts"
 )
 
+if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    install_melts(local=True)  # install melts for example files etc
+
 
 class TestMakeMeltsFolder(unittest.TestCase):
     def setUp(self):
@@ -78,7 +81,4 @@ class TestMeltsBatch(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
-        install_melts(local=True)  # install melts for example files etc
-
     unittest.main()
