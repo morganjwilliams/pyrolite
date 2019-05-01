@@ -21,6 +21,7 @@ def strain_coefficient(r0, rx, E=None, T=298.15, **kwargs):
     Returns
     --------
     :class:`float`
+        The strain coefficent :math:`e^{\frac{-\Delta G_{strain}}{RT}}`.
 
     Notes
     ------
