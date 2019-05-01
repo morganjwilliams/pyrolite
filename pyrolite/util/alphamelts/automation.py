@@ -60,11 +60,11 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         experiment_folder.mkdir(parents=True)
 
     meltsfile, mpath = read_meltsfile(meltsfile)
-    with open(experiment_folder / (title + ".melts"), "w") as f:
+    with open(str(experiment_folder / (title + ".melts")), "w") as f:
         f.write(meltsfile)
 
     env, epath = read_envfile(env, unset_variables=False)
-    with open(experiment_folder / "environment.txt", "w") as f:
+    with open(str(experiment_folder / "environment.txt"), "w") as f:
         f.write(env)
 
     return experiment_folder  # return the folder name
