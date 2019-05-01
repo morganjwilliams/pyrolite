@@ -3,21 +3,18 @@ import sys
 from pathlib import Path
 import pandas as pd
 import periodictable as pt
-from pyrolite.util.text import titlecase
-from scipy.interpolate import interp1d
-from pyrolite.mineral import ions
+from ..mineral import ions
+from ..util.text import titlecase
+from ..util.meta import pyrolite_datafolder
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-_shannonradiifile = (
-    Path(sys.modules["pyrolite"].__file__).parent / "data" / "shannon" / "radii.csv"
-).resolve()
+_shannonradiifile = (pyrolite_datafolder(subfolder="shannon") / "radii.csv").resolve()
 assert _shannonradiifile.exists() and _shannonradiifile.is_file()
 __shannon__ = pd.read_csv(_shannonradiifile).set_index("index", drop=True)
 assert hasattr(__shannon__, "element")
-
 
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
@@ -336,7 +333,6 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         return result.values[0]  # return the specific number
     else:
         return result  # return the series
-
 
 # private sets for improved performance
 __common_elements__ = common_elements(as_set=True)
