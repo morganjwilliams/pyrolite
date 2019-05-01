@@ -186,7 +186,7 @@ def install_melts(
             comms = ["column_pick", "file_format", "run_alphamelts"]
             comms = [(temp_dir / i).with_suffix(".command") for i in comms]
 
-            files_to_copy = []
+            non_executables, executables = [], []
 
             # getting the executable file
             if system == "Windows":
@@ -204,7 +204,7 @@ def install_melts(
 
             # getting files to copy
             non_executables += [(eg_dir, egs), (install_dir, comms)]
-            executables = [(install_dir, [alphafile])]
+            executables += [(install_dir, [alphafile])]
 
             if system == "Windows":
                 bats = comms + [temp_dir / "alphamelts"]
