@@ -54,6 +54,6 @@ def norm_to_lognorm(mean, sigma, exp=True):
     """
     mu = np.log(mean / np.sqrt(1 + sigma ** 2 / (mean ** 2)))
     v = np.log(1 + sigma ** 2 / (mean ** 2))
-    if scipy:  # scipy parameterisation of lognormal uses scale = np.exp(mu) !
+    if exp:  # scipy parameterisation of lognormal uses scale = np.exp(mu) !
         mu = np.exp(mu)
     return mu, np.sqrt(v)
