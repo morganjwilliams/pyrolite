@@ -11,10 +11,11 @@ import subprocess
 import threading
 import queue
 import shlex
-from ..general import copy_file, get_process_tree
+from ..general import get_process_tree
 from ..meta import pyrolite_datafolder
-from .tables import MeltsOutput, get_experiments_summary
+from .tables import MeltsOutput
 from .parse import read_envfile, read_meltsfile
+from .env import MELTS_Env
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -57,29 +58,13 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
     if not experiment_folder.exists():
         experiment_folder.mkdir(parents=True)
 
-    meltstarget = experiment_folder / (title + ".melts")
-    if isinstance(meltsfile, Path):
-        _src = meltsfile
-        copy_file(_src, meltstarget)
-    elif isinstance(meltsfile, str):
-        if "\n" in meltsfile:  # multiline string
-            with open(meltstarget, "w") as f:
-                f.write(meltsfile)
-        else:  # path, copy file
-            _src = Path(meltsfile)
-            copy_file(_src, meltstarget)
+    meltsfile, mpath = read_meltsfile(meltsfile)
+    with open(experiment_folder / (title + ".melts"), "w") as f:
+        f.write(meltsfile)
 
-    if isinstance(env, Path):
-        copy_file(env, experiment_folder / env.name)
-    elif isinstance(env, str):
-        if "\n" in env:  # multiline string
-            with open(experiment_folder / env.name, "w") as f:
-                f.write(env)
-        else:  # path, copy file
-            copy_file(Path(env), experiment_folder / Path(env).name)
-    elif isinstance(env, MELTS_Env): # passed an environment object
-        with open(experiment_folder / 'environment.txt', "w") as f:
-            f.write(env.to_envfile(unset_variables=False))
+    env, epath = read_envfile(env, unset_variables=False)
+    with open(experiment_folder / "environment.txt", "w") as f:
+        f.write(env)
 
     return experiment_folder  # return the folder name
 
@@ -337,12 +322,19 @@ class MeltsExperiment(object):
         * Post-processing functions for i) validation and ii) plotting
     """
 
-    def __init__(self, dir="./", meltsfile=None, env=None, exec=None):
+    def __init__(self, title="MeltsExperiment", dir="./", meltsfile=None, env=None):
+        self.title = title
         self.dir = dir
         self.log = []
-        self.env = MELTS_Env()
-        if not env is None:
-            pass  # parse env
+
+        if meltsfile is not None:
+            self.set_meltsfile(meltsfile)
+        if env is not None:
+            self.set_envfile(env)
+        else:
+            self.set_envfile(MELTS_Env())
+
+        self._make_folder()
 
     def set_meltsfile(self, meltsfile, **kwargs):
         """
@@ -368,26 +360,22 @@ class MeltsExperiment(object):
         """
         self.envfile, self.envfilepath = read_envfile(env)
 
-    def _make_folder(self, startdir=None):
+    def _make_folder(self):
         """
         Create the experiment folder.
         """
         self.folder = make_meltsfolder(
-            meltsfile=self.meltsfile,
-            title=self.title,
-            dir=startdir,
-            env=self.envfile,
+            meltsfile=self.meltsfile, title=self.title, dir=self.dir, env=self.envfile
         )
+        self.meltsfilepath = self.folder / (self.title + ".melts")
+        self.envfilepath = self.folder / "environment.txt"
 
-    def run(self, meltsfile=None, env=None, log=False, superliquidus_start=True):
+    def run(self, log=False, superliquidus_start=True):
         """
         Call 'run_alphamelts.command'.
         """
         mp = MeltsProcess(
-            meltsfile=meltsfile or self.meltsfilepath,
-            env=env or self.envfilepath,
-            fromdir=self.folder,
-            log=lambda x: self.log.append(x),
+            meltsfile=self.meltsfilepath, env=self.envfilepath, fromdir=self.folder
         )
         mp.write(3, [0, 1][superliquidus_start], 4, wait=True, log=log)
         mp.terminate()

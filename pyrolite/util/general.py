@@ -198,8 +198,11 @@ def remove_tempdir(directory):
         Path to directory.
     """
     directory = Path(directory)
-    shutil.rmtree(str(directory))
-    assert not directory.exists()
+    try:
+        shutil.rmtree(str(directory))
+        assert not directory.exists()
+    except PermissionError:
+        pass
 
 
 def extract_zip(zipfile, output_dir):

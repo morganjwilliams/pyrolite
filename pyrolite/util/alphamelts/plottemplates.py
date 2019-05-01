@@ -1,5 +1,5 @@
 import logging
-
+import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
 from pyrolite.util.text import titlecase
@@ -14,7 +14,7 @@ def plot_phasetable(
     table="phasevol",
     xvar="Temperature",
     figsize=None,
-    plotswide=2,
+    plotswide=1,
     yscale="linear",
 ):
     all_phases = set()
@@ -28,8 +28,11 @@ def plot_phasetable(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
@@ -66,8 +69,8 @@ def plot_comptable(
     summary,
     table="liquidcomp",
     xvar="Temperature",
-    figsize=(12, 20),
-    plotswide=2,
+    figsize=None,
+    plotswide=1,
     yscale="linear",
 ):
     all_components = set()
@@ -83,8 +86,11 @@ def plot_comptable(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel("Wt%")
@@ -119,8 +125,8 @@ def plot_phase_composition(
     summary,
     phase="olivine",
     xvar="Temperature",
-    figsize=(12, 20),
-    plotswide=2,
+    figsize=None,
+    plotswide=1,
     yscale="linear",
 ):
     all_phases = set()
@@ -142,8 +148,11 @@ def plot_phase_composition(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel("Wt%")

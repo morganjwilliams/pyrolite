@@ -29,12 +29,14 @@ if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
 
 class TestMakeMeltsFolder(unittest.TestCase):
     def setUp(self):
-        self.dir = temp_path() / "test_melts_temp"
+        self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
         self.meltsfile = _melts
         self.envfile = _env  # use default
 
     def test_default(self):
-        path = make_meltsfolder(self.meltsfile, "MORB", env=self.envfile, dir=self.dir)
+        folder = make_meltsfolder(
+            self.meltsfile, "MORB", env=self.envfile, dir=self.dir
+        )
 
     def tearDown(self):
         if self.dir.exists():
@@ -44,10 +46,19 @@ class TestMakeMeltsFolder(unittest.TestCase):
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
 class TestMeltsProcess(unittest.TestCase):
     def setUp(self):
-        self.dir = temp_path() / "test_melts_temp"
+        self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
+        self.meltsfile = _melts
+        self.envfile = _env  # use default
 
     def test_default(self):
-        MeltsProcess
+        folder = make_meltsfolder(
+            self.meltsfile, "MORB", env=self.envfile, dir=self.dir
+        )
+        process = MeltsProcess(
+            meltsfile=self.meltsfile, env=self.envfile, fromdir=str(folder)
+        )
+        process.write(3, 1, 4, wait=True, log=False)
+        process.terminate()
 
     def tearDown(self):
         if self.dir.exists():
@@ -57,10 +68,14 @@ class TestMeltsProcess(unittest.TestCase):
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
 class TestMeltsExperiment(unittest.TestCase):
     def setUp(self):
-        self.dir = temp_path() / "test_melts_temp"
+        self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
+        self.meltsfile = _melts
+        self.envfile = _env  # use default
 
     def test_default(self):
-        MeltsExperiment
+        exp = MeltsExperiment(meltsfile=self.meltsfile, env=self.envfile, dir=self.dir)
+        exp.run()
+        exp.cleanup()
 
     def tearDown(self):
         if self.dir.exists():
@@ -70,10 +85,10 @@ class TestMeltsExperiment(unittest.TestCase):
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
 class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
-        self.dir = temp_path() / "test_melts_temp"
+        self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
 
     def test_default(self):
-        MeltsBatch
+        batch = MeltsBatch()
 
     def tearDown(self):
         if self.dir.exists():
