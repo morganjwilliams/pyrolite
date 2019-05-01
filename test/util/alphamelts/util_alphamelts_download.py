@@ -31,10 +31,6 @@ class TestInstall(unittest.TestCase):
     @unittest.skipIf(not check_perl(), "Perl is not installed.")
     def test_perl_install(self):
         """Uses subprocess to call the perl installation method."""
-        userdir = Path("~").expanduser()
-        d, r = userdir.drive, userdir.root
-        self.temp_dir = Path(d) / r / "test_melts_temp"
-        self.dir = Path(d) / r / "test_melts_install"
         for keeptemp in [False, True]:
             with self.subTest(keeptemp=keeptemp):
                 install_melts(
@@ -83,7 +79,7 @@ class TestInstall(unittest.TestCase):
                     self.assertTrue(self.temp_dir.exists() & self.temp_dir.is_dir())
 
     def tearDown(self):
-         # may have been removed already, or not created (for local)
+        # may have been removed already, or not created (for local)
         if self.dir.exists():
             remove_tempdir(self.dir)
         if self.temp_dir.exists():

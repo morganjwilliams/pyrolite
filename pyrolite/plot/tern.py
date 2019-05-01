@@ -8,7 +8,6 @@ from ..util.plot import (
     __DEFAULT_DISC_COLORMAP__,
     ternary_patch,
 )
-from pyrolite.util.plot import ternary_patch
 from ..util.meta import get_additional_params, subkwargs
 from ..comp.codata import close
 

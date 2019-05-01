@@ -2,16 +2,21 @@
 This file contains functions for automated execution, plotting and reporting from
 alphamelts 1.9.
 """
+import os, sys, platform
+import psutil
 import logging
 import time
-import os, sys, platform
 from pathlib import Path
 import subprocess
 import threading
 import queue
 import shlex
-from ..general import copy_file
+from ..general import get_process_tree
 from ..meta import pyrolite_datafolder
+from .tables import MeltsOutput
+from .parse import read_envfile, read_meltsfile
+from .env import MELTS_Env
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -39,52 +44,32 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
     --------
     :class:`pathlib.Path`
         Path to melts folder.
+
+    Todo
+    ------
+        * Options for naming environment files
     """
     if dir is None:
         dir = Path("./")
     else:
         dir = Path(dir)
-    filepath = dir / title / (title + ".melts")
-    if not filepath.parent.exists():
-        filepath.parent.mkdir(parents=True)
-    with open(filepath, "w") as f:
+    title = str(title)
+    experiment_folder = dir / title
+    if not experiment_folder.exists():
+        experiment_folder.mkdir(parents=True)
+
+    meltsfile, mpath = read_meltsfile(meltsfile)
+    with open(experiment_folder / (title + ".melts"), "w") as f:
         f.write(meltsfile)
 
-    env = Path(env)
-    copy_file(env, filepath.parent / env.name)
+    env, epath = read_envfile(env, unset_variables=False)
+    with open(experiment_folder / "environment.txt", "w") as f:
+        f.write(env)
 
-    return filepath.parent  # return the folder name
-
-
-class MeltsExperiment(object):
-    """
-    Melts Experiment Object. Currently in-development for automation of calling melts
-    across a grid of parameters.
-
-    Todo
-    ----
-        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
-        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
-        * Compressed export/save function
-    """
-
-    def __init__(self, dir="./"):
-        self.dir = dir
-        self.log = []
-
-    def run(self, meltsfile=None, env=None):
-        """
-        Call 'run_alphamelts.command'.
-        """
-        mp = MeltsProcess(
-            env=env,
-            meltsfile=meltsfile,
-            fromdir=self.dir,
-            log=lambda x: self.log.append(x),
-        )
+    return experiment_folder  # return the folder name
 
 
-def enqueue_output(out, queue):
+def _enqueue_output(out, queue):
     """
     Send output to a queue.
 
@@ -132,15 +117,22 @@ class MeltsProcess(object):
             * Logging of failed runs
             * Facilitation of interactive mode upon error
             * Error recovery methods (e.g. change the temperature)
+
+        Notes
+        ------
+            * Need to get full paths for melts files, directories etc
         """
         self.env = None
         self.meltsfile = None
-        self.fromdir = None
+        self.fromdir = None  # default to None, runs from cwd
         self.log = log
         if fromdir is not None:
             self.log("Setting working directory: {}".format(fromdir))
             fromdir = Path(fromdir)
-            assert fromdir.exists() and fromdir.is_dir()
+            try:
+                assert fromdir.exists() and fromdir.is_dir()
+            except AssertionError:
+                fromdir.mkdir(parents=True)
             self.fromdir = Path(fromdir)
 
         if executable is None:
@@ -166,24 +158,29 @@ class MeltsProcess(object):
         assert (
             executable is not None
         ), "Need to specify an installable or perform a local installation of alphamelts."
-        self.executable = [str(executable)]  # executable file
+
+        if isinstance(executable, Path):
+            self.exname = str(executable.name)
+        else:
+            self.exname = str(executable)
+        self.executable = str(executable)
+        self.run = [str(self.executable)]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
             self.log("Setting meltsfile: {}".format(meltsfile))
             self.meltsfile = Path(meltsfile)
-            self.executable += ["-m"]
-            self.executable += [str(meltsfile)]
-            self.init_args += ["1", str(meltsfile)]  # enter meltsfile
+            self.run += ["-m", str(self.meltsfile)]
+            self.init_args += ["1", str(self.meltsfile)]  # enter meltsfile
         if env is not None:
             self.log("Setting environment file: {}".format(env))
             self.env = Path(env)
-            self.executable += ["-f", str(env)]
+            self.run += ["-f", str(env)]
 
         self.start()
         time.sleep(0.5)
+        self.log("Passing Inital Variables: " + " ".join(self.init_args))
         for a in self.init_args:
-            self.log("Passing Inital Variable: " + a)
             self.write(a)
 
     def log_output(self):
@@ -201,7 +198,9 @@ class MeltsProcess(object):
         :class:`subprocess.Popen`
             Melts process object.
         """
-        self.log("Starting Melts Process with: " + " ".join(self.executable))
+        self.log(
+            "Starting Melts Process with: " + " ".join([self.exname] + self.run[1:])
+        )
         config = dict(
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -209,19 +208,19 @@ class MeltsProcess(object):
             cwd=self.fromdir,
             close_fds=(os.name == "posix"),
         )
-        self.process = subprocess.Popen(self.executable, **config)
+        self.process = subprocess.Popen(self.run, **config)
+        logger.debug("Process Started with ID {}".format(self.process.pid))
+        # Queues and Logging
         self.q = queue.Queue()
-
         self.T = threading.Thread(
-            target=enqueue_output, args=(self.process.stdout, self.q)
+            target=_enqueue_output, args=(self.process.stdout, self.q)
         )
-
         self.T.daemon = True  # kill when process dies
         self.T.start()  # start the output thread
 
         self.errq = queue.Queue()
         self.errT = threading.Thread(  # separate thread for error reporting
-            target=enqueue_output, args=(self.process.stderr, self.errq)
+            target=_enqueue_output, args=(self.process.stderr, self.errq)
         )
         self.errT.daemon = True  # kill when process dies
         self.errT.start()  # start the err output thread
@@ -288,6 +287,9 @@ class MeltsProcess(object):
             * Will likely terminate as expected using the command '0' to exit.
             * Otherwise will attempt to cleanup the process.
         """
+        alphamelts_ex = [
+            p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
+        ]
         self.write("0")
         time.sleep(0.5)
         try:
@@ -296,3 +298,103 @@ class MeltsProcess(object):
             self.process.wait(timeout=0.2)
         except ProcessLookupError:
             logger.debug("Process Terminated Successfully")
+
+        for p in alphamelts_ex:  # kill the children executables
+            try:
+                # kill the alphamelts executable which can hang
+                logger.debug("Terminating {}".format(p.name()))
+                p.kill()
+            except psutil.NoSuchProcess:
+                pass
+
+
+class MeltsExperiment(object):
+    """
+    Melts Experiment Object. For a single call to melts, with one set of outputs.
+    Autmatically creates the experiment folder, meltsfile and environment file, runs
+    alphaMELTS and collects the results.
+
+    Todo
+    ----
+        * Automated creation of folders for experiment results (see :func:`make_meltsfolder`)
+        * Being able to run melts in an automated way (see :class:`MeltsProcess`)
+        * Compressed export/save function
+        * Post-processing functions for i) validation and ii) plotting
+    """
+
+    def __init__(self, title="MeltsExperiment", dir="./", meltsfile=None, env=None):
+        self.title = title
+        self.dir = dir
+        self.log = []
+
+        if meltsfile is not None:
+            self.set_meltsfile(meltsfile)
+        if env is not None:
+            self.set_envfile(env)
+        else:
+            self.set_envfile(MELTS_Env())
+
+        self._make_folder()
+
+    def set_meltsfile(self, meltsfile, **kwargs):
+        """
+        Set the meltsfile for the experiment.
+
+        Parameters
+        ------------
+        meltsfile : :class:`pandas.Series` | :class:`str` | :class:`pathlib.Path`
+            Either a path to a valid melts file, a :class:`pandas.Series`, or a
+            multiline string representation of a melts file object.
+        """
+        self.meltsfile, self.meltsfilepath = read_meltsfile(meltsfile)
+
+    def set_envfile(self, env):
+        """
+        Set the environment for the experiment.
+
+        Parameters
+        ------------
+        env : :class:`str` | :class:`pathlib.Path`
+            Either a path to a valid environment file, a :class:`pandas.Series`, or a
+            multiline string representation of a environment file object.
+        """
+        self.envfile, self.envfilepath = read_envfile(env)
+
+    def _make_folder(self):
+        """
+        Create the experiment folder.
+        """
+        self.folder = make_meltsfolder(
+            meltsfile=self.meltsfile, title=self.title, dir=self.dir, env=self.envfile
+        )
+        self.meltsfilepath = self.folder / (self.title + ".melts")
+        self.envfilepath = self.folder / "environment.txt"
+
+    def run(self, log=False, superliquidus_start=True):
+        """
+        Call 'run_alphamelts.command'.
+        """
+        mp = MeltsProcess(
+            meltsfile=self.meltsfilepath, env=self.envfilepath, fromdir=self.folder
+        )
+        mp.write(3, [0, 1][superliquidus_start], 4, wait=True, log=log)
+        mp.terminate()
+
+    def cleanup(self):
+        pass
+
+
+class MeltsBatch(object):
+    """
+    Batch of :class:`MeltsExperiment`, which may represent evaluation over a grid of
+    parameters or configurations.
+
+    Todo
+    ------
+        * Can start with a single composition or multiple compositions in a dataframe
+        * Enable grid search for individual parameters
+        * Improved output logging/reporting
+    """
+
+    def __init__(self):
+        pass

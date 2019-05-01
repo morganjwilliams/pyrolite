@@ -4,10 +4,11 @@ import io
 import logging
 import pandas as pd
 from pathlib import Path
-from pyrolite.util.pd import to_frame, to_ser
-from pyrolite.geochem.ind import __common_elements__, __common_oxides__
+from ...geochem.ind import __common_elements__, __common_oxides__
+from ...geochem.transform import add_MgNo
 from .parse import from_melts_cstr
 from .meltsfile import to_meltsfiles
+from ..pd import zero_to_nan, to_frame, to_ser
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -33,8 +34,11 @@ class MeltsOutput(object):
             ("phasemain", "Phase_main_tbl.txt", self._read_phasemain),
         ]:
             tpath = dir / table
-            setattr(self, name, load(tpath))
-            # logger.warning("Error on table import: {}".format(tpath))
+            try:
+                setattr(self, name, load(tpath))
+            except:
+                logger.warning("Error on table import: {} {}".format(self.title, tpath))
+                setattr(self, name, pd.DataFrame())  # empty dataframe
 
     @property
     def tables(self):
@@ -96,24 +100,30 @@ class MeltsOutput(object):
             df = df.dropna(how="all", axis=1)
             if ("Temperature" in df.columns) and not self.kelvin:
                 df.Temperature -= 273.15
+            if ("MgO" in df.columns) and ("FeO" in df.columns):
+                df.add_MgNo(components=True)
             return df
         else:
             logger.warning("Expected file {} does not exist.".format(filepath))
 
     def _read_solidcomp(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         return table
 
     def _read_liquidcomp(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         return table
 
     def _read_bulkcomp(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         return table
 
     def _read_phasemass(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         self.phasenames = self.phasenames | set(
             [
                 i
@@ -125,6 +135,7 @@ class MeltsOutput(object):
 
     def _read_phasevol(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         self.phasenames = self.phasenames | set(
             [
                 i
@@ -136,6 +147,7 @@ class MeltsOutput(object):
 
     def _read_systemmain(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
+        table = zero_to_nan(table)
         return table
 
     def _read_trace(self, filepath, header=3):
@@ -151,6 +163,7 @@ class MeltsOutput(object):
                 table = pd.read_csv(
                     io.BytesIO("\n".join(lines[1:]).encode("UTF-8")), sep=" "
                 )
+                table = zero_to_nan(table)
                 if "formula" in table.columns:
                     table.loc[:, "formula"] = table.loc[:, "formula"].apply(
                         from_melts_cstr
@@ -161,3 +174,34 @@ class MeltsOutput(object):
 
     def _read_logfile(filepath):
         pass
+
+
+def get_experiments_summary(dir, **kwargs):
+    """
+    Aggregate alphaMELTS experiment results across folders within a directory,
+    or for a list of directories.
+
+    Parameters
+    -----------
+    dir : :class:`str` | :class:`pathlib.Path` | :class:`list`
+        Directory to aggregate folders from, or list of folders.
+
+    Returns
+    --------
+    :class:`dict`
+        Dictonary of experiment outputs indexed by titles.
+    """
+    if isinstance(dir, list):
+        target_folders = dir
+    else:
+        dir = Path(dir)
+        target_folders = [p for p in dir.iterdir() if p.is_dir()]
+    summary = {}
+    for ix, t in enumerate(target_folders):
+        output = MeltsOutput(t, **kwargs)
+        summary[output.title] = {}
+        summary[output.title]["phases"] = {
+            i[: i.find("_")] if i.find("_") > 0 else i for i in output.phasenames
+        }
+        summary[output.title]["output"] = output
+    return summary

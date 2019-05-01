@@ -7,13 +7,10 @@ dev_require = [
     "pytest",
     "versioneer",
     "black",
-    "nbstripout",
-    "nbdime",
     "twine",
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
     "recommonmark",
-    #'mock',
 ] + tests_require
 
 db_require = ["pyodbc", "psycopg2"]
@@ -48,6 +45,7 @@ setup(
     packages=find_packages(exclude=["test*"]),
     install_requires=[
         "pathlib",
+        "psutil",
         "numpy",
         "scipy",
         "mpmath",

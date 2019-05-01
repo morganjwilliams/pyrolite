@@ -23,6 +23,12 @@ pyrolite\.plot\.tern
       :members:
       :undoc-members:
 
+pyrolite\.plot\.stem
+-------------------------------
+  .. automodule:: pyrolite.plot.stem
+      :members:
+      :undoc-members:
+
 pyrolite\.plot\.templates
 -------------------------------
   .. automodule:: pyrolite.plot.templates

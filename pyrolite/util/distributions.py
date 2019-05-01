@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def lognorm_to_norm(mu, s):
     """
     Calculate mean and variance for a normal random variable from the lognormal
-    parameters :code:`mu` and :code:`sigma`.
+    parameters :code:`mu` and :code:`s`.
 
     Parameters
     -----------
@@ -29,10 +29,11 @@ def lognorm_to_norm(mu, s):
     return mean, np.sqrt(variance)
 
 
-def norm_to_lognorm(mean, sigma, scipy=True):
+def norm_to_lognorm(mean, sigma, exp=True):
     """
     Calculate :code:`mu` and :code:`sigma` parameters for a lognormal random variable
-    with a given mean and variance. Lognromal with parameters:
+    with a given mean and variance. Lognormal with parameters
+    :code:`mean` and :code:`sigma`.
 
     Parameters
     -----------
@@ -40,7 +41,7 @@ def norm_to_lognorm(mean, sigma, scipy=True):
         Mean of the normal distribution.
     sigma : :class:`float`
         :code:`sigma` of the normal distribution.
-    scipy : :class:`bool`
+    exp : :class:`bool`
         If using the :mod:`scipy.stats` parameterisation; this uses
         :code:`scale = np.exp(mu)`.
 
@@ -53,6 +54,6 @@ def norm_to_lognorm(mean, sigma, scipy=True):
     """
     mu = np.log(mean / np.sqrt(1 + sigma ** 2 / (mean ** 2)))
     v = np.log(1 + sigma ** 2 / (mean ** 2))
-    if scipy:  # scipy parameterisation of lognormal uses scale = np.exp(mu) !
+    if exp:  # scipy parameterisation of lognormal uses scale = np.exp(mu) !
         mu = np.exp(mu)
     return mu, np.sqrt(v)

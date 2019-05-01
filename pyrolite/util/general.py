@@ -1,4 +1,5 @@
 import os, sys
+import psutil
 import re
 import time
 import subprocess, shutil
@@ -50,7 +51,6 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-
 def pathify(path):
     """Converts strings to pathlib.Path objects."""
     if not isinstance(path, Path):
@@ -74,13 +74,13 @@ def check_perl():
         Boolean indication of whether there is an executable perl installation.
     """
     try:
-        p = subprocess.check_output("perl -v")
+        p = subprocess.check_output(["perl", "-v"])
         returncode = 0
     except subprocess.CalledProcessError as e:
         output = e.output
         returncode = e.returncode
     except FileNotFoundError:
-        returncode = 1.0
+        returncode = 1
 
     return returncode == 0
 
@@ -198,8 +198,11 @@ def remove_tempdir(directory):
         Path to directory.
     """
     directory = Path(directory)
-    shutil.rmtree(str(directory))
-    assert not directory.exists()
+    try:
+        shutil.rmtree(str(directory))
+        assert not directory.exists()
+    except PermissionError:
+        pass
 
 
 def extract_zip(zipfile, output_dir):
@@ -221,3 +224,31 @@ def extract_zip(zipfile, output_dir):
                 content = zipfile.open(m, "r").read()
                 with open(str(output_dir / name), "wb") as out:
                     out.write(content)
+
+
+def get_process_tree(process, levels_up=1):
+    """
+    Get a process tree from an active process or process ID.
+
+    Parameters
+    -----------
+    process : :class:`int` | :class:`psutil.Process`
+        Process to search for.
+    levels_up : :class:`int`
+        How many levels up the tree to search for parent processes.
+
+    Returns
+    -------
+    :class:`list`
+        List of processes associated with the given process tree.
+    """
+    if isinstance(process, int):
+        top = psutil.Process(process)
+    elif isinstance(process, psutil.Process):
+        top = process
+    for i in range(levels_up):
+        if top.parent() is not None:
+            top = top.parent()
+        else:
+            break
+    return [top, *top.children(recursive=True)]

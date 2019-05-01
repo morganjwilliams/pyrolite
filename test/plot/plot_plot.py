@@ -75,6 +75,9 @@ class TestPyroPlot(unittest.TestCase):
     def test_density_with_more_components_specified_ternary(self):
         self.multidf.pyroplot.density(components=self.multidf.columns[:3])
 
+    def test_stem_default(self):
+        self.bidf.pyroplot.stem()
+
     def test_cooccurence_default(self):
         self.multidf.pyroplot.cooccurence()
 

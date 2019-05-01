@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from pyrolite.util.pd import to_frame, to_ser, to_numeric
-from pyrolite.geochem.ind import __common_elements__, __common_oxides__
+from ..pd import to_frame, to_ser, to_numeric
+from ...geochem.ind import __common_elements__, __common_oxides__
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

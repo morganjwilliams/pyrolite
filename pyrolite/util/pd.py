@@ -140,6 +140,17 @@ def to_numeric(df, errors: str = "coerce"):
     return df.apply(pd.to_numeric, errors=errors)
 
 
+def zero_to_nan(df):
+    """
+    Replace floats close or equal to zero with np.nan in a dataframe.
+    """
+    cols = [name for (name, type) in zip(df.columns, df.dtypes) if isinstance(type, np.float)]
+    df.loc[:, cols] = np.where(
+        np.isclose(df[cols].values, 0.0), np.nan, df[cols].values
+    )
+    return df
+
+
 def outliers(
     df,
     cols=[],

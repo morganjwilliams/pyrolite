@@ -31,6 +31,11 @@ pyrolite\.mineral\.ions
       :members:
       :undoc-members:
 
+pyrolite\.mineral\.lattice
+-------------------------------
+  .. automodule:: pyrolite.mineral.lattice
+      :members:
+      :undoc-members:
 
 pyrolite\.mineral\.db
 -------------------------------
