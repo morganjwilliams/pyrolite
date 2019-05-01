@@ -1,5 +1,5 @@
 import logging
-
+import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
 from pyrolite.util.text import titlecase
@@ -28,8 +28,11 @@ def plot_phasetable(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
@@ -83,8 +86,11 @@ def plot_comptable(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel("Wt%")
@@ -142,8 +148,11 @@ def plot_phase_composition(
     if nkeys % plotswide:
         plotshigh += 1
     fig, ax = plt.subplots(
-        nkeys // plotswide, plotswide, figsize=figsize, sharex=True, sharey=True
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
+    if nkeys <= 1:  # single plot
+        ax = np.array([ax])
+
     if nkeys // plotswide > 1:
         for axix in ax:
             axix[0].set_ylabel("Wt%")

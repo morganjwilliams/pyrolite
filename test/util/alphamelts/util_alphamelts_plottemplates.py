@@ -32,6 +32,7 @@ class TestTemplates(unittest.TestCase):
         self.meltsfile = _melts
         self.envfile = _env  # use default
 
+        # create one experiment folder and run the experiment
         self.folder = make_meltsfolder(
             self.meltsfile, "MORB", env=self.envfile, dir=self.dir
         )
@@ -41,16 +42,16 @@ class TestTemplates(unittest.TestCase):
         self.process.write(3, 1, 4, wait=True, log=False)
         self.process.terminate()
 
-        self.summary = get_experiments_summary(self.folder)
+        self.summary = get_experiments_summary(self.dir)
 
     def test_plot_phasetable(self):
-        plot_phasetable
+        ax = plot_phasetable(self.summary)  # phasevol
 
     def test_plot_comptable(self):
-        plot_comptable
+        plot_comptable(self.summary)  # liquidcomp
 
     def test_plot_phase_composition(self):
-        plot_phase_composition
+        plot_phase_composition(self.summary)  # olivine
 
     def tearDown(self):
         if self.dir.exists():
