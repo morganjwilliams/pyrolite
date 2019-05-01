@@ -3,6 +3,7 @@ This file contains functions for automated execution, plotting and reporting fro
 alphamelts 1.9.
 """
 import os, sys, platform
+import stat
 import psutil
 import logging
 import time
@@ -151,8 +152,10 @@ class MeltsProcess(object):
                     / "localinstall"
                     / "run_alphamelts.command"
                 )
+
             if local_run.exists() and local_run.is_file():
                 executable = local_run
+
                 self.log("Using local executable meltsfile: {}".format(executable.name))
 
         assert (
@@ -163,7 +166,13 @@ class MeltsProcess(object):
             self.exname = str(executable.name)
         else:
             self.exname = str(executable)
+
         self.executable = str(executable)
+
+        st = os.stat(executable)
+        mode = st.st_mode
+        assert bool(mode & stat.S_IXUSR), "User needs execution permission."
+
         self.run = [str(self.executable)]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
