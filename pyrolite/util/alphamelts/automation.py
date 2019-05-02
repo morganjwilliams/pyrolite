@@ -374,7 +374,9 @@ class MeltsExperiment(object):
         Call 'run_alphamelts.command'.
         """
         mp = MeltsProcess(
-            meltsfile=self.meltsfilepath, env=self.envfilepath, fromdir=self.folder
+            meltsfile=(self.title + ".melts"),
+            env="environment.txt",
+            fromdir=self.folder,
         )
         mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
         mp.terminate()

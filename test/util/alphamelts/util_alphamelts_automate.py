@@ -51,11 +51,14 @@ class TestMeltsProcess(unittest.TestCase):
         self.envfile = _env  # use default
 
     def test_default(self):
+        title = "MORB"
         folder = make_meltsfolder(
-            self.meltsfile, "MORB", env=self.envfile, dir=self.dir
+            self.meltsfile, title=title, env=self.envfile, dir=self.dir
         )
         process = MeltsProcess(
-            meltsfile=self.meltsfile, env=self.envfile, fromdir=str(folder)
+            meltsfile="{}.melts".format(title),
+            env="environment.txt",
+            fromdir=str(folder),
         )
         process.write([3, 1, 4], wait=True, log=False)
         process.terminate()
