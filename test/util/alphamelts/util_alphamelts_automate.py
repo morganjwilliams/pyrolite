@@ -57,7 +57,7 @@ class TestMeltsProcess(unittest.TestCase):
         process = MeltsProcess(
             meltsfile=self.meltsfile, env=self.envfile, fromdir=str(folder)
         )
-        process.write(3, 1, 4, wait=True, log=False)
+        process.write([3, 1, 4], wait=True, log=False)
         process.terminate()
 
     def tearDown(self):

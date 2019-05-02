@@ -39,7 +39,7 @@ class TestTemplates(unittest.TestCase):
         self.process = MeltsProcess(
             meltsfile=self.meltsfile, env=self.envfile, fromdir=str(self.folder)
         )
-        self.process.write(3, 1, 4, wait=True, log=False)
+        self.process.write([3, 1, 4], wait=True, log=False)
         self.process.terminate()
 
         self.summary = get_experiments_summary(self.dir)

@@ -180,8 +180,7 @@ class MeltsProcess(object):
         self.start()
         time.sleep(0.5)
         self.log("Passing Inital Variables: " + " ".join(self.init_args))
-        for a in self.init_args:
-            self.write(a)
+        self.write(self.init_args)
 
     def log_output(self):
         """
@@ -255,7 +254,7 @@ class MeltsProcess(object):
             if size == self.q.qsize():
                 break
 
-    def write(self, *messages, wait=False, log=False):
+    def write(self, messages, wait=False, log=False):
         """
         Send commands to the process.
 
@@ -377,7 +376,7 @@ class MeltsExperiment(object):
         mp = MeltsProcess(
             meltsfile=self.meltsfilepath, env=self.envfilepath, fromdir=self.folder
         )
-        mp.write(3, [0, 1][superliquidus_start], 4, wait=True, log=log)
+        mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
         mp.terminate()
 
     def cleanup(self):
