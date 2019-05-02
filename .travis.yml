@@ -24,7 +24,6 @@ install:
 
 script:
   - xvfb-run python setup.py test
-  - ls -lR ./pyrolite/data/ # log permissions within the data folder
 
 after_success:
   - "ls -lr htmlcov"
