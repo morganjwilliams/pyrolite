@@ -203,8 +203,8 @@ def install_melts(
                 # with_readline
 
             # getting files to copy
-            non_executables += [(eg_dir, egs), (install_dir, comms)]
-            executables += [(install_dir, [alphafile])]
+            non_executables += [(eg_dir, egs)]
+            executables += [(install_dir, [alphafile]), (install_dir, comms)]
 
             if system == "Windows":
                 bats = comms + [temp_dir / "alphamelts"]

@@ -54,7 +54,7 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         dir = Path("./")
     else:
         dir = Path(dir)
-    title = str(title)
+    title = str(title) # need to pathify this!
     experiment_folder = dir / title
     if not experiment_folder.exists():
         experiment_folder.mkdir(parents=True)
