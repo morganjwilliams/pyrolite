@@ -268,7 +268,7 @@ class MeltsProcess(object):
             Whether to log output to the logger.
         """
         for message in messages:
-            msg = "{}\n".format(str(message).strip()).encode("utf-8")
+            msg = (str(message).strip()+str(os.linesep)).encode("utf-8")
             self.process.stdin.write(msg)
             self.process.stdin.flush()
             if wait:

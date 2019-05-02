@@ -8,6 +8,7 @@ from pyrolite.util.meta import pyrolite_datafolder
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.automation import *
 from pyrolite.util.meta import stream_log
+import logging
 
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
@@ -60,6 +61,8 @@ class TestMeltsProcess(unittest.TestCase):
             env="environment.txt",
             fromdir=str(folder),
         )
+        txtfiles = list(self.dir.glob("**/*.txt"))
+        meltsfiles = list(self.dir.glob("**/*.melts"))
         process.write([3, 1, 4], wait=True, log=False)
         process.terminate()
 
@@ -76,7 +79,12 @@ class TestMeltsExperiment(unittest.TestCase):
         self.envfile = _env  # use default
 
     def test_default(self):
-        exp = MeltsExperiment(meltsfile=self.meltsfile, env=self.envfile, dir=self.dir)
+        exp = MeltsExperiment(
+            meltsfile=self.meltsfile, title="Experiment", env=self.envfile, dir=self.dir
+        )
+        # check the folder has been created correctly
+        txtfiles = list(self.dir.glob("**/*.txt"))
+        meltsfiles = list(self.dir.glob("**/*.melts"))
         exp.run()
         exp.cleanup()
 
