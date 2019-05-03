@@ -206,23 +206,24 @@ def install_melts(
             non_executables += [(eg_dir, egs)]
             executables += [(install_dir, [alphafile]), (install_dir, comms)]
 
+            links = comms + [temp_dir / "alphamelts"]
+
             if system == "Windows":
-                bats = comms + [temp_dir / "alphamelts"]
-                bats = [i.with_suffix(".bat") for i in bats]
-                batdata = {}
+                links = [i.with_suffix(".bat") for i in links]
+                linkdata = {}
 
                 for cf in comms:
-                    batdata[cf.stem] = """@echo off\n"{}" %*""".format(
+                    linkdata[cf.stem] = """@echo off\n"{}" %*""".format(
                         install_dir / cf.name
                     )
-                batdata["alphamelts"] = '''@echo off\n"{}"'''.format(
+                linkdata["alphamelts"] = '''@echo off\n"{}"'''.format(
                     install_dir / alphafile.name
                 )
-                for b in bats:
-                    with open(str(b), "w") as fout:
-                        fout.write(batdata[b.stem])  # dummy bats
+                for l in links:
+                    with open(str(l), "w") as fout:
+                        fout.write(linkdata[l.stem])  # dummy bats
 
-                executables += [(link_dir, bats)]
+                executables += [(link_dir, links)]
 
                 # regs = ['command', 'command_auto_file', 'path', 'perl']
 
@@ -233,6 +234,16 @@ def install_melts(
             for (target, files) in executables:
                 for fn in files:  # executable files will need permissions
                     copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
+
+            if (
+                system != "Windows"
+            ):  # create symlinks for command files and the exectuable
+                linknames = [
+                    "alphamelts" if "alphamelts" in i.name else i.name for i in links
+                ]
+                for l, n in zip(links, linknames):
+                    os.symlink(install_dir / l.name, link_dir / n)
+
     except AssertionError:
         raise AssertionError
     finally:

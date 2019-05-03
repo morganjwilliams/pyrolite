@@ -151,11 +151,13 @@ class MeltsProcess(object):
                 local_run = (
                     pyrolite_datafolder(subfolder="alphamelts")
                     / "localinstall"
+                    / "links"
                     / "run_alphamelts.command"
                 )
 
             executable = local_run
             self.log("Using local executable meltsfile: {}".format(executable.name))
+
 
         executable = Path(executable)
         assert executable.exists() and executable.is_file()
