@@ -183,66 +183,58 @@ def install_melts(
             egs = []
             for g in ["*.melts", "*.txt", "*.m "]:
                 egs += list(temp_dir.glob(g))
-            comms = ["column_pick", "file_format", "run_alphamelts"]
-            comms = [(temp_dir / i).with_suffix(".command") for i in comms]
-
-            non_executables, executables = [], []
+            comms = [
+                "column_pick.command",
+                "file_format.command",
+                "run_alphamelts.command",
+            ]
 
             # getting the executable file
             if system == "Windows":
-                alphafile = temp_dir / "alphamelts_win{}.exe".format(bits)
+                alphafile = "alphamelts_win{}.exe".format(bits)
             elif system == "Linux":
                 if ("Microsoft" in platrel) or ("Microsoft" in platver):
-                    alphafile = temp_dir / "alphamelts_wsl"
+                    alphafile = "alphamelts_wsl"
                     # with_readline
                 else:
-                    alphafile = temp_dir / "alphamelts_linux{}".format(bits)
+                    alphafile = "alphamelts_linux{}".format(bits)
                     # with_readline
             elif system == "Darwin":
-                alphafile = temp_dir / "alphamelts_macosx{}".format(bits)
+                alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
 
-            # getting files to copy
-            non_executables += [(eg_dir, egs)]
-            executables += [(install_dir, [alphafile]), (install_dir, comms)]
-
-            links = comms + [temp_dir / "alphamelts"]
-
-            if system == "Windows":
-                links = [i.with_suffix(".bat") for i in links]
-                linkdata = {}
-
-                for cf in comms:
-                    linkdata[cf.stem] = """@echo off\n"{}" %*""".format(
-                        install_dir / cf.name
-                    )
-                linkdata["alphamelts"] = '''@echo off\n"{}"'''.format(
-                    install_dir / alphafile.name
-                )
-                for l in links:
-                    with open(str(l), "w") as fout:
-                        fout.write(linkdata[l.stem])  # dummy bats
-
-                executables += [(link_dir, links)]
-
-                # regs = ['command', 'command_auto_file', 'path', 'perl']
-
-            for (target, files) in non_executables:
+            # copy examples
+            for (target, files) in [(eg_dir, egs)]:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
 
-            for (target, files) in executables:
+            # copy exectuable, command files
+            for (target, files) in [
+                (install_dir, [temp_dir / alphafile]),
+                (install_dir, [(temp_dir / i) for i in comms]),
+            ]:
                 for fn in files:  # executable files will need permissions
                     copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
 
-            if (
-                system != "Windows"
-            ):  # create symlinks for command files and the exectuable
-                linknames = [
-                    alphafile.name if "alphamelts" in i.name else i.name for i in links
-                ]
-                for file, name in zip(links, linknames):
-                    src, dst = install_dir / file.name, link_dir / name
+            # create links to the install directory
+            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphafile]
+            linkdest = [
+                link_dir / "alphamelts" if "alphamelts" in i.name else link_dir / i.name
+                for i in linksrc
+            ]
+            if system == "Windows":  # create batch files to act as symlinks
+                linkdest = [i.with_suffix(".bat") for i in linkdest]
+                linkdata = {}
+
+                for src, dst in zip(linksrc, linkdest):
+                    linkdata[dst.name] = """@echo off\n"{}" %*""".format(linksrc)
+                # create the batch files
+                for src, dst in zip(linksrc, linkdest):
+                    logger.debug("Creating batch file: {} -> {}".format(src, dst))
+                    with open(str(dst), "w") as fout:
+                        fout.write(linkdata[dst.name])
+            else:  # create symlinks for command files and the exectuable
+                for src, dst in zip(linksrc, linkdest):
                     logger.debug("Creating symlink: {} -> {}".format(src, dst))
                     os.symlink(src, dst)
 
