@@ -68,7 +68,10 @@ class TestMeltsProcess(unittest.TestCase):
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
@@ -90,7 +93,10 @@ class TestMeltsExperiment(unittest.TestCase):
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
@@ -103,7 +109,10 @@ class TestMeltsBatch(unittest.TestCase):
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 if __name__ == "__main__":
