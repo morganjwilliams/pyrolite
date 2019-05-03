@@ -231,11 +231,10 @@ def install_melts(
                         fout.write("""@echo off\n"{}" %*""".format(src))
             else:  # create symlinks for command files and the exectuable
                 for src, dst in zip(linksrc, linkdest):
-                    src, dst = str(src), str(dst)
                     logger.debug("Creating symlink: {} <- {}".format(src, dst))
                     if dst.exists():
-                        os.remove(dst)  # remove old symlinks if present
-                    os.symlink(src, dst)
+                        os.remove(str(dst))  # remove old symlinks if present
+                    os.symlink(str(src), str(dst))
 
     except AssertionError:
         raise AssertionError
