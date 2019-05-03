@@ -4,10 +4,10 @@ import pandas as pd
 from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.alphamelts.download import install_melts
-from pyrolite.util.meta import pyrolite_datafolder
+from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.automation import *
-from pyrolite.util.meta import stream_log
+import logging
 
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
@@ -24,6 +24,7 @@ _melts = (
 )
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log('pyrolite.util.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 
@@ -51,18 +52,26 @@ class TestMeltsProcess(unittest.TestCase):
         self.envfile = _env  # use default
 
     def test_default(self):
+        title = "MORB"
         folder = make_meltsfolder(
-            self.meltsfile, "MORB", env=self.envfile, dir=self.dir
+            self.meltsfile, title=title, env=self.envfile, dir=self.dir
         )
         process = MeltsProcess(
-            meltsfile=self.meltsfile, env=self.envfile, fromdir=str(folder)
+            meltsfile="{}.melts".format(title),
+            env="environment.txt",
+            fromdir=str(folder),
         )
-        process.write(3, 1, 4, wait=True, log=False)
+        txtfiles = list(self.dir.glob("**/*.txt"))
+        meltsfiles = list(self.dir.glob("**/*.melts"))
+        process.write([3, 1, 4], wait=True, log=False)
         process.terminate()
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
@@ -73,13 +82,21 @@ class TestMeltsExperiment(unittest.TestCase):
         self.envfile = _env  # use default
 
     def test_default(self):
-        exp = MeltsExperiment(meltsfile=self.meltsfile, env=self.envfile, dir=self.dir)
+        exp = MeltsExperiment(
+            meltsfile=self.meltsfile, title="Experiment", env=self.envfile, dir=self.dir
+        )
+        # check the folder has been created correctly
+        txtfiles = list(self.dir.glob("**/*.txt"))
+        meltsfiles = list(self.dir.glob("**/*.melts"))
         exp.run()
         exp.cleanup()
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 @unittest.skipIf(not check_perl(), "Perl is not installed.")
@@ -92,7 +109,10 @@ class TestMeltsBatch(unittest.TestCase):
 
     def tearDown(self):
         if self.dir.exists():
-            remove_tempdir(self.dir)
+            try:
+                remove_tempdir(self.dir)
+            except FileNotFoundError:
+                pass
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import unittest
 from pyrolite.util.alphamelts.download import install_melts
-from pyrolite.util.meta import pyrolite_datafolder
+from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.tables import get_experiments_summary, MeltsOutput
 
@@ -19,6 +19,7 @@ _melts = (
 )
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log('pyrolite.util.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 class TestGetExperimentsSummary(unittest.TestCase):

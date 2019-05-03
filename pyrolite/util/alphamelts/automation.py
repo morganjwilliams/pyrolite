@@ -3,6 +3,7 @@ This file contains functions for automated execution, plotting and reporting fro
 alphamelts 1.9.
 """
 import os, sys, platform
+import stat
 import psutil
 import logging
 import time
@@ -53,17 +54,17 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         dir = Path("./")
     else:
         dir = Path(dir)
-    title = str(title)
+    title = str(title) # need to pathify this!
     experiment_folder = dir / title
     if not experiment_folder.exists():
         experiment_folder.mkdir(parents=True)
 
     meltsfile, mpath = read_meltsfile(meltsfile)
-    with open(experiment_folder / (title + ".melts"), "w") as f:
+    with open(str(experiment_folder / (title + ".melts")), "w") as f:
         f.write(meltsfile)
 
     env, epath = read_envfile(env, unset_variables=False)
-    with open(experiment_folder / "environment.txt", "w") as f:
+    with open(str(experiment_folder / "environment.txt"), "w") as f:
         f.write(env)
 
     return experiment_folder  # return the folder name
@@ -120,6 +121,7 @@ class MeltsProcess(object):
 
         Notes
         ------
+            * Need to specify an exectuable or perform a local installation of alphamelts.
             * Need to get full paths for melts files, directories etc
         """
         self.env = None
@@ -149,22 +151,20 @@ class MeltsProcess(object):
                 local_run = (
                     pyrolite_datafolder(subfolder="alphamelts")
                     / "localinstall"
+                    / "links"
                     / "run_alphamelts.command"
                 )
-            if local_run.exists() and local_run.is_file():
-                executable = local_run
-                self.log("Using local executable meltsfile: {}".format(executable.name))
 
-        assert (
-            executable is not None
-        ), "Need to specify an installable or perform a local installation of alphamelts."
+            executable = local_run
+            self.log("Using local executable meltsfile: {}".format(executable.name))
 
-        if isinstance(executable, Path):
-            self.exname = str(executable.name)
-        else:
-            self.exname = str(executable)
+
+        executable = Path(executable)
+        self.exname = str(executable.name)
+        st = os.stat(str(executable))
+        assert bool(stat.S_IXUSR), "User needs execution permission."
         self.executable = str(executable)
-        self.run = [str(self.executable)]  # executable file
+        self.run = [self.executable]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:
@@ -180,8 +180,7 @@ class MeltsProcess(object):
         self.start()
         time.sleep(0.5)
         self.log("Passing Inital Variables: " + " ".join(self.init_args))
-        for a in self.init_args:
-            self.write(a)
+        self.write(self.init_args)
 
     def log_output(self):
         """
@@ -205,7 +204,7 @@ class MeltsProcess(object):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            cwd=self.fromdir,
+            cwd=str(self.fromdir),
             close_fds=(os.name == "posix"),
         )
         self.process = subprocess.Popen(self.run, **config)
@@ -255,7 +254,7 @@ class MeltsProcess(object):
             if size == self.q.qsize():
                 break
 
-    def write(self, *messages, wait=False, log=False):
+    def write(self, messages, wait=True, log=False):
         """
         Send commands to the process.
 
@@ -269,7 +268,7 @@ class MeltsProcess(object):
             Whether to log output to the logger.
         """
         for message in messages:
-            msg = "{}\n".format(str(message).strip()).encode("utf-8")
+            msg = (str(message).strip()+str(os.linesep)).encode("utf-8")
             self.process.stdin.write(msg)
             self.process.stdin.flush()
             if wait:
@@ -375,9 +374,11 @@ class MeltsExperiment(object):
         Call 'run_alphamelts.command'.
         """
         mp = MeltsProcess(
-            meltsfile=self.meltsfilepath, env=self.envfilepath, fromdir=self.folder
+            meltsfile=(self.title + ".melts"),
+            env="environment.txt",
+            fromdir=str(self.folder),
         )
-        mp.write(3, [0, 1][superliquidus_start], 4, wait=True, log=log)
+        mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
         mp.terminate()
 
     def cleanup(self):

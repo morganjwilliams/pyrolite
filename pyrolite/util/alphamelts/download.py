@@ -183,55 +183,60 @@ def install_melts(
             egs = []
             for g in ["*.melts", "*.txt", "*.m "]:
                 egs += list(temp_dir.glob(g))
-            comms = ["column_pick", "file_format", "run_alphamelts"]
-            comms = [(temp_dir / i).with_suffix(".command") for i in comms]
-
-            files_to_copy = []
+            comms = [
+                "column_pick.command",
+                "file_format.command",
+                "run_alphamelts.command",
+            ]
 
             # getting the executable file
             if system == "Windows":
-                alphafile = temp_dir / "alphamelts_win{}.exe".format(bits)
+                alphafile = "alphamelts_win{}.exe".format(bits)
             elif system == "Linux":
                 if ("Microsoft" in platrel) or ("Microsoft" in platver):
-                    alphafile = temp_dir / "alphamelts_wsl"
+                    alphafile = "alphamelts_wsl"
                     # with_readline
                 else:
-                    alphafile = temp_dir / "alphamelts_linux{}".format(bits)
+                    alphafile = "alphamelts_linux{}".format(bits)
                     # with_readline
             elif system == "Darwin":
-                alphafile = temp_dir / "alphamelts_macosx{}".format(bits)
+                alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
 
-            # getting files to copy
-            files_to_copy += [
-                (eg_dir, egs),
-                (install_dir, comms),
-                (install_dir, [alphafile]),
-            ]
-
-            if system == "Windows":
-                bats = comms + [temp_dir / "alphamelts"]
-                bats = [i.with_suffix(".bat") for i in bats]
-                batdata = {}
-
-                for cf in comms:
-                    batdata[cf.stem] = """@echo off\n"{}" %*""".format(
-                        install_dir / cf.name
-                    )
-                batdata["alphamelts"] = '''@echo off\n"{}"'''.format(
-                    install_dir / alphafile.name
-                )
-                for b in bats:
-                    with open(str(b), "w") as fout:
-                        fout.write(batdata[b.stem])  # dummy bats
-
-                files_to_copy += [(link_dir, bats)]
-
-                # regs = ['command', 'command_auto_file', 'path', 'perl']
-
-            for (target, files) in files_to_copy:
+            # copy examples
+            for (target, files) in [(eg_dir, egs)]:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
+
+            # copy exectuable, command files
+            for (target, files) in [
+                (install_dir, [temp_dir / alphafile]),
+                (install_dir, [(temp_dir / i) for i in comms]),
+            ]:
+                for fn in files:  # executable files will need permissions
+                    copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
+
+            # create links to the install directory
+            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphafile]
+            linkdest = [
+                link_dir / "alphamelts"
+                if (("alphamelts" in i.name) and (not "run" in i.name))
+                else link_dir / i.name
+                for i in linksrc
+            ]
+            if system == "Windows":  # create batch files to act as symlinks
+                for src, dst in zip(linksrc, linkdest):
+                    logger.debug("Creating batch file: {} <- {}".format(src, dst))
+                    with open(str(dst.with_suffix(".bat")), "w") as fout:
+                        fout.write("""@echo off\n"{}" %*""".format(src))
+            else:  # create symlinks for command files and the exectuable
+                for src, dst in zip(linksrc, linkdest):
+                    src, dst = str(src), str(dst)
+                    logger.debug("Creating symlink: {} <- {}".format(src, dst))
+                    if dst.exists():
+                        os.remove(dst)  # remove old symlinks if present
+                    os.symlink(src, dst)
+
     except AssertionError:
         raise AssertionError
     finally:

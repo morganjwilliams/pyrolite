@@ -10,7 +10,7 @@
   <a href="https://pypi.python.org/pypi/pyrolite/">
     <img src="https://img.shields.io/pypi/pyversions/pyrolite.svg"
          alt="Compatible Versions"></a>
-  <a href="https://github.com/ambv/black">
+  <a href="https://github.com/python/black">
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg"
          alt="Code Style: Black"></a>
 </p>

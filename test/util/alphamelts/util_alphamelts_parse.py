@@ -2,10 +2,9 @@ import unittest
 import numpy as np
 import periodictable as pt
 from pyrolite.util.alphamelts.download import install_melts
-from pyrolite.util.meta import pyrolite_datafolder
+from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.parse import *
-
 
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
@@ -22,6 +21,7 @@ _melts = (
 )
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log('pyrolite.util.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 class TestReadMeltsfile(unittest.TestCase):

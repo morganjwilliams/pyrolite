@@ -67,7 +67,7 @@ remote fork, and then submit a pull request onto
   * Contributions introducing new functions, classes or entire features should
     also include appropriate tests where possible (see `Writing Tests`_, below).
 
-  * :code:`pyrolite` uses `Black <https://github.com/ambv/black>`__ for code formatting, and
+  * :code:`pyrolite` uses `Black <https://github.com/python/black/>`__ for code formatting, and
     submissions which have passed through :code:`Black` are appreciated, although not critical.
 
 
