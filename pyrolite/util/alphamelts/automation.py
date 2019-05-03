@@ -160,10 +160,9 @@ class MeltsProcess(object):
         executable = Path(executable)
         assert executable.exists() and executable.is_file()
         self.exname = str(executable.name)
-
+        self.executable = str(executable)
         st = os.stat(executable)
         assert bool(stat.S_IXUSR), "User needs execution permission."
-        self.executable = str(executable)
         self.run = [self.executable]  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
@@ -254,7 +253,7 @@ class MeltsProcess(object):
             if size == self.q.qsize():
                 break
 
-    def write(self, messages, wait=False, log=False):
+    def write(self, messages, wait=True, log=False):
         """
         Send commands to the process.
 
