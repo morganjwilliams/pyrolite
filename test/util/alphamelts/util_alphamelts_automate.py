@@ -4,10 +4,9 @@ import pandas as pd
 from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.alphamelts.download import install_melts
-from pyrolite.util.meta import pyrolite_datafolder
+from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.automation import *
-from pyrolite.util.meta import stream_log
 import logging
 
 _env = (
@@ -25,6 +24,7 @@ _melts = (
 )
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log('pyrolite.util.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 

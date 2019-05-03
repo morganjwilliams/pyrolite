@@ -219,7 +219,9 @@ def install_melts(
             # create links to the install directory
             linksrc = [(install_dir / i) for i in comms] + [install_dir / alphafile]
             linkdest = [
-                link_dir / "alphamelts" if "alphamelts" in i.name else link_dir / i.name
+                link_dir / "alphamelts"
+                if (("alphamelts" in i.name) and (not "run" in i.name))
+                else link_dir / i.name
                 for i in linksrc
             ]
             if system == "Windows":  # create batch files to act as symlinks
@@ -231,8 +233,8 @@ def install_melts(
                 for src, dst in zip(linksrc, linkdest):
                     logger.debug("Creating symlink: {} <- {}".format(src, dst))
                     if dst.exists():
-                        os.remove(dst) # remove old symlinks if present
-                    os.symlink(src, dst)
+                        os.remove(dst)  # remove old symlinks if present
+                    os.symlink(str(src), str(dst))
 
     except AssertionError:
         raise AssertionError

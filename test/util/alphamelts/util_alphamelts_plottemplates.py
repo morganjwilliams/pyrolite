@@ -5,9 +5,10 @@ from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.util.alphamelts.automation import *
 from pyrolite.util.alphamelts.plottemplates import *
 from pyrolite.util.alphamelts.tables import get_experiments_summary
-
+from pyrolite.util.meta import pyrolite_datafolder, stream_log
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log('pyrolite.util.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 _env = (
