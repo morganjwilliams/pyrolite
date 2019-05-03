@@ -242,7 +242,7 @@ def install_melts(
                     "alphamelts" if "alphamelts" in i.name else i.name for i in links
                 ]
                 for l, n in zip(links, linknames):
-                    os.symlink(install_dir / l.name, link_dir / n)
+                    os.symlink(install_dir / alphafile.name, link_dir / n)
 
     except AssertionError:
         raise AssertionError
