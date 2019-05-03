@@ -56,9 +56,9 @@ def strain_coefficient(r0, rx, E=None, T=298.15, **kwargs):
     ------
 
         The lattice strain model relates changes in paritioning to differences in
-        ionic radii for ions of a gieven cationic charge, and for a for a specific site
-        (with Young's modulus :math:`E`). This is calcuated using the work which is
-        needed to be done to expand a spherical shell centred on the lattice site,
+        ionic radii for ions of a given cationic charge, and for a for a specific site
+        (with Young's modulus :math:`E`). This is calcuated using the work
+        done to expand a spherical shell centred on the lattice site,
         which alters the :math:`\Delta G` for the formation of the mineral.
         This can be related to changes in partition coefficients using the following
         [#ref_2]_:
@@ -75,7 +75,7 @@ def strain_coefficient(r0, rx, E=None, T=298.15, **kwargs):
         (:math:`4\pi E (\frac{r_{0}}{2}(r_j - r_0)^2 + \frac{1}{3}(r_j - r_0)^3)`),
         and ii) the assumption that the changes in :math:`\Delta G` occur only to size
         differences, and the difference is additive. The 'segregation coefficient'
-        :math:`K_j` can be epxressed relative to the non-doped equilibirum constant
+        :math:`K_j` can be expressed relative to the non-doped equilibirum constant
         :math:`K_0` [#ref_1]_:
 
         .. math::

@@ -22,7 +22,13 @@ class TestDownload(unittest.TestCase):
 
 
 class TestInstall(unittest.TestCase):
-    """Tests the melts install process."""
+    """
+    Tests the melts install process.
+
+    Todo
+    -----
+        * Check the executables are copied with exectable permissions where possible
+    """
 
     def setUp(self):
         self.temp_dir = temp_path() / "test_melts_temp"
