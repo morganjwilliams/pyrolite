@@ -223,20 +223,14 @@ def install_melts(
                 for i in linksrc
             ]
             if system == "Windows":  # create batch files to act as symlinks
-                linkdest = [i.with_suffix(".bat") for i in linkdest]
-                linkdata = {}
-
                 for src, dst in zip(linksrc, linkdest):
-                    linkdata[dst.name] = """@echo off\n"{}" %*""".format(linksrc)
-                # create the batch files
-                for src, dst in zip(linksrc, linkdest):
-                    logger.debug("Creating batch file: {} -> {}".format(src, dst))
-                    with open(str(dst), "w") as fout:
-                        fout.write(linkdata[dst.name])
+                    logger.debug("Creating batch file: {} -> {}".format(dst, src))
+                    with open(str(dst.with_suffix(".bat")), "w") as fout:
+                        fout.write("""@echo off\n"{}" %*""".format(linksrc))
             else:  # create symlinks for command files and the exectuable
                 for src, dst in zip(linksrc, linkdest):
-                    logger.debug("Creating symlink: {} -> {}".format(src, dst))
-                    os.symlink(src, dst)
+                    logger.debug("Creating symlink: {} -> {}".format(dst, src))
+                    os.symlink(dst, src)
 
     except AssertionError:
         raise AssertionError
