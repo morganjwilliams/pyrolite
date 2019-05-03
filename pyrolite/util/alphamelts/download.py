@@ -239,10 +239,12 @@ def install_melts(
                 system != "Windows"
             ):  # create symlinks for command files and the exectuable
                 linknames = [
-                    "alphamelts" if "alphamelts" in i.name else i.name for i in links
+                    alphafile.name if "alphamelts" in i.name else i.name for i in links
                 ]
-                for l, n in zip(links, linknames):
-                    os.symlink(install_dir / alphafile.name, link_dir / n)
+                for file, name in zip(links, linknames):
+                    src, dst = install_dir / file.name, link_dir / name
+                    logger.debug("Creating symlink: {} -> {}".format(src, dst))
+                    os.symlink(src, dst)
 
     except AssertionError:
         raise AssertionError
