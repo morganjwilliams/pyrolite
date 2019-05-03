@@ -203,7 +203,7 @@ class MeltsProcess(object):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            cwd=self.fromdir,
+            cwd=str(self.fromdir),
             close_fds=(os.name == "posix"),
         )
         self.process = subprocess.Popen(self.run, **config)
@@ -375,7 +375,7 @@ class MeltsExperiment(object):
         mp = MeltsProcess(
             meltsfile=(self.title + ".melts"),
             env="environment.txt",
-            fromdir=self.folder,
+            fromdir=str(self.folder),
         )
         mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
         mp.terminate()
