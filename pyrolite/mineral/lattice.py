@@ -7,7 +7,7 @@ Todo
     * Bulk modulus and Youngs modulus approximations [#ref_3]_ [#ref_4]_  [#ref_5]_.
 
 References
-    ----------
+------------
     .. [#ref_1] Brice, J.C., 1975. Some thermodynamic aspects of the growth of strained crystals.
             Journal of Crystal Growth 28, 249–253.
             doi: {brice1975}
