@@ -23,24 +23,16 @@ site2radii = [
     *[get_ionic_radii(el, charge=2, coordination=8) for el in ["Ca", "Eu", "Sr"]],
 ]
 # plot the relative paritioning curve for cations in the 2+ site
-ax.scatter(
-    site2radii,
-    D_Ca * np.array([strain_coefficient(rCa, rx, E_2, T=Tk) for rx in site2radii]),
-    color="g",
-    label="$X^{2+}$ Cations",
-)
+site2Ds = D_Ca * np.array([strain_coefficient(rCa, rx, E_2, T=Tk) for rx in site2radii])
+ax.scatter(site2radii, site2Ds, color="g", label="$X^{2+}$ Cations")
 # create an index of radii, and plot the relative paritioning curve for the site
 xs = np.linspace(0.9, 1.3, 200)
-ax.plot(xs, D_Ca * strain_coefficient(rCa, xs, E_2, T=Tk), color="0.5", ls="--")
+curve2Ds = D_Ca * strain_coefficient(rCa, xs, E_2, T=Tk)
+ax.plot(xs, curve2Ds, color="0.5", ls="--")
 # add the element labels next to the points
-for l, r in zip(site2labels, site2radii):
+for l, r, d in zip(site2labels, site2radii, site2Ds):
     ax.annotate(
-        l,
-        xy=(r, D_Ca * strain_coefficient(rCa, r, E_2, T=Tk)),
-        xycoords="data",
-        ha="left",
-        va="bottom",
-        fontsize=fontsize,
+        l, xy=(r, d), xycoords="data", ha="left", va="bottom", fontsize=fontsize
     )
 # %% Calculate D(La)
 D_La = (D_Ca ** 2 / D_Na) * np.exp((529 / Tk) - 3.705)
@@ -48,24 +40,16 @@ D_La = (D_Ca ** 2 / D_Na) * np.exp((529 / Tk) - 3.705)
 site3labels = REE()
 # get the Shannon ionic radii for the elements in the 3+ site
 site3radii = [get_ionic_radii(x, charge=3, coordination=8) for x in REE()]
+site3Ds = D_La * np.array([strain_coefficient(rLa, rx, E_3, T=Tk) for rx in site3radii])
 # plot the relative paritioning curve for cations in the 3+ site
-ax.scatter(
-    site3radii,
-    D_La * np.array([strain_coefficient(rLa, rx, E_3, T=Tk) for rx in site3radii]),
-    color="purple",
-    label="$X^{3+}$ Cations",
-)
+ax.scatter(site3radii, site3Ds, color="purple", label="$X^{3+}$ Cations")
 # plot the relative paritioning curve for the site
-ax.plot(xs, D_La * strain_coefficient(rLa, xs, E_3, T=Tk), color="0.5", ls="--")
+curve3Ds = D_La * strain_coefficient(rLa, xs, E_3, T=Tk)
+ax.plot(xs, curve3Ds, color="0.5", ls="--")
 # add the element labels next to the points
-for l, r in zip(site3labels, site3radii):
+for l, r, d in zip(site3labels, site3radii, site3Ds):
     ax.annotate(
-        l,
-        xy=(r, D_La * strain_coefficient(rLa, r, E_3, T=Tk)),
-        xycoords="data",
-        ha="right",
-        va="bottom",
-        fontsize=fontsize,
+        l, xy=(r, d), xycoords="data", ha="right", va="bottom", fontsize=fontsize
     )
 
 ax.set_yscale("log")
@@ -84,14 +68,12 @@ D_Eu2 = D_Ca * strain_coefficient(
 # calculate the effective parition coefficient
 D_Eu = (1 - X_Eu3) * D_Eu2 + X_Eu3 * D_Eu3
 # show the effective partition coefficient relative to the 2+ and 3+ endmembers
-ax.plot(
+radii, ds = (
     [get_ionic_radii("Eu", charge=c, coordination=8) for c in [3, 3, 2, 2]],
     [D_Eu3, D_Eu, D_Eu, D_Eu2],
-    ls="--",
-    color="0.9",
-    marker="D",
-    label="Effective $D_{Eu}$",
-    zorder=-1,
+)
+ax.plot(
+    radii, ds, ls="--", color="0.9", marker="D", label="Effective $D_{Eu}$", zorder=-1
 )
 ax.legend(loc="upper left", bbox_to_anchor=(1.05, 1), frameon=False, facecolor=None)
 # %% save figure
