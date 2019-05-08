@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
-from pyrolite.geochem.ind import REE, get_radii
-from pyrolite.plot import REE_radii_plot
+from pyrolite.geochem.ind import REE, get_ionic_radii
+from pyrolite.plot.spider import REE_v_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 np.random.seed(82)
@@ -11,7 +11,7 @@ np.random.seed(82)
 no_analyses = 1000
 
 data_ree = [i for i in REE() if not i in ["Pm"]]
-data_radii = np.array(get_radii(data_ree))
+data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
 )
@@ -30,7 +30,7 @@ for ix, el in enumerate(data_ree):
 
 Y = np.exp(lnY)
 
-ax = REE_radii_plot()
+ax = REE_v_radii()
 ax.plot(data_radii.T, Y.T, marker="D", alpha=0.01, c="0.5", markerfacecolor="k")
 # %% Plot Data -------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure
@@ -43,7 +43,7 @@ exclude = ["Ce", "Eu", "Pm"]
 if exclude:
     subset_Y = Y[:, [i not in exclude for i in data_ree]]
     subset_ree = [i for i in REE() if not i in exclude]
-    subset_radii = np.array(get_radii(subset_ree))
+    subset_radii = np.array(get_ionic_radii(subset_ree, charge=3, coordination=8))
 
 params = OP_constants(subset_radii, degree=lambda_degree)
 
