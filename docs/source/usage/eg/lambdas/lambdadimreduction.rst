@@ -1,7 +1,7 @@
 Dimensional Reduction
 ======================
 
-Orthagonal polynomial decomposition can be used for dimensional reduction of smooth
+Orthogonal polynomial decomposition can be used for dimensional reduction of smooth
 function over an independent variable, producing an array of independent values
 representing the relative weights for each order of component polynomial.
 
