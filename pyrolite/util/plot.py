@@ -503,9 +503,27 @@ def conditional_prob_density(
 
 
 def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
+    """
+    Create the background triangle patch for a ternary plot.
+    """
     return matplotlib.patches.Polygon(
         ABC_to_xy(np.eye(3), yscale=yscale, xscale=xscale) * scale, **kwargs
     )
+
+
+def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
+    """
+    Takes an xy point, and creates a rectangular patch centred about it.
+    """
+    # If either x or y is nan
+    if any([np.isnan(i) for i in [x, y]]):
+        return None
+    if np.isnan(dx):
+        dx = 0
+    if np.isnan(dy):
+        dy = 0
+    llc = (x - dx, y - dy)
+    return matplotlib.patches.Rectangle(llc, 2 * dx, 2 * dy, **kwargs)
 
 
 def proxy_rect(**kwargs):
