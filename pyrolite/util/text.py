@@ -205,3 +205,23 @@ def split_records(data, delimiter="\r\n"):
     """
     # https://stackoverflow.com/a/2787979
     return re.split(delimiter + """(?=(?:[^'"]|'[^']*'|"[^"]*")*$)""", data)
+
+
+def slugify(value, delim="-"):
+    """
+    Normalizes a string, removes non-alpha characters, converts spaces to delimiters.
+
+    Parameters
+    -----------
+    value : :class:`str`
+        String to slugify.
+    delim : :class:`str`
+        Delimiter to replace whitespace with.
+
+    Returns
+    -------
+    :class:`str`
+    """
+    value = re.sub("[^\w\s-]", "", value).strip()
+    value = re.sub("[-\s]+", delim, value)
+    return value
