@@ -133,7 +133,7 @@ def from_meltsfile(filename):
     else:
         try:  # filepath
             with open(filename) as fh:
-                file = filename.read()
+                file = fh.read()
         except FileNotFoundError:  # string specification of meltsfile
             file = filename
 
