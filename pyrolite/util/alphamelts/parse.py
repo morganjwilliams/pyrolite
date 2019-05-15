@@ -105,7 +105,7 @@ def read_envfile(envfile, **kwargs):
     """
     path, file = None, None
     if isinstance(envfile, MELTS_Env):
-        file = MELTS_Env.to_envfile(**kwargs)
+        file = envfile.to_envfile(**kwargs)
     else:
         file, path = _file_from_obj(envfile)
     return file, path
