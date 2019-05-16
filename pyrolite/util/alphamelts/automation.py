@@ -54,7 +54,7 @@ def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.t
         dir = Path("./")
     else:
         dir = Path(dir)
-    title = str(title) # need to pathify this!
+    title = str(title)  # need to pathify this!
     experiment_folder = dir / title
     if not experiment_folder.exists():
         experiment_folder.mkdir(parents=True)
@@ -158,7 +158,6 @@ class MeltsProcess(object):
             executable = local_run
             self.log("Using local executable meltsfile: {}".format(executable.name))
 
-
         executable = Path(executable)
         self.exname = str(executable.name)
         st = os.stat(str(executable))
@@ -181,6 +180,11 @@ class MeltsProcess(object):
         time.sleep(0.5)
         self.log("Passing Inital Variables: " + " ".join(self.init_args))
         self.write(self.init_args)
+
+    @property
+    def callstring(self):
+        """Get the call string such that analyses can be reproduced manually."""
+        return " ".join(["cd", str(self.fromdir), "&&"] + self.run)
 
     def log_output(self):
         """
@@ -209,6 +213,7 @@ class MeltsProcess(object):
         )
         self.process = subprocess.Popen(self.run, **config)
         logger.debug("Process Started with ID {}".format(self.process.pid))
+        logger.debug("Reproduce using: {}".format(self.callstring))
         # Queues and Logging
         self.q = queue.Queue()
         self.T = threading.Thread(
@@ -268,7 +273,7 @@ class MeltsProcess(object):
             Whether to log output to the logger.
         """
         for message in messages:
-            msg = (str(message).strip()+str(os.linesep)).encode("utf-8")
+            msg = (str(message).strip() + str(os.linesep)).encode("utf-8")
             self.process.stdin.write(msg)
             self.process.stdin.flush()
             if wait:
@@ -303,7 +308,7 @@ class MeltsProcess(object):
                 # kill the alphamelts executable which can hang
                 logger.debug("Terminating {}".format(p.name()))
                 p.kill()
-            except psutil.NoSuchProcess:
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 pass
 
 
@@ -373,13 +378,13 @@ class MeltsExperiment(object):
         """
         Call 'run_alphamelts.command'.
         """
-        mp = MeltsProcess(
+        self.mp = MeltsProcess(
             meltsfile=(self.title + ".melts"),
             env="environment.txt",
             fromdir=str(self.folder),
         )
-        mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
-        mp.terminate()
+        self.mp.write([3, [0, 1][superliquidus_start], 4], wait=True, log=log)
+        self.mp.terminate()
 
     def cleanup(self):
         pass
