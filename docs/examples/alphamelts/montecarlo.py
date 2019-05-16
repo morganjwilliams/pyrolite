@@ -1,16 +1,6 @@
 import numpy as np
 import pandas as pd
 
-# %% get composition from the default morb file, then create duplicates with noise
-# here we use the local installation for easy access to a MORB melts file, but
-# the process should be the same for any other melts file
-from pyrolite.util.meta import pyrolite_datafolder, stream_log
-from pyrolite.util.alphamelts.download import install_melts
-
-stream_log("pyrolite.util.alphamelts", level="DEBUG")
-if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
-    install_melts(local=True)  # install melts for example files etc
-
 # %% setup an environment for isenthalpic fractional crystallisation
 from pyrolite.util.alphamelts.env import MELTS_Env
 
@@ -24,10 +14,10 @@ env.MAXP = 10000
 env.MINT = 800
 env.MAXT = 1800
 
-# get the MORB melts file
+# %% get the MORB melts file
+from pyrolite.geochem.norm import ReferenceCompositions
 from pyrolite.geochem.ind import __common_oxides__
 from pyrolite.comp.codata import renormalise, ilr, inverse_ilr
-from pyrolite.geochem.norm import ReferenceCompositions
 from pyrolite.util.pd import accumulate, to_numeric
 from pyrolite.util.alphamelts.meltsfile import to_meltsfile
 
@@ -45,19 +35,7 @@ MORB["Final Pressure"] = 5000
 MORB["Log fO2 Path"] = "FMQ"
 MORB["Increment Temperature"] = -5
 MORB["Increment Pressure"] = 0
-
-replicates = 50
-meltsfiles = (
-    accumulate([pd.DataFrame(MORB).T] * replicates).reset_index().drop(columns="index")
-)
-
-# add compositional 'noise' to each of the replicate compositions, then renormalise
-compositional_vars = [i for i in meltsfiles if i in __common_oxides__]
-meltsfiles[compositional_vars] = to_numeric(meltsfiles[compositional_vars])
-meltsfiles[compositional_vars] = (
-    meltsfiles[compositional_vars].astype(float).renormalise()
-)
-
+# %% replicate and add noise
 
 def blur_compositions(df, noise=0.05, scale=100):
     """
@@ -70,12 +48,22 @@ def blur_compositions(df, noise=0.05, scale=100):
     return inverse_ilr(xvals) * scale
 
 
-meltsfiles[compositional_vars] = blur_compositions(meltsfiles[compositional_vars])
+replicates = 50
+meltsfiles = (
+    accumulate([pd.DataFrame(MORB).T] * replicates).reset_index().drop(columns="index")
+)
 
+compositional_vars = [i for i in meltsfiles if i in __common_oxides__]
+meltsfiles[compositional_vars] = to_numeric(meltsfiles[compositional_vars])
+meltsfiles[compositional_vars] = (
+    meltsfiles[compositional_vars].astype(float).renormalise()
+)
+
+meltsfiles[compositional_vars] = blur_compositions(meltsfiles[compositional_vars])
 # %% run the models for each of the inputs
-from pyrolite.util.alphamelts.automation import MeltsExperiment
 from pyrolite.util.general import temp_path
 from pyrolite.util.text import slugify
+from pyrolite.util.alphamelts.automation import MeltsExperiment
 
 tempdir = temp_path() / "test_temp_montecarlo"
 
