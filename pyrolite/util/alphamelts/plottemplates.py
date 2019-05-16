@@ -1,9 +1,9 @@
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
-from pyrolite.util.text import titlecase
-from pyrolite.geochem.ind import __common_oxides__
+from ..plot import __DEFAULT_DISC_COLORMAP__, proxy_line
+from ..text import titlecase
+from ...geochem.ind import __common_oxides__
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -338,7 +338,8 @@ def table_by_phase(
 
             c = [i for i in outtbl.columns if p in i]
             config = dict(
-                color=__DEFAULT_DISC_COLORMAP__(colors[p]), alpha=1 / np.log(replicates)
+                color=__DEFAULT_DISC_COLORMAP__(colors[p]),
+                alpha=1 / np.log(outtbl.index.size),
             )
             if c:
                 for _p in c:

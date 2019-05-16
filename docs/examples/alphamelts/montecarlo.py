@@ -36,7 +36,6 @@ MORB["Log fO2 Path"] = "FMQ"
 MORB["Increment Temperature"] = -5
 MORB["Increment Pressure"] = 0
 # %% replicate and add noise
-
 def blur_compositions(df, noise=0.05, scale=100):
     """
     Function to add 'compositional noise' to a set of compositions. In reality, it's
@@ -60,11 +59,18 @@ meltsfiles[compositional_vars] = (
 )
 
 meltsfiles[compositional_vars] = blur_compositions(meltsfiles[compositional_vars])
+# %% compostional variation
+ax = meltsfiles.loc[:, ['CaO', 'MgO', 'Al2O3']].pyroplot.ternary(alpha=0.2, c='0.5')
+# %% save figure
+from pyrolite.util.plot import save_figure
+
+save_figure(ax.figure, save_at="../../source/_static", name="melt_blurredmorb")
 # %% run the models for each of the inputs
 from pyrolite.util.general import temp_path
 from pyrolite.util.text import slugify
 from pyrolite.util.alphamelts.automation import MeltsExperiment
 
+# create a tmeporary directory to run this experiment in
 tempdir = temp_path() / "test_temp_montecarlo"
 
 # differentiate titles
@@ -81,16 +87,12 @@ for ix in meltsfiles.index:
     )
     exp = MeltsExperiment(meltsfile=meltsfile, title=title, env=env, dir=tempdir)
     exp.run(superliquidus_start=True)
-
-# %% aggregate the results over the same gridded space (realising that some may fail differently)
+# %% aggregate the results over the same gridded space
 from pyrolite.util.alphamelts.tables import get_experiments_summary
 from pyrolite.util.alphamelts.plottemplates import table_by_phase
 
 summary = get_experiments_summary(tempdir, kelvin=False)
-
 fig = table_by_phase(summary)
-
 # %% save figure
-from pyrolite.util.plot import save_figure
 
 save_figure(fig, save_at="../../source/_static", name="melts_montecarlo")
