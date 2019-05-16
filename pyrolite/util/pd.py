@@ -128,23 +128,29 @@ def to_ser(df):
     return ser
 
 
-def to_numeric(df, errors: str = "coerce"):
+def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
     """
-    Takes all non-metadata columns and converts to numeric type where possible.
+    Converts non-numeric columns to numeric type where possible.
 
     Notes
     -----
         * Avoid using .loc or .iloc on the LHS to make sure that data dtypes
             are propagated.
     """
-    return df.apply(pd.to_numeric, errors=errors)
+    cols = df.select_dtypes(exclude=exclude).columns
+    df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)
+    return df
 
 
 def zero_to_nan(df):
     """
     Replace floats close or equal to zero with np.nan in a dataframe.
     """
-    cols = [name for (name, type) in zip(df.columns, df.dtypes) if isinstance(type, np.float)]
+    cols = [
+        name
+        for (name, type) in zip(df.columns, df.dtypes)
+        if isinstance(type, np.float)
+    ]
     df.loc[:, cols] = np.where(
         np.isclose(df[cols].values, 0.0), np.nan, df[cols].values
     )

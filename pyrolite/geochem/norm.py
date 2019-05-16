@@ -4,13 +4,12 @@ import platform
 import pandas as pd
 import numpy as np
 from ..comp import *
-from ..util.pd import to_frame, to_numeric
+from ..util.pd import to_frame
 from ..util.units import scale
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
 
 
 class RefComp(object):
@@ -77,7 +76,7 @@ class RefComp(object):
             if (not pd.isna(self.data.loc[i, "value"])) and (i not in headers)
         ]
         self.data.loc[self.vars, floatvars] = self.data.loc[self.vars, floatvars].apply(
-            to_numeric
+            pd.to_numeric, errors="coerce"
         )
 
     def set_units(self, to="ppm"):
