@@ -504,6 +504,7 @@ def lambda_lnREE(
     params=None,
     degree=5,
     append=[],
+    scale="ppm",
     **kwargs
 ):
     """
@@ -526,6 +527,8 @@ def lambda_lnREE(
         Maximum degree polynomial fit component to include.
     append : :class:`list`, :code:`None`
         Whether to append lambda function (i.e. :code:`["function"]`).
+    scale : :class:`str`
+        Current units for the REE data, used to scale the reference dataset.
 
     Todo
     -----
@@ -571,9 +574,12 @@ def lambda_lnREE(
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
             norm = ReferenceCompositions()[norm_to]
+            norm.set_units(scale)
             norm_abund = np.array([norm[str(el)].value for el in ree])
         elif isinstance(norm_to, RefComp):
-            norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
+            norm = norm_to
+            norm.set_units(scale)
+            norm_abund = np.array([norm[str(el)].value for el in ree])
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(ree)
