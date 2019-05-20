@@ -326,7 +326,7 @@ def aggregate_cation(
 
     for c in [elstr, oxstr]:
         if not c in df.columns:
-            logger.info("Adding {} column.".format(c))
+            logger.debug("Adding {} column.".format(c))
             dfc[c] = np.nan
 
     eldata = dfc.loc[:, elstr].values
@@ -434,7 +434,9 @@ def add_ratio(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
+def add_MgNo(
+    df: pd.DataFrame, molecularIn=False, elemental=False, components=False, name="Mg#"
+):
     """
     Append the magnesium number to a dataframe.
 
@@ -448,6 +450,8 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         Whether to data is in elemental or oxide form.
     components : :class:`bool`, :code:`False`
         Whether Fe data is split into components (True) or as FeOT (False).
+    name : :class:`str`
+        Name to use for the Mg Number column.
 
     Returns
     -------
@@ -466,7 +470,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     if not molecularIn:
         if components:
             # Iron is split into species
-            df.loc[:, "Mg#"] = (
+            df.loc[:, name] = (
                 df["MgO"]
                 / pt.formula("MgO").mass
                 / (
@@ -477,7 +481,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         else:
             # Total iron is used
             assert "FeOT" in df.columns
-            df.loc[:, "Mg#"] = (
+            df.loc[:, name] = (
                 df["MgO"]
                 / pt.formula("MgO").mass
                 / (
@@ -488,10 +492,10 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     else:
         if not elemental:
             # Molecular Oxides
-            df.loc[:, "Mg#"] = df["MgO"] / (df["MgO"] + df["FeO"])
+            df.loc[:, name] = df["MgO"] / (df["MgO"] + df["FeO"])
         else:
             # Molecular Elemental
-            df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
+            df.loc[:, name] = df["Mg"] / (df["Mg"] + df["Fe"])
 
 
 @update_docstring_references
@@ -683,7 +687,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
             elem = get_cations(o)[0]
             if elem in multiples:
                 if o in oxides:
-                    logger.info("Aggregating from {} to {}".format(elem, o))
+                    logger.debug("Aggregating from {} to {}".format(elem, o))
                     df = aggregate_cation(
                         df, cation=elem, oxide=o, form="oxide", logdata=logdata
                     )
@@ -692,7 +696,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
                     potential_oxides = simple_oxides(o)
                     present_oxides = [p for p in potential_oxides if p in df.columns]
                     for ox in present_oxides:  # aggregate all the relevant oxides
-                        logger.info("Aggregating from {} to {}".format(ox, o))
+                        logger.debug("Aggregating from {} to {}".format(ox, o))
                         df = aggregate_cation(
                             df, cation=o, oxide=ox, form="element", logdata=logdata
                         )
@@ -702,7 +706,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         if g in oxides:
             elem = get_cations(g)[0]
             oxide = g
-            logger.info(
+            logger.debug(
                 "Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem)
             )
             df = aggregate_cation(
@@ -714,7 +718,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
             potential_oxides = simple_oxides(g)
             present_oxides = [p for p in potential_oxides if p in df.columns]
             for ox in present_oxides:  # aggregate all the relevant oxides
-                logger.info(
+                logger.debug(
                     "Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem)
                 )
                 df = aggregate_cation(
@@ -735,7 +739,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
 
     if get_fe:
         get_fe = get_fe[0]
-        logger.info("Transforming {} to {}.".format(c_fe_str, get_fe))
+        logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
         df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
 
     # Try to get some ratios -----------------------------------------------------------
@@ -743,7 +747,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
     if ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(ratios)))
         for r in ratios:
-            logger.info("Adding Ratio: {}".format(r))
+            logger.debug("Adding Ratio: {}".format(r))
             num, den = r.split("/")
             df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
             # df = add_ratio(df, r)
@@ -756,9 +760,9 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
     )
     output_columns = simple_get + coupled_components
     if renorm:
-        logger.info("Recalculation Done, Renormalising compositional components.")
+        logger.debug("Recalculation Done, Renormalising compositional components.")
         df.loc[:, present_compositional] = renormalise(df.loc[:, present_compositional])
         return df.loc[:, output_columns]
     else:
-        logger.info("Recalculation Done. Data not renormalised.")
+        logger.debug("Recalculation Done. Data not renormalised.")
         return df.loc[:, output_columns]
