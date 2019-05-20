@@ -1,6 +1,6 @@
 import numpy as np
-from pyrolite.plot import REE_radii_plot
-from pyrolite.geochem.ind import REE, get_radii
+from pyrolite.plot.spider import REE_v_radii
+from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 np.random.seed(82)
@@ -25,7 +25,7 @@ def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **
 
 # %% Generate Some Example Data --------------------------------------------------------
 data_ree = [i for i in REE() if not i in ["Pm"]]
-data_radii = np.array(get_radii(data_ree))
+data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 lnY = (
     np.random.randn(*data_radii.shape) * 0.1
     + np.linspace(3.0, 0.0, data_radii.size)
@@ -43,7 +43,7 @@ exclude = ["Ce", "Eu", "Pm"]
 if exclude:
     subset_Y = Y[[i not in exclude for i in data_ree]]
     subset_ree = [i for i in REE() if not i in exclude]
-    subset_radii = np.array(get_radii(subset_ree))
+    subset_radii = np.array(get_ionic_radii(subset_ree, charge=3, coordination=8))
 
 params = OP_constants(subset_radii, degree=4)
 ls = lambdas(np.log(subset_Y), subset_radii, params=params, degree=4)
@@ -51,7 +51,8 @@ continuous_radii = np.linspace(subset_radii[0], subset_radii[-1], 20)
 l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)
 smooth_profile = np.exp(l_func(continuous_radii))
 # %% Plot the Results ------------------------------------------------------------------
-ax = REE_radii_plot()
+ax = REE_v_radii()
+ax.set_yscale('log')
 ax.plot(data_radii, Y, marker="D", color="0.5", label="Example Data")
 plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
 ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k")

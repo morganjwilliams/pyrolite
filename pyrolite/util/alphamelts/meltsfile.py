@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from ..pd import to_frame, to_ser, to_numeric
+from ..pd import to_frame, to_ser
 from ...geochem.ind import __common_elements__, __common_oxides__
 import logging
 
@@ -133,7 +133,7 @@ def from_meltsfile(filename):
     else:
         try:  # filepath
             with open(filename) as fh:
-                file = filename.read()
+                file = fh.read()
         except FileNotFoundError:  # string specification of meltsfile
             file = filename
 
@@ -144,7 +144,9 @@ def from_meltsfile(filename):
             fmtlines.append(args[1].strip().split())
         else:
             fmtlines.append([i.strip() for i in args])
-    df = to_numeric(
-        pd.DataFrame.from_records(fmtlines).set_index(0, drop=True)[1], errors="ignore"
+    df = (
+        pd.DataFrame.from_records(fmtlines)
+        .set_index(0, drop=True)
+        .apply(pd.to_numeric, errors="ignore")[1]
     )
     return df

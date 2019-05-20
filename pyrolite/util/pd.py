@@ -7,9 +7,51 @@ import logging
 import inspect
 
 from .general import pathify
+from .meta import subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def drop_where_all_empty(df):
+    """
+    Drop rows and columns which are completely empty.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+        Pandas object to ensure is in the form of a series.
+    """
+    for ix in range(len(df.axes)):
+        df = df.dropna(how="all", axis=ix)
+    return df
+
+
+def read_table(filepath, **kwargs):
+    """
+    Read tabluar data from an excel or csv text-based file.
+
+    Parameters
+    ------------
+    filepath : :class:`str` | :class:`pathlib.Path`
+        Path to file.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+    """
+    filepath = Path(filepath)
+    ext = filepath.suffix.replace(".", "")
+    assert ext in ["xls", "xlsx", "csv"]
+    if ext in ["xls", "xlsx"]:
+        reader = pd.read_excel
+    elif ext in ["csv"]:
+        reader = pd.read_csv
+    else:
+        logger.warn
+    df = reader(str(filepath), **subkwargs(kwargs, reader))
+    df = drop_where_all_empty(df)
+    return df
 
 
 def column_ordered_append(df1, df2, **kwargs):
@@ -128,23 +170,29 @@ def to_ser(df):
     return ser
 
 
-def to_numeric(df, errors: str = "coerce"):
+def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
     """
-    Takes all non-metadata columns and converts to numeric type where possible.
+    Converts non-numeric columns to numeric type where possible.
 
     Notes
     -----
         * Avoid using .loc or .iloc on the LHS to make sure that data dtypes
             are propagated.
     """
-    return df.apply(pd.to_numeric, errors=errors)
+    cols = df.select_dtypes(exclude=exclude).columns
+    df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)
+    return df
 
 
 def zero_to_nan(df):
     """
     Replace floats close or equal to zero with np.nan in a dataframe.
     """
-    cols = [name for (name, type) in zip(df.columns, df.dtypes) if isinstance(type, np.float)]
+    cols = [
+        name
+        for (name, type) in zip(df.columns, df.dtypes)
+        if isinstance(type, np.float)
+    ]
     df.loc[:, cols] = np.where(
         np.isclose(df[cols].values, 0.0), np.nan, df[cols].values
     )

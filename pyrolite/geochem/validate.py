@@ -1,5 +1,6 @@
 # A set of functions for parsing, validating and formating geochemical data/metadata
 import re
+import functools
 import pandas_flavor as pf
 from .ind import (
     __common_elements__,
@@ -40,6 +41,7 @@ def ischem(s):
         return str(s).upper() in chems
 
 
+@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def is_isotoperatio(s):
     """
     Check if text is plausibly an isotope ratio.

@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
-from pyrolite.geochem.ind import REE, get_radii
+from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.transform import lambda_lnREE
-from pyrolite.plot import REE_radii_plot
+from pyrolite.plot.spider import REE_v_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 
 np.random.seed(82)
@@ -12,7 +12,7 @@ np.random.seed(82)
 no_analyses = 1000
 
 data_ree = [i for i in REE() if not i in ["Pm"]]
-data_radii = np.array(get_radii(data_ree))
+data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
 )
@@ -30,9 +30,9 @@ for ix, el in enumerate(data_ree):
         lnY[:, ix] += np.random.rand(no_analyses) * 0.6
 data_radii
 df = pd.DataFrame(np.exp(lnY), columns=data_ree)
-ax = df.spiderplot(
-    ax=REE_radii_plot(),
-    indexes=get_radii(data_ree),
+ax = df.pyroplot.spider(
+    ax=REE_v_radii(),
+    indexes=get_ionic_radii(data_ree, charge=3, coordination=8),
     marker="D",
     alpha=0.01,
     c="0.5",

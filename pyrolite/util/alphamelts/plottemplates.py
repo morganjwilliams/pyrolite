@@ -1,22 +1,66 @@
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
-from pyrolite.util.text import titlecase
-from pyrolite.geochem.ind import __common_oxides__
+from ..plot import __DEFAULT_DISC_COLORMAP__, proxy_line
+from ..text import titlecase
+from ...geochem.ind import __common_oxides__
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def phase_linestyle(phasename):
+    """
+    Method for generating linestyles for delineating sequential phase names
+    (e.g. olivine_0, olivine_1) based on their names.
+
+    Parameters
+    -----------
+    phasename : :class:`str`
+        Phase name for which to generate a line style.
+
+    Returns
+    ---------
+    linestyle : :class:`str`
+        Line style for the phase name.
+    """
+    if "_" in phasename:
+        return ["-", "--", ":", "-."][int(phasename[-1])]
+    else:
+        return "-"
 
 
 def plot_phasetable(
     summary,
     table="phasevol",
     xvar="Temperature",
-    figsize=None,
     plotswide=1,
+    figsize=None,
     yscale="linear",
 ):
+    """
+    Plot a particular phase table per-experiment across indiviudal axes.
+
+    Parameters
+    -----------
+    summary : :class:`dict`
+        Dictionary of experiment result outputs indexed by title.
+    table : :class:`str`
+        Which table to plot from the experiment output.
+    xvar : :class:`str`
+        Variable to use for the independent axis.
+    plotswide : :class:`int`
+        With of the figure, as a number of axes.
+    figsize : :class:`tuple`
+        Size of the figure, optional.
+    yscale : :class:`str`
+        Scale to use for the y-axis.
+
+    Returns
+    ---------
+    :class:`matplotlib.figure.Figure`
+        Figure on which the results are plotted.
+    """
     all_phases = set()
     for s in summary.values():
         all_phases = all_phases | s["phases"]
@@ -33,7 +77,7 @@ def plot_phasetable(
     if nkeys <= 1:  # single plot
         ax = np.array([ax])
 
-    if nkeys // plotswide > 1:
+    if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
             axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
     else:
@@ -48,14 +92,14 @@ def plot_phasetable(
             [any([p in c for p in phases]) for c in getattr(output, table).columns]
         ]
         phasecols = [i for i in phasecols if i != xvar]
-        plotted = []
         for p in phasecols:
             phase = [p, p[: p.find("_")]][p.find("_") >= 0]
-            config = dict(color=__DEFAULT_DISC_COLORMAP__(colors[phase]), label=p)
-            if phase in plotted:  # eg. clinopyroxene 2
-                config = {**config, "ls": ["--", ":", "-."][plotted.count(phase) - 1]}
+            config = dict(
+                color=__DEFAULT_DISC_COLORMAP__(colors[phase]),
+                label=p,
+                ls=phase_linestyle(p),
+            )
             getattr(output, table).loc[:, [p, xvar]].plot(x=xvar, ax=ax[ix], **config)
-            plotted.append(phase)
         ax[ix].legend(
             loc="upper left", bbox_to_anchor=(1.05, 1.0), frameon=False, facecolor=None
         )
@@ -69,10 +113,33 @@ def plot_comptable(
     summary,
     table="liquidcomp",
     xvar="Temperature",
-    figsize=None,
     plotswide=1,
+    figsize=None,
     yscale="linear",
 ):
+    """
+    Plot a particular compostiion table per-experiment across indiviudal axes.
+
+    Parameters
+    -----------
+    summary : :class:`dict`
+        Dictionary of experiment result outputs indexed by title.
+    table : :class:`str`
+        Which table to plot from the experiment output.
+    xvar : :class:`str`
+        Variable to use for the independent axis.
+    plotswide : :class:`int`
+        With of the figure, as a number of axes.
+    figsize : :class:`tuple`
+        Size of the figure, optional.
+    yscale : :class:`str`
+        Scale to use for the y-axis.
+
+    Returns
+    ---------
+    :class:`matplotlib.figure.Figure`
+        Figure on which the results are plotted.
+    """
     all_components = set()
     for s in summary.values():
         all_components = all_components | (
@@ -91,7 +158,7 @@ def plot_comptable(
     if nkeys <= 1:  # single plot
         ax = np.array([ax])
 
-    if nkeys // plotswide > 1:
+    if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
             axix[0].set_ylabel("Wt%")
     else:
@@ -125,10 +192,33 @@ def plot_phase_composition(
     summary,
     phase="olivine",
     xvar="Temperature",
-    figsize=None,
     plotswide=1,
+    figsize=None,
     yscale="linear",
 ):
+    """
+    Plot a particular phase per-experiment across indiviudal axes.
+
+    Parameters
+    -----------
+    summary : :class:`dict`
+        Dictionary of experiment result outputs indexed by title.
+    phase : :class:`str`
+        Which phase to plot from the experiment output.
+    xvar : :class:`str`
+        Variable to use for the independent axis.
+    plotswide : :class:`int`
+        With of the figure, as a number of axes.
+    figsize : :class:`tuple`
+        Size of the figure, optional.
+    yscale : :class:`str`
+        Scale to use for the y-axis.
+
+    Returns
+    ---------
+    :class:`matplotlib.figure.Figure`
+        Figure on which the results are plotted.
+    """
     all_phases = set()
     all_components = set()
     for s in summary.values():
@@ -153,7 +243,7 @@ def plot_phase_composition(
     if nkeys <= 1:  # single plot
         ax = np.array([ax])
 
-    if nkeys // plotswide > 1:
+    if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
             axix[0].set_ylabel("Wt%")
     else:
@@ -166,19 +256,18 @@ def plot_phase_composition(
         components = all_components - set([xvar])
         output = d["output"]
         for p in phases:
-            plotted = []
             for c in components:
                 phase = [p, p[: p.find("_")]][p.find("_") >= 0]
                 label = c
                 if len(phases) > 1:
                     label = label + p
+                config = dict(
+                    color=__DEFAULT_DISC_COLORMAP__(colors[c]),
+                    label=label,
+                    ls=phase_linestyle(p),
+                )
                 config = dict(color=__DEFAULT_DISC_COLORMAP__(colors[c]), label=label)
 
-                if phase in plotted:  # eg. clinopyroxene 2
-                    config = {
-                        **config,
-                        "ls": ["--", ":", "-."][plotted.count(phase) - 1],
-                    }
                 if s["output"].phases[p].loc[:, [c, xvar]].size:
                     try:
                         s["output"].phases[p].loc[:, [c, xvar]].plot(
@@ -186,11 +275,88 @@ def plot_phase_composition(
                         )
                     except:
                         pass
-            plotted.append(phase)
         ax[ix].legend(
             loc="upper left", bbox_to_anchor=(1.05, 1.0), frameon=False, facecolor=None
         )
         ax[ix].set_title(d["output"].title)
     ax[0].set_yscale(yscale)
     plt.tight_layout()
+    return fig
+
+
+def table_by_phase(
+    summary,
+    table="phasevol",
+    xvar="Temperature",
+    plotswide=2,
+    figsize=None,
+    yscale="linear",
+):
+    """
+    Plot a particular table per-phase across indiviudal axes.
+
+    Parameters
+    -----------
+    summary : :class:`dict`
+        Dictionary of experiment result outputs indexed by title.
+    table : :class:`str`
+        Which table to access from the experiment output.
+    xvar : :class:`str`
+        Variable to use for the independent axis.
+    plotswide : :class:`int`
+        With of the figure, as a number of axes.
+    figsize : :class:`tuple`
+        Size of the figure, optional.
+    yscale : :class:`str`
+        Scale to use for the y-axis.
+
+    Returns
+    ---------
+    :class:`matplotlib.figure.Figure`
+        Figure on which the results are plotted.
+    """
+    phases = set()
+    for k, v in summary.items():
+        phases |= v["phases"]
+    colors = {k: v for k, v in zip(phases, range(len(phases)))}
+    plotshigh = len(phases) // plotswide + [0, 1][len(phases) % plotswide > 0]
+    figsize = figsize or (4 * plotswide, 3 * plotshigh)
+    fig, ax = plt.subplots(
+        plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
+    )
+    ax = ax.flat
+    ax[0].set_ylabel("Volume")
+    ax[0].set_yscale(yscale)
+
+    for ix, p in enumerate(phases):
+        proxies = {}
+        # ax[ix].set_title(p)
+        for k, v in summary.items():
+            output = v["output"]
+            outphases = output.phases
+            outtbl = getattr(output, table)
+
+            c = [i for i in outtbl.columns if p in i]
+            config = dict(
+                color=__DEFAULT_DISC_COLORMAP__(colors[p]),
+                alpha=1 / np.log(outtbl.index.size),
+            )
+            if c:
+                for _p in c:
+                    _pconfig = {**config, "ls": phase_linestyle(_p)}
+                    proxies[_p] = proxy_line(**_pconfig)
+                    outtbl.loc[:, [xvar, _p]].plot(
+                        x=xvar, ax=ax[ix], legend=False, **_pconfig
+                    )
+        ax[ix].legend(
+            list(proxies.values()),
+            list(proxies.keys()),
+            frameon=False,
+            facecolor=None,
+            # bbox_to_anchor=(1.0, 1.0),
+            loc="best",
+        )
+
+    fig.tight_layout()
+
     return fig

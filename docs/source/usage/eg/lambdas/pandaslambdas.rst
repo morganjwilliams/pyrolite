@@ -8,7 +8,7 @@ Pandas Lambdas from Ln(REE/Reference)
    :end-before: # %% Generate Some Example Data
 
 First we generate some example REE data, and plot this on a
-:func:`pyrolite.plot.REE_radii_plot`:
+:func:`pyrolite.plot.REE_v_radii`:
 
 .. literalinclude:: ../../../../examples/pandas_interface/pandas_lnREE.py
   :language: python

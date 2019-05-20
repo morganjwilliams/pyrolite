@@ -1,5 +1,6 @@
 import re
 import sys
+import functools
 from pathlib import Path
 import pandas as pd
 import periodictable as pt
@@ -16,6 +17,8 @@ assert _shannonradiifile.exists() and _shannonradiifile.is_file()
 __shannon__ = pd.read_csv(_shannonradiifile).set_index("index", drop=True)
 assert hasattr(__shannon__, "element")
 
+
+@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
     Provides a list of elements up to a particular cutoff (default: including U)
@@ -63,7 +66,8 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
         return elements
 
 
-def REE(output="string"):
+@functools.lru_cache(maxsize=None)  # cache outputs for speed
+def REE(output="string", dropPm=False):
     """
     Provides a list of Rare Earth Elements.
 
@@ -94,11 +98,14 @@ def REE(output="string"):
         "Yb",
         "Lu",
     ]
+    if dropPm:
+        elements = [i for i in elements if not i == "Pm"]
     if output == "formula":
         elements = [getattr(pt, el) for el in elements]
     return elements
 
 
+# this uses unhashable objects in the call, cannot be optimised using LRU cache
 def common_oxides(
     elements: list = [],
     output="string",
@@ -153,6 +160,7 @@ def common_oxides(
         return oxides
 
 
+@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def simple_oxides(cation, output="string"):
     """
     Creates a list of oxides for a cationic element
@@ -333,6 +341,7 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         return result.values[0]  # return the specific number
     else:
         return result  # return the series
+
 
 # private sets for improved performance
 __common_elements__ = common_elements(as_set=True)

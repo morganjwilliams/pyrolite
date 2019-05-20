@@ -213,13 +213,16 @@ def recalculate_Fe(
 
     fedf = df.loc[:, species].copy(deep=True)
     if logdata:
+        logger.debug("Inverse-log-transforming Fe Data.")
         fedf = fedf.applymap(np.exp)
 
+    logger.debug("Converting all Fe data to Metallic Fe Equiv.")
     for s in species:
         fedf.loc[:, s] = oxide_conversion(pt.formula(strp(s)), "Fe")(
             fedf[s]
         )  # oxide as Fe
 
+    logger.debug("Zeroing non-finite and negative Fe values.")
     fedf[(~np.isfinite(fedf.values)) | (fedf < 0)] = 0.0
     fesum = fedf.sum(axis=1)
     fesum[fesum <= 0.0] = np.nan
@@ -228,20 +231,28 @@ def recalculate_Fe(
     if isinstance(to, (str, pt.core.Element, pt.formulas.Formula)):
         drop = [i for i in species if str(i) != str(to)]
         targetnames = [to]
+        logger.debug("Transforming Fe to: ".format(to))
         _df.loc[:, to] = fesum
     elif isinstance(to, dict):
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
         props = close(np.array([t[1] for t in targets]).astype(np.float))
         drop = [i for i in species if str(i) not in targetnames]
+        logger.debug(
+            "Transforming Fe to: {}".format(
+                {k: v for (k, v) in zip(targetnames, props)}
+            )
+        )
         for t, p in zip(targetnames, props):
             _df.loc[:, t] = p * fesum
     else:
-        raise NotImplementedError  # not yet implemented for tuples, lists, arrays etc
+        raise NotImplementedError("Not yet implemented for tuples, lists, arrays etc.")
 
     if logdata:
+        logger.debug("Log-transforming Fe Data.")
         _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
 
+    logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
     df = df.drop(columns=drop)
     df[targetnames] = _df.loc[:, targetnames]
     if renorm:
@@ -315,7 +326,7 @@ def aggregate_cation(
 
     for c in [elstr, oxstr]:
         if not c in df.columns:
-            logger.info("Adding {} column.".format(c))
+            logger.debug("Adding {} column.".format(c))
             dfc[c] = np.nan
 
     eldata = dfc.loc[:, elstr].values
@@ -354,142 +365,6 @@ def aggregate_cation(
         assert oxstr not in dfc.columns
 
     return dfc
-
-
-@pf.register_series_method
-@pf.register_dataframe_method
-def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
-    """
-    Attempts to convert a dataframe with one set of components to another.
-
-    Parameters
-    -----------
-    input_df : :class:`pandas.DataFrame`
-        Dataframe to convert.
-    to : :class:`list`
-        Set of columns to try to extract from the dataframe.
-
-        Can also include a dictionary for iron speciation. See :func:`recalculate_Fe`.
-    logdata : :class:`bool`, :code:`False`
-        Whether chemical data has been log transformed. Necessary for aggregation
-        functions.
-    renorm : :class:`bool`, :code:`False`
-        Whether to renormalise the data after transformation.
-
-    Returns
-    --------
-    :class:`pandas.DataFrame`
-        Dataframe with converted chemistry.
-
-    Todo
-    ------
-        * Check for conflicts between oxides and elements
-        * Aggregator for ratios
-        * Implement generalised redox transformation.
-    """
-    df = input_df.copy()
-    oxides = __common_oxides__
-    elements = __common_elements__
-    c_components = oxides | elements
-    # multi-component dictionaries which are not elements/oxides/ratios
-    multi_comp = [
-        i for i in to if not isinstance(i, (str, pt.core.Element, pt.formulas.Formula))
-    ]
-
-    df_comp_c = [i for i in df.columns if i in c_components]
-    to = [i for i in to if not i in multi_comp]
-    ok = [i for i in to if i in df_comp_c]  # have them, aggregate others
-    get = [i for i in to if i not in df_comp_c]  # need them
-    # remove iron components from main getter, we'll deal with them separately
-    # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
-    current_fe = [i for i in df_comp_c if "Fe" in str(i)]
-    get_fe = [i for i in get if "Fe" in str(i)]
-    ok = list(set(ok) - set(current_fe))
-    get = list(set(get) - set(get_fe))
-
-    multiples = check_multiple_cation_inclusion(df)
-
-    # Aggregate the columns which are otherwise OK
-
-    for o in ok:
-        if o in c_components:
-            elem = get_cations(o)[0]
-            if elem in multiples:
-                if o in oxides:
-                    logger.info("Aggregating from {} to {}".format(elem, o))
-                    df = aggregate_cation(
-                        df, cation=elem, oxide=o, form="oxide", logdata=logdata
-                    )
-
-                else:
-                    potential_oxides = simple_oxides(o)
-                    present_oxides = [p for p in potential_oxides if p in df.columns]
-                    for ox in present_oxides:  # aggregate all the relevant oxides
-                        logger.info("Aggregating from {} to {}".format(ox, o))
-                        df = aggregate_cation(
-                            df, cation=o, oxide=ox, form="element", logdata=logdata
-                        )
-
-    # --- Try to get the new non-Fe columns ----
-    for g in get:
-        if g in oxides:
-            elem = get_cations(g)[0]
-            oxide = g
-            logger.info(
-                "Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem)
-            )
-            df = aggregate_cation(
-                df, cation=elem, oxide=oxide, form="oxide", logdata=logdata
-            )
-
-        elif g in elements:
-            elem = g
-            potential_oxides = simple_oxides(g)
-            present_oxides = [p for p in potential_oxides if p in df.columns]
-            for ox in present_oxides:  # aggregate all the relevant oxides
-                logger.info(
-                    "Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem)
-                )
-                df = aggregate_cation(
-                    df, cation=elem, oxide=ox, form="element", logdata=logdata
-                )
-
-    # --- Try to get the new columns - iron redox section ------------------------------
-    # check if there's a multicomponent speciation problem
-    c_fe_str = ", ".join(current_fe)
-    # check if any of the multi_comp dictionaries correspond to iron
-    multi_fe = [x for x in multi_comp if all(["Fe" in k for k in x.items()])]
-    if multi_fe:
-        get_fe = multi_fe
-    if get_fe:
-        # can't deal with more than one component/component speciation
-        if len(get_fe) > 1:
-            raise NotImplementedError
-        else:
-            get_fe = get_fe[0]
-            df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
-            logger.info("Transforming {} to {}.".format(c_fe_str, get_fe))
-
-    # Try to get some ratios -----------------------------------------------------------
-    ratios = [i for i in to if "/" in i and i in get]
-
-    for r in ratios:
-        logger.info("Adding Ratio: {}".format(r))
-        num, den = r.split("/")
-        df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
-        # df = add_ratio(df, r)
-
-    # Last Minute Checks ---------------------------------------------------------------
-    remaining = [i for i in to if i not in df.columns]
-    df_comp_c = [i for i in df.columns if i in c_components]
-    assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
-    if renorm:
-        logger.info("Recalculation Done, Renormalising compositional components.")
-        df.loc[:, df_comp_c] = renormalise(df.loc[:, df_comp_c])
-        return df.loc[:, to]
-    else:
-        logger.info("Recalculation Done. Data not renormalised.")
-        return df.loc[:, to]
 
 
 @pf.register_series_method
@@ -559,7 +434,9 @@ def add_ratio(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=False):
+def add_MgNo(
+    df: pd.DataFrame, molecularIn=False, elemental=False, components=False, name="Mg#"
+):
     """
     Append the magnesium number to a dataframe.
 
@@ -573,6 +450,8 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         Whether to data is in elemental or oxide form.
     components : :class:`bool`, :code:`False`
         Whether Fe data is split into components (True) or as FeOT (False).
+    name : :class:`str`
+        Name to use for the Mg Number column.
 
     Returns
     -------
@@ -591,7 +470,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     if not molecularIn:
         if components:
             # Iron is split into species
-            df.loc[:, "Mg#"] = (
+            df.loc[:, name] = (
                 df["MgO"]
                 / pt.formula("MgO").mass
                 / (
@@ -602,7 +481,7 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
         else:
             # Total iron is used
             assert "FeOT" in df.columns
-            df.loc[:, "Mg#"] = (
+            df.loc[:, name] = (
                 df["MgO"]
                 / pt.formula("MgO").mass
                 / (
@@ -613,10 +492,10 @@ def add_MgNo(df: pd.DataFrame, molecularIn=False, elemental=False, components=Fa
     else:
         if not elemental:
             # Molecular Oxides
-            df.loc[:, "Mg#"] = df["MgO"] / (df["MgO"] + df["FeO"])
+            df.loc[:, name] = df["MgO"] / (df["MgO"] + df["FeO"])
         else:
             # Molecular Elemental
-            df.loc[:, "Mg#"] = df["Mg"] / (df["Mg"] + df["Fe"])
+            df.loc[:, name] = df["Mg"] / (df["Mg"] + df["Fe"])
 
 
 @update_docstring_references
@@ -627,8 +506,9 @@ def lambda_lnREE(
     norm_to="Chondrite_PON",
     exclude=["Pm", "Eu"],
     params=None,
-    degree=5,
+    degree=4,
     append=[],
+    scale="ppm",
     **kwargs
 ):
     """
@@ -651,6 +531,8 @@ def lambda_lnREE(
         Maximum degree polynomial fit component to include.
     append : :class:`list`, :code:`None`
         Whether to append lambda function (i.e. :code:`["function"]`).
+    scale : :class:`str`
+        Current units for the REE data, used to scale the reference dataset.
 
     Todo
     -----
@@ -696,9 +578,12 @@ def lambda_lnREE(
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
             norm = ReferenceCompositions()[norm_to]
+            norm.set_units(scale)
             norm_abund = np.array([norm[str(el)].value for el in ree])
         elif isinstance(norm_to, RefComp):
-            norm_abund = np.array([getattr(norm_to, str(e)) for e in ree])
+            norm = norm_to
+            norm.set_units(scale)
+            norm_abund = np.array([norm[str(el)].value for el in ree])
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(ree)
@@ -730,3 +615,154 @@ def lambda_lnREE(
     lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
     assert lambdadf.index.size == df.index.size
     return lambdadf
+
+
+@pf.register_series_method
+@pf.register_dataframe_method
+def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
+    """
+    Attempts to convert a dataframe with one set of components to another.
+
+    Parameters
+    -----------
+    input_df : :class:`pandas.DataFrame`
+        Dataframe to convert.
+    to : :class:`list`
+        Set of columns to try to extract from the dataframe.
+
+        Can also include a dictionary for iron speciation. See :func:`recalculate_Fe`.
+    logdata : :class:`bool`, :code:`False`
+        Whether chemical data has been log transformed. Necessary for aggregation
+        functions.
+    renorm : :class:`bool`, :code:`False`
+        Whether to renormalise the data after transformation.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Dataframe with converted chemistry.
+
+    Todo
+    ------
+        * Check for conflicts between oxides and elements
+        * Aggregator for ratios
+        * Implement generalised redox transformation.
+        * Add check for dicitonary components (e.g. Fe) in tests
+    """
+    df = input_df.copy()
+    oxides = __common_oxides__
+    elements = __common_elements__
+    compositional_components = oxides | elements
+    # multi-component dictionaries which are not elements/oxides/ratios
+    coupled_sets = [
+        i for i in to if not isinstance(i, (str, pt.core.Element, pt.formulas.Formula))
+    ]
+    logger.debug(
+        "Found coupled sets: {}".format(", ".join([str(set(s)) for s in coupled_sets]))
+    )
+    # check that all sets in coupled_sets have the same cation
+    coupled_components = [k for s in coupled_sets for k in s.keys()]
+    # need to get the additional things from here
+    present_compositional = [
+        i for i in df.columns if i in compositional_components
+    ] + coupled_components
+
+    simple_get = [i for i in to if not i in coupled_sets]
+    simple_get_present, simple_get_notpresent = (
+        [i for i in simple_get if i in present_compositional],
+        [i for i in simple_get if i not in present_compositional],
+    )
+    # remove iron components from main getter, we'll deal with them separately
+    # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
+    current_fe = [i for i in present_compositional if "Fe" in str(i)]
+    get_fe = [i for i in simple_get_notpresent if "Fe" in str(i)]
+    simple_get_present = list(set(simple_get_present) - set(current_fe))
+    simple_get_notpresent = list(set(simple_get_notpresent) - set(get_fe))
+
+    multiples = check_multiple_cation_inclusion(df)
+
+    # Aggregate the columns which are otherwise OK
+    for o in simple_get_present:
+        if o in compositional_components:
+            elem = get_cations(o)[0]
+            if elem in multiples:
+                if o in oxides:
+                    logger.debug("Aggregating from {} to {}".format(elem, o))
+                    df = aggregate_cation(
+                        df, cation=elem, oxide=o, form="oxide", logdata=logdata
+                    )
+
+                else:
+                    potential_oxides = simple_oxides(o)
+                    present_oxides = [p for p in potential_oxides if p in df.columns]
+                    for ox in present_oxides:  # aggregate all the relevant oxides
+                        logger.debug("Aggregating from {} to {}".format(ox, o))
+                        df = aggregate_cation(
+                            df, cation=o, oxide=ox, form="element", logdata=logdata
+                        )
+
+    # --- Try to get the new non-Fe columns ----
+    for g in simple_get_notpresent:
+        if g in oxides:
+            elem = get_cations(g)[0]
+            oxide = g
+            logger.debug(
+                "Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem)
+            )
+            df = aggregate_cation(
+                df, cation=elem, oxide=oxide, form="oxide", logdata=logdata
+            )
+
+        elif g in elements:
+            elem = g
+            potential_oxides = simple_oxides(g)
+            present_oxides = [p for p in potential_oxides if p in df.columns]
+            for ox in present_oxides:  # aggregate all the relevant oxides
+                logger.debug(
+                    "Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem)
+                )
+                df = aggregate_cation(
+                    df, cation=elem, oxide=ox, form="element", logdata=logdata
+                )
+
+    # --- Try to get the new columns - iron redox section ------------------------------
+    # check if there's a multicomponent speciation problem
+    logger.debug("Checking Iron Redox")
+    c_fe_str = ", ".join(current_fe)
+    # check if any of the coupled_sets dictionaries correspond to iron
+    coupled_fe = [s for s in coupled_sets if all(["Fe" in k for k in s])]
+    if coupled_fe:
+        get_fe = coupled_fe
+
+    if len(get_fe) > 1:
+        raise NotImplementedError("Need to specify speciation for >1 Fe components.")
+
+    if get_fe:
+        get_fe = get_fe[0]
+        logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
+        df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
+
+    # Try to get some ratios -----------------------------------------------------------
+    ratios = [i for i in to if "/" in i and i in simple_get_notpresent]
+    if ratios:
+        logger.debug("Adding Requested Ratios: {}".format(", ".join(ratios)))
+        for r in ratios:
+            logger.debug("Adding Ratio: {}".format(r))
+            num, den = r.split("/")
+            df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
+            # df = add_ratio(df, r)
+
+    # Last Minute Checks ---------------------------------------------------------------
+    remaining_simple = [i for i in simple_get if i not in df.columns]
+    present_compositional = [i for i in df.columns if i in compositional_components]
+    assert not len(remaining_simple), "Columns not attained: {}".format(
+        ", ".join(remaining_simple)
+    )
+    output_columns = simple_get + coupled_components
+    if renorm:
+        logger.debug("Recalculation Done, Renormalising compositional components.")
+        df.loc[:, present_compositional] = renormalise(df.loc[:, present_compositional])
+        return df.loc[:, output_columns]
+    else:
+        logger.debug("Recalculation Done. Data not renormalised.")
+        return df.loc[:, output_columns]

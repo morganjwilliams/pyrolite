@@ -101,6 +101,8 @@ def spider(
 
     if indexes is None:
         indexes = np.arange(ncomponents)
+    else:
+        indexes = np.array(indexes)
 
     if indexes.ndim == 1:
         indexes0 = indexes

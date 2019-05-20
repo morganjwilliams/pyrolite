@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from .meta import pyrolite_datafolder
-from .pd import to_frame, to_numeric
+from .pd import to_frame
 from .text import titlecase, string_variations
 from .types import iscollection
 from collections import ChainMap, defaultdict
@@ -109,7 +109,9 @@ def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Ali
     """
 
     df = pd.read_csv(filename)
-    df.loc[:, ["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(to_numeric)
+    df[["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(
+        pd.to_numeric, errors="coerce"
+    )
     _df = df.copy(deep=True)
     grps = [i for i in _df.columns if not i in info_cols]
     condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]].fillna(
