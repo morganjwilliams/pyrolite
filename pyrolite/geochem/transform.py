@@ -502,7 +502,7 @@ def lambda_lnREE(
     norm_to="Chondrite_PON",
     exclude=["Pm", "Eu"],
     params=None,
-    degree=5,
+    degree=4,
     append=[],
     scale="ppm",
     **kwargs
