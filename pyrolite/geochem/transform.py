@@ -213,13 +213,16 @@ def recalculate_Fe(
 
     fedf = df.loc[:, species].copy(deep=True)
     if logdata:
+        logger.debug("Inverse-log-transforming Fe Data.")
         fedf = fedf.applymap(np.exp)
 
+    logger.debug("Converting all Fe data to Metallic Fe Equiv.")
     for s in species:
         fedf.loc[:, s] = oxide_conversion(pt.formula(strp(s)), "Fe")(
             fedf[s]
         )  # oxide as Fe
 
+    logger.debug("Zeroing non-finite and negative Fe values.")
     fedf[(~np.isfinite(fedf.values)) | (fedf < 0)] = 0.0
     fesum = fedf.sum(axis=1)
     fesum[fesum <= 0.0] = np.nan
@@ -228,20 +231,26 @@ def recalculate_Fe(
     if isinstance(to, (str, pt.core.Element, pt.formulas.Formula)):
         drop = [i for i in species if str(i) != str(to)]
         targetnames = [to]
+        logger.debug("Transforming Fe to: ".format(to))
         _df.loc[:, to] = fesum
     elif isinstance(to, dict):
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
         props = close(np.array([t[1] for t in targets]).astype(np.float))
         drop = [i for i in species if str(i) not in targetnames]
+        logger.debug(
+            "Transforming Fe to: ".format({k: v for (k, v) in zip(targets, props)})
+        )
         for t, p in zip(targetnames, props):
             _df.loc[:, t] = p * fesum
     else:
-        raise NotImplementedError  # not yet implemented for tuples, lists, arrays etc
+        raise NotImplementedError("Not yet implemented for tuples, lists, arrays etc.")
 
     if logdata:
+        logger.debug("Log-transforming Fe Data.")
         _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
 
+    logger.debug("Dropping: {}".format(", ".join(drop)))
     df = df.drop(columns=drop)
     df[targetnames] = _df.loc[:, targetnames]
     if renorm:
