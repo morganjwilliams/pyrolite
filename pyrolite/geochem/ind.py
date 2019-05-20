@@ -104,6 +104,7 @@ def REE(output="string", dropPm=False):
         elements = [getattr(pt, el) for el in elements]
     return elements
 
+
 # this uses unhashable objects in the call, cannot be optimised using LRU cache
 def common_oxides(
     elements: list = [],
