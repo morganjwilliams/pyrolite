@@ -239,7 +239,9 @@ def recalculate_Fe(
         props = close(np.array([t[1] for t in targets]).astype(np.float))
         drop = [i for i in species if str(i) not in targetnames]
         logger.debug(
-            "Transforming Fe to: ".format({k: v for (k, v) in zip(targets, props)})
+            "Transforming Fe to: {}".format(
+                {k: v for (k, v) in zip(targetnames, props)}
+            )
         )
         for t, p in zip(targetnames, props):
             _df.loc[:, t] = p * fesum
@@ -250,7 +252,7 @@ def recalculate_Fe(
         logger.debug("Log-transforming Fe Data.")
         _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
 
-    logger.debug("Dropping: {}".format(", ".join(drop)))
+    logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
     df = df.drop(columns=drop)
     df[targetnames] = _df.loc[:, targetnames]
     if renorm:
