@@ -7,9 +7,51 @@ import logging
 import inspect
 
 from .general import pathify
+from .meta import subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def drop_where_all_empty(df):
+    """
+    Drop rows and columns which are completely empty.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+        Pandas object to ensure is in the form of a series.
+    """
+    for ix in range(len(df.axes)):
+        df = df.dropna(how="all", axis=ix)
+    return df
+
+
+def read_table(filepath, **kwargs):
+    """
+    Read tabluar data from an excel or csv text-based file.
+
+    Parameters
+    ------------
+    filepath : :class:`str` | :class:`pathlib.Path`
+        Path to file.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+    """
+    filepath = Path(filepath)
+    ext = filepath.suffix.replace(".", "")
+    assert ext in ["xls", "xlsx", "csv"]
+    if ext in ["xls", "xlsx"]:
+        reader = pd.read_excel
+    elif ext in ["csv"]:
+        reader = pd.read_csv
+    else:
+        logger.warn
+    df = reader(str(filepath), **subkwargs(kwargs, reader))
+    df = drop_where_all_empty(df)
+    return df
 
 
 def column_ordered_append(df1, df2, **kwargs):
