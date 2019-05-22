@@ -225,3 +225,22 @@ def slugify(value, delim="-"):
     value = re.sub("[^\w\s-]", "", value).strip()
     value = re.sub("[-\s]+", delim, value)
     return value
+
+
+def int_to_alpha(num):
+    """
+    Encode an integer (0-26) into alpha characters, useful for sequences of
+    axes/figures.
+
+    Parameters
+    -----------
+    int : :class:`int`
+        Integer to encode.
+
+    Returns
+    ---------
+    :class:`str`
+        Alpha-encoding of a small integer.
+    """
+    alphas = [chr(i).lower() for i in range(65, 65 + 26)]
+    return alphas[num]
