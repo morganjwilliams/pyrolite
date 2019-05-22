@@ -97,7 +97,7 @@ def modify_legend_handles(ax, **kwargs):
     return _hndls, labls
 
 
-def interpolated_patch_path(patch, resolution=100):
+def interpolated_patch_path(patch, resolution=100, **kwargs):
     """
     Obtain the periodic interpolation of the existing path of a patch at a
     given resolution.
@@ -118,12 +118,54 @@ def interpolated_patch_path(patch, resolution=100):
     pth = patch.get_path()
     tfm = patch.get_transform()
     pathtfm = tfm.transform_path(pth)
-    x, y = pathtfm.vertices.T
-    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], per=True, s=1)
+    return interpolate_path(
+        pathtfm, resolution=resolution, aspath=True, periodic=True, **kwargs
+    )
+
+
+def interpolate_path(
+    path, resolution=100, periodic=False, aspath=True, closefirst=False, **kwargs
+):
+    """
+    Obtain the interpolation of an existing path at a given
+    resolution. Keyword arguments are forwarded to
+    :func:`scipy.interpolate.splprep`.
+
+    Parameters
+    -----------
+    path : :class:`matplotlib.path.Path`
+        Path to interpolate.
+    resolution :class:`int`
+        Resolution at which to obtain the new path. The verticies of
+        the new path will have shape (`resolution`, 2).
+    periodic : :class:`bool`
+        Whether to use a periodic spline.
+    periodic : :class:`bool`
+        Whether to return a :code:`matplotlib.path.Path`, or simply
+        a tuple of x-y arrays.
+    closefirst : :class:`bool`
+        Whether to first close the path by appending the first point again.
+
+    Returns
+    --------
+    :class:`matplotlib.path.Path` | :class:`tuple`
+        Interpolated :class:`~matplotlib.path.Path` object, if
+        `aspath` is :code:`True`, else a tuple of x-y arrays.
+    """
+    x, y = path.vertices.T
+    if closefirst:
+        x = np.append(x, x[0])
+        y = np.append(y, y[0])
+    # s=0 forces the interpolation to go through every point
+    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
     xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
     # could get control points for path and construct codes here
     codes = None
-    return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
+    pth = matplotlib.path.Path(np.vstack([xi, yi]).T, codes=codes)
+    if aspath:
+        return pth
+    else:
+        return pth.vertices.T
 
 
 def add_colorbar(mappable, **kwargs):
