@@ -295,8 +295,8 @@ class TestRecalculateFe(unittest.TestCase):
         pass
 
 
-class TestAggregateCation(unittest.TestCase):
-    """Tests the pandas dataframe cation aggregation transformation."""
+class TestAggregateElement(unittest.TestCase):
+    """Tests the pandas dataframe element aggregation transformation."""
 
     def setUp(self):
         self.cols = ["MgO", "FeO", "Fe2O3", "Mg", "Fe", "FeOT"]
@@ -309,7 +309,7 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df.head(0).copy()
         for cation in ["Mg", "Fe"]:
             with self.subTest(cation=cation):
-                aggdf = aggregate_cation(df, cation)
+                aggdf = aggregate_element(df, to=cation)
                 # Check that only one form is returned
 
     def test_one(self):
@@ -317,7 +317,7 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df.head(1).copy()
         for cation in ["Mg", "Fe"]:
             with self.subTest(cation=cation):
-                aggdf = aggregate_cation(df, cation)
+                aggdf = aggregate_element(df, to=cation)
                 # Check that only one form is returned
 
     def test_multiple(self):
@@ -325,14 +325,14 @@ class TestAggregateCation(unittest.TestCase):
         df = self.df.copy()
         for cation in ["Mg", "Fe"]:
             with self.subTest(cation=cation):
-                aggdf = aggregate_cation(df, cation)
+                aggdf = aggregate_element(df, to=cation)
                 # Check that only one form is returned
 
     def test_oxide_return(self):
         """Checks that oxide forms are returned."""
         df = self.df.head(1).copy()
-        cation = "Mg"
-        aggdf = aggregate_cation(df, cation, form="oxide")
+        oxide = "FeO"
+        aggdf = aggregate_element(df, to=oxide)
         # Check presence
 
         # Check absence of others
@@ -345,7 +345,7 @@ class TestAggregateCation(unittest.TestCase):
         """Checks that element forms are returned."""
         df = self.df.head(1).copy()
         cation = "Mg"
-        aggdf = aggregate_cation(df, cation, form="element")
+        aggdf = aggregate_element(df, to=cation)
         # Check presence
 
         # Check absence of others
@@ -353,14 +353,6 @@ class TestAggregateCation(unittest.TestCase):
         # Check preciseness
 
         # Check no additional features
-
-    def check_unit_scale(self):
-        """Checks that the unit scales are used."""
-        df = self.df.head(1)
-        cation = "Mg"
-        for unit_scale in [0.1, 10, 10000]:
-            with self.subTest(unit_scale=unit_scale):
-                aggdf = aggregate_cation(df, cation, unit_scale=unit_scale)
 
 
 class TestAddRatio(unittest.TestCase):
@@ -519,7 +511,7 @@ class TestLambdaLnREE(unittest.TestCase):
 
 class TestConvertChemistry(unittest.TestCase):
     def setUp(self):
-        self.components = ["MgO", "SiO2", "FeO", "CaO", "Ca", "Te", "Na", "Na2O"]
+        self.components = ["MgO", "SiO2", "FeO", "CaO", "Ca", "Te", "K", "Na", "Na2O"]
         self.expect = ["MgO", "SiO2", "FeO", "CaO", "Te", "Na"]
         self.df = pd.DataFrame(
             np.random.rand(10, len(self.components)), columns=self.components
@@ -530,21 +522,22 @@ class TestConvertChemistry(unittest.TestCase):
         conv_df = convert_chemistry(self.df, to=out_components)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
 
-    def test_oxide_to_element(self):
-        _in, _out = "Mg", "MgO"
-        out_components = [i for i in self.expect if not i in [_out]] + [_in]
+    def test_oxide_to_new_element(self):
+        _target, _remove = "Mg", "MgO"
+        out_components = [i for i in self.expect if not i in [_remove]] + [_target]
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion from oxide - should all be smaller
-        self.assertTrue((conv_df[_in].values < self.df[_out].values).all())
+        self.assertTrue((conv_df[_target].values < self.df[_remove].values).all())
 
-    def test_element_to_oxide(self):
-        _in, _out = "Na2O", "Na"
-        out_components = [i for i in self.expect if not i in [_out]] + [_in]
+    def test_element_to_new_oxide(self):
+        _target, _remove = "K2O", "K"
+        out_components = [i for i in self.expect if not i in [_remove]] + [_target]
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion to oxide - should be larger
-        self.assertTrue((conv_df[_in].values > self.df[_out].values).all())
+        print(out_components, self.df.columns, conv_df.columns)
+        self.assertTrue((conv_df[_target].values > self.df[_remove].values).all())
 
     def test_ratio(self):
         out_components = self.expect + ["CaO/MgO"]
