@@ -121,21 +121,18 @@ def oxide_conversion(oxin, oxout):
 
     Parameters
     ----------
-    oxin : :class:`str` | :class:`~periodictable.core.Element` | :class:`~periodictable.formulas.Formula`
+    oxin : :class:`str` | :class:`~periodictable.formulas.Formula`
         Input component.
-
-    oxout : :class:`str` | :class:`~periodictable.core.Element` | :class:`~periodictable.formulas.Formula`
+    oxout : :class:`str` | :class:`~periodictable.formulas.Formula`
         Output component.
 
     Returns
     -------
         Function to convert a pandas.Series from one elment-oxide component to another.
     """
-    if not (isinstance(oxin, pt.formulas.Formula) or isinstance(oxin, pt.core.Element)):
+    if not isinstance(oxin, pt.formulas.Formula):
         oxin = pt.formula(oxin)
-    if not (
-        isinstance(oxout, pt.formulas.Formula) or isinstance(oxout, pt.core.Element)
-    ):
+    if not isinstance(oxout, pt.formulas.Formula):
         oxout = pt.formula(oxout)
 
     inatoms = {k: v for (k, v) in oxin.atoms.items() if not str(k) == "O"}
@@ -167,7 +164,9 @@ def oxide_conversion(oxin, oxout):
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def elemental_sum(df: pd.DataFrame, component, total_suffix="T", logdata=False):
+def elemental_sum(
+    df: pd.DataFrame, component=None, to=None, total_suffix="T", logdata=False
+):
     """
     Sums abundance for a cation to a single series, starting from a
     dataframe containing multiple componnents with a single set of units.
@@ -177,7 +176,9 @@ def elemental_sum(df: pd.DataFrame, component, total_suffix="T", logdata=False):
     df : :class:`pandas.DataFrame`
         DataFrame for which to aggregate cation data.
     component : :class:`str`
-
+        Component indicating which element to aggregate.
+    to : :class:`str`
+        Component to cast the output as.
     logdata : :class:`bool`, :code:`False`
         Whether data has been log transformed.
 
@@ -186,6 +187,7 @@ def elemental_sum(df: pd.DataFrame, component, total_suffix="T", logdata=False):
     :class:`pandas.Series`
         Series with cation aggregated.
     """
+    assert component is not None
     if isinstance(component, (list, tuple, dict)):
         cations = [get_cations(t, total_suffix=total_suffix)[0] for t in component]
         assert all([c == cations[0] for c in cations])
@@ -222,8 +224,13 @@ def elemental_sum(df: pd.DataFrame, component, total_suffix="T", logdata=False):
         subdf[(~np.isfinite(subdf.values)) | (subdf < 0.0)] = 0.0
         subsum = subdf.sum(axis=1)
         subsum[subsum <= 0.0] = np.nan
-    subsum.name = cationname
-    return subsum
+
+    if to is None:
+        subsum.name = cationname
+        return subsum
+    else:
+        subsum.name = to
+        return subsum.apply(oxide_conversion(cationname, to))
 
 
 @pf.register_series_method
@@ -371,8 +378,6 @@ def add_ratio(
         Alternate name for ratio to be used as column name.
     norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
         Reference composition to normalise to.
-    convert : :class:`function`
-        Data processing function to be calculated prior to ratio.
 
     Returns
     -------
@@ -389,7 +394,7 @@ def add_ratio(
     --------
     :func:`~pyrolite.geochem.transform.add_MgNo`
     """
-    logger.debug("Adding Ratio: {}".format(r))
+
     num, den = ratio.split("/")
     _to_norm = False
     if den.lower().endswith("_n"):
@@ -397,6 +402,8 @@ def add_ratio(
         _to_norm = True
     assert tochem(num) in df.columns
     assert tochem(den) in df.columns
+
+    numcat, dencat = get_cations(num)[0], get_cations(den)[0]
 
     if _to_norm or (norm_to is not None):
         if isinstance(norm_to, str):
@@ -411,16 +418,23 @@ def add_ratio(
             num_n, den_n = norm[num].value, norm[den].value
 
     name = [ratio if not alias else alias][0]
-    conv = convert(df.loc[:, [num, den]])
-    conv.loc[(conv[den] == 0.0) | (conv[num] == 0.0), den] = np.nan  # avoid 0, inf
-    df.loc[:, name] = conv.loc[:, num] / conv.loc[:, den]
+    logger.debug("Adding Ratio: {}".format(name))
+    numsum, densum = (df.elemental_sum(num, to=num), df.elemental_sum(den, to=den))
+    ratio = numsum / densum
+    ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
+    df[name] = ratio
     return df
 
 
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_MgNo(
-    df: pd.DataFrame, molecularIn=False, elemental=False, components=False, name="Mg#"
+    df: pd.DataFrame,
+    molecularIn=False,
+    elemental=False,
+    use_total_approx=False,
+    approx_Fe203_frac=0.1,
+    name="Mg#",
 ):
     """
     Append the magnesium number to a dataframe.
@@ -433,8 +447,10 @@ def add_MgNo(
         Whether the input data is molecular.
     elemental : :class:`bool`, :code:`False`
         Whether to data is in elemental or oxide form.
-    components : :class:`bool`, :code:`False`
-        Whether Fe data is split into components (True) or as FeOT (False).
+    use_total_approx : :class:`bool`, :code:`False`
+        Whether to use an approximate calculation using total iron rather than just FeO.
+    approx_Fe203_frac : :class:`float`
+        Fraction of iron which is oxidised, used in approximation mentioned above.
     name : :class:`str`
         Name to use for the Mg Number column.
 
@@ -443,37 +459,20 @@ def add_MgNo(
     :class:`pandas.DataFrame`
         Dataframe with ratio appended.
 
-    Todo
-    ------
-        * Update to be able to get components regardless of elemental/oxide etc.
-
     See Also
     --------
     :func:`~pyrolite.geochem.transform.add_ratio`
     """
-
+    logger.debug("Adding Mg#")
     if not molecularIn:
-        if components:
-            # Iron is split into species
-            df.loc[:, name] = (
-                df["MgO"]
-                / pt.formula("MgO").mass
-                / (
-                    df["MgO"] / pt.formula("MgO").mass
-                    + df["FeO"] / pt.formula("FeO").mass
-                )
-            )
-        else:
-            # Total iron is used
-            assert "FeOT" in df.columns
-            df.loc[:, name] = (
-                df["MgO"]
-                / pt.formula("MgO").mass
-                / (
-                    df["MgO"] / pt.formula("MgO").mass
-                    + df["FeOT"] / pt.formula("FeO").mass
-                )
-            )
+        mg = df.elemental_sum("Mg") / pt.Mg.mass
+        speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
+        if use_total_approx:
+            fe = df.aggregate_element("Fe", to=speciation).FeO / pt.formula("FeO").mass
+        else:  # exclude ferric iron
+            filter = [i for i in df.columns if "Fe2O3" not in i]
+            fe = df.loc[:, filter].elemental_sum("Fe") / pt.Fe.mass
+        df.loc[:, name] = mg / (mg + fe)
     else:
         if not elemental:
             # Molecular Oxides
