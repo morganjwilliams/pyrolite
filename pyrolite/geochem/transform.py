@@ -208,11 +208,11 @@ def elemental_sum(
     else:
         subdf = df.loc[:, species].copy(deep=True)
         if logdata:
-            logger.debug("Inverse-log-transforming {} Data.".format(cationname))
+            logger.debug("Inverse-log-transforming {} data.".format(cationname))
             subdf = subdf.applymap(np.exp)
 
         logger.debug(
-            "Converting all {} data to Metallic {} Equiv.".format(
+            "Converting all {} data to metallic {} equiv.".format(
                 cationname, cationname
             )
         )
@@ -310,7 +310,7 @@ def aggregate_element(
     )
 
     if logdata:
-        logger.debug("Log-transforming Fe Data.")
+        logger.debug("Log-transforming {} Data.".format(cation))
         _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
 
     df[targetnames] = _df.loc[:, targetnames]
@@ -394,7 +394,6 @@ def add_ratio(
     --------
     :func:`~pyrolite.geochem.transform.add_MgNo`
     """
-
     num, den = ratio.split("/")
     _to_norm = False
     if den.lower().endswith("_n"):
@@ -582,6 +581,7 @@ def lambda_lnREE(
         lambdas, xs=radii, params=params, degree=degree, **kwargs
     )  # pass kwargs to lambdas
     # apply along rows
+    logger.debug("lambda-fitting")
     lambdadf.loc[~null_in_row, labels] = np.apply_along_axis(
         lambda_partial, 1, norm_df.values
     )
@@ -647,25 +647,26 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
     # check that all sets in coupled_sets have the same cation
     coupled_components = [k for s in coupled_sets for k in s.keys()]
     # need to get the additional things from here
-    present_compositional = [
+    present_comp = [
         i for i in df.columns if i in compositional_components
     ] + coupled_components
-
-    simple_get = [i for i in to if not i in coupled_sets]
-    simple_get_present, simple_get_notpresent = (
-        [i for i in simple_get if i in present_compositional],
-        [i for i in simple_get if i not in present_compositional],
+    noncomp = [i for i in df.columns if (i not in present_comp)]
+    new_ratios = [i for i in to if "/" in i and i not in df.columns]
+    get_comp = [i for i in to if i not in coupled_sets + noncomp + new_ratios]
+    agg_present, get_notpresent = (
+        [i for i in get_comp if i in present_comp],
+        [i for i in get_comp if i not in present_comp],
     )
     # remove iron components from main getter, we'll deal with them separately
     # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
-    current_fe = [i for i in present_compositional if "Fe" in str(i)]
-    get_fe = [i for i in simple_get_notpresent if "Fe" in str(i)]
-    ratios = [i for i in to if "/" in i and i in simple_get_notpresent]
-    simple_get_present = list(set(simple_get_present) - set(current_fe) - set(ratios))
-    simple_get_notpresent = list(set(simple_get_notpresent) - set(get_fe) - set(ratios))
+    current_fe = [i for i in present_comp if "Fe" in str(i)]
+    get_fe = [i for i in get_notpresent if "Fe" in str(i)]
+
+    agg_present = list(set(agg_present) - set(current_fe))
+    get_notpresent = list(set(get_notpresent) - set(get_fe))
 
     # Aggregate the columns which are otherwise OK, then get new columns
-    for item in simple_get_present + simple_get_notpresent:
+    for item in agg_present + get_notpresent:
         df = aggregate_element(df, to=item, logdata=logdata)
 
     # --- Try to get the new columns - iron redox section ------------------------------
@@ -686,22 +687,20 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
 
     # Try to get some ratios -----------------------------------------------------------
-    if ratios:
-        logger.debug("Adding Requested Ratios: {}".format(", ".join(ratios)))
-        for r in ratios:
+    if new_ratios:
+        logger.debug("Adding Requested Ratios: {}".format(", ".join(new_ratios)))
+        for r in new_ratios:
             df.add_ratio(r)
             # df = add_ratio(df, r)
 
     # Last Minute Checks ---------------------------------------------------------------
-    remaining_simple = [i for i in simple_get if i not in df.columns]
-    present_compositional = [i for i in df.columns if i in compositional_components]
-    assert not len(remaining_simple), "Columns not attained: {}".format(
-        ", ".join(remaining_simple)
-    )
-    output_columns = simple_get + coupled_components
+    remaining = [i for i in get_comp if i not in df.columns]
+    assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
+    output_columns = noncomp + get_comp + coupled_components + new_ratios
+    present_comp = [i for i in df.columns if i in compositional_components]
     if renorm:
         logger.debug("Recalculation Done, Renormalising compositional components.")
-        df.loc[:, present_compositional] = renormalise(df.loc[:, present_compositional])
+        df.loc[:, present_comp] = renormalise(df.loc[:, present_comp])
         return df.loc[:, output_columns]
     else:
         logger.debug("Recalculation Done. Data not renormalised.")
