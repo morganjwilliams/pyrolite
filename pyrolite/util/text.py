@@ -1,6 +1,10 @@
 import re
 import textwrap
 import numpy as np
+from xml.etree.ElementTree import tostring
+from xml.etree import ElementTree
+from xml.dom import minidom
+
 import logging
 
 try:
@@ -28,6 +32,15 @@ def remove_prefix(z, prefix):
         return re.sub("^{}".format(prefix), "", z)
     else:
         return z
+
+
+def remove_suffix(x, suffix=" "):
+    """
+    Remove a specific suffix from the end of a string.
+    """
+    if x.endswith(suffix):
+        x = x[: -len(suffix)]
+    return x
 
 
 def quoted_string(s):
@@ -244,3 +257,12 @@ def int_to_alpha(num):
     """
     alphas = [chr(i).lower() for i in range(65, 65 + 26)]
     return alphas[num]
+
+
+def prettify_xml(elem):
+    """
+    Return a pretty-printed XML string for an Element.
+    """
+    rough_string = ElementTree.tostring(elem, "utf-8")
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")
