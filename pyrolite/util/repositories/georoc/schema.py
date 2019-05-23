@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from ...text import titlecase, split_records
 from ....geochem.parse import check_multiple_cation_inclusion
-from ....geochem.transform import aggregate_cation
+from ....geochem.transform import aggregate_element
 from ...units import scale
 from ....geochem.ind import __common_elements__, __common_oxides__
 from ....geochem.validate import is_isotoperatio
@@ -179,7 +179,7 @@ def georoc_munge(df):
     ------
         * Combine GEOL and AGE columns for geological ages
     """
-    df = aggregate_cation(df, "Ti", form="element")
+    df = aggregate_element(df, to="Ti")
     df.loc[:, "GeolAge"] = df.loc[:, "Geol"].replace("None", "") + df.Age
 
     df.loc[:, "Lat"] = (df.LatitudeMax + df.LatitudeMin) / 2.0

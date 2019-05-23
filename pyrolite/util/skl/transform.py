@@ -4,11 +4,11 @@ import pandas as pd
 from ...geochem import (
     recalculate_Fe,
     check_multiple_cation_inclusion,
-    aggregate_cation,
+    aggregate_element,
     get_ionic_radii,
     lambda_lnREE,
     devolatilise,
-    REE
+    REE,
 )
 from ...comp.codata import (
     alr,
@@ -359,7 +359,11 @@ class ElementAggregator(BaseEstimator, TransformerMixin):
         multiple_entries = check_multiple_cation_inclusion(X)
 
         for el in multiple_entries:
-            X = aggregate_cation(X, el, form=self.form)
+            if self.form == "oxide":
+                out = simple_oxides(el)[0]
+            else:
+                out = el
+            X = aggregate_element(X, to=out)
         return X
 
 
