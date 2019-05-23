@@ -48,7 +48,7 @@ class RefComp(object):
 
         # for cation in cations:
         #    scale function
-        #    aggregate_cation(df: pd.DataFrame, cation, form=form, unit_scale=None)
+        #    aggregate_element(df: pd.DataFrame, to=cation)
         raise NotImplementedError("This issue has yet to be addressed.")
 
     def collect_vars(

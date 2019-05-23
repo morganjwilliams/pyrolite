@@ -196,12 +196,13 @@ def elemental_sum(df: pd.DataFrame, component, total_suffix="T", logdata=False):
     cationname = str(cation)
     logger.debug("Agregating {} Data.".format(cationname))
     # different species
-    species = simple_oxides(cation)
-    species += [i + total_suffix for i in species]
-    species = [i for i in set(species) if i in df.columns]
+    poss_specs = [cationname] + simple_oxides(cation)
+    poss_specs += [i + total_suffix for i in poss_specs]
+    species = [i for i in set(poss_specs) if i in df.columns]
     if not species:
-        logger.warn("No relevant species found to aggregate.")
-        subsum = pd.Series(values=np.ones(subdf.index.size) * np.nan, index=subdf.index)
+        logger.warn("No relevant species ({}) found to aggregate.".format(poss_specs))
+        # return nulls
+        subsum = pd.Series(np.ones(df.index.size) * np.nan, index=df.index)
     else:
         subdf = df.loc[:, species].copy(deep=True)
         if logdata:
@@ -353,112 +354,6 @@ def recalculate_Fe(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def aggregate_cation(
-    df: pd.DataFrame,
-    cation=None,
-    oxide=None,
-    form="oxide",
-    unit_scale=scale("Wt%", "Wt%"),
-    logdata=False,
-):
-    """
-    Aggregates cation information from oxide and elemental components
-    to a single series. Allows simultaneous scaling (e.g. from ppm to wt%).
-
-    Parameters
-    ----------
-    df : :class:`pandas.DataFrame`
-        DataFrame for which to aggregate cation data.
-    cation : :class:`str` | :class:`~periodictable.core.Element`
-        Name of cation to aggregate.
-    oxide : :class:`str` | :class:`~periodictable.formulas.Formula`
-        Name of oxide to aggregate.
-    form : :class:`str`, :code:`{'oxide', 'element'}`
-        Whether to aggregate to oxide or elemental form.
-    unit_scale : :class:`float`, 1.
-        The scale factor difference between the components. Unity if both have the same
-        units. Can be converted using scale_multiplier: e.g.
-        :code:`scale_multiplier("Wt%", "ppm")`
-    logdata : :class:`bool`, :code:`False`
-        Whether data has been log transformed.
-
-    Returns
-    -------
-    :class:`pandas.DataFrame`
-        Dataframe with cation aggregated.
-
-    Todo
-    -------
-        * Support for molecular data.
-        * Update to return only a series, rather than modify a dataframe.
-        * Update to reflect similar process to :func:`~pyrolite.geochem.transform.recalcuate_Fe`
-    """
-
-    dfc = df.copy()
-    # Should first check that neither the element or oxide is present more than once
-    assert not ((cation is None) and (oxide is None))
-    if cation is not None and oxide is not None:
-        elstr = str(cation)
-        oxstr = str(oxide)
-    elif oxide is not None:
-        oxstr = str(oxide)
-        elstr = str(get_cations(oxide)[0])
-    elif cation is not None:
-        elstr = str(cation)
-        potential_ox = simple_oxides(elstr)
-        oxstr = [o for o in dfc.columns if o in potential_ox][0]
-        assert oxstr, (
-            "Oxidation state unknown. "
-            "Please specify desired oxide from {}.".format(potential_ox)
-        )
-
-    el, ox = pt.formula(elstr), pt.formula(oxstr)
-
-    for c in [elstr, oxstr]:
-        if not c in df.columns:
-            logger.debug("Adding {} column.".format(c))
-            dfc[c] = np.nan
-
-    eldata = dfc.loc[:, elstr].values
-    oxdata = dfc.loc[:, oxstr].values
-    if logdata:
-        eldata = np.exp(eldata)
-        oxdata = np.exp(oxdata)
-
-    if form == "oxide":
-        if unit_scale is None:
-            unit_scale = 1.0
-        assert unit_scale > 0
-        convert_function = oxide_conversion(el, ox)
-        conv_values = convert_function(eldata) * unit_scale
-        totals = np.nansum(np.vstack((oxdata, conv_values)), axis=0)
-    elif form == "element":
-        if unit_scale is None:
-            unit_scale = 1.0
-        assert unit_scale > 0
-        convert_function = oxide_conversion(ox, el)
-        conv_values = convert_function(oxdata) * unit_scale
-        totals = np.nansum(np.vstack((eldata, conv_values)), axis=0)
-
-    totals[np.isclose(totals, 0)] = np.nan
-
-    if logdata:
-        totals = np.log(totals)
-
-    if form == "oxide":
-        dfc.loc[:, oxstr] = totals
-        dfc.drop(columns=[elstr], inplace=True)
-        assert elstr not in dfc.columns
-    else:
-        dfc.loc[:, elstr] = totals
-        dfc.drop(columns=[oxstr], inplace=True)
-        assert oxstr not in dfc.columns
-
-    return dfc
-
-
-@pf.register_series_method
-@pf.register_dataframe_method
 def add_ratio(
     df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, convert=lambda x: x
 ):
@@ -494,7 +389,7 @@ def add_ratio(
     --------
     :func:`~pyrolite.geochem.transform.add_MgNo`
     """
-
+    logger.debug("Adding Ratio: {}".format(r))
     num, den = ratio.split("/")
     _to_norm = False
     if den.lower().endswith("_n"):
@@ -766,54 +661,13 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
     # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
     current_fe = [i for i in present_compositional if "Fe" in str(i)]
     get_fe = [i for i in simple_get_notpresent if "Fe" in str(i)]
-    simple_get_present = list(set(simple_get_present) - set(current_fe))
-    simple_get_notpresent = list(set(simple_get_notpresent) - set(get_fe))
+    ratios = [i for i in to if "/" in i and i in simple_get_notpresent]
+    simple_get_present = list(set(simple_get_present) - set(current_fe) - set(ratios))
+    simple_get_notpresent = list(set(simple_get_notpresent) - set(get_fe) - set(ratios))
 
-    multiples = check_multiple_cation_inclusion(df)
-
-    # Aggregate the columns which are otherwise OK
-    for o in simple_get_present:
-        if o in compositional_components:
-            elem = get_cations(o)[0]
-            if elem in multiples:
-                if o in oxides:
-                    logger.debug("Aggregating from {} to {}".format(elem, o))
-                    df = aggregate_cation(
-                        df, cation=elem, oxide=o, form="oxide", logdata=logdata
-                    )
-
-                else:
-                    potential_oxides = simple_oxides(o)
-                    present_oxides = [p for p in potential_oxides if p in df.columns]
-                    for ox in present_oxides:  # aggregate all the relevant oxides
-                        logger.debug("Aggregating from {} to {}".format(ox, o))
-                        df = aggregate_cation(
-                            df, cation=o, oxide=ox, form="element", logdata=logdata
-                        )
-
-    # --- Try to get the new non-Fe columns ----
-    for g in simple_get_notpresent:
-        if g in oxides:
-            elem = get_cations(g)[0]
-            oxide = g
-            logger.debug(
-                "Getting new column {oxide} from {elem}".format(oxide=oxide, elem=elem)
-            )
-            df = aggregate_cation(
-                df, cation=elem, oxide=oxide, form="oxide", logdata=logdata
-            )
-
-        elif g in elements:
-            elem = g
-            potential_oxides = simple_oxides(g)
-            present_oxides = [p for p in potential_oxides if p in df.columns]
-            for ox in present_oxides:  # aggregate all the relevant oxides
-                logger.debug(
-                    "Getting new column {elem} from {oxide}".format(oxide=ox, elem=elem)
-                )
-                df = aggregate_cation(
-                    df, cation=elem, oxide=ox, form="element", logdata=logdata
-                )
+    # Aggregate the columns which are otherwise OK, then get new columns
+    for item in simple_get_present + simple_get_notpresent:
+        df = aggregate_element(df, to=item, logdata=logdata)
 
     # --- Try to get the new columns - iron redox section ------------------------------
     # check if there's a multicomponent speciation problem
@@ -833,13 +687,10 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
 
     # Try to get some ratios -----------------------------------------------------------
-    ratios = [i for i in to if "/" in i and i in simple_get_notpresent]
     if ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(ratios)))
         for r in ratios:
-            logger.debug("Adding Ratio: {}".format(r))
-            num, den = r.split("/")
-            df.loc[:, r] = df.loc[:, num] / df.loc[:, den]
+            df.add_ratio(r)
             # df = add_ratio(df, r)
 
     # Last Minute Checks ---------------------------------------------------------------
