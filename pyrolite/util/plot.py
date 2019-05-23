@@ -14,6 +14,7 @@ import matplotlib.colors
 import matplotlib.lines
 import matplotlib.patches
 import matplotlib.path
+import matplotlib.collections
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
@@ -97,32 +98,6 @@ def modify_legend_handles(ax, **kwargs):
     return _hndls, labls
 
 
-def interpolated_patch_path(patch, resolution=100, **kwargs):
-    """
-    Obtain the periodic interpolation of the existing path of a patch at a
-    given resolution.
-
-    Parameters
-    -----------
-    patch : :class:`matplotlib.patches.Patch`
-        Patch to obtain the original path from.
-    resolution :class:`int`
-        Resolution at which to obtain the new path. The verticies of the new path
-        will have shape (`resolution`, 2).
-
-    Returns
-    --------
-    :class:`matplotlib.path.Path`
-        Interpolated :class:`~matplotlib.path.Path` object.
-    """
-    pth = patch.get_path()
-    tfm = patch.get_transform()
-    pathtfm = tfm.transform_path(pth)
-    return interpolate_path(
-        pathtfm, resolution=resolution, aspath=True, periodic=True, **kwargs
-    )
-
-
 def interpolate_path(
     path, resolution=100, periodic=False, aspath=True, closefirst=False, **kwargs
 ):
@@ -166,6 +141,122 @@ def interpolate_path(
         return pth
     else:
         return pth.vertices.T
+
+
+def interpolated_patch_path(patch, resolution=100, **kwargs):
+    """
+    Obtain the periodic interpolation of the existing path of a patch at a
+    given resolution.
+
+    Parameters
+    -----------
+    patch : :class:`matplotlib.patches.Patch`
+        Patch to obtain the original path from.
+    resolution :class:`int`
+        Resolution at which to obtain the new path. The verticies of the new path
+        will have shape (`resolution`, 2).
+
+    Returns
+    --------
+    :class:`matplotlib.path.Path`
+        Interpolated :class:`~matplotlib.path.Path` object.
+    """
+    pth = patch.get_path()
+    tfm = patch.get_transform()
+    pathtfm = tfm.transform_path(pth)
+    return interpolate_path(
+        pathtfm, resolution=resolution, aspath=True, periodic=True, **kwargs
+    )
+
+
+def get_contour_paths(ax, resolution=100):
+    """
+    Extract the paths of contours from a contour plot.
+
+    Parameters
+    ------------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to extract contours from.
+    resolution : :class:`int`
+        Resolution of interpolated splines to return.
+
+    Returns
+    --------
+    contourspaths : :class:`list` (:class:`list`)
+        List of lists, each represnting one line collection (a single contour). In the
+        case where this contour is multimodal, there will be multiple paths for each
+        contour.
+    contournames : :class:`list`
+        List of names for contours, where they have been labelled, and there are no
+        other text artists on the figure.
+    contourstyles : :class:`list`
+        List of styles for contours.
+
+    Note
+    -----
+
+        This method assumes that contours are the only
+        :code:`matplotlib.collections.LineCollection` objects within an axes;
+        and when this is not the case, additional non-contour objects will be returned.
+    """
+    linecolls = [
+        c
+        for c in ax.collections
+        if isinstance(c, matplotlib.collections.LineCollection)
+    ]
+    rgba = [[int(c) for c in lc.get_edgecolors().flatten() * 255] for lc in linecolls]
+    styles = [{"color": c} for c in rgba]
+    names = [None for lc in linecolls]
+    if (len(ax.artists) == len(linecolls)) and all(
+        [a.get_text() != "" for a in ax.artists]
+    ):
+        names = [a.get_text() for a in ax.artists]
+    return (
+        [
+            [
+                interpolate_path(p, resolution=resolution, periodic=True, aspath=False)
+                for p in lc.get_paths()
+            ]
+            for lc in linecolls
+        ],
+        names,
+        styles,
+    )
+
+
+def path_to_csv(path, xname="x", yname="y", delim=", ", linesep=os.linesep):
+    """
+    Extract the verticies from a path and write them to csv.
+
+    Parameters
+    ------------
+    path : :class:`matplotlib.path.Path` | :class:`tuple`
+        Path or x-y tuple to use for coordinates.
+    xname : :class:`str`
+        Name of the x variable.
+    yname : :class:`str`
+        Name of the y variable.
+    delim : :class:`str`
+        Delimiter for the csv file.
+    linesep : :class:`str`
+        Line separator character.
+
+    Returns
+    --------
+    :class:`str`
+        String-representation of csv file, ready to be written to disk.
+    """
+    if isinstance(path, matplotlib.path.Path):
+        x, y = path.vertices.T
+    else:  # isinstance(path, (tuple, list))
+        x, y = path
+
+    header = [xname, yname]
+    datalines = [[x, y] for (x, y) in zip(x, y)]
+    content = linesep.join(
+        [delim.join(map(str, line)) for line in [header] + datalines]
+    )
+    return content
 
 
 def add_colorbar(mappable, **kwargs):
@@ -553,21 +644,6 @@ def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
     )
 
 
-def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
-    """
-    Takes an xy point, and creates a rectangular patch centred about it.
-    """
-    # If either x or y is nan
-    if any([np.isnan(i) for i in [x, y]]):
-        return None
-    if np.isnan(dx):
-        dx = 0
-    if np.isnan(dy):
-        dy = 0
-    llc = (x - dx, y - dy)
-    return matplotlib.patches.Rectangle(llc, 2 * dx, 2 * dy, **kwargs)
-
-
 def proxy_rect(**kwargs):
     """
     Generates a legend proxy for a filled region.
@@ -588,6 +664,21 @@ def proxy_line(**kwargs):
     :class:`matplotlib.lines.Line2D`
     """
     return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
+
+
+def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
+    """
+    Takes an xy point, and creates a rectangular patch centred about it.
+    """
+    # If either x or y is nan
+    if any([np.isnan(i) for i in [x, y]]):
+        return None
+    if np.isnan(dx):
+        dx = 0
+    if np.isnan(dy):
+        dy = 0
+    llc = (x - dx, y - dy)
+    return matplotlib.patches.Rectangle(llc, 2 * dx, 2 * dy, **kwargs)
 
 
 def draw_vector(v0, v1, ax=None, **kwargs):
