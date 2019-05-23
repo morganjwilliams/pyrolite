@@ -282,32 +282,32 @@ def density(
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
 
-    if contours:
-        levels = contours or kwargs.pop("levels", None)
-        cags = xi, yi, zi  # contour-like function arguments, point estimates
-        if percentiles and not isinstance(levels, int):
-            _cs = plot_Z_percentiles(
-                *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
-            )
-            mappable = _cs
-        else:
-            if levels is None:
-                levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
-            elif isinstance(levels, int):
-                levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
-            # filled contours
-            mappable = ax.contourf(
-                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-            )
-            # contours
-            ax.contour(
-                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-            )
+        if contours:
+            levels = contours or kwargs.pop("levels", None)
+            cags = xi, yi, zi  # contour-like function arguments, point estimates
+            if percentiles and not isinstance(levels, int):
+                _cs = plot_Z_percentiles(
+                    *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
+                )
+                mappable = _cs
+            else:
+                if levels is None:
+                    levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
+                elif isinstance(levels, int):
+                    levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
+                # filled contours
+                mappable = ax.contourf(
+                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+                )
+                # contours
+                ax.contour(
+                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+                )
 
-    if colorbar:
-        cbkwargs = kwargs.copy()
-        cbkwargs["label"] = cbarlabel
-        add_colorbar(mappable, **cbkwargs)
+        if colorbar:
+            cbkwargs = kwargs.copy()
+            cbkwargs["label"] = cbarlabel
+            add_colorbar(mappable, **cbkwargs)
 
     if relim:
         if logx:
