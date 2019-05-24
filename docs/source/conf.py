@@ -204,7 +204,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/", None),
     "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
     "sympy": ("https://docs.sympy.org/latest/", None),
-    "sklearn": ("http://scikit-learn.org/stable", None),
+    "sklearn": ("https://scikit-learn.org/stable", None),
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
