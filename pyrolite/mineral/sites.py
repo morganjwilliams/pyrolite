@@ -13,16 +13,17 @@ class Site(object):
     site chemistry.
     """
 
-    def __init__(self, name=None, coordination=0, affinities={}):
+    def __init__(self, name=None, coordination=0, affinities={}, type="cation"):
         if name is None:
             name = self.__class__.__name__
+        assert type in ["cation", "anion", "oxygen"]
         self.name = name
         self.coordination = coordination
         self.affinities = affinities
         self.occupancy = None
-        self.anionic = False
-        self.cationic = False
-        self.oxygen = False
+        self.anionic = type == "anion"
+        self.cationic = type == "cation"
+        self.oxygen = type == "oxygen"
 
     def __str__(self):
         if self.coordination:
@@ -69,8 +70,7 @@ class MX(Site):
     """
 
     def __init__(self, name="M", coordination=8, *args, **kwargs):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.cationic = True
+        super().__init__(name, coordination, *args, type="cation", **kwargs)
 
 
 class TX(Site):
@@ -84,11 +84,10 @@ class TX(Site):
         coordination=4,
         affinities={"Si{4+}": 0, "Al{3+}": 1, "Fe{3+}": 2},
         *args,
+        type="cation",
         **kwargs
     ):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.cationic = True
-        self.affinities = affinities
+        super().__init__(name, coordination, *args, affinities=affinities, **kwargs)
 
 
 class IX(Site):
@@ -97,8 +96,7 @@ class IX(Site):
     """
 
     def __init__(self, name="I", coordination=12, *args, **kwargs):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.cationic = True
+        super().__init__(name, coordination, *args, type="cation", **kwargs)
 
 
 class VX(Site):
@@ -107,8 +105,7 @@ class VX(Site):
     """
 
     def __init__(self, name="V", coordination=0, *args, **kwargs):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.cationic = True
+        super().__init__(name, coordination, *args, type="cation", **kwargs)
 
 
 class OX(Site):
@@ -119,9 +116,9 @@ class OX(Site):
     def __init__(
         self, name="O", coordination=0, affinities={"O{2-}": 0}, *args, **kwargs
     ):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.oxygen = True
-        self.affinities = affinities
+        super().__init__(
+            name, coordination, *args, affinities=affinities, type="oxygen", **kwargs
+        )
 
 
 class AX(Site):
@@ -130,5 +127,4 @@ class AX(Site):
     """
 
     def __init__(self, name="A", coordination=0, *args, **kwargs):
-        super().__init__(name, coordination, *args, **kwargs)
-        self.anionic = True
+        super().__init__(name, coordination, *args, type="anion", **kwargs)

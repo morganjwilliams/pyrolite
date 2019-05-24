@@ -1,6 +1,7 @@
 import periodictable as pt
 from .mineral import *
 from .sites import *
+
 # %% Generic Mineral Group Templates ---------------------------------------------------
 OLIVINE = MineralTemplate(
     "olivine",
@@ -36,6 +37,12 @@ OLIVINE = MineralTemplate(
     *[OX()] * 2,
 )
 
+
+Mineral("forsterite", OLIVINE, pt.formula("Mg2SiO4"))
+Mineral("fayalite", OLIVINE, pt.formula("Fe2SiO4"))
+Mineral("tephroite", OLIVINE, pt.formula("Mn2SiO4"))
+Mineral("liebenbergite", OLIVINE, pt.formula("Ni1.5Mg0.5SiO4"))
+
 PYROXENE = MineralTemplate(
     "pyroxene",
     MX(
@@ -70,10 +77,6 @@ PYROXENE = MineralTemplate(
     *[OX()] * 6,
 )
 
-Mineral("forsterite", OLIVINE, pt.formula("Mg2SiO4"))
-Mineral("fayalite", OLIVINE, pt.formula("Fe2SiO4"))
-Mineral("tephroite", OLIVINE, pt.formula("Mn2SiO4"))
-Mineral("liebenbergite", OLIVINE, pt.formula("Ni1.5Mg0.5SiO4"))
 
 Mineral("enstatite", PYROXENE, pt.formula("Mg2Si2O6"))
 Mineral("ferrosilite", PYROXENE, pt.formula("Fe2Si2O6"))
@@ -86,3 +89,29 @@ Mineral("aegirine", PYROXENE, pt.formula("NaFe{3+}Si2O6"))
 Mineral("namansilite", PYROXENE, pt.formula("NaMn{3+}Si2O6"))
 Mineral("kosmochlor", PYROXENE, pt.formula("NaCrSi2O6"))
 Mineral("spodumene", PYROXENE, pt.formula("LiAlSi2O6"))
+
+
+SPINEL = MineralTemplate(
+    "spinel",
+    Site(
+        "A",
+        affinities={"Mg{2+}": 0, "Fe{2+}": 1, "Mn{2+}": 2, "Zn{2+}": 3},
+        coordination=4,
+    ),
+    *[
+        Site(
+            "B",
+            affinities={"Al{3+}": 0, "Fe{3+}": 1, "Cr{3+}": 3, "V{3+}": 3},
+            coordination=6,
+        )
+    ]
+    * 2,
+    *[OX()] * 4,
+)
+
+Mineral("spinel", SPINEL, pt.formula("MgAl2O4"))
+Mineral("magnesioferrite", SPINEL, pt.formula("MgFe{3+}2O4"))
+Mineral("magnesiochromite", SPINEL, pt.formula("MgCr{3+}2O4"))
+Mineral("magnetite", SPINEL, pt.formula("Fe{2+}Fe{3+}2O4"))
+Mineral("hercynite", SPINEL, pt.formula("Fe{2+}Al2O4"))
+Mineral("chromite", SPINEL, pt.formula("Fe{2+}Cr{3+}2O4"))
