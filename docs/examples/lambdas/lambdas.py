@@ -30,9 +30,16 @@ for ix, el in enumerate(data_ree):
 
 Y = np.exp(lnY)
 
-ax = REE_v_radii()
-ax.set_yscale('log')
-ax.plot(data_radii.T, Y.T, marker="D", alpha=0.01, c="0.5", markerfacecolor="k")
+ax = REE_v_radii(
+    Y,
+    ree=data_ree,
+    marker="D",
+    alpha=0.01,
+    color="0.5",
+    markerfacecolor="k",
+    index="elements",
+)
+
 # %% Plot Data -------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure
 

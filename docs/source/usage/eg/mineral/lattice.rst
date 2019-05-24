@@ -1,10 +1,29 @@
 Lattice Strain Calculations
 ------------------------------
 
-Pyrolite includes a function for calculating relative lattice strain [#ref_1]_. This
-example follows that given during a Institute of Advanced Studies Masterclass with
-Jon Blundy at the University of Western Australia on the 29\ :sup:`th` April 2019
-(with permission).
+
+.. note::
+
+    This example follows that given during a Institute of Advanced Studies Masterclass
+    with Jon Blundy at the University of Western Australia on the 29\ :sup:`th` April
+    2019, and is used here with permission.
+
+
+Pyrolite includes a function for calculating relative lattice strain [#ref_1]_, which
+together with the tables of Shannon ionic radii and Young's modulus approximations for
+silicate and oxide cationic sites enable relatively simple calculation of ionic
+partitioning in common rock forming minerals.
+
+This example below uses previously characterised calcium and sodium partition
+coefficients between anorthite (:math:`CaAl_2Si_2O_8`) and silicate melt to estimate
+partitioning for other cations based on their ionic radii.
+
+A model parameterised using sodium and calcium partition coefficients [#ref_2]_ is then
+used to estimate the partitioning for lanthanum into the trivalent site (largely
+occupied by :math:`Al^{3+}`), and extended to other trivalent cations (here, the Rare
+Earth Elements). The final section of the example highlights the mechanism which
+generates plagioclase's hallmark 'europium anomaly', and the effects of variable
+europium oxidation state on bulk europium partitioning.
 
 .. literalinclude:: ../../../../examples/mineral/lattice.py
    :language: python
@@ -66,3 +85,14 @@ coefficient can be calculated:
 .. [#ref_2] Dohmen, R., Blundy, J., 2014. A predictive thermodynamic model for element partitioning
             between plagioclase and melt as a function of pressure, temperature and composition.
             American Journal of Science 314, 1319–1372. https://doi.org/10.2475/09.2014.04
+
+.. seealso::
+
+  Examples:
+    `Shannon Radii <../indexes/shannon.html>`__,
+    `REE Radii Plot <../plotting/REE_v_radii.html>`__
+
+  Functions:
+    :func:`~pyrolite.mineral.lattice.strain_coefficient`,
+    :func:`~pyrolite.mineral.lattice.youngs_modulus_approximation`,
+    :func:`~pyrolite.geochem.get_ionic_radii`

@@ -44,6 +44,8 @@ if exclude:
     subset_Y = Y[[i not in exclude for i in data_ree]]
     subset_ree = [i for i in REE() if not i in exclude]
     subset_radii = np.array(get_ionic_radii(subset_ree, charge=3, coordination=8))
+else:
+    subset_Y, subset_ree, subset_radii = Y, data_ree, data_radii
 
 params = OP_constants(subset_radii, degree=4)
 ls = lambdas(np.log(subset_Y), subset_radii, params=params, degree=4)
@@ -51,11 +53,12 @@ continuous_radii = np.linspace(subset_radii[0], subset_radii[-1], 20)
 l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)
 smooth_profile = np.exp(l_func(continuous_radii))
 # %% Plot the Results ------------------------------------------------------------------
-ax = REE_v_radii()
-ax.set_yscale('log')
-ax.plot(data_radii, Y, marker="D", color="0.5", label="Example Data")
+ax = REE_v_radii(Y, ree=data_ree, color="0.8", label="Data")
+ax = REE_v_radii(
+    subset_Y, ree=subset_ree, ax=ax, color="k", linewidth=0, label="Subset"
+)
 plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
-ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k")
+ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k", lw=2)
 ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
 # %% End -------------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure

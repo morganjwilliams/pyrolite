@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.lines
 import numpy as np
 import logging
 
@@ -26,7 +27,7 @@ def spider(
     norm=None,
     alpha=1.0,
     marker="D",
-    markersize=3.0,
+    markersize=5.0,
     label=None,
     figsize=None,
     logy=True,
@@ -81,13 +82,14 @@ def spider(
     Todo
     -----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
-        * Conditional density plot.
+        * Conflicts between scatter and plot methods (e.g. marker edges, linewidth etc)
+        * Legend entries
 
     See Also
     ---------
     :func:`matplotlib.pyplot.plot`
     :func:`matplotlib.pyplot.scatter`
-    :func:`REE_radii_plot`
+    :func:`REE_v_radii`
     """
 
     # ---------------------------------------------------------------------
@@ -157,12 +159,16 @@ def spider(
         if sty.get("color") is None and _c is None:
             sty["color"] = next(ax._get_lines.prop_cycler)["color"]
 
+        sty = {
+            **sty,
+            **subkwargs(kwargs, ax.plot, matplotlib.lines.Line2D),
+        }  # forward scatter kwargs
         ls = ax.plot(indexes.T, arr.T, **sty)
         if variable_colors:
             for l, c in zip(ls, _c):
                 l.set_color(c)
 
-        sty["s"] = sty.pop("markersize")
+        sty["s"] = sty.pop("markersize") ** 2
         if (sty.get("color") is None) and (_c is None):
             sty["color"] = ls[0].get_color()
 
@@ -171,12 +177,15 @@ def spider(
         # Need to check if this is the case, and create equivalent
 
         if _c is not None:
-            cshape = np.array(_c).shape
-            if cshape != df.loc[:, components].shape:
-                # expand it across the columns
-                _c = np.tile(_c, (len(components), 1))
-
+            if iscollection(_c):
+                cshape = np.array(_c).shape
+                if cshape != df.loc[:, components].shape:
+                    # expand it across the columns
+                    _c = np.tile(_c, (len(components), 1))
+        sty = {**sty, **subkwargs(kwargs, ax.scatter)}  # forward scatter kwargs
         sc = ax.scatter(indexes.T, arr.T, **sty)
+
+        # could modify legend here.
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,
@@ -190,7 +199,7 @@ def spider(
         vmin = kwargs.pop("vmin", 0)
         vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "contours" in kwargs:
-            pzpkwargs = { # keyword arguments to forward to plot_Z_percentiles
+            pzpkwargs = {  # keyword arguments to forward to plot_Z_percentiles
                 **subkwargs(kwargs, plot_Z_percentiles),
                 **{"percentiles": kwargs["contours"]},
             }
@@ -214,7 +223,14 @@ def spider(
 
 
 def REE_v_radii(
-    arr=None, ax=None, ree=REE(), index="radii", mode="plot", tl_rotation=60, **kwargs
+    arr=None,
+    ax=None,
+    ree=REE(),
+    index="radii",
+    mode="plot",
+    tl_rotation=60,
+    unity_line=False,
+    **kwargs
 ):
     """
     Creates an axis for a REE diagram with ionic radii along the x axis.
@@ -229,11 +245,13 @@ def REE_v_radii(
         List of REE to use as an index.
     index : :class:`str`
         Whether to plot using radii on the x-axis ('radii'), or elements ('elements').
-    tl_rotation : :class:`float`
-        Rotation of the numerical index labels in degrees.
     mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
+    tl_rotation : :class:`float`
+        Rotation of the numerical index labels in degrees.
+    unity_line : :class:`bool`
+        Add a line at y=1 for reference.
 
     {otherparams}
 
@@ -242,17 +260,18 @@ def REE_v_radii(
     :class:`matplotlib.axes.Axes`
         Axes on which the REE_v_radii plot is added.
 
-
     Todo
     -----
         * Turn this into a plot template within pyrolite.plot.templates submodule
 
     See Also
     ---------
-    :func:`matplotlib.pyplot.plot`
-    :func:`matplotlib.pyplot.scatter`
-    :func:`spider`
-    :func:`pyrolite.geochem.transform.lambda_lnREE`
+
+    Functions:
+        :func:`matplotlib.pyplot.plot`
+        :func:`matplotlib.pyplot.scatter`
+        :func:`spider`
+        :func:`pyrolite.geochem.transform.lambda_lnREE`
     """
     if ax is not None:
         fig = ax.figure
@@ -283,7 +302,8 @@ def REE_v_radii(
     if arr is not None:
         ax = spider(arr, indexes=indexes, ax=ax, logy=True, mode=mode, **kwargs)
 
-    ax.axhline(1.0, ls="--", c="k", lw=0.5)
+    if unity_line:
+        ax.axhline(1.0, ls="--", c="k", lw=0.5)
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)
     ax.set_xticklabels(xlabels, rotation=xlabelrotation)
@@ -302,7 +322,13 @@ spider.__doc__ = spider.__doc__.format(
     otherparams=[
         "",
         get_additional_params(
-            spider, plt.scatter, indent=4, header="Other Parameters", subsections=True
+            spider,
+            plt.scatter,
+            plt.plot,
+            matplotlib.lines.Line2D,
+            indent=4,
+            header="Other Parameters",
+            subsections=True,
         ),
     ][_add_additional_parameters]
 )
