@@ -152,7 +152,7 @@ class pyroplot(object):
         ree = REE()
 
         ax = spider.REE_v_radii(
-            obj.loc[:, ree].values, ree=ree, mode=mode, ax=ax, **kwargs
+            obj.loc[:, ree].values, index=index, ree=ree, mode=mode, ax=ax, **kwargs
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
