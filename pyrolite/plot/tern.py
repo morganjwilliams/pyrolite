@@ -78,10 +78,12 @@ def ternary(
         * To create unfilled markers, pass :code:`edgecolors=<color>, c="none"`
         * To edit marker edgewiths, pass :code:`linewidths=<width>`
 
-    See Also
-    ---------
-    :func:`matplotlib.pyplot.plot`
-    :func:`matplotlib.pyplot.scatter`
+    .. seealso::
+
+        Functions:
+
+            :func:`matplotlib.pyplot.plot`
+            :func:`matplotlib.pyplot.scatter`
     """
 
     if ax is None:
@@ -93,8 +95,10 @@ def ternary(
     if tax is None:
         fig, tax = pyternary.figure(ax=ax, scale=scale)
 
-    if not hasattr(tax, 'patch'):
-        tax.patch =  ternary_patch(scale=scale, color=ax.patch.get_facecolor(),zorder=-10)
+    if not hasattr(tax, "patch"):
+        tax.patch = ternary_patch(
+            scale=scale, color=ax.patch.get_facecolor(), zorder=-10
+        )
         ax.add_artist(tax.patch)
     # Set attribute for future reference
     ax.tax = tax

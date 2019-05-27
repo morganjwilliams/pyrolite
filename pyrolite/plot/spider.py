@@ -85,11 +85,13 @@ def spider(
         * Conflicts between scatter and plot methods (e.g. marker edges, linewidth etc)
         * Legend entries
 
-    See Also
-    ---------
-    :func:`matplotlib.pyplot.plot`
-    :func:`matplotlib.pyplot.scatter`
-    :func:`REE_v_radii`
+    .. seealso::
+
+        Functions:
+
+            :func:`matplotlib.pyplot.plot`
+            :func:`matplotlib.pyplot.scatter`
+            :func:`REE_v_radii`
     """
 
     # ---------------------------------------------------------------------
@@ -232,7 +234,7 @@ def REE_v_radii(
     unity_line=False,
     **kwargs
 ):
-    """
+    r"""
     Creates an axis for a REE diagram with ionic radii along the x axis.
 
     Parameters
@@ -264,14 +266,14 @@ def REE_v_radii(
     -----
         * Turn this into a plot template within pyrolite.plot.templates submodule
 
-    See Also
-    ---------
+    .. seealso::
 
-    Functions:
-        :func:`matplotlib.pyplot.plot`
-        :func:`matplotlib.pyplot.scatter`
-        :func:`spider`
-        :func:`pyrolite.geochem.transform.lambda_lnREE`
+        Functions:
+
+            :func:`matplotlib.pyplot.plot`
+            :func:`matplotlib.pyplot.scatter`
+            :func:`spider`
+            :func:`pyrolite.geochem.transform.lambda_lnREE`
     """
     if ax is not None:
         fig = ax.figure

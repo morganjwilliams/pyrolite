@@ -106,12 +106,14 @@ def density(
         * More accurate ternary density plots see :func:`~pyrolite.util.plot.ternary_heatmap` for now.
         * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pts
 
-    See Also
-    ---------
-    :func:`matplotlib.pyplot.pcolormesh`
-    :func:`matplotlib.pyplot.hist2d`
-    :func:`matplotlib.pyplot.contourf`
-    :func:`pyrolite.plot.tern.ternary`
+    .. seealso::
+
+        Functions:
+
+            :func:`matplotlib.pyplot.pcolormesh`
+            :func:`matplotlib.pyplot.hist2d`
+            :func:`matplotlib.pyplot.contourf`
+            :func:`pyrolite.plot.tern.ternary`
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
