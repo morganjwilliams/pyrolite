@@ -256,9 +256,9 @@ rst_prolog = """
 # -----------------------------------------------------------------------------
 # Source code links
 # -----------------------------------------------------------------------------
-
 import re
 import inspect
+from docutils import nodes
 from os.path import relpath, dirname
 
 for name in ["sphinx.ext.linkcode", "linkcode", "numpydoc.linkcode"]:
@@ -334,7 +334,15 @@ def linkcode_resolve(domain, info):
         return None
 
 
+def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    rendered = nodes.Text('rcParams["{}"]'.format(text))
+    refuri = "https://matplotlib.org/api/matplotlib_configuration_api.html#matplotlib.rcParams"
+    ref = nodes.reference(rawtext, rendered, refuri=refuri)
+    return [nodes.literal("", "", ref)], []
+
+
 def setup(app):
+    app.add_role("rc", rcparam_role)
     app.add_config_value(
         "recommonmark_config",
         {
@@ -344,3 +352,5 @@ def setup(app):
         True,
     )
     app.add_transform(AutoStructify)
+
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
