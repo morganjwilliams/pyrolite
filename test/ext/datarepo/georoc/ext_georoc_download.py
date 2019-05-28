@@ -53,16 +53,12 @@ class TestBulkGEOROCCompilation(unittest.TestCase):
             self.temp_dir.mkdir(parents=True)
         self.res = ["OBFB"]
 
-    def test_dataframe_return(self):
-        df = bulk_download(output_folder=self.temp_dir, collections=self.res)
-        self.assertTrue(isinstance(df, pd.DataFrame))
+    def test_default(self):
+        # to csv
+        bulk_download(output_folder=self.temp_dir, collections=self.res)
 
     def tearDown(self):
         remove_tempdir(self.temp_dir)
 
-
-from pyrolite.ext.datarepo.georoc.download import __CONTENTS__
-
-[__CONTENTS__[k]["abbrv"] for k in __CONTENTS__]
 if __name__ == "__main__":
     unittest.main()
