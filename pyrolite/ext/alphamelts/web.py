@@ -2,7 +2,7 @@ import logging
 import requests
 import dicttoxml, xmljson
 from xml.etree import ElementTree as ET
-from pyrolite.util.web import internet_connection
+from ...util.web import internet_connection
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

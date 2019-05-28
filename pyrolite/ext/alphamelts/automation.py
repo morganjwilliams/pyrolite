@@ -12,8 +12,8 @@ import subprocess
 import threading
 import queue
 import shlex
-from ..general import get_process_tree
-from ..meta import pyrolite_datafolder
+from ...util.general import get_process_tree
+from ...util.meta import pyrolite_datafolder
 from .tables import MeltsOutput
 from .parse import read_envfile, read_meltsfile
 from .env import MELTS_Env

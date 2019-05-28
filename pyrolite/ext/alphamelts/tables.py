@@ -8,7 +8,7 @@ from ...geochem.ind import __common_elements__, __common_oxides__
 from ...geochem.transform import add_MgNo
 from .parse import from_melts_cstr
 from .meltsfile import to_meltsfiles
-from ..pd import zero_to_nan, to_frame, to_ser
+from ...util.pd import zero_to_nan, to_frame, to_ser
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

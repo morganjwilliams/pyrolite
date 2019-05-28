@@ -6,10 +6,10 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from http.client import HTTPResponse
 
-from ...text import titlecase
-from ...general import temp_path
-from ...meta import pyrolite_datafolder
-from ...web import urlify, internet_connection, download_file
+from ....util.text import titlecase
+from ....util.general import temp_path
+from ....util.meta import pyrolite_datafolder
+from ....util.web import urlify, internet_connection, download_file
 
 from .schema import parse_GEOROC_response
 

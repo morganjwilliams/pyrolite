@@ -2,8 +2,8 @@ import logging
 import re
 from functools import partial
 import pandas as pd
-from ...text import parse_entry, split_records, titlecase
-from ...types import iscollection
+from ....util.text import parse_entry, split_records, titlecase
+from ....util.types import iscollection
 from ....geochem.parse import tochem
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

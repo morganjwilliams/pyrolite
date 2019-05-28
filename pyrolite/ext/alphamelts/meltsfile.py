@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from ..pd import to_frame, to_ser
+from ...util.pd import to_frame, to_ser
 from ...geochem.ind import __common_elements__, __common_oxides__
 import logging
 

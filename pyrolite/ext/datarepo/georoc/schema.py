@@ -2,10 +2,10 @@ import logging
 import re
 import pandas as pd
 import numpy as np
-from ...text import titlecase, split_records
+from ....util.text import titlecase, split_records
 from ....geochem.parse import check_multiple_cation_inclusion
 from ....geochem.transform import aggregate_element
-from ...units import scale
+from ....util.units import scale
 from ....geochem.ind import __common_elements__, __common_oxides__
 from ....geochem.validate import is_isotoperatio
 from .parse import parse_citations, parse_values, parse_DOI, columns_to_namesunits

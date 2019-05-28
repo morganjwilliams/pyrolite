@@ -1,8 +1,8 @@
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plot import __DEFAULT_DISC_COLORMAP__, proxy_line
-from ..text import titlecase
+from ...util.plot import __DEFAULT_DISC_COLORMAP__, proxy_line
+from ...util.text import titlecase
 from ...geochem.ind import __common_oxides__
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

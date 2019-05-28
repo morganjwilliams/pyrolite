@@ -53,7 +53,7 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-from ..meta import sphinx_doi_link
+from ...util.meta import sphinx_doi_link
 
 __doc__ = __doc__.format(
     ghiorso1995=sphinx_doi_link("10.1007/BF00307281"),

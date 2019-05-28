@@ -4,9 +4,9 @@ import io
 import requests
 import zipfile
 from pathlib import Path
-from ..general import copy_file, extract_zip, remove_tempdir, check_perl
-from ..meta import pyrolite_datafolder
-from ..web import internet_connection
+from ...util.general import copy_file, extract_zip, remove_tempdir, check_perl
+from ...util.meta import pyrolite_datafolder
+from ...util.web import internet_connection
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
