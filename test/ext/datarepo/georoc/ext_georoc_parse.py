@@ -1,12 +1,13 @@
 import unittest
 import pandas as pd
 from pyrolite.util.web import internet_connection
-from pyrolite.util.repositories.georoc.parse import (
+from pyrolite.ext.datarepo.georoc.parse import (
     parse_DOI,
     parse_values,
     parse_citations,
-    subsitute_commas
+    subsitute_commas,
 )
+
 
 class TestParseValues(unittest.TestCase):
     def test_single_entry(self):

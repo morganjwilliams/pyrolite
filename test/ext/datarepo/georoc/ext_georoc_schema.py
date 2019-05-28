@@ -1,7 +1,8 @@
 import unittest
 from pyrolite.util.web import internet_connection, download_file
-from pyrolite.util.repositories.georoc import parse_GEOROC_response, georoc_munge
 from pyrolite.geochem.parse import check_multiple_cation_inclusion
+from pyrolite.ext.datarepo.georoc.parse import georoc_munge
+from pyrolite.ext.datarepo.georoc.schema import parse_GEOROC_response
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")

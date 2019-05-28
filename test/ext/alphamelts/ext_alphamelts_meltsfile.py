@@ -3,7 +3,7 @@ import pandas as pd
 import io
 from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
-from pyrolite.util.alphamelts.meltsfile import *
+from pyrolite.ext.alphamelts.meltsfile import *
 
 
 def str_as_file(str):

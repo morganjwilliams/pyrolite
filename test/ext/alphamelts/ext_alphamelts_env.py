@@ -1,7 +1,7 @@
 import unittest
 from pyrolite.data.alphamelts.env import MELTS_environment_variables
 from pyrolite.util.text import remove_prefix
-from pyrolite.util.alphamelts.env import *
+from pyrolite.ext.alphamelts.env import *
 
 
 class TestMELTSEnv(unittest.TestCase):

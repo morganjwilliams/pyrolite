@@ -3,7 +3,7 @@ import os
 import time
 from pyrolite.util.web import internet_connection
 from pyrolite.util.general import temp_path, remove_tempdir
-from pyrolite.util.repositories.georoc.download import (
+from pyrolite.ext.datarepo.georoc.download import (
     get_filelinks,
     update_filelist,
     bulk_download,
@@ -59,7 +59,7 @@ class TestBulkGEOROCCompilation(unittest.TestCase):
         remove_tempdir(self.temp_dir)
 
 
-from pyrolite.util.repositories.georoc.download import __CONTENTS__
+from pyrolite.ext.datarepo.georoc.download import __CONTENTS__
 
 [__CONTENTS__[k]["abbrv"] for k in __CONTENTS__]
 if __name__ == "__main__":

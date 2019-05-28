@@ -1,7 +1,7 @@
 import unittest
 from pyrolite.util.web import internet_connection
-from pyrolite.util.alphamelts.util import default_data_dictionary
-from pyrolite.util.alphamelts.web import *
+from pyrolite.ext.alphamelts.util import default_data_dictionary
+from pyrolite.ext.alphamelts.web import *
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
 class TestWebService(unittest.TestCase):

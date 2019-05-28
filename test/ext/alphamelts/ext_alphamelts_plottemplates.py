@@ -1,14 +1,14 @@
 import unittest
 import pandas as pd
-from pyrolite.util.alphamelts.download import install_melts
+from pyrolite.ext.alphamelts.download import install_melts
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
-from pyrolite.util.alphamelts.automation import *
-from pyrolite.util.alphamelts.plottemplates import *
-from pyrolite.util.alphamelts.tables import get_experiments_summary
+from pyrolite.ext.alphamelts.automation import *
+from pyrolite.ext.alphamelts.plottemplates import *
+from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.util.meta import pyrolite_datafolder, stream_log
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
-    stream_log('pyrolite.util.alphamelts')
+    stream_log('pyrolite.ext.alphamelts')
     install_melts(local=True)  # install melts for example files etc
 
 _env = (

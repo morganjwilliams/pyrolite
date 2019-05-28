@@ -1,7 +1,7 @@
 import unittest
 from pyrolite.util.web import internet_connection
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
-from pyrolite.util.alphamelts.download import *
+from pyrolite.ext.alphamelts.download import *
 
 
 @unittest.skipIf(not internet_connection(), "Needs internet connection.")
