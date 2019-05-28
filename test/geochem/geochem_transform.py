@@ -470,13 +470,13 @@ class TestLambdaLnREE(unittest.TestCase):
         vals = [self.rc["Chondrite_PON"][el].value for el in els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
         self.df.loc[1, :] = self.df.loc[0, :]
-        self.default_degree = 4
+        self.default_degree = 3
 
     def test_exclude(self):
         """
         Tests the ability to generate lambdas from different element sets.
         """
-        for exclude in [["Pm"], ["Pm", "Eu"], ["Pm", "Eu", "Ce"]]:
+        for exclude in [["Pm"], ["Pm", "Eu"]]:
             with self.subTest(exclude=exclude):
                 ret = lambda_lnREE(self.df, exclude=exclude, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
@@ -485,7 +485,7 @@ class TestLambdaLnREE(unittest.TestCase):
         """
         Tests the ability to generate lambdas of different degree.
         """
-        for degree in range(1, 4):
+        for degree in range(1, 3):
             with self.subTest(degree=degree):
                 ret = lambda_lnREE(self.df, degree=degree)
                 self.assertTrue(ret.columns.size == degree)
@@ -493,7 +493,7 @@ class TestLambdaLnREE(unittest.TestCase):
     def test_norm_to(self):
         """
         Tests the ability to generate lambdas using different normalisations."""
-        for norm_to in list(self.rc.keys()) + [
+        for norm_to in [
             self.rc["Chondrite_PON"],
             np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
         ]:
