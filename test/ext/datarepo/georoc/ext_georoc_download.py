@@ -1,6 +1,7 @@
 import unittest
 import os
 import time
+import pandas as pd
 from pyrolite.util.web import internet_connection
 from pyrolite.util.general import temp_path, remove_tempdir
 from pyrolite.ext.datarepo.georoc.download import (
@@ -53,7 +54,8 @@ class TestBulkGEOROCCompilation(unittest.TestCase):
         self.res = ["OBFB"]
 
     def test_dataframe_return(self):
-        bulk_download(output_folder=self.temp_dir, collections=self.res)
+        df = bulk_download(output_folder=self.temp_dir, collections=self.res)
+        self.assertTrue(isinstance(df, pd.DataFrame))
 
     def tearDown(self):
         remove_tempdir(self.temp_dir)
