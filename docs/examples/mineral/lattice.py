@@ -4,8 +4,8 @@ from pyrolite.geochem import get_ionic_radii
 from pyrolite.geochem.ind import REE
 from pyrolite.mineral.lattice import strain_coefficient
 # %% config
-D_Na = 1.35  # Partition coefficient An-Melt
-D_Ca = 4.1  # Partition coefficient An-Melt
+D_Na = 1.35  # Partition coefficient Plag-Melt
+D_Ca = 4.1  # Partition coefficient Plag-Melt
 Tc = 900  # Temperature, °C
 Tk = Tc + 273.15  # Temperature, K
 E_2 = 120 * 10 ** 9  # Youngs modulus for 2+ site, Pa

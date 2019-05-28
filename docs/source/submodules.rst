@@ -5,8 +5,6 @@ pyrolite\.plot
 ------------------------
 
  .. automodule:: pyrolite.plot
-   :members:
-   :undoc-members:
 
  .. toctree::
     :maxdepth: 2

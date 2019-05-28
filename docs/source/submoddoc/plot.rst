@@ -1,3 +1,10 @@
+Pandas Interface: pyrolite\.plot\.pyroplot
+-------------------------------------------
+
+  .. autoclass:: pyrolite.plot.pyroplot
+    :members:
+    :undoc-members:
+
 pyrolite\.plot\.spider
 -------------------------------
   .. automodule:: pyrolite.plot.spider
