@@ -89,7 +89,7 @@ def density(
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
     pcolor : :class:`bool`
-        Option to use the :func:`matplotlib.pyplot.pcolor`function in place
+        Option to use the :func:`matplotlib.pyplot.pcolor` function in place
         of :func:`matplotlib.pyplot.pcolormesh`.
     no_ticks : :class:`bool`
         Option to *suppress* tickmarks and labels.
