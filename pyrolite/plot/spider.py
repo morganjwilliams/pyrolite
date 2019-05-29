@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.lines
+import matplotlib.collections
 import numpy as np
 import logging
 
@@ -137,7 +138,6 @@ def spider(
         local_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
 
     sctkw, lnkw = _mpl_sp_kw_split(local_kw)
-    print(sctkw, lnkw)
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
@@ -164,12 +164,17 @@ def spider(
     if "fill" in mode.lower():
         mins = arr.min(axis=0)
         maxs = arr.max(axis=0)
-        print(subkwargs(local_kw, ax.fill_between))
         plycol = ax.fill_between(
-            indexes0, mins, maxs, **subkwargs(local_kw, ax.fill_between)
+            indexes0,
+            mins,
+            maxs,
+            alpha=alpha,
+            **subkwargs(
+                local_kw, ax.fill_between, matplotlib.collections.PolyCollection
+            )
         )
     elif "plot" in mode.lower():
-        ls = ax.plot(indexes.T, arr.T, **lnkw)
+        ls = ax.plot(indexes.T, arr.T, alpha=alpha, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
             cshape = np.array(c).shape
