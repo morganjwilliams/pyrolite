@@ -10,8 +10,7 @@ from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
 np.random.seed(82)
 # %% Generate Some Example Data --------------------------------------------------------
 no_analyses = 1000
-
-data_ree = [i for i in REE() if not i in ["Pm"]]
+data_ree = REE(dropPm=True)
 data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
@@ -43,7 +42,7 @@ from pyrolite.util.plot import save_figure
 
 save_figure(ax.figure, save_at="../../source/_static", name="PandasLambdaData")
 # %% Reduce to Orthogonal Polynomials --------------------------------------------------
-ls = df.lambda_lnREE(exclude=["Ce", "Eu", "Pm"], degree=4, norm_to='Chondrite_PON')
+ls = df.lambda_lnREE(exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON")
 # %% Plot the Results ------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, figsize=(9, 3))
 ax_labels = [chr(955) + "$_{}$".format(str(d)) for d in range(4)]

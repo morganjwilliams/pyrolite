@@ -24,7 +24,7 @@ def plot_orthagonal_polynomial_components(ax, xs, lambdas, params, log=False, **
 
 
 # %% Generate Some Example Data --------------------------------------------------------
-data_ree = [i for i in REE() if not i in ["Pm"]]
+data_ree = REE(dropPm=True)
 data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 lnY = (
     np.random.randn(*data_radii.shape) * 0.1
@@ -39,7 +39,7 @@ for ix, el in enumerate(data_ree):
 
 Y = np.exp(lnY)
 # %% Reduce to Orthogonal Polynomials --------------------------------------------------
-exclude = ["Ce", "Eu", "Pm"]
+exclude = ["Ce", "Eu"]
 if exclude:
     subset_Y = Y[[i not in exclude for i in data_ree]]
     subset_ree = [i for i in REE() if not i in exclude]

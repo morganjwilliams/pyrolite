@@ -10,7 +10,7 @@ np.random.seed(82)
 # %% Generate Some Example Data --------------------------------------------------------
 no_analyses = 1000
 
-data_ree = [i for i in REE() if not i in ["Pm"]]
+data_ree = REE(dropPm=True)
 data_radii = np.array(get_ionic_radii(data_ree, charge=3, coordination=8))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
