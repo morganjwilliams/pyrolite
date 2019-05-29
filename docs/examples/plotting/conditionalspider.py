@@ -15,7 +15,7 @@ ss = [0.1, 0.2, 0.5]  # sigmas for noise
 
 modes = [
     ("plot", "plot", [], dict(color="k", alpha=0.01)),
-    ("fill", "fill", [], dict()),
+    ("fill", "fill", [], dict(color="k", alpha=0.5)),
     ("binkde", "binkde", [], dict(resolution=10)),
     (
         "binkde",

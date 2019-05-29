@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.lines
+import matplotlib.patches
 import matplotlib.collections
 import numpy as np
 import logging
@@ -170,7 +171,10 @@ def spider(
             maxs,
             alpha=alpha,
             **subkwargs(
-                local_kw, ax.fill_between, matplotlib.collections.PolyCollection
+                local_kw,
+                ax.fill_between,
+                matplotlib.collections.PolyCollection,
+                matplotlib.patches.Patch
             )
         )
     elif "plot" in mode.lower():
