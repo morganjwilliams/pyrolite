@@ -70,14 +70,6 @@ class TestSpiderplot(unittest.TestCase):
             ax = spider(self.arr, **sty)
             self.assertTrue(isinstance(ax, matplotlib.axes.Axes))
 
-    def test_log_on_irrellevant_style_options(self):
-        """Test stability under additional kwargs."""
-        style = {"thingwhichisnotacolor": "notacolor", "irrelevant": "red"}
-        with self.assertLogs(level="INFO") as cm:
-            # with self.assertWarns(UserWarning):
-            for arr in [self.arr]:
-                ax = spider(arr, **style)
-
     @unittest.expectedFailure
     def test_invalid_style_options(self):
         """Test stability under invalid style values."""

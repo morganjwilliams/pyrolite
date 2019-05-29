@@ -11,6 +11,7 @@ from ..util.types import iscollection
 from ..util.plot import (
     __DEFAULT_CONT_COLORMAP__,
     __DEFAULT_DISC_COLORMAP__,
+    _mpl_sp_kw_split,
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
@@ -122,70 +123,64 @@ def spider(
     if indexes.ndim < arr.ndim:
         indexes = np.tile(indexes0, (arr.shape[0], 1))
 
-    sty = {}
+    local_kw = dict(  # register aliases
+        c=color,
+        color=color,
+        marker=marker,
+        alpha=alpha,
+        a=alpha,
+        markersize=markersize,
+        s=markersize ** 2,
+    )
+    local_kw = {**local_kw, **kwargs}
+    if local_kw.get("color") is None and local_kw.get("c") is None:
+        local_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
 
-    # Color ----------------------------------------------------------
-
-    variable_colors = False
-    if color is not None:
-        if iscollection(color):
-            sty["c"] = color
-            variable_colors = True
-        else:
-            sty["color"] = color
-
-    _c = sty.pop("c", None)
+    sctkw, lnkw = _mpl_sp_kw_split(local_kw)
+    print(sctkw, lnkw)
 
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
     cmap.set_under(color=(1, 1, 1, 0.0))
 
-    if (_c is not None) and (cmap is not None):
-        if norm is not None:
-            _c = [norm(c) for c in _c]
-        _c = [cmap(c) for c in _c]
-
-    sty["alpha"] = alpha
+    # check if colors vary per line/sctr
+    variable_colors = False
+    c = sctkw.get("c", None)
+    if c is not None:
+        if iscollection(c):  # process cmap, norm here
+            variable_colors = True
+            try:
+                c = mcolors.to_rgba_array(c)
+            except:
+                pass
+            if cmap is not None:
+                if norm is not None:
+                    c = [norm(ic) for ic in c]
+                c = [cmap(ic) for ic in c]
+            sctkw["c"] = c
+            # remove color from lnkw, we'll update it after plotting
+            lnkw.pop("color")
 
     if "fill" in mode.lower():
         mins = arr.min(axis=0)
         maxs = arr.max(axis=0)
-        plycol = ax.fill_between(indexes0, mins, maxs, **sty)
-        # Use the first (typically only) element for color
-        if (sty.get("color") is None) and (sty.get("c") is None):
-            sty["color"] = plycol.get_facecolor()[0]
+        print(subkwargs(local_kw, ax.fill_between))
+        plycol = ax.fill_between(
+            indexes0, mins, maxs, **subkwargs(local_kw, ax.fill_between)
+        )
     elif "plot" in mode.lower():
-        sty["marker"] = marker
-        sty["markersize"] = markersize
-        # Use the default color cycling to provide a single color
-        if sty.get("color") is None and _c is None:
-            sty["color"] = next(ax._get_lines.prop_cycler)["color"]
-
-        sty = {
-            **sty,
-            **subkwargs(kwargs, ax.plot, matplotlib.lines.Line2D),
-        }  # forward scatter kwargs
-        ls = ax.plot(indexes.T, arr.T, **sty)
+        ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
-            for l, c in zip(ls, _c):
-                l.set_color(c)
+            # perhaps check shape of color arg here
+            cshape = np.array(c).shape
+            if cshape != arr.shape:  # color-per-row
+                c = np.tile(c, (arr.shape[1], 1))
+            for l, ic in zip(ls, c):
+                l.set_color(ic)
 
-        sty["s"] = sty.pop("markersize") ** 2
-        if (sty.get("color") is None) and (_c is None):
-            sty["color"] = ls[0].get_color()
+        sc = ax.scatter(indexes.T, arr.T, label=label, **sctkw)
 
-        sty["label"] = label
-        # For the scatter, the number of points > the number of series
-        # Need to check if this is the case, and create equivalent
-
-        if _c is not None:
-            if iscollection(_c):
-                cshape = np.array(_c).shape
-                if cshape != df.loc[:, components].shape:
-                    # expand it across the columns
-                    _c = np.tile(_c, (len(components), 1))
-        sty = {**sty, **subkwargs(kwargs, ax.scatter)}  # forward scatter kwargs
-        sc = ax.scatter(indexes.T, arr.T, **sty)
+        # should create a custom legend handle here
 
         # could modify legend here.
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
@@ -195,10 +190,10 @@ def spider(
             logy=logy,
             mode=mode,
             ret_centres=True,
-            **subkwargs(kwargs, conditional_prob_density)
+            **subkwargs(local_kw, conditional_prob_density)
         )
 
-        vmin = kwargs.pop("vmin", 0)
+        vmin = kwargs.pop("get", 0)
         vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "contours" in kwargs:
             pzpkwargs = {  # keyword arguments to forward to plot_Z_percentiles
@@ -217,9 +212,6 @@ def spider(
             "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
         )
 
-    unused_keys = [i for i in kwargs if i not in list(sty.keys())]
-    if len(unused_keys):
-        logger.info("Styling not yet implemented for:{}".format(unused_keys))
     # consider relimiting here
     return ax
 

@@ -27,6 +27,7 @@ from ..util.math import (
     logspc_,
 )
 from ..util.missing import cooccurence_pattern
+from ..util.meta import subkwargs
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
 import logging
 
@@ -1176,3 +1177,23 @@ def get_full_extent(ax, pad=0.0):
     else:
         raise NotImplementedError
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
+
+
+def _mpl_sp_kw_split(kwargs):
+    """
+    Process keyword arguments supplied to a matplotlib plot function.
+
+    Returns
+    --------
+    :class:`tuple` ( :class:`dict`, :class:`dict` )
+    """
+    sctr_kwargs = subkwargs(kwargs, plt.scatter, matplotlib.collections.Collection)
+    # c kwarg is first priority, if it isn't present, use the color arg
+    if sctr_kwargs.get("c") is None:
+        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
+
+    line_kwargs = subkwargs(
+        kwargs, plt.plot, matplotlib.lines.Line2D, matplotlib.collections.Collection
+    )
+
+    return sctr_kwargs, line_kwargs
