@@ -47,13 +47,13 @@ def spider(
         Data array.
     indexes : : :class:`numpy.ndarray`
         Numerical indexes of x-axis positions.
-    ax : :class:`matplotlib.axes.Axes`, `None`
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
         The subplot to draw on.
     color : :class:`str` | :class:`list` | :class:`numpy.ndarray`
         Individual color or collection of :mod:`~matplotlib.colors` to be passed to matplotlib.
     cmap : :class:`matplotlib.colors.Colormap`
         Colormap for mapping point and line colors.
-    norm : :class:`matplotlib.colors.Normalize`, `None`
+    norm : :class:`matplotlib.colors.Normalize`, :code:`None`
         Normalization instane for the colormap.
     alpha : :class:`float`, 1.
         Opacity for the plotted series.
@@ -61,11 +61,11 @@ def spider(
         Matplotlib :mod:`~matplotlib.markers` designation.
     markersize : :class:`int`, 5.
         Size of individual markers.
-    label : :class:`str`, `None`
+    label : :class:`str`, :code:`None`
         Label for the individual series.
     figsize : :class:`tuple`, `None`
         Size of the figure to be generated, if not using an existing :class:`~matplotlib.axes.Axes`.
-    mode : :class:`str`,  :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+    mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
 
@@ -238,13 +238,13 @@ def REE_v_radii(
     -----------
     arr : :class:`numpy.ndarray`
         Data array.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
         Optional designation of axes to reconfigure.
     ree : :class:`list`
         List of REE to use as an index.
     index : :class:`str`
         Whether to plot using radii on the x-axis ('radii'), or elements ('elements').
-    mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+    mode : :class:`str`, :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
     tl_rotation : :class:`float`
