@@ -397,6 +397,7 @@ def ternary_heatmap(
     Todo
     -----
         * Add hexbin mode
+        * Find minimum bounds via rotation about a centre, tranform and invert coords
     """
     if inspect.isclass(transform):
         # TransformerMixin
