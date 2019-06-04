@@ -157,7 +157,7 @@ class pyroplot(object):
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
-    def scatter(self, components: list = None, ax=None, **kwargs):
+    def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -168,6 +168,8 @@ class pyroplot(object):
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
+        axlabels : :class:`bool`, True
+            Whether to add x-y axis labels.
 
         {otherparams}
 
@@ -187,15 +189,18 @@ class pyroplot(object):
             msg = "Suggest components or provide a slice of the dataframe."
             raise AssertionError(msg)
 
+        if ax is None:
+            fig, ax = plt.subplots(1)
+
         fontsize = kwargs.get("fontsize", 8.0)
 
         if len(components) == 3:
-            ax = obj.loc[:, components].pyroplot.ternary(ax=ax, **kwargs)
+            ax = obj.loc[:, components].pyroplot.ternary(
+                ax=ax, axlabels=axlabels, **kwargs
+            )
         else:  # len(components) == 2
             xvar, yvar = components
-            ax = plt.scatter(
-                obj.loc[:, xvar].values, obj.loc[:, yvar].values, ax=ax, **kwargs
-            )
+            sc = ax.scatter(obj.loc[:, xvar].values, obj.loc[:, yvar].values, **kwargs)
             if axlabels:
                 ax.set_xlabel(xvar, fontsize=fontsize)
                 ax.set_ylabel(yvar, fontsize=fontsize)
