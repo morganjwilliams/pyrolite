@@ -15,7 +15,7 @@ silicate and oxide cationic sites enable relatively simple calculation of ionic
 partitioning in common rock forming minerals.
 
 This example below uses previously characterised calcium and sodium partition
-coefficients between plagioclase (:math:`CaAl_2Si_2O_8 - NaAlSi3O8`) and silicate melt
+coefficients between plagioclase (:math:`CaAl_2Si_2O_8 - NaAlSi_3O8`) and silicate melt
 to estimate partitioning for other cations based on their ionic radii.
 
 A model parameterised using sodium and calcium partition coefficients [#ref_2]_ is then

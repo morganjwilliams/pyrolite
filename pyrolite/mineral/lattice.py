@@ -32,7 +32,7 @@ from ..util.meta import sphinx_doi_link, update_docstring_references
 
 
 @update_docstring_references
-def strain_coefficient(r0, rx, E=None, T=298.15, z=None, **kwargs):
+def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
     r"""
     Calculate the lattice strain associated with an ionic substitution [#ref_1]_ [#ref_2]_.
 
@@ -93,11 +93,15 @@ def strain_coefficient(r0, rx, E=None, T=298.15, z=None, **kwargs):
         The model assumes that the crystal is elastically isotropic.
 
     """
-    E = E or youngs_modulus_approximation(z, r0) # use E if defined, else try to calc
     n = 6.023 * 10 ** 23
-    r0, rx = r0 / 10 ** 10, rx / 10 ** 10  # convert to meters
-    coeff = 4 * np.pi * E
-    rterm = (r0 / 2) * (rx - r0) ** 2 - (1 / 3) * (rx - r0) ** 3
+    if r0 is None:
+        logger.warn("Use fictive ideal cation radii where possible.")
+        r0 = ri
+    ri, rx, r0 = ri / 10 ** 10, rx / 10 ** 10, r0 / 10 ** 10  # convert to meters
+    E = E or youngs_modulus_approximation(z, r0)  # use E if defined, else try to calc
+    coeff = 4.0 * np.pi * E
+
+    rterm = (r0 / 2.0) * (ri - rx) ** 2 - (1.0 / 3) * (ri - rx) ** 3
     return np.exp(coeff * rterm * (-n / (8.314 * T)))
 
 
@@ -164,6 +168,7 @@ def youngs_modulus_approximation(z, r):
     d = r + 1.38
     E = 1.5 * 750 * (z / d ** 3) * 10 ** 9
     return E
+
 
 __doc__ = __doc__.format(
     brice1975=sphinx_doi_link("10.1016/0022-0248(75)90241-9"),
