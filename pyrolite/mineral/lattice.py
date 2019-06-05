@@ -38,12 +38,16 @@ def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
 
     Parameters
     -----------
-    r0 : :class:`float`
+    ri : :class:`float`
         Ionic radius to calculate strain relative to, in angstroms (Å).
     rj : :class:`float`
         Ionic radius to calculate strain for, in angstroms (Å).
-    E : :class:`float`
-        Young's modulus (stiffness) for the site, in pascals (Pa).
+    r0 : :class:`float`, :code:`None`
+        Fictive ideal ionic radii for the site. The value for :code:`ri` will be used in its place
+        if none is given, and a warning issued.
+    E : :class:`float`, :code:`None`
+        Young's modulus (stiffness) for the site, in pascals (Pa). Will be estimated using
+        :func:`youngs_modulus_approximation` if none is given.
     T : :class:`float`
         Temperature, in Kelvin (K).
     z : :class:`int`

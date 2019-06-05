@@ -10,9 +10,9 @@ Tc = 900  # Temperature, °C
 Tk = Tc + 273.15  # Temperature, K
 E_2 = 120 * 10 ** 9  # Youngs modulus for 2+ site, Pa
 E_3 = 135 * 10 ** 9  # Youngs modulus for 3+ site, Pa
+r02, r03 = 1.196, 1.294  # fictive ideal cation radii for these sites
 rCa = get_ionic_radii("Ca", charge=2, coordination=8)
 rLa = get_ionic_radii("La", charge=3, coordination=8)
-r02, r03 = 1.196, 1.294  # fictive ideal cation radii for these sites
 # %% 2+ cations
 fontsize = 8
 fig, ax = plt.subplots(1)
@@ -41,7 +41,7 @@ for l, r, d in zip(site2labels, site2radii, site2Ds):
 D_La = (D_Ca ** 2 / D_Na) * np.exp((529 / Tk) - 3.705)
 D_La  # 0.48085
 # %% 3+ cations
-site3labels = REE()
+site3labels = REE(dropPm=True)
 # get the Shannon ionic radii for the elements in the 3+ site
 site3radii = [get_ionic_radii(x, charge=3, coordination=8) for x in REE(dropPm=True)]
 site3Ds = D_La * np.array(
@@ -83,5 +83,4 @@ ax.plot(
 ax.legend(loc="upper left", bbox_to_anchor=(1.05, 1), frameon=False, facecolor=None)
 # %% save figure
 from pyrolite.util.plot import save_figure
-
 save_figure(fig, save_at="../../source/_static", name="plag_lattice")
