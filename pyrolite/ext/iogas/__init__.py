@@ -8,6 +8,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-from .xmldiagrams import contours_to_FreeXYDiagram
+from .mpl2iogas import contours_to_FreeXYDiagram, contours_to_GeochemXYDiagram
 
-__all__ = ["contours_to_FreeXYDiagram"]
+__all__ = ["contours_to_FreeXYDiagram", "contours_to_GeochemXYDiagram"]
