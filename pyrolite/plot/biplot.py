@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pyrolite.comp.codata import clr
+from ..comp.codata import clr
 
 
 def compositional_SVD(X: np.ndarray):
@@ -65,6 +65,8 @@ def plot_origin_to_points(
     -----------
     xs, ys : :class:`numpy.ndarray`
         Coordinates for points to add.
+    labels : :class:`list`
+        Labels for verticies.
     ax : :class:`matplotlib.axes.Axes`
         Axes to plot on.
     origin : :class:`tuple`
@@ -113,18 +115,38 @@ def plot_origin_to_points(
     return ax
 
 
-def compositional_biplot(data, labels=None, ax=None):
+def compositional_biplot(data, labels=None, ax=None, **kwargs):
     """
     Create a compositional biplot.
+
+    Parameters
+    -----------
+    data : :class:`numpy.ndarray`
+        Coordinates for points to add.
+    labels : :class:`list`
+        Labels for verticies.
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to plot on.
+
+    Returns
+    --------
+    :class:`matplotlib.axes.Axes`
+        Axes on which biplot is added.
     """
 
     if ax is None:
         fig, ax = plt.subplots(1)
 
     v, c = compositional_SVD(data)
-    ax.scatter(*c[:, :2].T, c="0.5")
+    ax.scatter(*c[:, :2].T, **kwargs)
     plot_origin_to_points(
-        *v[:, :2].T, ax=ax, marker=None, labels=labels, alpha=0.5, label="Variables"
+        *v[:, :2].T,
+        ax=ax,
+        marker=None,
+        labels=labels,
+        alpha=0.5,
+        zorder=-1,
+        label="Variables",
     )
     return ax
 
@@ -132,6 +154,20 @@ def compositional_biplot(data, labels=None, ax=None):
 def covariance_biplot(data, labels=None, ax=None):
     """
     Create a covariance biplot.
+
+    Parameters
+    -----------
+    data : :class:`numpy.ndarray`
+        Coordinates for points to add.
+    labels : :class:`list`
+        Labels for verticies.
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to plot on.
+
+    Returns
+    --------
+    :class:`matplotlib.axes.Axes`
+        Axes on which biplot is added.
     """
 
     if ax is None:
@@ -146,7 +182,10 @@ def covariance_biplot(data, labels=None, ax=None):
         marker="x",
         labels=labels,
         alpha=0.5,
+        zorder=-1,
         label="Variables",
     )
-    plot_origin_to_points(*c[:, :2].T, ax=ax, marker=None, labels=labels, alpha=0.5)
+    plot_origin_to_points(
+        *c[:, :2].T, ax=ax, marker=None, labels=labels, alpha=0.5, zorder=-1
+    )
     return ax
