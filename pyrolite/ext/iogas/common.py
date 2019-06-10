@@ -1,6 +1,9 @@
 import sys
 from xml.etree.ElementTree import Element
+import logging
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 def get_color(color):
     r, g, b, a = [str(i) for i in color]
@@ -107,21 +110,47 @@ def Boundary(xpoints, ypoints):
     return boundary
 
 
+def BiezerPoint(x, y, sectionEnd=False, strfmt="{:.5f}"):
+    """
+    Biezer Curve Control point.
+
+    Parameters
+    ----------
+    x, y : :class:`float`
+        Location of the control point.
+    sectionEnd : :class:`bool`, :code:`False`
+        Whether the control point is an end point (for non-closed paths).
+    strfmt : :class:`str`
+        Float formatting string.
+
+    Notes
+    ------
+
+        * Line segments which have only two points have <sectionEnd="true>
+    """
+    return Element(
+        "BezierPoint",
+        x=strfmt.format(x),
+        y=strfmt.format(y),
+        sectionEnd=str(sectionEnd).lower(),
+    )
+
+
 def Boundary3(xpoints, ypoints, sectionend=False, strfmt="{:.5f}"):
     """
     Boundary defined by segments.
+
+    Parameters
+    ----------
+    xpoints, ypoints : :class:`numpy.ndarray`
+        Location of the control points.
+
+
     """
     boundary3 = Element("Boundary3")
     segs = [Element("Linear") for (x, y) in zip(xpoints, ypoints)]
     for ix, s in enumerate(segs):
-        s.append(
-            Element(
-                "BezierPoint",
-                x=strfmt.format(xpoints[ix]),
-                y=strfmt.format(ypoints[ix]),
-                sectionEnd=str(sectionend).lower(),
-            )
-        )
+        s.append(BiezerPoint(xpoints[ix], ypoints[ix], strfmt=strfmt))
     boundary3.extend(segs)
     return boundary3
 
