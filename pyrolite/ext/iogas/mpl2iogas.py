@@ -2,6 +2,7 @@ import numpy as np
 from xml.etree.ElementTree import ElementTree
 from . import freediagram
 from . import geochemdiagram
+from . import freeternary
 from ...util.text import int_to_alpha, prettify_xml
 from ...util.plot import get_contour_paths
 
@@ -52,7 +53,7 @@ def contours_to_FreeXYDiagram(
             )
         contours.append(c)
     diagram.extend(contours)
-    ElementTree(diagram).write(filename, method="xml", encoding="utf-8")
+    ElementTree(diagram).write(filename, method="xml", encoding=encoding)
     return prettify_xml(diagram)
 
 
@@ -101,5 +102,9 @@ def contours_to_GeochemXYDiagram(
 
         contours.append(c)
     diagram.extend(contours)
-    ElementTree(diagram).write(filename, method="xml", encoding="utf-8")
+    ElementTree(diagram).write(filename, method="xml", encoding=encoding)
     return prettify_xml(diagram)
+
+
+def contours_to_FreeTernaryDiagram():
+    pass
