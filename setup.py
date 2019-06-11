@@ -31,7 +31,7 @@ setup(
     author="Morgan Williams",
     author_email="morgan.williams@csiro.au",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Natural Language :: English",
         "Programming Language :: Python :: 3 :: Only",

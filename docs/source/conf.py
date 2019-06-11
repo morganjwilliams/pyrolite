@@ -62,6 +62,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "recommonmark",
+    "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
 ]
 
 napoleon_google_docstring = False
@@ -199,7 +200,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "matplotlib": ("https://matplotlib.org/", None),
     "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
@@ -252,13 +253,11 @@ rst_prolog = """
     rc=refcomps, year=str(date.today().year), version=version
 )
 
-
+'''
 # -----------------------------------------------------------------------------
-# Source code links
+# Source code links to GitHub
 # -----------------------------------------------------------------------------
-import re
 import inspect
-from docutils import nodes
 from os.path import relpath, dirname
 
 for name in ["sphinx.ext.linkcode", "linkcode", "numpydoc.linkcode"]:
@@ -332,9 +331,13 @@ def linkcode_resolve(domain, info):
             )
     else:
         return None
+'''
 
-
+from docutils import nodes
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    """
+    Role for matplotlib's rcparams, which are referred to in the documentation via links.
+    """
     rendered = nodes.Text('rcParams["{}"]'.format(text))
     refuri = "https://matplotlib.org/api/matplotlib_configuration_api.html#matplotlib.rcParams"
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
