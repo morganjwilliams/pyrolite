@@ -11,6 +11,5 @@ logger = logging.getLogger(__name__)
 
 from . import datarepo
 from . import alphamelts
-from . import iogas
 
-__all__ = ['alphamelts', 'datarepo', 'iogas']
+__all__ = ['alphamelts', 'datarepo']
