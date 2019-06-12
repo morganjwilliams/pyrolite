@@ -1,3 +1,13 @@
+"""
+Rudimentary draft mineral database.
+
+Todo
+----
+
+    * This is one of the major bottlenecks for package import, due to the execution.
+
+        Will be able to clean this up with either delayed execution or using a database.
+"""
 import periodictable as pt
 from .mineral import *
 from .sites import *
