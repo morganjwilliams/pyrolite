@@ -11,4 +11,4 @@ from .plot import pyroplot  # import after logger setup to suppress numpydoc war
 __version__ = get_versions()["version"]
 del get_versions
 
-__all__ = ["plot", "comp", "geochem", "mineral", "util", "ext"]
+__all__ = ["plot", "comp", "geochem", "mineral"]
