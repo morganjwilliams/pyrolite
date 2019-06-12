@@ -62,6 +62,7 @@ setup(
         "joblib",
         "pandas_flavor",
         "numpydoc",
+        "tinydb"
     ],
     extras_require={
         "impute": impute_require,

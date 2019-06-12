@@ -1,8 +1,8 @@
 import os, sys
-from numpydoc.docscrape import FunctionDoc, ClassDoc
-import webbrowser
 import inspect
+import webbrowser
 from pathlib import Path
+from numpydoc.docscrape import FunctionDoc, ClassDoc
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
