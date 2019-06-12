@@ -351,3 +351,4 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
 __db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
 __common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
 __common_oxides__ = set(__db__.search(Query().name == "oxides")[0]["collection"])
+__db__.close()
