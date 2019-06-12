@@ -1,7 +1,7 @@
-pyrolite\.plot
-===============
+Pandas Interface: pyrolite\.plot\.pyroplot
+-------------------------------------------
 
-.. automodule:: pyrolite.plot
+  .. autoclass:: pyrolite.plot.pyroplot
     :members:
     :undoc-members:
 

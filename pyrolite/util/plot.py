@@ -14,6 +14,7 @@ import matplotlib.colors
 import matplotlib.lines
 import matplotlib.patches
 import matplotlib.path
+import matplotlib.collections
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes as matax
 from matplotlib.transforms import Bbox
@@ -26,6 +27,7 @@ from ..util.math import (
     logspc_,
 )
 from ..util.missing import cooccurence_pattern
+from ..util.meta import subkwargs
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
 import logging
 
@@ -97,7 +99,52 @@ def modify_legend_handles(ax, **kwargs):
     return _hndls, labls
 
 
-def interpolated_patch_path(patch, resolution=100):
+def interpolate_path(
+    path, resolution=100, periodic=False, aspath=True, closefirst=False, **kwargs
+):
+    """
+    Obtain the interpolation of an existing path at a given
+    resolution. Keyword arguments are forwarded to
+    :func:`scipy.interpolate.splprep`.
+
+    Parameters
+    -----------
+    path : :class:`matplotlib.path.Path`
+        Path to interpolate.
+    resolution :class:`int`
+        Resolution at which to obtain the new path. The verticies of
+        the new path will have shape (`resolution`, 2).
+    periodic : :class:`bool`
+        Whether to use a periodic spline.
+    periodic : :class:`bool`
+        Whether to return a :code:`matplotlib.path.Path`, or simply
+        a tuple of x-y arrays.
+    closefirst : :class:`bool`
+        Whether to first close the path by appending the first point again.
+
+    Returns
+    --------
+    :class:`matplotlib.path.Path` | :class:`tuple`
+        Interpolated :class:`~matplotlib.path.Path` object, if
+        `aspath` is :code:`True`, else a tuple of x-y arrays.
+    """
+    x, y = path.vertices.T
+    if closefirst:
+        x = np.append(x, x[0])
+        y = np.append(y, y[0])
+    # s=0 forces the interpolation to go through every point
+    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
+    xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
+    # could get control points for path and construct codes here
+    codes = None
+    pth = matplotlib.path.Path(np.vstack([xi, yi]).T, codes=codes)
+    if aspath:
+        return pth
+    else:
+        return pth.vertices.T
+
+
+def interpolated_patch_path(patch, resolution=100, **kwargs):
     """
     Obtain the periodic interpolation of the existing path of a patch at a
     given resolution.
@@ -118,12 +165,99 @@ def interpolated_patch_path(patch, resolution=100):
     pth = patch.get_path()
     tfm = patch.get_transform()
     pathtfm = tfm.transform_path(pth)
-    x, y = pathtfm.vertices.T
-    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], per=True, s=1)
-    xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
-    # could get control points for path and construct codes here
-    codes = None
-    return matplotlib.path.Path(np.vstack([xi, yi]).T, codes=None)
+    return interpolate_path(
+        pathtfm, resolution=resolution, aspath=True, periodic=True, **kwargs
+    )
+
+
+def get_contour_paths(ax, resolution=100):
+    """
+    Extract the paths of contours from a contour plot.
+
+    Parameters
+    ------------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to extract contours from.
+    resolution : :class:`int`
+        Resolution of interpolated splines to return.
+
+    Returns
+    --------
+    contourspaths : :class:`list` (:class:`list`)
+        List of lists, each represnting one line collection (a single contour). In the
+        case where this contour is multimodal, there will be multiple paths for each
+        contour.
+    contournames : :class:`list`
+        List of names for contours, where they have been labelled, and there are no
+        other text artists on the figure.
+    contourstyles : :class:`list`
+        List of styles for contours.
+
+    Note
+    -----
+
+        This method assumes that contours are the only
+        :code:`matplotlib.collections.LineCollection` objects within an axes;
+        and when this is not the case, additional non-contour objects will be returned.
+    """
+    linecolls = [
+        c
+        for c in ax.collections
+        if isinstance(c, matplotlib.collections.LineCollection)
+    ]
+    rgba = [[int(c) for c in lc.get_edgecolors().flatten() * 255] for lc in linecolls]
+    styles = [{"color": c} for c in rgba]
+    names = [None for lc in linecolls]
+    if (len(ax.artists) == len(linecolls)) and all(
+        [a.get_text() != "" for a in ax.artists]
+    ):
+        names = [a.get_text() for a in ax.artists]
+    return (
+        [
+            [
+                interpolate_path(p, resolution=resolution, periodic=True, aspath=False)
+                for p in lc.get_paths()
+            ]
+            for lc in linecolls
+        ],
+        names,
+        styles,
+    )
+
+
+def path_to_csv(path, xname="x", yname="y", delim=", ", linesep=os.linesep):
+    """
+    Extract the verticies from a path and write them to csv.
+
+    Parameters
+    ------------
+    path : :class:`matplotlib.path.Path` | :class:`tuple`
+        Path or x-y tuple to use for coordinates.
+    xname : :class:`str`
+        Name of the x variable.
+    yname : :class:`str`
+        Name of the y variable.
+    delim : :class:`str`
+        Delimiter for the csv file.
+    linesep : :class:`str`
+        Line separator character.
+
+    Returns
+    --------
+    :class:`str`
+        String-representation of csv file, ready to be written to disk.
+    """
+    if isinstance(path, matplotlib.path.Path):
+        x, y = path.vertices.T
+    else:  # isinstance(path, (tuple, list))
+        x, y = path
+
+    header = [xname, yname]
+    datalines = [[x, y] for (x, y) in zip(x, y)]
+    content = linesep.join(
+        [delim.join(map(str, line)) for line in [header] + datalines]
+    )
+    return content
 
 
 def add_colorbar(mappable, **kwargs):
@@ -263,6 +397,7 @@ def ternary_heatmap(
     Todo
     -----
         * Add hexbin mode
+        * Find minimum bounds via rotation about a centre, tranform and invert coords
     """
     if inspect.isclass(transform):
         # TransformerMixin
@@ -511,21 +646,6 @@ def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
     )
 
 
-def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
-    """
-    Takes an xy point, and creates a rectangular patch centred about it.
-    """
-    # If either x or y is nan
-    if any([np.isnan(i) for i in [x, y]]):
-        return None
-    if np.isnan(dx):
-        dx = 0
-    if np.isnan(dy):
-        dy = 0
-    llc = (x - dx, y - dy)
-    return matplotlib.patches.Rectangle(llc, 2 * dx, 2 * dy, **kwargs)
-
-
 def proxy_rect(**kwargs):
     """
     Generates a legend proxy for a filled region.
@@ -546,6 +666,21 @@ def proxy_line(**kwargs):
     :class:`matplotlib.lines.Line2D`
     """
     return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
+
+
+def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
+    """
+    Takes an xy point, and creates a rectangular patch centred about it.
+    """
+    # If either x or y is nan
+    if any([np.isnan(i) for i in [x, y]]):
+        return None
+    if np.isnan(dx):
+        dx = 0
+    if np.isnan(dy):
+        dy = 0
+    llc = (x - dx, y - dy)
+    return matplotlib.patches.Rectangle(llc, 2 * dx, 2 * dy, **kwargs)
 
 
 def draw_vector(v0, v1, ax=None, **kwargs):
@@ -1043,3 +1178,23 @@ def get_full_extent(ax, pad=0.0):
     else:
         raise NotImplementedError
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
+
+
+def _mpl_sp_kw_split(kwargs):
+    """
+    Process keyword arguments supplied to a matplotlib plot function.
+
+    Returns
+    --------
+    :class:`tuple` ( :class:`dict`, :class:`dict` )
+    """
+    sctr_kwargs = subkwargs(kwargs, plt.scatter, matplotlib.collections.Collection)
+    # c kwarg is first priority, if it isn't present, use the color arg
+    if sctr_kwargs.get("c") is None:
+        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
+
+    line_kwargs = subkwargs(
+        kwargs, plt.plot, matplotlib.lines.Line2D, matplotlib.collections.Collection
+    )
+
+    return sctr_kwargs, line_kwargs

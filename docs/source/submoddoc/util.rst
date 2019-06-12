@@ -1,10 +1,3 @@
-pyrolite\.util
-===============
-
-.. automodule:: pyrolite.util
-    :members:
-    :undoc-members:
-
 pyrolite\.util\.general
 -------------------------------
   .. automodule:: pyrolite.util.general
@@ -82,28 +75,6 @@ pyrolite\.util\.meta
   .. automodule:: pyrolite.util.meta
       :members:
       :undoc-members:
-
-pyrolite\.util\.alphamelts
--------------------------------
-  .. automodule:: pyrolite.util.alphamelts
-      :members:
-      :undoc-members:
-
-  .. toctree::
-     :maxdepth: 2
-
-     alphamelts
-
-pyrolite\.util\.repositories
--------------------------------
-  .. automodule:: pyrolite.util.repositories
-      :members:
-      :undoc-members:
-
-  .. toctree::
-     :maxdepth: 2
-
-     repositories
 
 
 pyrolite\.util\.skl

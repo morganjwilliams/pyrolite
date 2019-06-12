@@ -15,11 +15,11 @@ summarised by 3-4 shape parameters).
 Here we generate some example data, reduce these to lambda values, and plot the
 resulting dimensionally reduced data.
 
-.. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
+.. literalinclude:: ../../../../examples/lambdas/lambdas.py
   :language: python
   :end-before: # %% Generate Some Example Data
 
-.. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
+.. literalinclude:: ../../../../examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Generate Some Example Data
   :end-before: # %% Plot Data
@@ -28,12 +28,12 @@ resulting dimensionally reduced data.
   :width: 60%
   :align: center
 
-.. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
+.. literalinclude:: ../../../../examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Reduce to Orthogonal Polynomials
   :end-before: # %% Plot the Results
 
-.. literalinclude:: ../../../../examples/dimensional_reduction/lambdas.py
+.. literalinclude:: ../../../../examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Plot the Results
   :end-before: # %% End
@@ -46,5 +46,8 @@ O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare 
 Element Patterns in Basalts. J Petrology 57, 1463–1508.
 `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
 
-.. seealso:: `Visualising Orthogonal Polynomials <lambdavis.html>`__,
-             `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__
+.. seealso::
+
+  Examples:
+    `Visualising Orthogonal Polynomials <lambdavis.html>`__,
+    `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__

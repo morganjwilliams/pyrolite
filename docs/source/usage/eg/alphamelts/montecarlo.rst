@@ -68,3 +68,11 @@ variations in composition can manifest as significant uncertainties in outputs:
 .. image:: ../../../_static/melts_montecarlo.png
    :width: 80%
    :align: center
+
+.. seealso::
+
+  Examples:
+    `alphaMELTS Environment Configuration <environment.html>`__,
+    `pyrolite-hosted alphaMELTS Installation <localinstall.html>`__,
+    `Automating alphaMELTS Runs <automation.html>`__,
+    `Handling Outputs from Melts: Tables <tables.html>`__

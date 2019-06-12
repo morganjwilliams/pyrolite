@@ -1,6 +1,6 @@
 r"""
-Submodule for calculation and transformation of (isotope) ratio data and ion-counting
-data. Currently in the early stages of development.
+Submodule for calculation and transformation of mass spectrometry data (particularly
+for ion-counting and isotope ratio data). Currently in the early stages of development.
 
 Todo
 ------
@@ -59,3 +59,5 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 from .count import deadtime_correction
+# from .background import *
+# from .isobaric import *

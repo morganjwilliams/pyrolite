@@ -30,6 +30,15 @@ def remove_prefix(z, prefix):
         return z
 
 
+def remove_suffix(x, suffix=" "):
+    """
+    Remove a specific suffix from the end of a string.
+    """
+    if x.endswith(suffix):
+        x = x[: -len(suffix)]
+    return x
+
+
 def quoted_string(s):
     # if " " in s or '-' in s or '_' in s:
     s = '''"{}"'''.format(s)
@@ -225,3 +234,22 @@ def slugify(value, delim="-"):
     value = re.sub("[^\w\s-]", "", value).strip()
     value = re.sub("[-\s]+", delim, value)
     return value
+
+
+def int_to_alpha(num):
+    """
+    Encode an integer (0-26) into alpha characters, useful for sequences of
+    axes/figures.
+
+    Parameters
+    -----------
+    int : :class:`int`
+        Integer to encode.
+
+    Returns
+    ---------
+    :class:`str`
+        Alpha-encoding of a small integer.
+    """
+    alphas = [chr(i).lower() for i in range(65, 65 + 26)]
+    return alphas[num]

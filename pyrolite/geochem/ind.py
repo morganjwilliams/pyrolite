@@ -4,8 +4,9 @@ import functools
 from pathlib import Path
 import pandas as pd
 import periodictable as pt
+from tinydb import TinyDB, Query
 from ..mineral import ions
-from ..util.text import titlecase
+from ..util.text import titlecase, remove_suffix
 from ..util.meta import pyrolite_datafolder
 import logging
 
@@ -200,14 +201,14 @@ def simple_oxides(cation, output="string"):
     return oxides
 
 
-def get_cations(oxide: str, exclude=[]):
+def get_cations(component: str, exclude=[], total_suffix="T"):
     """
     Returns the principal cations in an oxide component.
 
     Parameters
     -----------
-    oxide : :class:`str` | :class:`periodictable.formulas.Formula`
-        Oxide to obtain cations for.
+    component : :class:`str` | :class:`periodictable.formulas.Formula`
+        Component to obtain cations for.
     exclude : :class:`list`
         Components to exclude, i.e. anions (e.g. O, Cl, F).
 
@@ -220,8 +221,11 @@ def get_cations(oxide: str, exclude=[]):
     -----
         * Consider implementing :class:`periodictable.core.Element` return.
     """
+    if isinstance(component, str):
+        component = remove_suffix(component, suffix=total_suffix)
+
     exclude += ["O"]
-    atms = pt.formula(oxide).atoms
+    atms = pt.formula(component).atoms
     cations = [el for el in atms.keys() if not el.__str__() in exclude]
     return cations
 
@@ -343,6 +347,8 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         return result  # return the series
 
 
-# private sets for improved performance
-__common_elements__ = common_elements(as_set=True)
-__common_oxides__ = common_oxides(as_set=True)
+# generate sets
+__db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
+__common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
+__common_oxides__ = set(__db__.search(Query().name == "oxides")[0]["collection"])
+__db__.close()

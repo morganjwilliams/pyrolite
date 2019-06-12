@@ -89,7 +89,7 @@ def density(
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
     pcolor : :class:`bool`
-        Option to use the :func:`matplotlib.pyplot.pcolor`function in place
+        Option to use the :func:`matplotlib.pyplot.pcolor` function in place
         of :func:`matplotlib.pyplot.pcolormesh`.
     no_ticks : :class:`bool`
         Option to *suppress* tickmarks and labels.
@@ -106,12 +106,14 @@ def density(
         * More accurate ternary density plots see :func:`~pyrolite.util.plot.ternary_heatmap` for now.
         * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pts
 
-    See Also
-    ---------
-    :func:`matplotlib.pyplot.pcolormesh`
-    :func:`matplotlib.pyplot.hist2d`
-    :func:`matplotlib.pyplot.contourf`
-    :func:`pyrolite.plot.tern.ternary`
+    .. seealso::
+
+        Functions:
+
+            :func:`matplotlib.pyplot.pcolormesh`
+            :func:`matplotlib.pyplot.hist2d`
+            :func:`matplotlib.pyplot.contourf`
+            :func:`pyrolite.plot.tern.ternary`
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
@@ -282,32 +284,32 @@ def density(
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
 
-    if contours:
-        levels = contours or kwargs.pop("levels", None)
-        cags = xi, yi, zi  # contour-like function arguments, point estimates
-        if percentiles and not isinstance(levels, int):
-            _cs = plot_Z_percentiles(
-                *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
-            )
-            mappable = _cs
-        else:
-            if levels is None:
-                levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
-            elif isinstance(levels, int):
-                levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
-            # filled contours
-            mappable = ax.contourf(
-                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-            )
-            # contours
-            ax.contour(
-                *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-            )
+        if contours:
+            levels = contours or kwargs.pop("levels", None)
+            cags = xi, yi, zi  # contour-like function arguments, point estimates
+            if percentiles and not isinstance(levels, int):
+                _cs = plot_Z_percentiles(
+                    *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
+                )
+                mappable = _cs
+            else:
+                if levels is None:
+                    levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
+                elif isinstance(levels, int):
+                    levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
+                # filled contours
+                mappable = ax.contourf(
+                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+                )
+                # contours
+                ax.contour(
+                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+                )
 
-    if colorbar:
-        cbkwargs = kwargs.copy()
-        cbkwargs["label"] = cbarlabel
-        add_colorbar(mappable, **cbkwargs)
+        if colorbar:
+            cbkwargs = kwargs.copy()
+            cbkwargs["label"] = cbarlabel
+            add_colorbar(mappable, **cbkwargs)
 
     if relim:
         if logx:

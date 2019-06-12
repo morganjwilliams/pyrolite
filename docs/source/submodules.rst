@@ -4,6 +4,8 @@ Submodules
 pyrolite\.plot
 ------------------------
 
+ .. automodule:: pyrolite.plot
+
  .. toctree::
     :maxdepth: 2
 
@@ -12,13 +14,22 @@ pyrolite\.plot
 pyrolite\.geochem
 ------------------------
 
- .. toctree::
+  .. automodule:: pyrolite.geochem
+    :members:
+    :undoc-members:
+
+
+  .. toctree::
     :maxdepth: 2
 
     submoddoc/geochem
 
 pyrolite\.comp
 ---------------------
+
+  .. automodule:: pyrolite.comp
+     :members:
+     :undoc-members:
 
   .. toctree::
      :maxdepth: 2
@@ -28,16 +39,36 @@ pyrolite\.comp
 pyrolite\.mineral
 ---------------------
 
+  .. automodule:: pyrolite.mineral
+     :members:
+     :undoc-members:
+
   .. toctree::
      :maxdepth: 2
 
      submoddoc/mineral
 
 
+pyrolite\.ext
+-------------------------------
+
+  .. automodule:: pyrolite.ext
+    :members:
+    :undoc-members:
+
+  .. toctree::
+    :maxdepth: 2
+
+    submoddoc/external
+
 pyrolite\.util
 -------------------------------
 
-  .. toctree::
-     :maxdepth: 2
+  .. automodule:: pyrolite.util
+    :members:
+    :undoc-members:
 
-     submoddoc/util
+  .. toctree::
+    :maxdepth: 2
+
+    submoddoc/util

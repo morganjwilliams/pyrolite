@@ -1,10 +1,3 @@
-pyrolite\.geochem
-=======================
-
-.. automodule:: pyrolite.geochem
-    :members:
-    :undoc-members:
-
 pyrolite\.geochem\.ind
 -------------------------------
   .. automodule:: pyrolite.geochem.ind

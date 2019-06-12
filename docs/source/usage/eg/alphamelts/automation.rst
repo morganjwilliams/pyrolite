@@ -27,3 +27,12 @@ And finally, we can run an experiment for each composition in the dataframe:
 .. literalinclude:: ../../../../examples/alphamelts/automation.py
   :language: python
   :start-after: # %% autorun
+
+
+.. seealso::
+
+  Examples:
+    `alphaMELTS Environment Configuration <environment.html>`__,
+    `pyrolite-hosted alphaMELTS Installation <localinstall.html>`__,
+    `Handling Outputs from Melts: Tables <tables.html>`__,
+    `Compositional Uncertainty Propagation for alphaMELTS Experiments <montecarlo.html>`__

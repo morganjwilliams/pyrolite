@@ -20,7 +20,7 @@ save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_minimal
 # %% Generate Some Example Data -------------------------------------------------------
 no_analyses = 10
 
-data_ree = [i for i in REE() if not i in ["Pm"]]
+data_ree = REE(dropPm=True)
 data_radii = np.array(get_ionic_radii(data_ree, coordination=8, charge=3))
 data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
     no_analyses, data_radii.shape[0]
@@ -60,9 +60,9 @@ save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_df")
 
 # %% Fill Plot -------------------------------------------------------------------------
 # This behaviour can be modified (see spiderplot docs) to provide filled ranges:
-ax = REE_v_radii(df1.values, ree=data_ree, fill=True, plot=False)
+ax = REE_v_radii(df1.values, ree=data_ree, mode='fill')
 # or, alternatively directly from the dataframe:
-ax = df1.pyroplot.REE(fill=True, plot=False)
+ax = df1.pyroplot.REE(mode='fill')
 # %% Save Figure
 save_figure(ax.figure, save_at="../../source/_static", name="REE_v_radii_fill")
 # %% Specify External Axis ------------------------------------------------------------
