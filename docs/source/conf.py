@@ -334,6 +334,8 @@ def linkcode_resolve(domain, info):
 '''
 
 from docutils import nodes
+
+
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     """
     Role for matplotlib's rcparams, which are referred to in the documentation via links.
