@@ -25,27 +25,6 @@ def compositional_SVD(X: np.ndarray):
     return vertexes, cases
 
 
-def covariance_SVD(X: np.ndarray):
-    """
-    Breakdown the covariance matrix of a set of compositions to vertexes and cases for
-    adding to a covariance biplot.
-
-    Parameters
-    ----------
-    X : :class:`numpy.ndarray`
-        Compositional array.
-
-    Returns
-    ---------
-    vertexes, cases : :class:`numpy.ndarray`, :class:`numpy.ndarray`
-    """
-    U, K, V = np.linalg.svd(np.cov(clr(X).T))
-    N = X.shape[1]  # dimensionality
-    vertexes = K * V.T / (N - 1) ** 0.5
-    cases = (N - 1) ** 0.5 * U.T
-    return vertexes, cases
-
-
 def plot_origin_to_points(
     xs,
     ys,
@@ -147,45 +126,5 @@ def compositional_biplot(data, labels=None, ax=None, **kwargs):
         alpha=0.5,
         zorder=-1,
         label="Variables",
-    )
-    return ax
-
-
-def covariance_biplot(data, labels=None, ax=None):
-    """
-    Create a covariance biplot.
-
-    Parameters
-    -----------
-    data : :class:`numpy.ndarray`
-        Coordinates for points to add.
-    labels : :class:`list`
-        Labels for verticies.
-    ax : :class:`matplotlib.axes.Axes`
-        Axes to plot on.
-
-    Returns
-    --------
-    :class:`matplotlib.axes.Axes`
-        Axes on which biplot is added.
-    """
-
-    if ax is None:
-        fig, ax = plt.subplots(1)
-
-    v, c = covariance_SVD(data)
-    ax.scatter(*v[:, :2].T, c="0.5", marker="x")
-    plot_origin_to_points(
-        *v[:, :2].T,
-        ax=ax,
-        color="none",
-        marker="x",
-        labels=labels,
-        alpha=0.5,
-        zorder=-1,
-        label="Variables",
-    )
-    plot_origin_to_points(
-        *c[:, :2].T, ax=ax, marker=None, labels=labels, alpha=0.5, zorder=-1
     )
     return ax
