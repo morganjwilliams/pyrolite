@@ -1,4 +1,4 @@
-from pyrolite.util.alphamelts.download import install_melts
+from pyrolite.ext.alphamelts.download import install_melts
 from pyrolite.util.meta import pyrolite_datafolder, stream_log
 
 # Here we can do a conditonal install - only downloading alphamelts if it doesnt exist

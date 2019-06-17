@@ -379,7 +379,7 @@ class MeltsExperiment(object):
         Call 'run_alphamelts.command'.
         """
         self.mp = MeltsProcess(
-            meltsfile=(self.title + ".melts"),
+            meltsfile=str(self.title) + ".melts",
             env="environment.txt",
             fromdir=str(self.folder),
         )

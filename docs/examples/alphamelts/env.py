@@ -1,4 +1,4 @@
-from pyrolite.util.alphamelts.env import MELTS_Env
+from pyrolite.ext.alphamelts.env import MELTS_Env
 # %% Env
 # set up an environment for an experiment stepping down temperature from 1350 to 1000
 # in 3 degree steps
