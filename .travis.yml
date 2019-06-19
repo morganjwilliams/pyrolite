@@ -1,6 +1,4 @@
 language: python
-os: linux
-dist: xenial
 
 matrix:
   include:
@@ -11,6 +9,10 @@ matrix:
     - python: 3.7
       sudo: true
       env: PYVERSION=37
+    - os: linux
+      dist: xenial
+      script: - xvfb-run python setup.py test
+    - os: windows
 
   allow_failures:
     - python: "3.7"
@@ -19,9 +21,6 @@ install:
   - pip install -q pytest pytest-runner pytest-cov coverage
   - pip install coveralls
   - pip install -e .[skl] # install skl dependencies
-
-script:
-  - xvfb-run python setup.py test
 
 after_success:
   - "ls -lr htmlcov"
