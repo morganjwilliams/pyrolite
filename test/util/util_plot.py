@@ -399,11 +399,11 @@ class Test2DHull(unittest.TestCase):
         self.data = np.random.random((2, 10)).T
 
     def test_2d_hull(self):
-        lines = plot_2dhull(self.ax, self.data)
+        lines = plot_2dhull(self.data, ax=self.ax)
         self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
 
     def test_2d_hull_splines(self):
-        lines = plot_2dhull(self.ax, self.data, splines=True)
+        lines = plot_2dhull(self.data, ax=self.ax, splines=True)
         self.assertTrue(isinstance(lines[0], matplotlib.lines.Line2D))
 
     def tearDown(self):
