@@ -47,7 +47,7 @@ setup(
         "pathlib",
         "psutil",
         "numpy",
-        "scipy",
+        "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
         "pandas",
