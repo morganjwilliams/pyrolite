@@ -9,8 +9,8 @@ env.VERSION = "MELTS"  # crustal processes, pMELTS > 1GPA/10kbar
 env.MODE = "isenthalpic"
 env.DELTAT = -5
 env.DELTAP = 0
-env.MINP = 100
-env.MAXP = 10000
+env.MINP = 5000
+env.MAXP = 5000
 env.MINT = 800
 env.MAXT = 1800
 # %% get the MORB melts file
@@ -47,7 +47,7 @@ def blur_compositions(df, noise=0.05, scale=100):
     return inverse_ilr(xvals) * scale
 
 
-replicates = 50
+replicates = 10
 meltsfiles = (
     accumulate([pd.DataFrame(MORB).T] * replicates).reset_index().drop(columns="index")
 )
@@ -87,6 +87,7 @@ for ix in meltsfiles.index:
     )
     exp = MeltsExperiment(meltsfile=meltsfile, title=title, env=env, dir=tempdir)
     exp.run(superliquidus_start=True)
+
 # %% aggregate the results over the same gridded space
 from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.ext.alphamelts.plottemplates import table_by_phase

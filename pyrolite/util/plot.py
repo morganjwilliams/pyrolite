@@ -1,5 +1,6 @@
 import os
 import inspect
+import itertools
 from copy import copy
 from types import MethodType
 from pathlib import Path
@@ -50,6 +51,18 @@ except ImportError:
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+
+
+def marker_cycle(markers=["D", "s", "o", "+", "*"]):
+    """
+    Cycle through a set of markers.
+
+    Parameters
+    -----------
+    markers : :class:`list`
+        List of markers to provide to matplotlib.
+    """
+    return itertools.cycle(markers)
 
 
 def share_axes(axes, which="xy"):

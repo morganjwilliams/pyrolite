@@ -191,8 +191,8 @@ def logspc_(_min, _max, step=1.0, bins=20):
     :class:`numpy.ndarray`
         Log-spaced array.
     """
-    if step < 1.:
-        step = 1./step
+    if step < 1.0:
+        step = 1.0 / step
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 
@@ -378,6 +378,61 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
         return sfs
 
 
+def signify_digit(n, unc=None, leeway=0, low_filter=True):
+    """
+    Reformats numbers to contain only significant_digits. Uncertainty can be provided to
+    digits with relevant precision.
+
+    Parameters
+    ----------
+    n : :class:`float`
+        Number to reformat
+    unc : :class:`float`, :code:`None`
+        Absolute uncertainty on the number, optional.
+    leeway : :class:`int`, 0
+        Manual override for significant figures. Positive values will force extra
+        significant figures; negative values will remove significant figures.
+    low_filter : :class:`bool`, :code:`True`
+        Whether to return :class:`np.nan` in place of values which are within precision
+        equal to zero.
+
+    Returns
+    -------
+    :class:`float`
+        Reformatted number.
+
+    Notes
+    -----
+        * Will not pad 0s at the end or before floats.
+    """
+
+    if np.isfinite(n):
+        if np.isclose(n, 0.0):
+            return n
+        else:
+            mag_n = np.floor(np.log10(np.abs(n)))
+            sf = significant_figures(n, unc=unc) + int(leeway)
+            if unc is not None:
+                mag_u = np.floor(np.log10(unc))
+                if np.isnan(mag_u):
+                    mag_u = 0
+            else:
+                mag_u = 0
+            round_to = sf - int(mag_n) - 1 + leeway
+            if round_to <= 0:
+                fmt = int
+            else:
+                fmt = lambda x: x
+            print(n, round_to)
+            sig_n = round(n, round_to)
+            if low_filter and sig_n == 0.0:
+                return np.nan
+            else:
+                return fmt(sig_n)
+    else:
+        return np.nan
+
+
 def most_precise(arr):
     """
     Get the most precise element from an array.
@@ -450,58 +505,6 @@ def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
             )
 
         return equal
-
-
-def signify_digit(n, unc=None, leeway=0, low_filter=True):
-    """
-    Reformats numbers to contain only significant_digits. Uncertainty can be provided to
-    digits with relevant precision.
-
-    Parameters
-    ----------
-    n : :class:`float`
-        Number to reformat
-    unc : :class:`float`, :code:`None`
-        Absolute uncertainty on the number, optional.
-    leeway : :class:`int`, 0
-        Manual override for significant figures. Positive values will force extra
-        significant figures; negative values will remove significant figures.
-    low_filter : :class:`bool`, :code:`True`
-        Whether to return :class:`np.nan` in place of values which are within precision
-        equal to zero.
-
-    Returns
-    -------
-    :class:`float`
-        Reformatted number.
-
-    Notes
-    -----
-        * Will not pad 0s at the end or before floats.
-    """
-
-    if np.isfinite(n):
-        if np.isclose(n, 0.0):
-            return n
-        else:
-            mag_n = np.floor(np.log10(np.abs(n)))
-            sf = significant_figures(n, unc=unc) + int(leeway)
-            if unc is not None:
-                mag_u = np.floor(np.log10(unc))
-            else:
-                mag_u = 0
-            round_to = sf - int(mag_n) - 1 + leeway
-            if round_to <= 0:
-                fmt = int
-            else:
-                fmt = lambda x: x
-            sig_n = round(n, round_to)
-            if low_filter and sig_n == 0.0:
-                return np.nan
-            else:
-                return fmt(sig_n)
-    else:
-        return np.nan
 
 
 def orthogonal_basis_default(D: int, **kwargs):
