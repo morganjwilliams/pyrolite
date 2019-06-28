@@ -1,3 +1,13 @@
+"""
+Utility functions for working with matplotlib.
+
+Todo
+------
+
+    * Functions for working with and modifying legend entries.
+
+        ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
+"""
 import os
 import inspect
 import itertools

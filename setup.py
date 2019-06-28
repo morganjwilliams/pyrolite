@@ -50,7 +50,7 @@ setup(
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
-        "pandas",
+        "pandas>=0.23",  # dataframe acccessors
         "matplotlib",
         "periodictable",
         "xlrd",

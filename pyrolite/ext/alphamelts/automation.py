@@ -156,14 +156,20 @@ class MeltsProcess(object):
                 )
 
             executable = local_run
-            self.log("Using local executable meltsfile: {}".format(executable.name))
+            self.log(
+                "Using local executable meltsfile: {} @ {}".format(
+                    executable.name, executable.parent
+                )
+            )
 
         executable = Path(executable)
         self.exname = str(executable.name)
-        st = os.stat(str(executable))
+        self.executable = str(executable.resolve())
+        st = os.stat(self.executable)
         assert bool(stat.S_IXUSR), "User needs execution permission."
-        self.executable = str(executable)
-        self.run = [self.executable]  # executable file
+        self.run = []
+
+        self.run.append(self.executable)  # executable file
 
         self.init_args = []  # initial arguments to pass to the exec before returning
         if meltsfile is not None:

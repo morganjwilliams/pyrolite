@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     """
     Adds the Th-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
-    This configuration uses
 
     Parameters
     ----------
@@ -64,7 +63,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
 @update_docstring_references
 def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     """
-    Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_  to an axes.
+    Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
 
     Parameters
     ----------
