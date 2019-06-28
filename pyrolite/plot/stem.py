@@ -33,15 +33,16 @@ def stem(x, y, ax=None, orientation="horizontal", color="0.5", figsize=None, **k
         fig, ax = plt.subplots(1, figsize=figsize)
 
     xs, ys = [x, x], [np.zeros_like(y), y]
+    positivey = (y > 0 | ~np.isfinite(y)).all() | np.allclose(y, 0)
     if "h" in orientation:
         ax.plot(xs, ys, color=color, **subkwargs(kwargs, ax.plot))
         ax.scatter(x, y, **{"c": color, **subkwargs(kwargs, ax.scatter)})
-        if (y > 0).all() | np.allclose(y, 0):
+        if positivey:
             ax.set_ylim(0, ax.get_ylim()[1])
     else:
         ax.plot(ys, xs, color=color, **subkwargs(kwargs, ax.plot))
         ax.scatter(y, x, **{"c": color, **subkwargs(kwargs, ax.scatter)})
-        if (y > 0).all() | np.allclose(y, 0):
+        if positivey:
             ax.set_xlim(0, ax.get_xlim()[1])
 
     return ax

@@ -83,12 +83,12 @@ def plot_origin_to_points(
             if np.abs(theta) > 60:
                 ha = "center"
             else:
-                ha = ["left", "right"][x < x0]
+                ha = ["right" if x < x0 else "left"][0]
 
             if np.abs(theta) < 30:
                 va = "center"
             else:
-                va = ["bottom", "top"][y < y0]
+                va = ["top" if y < y0 else "bottom"][0]
             ax.annotate(label, (x, y), ha=ha, va=va, rotation=theta)
 
     return ax
