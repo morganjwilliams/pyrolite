@@ -33,6 +33,7 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
     if sigmas is None:
         sigmas = np.ones(dim).reshape(1, dim)
     else:
+        sigmas = np.array(sigmas)
         sigmas = sigmas.reshape(1, dim)
 
     cov = sigmas.T @ sigmas  # multiply by ~ variance
@@ -52,14 +53,7 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
 
 
 def random_composition(
-    size=1000,
-    D=4,
-    mean=None,
-    cov=None,
-    propnan=0.1,
-    missingcols=None,
-    missing=None,
-    noise=0.01,
+    size=1000, D=4, mean=None, cov=None, propnan=0.1, missingcols=None, missing=None
 ):
     """
     Generate a simulated random unimodal compositional dataset,
@@ -127,7 +121,6 @@ def random_composition(
         mean = ilr(mean.reshape(1, D)).reshape(
             1, -1
         )  # ilr of a (1, D) mean to (1, D-1)
-        mean += np.random.randn(*mean.shape) * noise  # minor noise
 
     # covariance
     if cov is None:
@@ -198,32 +191,22 @@ def random_composition(
 
 
 def test_df(
-    cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"],
-    index_length=10,
-    mean=None,
-    noise=0.01,
-    **kwargs
+    cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, mean=None, **kwargs
 ):
     """
     Creates a pandas.DataFrame with random data.
     """
     return pd.DataFrame(
         columns=cols,
-        data=random_composition(
-            size=index_length, D=len(cols), mean=mean, noise=noise, **kwargs
-        ),
+        data=random_composition(size=index_length, D=len(cols), mean=mean, **kwargs),
     )
 
 
-def test_ser(
-    index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, noise=0.01, **kwargs
-):
+def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
     """
     Creates a pandas.Series with random data.
     """
     return pd.Series(
-        random_composition(
-            size=1, D=len(index), mean=mean, noise=noise, **kwargs
-        ).flatten(),
+        random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,
     )
