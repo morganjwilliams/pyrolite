@@ -60,6 +60,7 @@ meltsfiles[compositional_vars] = (
 
 meltsfiles[compositional_vars] = blur_compositions(meltsfiles[compositional_vars])
 # %% compostional variation
+from pyrolite.plot import pyroplot
 ax = meltsfiles.loc[:, ['CaO', 'MgO', 'Al2O3']].pyroplot.ternary(alpha=0.2, c='0.5')
 # %% save figure
 from pyrolite.util.plot import save_figure

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from pyrolite.plot import pyroplot
 # %% Data
 # pyrolite comes with a few datasets from Aitchison (1984) built in which we can use
 # ax examples:

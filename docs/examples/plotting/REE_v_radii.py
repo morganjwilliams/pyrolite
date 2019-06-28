@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from pyrolite.plot import pyroplot
 from pyrolite.plot.spider import REE_v_radii
 from pyrolite.geochem.ind import REE, get_ionic_radii
 # %% Minimal Example -------------------------------------------------------------------
