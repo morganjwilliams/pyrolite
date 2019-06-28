@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from pyrolite.geochem.ind import __common_oxides__
-from pyrolite.util.alphamelts.tables import MeltsOutput
+from pyrolite.ext.alphamelts.tables import MeltsOutput
 
 # %% ---
 # say you have a folder containing melts tables

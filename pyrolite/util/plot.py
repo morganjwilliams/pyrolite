@@ -1,5 +1,6 @@
 import os
 import inspect
+import itertools
 from copy import copy
 from types import MethodType
 from pathlib import Path
@@ -50,6 +51,18 @@ except ImportError:
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+
+
+def marker_cycle(markers=["D", "s", "o", "+", "*"]):
+    """
+    Cycle through a set of markers.
+
+    Parameters
+    -----------
+    markers : :class:`list`
+        List of markers to provide to matplotlib.
+    """
+    return itertools.cycle(markers)
 
 
 def share_axes(axes, which="xy"):
@@ -817,10 +830,12 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
     return ax
 
 
-def plot_2dhull(ax, data, splines=False, s=0, **plotkwargs):
+def plot_2dhull(data, ax=None, splines=False, s=0, **plotkwargs):
     """
     Plots a 2D convex hull around an array of xy data points.
     """
+    if ax is None:
+        fig, ax = plt.subplots(1)
     chull = scipy.spatial.ConvexHull(data, incremental=True)
     x, y = data[chull.vertices].T
     if not splines:

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm
 from pyrolite.comp.codata import *
+from pyrolite.plot import pyroplot
 from pyrolite.util.plot import (
     plot_pca_vectors,
     plot_stdev_ellipses,

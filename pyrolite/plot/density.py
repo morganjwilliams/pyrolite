@@ -104,7 +104,8 @@ def density(
     Todo
     -----
         * More accurate ternary density plots see :func:`~pyrolite.util.plot.ternary_heatmap` for now.
-        * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pts
+        * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pt
+        * Contouring in logspace and transformation back to compositional space
 
     .. seealso::
 
@@ -197,7 +198,6 @@ def density(
                 mappable = im
 
             elif mode == "density":
-
                 if logx:
                     assert xmin > 0.0
                 if logy:
@@ -284,7 +284,7 @@ def density(
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
 
-        if contours:
+        if contours: # could do this in logspace for accuracy?
             levels = contours or kwargs.pop("levels", None)
             cags = xi, yi, zi  # contour-like function arguments, point estimates
             if percentiles and not isinstance(levels, int):

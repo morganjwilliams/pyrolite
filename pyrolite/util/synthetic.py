@@ -33,6 +33,7 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
     if sigmas is None:
         sigmas = np.ones(dim).reshape(1, dim)
     else:
+        sigmas = np.array(sigmas)
         sigmas = sigmas.reshape(1, dim)
 
     cov = sigmas.T @ sigmas  # multiply by ~ variance
@@ -64,7 +65,7 @@ def random_composition(
         Size of the dataset.
     D : :class:`int`
         Dimensionality of the dataset.
-    E : :class:`numpy.ndarray`, :code:`None`
+    mean : :class:`numpy.ndarray`, :code:`None`
         Optional specification of mean composition.
     cov : :class:`numpy.ndarray`, :code:`None`
         Optional specification of covariance matrix (in log space).
@@ -100,8 +101,10 @@ def random_composition(
     elif mean is None:
         D = cov.shape[0] + 1
     elif cov is None:
+        mean = np.array(mean)
         D = mean.size
     else:  # both defined
+        mean, cov = np.array(mean), np.array(cov)
         assert mean.size == cov.shape[0] + 1
         D = mean.size
         mean = mean.reshape(1, -1)
@@ -118,7 +121,6 @@ def random_composition(
         mean = ilr(mean.reshape(1, D)).reshape(
             1, -1
         )  # ilr of a (1, D) mean to (1, D-1)
-        mean += np.random.randn(*mean.shape) * 0.01  # minor noise
 
     # covariance
     if cov is None:
@@ -188,19 +190,23 @@ def random_composition(
     return data
 
 
-def test_df(cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, **kwargs):
+def test_df(
+    cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, mean=None, **kwargs
+):
     """
     Creates a pandas.DataFrame with random data.
     """
     return pd.DataFrame(
-        columns=cols, data=random_composition(size=index_length, D=len(cols), **kwargs)
+        columns=cols,
+        data=random_composition(size=index_length, D=len(cols), mean=mean, **kwargs),
     )
 
 
-def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], **kwargs):
+def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
     """
     Creates a pandas.Series with random data.
     """
     return pd.Series(
-        random_composition(size=1, D=len(index), **kwargs).flatten(), index=index
+        random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
+        index=index,
     )

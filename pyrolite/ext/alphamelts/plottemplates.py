@@ -339,7 +339,7 @@ def table_by_phase(
             c = [i for i in outtbl.columns if p in i]
             config = dict(
                 color=__DEFAULT_DISC_COLORMAP__(colors[p]),
-                alpha=1 / np.log(outtbl.index.size),
+                #alpha=1 / np.log(outtbl.index.size),
             )
             if c:
                 for _p in c:
