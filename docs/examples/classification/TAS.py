@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from pyrolite.classification import Geochemistry
+from pyrolite.util.classification import Geochemistry
 from pyrolite.util.synthetic import test_df
 import numpy as np
 
