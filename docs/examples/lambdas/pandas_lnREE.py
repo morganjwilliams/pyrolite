@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
+from pyrolite.plot import pyroplot
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.transform import lambda_lnREE
 from pyrolite.plot.spider import REE_v_radii

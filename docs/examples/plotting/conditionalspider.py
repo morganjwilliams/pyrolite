@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pyrolite.plot import pyroplot
+from pyrolite.plot.spider import spider
 from pyrolite.geochem.norm import ReferenceCompositions
 from pyrolite.geochem.ind import REE
-from pyrolite.plot.spider import spider
 import logging
 
 rc = ReferenceCompositions()

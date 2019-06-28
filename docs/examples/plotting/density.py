@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from pyrolite.plot import pyroplot
 from pyrolite.plot.density import density
 from pyrolite.geochem.ind import common_oxides
 from pyrolite.comp.codata import close

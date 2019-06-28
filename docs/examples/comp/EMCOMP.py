@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pyrolite.comp.impute import EMCOMP
-from pyrolite.util.synthetic import random_composition
+from pyrolite.util.synthetic import random_composition, random_cov_matrix
+from pyrolite.plot import pyroplot
 
 np.random.seed(82)
 

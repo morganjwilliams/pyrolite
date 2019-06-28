@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from pyrolite.plot import pyroplot
 from pyrolite.plot.tern import ternary
 from pyrolite.geochem.ind import common_oxides
 

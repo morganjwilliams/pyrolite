@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from pyrolite.comp.codata import ilr, inverse_ilr, close
+from pyrolite.util.synthetic import random_cov_matrix
+from pyrolite.plot import pyroplot
 
 np.random.seed(82)
 
@@ -25,7 +27,7 @@ def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
 
 
 m1, m2 = np.array([[0.3, 0.1, 2.1]]), np.array([[0.5, 2.5, 0.05]])
-c1, c2 = np.eye(2) / 100, np.eye(2) / 100 # Update these to random covariance matricies
+c1, c2 = random_cov_matrix(2, sigmas=[0.15, 0.05]), random_cov_matrix(2, sigmas=[0.05, 0.2])
 
 trend = pd.DataFrame(
     random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000)
