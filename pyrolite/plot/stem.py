@@ -32,6 +32,7 @@ def stem(x, y, ax=None, orientation="horizontal", color="0.5", figsize=None, **k
     if ax is None:
         fig, ax = plt.subplots(1, figsize=figsize)
 
+    orientation = orientation.lower()
     xs, ys = [x, x], [np.zeros_like(y), y]
     positivey = (y > 0 | ~np.isfinite(y)).all() | np.allclose(y, 0)
     if "h" in orientation:

@@ -48,6 +48,11 @@ class TestPyroPlot(unittest.TestCase):
     def test_ternary(self):
         self.tridf.pyroplot.ternary()
 
+    def test_ternary_labels(self):
+        for labels in [[], self.tridf.columns.tolist()]:
+            with self.subTest(labels=labels):
+                self.tridf.pyroplot.ternary(axlabels=labels)
+
     @unittest.expectedFailure
     def test_ternary_with_two_components(self):
         self.bidf.pyroplot.ternary()
@@ -75,8 +80,14 @@ class TestPyroPlot(unittest.TestCase):
     def test_density_with_more_components_specified_ternary(self):
         self.multidf.pyroplot.density(components=self.multidf.columns[:3])
 
+    def test_scatter_default(self):
+        self.bidf.pyroplot.scatter()
+
     def test_stem_default(self):
         self.bidf.pyroplot.stem()
+
+    def test_stem_v(self):
+        self.bidf.pyroplot.stem(orientation="V")
 
     def test_cooccurence_default(self):
         self.multidf.pyroplot.cooccurence()

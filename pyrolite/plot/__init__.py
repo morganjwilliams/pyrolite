@@ -308,7 +308,7 @@ class pyroplot(object):
         )
 
         if axlabels:
-            if "h" not in orientation:
+            if "h" not in orientation.lower():
                 components = components[::-1]
             ax.set_xlabel(components[0])
             ax.set_ylabel(components[1])
