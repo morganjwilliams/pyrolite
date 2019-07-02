@@ -20,10 +20,3 @@ pyrolite\.ext\.datarepo
      :maxdepth: 2
 
      ext/datarepo
-
-
-pyrolite\.ext\.iogas
--------------------------------
-  .. automodule:: pyrolite.ext.iogas
-      :members:
-      :undoc-members:
