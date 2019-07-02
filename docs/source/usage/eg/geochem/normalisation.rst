@@ -48,9 +48,12 @@ The `normalize` method can be used to normalise dataframes to a given reference 
    :height: 250px
    :align: center
 
-.. seealso:: `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
-             `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
-             `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+.. seealso::
+
+  Examples:
+    `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
+    `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+    `REE Radii Plot <../plotting/REE_radii_plot.html>`__
 
 Currently available models include:
 
