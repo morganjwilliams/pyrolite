@@ -1,6 +1,14 @@
 Examples
 ================
 
+Geochemistry
+-----------------
+.. toctree::
+  :glob:
+  :maxdepth: 2
+
+  eg/geochem/*
+
 Plotting
 ---------
 
@@ -22,15 +30,6 @@ Lambdas
    :maxdepth: 2
 
    eg/lambdas/*
-
-Geochemistry
------------------
-.. toctree::
-  :glob:
-  :maxdepth: 2
-
-  eg/geochem/*
-
 
 Mineral Calculations
 --------------------

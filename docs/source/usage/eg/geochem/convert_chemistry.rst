@@ -34,6 +34,6 @@ Note that you can also use this function to calculate mass ratios:
 
 .. code-block:: python
 
- >>> new_df.columns
+  >>> new_df.columns
 
- Index(['MgO', 'SiO2', 'FeO', 'CaO', 'Te', 'Na', 'Na/Te', 'MgO/SiO2'], dtype='object')
+  Index(['MgO', 'SiO2', 'FeO', 'CaO', 'Te', 'Na', 'Na/Te', 'MgO/SiO2'], dtype='object')
