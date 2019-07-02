@@ -69,7 +69,7 @@ utilities will likely also make use of the under-development python-melts.
 
 .. toctree::
   :glob:
-  :maxdepth: 2
+  :maxdepth: 1
 
   eg/alphamelts/*
 
