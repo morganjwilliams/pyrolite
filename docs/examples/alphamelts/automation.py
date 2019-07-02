@@ -1,7 +1,6 @@
 import pandas as pd
 from pyrolite.ext.alphamelts.meltsfile import to_meltsfile
 from pyrolite.ext.alphamelts.automation import MeltsExperiment, make_meltsfolder
-
 # %% testdf
 import numpy as np
 from pyrolite.util.synthetic import test_df
