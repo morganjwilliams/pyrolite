@@ -23,13 +23,13 @@ Lambdas
 
    eg/lambdas/*
 
-Normalisation
+Geochemistry
 -----------------
 .. toctree::
   :glob:
   :maxdepth: 2
 
-  eg/normalisation/*
+  eg/geochem/*
 
 
 Mineral Calculations
