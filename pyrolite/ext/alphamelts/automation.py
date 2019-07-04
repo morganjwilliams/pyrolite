@@ -164,7 +164,7 @@ class MeltsProcess(object):
 
         executable = Path(executable)
         self.exname = str(executable.name)
-        self.executable = str(executable.resolve())
+        self.executable = str(executable)
         st = os.stat(self.executable)
         assert bool(stat.S_IXUSR), "User needs execution permission."
         self.run = []

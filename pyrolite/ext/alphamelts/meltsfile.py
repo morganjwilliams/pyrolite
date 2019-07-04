@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from ...util.pd import to_frame, to_ser
-from ...geochem.ind import __common_elements__, __common_oxides__
+from ...geochem.ind import common_elements, common_oxides
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -49,13 +49,13 @@ def to_meltsfile(
         lines.append("Title: {}".format(ser.Title))
     else:
         lines.append("Title: {}".format(ser.title))
-    majors = [i for i in ser.index if i in __common_oxides__ and not i in exclude]
+    majors = [i for i in ser.index if i in common_oxides() and not i in exclude]
     for k, v in zip(majors, ser.loc[majors].values):
         if not pd.isnull(v):  # no NaN data in MELTS files
             lines.append("Initial Composition: {} {}".format(k, v))
 
     if writetraces:
-        traces = [i for i in ser.index if i in __common_elements__ and not i in exclude]
+        traces = [i for i in ser.index if i in common_elements() and not i in exclude]
         for k, v in zip(traces, ser.loc[traces].values):
             if not pd.isnull(v):  # no NaN data in MELTS files
                 lines.append("Initial Trace: {} {}".format(k, v))

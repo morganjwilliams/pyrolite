@@ -79,9 +79,9 @@ def plot_phasetable(
 
     if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
-            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
     else:
-        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
 
     ax = ax.flat
 
