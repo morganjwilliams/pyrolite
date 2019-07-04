@@ -114,7 +114,7 @@ def devolatilise(
         return df.loc[:, keep]
 
 
-def oxide_conversion(oxin, oxout):
+def oxide_conversion(oxin, oxout, molecular=False):
     """
     Factory function to generate a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
@@ -125,6 +125,8 @@ def oxide_conversion(oxin, oxout):
         Input component.
     oxout : :class:`str` | :class:`~periodictable.formulas.Formula`
         Output component.
+    molecular : :class:`bool`, :code:`False`
+        Whether to apply the conversion for molecular data.
 
     Returns
     -------
@@ -149,7 +151,7 @@ def oxide_conversion(oxin, oxout):
     # Moles of product vs. moles of reactant
     cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
 
-    def convert_series(dfser: pd.Series, molecular=False):
+    def convert_series(dfser: pd.Series, molecular=molecular):
         if molecular:
             factor = cation_coefficient
         else:
