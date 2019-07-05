@@ -1139,6 +1139,11 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     Save either a single or multiple axes (from a single figure) based on their
     extent. Uses the save_figure procedure to save at a specific location using
     a number of formats.
+
+    Todo
+    -----
+
+        * Add legend to items
     """
     # Check if axes is a single axis or list of axes
 
