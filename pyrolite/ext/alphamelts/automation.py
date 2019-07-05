@@ -93,7 +93,7 @@ class MeltsProcess(object):
         env="alphamelts_default_env.txt",
         meltsfile=None,
         fromdir=r"./",
-        log=print,
+        log=logger.debug,
     ):
         """
         Parameters
