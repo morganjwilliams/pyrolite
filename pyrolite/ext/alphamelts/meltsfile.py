@@ -68,15 +68,20 @@ def to_meltsfile(
                 if not pd.isnull(v):  # no NaN data in MELTS files
                     lines.append("{}: {}".format(k, v))
 
-    for k in ["dp/dt", "Log fO2 Path", "Log fO2 Delta"]:
+    for k in ["dp/dt", "Log fO2 Path", "Log fO2 Delta", "Suppress", "Fractionate"]:
         par = [
             par for ix, par in enumerate(ser.index.tolist()) if par.lower() == k.lower()
         ]
         if par:
             par = par[0]
             v = ser[par]
-            if not pd.isnull(v):  # no NaN data in MELTS files
-                lines.append("{}: {}".format(k, v))
+            if isinstance(v, list):  # no NaN data in MELTS files
+                for iv in v:
+                    if not pd.isnull(iv):
+                        lines.append("{}: {}".format(k, iv))  # suppress, fractionate
+            else:
+                if not pd.isnull(v):
+                    lines.append("{}: {}".format(k, v))
 
     for m in modes:
         lines.append("Mode: {}".format(m))
