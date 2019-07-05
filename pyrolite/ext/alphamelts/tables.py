@@ -37,7 +37,7 @@ class MeltsOutput(object):
             try:
                 setattr(self, name, load(tpath))
             except:
-                logger.warning("Error on table import: {} {}".format(self.title, tpath))
+                logger.debug("Error on table import: {} {}".format(self.title, tpath))
                 setattr(self, name, pd.DataFrame())  # empty dataframe
 
     @property
@@ -67,7 +67,7 @@ class MeltsOutput(object):
             if title == self.title:
                 pass
             else:
-                logger.warning(
+                logger.debug(
                     "File with conflicting title found: {}; expected {}".format(
                         title, self.title
                     )
@@ -104,7 +104,7 @@ class MeltsOutput(object):
                 df.add_MgNo(components=True)
             return df
         else:
-            logger.warning("Expected file {} does not exist.".format(filepath))
+            logger.debug("Expected file {} does not exist.".format(filepath))
 
     def _read_solidcomp(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
