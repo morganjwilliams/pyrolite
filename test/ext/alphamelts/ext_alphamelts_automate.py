@@ -11,7 +11,7 @@ import logging
 
 logger = logging.Logger(__name__)
 stream_log(logger)
-stream_log('pyrolite.ext.alphamelts.automation')
+stream_log('pyrolite.ext.alphamelts.automation', level='DEBUG')
 
 _env = MELTS_Env()
 _env.VERSION = "MELTS"
@@ -22,6 +22,10 @@ _env.MINT = 500
 _env.MAXT = 1500
 _env.DELTAT = -10
 _env.DELTAP = 0
+
+if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log("pyrolite.ext.alphamelts")
+    install_melts(local=True)  # install melts for example files etc
 
 with open(
     (
@@ -109,27 +113,6 @@ class TestMeltsExperiment(unittest.TestCase):
 class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
-        Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
-        MORB = Gale_MORB.original_data.loc[
-            [
-                "SiO2",
-                "Al2O3",
-                "FeO",
-                "MnO",
-                "MgO",
-                "CaO",
-                "Na2O",
-                "TiO2",
-                "K2O",
-                "P2O5",
-            ],
-            "value",
-        ].apply(pd.to_numeric)
-        MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
-        MORB["Title"] = [
-            "{}-{}".format(Gale_MORB.ModelName, ix)
-            for ix in MORB.index.values.astype(str)
-        ]
         self.df = MORB
         self.env = _env
 
