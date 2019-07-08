@@ -23,6 +23,28 @@ _env.MAXT = 1500
 _env.DELTAT = -10
 _env.DELTAP = 0
 
+Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
+MORB = Gale_MORB.original_data.loc[
+    [
+        "SiO2",
+        "Al2O3",
+        "FeO",
+        "MnO",
+        "MgO",
+        "CaO",
+        "Na2O",
+        "TiO2",
+        "K2O",
+        "P2O5",
+    ],
+    "value",
+].apply(pd.to_numeric)
+MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
+MORB["Title"] = [
+    "{}-{}".format(Gale_MORB.ModelName, ix)
+    for ix in MORB.index.values.astype(str)
+]
+
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
     stream_log("pyrolite.ext.alphamelts")
     install_melts(local=True)  # install melts for example files etc
