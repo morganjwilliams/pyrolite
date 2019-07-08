@@ -39,7 +39,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering",
-        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords=["geochemistry", "compositional data", "visualisation", "petrology"],
     packages=find_packages(exclude=["test*"]),
@@ -62,14 +62,15 @@ setup(
         "joblib",
         "pandas_flavor",
         "numpydoc",
-        "tinydb"
+        "tinydb",
+        "tqdm",
     ],
     extras_require={
         "impute": impute_require,
         "dev": dev_require,
         "skl": skl_require,
         "spatial": spatial_require,
-        "db": db_require
+        "db": db_require,
     },
     tests_require=tests_require,
     test_suite="test",
