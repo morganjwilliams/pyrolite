@@ -208,3 +208,27 @@ def get_experiments_summary(dir, **kwargs):
         }
         summary[output.title]["output"] = output
     return summary
+
+def write_summary_phaselist(dir=None, summary=None, filename="phaselist.txt"):
+    """
+    Write the list of phases from an alphamelts experiment to file.
+
+    Parameters
+    -----------
+    dir : :class:`str` | :class:`pathlib.Path`
+        Path to the experiment directory.
+    summary : :class:`dict`
+        Summary of a series of melts experiements, optional.
+    """
+    if summary is None:
+        summary = get_experiments_summary(dir, kelvin=False)
+    mnl = max([len(name) for name in summary])
+    with open(dir / filename, "w") as f:
+        f.write(
+            "\n".join(
+                [
+                    name + " " * (mnl - len(name) + 2) + ", ".join(D["phases"])
+                    for name, D in summary.items()
+                ]
+            )
+        )
