@@ -3,6 +3,8 @@ This file contains functions for automated execution, plotting and reporting fro
 alphamelts 1.9.
 """
 import os, sys, platform
+import time, datetime
+from tqdm import tqdm
 import stat
 import psutil
 import logging
@@ -12,15 +14,51 @@ import subprocess
 import threading
 import queue
 import shlex
+from ...util.multip import combine_choices
 from ...util.general import get_process_tree
-from ...util.meta import pyrolite_datafolder
+from ...util.meta import pyrolite_datafolder, ToLogger
+from ...geochem.ind import common_elements, common_oxides
 from .tables import MeltsOutput
 from .parse import read_envfile, read_meltsfile
+from .meltsfile import to_meltsfile
 from .env import MELTS_Env
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+__abbrv__ = {"fractionate solids": "frac", "isobaric": "isobar"}
+
+__chem__ =  common_elements(as_set=True) | common_oxides(as_set=True)
+
+def exp_name(exp):
+    """
+    Derive an experiment name from an experiment configuration dictionary.
+
+    Parameters
+    ------------
+    exp : :class:`dict`
+        Dictionary of parameters and their specific values to derive an experiment name
+        from.
+
+    Todo
+    ------
+
+        This is a subset of potential parameters, need to expand to ensure uniqueness of naming.
+    """
+
+    mode = "".join([__abbrv__[m] for m in exp["modes"]])
+
+    fo2 = exp.get("Log fO2 Path", "")
+    fo2d = exp.get("Log fO2 Delta", "")
+    pressure = ""
+    if exp.get("Initial Pressure", None) is not None:
+        pressure = "{:d}kbar".format(int(exp["Initial Pressure"] / 1000))
+    chem = "-".join(
+        ["{}@{}".format(k, v) for k, v in exp.get("modifychem", {}).items()]
+    )
+    suppress = "-".join(["no_{}".format(v) for v in exp.get("Suppress", {})])
+    return "{}{}{}{}{}{}".format(mode, fo2d, fo2, pressure, chem, suppress)
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
@@ -408,5 +446,104 @@ class MeltsBatch(object):
         * Improved output logging/reporting
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        comp_df,
+        fromdir=Path("./"),
+        default_config={},
+        grid={},
+        env=None,
+        logger=logger,
+    ):
+        """
+
+        Parameters
+        -----------
+        comp_df : :class:`pandas.DataFrame`
+            Dataframe of compositions.
+        default_config : :class:`dict`
+            Dictionary of default parameters.
+        grid : class:`dict`
+            Dictionary of parameters to systematically vary.
+        """
+        self.logger = logger
+        self.dir = fromdir
+        self.default = default_config
+        self.grid = [{}] + combine_choices(grid)
+        self.env = env or MELTS_Env()
+        self.compositions = comp_df
+        exps = [{**self.default, **ex} for ex in self.grid]
+        self.experiments = [
+            (n, e) for (e, n) in zip(exps, [exp_name(ex) for ex in exps])
+        ]
+
+    def run(self, overwrite=False, exclude=[]):
+        self.started = time.time()
+        experiments = self.experiments
+        if not overwrite:
+            experiments = [
+                (n, e) for (n, e) in experiments if not (self.dir / n).exists()
+            ]
+
+        self.logger.info(
+            "Starting {} Calculations for {} Compositions.".format(
+                len(experiments), self.compositions.index.size
+            )
+        )
+        self.logger.info(
+            "Estimated Time: {}".format(
+                datetime.timedelta(
+                    seconds=len(experiments) * self.compositions.index.size * 6
+                )  # 6s/run
+            )
+        )
+        paths = []
+        for name, exp in tqdm(experiments, file=ToLogger(self.logger), mininterval=2):
+            edf = self.compositions.copy()
+            if "Title" not in edf.columns:
+                edf["Title"] = [
+                    "{}-{}".format(name, ix) for ix in edf.index.values.astype(str)
+                ]
+            if "modifychem" in exp:
+                for k, v in exp[
+                    "modifychem"
+                ].items():  # this isn't quite corect , you'd need to modify everything else too
+                    edf[k] = v
+                cc = [i for i in edf.columns if i in __chem__]
+                edf.loc[:, cc] = edf.loc[:, cc].renormalise()
+            P = exp["Initial Pressure"]
+            T0, T1 = exp["Initial Temperature"], exp["Final Temperature"]
+            edf["Initial Pressure"] = P
+            edf["Initial Temperature"] = T0
+            edf["Final Temperature"] = T1
+            if "Log fO2 Path" in exp:
+                edf["Log fO2 Path"] = exp["Log fO2 Path"]
+            if "Log fO2 Delta" in exp:
+                edf["Log fO2 Delta"] = exp["Log fO2 Delta"]
+            if "Suppress" in exp:
+                edf["Suppress"] = [exp["Suppress"] for i in range(edf.index.size)]
+
+            exp_exclude = exclude
+            if "exclude" in exp:
+                exp_exclude += exp["exclude"]
+
+            expdir = self.dir / name  # experiment dir
+
+            paths.append(expdir)
+
+            for ix in edf.index:
+                M = MeltsExperiment(
+                    meltsfile=to_meltsfile(
+                        edf.loc[ix, :], modes=exp["modes"], exclude=exp_exclude
+                    ),
+                    title=edf.Title[ix],
+                    env=self.env,
+                    dir=expdir,
+                )
+                M.run(superliquidus_start=True)
+        self.duration = datetime.timedelta(seconds=time.time() - self.started)
+        self.logger.info("Calculations Complete after {}".format(self.duration))
+        self.paths = paths
+
+    def cleanup(self):
         pass
