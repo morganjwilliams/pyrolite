@@ -5,7 +5,7 @@ from pyrolite.util.pd import to_numeric
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
-
+from pyrolite.geochem.norm import ReferenceCompositions
 from pyrolite.ext.alphamelts.download import install_melts
 from pyrolite.ext.alphamelts.automation import *
 import logging
@@ -104,9 +104,37 @@ class TestMeltsExperiment(unittest.TestCase):
 class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
+        Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
+        MORB = Gale_MORB.original_data.loc[
+            ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"],
+            "value",
+        ]
+        MORB = pd.DataFrame([MORB, MORB]).reset_index()
+        MORB["Title"] = ["{}-{}".format(Gale_MORB.ModelName, ix) for ix in MORB.index.values.astype(str)]
+        self.df = MORB
+        self.env = MELTS_Env()
+        self.env.VERSION = "MELTS"
+        self.env.MODE = "isobaric"
+        self.env.MINP = 5000
+        self.env.MAXP = 10000
+        self.env.MINT = 500
+        self.env.MAXT = 1500
+        self.env.DELTAT = -10
+        self.env.DELTAP = 0
 
     def test_default(self):
-        batch = MeltsBatch()
+        batch = MeltsBatch(
+            self.df,
+            default_config={
+                "Initial Pressure": 7000,
+                "Initial Temperature": 1400,
+                "Final Temperature": 800,
+                "modes": ["isobaric"],
+            },
+            env=self.env,
+            fromdir=self.dir
+        )
+        batch.run()
 
     def tearDown(self):
         if self.dir.exists():
