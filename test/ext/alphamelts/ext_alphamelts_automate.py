@@ -13,23 +13,25 @@ import logging
 logger = logging.Logger(__name__)
 stream_log(logger)
 
-_env = (
-    pyrolite_datafolder(subfolder="alphamelts")
-    / "localinstall"
-    / "examples"
-    / "alphamelts_default_env.txt"
-)
+with open(
+    (
+        pyrolite_datafolder(subfolder="alphamelts")
+        / "localinstall"
+        / "examples"
+        / "alphamelts_default_env.txt"
+    )
+) as f:
+    _env = f.read()
 
-_melts = (
-    pyrolite_datafolder(subfolder="alphamelts")
-    / "localinstall"
-    / "examples"
-    / "Morb.melts"
-)
-
-if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
-    stream_log("pyrolite.ext.alphamelts")
-    install_melts(local=True)  # install melts for example files etc
+with open(
+    (
+        pyrolite_datafolder(subfolder="alphamelts")
+        / "localinstall"
+        / "examples"
+        / "Morb.melts"
+    )
+) as f:
+    _melts = f.read()
 
 
 class TestMakeMeltsFolder(unittest.TestCase):
@@ -122,8 +124,8 @@ class TestMeltsBatch(unittest.TestCase):
                 "P2O5",
             ],
             "value",
-        ]
-        MORB = pd.DataFrame([MORB, MORB]).reset_index()
+        ].apply(pd.to_numeric)
+        MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
         MORB["Title"] = [
             "{}-{}".format(Gale_MORB.ModelName, ix)
             for ix in MORB.index.values.astype(str)
@@ -151,7 +153,7 @@ class TestMeltsBatch(unittest.TestCase):
             grid={"Initial Pressure": [5000]},
             env=self.env,
             fromdir=self.dir,
-            logger=logger
+            logger=logger,
         )
         batch.run()
 

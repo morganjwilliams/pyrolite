@@ -29,7 +29,8 @@ logger = logging.getLogger(__name__)
 
 __abbrv__ = {"fractionate solids": "frac", "isobaric": "isobar"}
 
-__chem__ =  common_elements(as_set=True) | common_oxides(as_set=True)
+__chem__ = common_elements(as_set=True) | common_oxides(as_set=True)
+
 
 def exp_name(exp):
     """
@@ -477,7 +478,7 @@ class MeltsBatch(object):
             (n, e) for (e, n) in zip(exps, [exp_name(ex) for ex in exps])
         ]
 
-    def run(self, overwrite=False, exclude=[]):
+    def run(self, overwrite=False, exclude=[], superliquidus_start=True):
         self.started = time.time()
         experiments = self.experiments
         if not overwrite:
@@ -532,15 +533,13 @@ class MeltsBatch(object):
             paths.append(expdir)
 
             for ix in edf.index:
-                M = MeltsExperiment(
-                    meltsfile=to_meltsfile(
-                        edf.loc[ix, :], modes=exp["modes"], exclude=exp_exclude
-                    ),
-                    title=edf.Title[ix],
-                    env=self.env,
-                    dir=expdir,
+                meltsfile = to_meltsfile(
+                    edf.loc[ix, :], modes=exp["modes"], exclude=exp_exclude
                 )
-                M.run(superliquidus_start=True)
+                M = MeltsExperiment(
+                    meltsfile=meltsfile, title=edf.Title[ix], env=self.env, dir=expdir
+                )
+                M.run(superliquidus_start=superliquidus_start)
         self.duration = datetime.timedelta(seconds=time.time() - self.started)
         self.logger.info("Calculations Complete after {}".format(self.duration))
         self.paths = paths
