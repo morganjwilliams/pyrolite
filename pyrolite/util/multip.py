@@ -34,22 +34,24 @@ def combine_choices(choices):
 
         This requires Python 3.6+ (for ordered dictonaries).
     """
+    if choices: # if there are values specified
+        index = np.array(
+            np.meshgrid(*[np.arange(len(v)) for k, v in choices.items()])
+        ).T.reshape(-1, len(choices))
 
-    index = np.array(
-        np.meshgrid(*[np.arange(len(v)) for k, v in choices.items()])
-    ).T.reshape(-1, len(choices))
+        combs = []
+        for ix in index:
+            combs.append(
+                {
+                    k: v[vix]
+                    for vix, (k, v) in zip(ix, choices.items())
+                    if v[vix] is not None
+                }
+            )
 
-    combs = []
-    for ix in index:
-        combs.append(
-            {
-                k: v[vix]
-                for vix, (k, v) in zip(ix, choices.items())
-                if v[vix] is not None
-            }
-        )
-
-    return combs
+        return combs
+    else:
+        return [{}]
 
 def func_wrapper(arg):
     func, kwargs = arg

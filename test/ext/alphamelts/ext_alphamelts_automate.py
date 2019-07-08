@@ -10,6 +10,9 @@ from pyrolite.ext.alphamelts.download import install_melts
 from pyrolite.ext.alphamelts.automation import *
 import logging
 
+logger = logging.Logger(__name__)
+stream_log(logger)
+
 _env = (
     pyrolite_datafolder(subfolder="alphamelts")
     / "localinstall"
@@ -106,16 +109,30 @@ class TestMeltsBatch(unittest.TestCase):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
         Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
         MORB = Gale_MORB.original_data.loc[
-            ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"],
+            [
+                "SiO2",
+                "Al2O3",
+                "FeO",
+                "MnO",
+                "MgO",
+                "CaO",
+                "Na2O",
+                "TiO2",
+                "K2O",
+                "P2O5",
+            ],
             "value",
         ]
         MORB = pd.DataFrame([MORB, MORB]).reset_index()
-        MORB["Title"] = ["{}-{}".format(Gale_MORB.ModelName, ix) for ix in MORB.index.values.astype(str)]
+        MORB["Title"] = [
+            "{}-{}".format(Gale_MORB.ModelName, ix)
+            for ix in MORB.index.values.astype(str)
+        ]
         self.df = MORB
         self.env = MELTS_Env()
         self.env.VERSION = "MELTS"
         self.env.MODE = "isobaric"
-        self.env.MINP = 5000
+        self.env.MINP = 2000
         self.env.MAXP = 10000
         self.env.MINT = 500
         self.env.MAXT = 1500
@@ -131,8 +148,10 @@ class TestMeltsBatch(unittest.TestCase):
                 "Final Temperature": 800,
                 "modes": ["isobaric"],
             },
+            grid={"Initial Pressure": [5000]},
             env=self.env,
-            fromdir=self.dir
+            fromdir=self.dir,
+            logger=logger
         )
         batch.run()
 
