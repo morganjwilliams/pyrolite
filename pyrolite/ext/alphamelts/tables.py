@@ -1,3 +1,6 @@
+"""
+Utilities for reading alphaMELTS table outputs.
+"""
 import os, sys
 import re
 import io

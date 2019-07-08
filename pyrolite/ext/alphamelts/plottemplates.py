@@ -1,3 +1,14 @@
+"""
+Templates for creating plots from alphaMELTS tables.
+
+Todo
+------
+
+    * accept an 'ax' parameter
+    * accept 1-n plots (currently has to be multiple.)
+    * consistent styles for specific phases
+    * split out some of the code for setting up plots
+"""
 import logging
 import numpy as np
 import matplotlib.pyplot as plt

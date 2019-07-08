@@ -1,3 +1,6 @@
+"""
+alphaMELTS download and installsation utilities.
+"""
 import os, sys, platform
 import subprocess, shutil
 import io

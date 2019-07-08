@@ -1,6 +1,8 @@
+"""
+Utility functions for use with alphaMELTS.
+"""
 import logging
 from collections import OrderedDict
-
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

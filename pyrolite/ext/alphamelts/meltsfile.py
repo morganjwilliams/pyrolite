@@ -1,3 +1,6 @@
+"""
+Utilities for reading and writing .melts files.
+"""
 import io
 import os
 import numpy as np

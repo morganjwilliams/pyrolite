@@ -1,3 +1,6 @@
+"""
+Parsing utilities for use with alphaMELTS.
+"""
 import re
 import pandas as pd
 from pathlib import Path
