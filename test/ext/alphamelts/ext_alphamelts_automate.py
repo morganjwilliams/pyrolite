@@ -2,7 +2,6 @@ import io
 import unittest
 import pandas as pd
 from pyrolite.util.pd import to_numeric
-from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
 from pyrolite.geochem.norm import ReferenceCompositions
@@ -12,16 +11,17 @@ import logging
 
 logger = logging.Logger(__name__)
 stream_log(logger)
+stream_log('pyrolite.ext.alphamelts.automation')
 
-with open(
-    (
-        pyrolite_datafolder(subfolder="alphamelts")
-        / "localinstall"
-        / "examples"
-        / "alphamelts_default_env.txt"
-    )
-) as f:
-    _env = f.read()
+_env = MELTS_Env()
+_env.VERSION = "MELTS"
+_env.MODE = "isobaric"
+_env.MINP = 2000
+_env.MAXP = 10000
+_env.MINT = 500
+_env.MAXT = 1500
+_env.DELTAT = -10
+_env.DELTAP = 0
 
 with open(
     (
@@ -38,11 +38,11 @@ class TestMakeMeltsFolder(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
         self.meltsfile = _melts
-        self.envfile = _env  # use default
+        self.env = _env  # use default
 
     def test_default(self):
         folder = make_meltsfolder(
-            self.meltsfile, "MORB", env=self.envfile, dir=self.dir
+            self.meltsfile, "MORB", env=self.env, dir=self.dir
         )
 
     def tearDown(self):
@@ -55,12 +55,12 @@ class TestMeltsProcess(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
         self.meltsfile = _melts
-        self.envfile = _env  # use default
+        self.env = _env  # use default
 
     def test_default(self):
         title = "MORB"
         folder = make_meltsfolder(
-            self.meltsfile, title=title, env=self.envfile, dir=self.dir
+            self.meltsfile, title=title, env=self.env, dir=self.dir
         )
         process = MeltsProcess(
             meltsfile="{}.melts".format(title),
@@ -85,11 +85,11 @@ class TestMeltsExperiment(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
         self.meltsfile = _melts
-        self.envfile = _env  # use default
+        self.env = _env  # use default
 
     def test_default(self):
         exp = MeltsExperiment(
-            meltsfile=self.meltsfile, title="Experiment", env=self.envfile, dir=self.dir
+            meltsfile=self.meltsfile, title="Experiment", env=self.env, dir=self.dir
         )
         # check the folder has been created correctly
         txtfiles = list(self.dir.glob("**/*.txt"))
@@ -131,15 +131,7 @@ class TestMeltsBatch(unittest.TestCase):
             for ix in MORB.index.values.astype(str)
         ]
         self.df = MORB
-        self.env = MELTS_Env()
-        self.env.VERSION = "MELTS"
-        self.env.MODE = "isobaric"
-        self.env.MINP = 2000
-        self.env.MAXP = 10000
-        self.env.MINT = 500
-        self.env.MAXT = 1500
-        self.env.DELTAT = -10
-        self.env.DELTAP = 0
+        self.env = _env
 
     def test_default(self):
         batch = MeltsBatch(
