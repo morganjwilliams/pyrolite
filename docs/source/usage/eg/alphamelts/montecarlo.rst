@@ -15,17 +15,17 @@ should be modelled differently.
   :language: python
   :end-before: # %% Data
 
-First we create a :class:`~pandas.DataFrame` with our compositions:
+First we create a :class:`~pandas.DataFrame` with our composition, which we then 'blur':
 
 .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% Data
   :end-before: # %% replicate
 
-  .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
-    :language: python
-    :start-after: # %% replicate
-    :end-before: # %% setup an environment
+.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+  :language: python
+  :start-after: # %% replicate
+  :end-before: # %% setup an environment
 
 Then we can configure an environment:
 
