@@ -336,7 +336,7 @@ class MeltsProcess(object):
             * Will likely terminate as expected using the command '0' to exit.
             * Otherwise will attempt to cleanup the process.
         """
-        alphamelts_ex = [
+        self.alphamelts_ex = [
             p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
         ]
         self.write("0")
@@ -348,7 +348,10 @@ class MeltsProcess(object):
         except ProcessLookupError:
             logger.debug("Process Terminated Successfully")
 
-        for p in alphamelts_ex:  # kill the children executables
+        self.cleanup()
+
+    def cleanup(self):
+        for p in self.alphamelts_ex:  # kill the children executables
             try:
                 # kill the alphamelts executable which can hang
                 logger.debug("Terminating {}".format(p.name()))

@@ -11,7 +11,7 @@ import logging
 
 logger = logging.Logger(__name__)
 stream_log(logger)
-stream_log('pyrolite.ext.alphamelts.automation', level='DEBUG')
+stream_log("pyrolite.ext.alphamelts.automation", level="DEBUG")
 
 _env = MELTS_Env()
 _env.VERSION = "MELTS"
