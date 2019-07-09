@@ -57,5 +57,4 @@ batch = MeltsBatch(
     logger=logger,
 )
 
-batch.experiments
 batch.run(overwrite=True) # overwrite=False if you don't want to update existing exp folders

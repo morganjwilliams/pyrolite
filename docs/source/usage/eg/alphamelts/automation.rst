@@ -4,7 +4,7 @@ Automating alphaMELTS runs
 pyrolite includes some utilities to help you run alphaMELTS with a little less hassle,
 especially for established workflows or repetitive calculations. Here we run multiple
 experiments at different conditions for a single MORB composition. Once we have the
-data in a :code:`~pandas.DataFrame`, we configure the default alphaMELTS environment
+data in a :class:`~pandas.DataFrame`, we configure the default alphaMELTS environment
 before running the batch of experiments.
 
 .. literalinclude:: ../../../../examples/alphamelts/automation.py

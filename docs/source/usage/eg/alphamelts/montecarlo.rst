@@ -13,35 +13,32 @@ should be modelled differently.
 
 .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
   :language: python
-  :end-before: # %% setup an
+  :end-before: # %% Data
 
-First we can configure an environment:
-
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
-  :language: python
-  :start-after: # %% setup an
-  :end-before: # %% get the MORB melts file
-
-Then we create a melts file from the MORB composition:
+First we create a :class:`~pandas.DataFrame` with our compositions:
 
 .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
   :language: python
-  :start-after: # %% get the MORB melts file
-  :end-before: # %% replicate and add noise
+  :start-after: # %% Data
+  :end-before: # %% replicate
 
-We can replicate this as number of times, then add a small amount of noise in
-compositional space:
+  .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+    :language: python
+    :start-after: # %% replicate
+    :end-before: # %% setup an environment
+
+Then we can configure an environment:
 
 .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
   :language: python
-  :start-after: # %% replicate and add noise
-  :end-before: # %% compostional variation
+  :start-after: # %% setup an environment
+  :end-before: # %% compositional
 
 This represents a relatively small variation in composition:
 
 .. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
   :language: python
-  :start-after: # %% compostional variation
+  :start-after: # %% compositional variation
   :end-before: # %% save figure
 
 .. image:: ../../../_static/melt_blurredmorb.png
