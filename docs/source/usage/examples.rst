@@ -1,6 +1,14 @@
 Examples
 ================
 
+Geochemistry
+-----------------
+.. toctree::
+  :glob:
+  :maxdepth: 2
+
+  eg/geochem/*
+
 Plotting
 ---------
 
@@ -22,15 +30,6 @@ Lambdas
    :maxdepth: 2
 
    eg/lambdas/*
-
-Normalisation
------------------
-.. toctree::
-  :glob:
-  :maxdepth: 2
-
-  eg/normalisation/*
-
 
 Mineral Calculations
 --------------------
@@ -69,7 +68,7 @@ utilities will likely also make use of the under-development python-melts.
 
 .. toctree::
   :glob:
-  :maxdepth: 2
+  :maxdepth: 1
 
   eg/alphamelts/*
 

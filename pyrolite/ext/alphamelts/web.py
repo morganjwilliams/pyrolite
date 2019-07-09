@@ -1,3 +1,11 @@
+"""
+Minimal REST interfaces to the MELTS web services.
+
+Todo
+------
+
+    * Function to generate a valid parameter dictionary to pass to the service.
+"""
 import logging
 import requests
 import dicttoxml, xmljson

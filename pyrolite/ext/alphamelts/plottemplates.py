@@ -1,3 +1,14 @@
+"""
+Templates for creating plots from alphaMELTS tables.
+
+Todo
+------
+
+    * accept an 'ax' parameter
+    * accept 1-n plots (currently has to be multiple.)
+    * consistent styles for specific phases
+    * split out some of the code for setting up plots
+"""
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,9 +90,9 @@ def plot_phasetable(
 
     if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
-            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
     else:
-        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "") + " %"))
+        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
 
     ax = ax.flat
 

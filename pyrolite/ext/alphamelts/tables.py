@@ -1,3 +1,6 @@
+"""
+Utilities for reading alphaMELTS table outputs.
+"""
 import os, sys
 import re
 import io
@@ -37,7 +40,7 @@ class MeltsOutput(object):
             try:
                 setattr(self, name, load(tpath))
             except:
-                logger.warning("Error on table import: {} {}".format(self.title, tpath))
+                logger.debug("Error on table import: {} {}".format(self.title, tpath))
                 setattr(self, name, pd.DataFrame())  # empty dataframe
 
     @property
@@ -67,7 +70,7 @@ class MeltsOutput(object):
             if title == self.title:
                 pass
             else:
-                logger.warning(
+                logger.debug(
                     "File with conflicting title found: {}; expected {}".format(
                         title, self.title
                     )
@@ -104,7 +107,7 @@ class MeltsOutput(object):
                 df.add_MgNo(components=True)
             return df
         else:
-            logger.warning("Expected file {} does not exist.".format(filepath))
+            logger.debug("Expected file {} does not exist.".format(filepath))
 
     def _read_solidcomp(self, filepath, skiprows=3):
         table = self.read_table(filepath, skiprows=skiprows)
@@ -205,3 +208,27 @@ def get_experiments_summary(dir, **kwargs):
         }
         summary[output.title]["output"] = output
     return summary
+
+def write_summary_phaselist(dir=None, summary=None, filename="phaselist.txt"):
+    """
+    Write the list of phases from an alphamelts experiment to file.
+
+    Parameters
+    -----------
+    dir : :class:`str` | :class:`pathlib.Path`
+        Path to the experiment directory.
+    summary : :class:`dict`
+        Summary of a series of melts experiements, optional.
+    """
+    if summary is None:
+        summary = get_experiments_summary(dir, kelvin=False)
+    mnl = max([len(name) for name in summary])
+    with open(dir / filename, "w") as f:
+        f.write(
+            "\n".join(
+                [
+                    name + " " * (mnl - len(name) + 2) + ", ".join(D["phases"])
+                    for name, D in summary.items()
+                ]
+            )
+        )

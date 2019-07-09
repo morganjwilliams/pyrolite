@@ -1,24 +1,8 @@
-"""
-Utility functions for use with alphaMELTS.
-"""
-import logging
-from collections import OrderedDict
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+from pyrolite.ext.alphamelts.web import *
 
 
-def default_data_dictionary():
-    """
-    Data dictionary with sufficient default values to be passed to MELTS REST services
-    for testing purposes.
-
-    Returns
-    --------
-    :class:`dict`
-        Dictionary with some default values.
-    """
-    d = OrderedDict()
+def default_datadict():
+    d = {}
     d["title"] = ("TestREST",)
     d["initialize"] = {
         "SiO2": 48.68,
@@ -40,3 +24,12 @@ def default_data_dictionary():
     d["calculationMode"] = "findLiquidus"
     d["constraints"] = {"setTP": {"initialT": 1200, "initialP": 1000}}
     return d
+
+
+D = default_datadict()
+# %% Oxides
+melts_oxides(D)
+# %% Phases
+melts_phases(D)
+# %% Compute
+melts_compute(D)

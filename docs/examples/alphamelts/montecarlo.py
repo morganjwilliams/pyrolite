@@ -26,7 +26,7 @@ MORB = Gale_MORB.original_data.loc[
     ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"],
     "value",
 ]
-MORB
+
 MORB["Title"] = Gale_MORB.ModelName
 MORB["Initial Temperature"] = 1300
 MORB["Final Temperature"] = 800

@@ -1,3 +1,6 @@
+"""
+alphaMELTS download and installsation utilities.
+"""
 import os, sys, platform
 import subprocess, shutil
 import io
@@ -181,7 +184,7 @@ def install_melts(
         elif native:
             # need to split into platforms
             egs = []
-            for g in ["*.melts", "*.txt", "*.m "]:
+            for g in ["*.melts", "*.txt", "*.m ", "*.pdf"]:
                 egs += list(temp_dir.glob(g))
             comms = [
                 "column_pick.command",
@@ -192,6 +195,7 @@ def install_melts(
             # getting the executable file
             if system == "Windows":
                 alphafile = "alphamelts_win{}.exe".format(bits)
+                alias = alphafile.replace(".exe", "")
             elif system == "Linux":
                 if ("Microsoft" in platrel) or ("Microsoft" in platver):
                     alphafile = "alphamelts_wsl"
@@ -203,21 +207,21 @@ def install_melts(
                 alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
 
+            # copy executable; alias is used on windows to make sure run_command links to the exe
+            alphaalias = [alphafile, "alphamelts"][system == "Windows"]
+            copy_file(temp_dir / alphafile, install_dir / alphaalias, permissions=0o777)
             # copy examples
             for (target, files) in [(eg_dir, egs)]:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
 
-            # copy exectuable, command files
-            for (target, files) in [
-                (install_dir, [temp_dir / alphafile]),
-                (install_dir, [(temp_dir / i) for i in comms]),
-            ]:
+            # copycommand files
+            for (target, files) in [(install_dir, [(temp_dir / i) for i in comms])]:
                 for fn in files:  # executable files will need permissions
                     copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
 
             # create links to the install directory
-            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphafile]
+            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphaalias]
             linkdest = [
                 link_dir / "alphamelts"
                 if (("alphamelts" in i.name) and (not "run" in i.name))

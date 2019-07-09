@@ -1,3 +1,6 @@
+"""
+Baisc spatial utility functions.
+"""
 import numpy as np
 from numpy import cos, sin, deg2rad, arctan, arctan2, arcsin, arccos, sqrt, abs
 import itertools

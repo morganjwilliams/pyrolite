@@ -4,7 +4,8 @@ Tests
 .. seealso:: `Contributing <contributing.html>`__
 
 If you clone the source repository, unit tests can be run using pytest from the root
-directory after installation:
+directory after installation with development dependencies
+(:code:`pip install -e .[dev]`):
 
 .. code-block:: bash
 

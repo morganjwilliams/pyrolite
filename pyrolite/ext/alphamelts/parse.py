@@ -1,3 +1,6 @@
+"""
+Parsing utilities for use with alphaMELTS.
+"""
 import re
 import pandas as pd
 from pathlib import Path
@@ -47,8 +50,10 @@ def _file_from_obj(fileobj):
             path = fileobj
     else:
         pass
+
     if (path is not None) and (file is None):
-        file = open(path).read()
+        with open(path) as f:
+            file = f.read()
 
     assert file is not None  # can't not have a meltsfile
     return file, path

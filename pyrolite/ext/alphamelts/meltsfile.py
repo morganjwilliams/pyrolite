@@ -1,10 +1,13 @@
+"""
+Utilities for reading and writing .melts files.
+"""
 import io
 import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from ...util.pd import to_frame, to_ser
-from ...geochem.ind import __common_elements__, __common_oxides__
+from ...geochem.ind import common_elements, common_oxides
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -49,13 +52,13 @@ def to_meltsfile(
         lines.append("Title: {}".format(ser.Title))
     else:
         lines.append("Title: {}".format(ser.title))
-    majors = [i for i in ser.index if i in __common_oxides__ and not i in exclude]
+    majors = [i for i in ser.index if i in common_oxides() and not i in exclude]
     for k, v in zip(majors, ser.loc[majors].values):
         if not pd.isnull(v):  # no NaN data in MELTS files
             lines.append("Initial Composition: {} {}".format(k, v))
 
     if writetraces:
-        traces = [i for i in ser.index if i in __common_elements__ and not i in exclude]
+        traces = [i for i in ser.index if i in common_elements() and not i in exclude]
         for k, v in zip(traces, ser.loc[traces].values):
             if not pd.isnull(v):  # no NaN data in MELTS files
                 lines.append("Initial Trace: {} {}".format(k, v))
@@ -68,15 +71,20 @@ def to_meltsfile(
                 if not pd.isnull(v):  # no NaN data in MELTS files
                     lines.append("{}: {}".format(k, v))
 
-    for k in ["dp/dt", "log fo2 path", "log fo2 delta"]:
+    for k in ["dp/dt", "Log fO2 Path", "Log fO2 Delta", "Suppress", "Fractionate"]:
         par = [
             par for ix, par in enumerate(ser.index.tolist()) if par.lower() == k.lower()
         ]
         if par:
             par = par[0]
             v = ser[par]
-            if not pd.isnull(v):  # no NaN data in MELTS files
-                lines.append("{}: {}".format(k, v))
+            if isinstance(v, list):  # no NaN data in MELTS files
+                for iv in v:
+                    if not pd.isnull(iv):
+                        lines.append("{}: {}".format(k, iv))  # suppress, fractionate
+            else:
+                if not pd.isnull(v):
+                    lines.append("{}: {}".format(k, v))
 
     for m in modes:
         lines.append("Mode: {}".format(m))

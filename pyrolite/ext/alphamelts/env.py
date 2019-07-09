@@ -1,3 +1,6 @@
+"""
+alphaMELTS environment managment.
+"""
 import os
 import logging
 from pyrolite.util.env import validate_update_envvar

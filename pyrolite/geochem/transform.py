@@ -114,7 +114,7 @@ def devolatilise(
         return df.loc[:, keep]
 
 
-def oxide_conversion(oxin, oxout):
+def oxide_conversion(oxin, oxout, molecular=False):
     """
     Factory function to generate a function to convert oxide components between
     two elemental oxides, for use in redox recalculations.
@@ -125,6 +125,8 @@ def oxide_conversion(oxin, oxout):
         Input component.
     oxout : :class:`str` | :class:`~periodictable.formulas.Formula`
         Output component.
+    molecular : :class:`bool`, :code:`False`
+        Whether to apply the conversion for molecular data.
 
     Returns
     -------
@@ -149,7 +151,7 @@ def oxide_conversion(oxin, oxout):
     # Moles of product vs. moles of reactant
     cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
 
-    def convert_series(dfser: pd.Series, molecular=False):
+    def convert_series(dfser: pd.Series, molecular=molecular):
         if molecular:
             factor = cation_coefficient
         else:
@@ -165,7 +167,12 @@ def oxide_conversion(oxin, oxout):
 @pf.register_series_method
 @pf.register_dataframe_method
 def elemental_sum(
-    df: pd.DataFrame, component=None, to=None, total_suffix="T", logdata=False
+    df: pd.DataFrame,
+    component=None,
+    to=None,
+    total_suffix="T",
+    logdata=False,
+    molecular=False,
 ):
     """
     Sums abundance for a cation to a single series, starting from a
@@ -181,6 +188,8 @@ def elemental_sum(
         Component to cast the output as.
     logdata : :class:`bool`, :code:`False`
         Whether data has been log transformed.
+    molecular : :class:`bool`, :code:`False`
+        Whether to perform a sum of molecular data.
 
     Returns
     -------
@@ -218,7 +227,9 @@ def elemental_sum(
         )
         for s in species:
             form = remove_suffix(s, suffix=total_suffix)
-            subdf[s] = subdf[s].apply(oxide_conversion(form, cationname))
+            subdf[s] = subdf[s].apply(
+                oxide_conversion(form, cationname, molecular=molecular)
+            )
 
         logger.debug("Zeroing non-finite and negative {} values.".format(cationname))
         subdf[(~np.isfinite(subdf.values)) | (subdf < 0.0)] = 0.0
@@ -230,13 +241,13 @@ def elemental_sum(
         return subsum
     else:
         subsum.name = to
-        return subsum.apply(oxide_conversion(cationname, to))
+        return subsum.apply(oxide_conversion(cationname, to, molecular=molecular))
 
 
 @pf.register_series_method
 @pf.register_dataframe_method
 def aggregate_element(
-    df: pd.DataFrame, to, total_suffix="T", logdata=False, renorm=False
+    df: pd.DataFrame, to, total_suffix="T", logdata=False, renorm=False, molecular=False
 ):
     """
     Aggregates cation information from oxide and elemental components
@@ -259,6 +270,9 @@ def aggregate_element(
         Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
     logdata : :class:`bool`, :code:`False`
         Whether the data has been log transformed.
+    molecular : :class:`bool`, :code:`False`
+        Whether to perform a sum of molecular data.
+
     Returns
     -------
     :class:`pandas.Series`
@@ -276,18 +290,21 @@ def aggregate_element(
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
         props = [1.0]
-        coeff = [oxide_conversion(cation, toform)(1)]
+        coeff = [oxide_conversion(cation, toform, molecular=molecular)(1)]
     elif isinstance(to, (pt.core.Element, pt.formulas.Formula)):
         to = str(to)
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
         props = [1.0]
-        coeff = [oxide_conversion(cation, to)(1)]
+        coeff = [oxide_conversion(cation, to, molecular=molecular)(1)]
     elif isinstance(to, dict):
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
         props = close(np.array([t[1] for t in targets]).astype(np.float))
-        coeff = [oxide_conversion(cation, t)(p) for t, p in zip(targetnames, props)]
+        coeff = [
+            oxide_conversion(cation, t, molecular=molecular)(p)
+            for t, p in zip(targetnames, props)
+        ]
         drop = [i for i in species if str(i) not in targetnames]
     else:
         raise NotImplementedError("Not yet implemented for tuples, lists, arrays etc.")
@@ -323,7 +340,12 @@ def aggregate_element(
 @pf.register_series_method
 @pf.register_dataframe_method
 def recalculate_Fe(
-    df: pd.DataFrame, to="FeOT", renorm=True, total_suffix="T", logdata=False
+    df: pd.DataFrame,
+    to="FeOT",
+    renorm=True,
+    total_suffix="T",
+    logdata=False,
+    molecular=False,
 ):
     """
     Recalculates abundances of iron, and normalises a dataframe to contain  either
@@ -348,6 +370,8 @@ def recalculate_Fe(
         Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
     logdata : :class:`bool`, :code:`False`
         Whether the data has been log transformed.
+    molecular : :class:`bool`, :code:`False`
+        Flag that data is in molecular units, rather than weight units.
 
     Returns
     -------
@@ -355,14 +379,24 @@ def recalculate_Fe(
         Transformed dataframe.
     """
     return aggregate_element(
-        df, to=to, renorm=renorm, total_suffix=total_suffix, logdata=logdata
+        df,
+        to=to,
+        renorm=renorm,
+        total_suffix=total_suffix,
+        logdata=logdata,
+        molecular=molecular,
     )
 
 
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_ratio(
-    df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, convert=lambda x: x
+    df: pd.DataFrame,
+    ratio: str,
+    alias: str = "",
+    norm_to=None,
+    convert=lambda x: x,
+    molecular=False,
 ):
     """
     Add a ratio of components A and B, given in the form of string 'A/B'.
@@ -378,6 +412,8 @@ def add_ratio(
         Alternate name for ratio to be used as column name.
     norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
         Reference composition to normalise to.
+    molecular : :class:`bool`, :code:`False`
+        Flag that data is in molecular units, rather than weight units.
 
     Returns
     -------
@@ -402,9 +438,7 @@ def add_ratio(
     assert tochem(num) in df.columns
     assert tochem(den) in df.columns
 
-    numcat, dencat = get_cations(num)[0], get_cations(den)[0]
-
-    if _to_norm or (norm_to is not None):
+    if _to_norm or (norm_to is not None): # if molecular, this will need to change
         if isinstance(norm_to, str):
             norm = ReferenceCompositions()[norm_to]
             num_n, den_n = norm[num].value, norm[den].value
@@ -418,7 +452,10 @@ def add_ratio(
 
     name = [ratio if not alias else alias][0]
     logger.debug("Adding Ratio: {}".format(name))
-    numsum, densum = (df.elemental_sum(num, to=num), df.elemental_sum(den, to=den))
+    numsum, densum = (
+        df.elemental_sum(num, to=num, molecular=molecular),
+        df.elemental_sum(den, to=den, molecular=molecular),
+    )
     ratio = numsum / densum
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
     df[name] = ratio
@@ -603,7 +640,7 @@ def lambda_lnREE(
 
 @pf.register_series_method
 @pf.register_dataframe_method
-def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
+def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=False):
     """
     Attempts to convert a dataframe with one set of components to another.
 
@@ -620,6 +657,8 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
         functions.
     renorm : :class:`bool`, :code:`False`
         Whether to renormalise the data after transformation.
+    molecular : :class:`bool`, :code:`False`
+        Flag that data is in molecular units, rather than weight units.
 
     Returns
     --------
@@ -667,7 +706,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
 
     # Aggregate the columns which are otherwise OK, then get new columns
     for item in agg_present + get_notpresent:
-        df = aggregate_element(df, to=item, logdata=logdata)
+        df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)
 
     # --- Try to get the new columns - iron redox section ------------------------------
     # check if there's a multicomponent speciation problem
@@ -684,13 +723,15 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False):
     if get_fe:
         get_fe = get_fe[0]
         logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
-        df = recalculate_Fe(df, to=get_fe, renorm=False, logdata=logdata)
+        df = recalculate_Fe(
+            df, to=get_fe, renorm=False, logdata=logdata, molecular=molecular
+        )
 
     # Try to get some ratios -----------------------------------------------------------
     if new_ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(new_ratios)))
         for r in new_ratios:
-            df.add_ratio(r)
+            df.add_ratio(r, molecular=molecular)
             # df = add_ratio(df, r)
 
     # Last Minute Checks ---------------------------------------------------------------

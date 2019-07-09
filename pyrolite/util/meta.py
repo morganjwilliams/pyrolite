@@ -1,4 +1,5 @@
 import os, sys
+import io
 import inspect
 import webbrowser
 from pathlib import Path
@@ -26,6 +27,27 @@ def pyrolite_datafolder(subfolder=None):
     if subfolder:
         pth /= subfolder
     return pth
+
+
+class ToLogger(io.StringIO):
+    """
+    Output stream which will output to logger module instead of stdout.
+    """
+
+    logger = None
+    level = None
+    buf = ""
+
+    def __init__(self, logger, level=None):
+        super(ToLogger, self).__init__()
+        self.logger = logger
+        self.level = level or logging.INFO
+
+    def write(self, buf):
+        self.buf = buf.strip("\r\n\t ")
+
+    def flush(self):
+        self.logger.log(self.level, self.buf)
 
 
 def stream_log(module, level="INFO"):
