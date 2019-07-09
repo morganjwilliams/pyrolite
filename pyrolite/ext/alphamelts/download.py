@@ -206,9 +206,9 @@ def install_melts(
             elif system == "Darwin":
                 alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
+
             # copy executable
-            alphaalias = "alphamelts"
-            copy_file(temp_dir / alphafile, install_dir / alphaalias, permissions=0o777)
+            copy_file(temp_dir / alphafile, install_dir / alphafile, permissions=0o777)
             # copy examples
             for (target, files) in [(eg_dir, egs)]:
                 for fn in files:

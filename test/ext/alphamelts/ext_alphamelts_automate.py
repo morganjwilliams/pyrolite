@@ -10,8 +10,6 @@ from pyrolite.ext.alphamelts.automation import *
 import logging
 
 logger = logging.Logger(__name__)
-stream_log(logger)
-stream_log("pyrolite.ext.alphamelts.automation", level="DEBUG")
 
 _env = MELTS_Env()
 _env.VERSION = "MELTS"
@@ -22,7 +20,6 @@ _env.MINT = 500
 _env.MAXT = 1500
 _env.DELTAT = -10
 _env.DELTAP = 0
-
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
     stream_log("pyrolite.ext.alphamelts")
@@ -61,7 +58,7 @@ class TestMeltsProcess(unittest.TestCase):
         self.env = _env  # use default
 
     def test_default(self):
-        title = "MORB"
+        title = "TestMeltsProcess"
         folder = make_meltsfolder(
             self.meltsfile, title=title, env=self.env, dir=self.dir
         )
@@ -92,7 +89,10 @@ class TestMeltsExperiment(unittest.TestCase):
 
     def test_default(self):
         exp = MeltsExperiment(
-            meltsfile=self.meltsfile, title="Experiment", env=self.env, dir=self.dir
+            meltsfile=self.meltsfile,
+            title="TestMeltsExperiment",
+            env=self.env,
+            dir=self.dir,
         )
         # check the folder has been created correctly
         txtfiles = list(self.dir.glob("**/*.txt"))
@@ -112,6 +112,7 @@ class TestMeltsExperiment(unittest.TestCase):
 class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
+
         Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
         majors = [
             "SiO2",
