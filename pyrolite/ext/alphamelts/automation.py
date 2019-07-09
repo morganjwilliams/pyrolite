@@ -196,7 +196,7 @@ class MeltsProcess(object):
 
             executable = local_run
             self.log(
-                "Using local executable meltsfile: {} @ {}".format(
+                "Using local executable: {} @ {}".format(
                     executable.name, executable.parent
                 )
             )

@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from ...util.plot import __DEFAULT_DISC_COLORMAP__, proxy_line
 from ...util.text import titlecase
-from ...geochem.ind import __common_oxides__
+from ...geochem.ind import common_oxides
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -154,7 +154,7 @@ def plot_comptable(
     all_components = set()
     for s in summary.values():
         all_components = all_components | (
-            set(getattr(s["output"], table).columns) & __common_oxides__
+            set(getattr(s["output"], table).columns) & common_oxides(as_set=True)
         )
 
     colors = {k: v for k, v in zip(all_components, range(len(all_components)))}
@@ -185,7 +185,7 @@ def plot_comptable(
         phases, output = d["phases"], d["output"]
         comptable = getattr(output, table)
         components = [
-            i for i in comptable.columns if i in __common_oxides__ and i != xvar
+            i for i in comptable.columns if i in common_oxides(as_set=True) and i != xvar
         ]
         for c in components:
             config = dict(color=__DEFAULT_DISC_COLORMAP__(colors[c]))
@@ -240,7 +240,7 @@ def plot_phase_composition(
         for p in all_phases:
             if p in s["output"].phasenames:
                 all_components = all_components | (
-                    set(s["output"].phases[p].columns) & __common_oxides__
+                    set(s["output"].phases[p].columns) & common_oxides(as_set=True)
                 )
     colors = {k: v for k, v in zip(all_components, range(len(all_components)))}
 
