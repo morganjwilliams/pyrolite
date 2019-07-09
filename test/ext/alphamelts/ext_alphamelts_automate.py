@@ -23,27 +23,6 @@ _env.MAXT = 1500
 _env.DELTAT = -10
 _env.DELTAP = 0
 
-Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
-MORB = Gale_MORB.original_data.loc[
-    [
-        "SiO2",
-        "Al2O3",
-        "FeO",
-        "MnO",
-        "MgO",
-        "CaO",
-        "Na2O",
-        "TiO2",
-        "K2O",
-        "P2O5",
-    ],
-    "value",
-].apply(pd.to_numeric)
-MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
-MORB["Title"] = [
-    "{}-{}".format(Gale_MORB.ModelName, ix)
-    for ix in MORB.index.values.astype(str)
-]
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
     stream_log("pyrolite.ext.alphamelts")
@@ -67,9 +46,7 @@ class TestMakeMeltsFolder(unittest.TestCase):
         self.env = _env  # use default
 
     def test_default(self):
-        folder = make_meltsfolder(
-            self.meltsfile, "MORB", env=self.env, dir=self.dir
-        )
+        folder = make_meltsfolder(self.meltsfile, "MORB", env=self.env, dir=self.dir)
 
     def tearDown(self):
         if self.dir.exists():
@@ -135,6 +112,32 @@ class TestMeltsExperiment(unittest.TestCase):
 class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
+        Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
+        majors = [
+            "SiO2",
+            "Al2O3",
+            "FeO",
+            "MnO",
+            "MgO",
+            "CaO",
+            "Na2O",
+            "TiO2",
+            "K2O",
+            "P2O5",
+        ]
+        MORB = Gale_MORB.original_data.loc[majors, "value"].apply(pd.to_numeric)
+        MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
+        MORB["Title"] = [
+            "{}_{}".format(Gale_MORB.ModelName, ix).replace("_", "")
+            for ix in MORB.index.values.astype(str)
+        ]
+        MORB["Initial Temperature"] = 1300
+        MORB["Final Temperature"] = 800
+        MORB["Initial Pressure"] = 5000
+        MORB["Final Pressure"] = 5000
+        MORB["Log fO2 Path"] = "FMQ"
+        MORB["Increment Temperature"] = -5
+        MORB["Increment Pressure"] = 0
         self.df = MORB
         self.env = _env
 
