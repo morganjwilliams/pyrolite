@@ -1,4 +1,12 @@
 include versioneer.py
 include pyrolite/_version.py
 include LICENSE
-recursive-include pyrolite/data *
+global-exclude __pycache__
+recursive-include pyrolite/data/Aitchison *
+include pyrolite/data/alphamelts/env.py
+recursive-include pyrolite/data/geochem *
+recursive-include pyrolite/data/models *
+recursive-include pyrolite/data/refcomp *
+recursive-include pyrolite/data/shannon *
+recursive-include pyrolite/data/timescale *
+exclude pyrolite/data/alphamelts/localinstall
