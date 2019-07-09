@@ -11,6 +11,11 @@ import logging
 
 logger = logging.Logger(__name__)
 
+
+if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
+    stream_log("pyrolite.ext.alphamelts")
+    install_melts(local=True)  # install melts for example files etc
+
 _env = MELTS_Env()
 _env.VERSION = "MELTS"
 _env.MODE = "isobaric"
@@ -21,12 +26,8 @@ _env.MAXT = 1500
 _env.DELTAT = -10
 _env.DELTAP = 0
 
-if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
-    stream_log("pyrolite.ext.alphamelts")
-    install_melts(local=True)  # install melts for example files etc
-
 with open(
-    (
+    str(
         pyrolite_datafolder(subfolder="alphamelts")
         / "localinstall"
         / "examples"

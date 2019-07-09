@@ -207,22 +207,21 @@ def install_melts(
                 alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
 
-            # copy executable
-            copy_file(temp_dir / alphafile, install_dir / alphafile, permissions=0o777)
+            # copy executable; alias is used on windows to make sure run_command links to the exe
+            alphaalias = [alphafile, "alphamelts"][system == "Windows"]
+            copy_file(temp_dir / alphafile, install_dir / alphaalias, permissions=0o777)
             # copy examples
             for (target, files) in [(eg_dir, egs)]:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
 
             # copycommand files
-            for (target, files) in [
-                (install_dir, [(temp_dir / i) for i in comms]),
-            ]:
+            for (target, files) in [(install_dir, [(temp_dir / i) for i in comms])]:
                 for fn in files:  # executable files will need permissions
                     copy_file(temp_dir / fn.name, target / fn.name, permissions=0o777)
 
             # create links to the install directory
-            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphafile]
+            linksrc = [(install_dir / i) for i in comms] + [install_dir / alphaalias]
             linkdest = [
                 link_dir / "alphamelts"
                 if (("alphamelts" in i.name) and (not "run" in i.name))
