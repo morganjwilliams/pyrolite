@@ -195,6 +195,7 @@ def install_melts(
             # getting the executable file
             if system == "Windows":
                 alphafile = "alphamelts_win{}.exe".format(bits)
+                alias = alphafile.replace(".exe", "")
             elif system == "Linux":
                 if ("Microsoft" in platrel) or ("Microsoft" in platver):
                     alphafile = "alphamelts_wsl"
@@ -205,15 +206,16 @@ def install_melts(
             elif system == "Darwin":
                 alphafile = "alphamelts_macosx{}".format(bits)
                 # with_readline
-
+            # copy executable
+            alphaalias = "alphamelts"
+            copy_file(temp_dir / alphafile, install_dir / alphaalias, permissions=0o777)
             # copy examples
             for (target, files) in [(eg_dir, egs)]:
                 for fn in files:
                     copy_file(temp_dir / fn.name, target / fn.name)
 
-            # copy exectuable, command files
+            # copycommand files
             for (target, files) in [
-                (install_dir, [temp_dir / alphafile]),
                 (install_dir, [(temp_dir / i) for i in comms]),
             ]:
                 for fn in files:  # executable files will need permissions
