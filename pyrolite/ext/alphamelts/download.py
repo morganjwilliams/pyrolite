@@ -184,7 +184,7 @@ def install_melts(
         elif native:
             # need to split into platforms
             egs = []
-            for g in ["*.melts", "*.txt", "*.m "]:
+            for g in ["*.melts", "*.txt", "*.m ", "*.pdf"]:
                 egs += list(temp_dir.glob(g))
             comms = [
                 "column_pick.command",
