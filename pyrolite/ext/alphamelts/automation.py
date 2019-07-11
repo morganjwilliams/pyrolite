@@ -48,7 +48,7 @@ def exp_name(exp):
         This is a subset of potential parameters, need to expand to ensure uniqueness of naming.
     """
 
-    mode = "".join([__abbrv__[m] for m in exp["modes"]])
+    mode = "".join([__abbrv__.get(m, m) for m in exp["modes"]])
 
     fo2 = exp.get("Log fO2 Path", "")
     fo2d = exp.get("Log fO2 Delta", "")
@@ -336,17 +336,21 @@ class MeltsProcess(object):
             * Will likely terminate as expected using the command '0' to exit.
             * Otherwise will attempt to cleanup the process.
         """
-        self.alphamelts_ex = [
-            p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
-        ]
-        self.write("0")
-        time.sleep(0.5)
+        try:
+            self.alphamelts_ex = [
+                p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
+            ]
+            self.write("0")
+            time.sleep(0.5)
+        except (ProcessLookupError, psutil.NoSuchProcess):
+            logger.warning("Process terminated unexpectedly.")
+
         try:
             self.process.stdin.close()
             self.process.terminate()
             self.process.wait(timeout=0.2)
         except ProcessLookupError:
-            logger.debug("Process Terminated Successfully")
+            logger.debug("Process terminated successfully.")
 
         self.cleanup()
 
