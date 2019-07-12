@@ -3,7 +3,8 @@ Element-Oxide Transformation
 
 One of pyrolite's strengths is converting mixed elemental and oxide data to a new
 form. The simplest way to perform this is by using the
-:func:`~pyrolite.geochem.transform.convert_chemistry` function.
+:func:`~pyrolite.geochem.transform.convert_chemistry` function. Note that by default
+pyrolite assumes that data are in the same units.
 
 .. literalinclude:: ../../../../examples/geochem/convert_chemistry.py
   :language: python
@@ -23,17 +24,31 @@ units (here we use Wt%):
 .. literalinclude:: ../../../../examples/geochem/convert_chemistry.py
   :language: python
   :start-after:  # %% Unit Conversion
-  :end-before: # Conversion
+  :end-before: # %% Conversion
 
-Finally, we can transform this chemical data to a new set of compositional variables.
+We can transform this chemical data to a new set of compositional variables.
 Note that you can also use this function to calculate mass ratios:
 
 .. literalinclude:: ../../../../examples/geochem/convert_chemistry.py
   :language: python
-  :start-after:  # Conversion
+  :start-after: # %% Conversion
+  :end-before: # %% Iron Conversion
 
 .. code-block:: python
 
   >>> new_df.columns
 
   Index(['MgO', 'SiO2', 'FeO', 'CaO', 'Te', 'Na', 'Na/Te', 'MgO/SiO2'], dtype='object')
+
+You can also specify molar ratios for iron redox, which will result in multiple iron
+species within the single dataframe:
+
+.. literalinclude:: ../../../../examples/geochem/convert_chemistry.py
+  :language: python
+  :start-after: # %% Iron Conversion
+
+.. code-block:: python
+
+  >>> new_df.columns
+
+  Index(['MgO', 'SiO2', 'CaO', 'FeO', 'Fe2O3'], dtype='object')

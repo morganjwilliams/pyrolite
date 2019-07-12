@@ -8,7 +8,8 @@ from pyrolite.util.meta import stream_log
 import logging
 
 logger = logging.Logger(__name__)
-stream_log(logger) # print the logging output
+stream_log(logger)  # print the logging output
+
 
 def blur_compositions(df, noise=0.05, scale=100):
     """
@@ -21,6 +22,7 @@ def blur_compositions(df, noise=0.05, scale=100):
     return inverse_ilr(xvals) * scale
 # %% Data
 from pyrolite.geochem.norm import ReferenceCompositions
+
 # get the major element composition of MORB from Gale et al (2013)
 Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
 majors = ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"]
@@ -38,32 +40,29 @@ from pyrolite.util.text import slugify
 from pyrolite.util.pd import accumulate
 from pyrolite.geochem.ind import common_oxides
 
-reps = 10
+reps = 5
 df = accumulate([pd.DataFrame(MORB).T] * reps)
 df = df.reset_index().drop(columns="index")
 compositional = [i for i in df if i in common_oxides(as_set=True)]
 df[compositional] = df[compositional].astype(float).renormalise()
 df[compositional] = blur_compositions(df[compositional])
 
-# differentiate titles
-df.Title = df.Title + " " + df.index.map(str)
+df.Title = df.Title + " " + df.index.map(str) # differentiate titles
 df.Title = df.Title.apply(slugify)
 # %% setup an environment for isobaric fractional crystallisation
 from pyrolite.ext.alphamelts.env import MELTS_Env
 
 env = MELTS_Env()
-env.VERSION = "MELTS"  # crustal processes, pMELTS > 1GPA/10kbar
+env.VERSION = "MELTS"  # crustal processes, < 1GPa/10kbar
 env.MODE = "isobaric"
 env.DELTAT = -5
-env.DELTAP = 0
-env.MINP = 5000
-env.MAXP = 5000
-env.MINT = 800
-env.MAXT = 1800
+env.MINP = 0
+env.MAXP = 10000
 # %% compositional variation
 ax = df.loc[:, ["CaO", "MgO", "Al2O3"]].pyroplot.ternary(alpha=0.2, c="0.5")
 # %% save figure
 from pyrolite.util.plot import save_figure
+
 save_figure(ax.figure, save_at="../../source/_static", name="melt_blurredmorb")
 # %% run the models for each of the inputs
 from pyrolite.ext.alphamelts.automation import MeltsBatch
@@ -79,10 +78,14 @@ batch = MeltsBatch(
         "Final Temperature": 800,
         "modes": ["isobaric"],
     },
-    grid={},
+    grid={
+        #"Initial Pressure": [3000, 7000],
+        "Log fO2 Path": [None, "FMQ"],
+        #"modifychem": [None, {"H2O": 0.5}],
+    },
     env=env,
     logger=logger,
-    fromdir=tempdir
+    fromdir=tempdir,
 )
 
 batch.run(
@@ -93,7 +96,7 @@ batch.run(
 from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.ext.alphamelts.plottemplates import table_by_phase
 
-summary = get_experiments_summary(tempdir /'isobar5kbar', kelvin=False)
-fig = table_by_phase(summary, plotswide=3, figsize=(10, 5))
+summary = get_experiments_summary(tempdir / "isobar5kbar", kelvin=False)
+fig = table_by_phase(summary, plotswide=2, figsize=(10, 5))
 # %% save figure
 save_figure(fig, save_at="../../source/_static", name="melts_montecarlo")
