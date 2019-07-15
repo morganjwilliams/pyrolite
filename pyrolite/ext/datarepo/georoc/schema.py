@@ -50,7 +50,7 @@ def parse_GEOROC_response(content: str):
     datadf.Citations = datadf.Citations.apply(
         lambda lst: "; ".join([refdf.loc[x, "value"] for x in lst])
     )
-    datadf["doi"] = datadf.Citations.apply(parse_DOI)
+    datadf.loc[:, "doi"] = datadf.Citations.apply(parse_DOI)
     return datadf
 
 
