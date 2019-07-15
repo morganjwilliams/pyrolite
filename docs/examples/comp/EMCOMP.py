@@ -5,11 +5,18 @@ from pyrolite.comp.impute import EMCOMP
 from pyrolite.util.synthetic import random_composition, random_cov_matrix
 from pyrolite.plot import pyroplot
 
-np.random.seed(82)
+np.random.seed(41)
 
-sample_data = random_composition(1000, 4, propnan=0.2, missing="MNAR", missingcols=3)
+sample_data = random_composition(
+    size=1000,
+    D=4,
+    cov=random_cov_matrix(3, sigmas=[0.1, 0.3, 0.15]),
+    propnan=0.2,
+    missing="MNAR",
+    missingcols=3,
+)
 imputed_data, p0, niter = EMCOMP(
-    sample_data, threshold=np.nanpercentile(sample_data, 90, axis=0), tol=0.01
+    sample_data, threshold=np.nanpercentile(sample_data, 10, axis=0), tol=0.01
 )
 imputed_data = pd.DataFrame(imputed_data, columns=["A", "B", "C", "D"])
 # %% Plot Data --
