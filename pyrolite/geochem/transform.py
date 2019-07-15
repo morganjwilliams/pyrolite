@@ -422,7 +422,7 @@ def add_ratio(
 
     Todo
     ------
-        * Implement methods to get data which is not currently present.
+        * Use elemental sum from reference compositions
         * Use sympy-like functionality to accept arbitrary input e.g.
             :code:`"MgNo = Mg / (Mg + Fe)"` for subsequent calculation.
 
@@ -435,8 +435,6 @@ def add_ratio(
     if den.lower().endswith("_n"):
         den = titlecase(den.lower().replace("_n", ""))
         _to_norm = True
-    assert tochem(num) in df.columns
-    assert tochem(den) in df.columns
 
     if _to_norm or (norm_to is not None): # if molecular, this will need to change
         if isinstance(norm_to, str):
