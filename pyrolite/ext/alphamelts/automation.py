@@ -289,7 +289,7 @@ class MeltsProcess(object):
             lines.append(self.q.get_nowait().decode())
         return "".join(lines)
 
-    def wait(self, step=0.5):
+    def wait(self, step=1.):
         """
         Wait until addtions to process.stdout stop.
 
