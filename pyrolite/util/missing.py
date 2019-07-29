@@ -70,7 +70,7 @@ def cooccurence_pattern(Y, normalize=False, log=False):
     _Y[~np.isfinite(_Y)] = 0
     _Y[_Y > 0] = 1
     _Y = _Y.astype(int)
-    co_occur = _Y.T @ _Y
+    co_occur = (_Y.T @ _Y).astype(float)
     d = co_occur.shape[0]
     if normalize:
         diags = np.diagonal(co_occur)
