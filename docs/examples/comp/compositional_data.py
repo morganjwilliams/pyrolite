@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 # %% Data
 # pyrolite comes with a few datasets from Aitchison (1984) built in which we can use
-# ax examples:
+# as examples:
 from pyrolite.data.Aitchison import load_kongite
 
 df = load_kongite()
