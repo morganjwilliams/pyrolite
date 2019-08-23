@@ -71,7 +71,14 @@ def to_meltsfile(
                 if not pd.isnull(v):  # no NaN data in MELTS files
                     lines.append("{}: {}".format(k, v))
 
-    for k in ["dp/dt", "Log fO2 Path", "Log fO2 Delta", "Suppress", "Fractionate"]:
+    for k in [
+        "dp/dt",
+        "Log fO2 Path",
+        "Log fO2 Delta",
+        "Suppress",
+        "Limit coexisting",
+        "Fractionate",
+    ]:
         par = [
             par for ix, par in enumerate(ser.index.tolist()) if par.lower() == k.lower()
         ]

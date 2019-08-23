@@ -209,6 +209,7 @@ def get_experiments_summary(dir, **kwargs):
         summary[output.title]["output"] = output
     return summary
 
+
 def write_summary_phaselist(dir=None, summary=None, filename="phaselist.txt"):
     """
     Write the list of phases from an alphamelts experiment to file.
@@ -222,13 +223,13 @@ def write_summary_phaselist(dir=None, summary=None, filename="phaselist.txt"):
     """
     if summary is None:
         summary = get_experiments_summary(dir, kelvin=False)
-    mnl = max([len(name) for name in summary])
-    with open(dir / filename, "w") as f:
-        f.write(
-            "\n".join(
-                [
-                    name + " " * (mnl - len(name) + 2) + ", ".join(D["phases"])
-                    for name, D in summary.items()
-                ]
-            )
-        )
+    try:
+        mnl = max([len(name) for name in summary])
+        phases = [
+            name + " " * (mnl - len(name) + 2) + ", ".join(D["phases"])
+            for name, D in summary.items()
+        ]
+        with open(dir / filename, "w") as f:
+            f.write("\n".join([phases]))
+    except (TypeError):
+        open(dir / filename, "a").close()  # touch file - nothing to add here
