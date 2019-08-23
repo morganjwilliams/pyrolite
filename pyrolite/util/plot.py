@@ -660,7 +660,7 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
-def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
+def ternary_patch(scale=100.0, yscale=np.sqrt(3)/2, xscale=1.0, **kwargs):
     """
     Create the background triangle patch for a ternary plot.
     """
