@@ -31,7 +31,7 @@ cover most core functions and classes, they do not yet cover the entire codebase
    contributing
    conduct
    contributors
-   citation
+   cite
 
 
 .. note:: This documentation is a work in progress and is updated regularly. Contact
