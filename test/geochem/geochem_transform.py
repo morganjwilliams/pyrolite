@@ -548,10 +548,16 @@ class TestConvertChemistry(unittest.TestCase):
         out_components = self.expect
         for logdata in [True, False]:
             with self.subTest(logdata=logdata):
-                conv_df = convert_chemistry(self.df, logdata=logdata)
+                conv_df = convert_chemistry(self.df, to=out_components, logdata=logdata)
                 self.assertTrue(
                     all([a == b for a, b in zip(conv_df.columns, out_components)])
                 )
+
+    def test_numeric(self):
+        # should check that non-numeric data gets converted during processing here?
+        out_components = self.expect
+        conv_df = convert_chemistry(self.df, to=out_components)
+        self.assertTrue(all([a in ["int64", "float64"] for a in conv_df.dtypes]))
 
     def test_renorm(self):
         out_components = self.expect

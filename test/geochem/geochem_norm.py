@@ -2,6 +2,7 @@ import unittest
 import pyrolite
 from pyrolite.util.synthetic import test_df
 from pyrolite.geochem.norm import *
+from pyrolite.util.meta import pyrolite_datafolder
 
 
 class TestRefcomp(unittest.TestCase):
@@ -10,7 +11,7 @@ class TestRefcomp(unittest.TestCase):
     def setUp(self):
         self.build_kwargs = dict(encoding="cp1252")
         pyrodir = os.path.realpath(pyrolite.__file__)
-        self.dir = (Path(pyrodir).parent / "data" / "refcomp").resolve()
+        self.dir = pyrolite_datafolder(subfolder="geochem") / "refcomp"
         assert self.dir.is_dir()
         self.files = [x for x in self.dir.iterdir() if x.is_file()]
         self.CHfile = [f for f in self.files if "CH_PalmeONeill2014" in str(f)][0]
@@ -66,23 +67,23 @@ class TestRefcomp(unittest.TestCase):
 
     def test_ratio_present(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)
-        for ratio in ['Mn/Cu']:
+        for ratio in ["Mn/Cu"]:
             r = CH.ratio(ratio)
             self.assertTrue(np.isfinite(r))
 
     def test_getattr(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)
-        for attr in ['Mn', 'Cu']:
+        for attr in ["Mn", "Cu"]:
             a = getattr(CH, attr)
             self.assertTrue(np.isfinite(a))
 
     def test_repr(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)
-        self.assertTrue('RefComp' in repr(CH))
+        self.assertTrue("RefComp" in repr(CH))
 
     def test_str(self):
         CH = RefComp(self.CHfile, **self.build_kwargs)
-        self.assertTrue('Model of' in str(CH))
+        self.assertTrue("Model of" in str(CH))
 
 
 class TestReferenceCompositions(unittest.TestCase):
