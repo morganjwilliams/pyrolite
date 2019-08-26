@@ -3,9 +3,11 @@ from pathlib import Path
 import platform
 import pandas as pd
 import numpy as np
-from ..comp import *
-from ..util.pd import to_frame
-from ..util.units import scale
+from tinydb import TinyDB, Query
+from ...comp import *
+from ...util.pd import to_frame
+from ...util.units import scale
+from ...util.meta import pyrolite_datafolder
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -261,7 +263,7 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
 
     curr_dir = os.path.realpath(__file__)
     module_dir = Path(sys.modules["pyrolite"].__file__).parent
-    directory = directory or (Path(module_dir) / "data" / "refcomp").resolve()
+    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
 
     assert directory.exists() and directory.is_dir()
 
@@ -274,3 +276,42 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
         r = RefComp(f, **kwargs)
         comps[r.ModelName] = r
     return comps
+
+
+def get_reference_files(directory=None, formats=["csv"]):
+    """
+    Get a list of the reference composition files.
+
+    Parameters
+    -----------
+    directory : :class:`str`, :code:`None`
+        Location of reference data files.
+    formats : :class:`list`, :code:`["csv"]`
+        List of potential data formats to draw from. Currently only csv will work.
+
+    Returns
+    --------
+    :class:`list`
+    """
+    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
+    assert directory.exists() and directory.is_dir()
+    files = []
+    for fmt in formats:
+        files.extend(directory.glob("./*." + fmt))
+    return files
+
+
+def update_database(**kwargs):
+    """
+    Update the reference composition database.
+    """
+    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
+
+    dbfile = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
+    db = TinyDB(str(dbfile))
+    db.purge()
+
+    for f in get_reference_files():
+        r = RefComp(f, **kwargs)
+        r.ModelName = f.name
+        db.insert({"name": r.ModelName, "composition": r.original_data.to_json()})
