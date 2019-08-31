@@ -223,36 +223,37 @@ def plot_mapping(
             enabling a continuous (n-dimensional) colormap to be used
             to show similar classes, in addition to classification confidence.
     """
+    X_ = X.copy() # avoid modifying input array
     if mapping is None:
         tfm = sklearn.manifold.MDS
         tfm_kwargs = {k: v for k, v in kwargs.items() if inargs(k, tfm)}
         tfm = tfm(n_components=2, metric=True, **tfm_kwargs)
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     elif isinstance(mapping, str):
         if mapping.lower() == "mds":
             cls = sklearn.manifold.MDS
             kw = dict(n_components=2, metric=True)
         elif mapping.lower() == "isomap":
-            # not necessarily  consistent orientation, but consistent shape
+            # not necessarily consistent orientation, but consistent shape
             cls = sklearn.manifold.Isomap
             kw = dict(n_components=2)
         elif mapping.lower() == "tsne":
             # likely need to optimise!
-            tfm = sklearn.manifold.TSNE
+            cls = sklearn.manifold.TSNE
             kw = dict(n_components=2)
         else:
             raise NotImplementedError
         tfm = cls(**{**kw, **subkwargs(kwargs, cls)})
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     elif isinstance(
         mapping, (sklearn.base.TransformerMixin, sklearn.base.BaseEstimator)
     ):  # manifold transforms can be either
         tfm = mapping
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     else:  # mapping is already performedata, expect a numpy.ndarray
         mapped = mapping
         tfm = None
-    assert mapped.shape[0] == X.shape[0]
+    assert mapped.shape[0] == X_.shape[0]
 
     if ax is None:
         fig, ax = plt.subplots(1, **kwargs)
@@ -262,10 +263,10 @@ def plot_mapping(
     elif isinstance(Y, (sklearn.base.BaseEstimator)):
         # need to split this into  multiple methods depending on form of classifier
         if hasattr(Y, "predict_proba"):
-            classes = Y.predict(X)
+            classes = Y.predict(X_)
             cmap = cmap or __DEFAULT_DISC_COLORMAP__
             c = cmap(classes)
-            ps = Y.predict_proba(X)
+            ps = Y.predict_proba(X_)
             a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)
             c[:, -1] = a
         else:
