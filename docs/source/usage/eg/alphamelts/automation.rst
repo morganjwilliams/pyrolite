@@ -25,7 +25,7 @@ before running the batch of experiments.
   :language: python
   :start-after: # %% Batch
 
-.. code-block:: python
+.. code-block:: bash
 
   __main__ - INFO - Starting 5 Calculations for 1 Compositions.
   __main__ - INFO - Estimated Time: 0:00:30
