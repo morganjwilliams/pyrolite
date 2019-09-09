@@ -133,6 +133,42 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     ax.scatter(x, y, marker="D", s=100, c="k")
     return ax
 
+def alphas_from_multiclass_prob(probs, method='entropy', alpha=1.):
+    """
+    Take an array of multiclass probabilities and map to an alpha variable.
+
+    Parameters
+    -----------
+    probs : :class:`numpy.ndarray`
+        Multiclass probabilities with shape (nsamples, nclasses).
+
+    method : :class:`str`, :code:`entropy` | :code:`kl_div`
+        Method for mapping probabilities to alphas.
+    alpha : :class:`float`
+        Optional specification of overall maximum alpha value.
+
+    Returns
+    ----------
+    a : :class:`numpy.ndarray`
+        Alpha values for each sample with shape (nsamples, 1).
+    """
+    netzero = 1.0 / probs.shape[1] * np.ones(probs.shape[1])
+    if method == "entropy":
+        # uniform distribution has maximum entropy
+        max_H = scipy.stats.entropy(netzero)
+        H = np.apply_along_axis(scipy.stats.entropy, 1, probs)
+        min_H = np.min(H, axis=0)
+        rel_H = (H - min_H) / (max_H - min_H)  # between zero and one
+        a = 1.0 - rel_H
+        a *= alpha
+    else:
+        # alpha as sum of information gain
+        a = np.apply_along_axis(scipy.special.kl_div, 1, probs, netzero).sum(
+            axis=1
+        )
+        a = a / np.max(a, axis=0)
+        a *= alpha
+    return a
 
 def plot_mapping(
     X,
@@ -187,36 +223,37 @@ def plot_mapping(
             enabling a continuous (n-dimensional) colormap to be used
             to show similar classes, in addition to classification confidence.
     """
+    X_ = X.copy() # avoid modifying input array
     if mapping is None:
         tfm = sklearn.manifold.MDS
         tfm_kwargs = {k: v for k, v in kwargs.items() if inargs(k, tfm)}
         tfm = tfm(n_components=2, metric=True, **tfm_kwargs)
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     elif isinstance(mapping, str):
         if mapping.lower() == "mds":
             cls = sklearn.manifold.MDS
             kw = dict(n_components=2, metric=True)
         elif mapping.lower() == "isomap":
-            # not necessarily  consistent orientation, but consistent shape
+            # not necessarily consistent orientation, but consistent shape
             cls = sklearn.manifold.Isomap
             kw = dict(n_components=2)
         elif mapping.lower() == "tsne":
             # likely need to optimise!
-            tfm = sklearn.manifold.TSNE
+            cls = sklearn.manifold.TSNE
             kw = dict(n_components=2)
         else:
             raise NotImplementedError
         tfm = cls(**{**kw, **subkwargs(kwargs, cls)})
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     elif isinstance(
         mapping, (sklearn.base.TransformerMixin, sklearn.base.BaseEstimator)
     ):  # manifold transforms can be either
         tfm = mapping
-        mapped = tfm.fit_transform(X)
+        mapped = tfm.fit_transform(X_)
     else:  # mapping is already performedata, expect a numpy.ndarray
         mapped = mapping
         tfm = None
-    assert mapped.shape[0] == X.shape[0]
+    assert mapped.shape[0] == X_.shape[0]
 
     if ax is None:
         fig, ax = plt.subplots(1, **kwargs)
@@ -226,26 +263,11 @@ def plot_mapping(
     elif isinstance(Y, (sklearn.base.BaseEstimator)):
         # need to split this into  multiple methods depending on form of classifier
         if hasattr(Y, "predict_proba"):
-            classes = Y.predict(X)
+            classes = Y.predict(X_)
             cmap = cmap or __DEFAULT_DISC_COLORMAP__
             c = cmap(classes)
-            ps = Y.predict_proba(X)
-            netzero = 1.0 / ps.shape[1] * np.ones(ps.shape[1])
-            if alpha_method == "entropy":
-                # uniform distribution has maximum entropy
-                max_H = scipy.stats.entropy(netzero)
-                H = np.apply_along_axis(scipy.stats.entropy, 1, ps)
-                min_H = np.min(H, axis=0)
-                rel_H = (H - min_H) / (max_H - min_H)  # between zero and one
-                a = 1.0 - rel_H
-                a *= alpha
-            else:
-                # alpha as sum of information gain
-                a = np.apply_along_axis(scipy.special.kl_div, 1, ps, netzero).sum(
-                    axis=1
-                )
-                a = a / np.max(a, axis=0)
-                a *= alpha
+            ps = Y.predict_proba(X_)
+            a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)
             c[:, -1] = a
         else:
             c = Y.predict(X)

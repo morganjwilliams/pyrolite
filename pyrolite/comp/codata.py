@@ -196,7 +196,7 @@ def inverse_clr(Y: np.ndarray):
 
 def ilr(X: np.ndarray):
     """
-    Isotmetric Log Ratio transformation.
+    Isometric Log Ratio transformation.
 
     Parameters
     ---------------

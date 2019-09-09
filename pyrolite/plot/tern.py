@@ -97,7 +97,10 @@ def ternary(
 
     if not hasattr(tax, "patch"):
         tax.patch = ternary_patch(
-            scale=scale, color=ax.patch.get_facecolor(), zorder=-10
+            scale=scale,
+            color=ax.patch.get_facecolor(),
+            yscale=np.sqrt(3) / 2,
+            zorder=-10,
         )
         ax.add_artist(tax.patch)
     # Set attribute for future reference

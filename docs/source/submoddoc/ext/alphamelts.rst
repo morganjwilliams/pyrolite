@@ -35,7 +35,7 @@ pyrolite\.ext\.alphamelts\.tables
       :undoc-members:
 
 pyrolite\.ext\.alphamelts\.plottemplates
----------------------------------------
+-----------------------------------------
   .. automodule:: pyrolite.ext.alphamelts.plottemplates
       :members:
       :undoc-members:

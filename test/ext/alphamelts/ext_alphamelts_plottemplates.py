@@ -44,9 +44,8 @@ class TestTemplates(unittest.TestCase):
         )
         self.process.write([3, 1, 4], wait=True, log=False)
         self.process.terminate()
-
         self.summary = get_experiments_summary(self.dir)
-
+        
     def test_plot_phasetable(self):
         ax = plot_phasetable(self.summary)  # phasevol
 

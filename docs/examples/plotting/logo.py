@@ -45,8 +45,8 @@ covs = (  # covariance for logspace (D=2)
 )
 
 means = ILRTransform().inverse_transform(means)  # compositional means (D=3)
-size = 2000
-pts = [random_composition(mean=M, cov=C, size=2000) for M, C in zip(means, covs)]
+size = 2000 # logo @ 10000
+pts = [random_composition(mean=M, cov=C, size=size) for M, C in zip(means, covs)]
 
 T = ILRTransform()
 to_log = T.transform
@@ -54,7 +54,7 @@ from_log = T.inverse_transform
 
 df = pd.DataFrame(np.vstack(pts))
 df.columns = ["SiO2", "MgO", "FeO"]
-df["Sample"] = np.repeat(np.arange(df.columns.size + 1), 2000).flatten()
+df["Sample"] = np.repeat(np.arange(df.columns.size + 1), size).flatten()
 # %% figure --
 scale = 100
 fig, ax = plt.subplots(2, 2, figsize=(10, 10 * np.sqrt(3) / 2))
@@ -76,7 +76,7 @@ kwargs = dict(ax=ax[1], transform=from_log, nstds=3)
 for ix, sample in enumerate(df.Sample.unique()):
     comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
     tcomp = to_log(comp)
-    plot_stdev_ellipses(tcomp.values, color=t10b3[ix], **kwargs)
+    plot_stdev_ellipses(tcomp.values, color=t10b3[ix], resolution=1000, **kwargs)
     plot_pca_vectors(tcomp.values, ls="-", lw=0.5, color="k", **kwargs)
 # %% individual density diagrams ------------------------------------------------------
 kwargs = dict(ax=ax[-2], bins=100, no_ticks=True, axlabels=False)

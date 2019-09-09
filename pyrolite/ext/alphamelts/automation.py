@@ -48,18 +48,27 @@ def exp_name(exp):
         This is a subset of potential parameters, need to expand to ensure uniqueness of naming.
     """
 
-    mode = "".join([__abbrv__[m] for m in exp["modes"]])
+    mode = "".join([__abbrv__.get(m, m) for m in exp["modes"]])
 
     fo2 = exp.get("Log fO2 Path", "")
     fo2d = exp.get("Log fO2 Delta", "")
-    pressure = ""
+    p0, p1, t0, t1 = "", "", "", ""
     if exp.get("Initial Pressure", None) is not None:
-        pressure = "{:d}kbar".format(int(exp["Initial Pressure"] / 1000))
+        p0 = "{:d}".format(int(exp["Initial Pressure"] / 1000))
+    if exp.get("Final Pressure", None) is not None:
+        p1 = "-{:d}".format(int(exp["Final Pressure"] / 1000))
+    if exp.get("Initial Temperature", None) is not None:
+        t0 = "{:d}".format(int(exp["Initial Temperature"]))
+    if exp.get("Final Temperature", None) is not None:
+        t1 = "-{:d}".format(int(exp["Final Temperature"]))
     chem = "-".join(
         ["{}@{}".format(k, v) for k, v in exp.get("modifychem", {}).items()]
     )
     suppress = "-".join(["no_{}".format(v) for v in exp.get("Suppress", {})])
-    return "{}{}{}{}{}{}".format(mode, fo2d, fo2, pressure, chem, suppress)
+    return "{}{}{}kbar{}{}C{}{}{}{}".format(
+        mode, p0, p1, t0, t1, fo2d, fo2, chem, suppress
+    )
+
 
 
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
@@ -196,7 +205,7 @@ class MeltsProcess(object):
 
             executable = local_run
             self.log(
-                "Using local executable meltsfile: {} @ {}".format(
+                "Using local executable: {} @ {}".format(
                     executable.name, executable.parent
                 )
             )
@@ -289,7 +298,7 @@ class MeltsProcess(object):
             lines.append(self.q.get_nowait().decode())
         return "".join(lines)
 
-    def wait(self, step=0.5):
+    def wait(self, step=1.0):
         """
         Wait until addtions to process.stdout stop.
 
@@ -336,17 +345,22 @@ class MeltsProcess(object):
             * Will likely terminate as expected using the command '0' to exit.
             * Otherwise will attempt to cleanup the process.
         """
-        self.alphamelts_ex = [
-            p for p in get_process_tree(self.process.pid) if "alpha" in p.name()
-        ]
-        self.write("0")
-        time.sleep(0.5)
+        self.alphamelts_ex = []
+        try:
+            for p in get_process_tree(self.process.pid):
+                if "alpha" in p.name():
+                    self.alphamelts_ex.append(p)
+            self.write("0")
+            time.sleep(0.5)
+        except (ProcessLookupError, psutil.NoSuchProcess):
+            logger.warning("Process terminated unexpectedly.")
+
         try:
             self.process.stdin.close()
             self.process.terminate()
             self.process.wait(timeout=0.2)
         except ProcessLookupError:
-            logger.debug("Process Terminated Successfully")
+            logger.debug("Process terminated successfully.")
 
         self.cleanup()
 
@@ -448,6 +462,11 @@ class MeltsBatch(object):
         * Can start with a single composition or multiple compositions in a dataframe
         * Enable grid search for individual parameters
         * Improved output logging/reporting
+        * Calculate relative number of calculations to be performed for the est duration
+
+            This is currently about correct for an isobaric calcuation at 10 degree
+            temperature steps over few hundred degrees - but won't work for different
+            T steps.
     """
 
     def __init__(
@@ -520,10 +539,10 @@ class MeltsBatch(object):
             edf["Initial Pressure"] = P
             edf["Initial Temperature"] = T0
             edf["Final Temperature"] = T1
-            if "Log fO2 Path" in exp:
-                edf["Log fO2 Path"] = exp["Log fO2 Path"]
-            if "Log fO2 Delta" in exp:
-                edf["Log fO2 Delta"] = exp["Log fO2 Delta"]
+            for par in ["Log fO2 Path", "Log fO2 Delta", "Limit coexisting"]:
+                if par in exp:
+                    edf[par] = exp[par]
+
             if "Suppress" in exp:
                 edf["Suppress"] = [exp["Suppress"] for i in range(edf.index.size)]
 

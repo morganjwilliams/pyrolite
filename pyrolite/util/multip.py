@@ -1,4 +1,5 @@
 import numpy as np
+
 try:
     from pathos.multiprocessing import ProcessingPool as Pool
 except ImportError:
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Note : Using pathos multiprocessing which leverages dill over standard
 # pickle, which has a hard time serializing even simple objects
+
 
 def combine_choices(choices):
     """
@@ -33,8 +35,15 @@ def combine_choices(choices):
         Will not append choices which are set to None.
 
         This requires Python 3.6+ (for ordered dictonaries).
+
+    Todo
+    ------
+
+        Add option for coupled choices/restricted grids:
+
+            X = [0, 1, 2], Y = [A, B, C] --> {X:0, Y:A}, {X:1, Y:B}, {X:2, Y:C}
     """
-    if choices: # if there are values specified
+    if choices:  # if there are values specified
         index = np.array(
             np.meshgrid(*[np.arange(len(v)) for k, v in choices.items()])
         ).T.reshape(-1, len(choices))
@@ -48,10 +57,14 @@ def combine_choices(choices):
                     if v[vix] is not None
                 }
             )
-
-        return combs
+        out = []
+        for c in combs:  # don't duplicate configs
+            if c not in out:
+                out += [c]
+        return out
     else:
         return [{}]
+
 
 def func_wrapper(arg):
     func, kwargs = arg

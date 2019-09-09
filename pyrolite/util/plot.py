@@ -660,7 +660,7 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
-def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
+def ternary_patch(scale=100.0, yscale=np.sqrt(3) / 2, xscale=1.0, **kwargs):
     """
     Create the background triangle patch for a ternary plot.
     """
@@ -742,7 +742,9 @@ def vector_to_line(
     return line
 
 
-def plot_stdev_ellipses(comp, nstds=4, scale=100, transform=None, ax=None, **kwargs):
+def plot_stdev_ellipses(
+    comp, nstds=4, scale=100, resolution=1000, transform=None, ax=None, **kwargs
+):
     """
     Plot covariance ellipses at a number of standard deviations from the mean.
 
@@ -776,7 +778,7 @@ def plot_stdev_ellipses(comp, nstds=4, scale=100, transform=None, ax=None, **kwa
         ell = matplotlib.patches.Ellipse(
             xy=mean.flatten(), width=2 * xsig, height=2 * ysig, angle=theta[:1]
         )
-        points = interpolated_patch_path(ell, resolution=1000).vertices
+        points = interpolated_patch_path(ell, resolution=resolution).vertices
 
         if callable(transform) and (transform is not None):
             points = transform(points)  # transform to compositional data

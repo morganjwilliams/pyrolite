@@ -26,7 +26,7 @@ def output_formatter(value):
     :class:`str`
         Formatted value.
     """
-    if value and (value is not None):
+    if value is not None and not isinstance(value, bool):
         return str(value)
     else:
         return ""
@@ -41,9 +41,7 @@ class MELTS_Env(object):
         * Implement use as context manager.
     """
 
-    def __init__(
-        self, prefix="ALPHAMELTS_", variable_model=None
-    ):
+    def __init__(self, prefix="ALPHAMELTS_", variable_model=None):
         self.prefix = prefix
         if variable_model is None:
             variable_model = MELTS_environment_variables
@@ -135,7 +133,9 @@ class MELTS_Env(object):
         return preamble + "\n".join(
             [
                 ["", "!"][v is None] + "{} {}".format(k, v)
-                for k, v in self.dump(prefix=True, unset_variables=unset_variables).items()
+                for k, v in self.dump(
+                    prefix=True, unset_variables=unset_variables
+                ).items()
             ]
         )
 

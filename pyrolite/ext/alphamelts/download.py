@@ -232,7 +232,7 @@ def install_melts(
                 for src, dst in zip(linksrc, linkdest):
                     logger.debug("Creating batch file: {} <- {}".format(src, dst))
                     with open(str(dst.with_suffix(".bat")), "w") as fout:
-                        fout.write("""@echo off\n"{}" %*""".format(src))
+                        fout.write("""@echo off\nperl "{}" %*""".format(src))
             else:  # create symlinks for command files and the exectuable
                 for src, dst in zip(linksrc, linkdest):
                     logger.debug("Creating symlink: {} <- {}".format(src, dst))
