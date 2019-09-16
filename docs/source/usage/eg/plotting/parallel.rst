@@ -1,4 +1,4 @@
-REE Radii Plots
+Parallel Coordinate Plots
 ============================
 
 .. literalinclude:: ../../../../examples/plotting/parallel.py
