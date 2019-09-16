@@ -17,6 +17,7 @@ from . import density
 from . import spider
 from . import tern
 from . import stem
+from . import parallel
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "tern", "pyroplot"]
@@ -125,6 +126,41 @@ class pyroplot(object):
         else:
             pass
 
+        return ax
+
+    def parallel(
+        self,
+        columns=None,
+        rescale=True,
+        color_by=None,
+        legend=False,
+        cmap=plt.cm.viridis,
+        ax=None,
+        **kwargs
+    ):
+
+        """Pass the pandas object to :func:`pyrolite.plot.parallel.parallel`.
+
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the REE plot is added.
+        """
+
+        obj = to_frame(self._obj)
+        ax = parallel.parallel(
+            obj,
+            columns=columns,
+            rescale=rescale,
+            color_by=color_by,
+            legend=legend,
+            cmap=cmap,
+            ax=ax,
+            **kwargs
+        )
+        ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
     def REE(self, index="radii", ax=None, mode="plot", **kwargs):
@@ -385,6 +421,19 @@ pyroplot.density.__doc__ = pyroplot.density.__doc__.format(
         get_additional_params(
             pyroplot.density,
             density.density,
+            header="Other Parameters",
+            indent=8,
+            subsections=True,
+        ),
+    ][_add_additional_parameters]
+)
+
+pyroplot.parallel.__doc__ = pyroplot.parallel.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            pyroplot.parallel,
+            parallel.parallel,
             header="Other Parameters",
             indent=8,
             subsections=True,
