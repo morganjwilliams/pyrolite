@@ -42,6 +42,6 @@ Spider Plots
    :align: center
 
 .. seealso:: `Spider Density Diagrams <conditionaldensity.html>`__,
-             `Normalisation <../normalisation/normalisation.html>`__,
+             `Normalisation <../geochem/normalisation.html>`__,
              `REE Radii Plot <REE_v_radii.html>`__,
-             `REE Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+             `REE Dimensional Reduction <../lambdas/lambdadimreduction.html>`__
