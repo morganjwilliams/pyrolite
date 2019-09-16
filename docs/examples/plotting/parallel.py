@@ -6,7 +6,7 @@ import pyrolite.plot
 import pyrolite.data.Aitchison
 
 # %% Data
-# lets' load up an example dataset from Aitchison
+# let's load up an example dataset from Aitchison
 df = pyrolite.data.Aitchison.load_coxite()
 comp = [
     i for i in df.columns if i not in ["Depth", "Porosity"]
