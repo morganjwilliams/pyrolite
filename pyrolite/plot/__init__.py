@@ -131,7 +131,7 @@ class pyroplot(object):
     def parallel(
         self,
         columns=None,
-        rescale=True,
+        rescale=False,
         color_by=None,
         legend=False,
         cmap=plt.cm.viridis,
