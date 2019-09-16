@@ -29,6 +29,12 @@ pyrolite\.plot\.stem
       :members:
       :undoc-members:
 
+pyrolite\.plot\.parallel
+-------------------------------
+  .. automodule:: pyrolite.plot.parallel
+      :members:
+      :undoc-members:
+
 pyrolite\.plot\.biplot
 -------------------------------
   .. automodule:: pyrolite.plot.biplot
