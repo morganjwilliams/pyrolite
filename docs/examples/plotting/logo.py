@@ -113,6 +113,9 @@ save_at = Path("./../../source/_static/")
 fmts = ["png", "jpg"]
 save_axes(ax[1], name="icon", save_at=save_at, save_fmts=fmts, dpi=dpi)
 save_axes(ax[1], name="icon_small", save_at=save_at, save_fmts=fmts, dpi=60)
+
+save_axes(ax[1], name="sticker", save_at=save_at, save_fmts=["pdf"], dpi=dpi)
+
 ax[0].set_title("Synthetic Data")
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 ax[-2].set_title("Individual Density, with Contours")
