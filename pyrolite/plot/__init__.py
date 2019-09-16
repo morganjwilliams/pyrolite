@@ -160,7 +160,6 @@ class pyroplot(object):
             ax=ax,
             **kwargs
         )
-        ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
     def REE(self, index="radii", ax=None, mode="plot", **kwargs):
