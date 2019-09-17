@@ -30,57 +30,62 @@ class MeltsOutput(object):
         dir = Path(directory)
         for name, table, tableload in [
             # these tables have absolute masses and volumes
-            ("bulkcomp", "Bulk_comp_tbl.txt", self._read_bulkcomp),
             ("solidcomp", "Solid_comp_tbl.txt", self._read_solidcomp),
             ("liquidcomp", "Liquid_comp_tbl.txt", self._read_liquidcomp),
             ("phasemass", "Phase_mass_tbl.txt", self._read_phasemass),
             ("phasevol", "Phase_vol_tbl.txt", self._read_phasevol),
             ("tracecomp", "Trace_main_tbl.txt", self._read_trace),
             ("system", "System_main_tbl.txt", self._read_systemmain),
-            # phasemain has wt% masses
+            # bulkcomp and phasemain have wt% masses
+            ("bulkcomp", "Bulk_comp_tbl.txt", self._read_bulkcomp),
             ("phasemain", "Phase_main_tbl.txt", self._read_phasemain),
         ]:
             tpath = dir / table
-            # try:
-            tbl = tableload(tpath)
-            if tbl is not None:
-                # what to do with traces?
-                print(tbl.dtypes)
-                if "mass" in tbl.columns:
-                    if name in ["liquidcomp", "solidcomp", "bulkcomp"]:
-                        chems = [i for i in tbl.columns if i in __chem__]
-                        tbl[chems] = tbl[chems].apply(pd.to_numeric, errors="coerce")
-                        tbl[chems] = tbl[chems].div(
-                            tbl["mass"].values / 100, axis="index"
-                        )
-                    elif name == "phasemass":
+            try:
+                tbl = tableload(tpath)
+                if tbl is not None:
+                    # what to do with traces?
+                    if "mass" in tbl.columns:
+                        if name in ["liquidcomp", "solidcomp"]:
+                            chems = [i for i in tbl.columns if i in __chem__]
+                            tbl[chems] = tbl[chems].apply(
+                                pd.to_numeric, errors="coerce"
+                            )
+                            tbl[chems] = tbl[chems].div(
+                                tbl["mass"].values / 100, axis="index"
+                            )
+                        elif name == "phasemass":
+                            mins = [
+                                i
+                                for i in tbl.columns
+                                if i not in ["Pressure", "Temperature", "mass"]
+                            ]
+                            tbl[mins] = tbl[mins].apply(pd.to_numeric, errors="coerce")
+                            tbl[mins] = tbl[mins].div(
+                                tbl["mass"].values / 100, axis="index"
+                            )  # weight %
+                        else:
+                            pass
+
+                        tbl["mass%"] = tbl["mass"] / tbl["mass"].values[0]
+
+                    if (name in ["phasevol"]) and ("V" in tbl.columns):
+                        # divide chem/mineral masses by the total volume.
                         mins = [
                             i
                             for i in tbl.columns
-                            if i not in ["Pressure", "Temperature", "mass"]
+                            if i not in ["Pressure", "Temperature", "mass", "V"]
                         ]
-                        tbl[mins] = tbl[mins].apply(pd.to_numeric, errors="coerce")
+                        tbl[mins] = tbl.loc[:, mins].apply(
+                            pd.to_numeric, errors="coerce"
+                        )
                         tbl[mins] = tbl[mins].div(
-                            tbl["mass"].values / 100, axis="index"
-                        )  # weight %
-                    else:
-                        pass
-
-                    tbl["mass%"] = tbl["mass"] / tbl["mass"].values[0]
-                if (name in ["phasevol"]) and ("V" in tbl.columns):
-                    # divide chem/mineral masses by the total volume.
-                    mins = [
-                        i
-                        for i in tbl.columns
-                        if i not in ["Pressure", "Temperature", "mass", "V"]
-                    ]
-                    tbl[mins] = tbl.loc[:, mins].apply(pd.to_numeric, errors="coerce")
-                    tbl[mins] = tbl[mins].div(tbl["V"] / 100, axis="index")  # volume %
-                    tbl["V%"] = tbl["V"] / tbl["V"].values[0]
-                    tbl["mass%"] = tbl["mass"] / tbl["mass"].values[0]
-            # except:
-            #    logger.debug("Error on table import: {} {}".format(self.title, tpath))
-            #    tbl = pd.DataFrame()  # empty dataframe
+                            tbl["V"] / 100, axis="index"
+                        )  # volume %
+                        tbl["V%"] = tbl["V"] / tbl["V"].values[0]
+            except:
+                logger.debug("Error on table import: {} {}".format(self.title, tpath))
+                tbl = pd.DataFrame()  # empty dataframe
             setattr(self, name, tbl)
 
     @property
