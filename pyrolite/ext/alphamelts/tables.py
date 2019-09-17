@@ -16,6 +16,8 @@ from ...util.pd import zero_to_nan, to_frame, to_ser
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+__chem__ = __common_elements__ | __common_oxides__
+
 
 class MeltsOutput(object):
     def __init__(self, directory, kelvin=True):
@@ -26,7 +28,8 @@ class MeltsOutput(object):
         self.traces = set([])
         self.phases = {}
         dir = Path(directory)
-        for name, table, load in [
+        for name, table, tableload in [
+            # these tables have absolute masses and volumes
             ("bulkcomp", "Bulk_comp_tbl.txt", self._read_bulkcomp),
             ("solidcomp", "Solid_comp_tbl.txt", self._read_solidcomp),
             ("liquidcomp", "Liquid_comp_tbl.txt", self._read_liquidcomp),
@@ -34,14 +37,51 @@ class MeltsOutput(object):
             ("phasevol", "Phase_vol_tbl.txt", self._read_phasevol),
             ("tracecomp", "Trace_main_tbl.txt", self._read_trace),
             ("system", "System_main_tbl.txt", self._read_systemmain),
+            # phasemain has wt% masses
             ("phasemain", "Phase_main_tbl.txt", self._read_phasemain),
         ]:
             tpath = dir / table
-            try:
-                setattr(self, name, load(tpath))
-            except:
-                logger.debug("Error on table import: {} {}".format(self.title, tpath))
-                setattr(self, name, pd.DataFrame())  # empty dataframe
+            # try:
+            tbl = tableload(tpath)
+            if tbl is not None:
+                # what to do with traces?
+                print(tbl.dtypes)
+                if "mass" in tbl.columns:
+                    if name in ["liquidcomp", "solidcomp", "bulkcomp"]:
+                        chems = [i for i in tbl.columns if i in __chem__]
+                        tbl[chems] = tbl[chems].apply(pd.to_numeric, errors="coerce")
+                        tbl[chems] = tbl[chems].div(
+                            tbl["mass"].values / 100, axis="index"
+                        )
+                    elif name == "phasemass":
+                        mins = [
+                            i
+                            for i in tbl.columns
+                            if i not in ["Pressure", "Temperature", "mass"]
+                        ]
+                        tbl[mins] = tbl[mins].apply(pd.to_numeric, errors="coerce")
+                        tbl[mins] = tbl[mins].div(
+                            tbl["mass"].values / 100, axis="index"
+                        )  # weight %
+                    else:
+                        pass
+
+                    tbl["mass%"] = tbl["mass"] / tbl["mass"].values[0]
+                if (name in ["phasevol"]) and ("V" in tbl.columns):
+                    # divide chem/mineral masses by the total volume.
+                    mins = [
+                        i
+                        for i in tbl.columns
+                        if i not in ["Pressure", "Temperature", "mass", "V"]
+                    ]
+                    tbl[mins] = tbl.loc[:, mins].apply(pd.to_numeric, errors="coerce")
+                    tbl[mins] = tbl[mins].div(tbl["V"] / 100, axis="index")  # volume %
+                    tbl["V%"] = tbl["V"] / tbl["V"].values[0]
+                    tbl["mass%"] = tbl["mass"] / tbl["mass"].values[0]
+            # except:
+            #    logger.debug("Error on table import: {} {}".format(self.title, tpath))
+            #    tbl = pd.DataFrame()  # empty dataframe
+            setattr(self, name, tbl)
 
     @property
     def tables(self):
@@ -104,7 +144,8 @@ class MeltsOutput(object):
             if ("Temperature" in df.columns) and not self.kelvin:
                 df.Temperature -= 273.15
             if ("MgO" in df.columns) and ("FeO" in df.columns):
-                df.add_MgNo(components=True)
+                # should update this to be if there's both iron and magnesium species
+                df.add_MgNo()
             return df
         else:
             logger.debug("Expected file {} does not exist.".format(filepath))
