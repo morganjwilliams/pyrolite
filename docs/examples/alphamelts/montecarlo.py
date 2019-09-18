@@ -88,6 +88,8 @@ batch = MeltsBatch(
     fromdir=tempdir,
 )
 
+batch.grid
+
 batch.run(
     overwrite=True
 )  # overwrite=False if you don't want to update existing exp folders
@@ -96,7 +98,7 @@ batch.run(
 from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.ext.alphamelts.plottemplates import table_by_phase
 
-summary = get_experiments_summary(tempdir / "isobar5kbar", kelvin=False)
+summary = get_experiments_summary(tempdir / "isobar5kbar1300-800C", kelvin=False)
 fig = table_by_phase(summary, plotswide=2, figsize=(10, 5))
 # %% save figure
 save_figure(fig, save_at="../../source/_static", name="melts_montecarlo")
