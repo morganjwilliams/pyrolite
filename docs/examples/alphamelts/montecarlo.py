@@ -88,7 +88,7 @@ batch = MeltsBatch(
     fromdir=tempdir,
 )
 
-batch.grid
+batch.grid # [{}, {'Log fO2 Path': 'FMQ'}]
 
 batch.run(
     overwrite=True
@@ -99,6 +99,6 @@ from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.ext.alphamelts.plottemplates import table_by_phase
 
 summary = get_experiments_summary(tempdir / "isobar5kbar1300-800C", kelvin=False)
-fig = table_by_phase(summary, plotswide=2, figsize=(10, 5))
+fig = table_by_phase(summary, table='phasemass', plotswide=2, figsize=(10, 8))
 # %% save figure
 save_figure(fig, save_at="../../source/_static", name="melts_montecarlo")
