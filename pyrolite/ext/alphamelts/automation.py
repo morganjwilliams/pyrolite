@@ -70,7 +70,6 @@ def exp_name(exp):
     )
 
 
-
 def make_meltsfolder(meltsfile, title, dir=None, env="./alphamelts_default_env.txt"):
     """
     Create a folder for a given meltsfile, including the default environment file.
@@ -492,7 +491,8 @@ class MeltsBatch(object):
         self.logger = logger
         self.dir = fromdir
         self.default = default_config
-        self.grid = [{}] + combine_choices(grid)
+        self.grid = [{}]
+        self.grid += [i for i in combine_choices(grid) if i not in grid]
         self.env = env or MELTS_Env()
         self.compositions = comp_df
         exps = [{**self.default, **ex} for ex in self.grid]
