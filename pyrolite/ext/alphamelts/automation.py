@@ -492,7 +492,7 @@ class MeltsBatch(object):
         self.dir = fromdir
         self.default = default_config
         self.grid = [{}]
-        self.grid += [i for i in combine_choices(grid) if i not in grid]
+        self.grid += [i for i in combine_choices(grid) if i not in self.grid]
         self.env = env or MELTS_Env()
         self.compositions = comp_df
         exps = [{**self.default, **ex} for ex in self.grid]
