@@ -22,10 +22,13 @@ from pyrolite.util.synthetic import random_composition
 
 np.random.seed(82)
 # %% colors ----------------------------------------------------------------------------
-t10b3 = [  # tableau 10 colorblind safe colors, a selection of 3
-    (r / 255.0, g / 255.0, b / 255.0)
-    for r, g, b in [(0, 107, 164), (171, 171, 171), (89, 89, 89), (95, 158, 209)]
+t10b3 = [  # tableau 10 colorblind safe colors, a selection of 4
+    (0, 107, 164),
+    (171, 171, 171),
+    (89, 89, 89),
+    (95, 158, 209)
 ]
+t10b3 = [(r / 255.0, g / 255.0, b / 255.0) for r, g, b in t10b3]
 # %% data and transforms ---------------------------------------------------------------
 d = 1.0  # distance from centre
 sig = 0.1  # scale for variance
@@ -45,7 +48,7 @@ covs = (  # covariance for logspace (D=2)
 )
 
 means = ILRTransform().inverse_transform(means)  # compositional means (D=3)
-size = 2000 # logo @ 10000
+size = 2000  # logo @ 10000
 pts = [random_composition(mean=M, cov=C, size=size) for M, C in zip(means, covs)]
 
 T = ILRTransform()
@@ -110,6 +113,9 @@ save_at = Path("./../../source/_static/")
 fmts = ["png", "jpg"]
 save_axes(ax[1], name="icon", save_at=save_at, save_fmts=fmts, dpi=dpi)
 save_axes(ax[1], name="icon_small", save_at=save_at, save_fmts=fmts, dpi=60)
+
+save_axes(ax[1], name="sticker", save_at=save_at, save_fmts=["pdf"], dpi=dpi)
+
 ax[0].set_title("Synthetic Data")
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 ax[-2].set_title("Individual Density, with Contours")

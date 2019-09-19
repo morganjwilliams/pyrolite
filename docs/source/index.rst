@@ -46,6 +46,7 @@ make use of your geochemical data to build and test geological models.
    installation
    usage/examples
    submodules
+   changelog
    future
    tests
    contributing

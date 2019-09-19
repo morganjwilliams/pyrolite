@@ -90,9 +90,9 @@ def plot_phasetable(
 
     if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
-            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
+            axix[0].set_ylabel(titlecase(table.lower().replace("phase", "")) + " (%)")
     else:
-        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "")))
+        ax[0].set_ylabel(titlecase(table.lower().replace("phase", "")) + " (%)")
 
     ax = ax.flat
 
@@ -171,9 +171,9 @@ def plot_comptable(
 
     if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
-            axix[0].set_ylabel("Wt%")
+            axix[0].set_ylabel("Mass (%)")
     else:
-        ax[0].set_ylabel("Wt%")
+        ax[0].set_ylabel("Mass (%)")
 
     ax = ax.flat
 
@@ -185,7 +185,9 @@ def plot_comptable(
         phases, output = d["phases"], d["output"]
         comptable = getattr(output, table)
         components = [
-            i for i in comptable.columns if i in common_oxides(as_set=True) and i != xvar
+            i
+            for i in comptable.columns
+            if i in common_oxides(as_set=True) and i != xvar
         ]
         for c in components:
             config = dict(color=__DEFAULT_DISC_COLORMAP__(colors[c]))
@@ -256,9 +258,9 @@ def plot_phase_composition(
 
     if plotswide > 1 and plotshigh > 1:  # array of axes
         for axix in ax:
-            axix[0].set_ylabel("Wt%")
+            axix[0].set_ylabel("Mass (%)")
     else:
-        ax[0].set_ylabel("Wt%")
+        ax[0].set_ylabel("Mass (%)")
 
     ax = ax.flat
 
@@ -336,7 +338,7 @@ def table_by_phase(
         plotshigh, plotswide, figsize=figsize, sharex=True, sharey=True
     )
     ax = ax.flat
-    ax[0].set_ylabel("Volume")
+    ax[0].set_ylabel(titlecase(table.lower().replace("phase", "")) + " (%)")
     ax[0].set_yscale(yscale)
 
     for ix, p in enumerate(phases):
@@ -350,7 +352,7 @@ def table_by_phase(
             c = [i for i in outtbl.columns if p in i]
             config = dict(
                 color=__DEFAULT_DISC_COLORMAP__(colors[p]),
-                #alpha=1 / np.log(outtbl.index.size),
+                # alpha=1 / np.log(outtbl.index.size),
             )
             if c:
                 for _p in c:

@@ -47,7 +47,7 @@ compositional = [i for i in df if i in common_oxides(as_set=True)]
 df[compositional] = df[compositional].astype(float).renormalise()
 df[compositional] = blur_compositions(df[compositional])
 
-df.Title = df.Title + " " + df.index.map(str) # differentiate titles
+df.Title = df.Title + " " + df.index.map(str)  # differentiate titles
 df.Title = df.Title.apply(slugify)
 # %% setup an environment for isobaric fractional crystallisation
 from pyrolite.ext.alphamelts.env import MELTS_Env
@@ -79,24 +79,29 @@ batch = MeltsBatch(
         "modes": ["isobaric"],
     },
     grid={
-        #"Initial Pressure": [3000, 7000],
+        # "Initial Pressure": [3000, 7000],
         "Log fO2 Path": [None, "FMQ"],
-        #"modifychem": [None, {"H2O": 0.5}],
+        # "modifychem": [None, {"H2O": 0.5}],
     },
     env=env,
     logger=logger,
     fromdir=tempdir,
 )
 
+batch.grid  # [{}, {'Log fO2 Path': 'FMQ'}]
+
 batch.run(
     overwrite=True
 )  # overwrite=False if you don't want to update existing exp folders
 
 # %% aggregate the results over the same gridded space
+from pathlib import Path
 from pyrolite.ext.alphamelts.tables import get_experiments_summary
 from pyrolite.ext.alphamelts.plottemplates import table_by_phase
 
-summary = get_experiments_summary(tempdir / "isobar5kbar", kelvin=False)
-fig = table_by_phase(summary, plotswide=2, figsize=(10, 5))
+tempdir = Path("./") / "montecarlo"
+
+summary = get_experiments_summary(tempdir / "isobar5kbar1300-800C", kelvin=False)
+fig = table_by_phase(summary, table="phasemass", plotswide=2, figsize=(10, 8))
 # %% save figure
 save_figure(fig, save_at="../../source/_static", name="melts_montecarlo")
