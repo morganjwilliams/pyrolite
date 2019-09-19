@@ -14,14 +14,22 @@ All notable changes to this project will be documented here.
 `0.1.21`_
 --------------
 
-* Parallel coordinate plots
+New
+~~~~~~~~
+
+* Added parallel coordinate plots: :func:`pyrolite.plot.pyroplot.parallel`
+
+Updates
+~~~~~~~~
+
 * Updated :func:`~pyrolite.plot.pyroplot.scatter` and
   :func:`~pyrolite.plot.tern.ternary` to better deal with colormaps
-* Updated alphaMELTS interface
-  * Docs
-  * Updated to default to tables with percentages (Wt%, Vol%)
-  * Updated plot templates y-labels
-  * Fixed automation grid bug
+* Updated :mod:`pyrolite.ext.alphamelts` interface:
+
+    * Docs
+    * Updated to default to tables with percentages (Wt%, Vol%)
+    * Updated :mod:`~pyrolite.ext.alphamelts.plottemplates` y-labels
+    * Fixed :mod:`~pyrolite.ext.alphamelts.automation` grid bug
 
 `0.1.20`_
 --------------

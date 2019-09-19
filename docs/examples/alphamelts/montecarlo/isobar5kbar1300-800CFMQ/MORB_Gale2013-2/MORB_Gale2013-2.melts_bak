@@ -1,0 +1,19 @@
+Title: MORB_Gale2013-2
+Initial Composition: SiO2 50.95192155133347
+Initial Composition: Al2O3 14.396463907104321
+Initial Composition: FeO 10.697313495521268
+Initial Composition: MnO 0.16271196138379931
+Initial Composition: MgO 7.800881864247332
+Initial Composition: CaO 11.5265471813248
+Initial Composition: Na2O 2.6146084676923267
+Initial Composition: TiO2 1.5356043036397884
+Initial Composition: K2O 0.1530682782631938
+Initial Composition: P2O5 0.16087898948971097
+Initial Temperature: 1300
+Final Temperature: 800
+Increment Temperature: -5
+Initial Pressure: 5000
+Final Pressure: 5000
+Increment Pressure: 0
+Log fO2 Path: FMQ
+Mode: isobaric
