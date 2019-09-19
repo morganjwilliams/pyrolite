@@ -4,7 +4,7 @@ import numpy as np
 import periodictable as pt
 from pyrolite.util.pd import to_frame
 from collections import OrderedDict
-from scipy.optimize import least_squares, Bounds
+import scipy.optimize
 from .sites import *
 import logging
 
@@ -271,9 +271,9 @@ class Mineral(object):
         y = self.composition.reindex(compositions.index).fillna(0).values
 
         def mixture(weights, x, y):
-            return weights @ x - y
+            return weights @ (x - y)
 
-        res = least_squares(
+        res = scipy.optimize.least_squares(
             mixture,
             weights,
             bounds=([0.0] * weights.shape[0], [1.0] * weights.shape[0]),
