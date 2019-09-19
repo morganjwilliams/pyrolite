@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 from ..util.plot import plot_cooccurence
 from ..util.pd import to_frame
-from ..util.meta import get_additional_params
+from ..util.meta import get_additional_params, subkwargs
 from ..geochem import common_elements, REE
 from . import density
 from . import spider
@@ -225,7 +225,8 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         if ax is None:
-            fig, ax = plt.subplots(1)
+
+            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots))
 
         fontsize = kwargs.get("fontsize", 8.0)
 
@@ -235,7 +236,12 @@ class pyroplot(object):
             )
         else:  # len(components) == 2
             xvar, yvar = components
-            sc = ax.scatter(obj.loc[:, xvar].values, obj.loc[:, yvar].values, **kwargs)
+
+            sc = ax.scatter(
+                obj.loc[:, xvar].values,
+                obj.loc[:, yvar].values,
+                **subkwargs(kwargs, ax.scatter)
+            )
             if axlabels:
                 ax.set_xlabel(xvar, fontsize=fontsize)
                 ax.set_ylabel(yvar, fontsize=fontsize)

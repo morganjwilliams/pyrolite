@@ -118,6 +118,12 @@ def ternary(
             config["color"] = config.pop("c")
 
         config = {**config, **subkwargs(kwargs, ax.scatter)}
+        if ("cmap" in config) and ("c" in config):
+            vmin, vmax = np.nanmin(config["c"]), np.nanmax(config["c"])
+            config["norm"] = config.get("norm", plt.Normalize(vmin=vmin, vmax=vmax))
+        if "norm" in config:
+            config["vmin"] = config["norm"].vmin
+            config["vmax"] = config["norm"].vmax
         tax.scatter(points, **config)
 
     if label is not None:
