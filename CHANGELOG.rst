@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 `Development`_
 --------------
 
+.. note:: Changes noted here are to be released in the next version.
+        If you're keen to check something out before its released, you can use a
+        `development install <installation.html#development-installation>`__.
+
 
 `0.1.21`_
 --------------
@@ -23,7 +27,7 @@ All notable changes to this project will be documented in this file.
 --------------
 
 New
-~~~~~
+~~~~~~~~
 
 * Stub for DataFrame.pyrochem accessor (yet to be developed)
 * Added :func:`pyrolite.util.skl.vis.plot_mapping` for manifold dimensional reduction
@@ -31,7 +35,7 @@ New
   multi-class classification probabilities in scatter plots
 
 Updates
-~~~~~
+~~~~~~~~
 
 * Convert reference compositions and normalisation to use a JSON database
 * Updated default y-aspect for ternary plots and axes patches
@@ -98,7 +102,7 @@ Updates
 --------------
 
 
-.. _Unreleased: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...develop
 .. _0.1.21: https://github.com/morganjwilliams/pyrolite/compare/0.1.20...0.1.21
 .. _0.1.20: https://github.com/morganjwilliams/pyrolite/compare/0.1.19...0.1.20
 .. _0.1.19: https://github.com/morganjwilliams/pyrolite/compare/0.1.18...0.1.19
