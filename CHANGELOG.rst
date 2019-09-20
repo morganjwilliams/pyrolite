@@ -14,16 +14,16 @@ All notable changes to this project will be documented here.
 `0.1.21`_
 --------------
 
-New
-~~~~~~~~
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
 
 * Added parallel coordinate plots: :func:`pyrolite.plot.pyroplot.parallel`
-
-Updates
-~~~~~~~~
-
 * Updated :func:`~pyrolite.plot.pyroplot.scatter` and
   :func:`~pyrolite.plot.tern.ternary` to better deal with colormaps
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated :mod:`pyrolite.ext.alphamelts` interface:
 
     * Docs
@@ -34,32 +34,143 @@ Updates
 `0.1.20`_
 --------------
 
-New
-~~~~~~~~
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Stub for DataFrame.pyrochem accessor (yet to be developed)
+* Stub for :class:`pyrolite.geochem.pyrochem` accessor (yet to be fully developed)
+* Convert reference compositions within of :mod:`pyrolite.geochem.norm` to use a JSON database
+
+:mod:`pyrolite.util.skl`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Added :func:`pyrolite.util.skl.vis.plot_mapping` for manifold dimensional reduction
 * Added :func:`pyrolite.util.skl.vis.alphas_from_multiclass_prob` for visualising
   multi-class classification probabilities in scatter plots
 
-Updates
-~~~~~~~~
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~
 
-* Convert reference compositions and normalisation to use a JSON database
+* Added :mod:`pyrolite.plot.biplot` to API docs
 * Updated default y-aspect for ternary plots and axes patches
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * Updated :mod:`pyrolite.ext.alphamelts.automation`,
   :mod:`pyrolite.ext.alphamelts.meltsfile`, :mod:`pyrolite.ext.alphamelts.tables`
 * Updated docs to use :class:`pyrolite.ext.alphamelts.automation.MeltsBatch` with a parameter grid
-* Added :mod:`pyrolite.plot.biplot` to API docs
+
 
 `0.1.19`_
 --------------
 
+* Added this changelog
+* Require :mod:`pandas` >= v0.23 for DataFrame accessors
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Moved normalisation into :mod:`pyrolite.geochem`
+* Improved support for molecular-based calculations in :mod:`pyrolite.geochem`
+* Added :mod:`pyrolite.geochem` section to API docs
+* Added the :func:`~pyrolite.geochem.convert_chemistry` docs example
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Improvements for :mod:`pyrolite.ext.alphamelts.download`
+* Completed :mod:`pyrolite.ext.alphamelts.automation.MeltsBatch`
+* Added the :mod:`pyrolite.ext.alphamelts.web` docs example
+* Added :mod:`pyrolite.ext.alphamelts.plottemplates` to API docs
+* Added :func:`pyrolite.ext.alphamelts.tables.write_summary_phaselist`
+* Added :func:`pyrolite.ext.alphamelts.automation.exp_name` for automated alphaMELTS
+  experiment within batches
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+* Added :class:`pyrolite.util.meta.ToLogger` output stream for logging
+* Added :func:`pyrolite.util.multip.combine_choices` for generating parameter
+  combination grids
+
 `0.1.18`_
 --------------
 
+
+* Require :mod:`scipy` >= 1.2
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Automatic import of dataframe accessor `df.pyroplot` removed;
+  import :mod:`pyrolite.plot` to use :class:`pyrolite.plot.pyroplot` dataframe accessor
+* Updated label locations for :mod:`pyrolite.plot.biplot`
+* Default location of the y-axis updated for :func:`pyrolite.plot.stem.stem`
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added stub for :mod:`pyroilte.geochem.qualilty`
+* Renamed :code:`MeltsProcess` to :code:`MeltsExperiment`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Moved `pyrolite.classification` to :mod:`pyrolite.util.classification`
+* Added :func:`pyrolite.util.plot.marker_cycle`
+
 `0.1.17`_
 --------------
+
+* Update status to Beta
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added database for geochemical components (`geochemdb.json`) for faster import
+  via :func:`~pyrolite.geochem.ind.common_elements` and
+  :func:`~pyrolite.geochem.ind.common_oxides`
+* Added stub for :mod:`pyrolite.geochem.isotope`
+* Update to using :func:`pyrolite.util.transform.aggregate_element` rather
+  than `aggregate_cation`
+
+* :code:`dropPm` parameter added to :func:`pyrolite.geochem.ind.REE`
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Expanded use of :mod:`pyrolite.plot.pyroplot` dataframe accessor
+* Added :func:`pyrolite.plot.pyrochem.cooccurence`
+* Added :mod:`pyrolite.plot.biplot`
+* Added support for conditional density spiderplots
+  within :func:`~pyrolite.plot.spider.spider` and :func:`~pyrolite.plot.spider.REE_v_radii`
+* Updated keyword argument parsing for :func:`~pyrolite.plot.spider.spider`
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Removed automatic import of mineral structures to reduce delay
+* Updated :func:`pyrolite.mineral.lattice.strain_coefficient`
+* Added stub for :func:`pyrolite.mineral.normative`
+* Updated :class:`pyrolite.mineral.sites.Site`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~
+* Added functions for interpolating paths and patches (e.g. contours) and exporting
+  these:
+  :func:`~util.plot.interpolate_path`, :func:`~util.plot.interpolated_patch_path`,
+  :func:`~util.plot.get_contour_paths`, :func:`~util.plot.path_to_csv`
+* Added :func:`util.plot.rect_from_centre`
+* Added :func:`util.plot._mpl_sp_kw_split`
+* Added :func:`util.text.remove_suffix`
+* Added :func:`util.text.int_to_alpha`
+
+
+:mod:`pyrolite.ext`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated alphaMELTS interface location to external package interface rather than
+  utility  (from :mod:`pyrolite.util` to :mod:`pyrolite.ext`)
+* Added :mod:`pyrolite.ext.datarepo` stub
 
 `0.1.16`_
 --------------

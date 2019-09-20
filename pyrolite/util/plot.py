@@ -695,7 +695,7 @@ def proxy_line(**kwargs):
     return matplotlib.lines.Line2D(range(1), range(1), **kwargs)
 
 
-def rect_fromm_centre(x, y, dx=0, dy=0, **kwargs):
+def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
     """
     Takes an xy point, and creates a rectangular patch centred about it.
     """
