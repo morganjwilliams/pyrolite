@@ -71,6 +71,7 @@ vectors using principal component analysis:
 .. image:: ../../../_static/logo_eg_ellipses.png
   :width: 50%
   :align: center
+  :alt: Ternary covariance ellipses estimated from PCA of synthetic data clouds.
 
 
 We can also look at data density (here using kernel density estimation)
@@ -86,6 +87,7 @@ in log-space:
 .. image:: ../../../_static/logo_eg_density.png
   :width: 50%
   :align: center
+  :alt: Ternary kernel density estimates of synthetic data clouds.
 
 
 We can also do this for individual samples, and estimate percentile contours:
@@ -100,6 +102,7 @@ We can also do this for individual samples, and estimate percentile contours:
 .. image:: ../../../_static/logo_eg_contours.png
   :width: 50%
   :align: center
+  :alt: Contoured kernel density estimates of synthetic data clouds.
 
 
 Typically, you'll want to do some axes clean-up, this is what's used for these figures:
@@ -114,6 +117,7 @@ Typically, you'll want to do some axes clean-up, this is what's used for these f
 .. image:: ../../../_static/logo_eg_all.png
   :width: 100%
   :align: center
+  :alt: All four ternary plots created above created in a single figure.
 
 
 .. seealso:: `Ternary Plots <../plotting/ternary.html>`__,

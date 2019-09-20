@@ -17,6 +17,7 @@ change in the near future as needs change, but works well for scatter plots.
 .. image:: ../../../_static/tern_minimal.png
    :width: 50%
    :align: center
+   :alt: A minimal example of a simple ternary plot with three synthetic data points.
 
 .. literalinclude:: ../../../../examples/plotting/tern.py
    :language: python
@@ -26,5 +27,6 @@ change in the near future as needs change, but works well for scatter plots.
 .. image:: ../../../_static/tern_dual.png
    :width: 100%
    :align: center
+   :alt: Two ternary plots placed on separate axes by specifying a pre-existing axis.
 
 .. seealso:: `Density Plots <../plotting/density.html>`__
