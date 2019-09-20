@@ -95,7 +95,6 @@ All notable changes to this project will be documented here.
 `0.1.18`_
 --------------
 
-
 * Require :mod:`scipy` >= 1.2
 
 :mod:`pyrolite.plot`
@@ -110,7 +109,6 @@ All notable changes to this project will be documented here.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Added stub for :mod:`pyroilte.geochem.qualilty`
-* Renamed :code:`MeltsProcess` to :code:`MeltsExperiment`
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
@@ -132,8 +130,6 @@ All notable changes to this project will be documented here.
 * Added stub for :mod:`pyrolite.geochem.isotope`
 * Update to using :func:`pyrolite.util.transform.aggregate_element` rather
   than `aggregate_cation`
-
-* :code:`dropPm` parameter added to :func:`pyrolite.geochem.ind.REE`
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~
@@ -159,11 +155,9 @@ All notable changes to this project will be documented here.
   these:
   :func:`~util.plot.interpolate_path`, :func:`~util.plot.interpolated_patch_path`,
   :func:`~util.plot.get_contour_paths`, :func:`~util.plot.path_to_csv`
-* Added :func:`util.plot.rect_from_centre`
 * Added :func:`util.plot._mpl_sp_kw_split`
 * Added :func:`util.text.remove_suffix`
 * Added :func:`util.text.int_to_alpha`
-
 
 :mod:`pyrolite.ext`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,11 +169,96 @@ All notable changes to this project will be documented here.
 `0.1.16`_
 --------------
 
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.mineral.lattice` example
+* Added :func:`pyrolite.mineral.lattice.youngs_modulus_approximation`
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.ext.alphamelts` Monte Carlo uncertainty estimation example
+* Added :func:`pyrolite.ext.alphamelts.automation.MeltsExperiment.callstring` to
+  facilitate manual reproducibility of pyrolite calls to alphaMELTS.
+* Improved alphaMELTS interface termination
+* Added :func:`pyrolite.ext.alphamelts.plottemplates.phase_linestyle` to for auto-differentiated
+  linestyles in plots generated from alphaMELTS output tables
+* Added :func:`pyrolite.ext.alphamelts.plottemplates.table_by_phase` to generate axes
+  per phase from a specific output table
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added MORB compositions from Gale et al. (2013) to Reference Compositions
+* Updated `pyrolite.geochem.ind.get_radii` to :func:`pyrolite.geochem.ind.get_ionic_radii`
+* :code:`dropPm` parameter added to :func:`pyrolite.geochem.ind.REE`
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Updated `pyrolite.plot.spider.REE_radii_plot` to :func:`pyrolite.plot.spider.REE_v_radii`
+* Updated :func:`pyrolite.util.meta.steam_log` to take into account active logging
+  handlers
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.pd.drop_where_all_empty`
+* Added :func:`pyrolite.util.pd.read_table` for simple :code:`.csv` and :code:`.xlsx`/:code:`.xls` imports
+* Added :func:`pyrolite.util.plot.rect_from_centre`
+* Added :func:`pyrolite.util.text.slugify` for removing spaces and non-alphanumeric characters
+
 `0.1.15`_
 --------------
 
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Bugfixes for :mod:`~pyrolite.ext.alphamelts.automation` and :mod:`~pyrolite.ext.alphamelts.download`
+* Add a :code:`permissions` keyword argument to :func:`pyrolite.util.general.copy_file`
+
 `0.1.14`_
 --------------
+
+* Added Contributor Covenant Code of Conduct
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.plot.stem.stem` example
+* Added :mod:`pyrolite.plot.stem`
+* Added :mod:`pyrolite.plot.stem` to API docs
+* Added :mod:`pyrolite.plot.stem` example
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.mineral.lattice` for lattice strain calculations
+* Added :mod:`pyrolite.mineral` to API docs
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Improved :mod:`pyrolite.ext.alphamelts.automation` workflows, process tracking and
+  termination
+* Incorporated :class:`~pyrolite.ext.alphamelts..automation.MeltsProcess` into
+  :class:`~pyrolite.ext.alphamelts.automation.MeltsExperiment`
+* Added :class:`~pyrolite.ext.alphamelts.automation.MeltsBatch` stub
+* Added :func:`~pyrolite.ext.alphamelts.meltsfile.read_meltsfile` and
+  :func:`~pyrolite.ext.alphamelts.meltsfile.read_envfile`
+* Added :mod:`pyrolite.ext.alphamelts.plottemplates`
+* Added :func:`pyrolite.ext.alphamelts.tables.get_experiments_summary` for aggregating
+  alphaMELTS experiment results across folders
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Added manifold uncertainty example with :func:`pyrolite.util.skl.vis.plot_mapping`
+* Updated :mod:`pyrolite.util.ditributions.norm_to_lognorm`
+* Added :func:`pyrolite.util.general.get_process_tree` to extract related processes
+* Added :func:`pyrolite.util.pd.zero_to_nan`
+
 
 `0.1.13`_
 --------------
