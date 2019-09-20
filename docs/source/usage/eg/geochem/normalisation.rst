@@ -47,6 +47,7 @@ The `normalize` method can be used to normalise dataframes to a given reference 
 .. image:: ../../../_static/NormSpiderplot.png
    :height: 250px
    :align: center
+   :alt: Spider plot of chondrite-normalised depleted MORB mantle abundances.
 
 .. seealso::
 

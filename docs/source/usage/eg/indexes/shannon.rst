@@ -10,6 +10,7 @@ Shannon Radii
 .. image:: ../../../_static/ShannonRadii.png
   :width: 60%
   :align: center
+  :alt: Plot of Shannon ionic radius in angstroms across the Rare Earth Elements.
 
 .. seealso:: `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
              `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,

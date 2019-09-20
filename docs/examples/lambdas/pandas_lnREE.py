@@ -30,9 +30,7 @@ for ix, el in enumerate(data_ree):
         lnY[:, ix] += np.random.rand(no_analyses) * 0.6
 data_radii
 df = pd.DataFrame(np.exp(lnY), columns=data_ree)
-ax = df.pyroplot.spider(
-    ax=REE_v_radii(),
-    indexes=get_ionic_radii(data_ree, charge=3, coordination=8),
+ax = df.pyroplot.REE(
     marker="D",
     alpha=0.01,
     c="0.5",
