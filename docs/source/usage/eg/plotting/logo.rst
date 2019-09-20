@@ -55,6 +55,7 @@ First, let's look at the synthetic data itself in the ternary space:
 .. image:: ../../../_static/logo_eg_points.png
    :width: 50%
    :align: center
+   :alt: Scatter plot of four equidistant synthetic data clouds in a ternary plot.
 
 
 We can take the mean and covariance in log-space to create covariance ellipses and
