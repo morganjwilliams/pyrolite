@@ -238,7 +238,7 @@ All notable changes to this project will be documented here.
 * Added :mod:`pyrolite.mineral` to API docs
 
 :mod:`pyrolite.ext.alphamelts`
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Improved :mod:`pyrolite.ext.alphamelts.automation` workflows, process tracking and
   termination
@@ -263,14 +263,84 @@ All notable changes to this project will be documented here.
 `0.1.13`_
 --------------
 
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :class:`pyrolite.ext.alphamelts.automation.MeltsProcess` workflow
+* Updated :class:`pyrolite.ext.alphamelts.download` local installation
+* Added :mod:`pyrolite.ext.alphamelts.install` example
+* Added :mod:`pyrolite.ext.alphamelts.tables` example
+* Added :mod:`pyrolite.ext.alphamelts.automation` example
+* Added :mod:`pyrolite.ext.alphamelts.env` example
+
 `0.1.12`_
 --------------
+
+:mod:`pyrolite.util.pd`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Bugfix for :func:`pyrolite.util.pd.to_frame`
 
 `0.1.11`_
 --------------
 
+* Added `citation <cite.html>`__ page to docs
+* Added `contributors <contributors.html>`__ page to docs
+* Updated docs `future <future.html>`__ page
+* Updated docs config and logo
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added stub for :mod:`pyrolite.geochem.isotope`, :mod:`pyrolite.geochem.isotope.count`
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added compositional data example
+* Added :func:`pyrolite.comp.codata.logratiomean`
+* Added :mod:`pyrolite.data.Aitchison` and assocaited data files
+
+:mod:`pyroilite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.ext.alphamelts` to API docs
+* Added :mod:`pyrolite.ext.alphamelts.automation`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Expanded :mod:`pyrolite.util` API docs
+* Added :mod:`pyrolite.util.distributions`
+* Moved `pyrolite_datafolder` from :mod:`pyrolite.util.general` to
+  :func:`pyrolite.util.meta.pyrolite_datafolder`
+* Added :func:`~pyrolite.util.plot.share_axes`,
+  :func:`~pyrolite.util.plot.ternary_patch`,
+  :func:`~pyrolite.util.plot.subaxes`
+* Added :mod:`pyrolite.util.units`, moved
+  `pyrolite.geochem.norm.scale_multiplier` to :func:`pyrolite.util.units.scale`
+* Updated :func:`pyrolite.util.synthetic.random_cov_matrix` to optionally take a
+  :code:`sigmas` keyword argument
+
 `0.1.10`_
 --------------
+
+* Updated `installation <installation.html>`__ docs
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.util.types`
+* Added :mod:`pyrolite.util.web`
+* Added manifold uncertainty example with :func:`pyrolite.util.skl.vis.plot_mapping`
+* Moved `stream log` to :func:`pyrolite.util.meta.stream_log`
+* Added :func:`pyrolite.util.meta.take_me_to_the_docs()`
+* Updated :mod:`pyrolite.util.skl.vis`
+
+:mod:`pyrolite.ext.datarepo`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :mod:`pyrolite.ext.datarepo.georoc` (then `pyrolite.util.repositories.georoc`)
 
 `0.1.9`_
 --------------
