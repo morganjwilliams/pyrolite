@@ -139,14 +139,20 @@ class pyroplot(object):
         **kwargs
     ):
 
-        """Pass the pandas object to :func:`pyrolite.plot.parallel.parallel`.
+        """
+        Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
+        the columns of the :class:`~pandas.DataFrame`.
 
         {otherparams}
 
         Returns
         -------
         :class:`matplotlib.axes.Axes`
-            Axes on which the REE plot is added.
+            Axes on which the parallel coordinates plot is added.
+
+        Todo
+        ------
+        * Adapt figure size based on number of columns.
         """
 
         obj = to_frame(self._obj)
