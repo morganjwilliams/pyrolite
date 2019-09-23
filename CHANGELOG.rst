@@ -351,12 +351,12 @@ All notable changes to this project will be documented here.
 * Added :mod:`pyrolite.plot.templates`, and related API docs
 * Added Pearce templates under :mod:`pyrolite.plot.templates.pearce`
 * Update default colour schemes in scatter plots within :mod:`pyrolite.plot` to
-  fall-back to matplotlib cycling
+  fall-back to :mod:`matplotlib.pyplot` cycling
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Added conditional import for :func:`sklearn.decompositon.PCA` and :mod:`statsmodels.api`
+* Added conditional import for :class:`sklearn.decompositon.PCA` and :mod:`statsmodels.api`
   within :mod:`pyrolite.util.plot`
 * Refactored :mod:`sklearn` utilities to submodule :mod:`pyrolite.util.skl`
 * Added :func:`pyrolite.util.meta.sphinx_doi_link`
@@ -373,11 +373,39 @@ All notable changes to this project will be documented here.
 `0.1.8`_
 --------------
 
+* Bugfixes for :mod:`pyrolite.plot.spider` and :mod:`pyrolite.util.plot.conditional_prob_density`
+
 `0.1.7`_
 --------------
 
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`~pyrolite.plot.pyroplot.cooccurence` method to :class:`pyrolite.plot.pyroplot`
+  DataFrame accessor
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.missing.cooccurence_pattern`
+* Moved `pyrolite.util.skl.plot_cooccurence` to :func:`pyrolite.util.plot.plot_cooccurence`
+* Updated :func:`pyrolite.util.plot.conditional_prob_density`,
+  :func:`pyrolite.util.plot.bin_edges_to_centres` and
+  :func:`pyrolite.util.plot.bin_centres_to_edges`
+
 `0.1.6`_
 --------------
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~
+* Update :func:`pyrolite.plot.spider.spider` to use :code:`contours` keyword argument,
+  and pass these to :func:`pyrolite.util.plot.plot_Z_percentiles`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Bugfixes for invalid steps in :func:`pyrolite.util.math.linspc_`,
+  :func:`pyrolite.util.math.logspc_`
 
 `0.1.5`_
 --------------
