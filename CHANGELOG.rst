@@ -461,26 +461,11 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~
 
-* Renamed `inv_alr`, `inv_clr`, `inv_ilr` and `inv_boxcox` to
-  :func:`~pyrolite.comp.codata.inverse_alr`,
-  :func:`~pyrolite.comp.codata.inverse_clr`,
-  :func:`~pyrolite.comp.codata.inverse_ilr` and
-  :func:`~pyrolite.comp.codata.inverse_boxcox`
-
 * Expanded :mod:`pyrolite.comp.impute` and improved :func:`pyrolite.comp.impute.EMCOMP`
 * Added `EMCOMP example <./usage/eg/comp/impute.html>`__
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
-
-* Added :mod:`pyrolite.util.synthetic`
-* Moved `pyrolite.util.pd.test_df` and `pyrolite.util.pd.test_ser`
-  to :func:`pyrolite.util.synthetic.test_df` and
-  :func:`pyrolite.util.synthetic.test_ser`
-* Added :mod:`pyrolite.util.missing` and :func:`pyrolite.util.missing.md_pattern`
-* Added :func:`pyrolite.util.math.eigsorted`,
-  :func:`pyrolite.util.math.augmented_covariance_matrix`,
-  :func:`pyrolite.util.math.interpolate_line`
 
 * Updated :mod:`pyrolite.util.meta` with docstring utilities
   :func:`~pyrolite.util.meta.numpydoc_str_param_list` and
@@ -521,6 +506,7 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~
+
 * Bugfixes and improvements for :mod:`pyrolite.comp.impute`
 
 :mod:`pyrolite.geochem`
@@ -541,6 +527,38 @@ All notable changes to this project will be documented here.
 `0.1.0`_
 --------------
 
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updates to :func:`pyrolite.plot.density.density` to better deal with linear/log
+  spaced and a ternary heatmap
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`~pyrolite.comp.impute.EMCOMP` to :mod:`pyrolite.comp.impute`
+* Renamed `inv_alr`, `inv_clr`, `inv_ilr` and `inv_boxcox` to
+  :func:`~pyrolite.comp.codata.inverse_alr`,
+  :func:`~pyrolite.comp.codata.inverse_clr`,
+  :func:`~pyrolite.comp.codata.inverse_ilr` and
+  :func:`~pyrolite.comp.codata.inverse_boxcox`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.util.synthetic`
+* Moved `pyrolite.util.pd.test_df` and `pyrolite.util.pd.test_ser`
+  to :func:`pyrolite.util.synthetic.test_df` and
+  :func:`pyrolite.util.synthetic.test_ser`
+* Added :mod:`pyrolite.util.missing` and :func:`pyrolite.util.missing.md_pattern`
+* Added :func:`pyrolite.util.math.eigsorted`,
+  :func:`pyrolite.util.math.augmented_covariance_matrix`,
+  :func:`pyrolite.util.math.interpolate_line`
+
+
+.. note:: Releases before 0.1.0 are available via
+    `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
+    but were :code:`alpha` versions which were never considered stable.
 
 .. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...develop
 .. _0.1.21: https://github.com/morganjwilliams/pyrolite/compare/0.1.20...0.1.21
