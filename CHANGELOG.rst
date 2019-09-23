@@ -437,7 +437,7 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~
 
-* Added :mod:`pyrolite.util.meta`
+* Updated :mod:`pyrolite.util.meta`
 * Added :func:`pyrolite.util.plot.conditional_prob_density`;
   added conditional :mod:`statsmodels` import within :mod:`pyrolite.util.plot`
   to access :class:`~statsmodels.nonparametric.kernel_density.KDEMultivariateConditional`
@@ -451,6 +451,51 @@ All notable changes to this project will be documented here.
 
 `0.1.4`_
 --------------
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Refactored :mod:`pyrolite.plot` to use the :class:`pyrolite.plot.pyroplot` DataFrame
+  accessor and updated relevant docs:
+
+  * Renamed `pyrolite.plot.spiderplot` to
+    :func:`pyrolite.plot.spider.spider`
+  * Renamed `pyrolite.plot.spider.REE_radii_plot` to
+    :func:`pyrolite.plot.spider.REE_v_radii`
+  * Renamed `pyrolite.plot.ternaryplot` to
+    :func:`pyrolite.plot.tern.ternary`
+  * Renamed `pyrolite.plot.densityplot` to
+    :func:`pyrolite.plot.density.density`
+
+* Added `logo example <./usage/eg/plotting/logo.html>`__
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Renamed `inv_alr`, `inv_clr`, `inv_ilr` and `inv_boxcox` to
+  :func:`~pyrolite.comp.codata.inverse_alr`,
+  :func:`~pyrolite.comp.codata.inverse_clr`,
+  :func:`~pyrolite.comp.codata.inverse_ilr` and
+  :func:`~pyrolite.comp.codata.inverse_boxcox`
+
+* Expanded :mod:`pyrolite.comp.impute` to add :func:`pyrolite.comp.impute.EMCOMP`
+* Added `EMCOMP example <./usage/eg/comp/impute.html`__
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.util.synthetic`
+* Moved `pyrolite.util.pd.test_df` and `pyrolite.util.pd.test_ser`
+  to :func:`pyrolite.util.synthetic.test_df` and
+  :func:`pyrolite.util.synthetic.test_ser`
+* Added :mod:`pyrolite.util.missing` and :func:`pyrolite.util.missing.md_pattern`
+* Added :func:`pyrolite.util.math.eigsorted`,
+  :func:`pyrolite.util.math.augmented_covariance_matrix`,
+  :func:`pyrolite.util.math.interpolate_line`
+
+* Updated :mod:`pyrolite.util.meta` with docstring utilities
+  :func:`~pyrolite.util.meta.numpydoc_str_param_list` and
+  :func:`~pyrolite.util.meta.get_additional_params`
 
 `0.1.2`_
 --------------
