@@ -356,7 +356,7 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Added conditional import for :class:`sklearn.decompositon.PCA` and :mod:`statsmodels.api`
+* Added conditional import for :class:`~sklearn.decomposition.PCA` and :mod:`statsmodels`
   within :mod:`pyrolite.util.plot`
 * Refactored :mod:`sklearn` utilities to submodule :mod:`pyrolite.util.skl`
 * Added :func:`pyrolite.util.meta.sphinx_doi_link`
@@ -398,7 +398,7 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~
-* Update :func:`pyrolite.plot.spider.spider` to use :code:`contours` keyword argument,
+* Update :func:`~pyrolite.plot.spider.spider` to use :code:`contours` keyword argument,
   and pass these to :func:`pyrolite.util.plot.plot_Z_percentiles`
 
 :mod:`pyrolite.util`
@@ -409,6 +409,45 @@ All notable changes to this project will be documented here.
 
 `0.1.5`_
 --------------
+
+* Updated docs `future <future.html>`__ page
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Bugfix for iron redox recalcuation in
+  :func:`pyrolite.geochem.transform.convert_chemistry`
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :code:`mode` keyword argument to :func:`pyrolite.plot.spider.spider`
+  to enable density-based visualisation of spider plots.
+* Update :func:`pyrolite.plot.pyroplot.spider` to accept :code:`mode` keyword argument
+* Update :func:`pyrolite.plot.pyroplot.REE` to use a :code:`index` keyword arguument
+  in the place of the previous :code:`mode`; :code:`mode` is now used to switch between
+  line and density base methods of visualising spider plots consistent with
+  :func:`~pyrolite.plot.spider.spider`
+* Added :func:`~pyrolite.plot.spider.spider`
+  `examples for conditional density plots <./usage/eg/plotting/conditionaldensity.html>`__
+  using :func:`~pyrolite.util.plot.conditional_prob_density`
+* Bugfix for :code:`set_under` in :func:`~pyrolite.plot.density.density`
+* Updated `logo example <./usage/eg/plotting/logo.html>`__
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.util.meta`
+* Added :func:`pyrolite.util.plot.conditional_prob_density`;
+  added conditional :mod:`statsmodels` import within :mod:`pyrolite.util.plot`
+  to access :class:`~statsmodels.nonparametric.kernel_density.KDEMultivariateConditional`
+* Added keyword argument :code:`logy` to :func:`pyrolite.util.math.interpolate_line`
+* Added :func:`pyrolite.util.math.grid_from_ranges` and
+  :func:`pyrolite.util.math.flattengrid`
+* Added support for differential x-y padding in :func:`pyrolite.util.plot.get_full_extent`
+  and :func:`pyrolite.util.plot.save_axes`
+* Added :func:`pyrolite.util.skl.pipeline.fit_save_classifier`
+  (then `pyrolite.util.skl.fit_save_classifier`)
 
 `0.1.4`_
 --------------
