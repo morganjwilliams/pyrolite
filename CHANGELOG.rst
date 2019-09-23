@@ -455,19 +455,8 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~
 
-* Refactored :mod:`pyrolite.plot` to use the :class:`pyrolite.plot.pyroplot` DataFrame
-  accessor and updated relevant docs:
-
-  * Renamed `pyrolite.plot.spiderplot` to
-    :func:`pyrolite.plot.spider.spider`
-  * Renamed `pyrolite.plot.spider.REE_radii_plot` to
-    :func:`pyrolite.plot.spider.REE_v_radii`
-  * Renamed `pyrolite.plot.ternaryplot` to
-    :func:`pyrolite.plot.tern.ternary`
-  * Renamed `pyrolite.plot.densityplot` to
-    :func:`pyrolite.plot.density.density`
-
-* Added `logo example <./usage/eg/plotting/logo.html>`__
+* Updated relevant docs and references for :mod:`pyrolite.plot` and the
+  :class:`pyrolite.plot.pyroplot` DataFrame accessor
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -478,8 +467,8 @@ All notable changes to this project will be documented here.
   :func:`~pyrolite.comp.codata.inverse_ilr` and
   :func:`~pyrolite.comp.codata.inverse_boxcox`
 
-* Expanded :mod:`pyrolite.comp.impute` to add :func:`pyrolite.comp.impute.EMCOMP`
-* Added `EMCOMP example <./usage/eg/comp/impute.html`__
+* Expanded :mod:`pyrolite.comp.impute` and improved :func:`pyrolite.comp.impute.EMCOMP`
+* Added `EMCOMP example <./usage/eg/comp/impute.html>`__
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
@@ -500,8 +489,54 @@ All notable changes to this project will be documented here.
 `0.1.2`_
 --------------
 
+* Fixed logo naming issue in docs
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Bugfixes for :func:`pyrolite.plot.density.density` (then `pyrolite.plot.density`)
+  and :func:`pyrolite.plot.util.ternary_heatmap`
+
 `0.1.1`_
 --------------
+
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added `logo example <./usage/eg/plotting/logo.html>`__
+* Refactored :mod:`pyrolite.plot` to use the :class:`pyrolite.plot.pyroplot` DataFrame
+  accessor:
+
+  * Renamed `pyrolite.plot.spiderplot` to
+    :func:`pyrolite.plot.spider.spider`
+  * Renamed `pyrolite.plot.spider.REE_radii_plot` to
+    :func:`pyrolite.plot.spider.REE_v_radii`
+  * Renamed `pyrolite.plot.ternaryplot` to
+    :func:`pyrolite.plot.tern.ternary`
+  * Renamed `pyrolite.plot.densityplot` to
+    :func:`pyrolite.plot.density.density`
+
+* Updated :func:`pyrolite.plot.density.density` and :func:`pyrolite.plot.tern.ternary`
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~
+* Bugfixes and improvements for :mod:`pyrolite.comp.impute`
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :func:`~pyrolite.geochem.transform.oxide_conversion` and
+  :func:`~pyrolite.geochem.transform.convert_chemistry`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`~pyrolite.util.plot.plot_stdev_ellipses` and
+  :func:`~pyrolite.util.plot.plot_pca_vectors`
+* Updated :func:`pyrolite.util.plot.plot_Z_percentiles`
+* Updated :func:`pyrolite.util.plot.ternary_heatmap`
+* Updated :func:`pyrolite.util.plot.vector_to_line`
 
 `0.1.0`_
 --------------
