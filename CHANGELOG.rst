@@ -345,6 +345,31 @@ All notable changes to this project will be documented here.
 `0.1.9`_
 --------------
 
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.plot.templates`, and related API docs
+* Added Pearce templates under :mod:`pyrolite.plot.templates.pearce`
+* Update default colour schemes in scatter plots within :mod:`pyrolite.plot` to
+  fall-back to matplotlib cycling
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added conditional import for :func:`sklearn.decompositon.PCA` and :mod:`statsmodels.api`
+  within :mod:`pyrolite.util.plot`
+* Refactored :mod:`sklearn` utilities to submodule :mod:`pyrolite.util.skl`
+* Added :func:`pyrolite.util.meta.sphinx_doi_link`
+* Updated :func:`pyrolite.util.meta.inargs`
+* Updated :func:`pyrolite.util.meta.stream_log` (then `pyrolite.util.general.stream_log`)
+* Added conditional import for :mod:`imblearn` under :mod:`pyrolite.util.skl.pipeline`
+
+:mod:`pyrolite.ext.alphamelts`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.ext.alphamelts` (then `pyrolite.util.alphamelts`)
+* Bugfix for Python 3.5 style strings in :mod:`pyrolite.ext.alphamelts.parse`
+
 `0.1.8`_
 --------------
 
