@@ -1,8 +1,24 @@
 import unittest
 import pyrolite
+import numpy as np
 from pyrolite.util.synthetic import test_df
-from pyrolite.geochem.norm import *
+from pyrolite.geochem.norm import (
+    ReferenceCompositions,
+    RefComp,
+    get_reference_files,
+    update_database,
+)
 from pyrolite.util.meta import pyrolite_datafolder
+
+
+class TestGetRefcompFiles(unittest.TestCase):
+    def setUp(self):
+        pass
+
+
+class TestUpdateReferenceDataBase(unittest.TestCase):
+    def setUp(self):
+        pass
 
 
 class TestRefcomp(unittest.TestCase):
@@ -10,7 +26,6 @@ class TestRefcomp(unittest.TestCase):
 
     def setUp(self):
         self.build_kwargs = dict(encoding="cp1252")
-        pyrodir = os.path.realpath(pyrolite.__file__)
         self.dir = pyrolite_datafolder(subfolder="geochem") / "refcomp"
         assert self.dir.is_dir()
         self.files = [x for x in self.dir.iterdir() if x.is_file()]
@@ -25,10 +40,6 @@ class TestRefcomp(unittest.TestCase):
         for f in files:
             with self.subTest(f=f):
                 refcomp = RefComp(f, **self.build_kwargs)
-
-    def test_aggregate_oxides(self):
-        """Checks the model can aggregate oxide components."""
-        pass
 
     def test_collect_vars(self):
         """Checks that the model can assemble a list of relevant variables."""

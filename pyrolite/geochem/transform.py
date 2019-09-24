@@ -9,7 +9,7 @@ from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from .norm import ReferenceCompositions, RefComp
+from .norm import RefComp, get_reference_composition
 from ..util.units import scale
 from .ind import (
     REE,
@@ -47,7 +47,7 @@ def to_molecular(df: pd.DataFrame, renorm=True):
     :class:`pandas.DataFrame`
         Transformed dataframe.
     """
-    df = to_frame(df)
+    # df = df.to_frame()
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
         return renormalise(df.div(MWs))
@@ -74,8 +74,7 @@ def to_weight(df: pd.DataFrame, renorm=True):
     :class:`pandas.DataFrame`
         Transformed dataframe.
     """
-
-    df = to_frame(df)
+    # df = df.to_frame()
     MWs = [pt.formula(c).mass for c in df.columns]
     if renorm:
         return renormalise(df.multiply(MWs))
@@ -130,7 +129,8 @@ def oxide_conversion(oxin, oxout, molecular=False):
 
     Returns
     -------
-        Function to convert a pandas.Series from one elment-oxide component to another.
+        Function to convert a :class:`pandas.Series` from one elment-oxide
+        component to another.
     """
     if not isinstance(oxin, pt.formulas.Formula):
         oxin = pt.formula(oxin)
@@ -250,8 +250,8 @@ def aggregate_element(
     df: pd.DataFrame, to, total_suffix="T", logdata=False, renorm=False, molecular=False
 ):
     """
-    Aggregates cation information from oxide and elemental components
-    to a single series, starting from a single set of units.
+    Aggregates cation information from oxide and elemental components to either a
+    single species or a designated mixture of species.
 
     Parameters
     ----------
@@ -273,13 +273,19 @@ def aggregate_element(
     molecular : :class:`bool`, :code:`False`
         Whether to perform a sum of molecular data.
 
+    Notes
+    -------
+    This won't convert units, so need to start from single set of units.
+
     Returns
     -------
     :class:`pandas.Series`
         Series with cation aggregated.
     """
     # get the elemental sum
-    subsum = elemental_sum(df, to, total_suffix=total_suffix, logdata=logdata)
+    subsum = elemental_sum(
+        df, to, total_suffix=total_suffix, logdata=logdata, molecular=molecular
+    )
     cation = subsum.name
     species = simple_oxides(cation)
     species += [i + total_suffix for i in species]
@@ -391,12 +397,7 @@ def recalculate_Fe(
 @pf.register_series_method
 @pf.register_dataframe_method
 def add_ratio(
-    df: pd.DataFrame,
-    ratio: str,
-    alias: str = "",
-    norm_to=None,
-    convert=lambda x: x,
-    molecular=False,
+    df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, molecular=False
 ):
     """
     Add a ratio of components A and B, given in the form of string 'A/B'.
@@ -436,23 +437,23 @@ def add_ratio(
         den = titlecase(den.lower().replace("_n", ""))
         _to_norm = True
 
-    if _to_norm or (norm_to is not None): # if molecular, this will need to change
+    if _to_norm or (norm_to is not None):  # if molecular, this will need to change
         if isinstance(norm_to, str):
-            norm = ReferenceCompositions()[norm_to]
+            norm = get_reference_composition(norm_to)
             num_n, den_n = norm[num].value, norm[den].value
         elif isinstance(norm_to, RefComp):
             num_n, den_n = norm_to[num].value, norm_to[den].value
         elif iscollection(norm_to):  # list, iterable, pd.Index etc
             num_n, den_n = norm_to
         else:
-            norm = ReferenceCompositions()["Chondrite_PON"]
+            norm = get_reference_composition("Chondrite_PON")
             num_n, den_n = norm[num].value, norm[den].value
 
     name = [ratio if not alias else alias][0]
     logger.debug("Adding Ratio: {}".format(name))
     numsum, densum = (
-        df.elemental_sum(num, to=num, molecular=molecular),
-        df.elemental_sum(den, to=den, molecular=molecular),
+        elemental_sum(df, num, to=num, molecular=molecular),
+        elemental_sum(df, den, to=den, molecular=molecular),
     )
     ratio = numsum / densum
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
@@ -464,8 +465,7 @@ def add_ratio(
 @pf.register_dataframe_method
 def add_MgNo(
     df: pd.DataFrame,
-    molecularIn=False,
-    elemental=False,
+    molecular=False,
     use_total_approx=False,
     approx_Fe203_frac=0.1,
     name="Mg#",
@@ -477,10 +477,8 @@ def add_MgNo(
     ----------
     df : :class:`pandas.DataFrame`
         Input dataframe.
-    molecularIn : :class:`bool`, :code:`False`
+    molecular : :class:`bool`, :code:`False`
         Whether the input data is molecular.
-    elemental : :class:`bool`, :code:`False`
-        Whether to data is in elemental or oxide form.
     use_total_approx : :class:`bool`, :code:`False`
         Whether to use an approximate calculation using total iron rather than just FeO.
     approx_Fe203_frac : :class:`float`
@@ -498,27 +496,28 @@ def add_MgNo(
     :func:`~pyrolite.geochem.transform.add_ratio`
     """
     logger.debug("Adding Mg#")
-    if not molecularIn:
-        mg = df.elemental_sum("Mg") / pt.Mg.mass
+    mg = df.pyrochem.elemental_sum("Mg", molecular=molecular)
+    if use_total_approx:
         speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
-        if use_total_approx:
-            fe = df.aggregate_element("Fe", to=speciation).FeO / pt.formula("FeO").mass
-        else:  # exclude ferric iron
-            filter = [i for i in df.columns if "Fe2O3" not in i]
-            fe = df.loc[:, filter].elemental_sum("Fe") / pt.Fe.mass
-        df.loc[:, name] = mg / (mg + fe)
+        fe = df.pyrochem.aggregate_element("Fe", to=speciation, molecular=molecular).FeO
     else:
-        if not elemental:
-            # Molecular Oxides
-            df.loc[:, name] = df["MgO"] / (df["MgO"] + df["FeO"])
-        else:
-            # Molecular Elemental
-            df.loc[:, name] = df["Mg"] / (df["Mg"] + df["Fe"])
+        filter = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
+        fe = df.loc[:, filter].pyrochem.elemental_sum("Fe", molecular=molecular)
+    if not molecular:  # convert these outputs to molecular, unless already so
+        mg, fe = (
+            mg.to_frame().pyrochem.to_molecular(renorm=False),
+            fe.to_frame().pyrochem.to_molecular(renorm=False),
+        )
+
+    mgnos = mg.values / (mg.values + fe.values)
+    if mgnos.size: # to cope with empty arrays
+        df.loc[:, name] = mgnos
+    else:
+        df[name] = None
+    return df
 
 
 @update_docstring_references
-@pf.register_series_method
-@pf.register_dataframe_method
 def lambda_lnREE(
     df,
     norm_to="Chondrite_PON",
@@ -595,7 +594,7 @@ def lambda_lnREE(
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
-            norm = ReferenceCompositions()[norm_to]
+            norm = get_reference_composition(norm_to)
             norm.set_units(scale)
             norm_abund = np.array([norm[str(el)].value for el in ree])
         elif isinstance(norm_to, RefComp):
@@ -729,7 +728,7 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=Fa
     if new_ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(new_ratios)))
         for r in new_ratios:
-            df.add_ratio(r, molecular=molecular)
+            df = add_ratio(df, r, molecular=molecular)
             # df = add_ratio(df, r)
 
     # Last Minute Checks ---------------------------------------------------------------

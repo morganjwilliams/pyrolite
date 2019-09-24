@@ -24,34 +24,13 @@ class RefComp(object):
     """
 
     def __init__(self, filename, **kwargs):
+        self.filename = str(filename)
         self.data = pd.read_csv(filename, **kwargs)
         self.data = self.data.set_index("var")
         self.original_data = self.data.copy(deep=True)  # preserve unaltered record
         # self.add_oxides()
         self.collect_vars()
         self.set_units()
-        # self.aggregate_oxides() yet to be implemented
-
-    def aggregate_oxides(self, form="oxide"):
-        """
-        Compositional models typically include elements in both oxide and
-        elemental form, typically divided into 'majors' and 'traces'.
-
-        For the purposes of normalisation - we need
-            i) to be able to access values of the form found in the dataset,
-            ii) for original values and uncertanties to be preserved, and
-            iii) for closure to be preserved.
-
-        There are multiple ways to acheive this - one is to create linked
-        element-oxide tables, and another is to force working in one format
-        (i.e. Al2O3 (wt%) --> Al (ppm))
-        """
-        # identify cations to be aggregated
-
-        # for cation in cations:
-        #    scale function
-        #    aggregate_element(df: pd.DataFrame, to=cation)
-        raise NotImplementedError("This issue has yet to be addressed.")
 
     def collect_vars(
         self,
@@ -182,11 +161,6 @@ class RefComp(object):
         --------
         :class:`float`
             Ratio, if it exists, otherwise :class:`np.nan`
-
-        Todo
-        ------
-            * Functionality for calculating arbitrary components in the event that
-                one is not directly present (e.g get Si from SiO2)
         """
         try:
             assert "/" in ratio
@@ -198,6 +172,10 @@ class RefComp(object):
     def __getattr__(self, var):
         """
         Allow access to model values via attribute e.g. Model.Si
+
+        Note
+        ------
+        This interferes with dataframe methods.
 
         Parameters
         -----------
@@ -235,7 +213,13 @@ class RefComp(object):
         return "Model of " + self.Reservoir + " (" + self.Reference + ")"
 
     def __repr__(self):
-        return "RefComp(" + str(self.filename) + ") from " + str(self.Reference) + "."
+        return (
+            "RefComp("
+            + Path(self.filename).name
+            + ") from "
+            + str(self.Reference)
+            + "."
+        )
 
 
 def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
@@ -278,6 +262,10 @@ def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
     return comps
 
 
+def get_reference_composition(name):
+    return ReferenceCompositions()[name]
+
+
 def get_reference_files(directory=None, formats=["csv"]):
     """
     Get a list of the reference composition files.
@@ -304,6 +292,11 @@ def get_reference_files(directory=None, formats=["csv"]):
 def update_database(**kwargs):
     """
     Update the reference composition database.
+
+    Note
+    ------
+    This will take all csv files from the geochem/refcomp pyrolite data folder
+    and construct a document-based JSON database.
     """
     kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
 
