@@ -496,21 +496,21 @@ def add_MgNo(
     :func:`~pyrolite.geochem.transform.add_ratio`
     """
     logger.debug("Adding Mg#")
-    mg = df.pyrochem.elemental_sum("Mg", molecular=molecular)
+    mg = elemental_sum(df, "Mg", molecular=molecular)
     if use_total_approx:
         speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
-        fe = df.pyrochem.aggregate_element("Fe", to=speciation, molecular=molecular).FeO
+        fe = aggregate_element(df, "Fe", to=speciation, molecular=molecular).FeO
     else:
         filter = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
-        fe = df.loc[:, filter].pyrochem.elemental_sum("Fe", molecular=molecular)
+        fe = elemental_sum(df.loc[:, filter], "Fe", molecular=molecular)
     if not molecular:  # convert these outputs to molecular, unless already so
         mg, fe = (
-            mg.to_frame().pyrochem.to_molecular(renorm=False),
-            fe.to_frame().pyrochem.to_molecular(renorm=False),
+            to_molecular(mg.to_frame(), renorm=False),
+            to_molecular(fe.to_frame(), renorm=False),
         )
 
     mgnos = mg.values / (mg.values + fe.values)
-    if mgnos.size: # to cope with empty arrays
+    if mgnos.size:  # to cope with empty arrays
         df.loc[:, name] = mgnos
     else:
         df[name] = None
