@@ -168,7 +168,7 @@ class pyroplot(object):
         )
         return ax
 
-    def REE(self, index="radii", ax=None, mode="plot", **kwargs):
+    def REE(self, index="elements", ax=None, mode="plot", **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -205,11 +205,11 @@ class pyroplot(object):
 
         Parameters
         -----------
-        components : :class:`list`, `None`
+        components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
-        axlabels : :class:`bool`, True
+        axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
 
         {otherparams}

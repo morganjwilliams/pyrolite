@@ -17,6 +17,7 @@ from ..util.plot import (
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
+    get_twiny,
 )
 from ..util.meta import get_additional_params, subkwargs
 
@@ -286,17 +287,16 @@ def REE_v_radii(
 
     xlabels, _xlabels = ["{:1.3f}".format(i) for i in radii], ree
     xticks, _xticks = radii, radii
+    xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
     xlabelrotation, _xlabelrotation = tl_rotation, 0
     xtitle, _xtitle = r"Ionic Radius ($\mathrm{\AA}$)", "Element"
 
     if index == "radii":
         invertx = False
         indexes = radii
-        xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
     else:  # mode == 'elements'
         invertx = True
         indexes = radii
-        xlim = None
         # swap ticks labels etc,
         _xtitle, xtitle = xtitle, _xtitle
         _xlabels, xlabels = xlabels, _xlabels
@@ -311,11 +311,16 @@ def REE_v_radii(
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)
     ax.set_xticklabels(xlabels, rotation=xlabelrotation)
+    if invertx:
+        xlim = xlim[::-1]
     if xlim is not None:
         ax.set_xlim(xlim)
-    if invertx:
-        ax.invert_xaxis()
-    _ax = ax.twiny()
+
+    twinys = get_twiny(ax)
+    if len(twinys):
+        _ax = twinys[0]
+    else:
+        _ax = ax.twiny()
     _ax.set_xlabel(_xtitle)
     _ax.set_xticks(_xticks)
     _ax.set_xticklabels(_xlabels, rotation=_xlabelrotation)

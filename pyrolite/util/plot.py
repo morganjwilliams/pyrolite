@@ -97,6 +97,11 @@ def share_axes(axes, which="xy"):
             ax.get_shared_y_axes().join(*axes)
 
 
+def get_twiny(ax):
+    s = ax.get_shared_x_axes().get_siblings(ax)
+    return [a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)]
+
+
 def modify_legend_handles(ax, **kwargs):
     """
     Modify the handles of a legend based for a single axis.
