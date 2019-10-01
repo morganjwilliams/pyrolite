@@ -55,11 +55,9 @@ l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)
 smooth_profile = np.exp(l_func(continuous_radii))
 # %% Plot the Results ------------------------------------------------------------------
 ax = REE_v_radii(Y, ree=data_ree, color="0.8", label="Data")
-REE_v_radii(
-    subset_Y, ree=subset_ree, ax=ax, color="k", linewidth=0, label="Subset"
-)
-#plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
-#ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k", lw=2)
+REE_v_radii(subset_Y, ree=subset_ree, ax=ax, color="k", linewidth=0, label="Subset")
+plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
+ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k", lw=2)
 ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
 # %% End -------------------------------------------------------------------------------
 from pyrolite.util.plot import save_figure
