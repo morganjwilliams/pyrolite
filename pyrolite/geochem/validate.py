@@ -1,7 +1,6 @@
 # A set of functions for parsing, validating and formating geochemical data/metadata
 import re
 import functools
-import pandas_flavor as pf
 from .ind import (
     __common_elements__,
     __common_oxides__,

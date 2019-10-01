@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas_flavor as pf
 import numpy as np
 import periodictable as pt
 from pyrolite.util.pd import to_frame
@@ -506,8 +505,6 @@ def parse_composition(composition):
             return parse_composition(pd.Series(composition))
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def recalc_cations(
     df,
     ideal_cations=4,

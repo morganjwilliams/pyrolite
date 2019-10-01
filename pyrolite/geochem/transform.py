@@ -2,7 +2,6 @@ import periodictable as pt
 import pandas as pd
 import numpy as np
 import functools
-import pandas_flavor as pf
 from ..util.pd import to_frame
 from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
@@ -28,8 +27,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
     Converts mass quantities to molar quantities of the same order. Does not convert
@@ -55,8 +52,6 @@ def to_molecular(df: pd.DataFrame, renorm=True):
         return df.div(MWs)
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def to_weight(df: pd.DataFrame, renorm=True):
     """
     Converts molar quantities to mass quantities of the same order. Does not convert
@@ -82,8 +77,6 @@ def to_weight(df: pd.DataFrame, renorm=True):
         return df.multiply(MWs)
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def devolatilise(
     df: pd.DataFrame,
     exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"],
@@ -164,8 +157,6 @@ def oxide_conversion(oxin, oxout, molecular=False):
     return convert_series
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def elemental_sum(
     df: pd.DataFrame,
     component=None,
@@ -244,8 +235,6 @@ def elemental_sum(
         return subsum.apply(oxide_conversion(cationname, to, molecular=molecular))
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def aggregate_element(
     df: pd.DataFrame, to, total_suffix="T", logdata=False, renorm=False, molecular=False
 ):
@@ -343,8 +332,6 @@ def aggregate_element(
         return df
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def recalculate_Fe(
     df: pd.DataFrame,
     to="FeOT",
@@ -394,8 +381,6 @@ def recalculate_Fe(
     )
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def add_ratio(
     df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, molecular=False
 ):
@@ -461,8 +446,6 @@ def add_ratio(
     return df
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def add_MgNo(
     df: pd.DataFrame,
     molecular=False,
@@ -635,8 +618,6 @@ def lambda_lnREE(
     return lambdadf
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=False):
     """
     Attempts to convert a dataframe with one set of components to another.
