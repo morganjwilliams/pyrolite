@@ -87,7 +87,7 @@ for a, (ls, grid, scale) in zip(ax, params):
         cmap="viridis",
         fontsize=10,
     )
-    asym_df.pyroplot.scatter(s=10, alpha=0.3, c="k", zorder=2)
+    asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
     a.set_title("{}-{}".format(grid, scale), fontsize=10)
     if scale in ["logscale", "semilogx"]:
         a.set_xscale("log")
