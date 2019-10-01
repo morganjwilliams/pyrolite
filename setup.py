@@ -60,7 +60,6 @@ setup(
         "xmljson",
         "beautifulsoup4",
         "joblib",
-        "pandas_flavor",
         "numpydoc",
         "tinydb",
         "tqdm",
