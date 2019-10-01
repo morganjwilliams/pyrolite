@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pandas_flavor as pf
 import scipy.stats as scpstats
 import scipy.special as scpspec
 
@@ -39,8 +38,6 @@ def close(X: np.ndarray, sumf=np.sum):
         return np.divide(X, sumf(X, axis=0))
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     """
     Renormalises compositional data to ensure closure.
