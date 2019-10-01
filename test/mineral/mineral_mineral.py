@@ -43,15 +43,9 @@ class TestRecalcCations(unittest.TestCase):
             ),
         )
 
-    def test_functional(self):
+    def test_default(self):
         for min in [self.pyx, self.ol]:
             out = recalc_cations(min)
-
-    def test_pandas_flavour_series(self):
-        self.assertTrue(hasattr(pd.Series, "recalc_cations"))
-
-    def test_pandas_flavour_dataframe(self):
-        self.assertTrue(hasattr(pd.DataFrame, "recalc_cations"))
 
 
 class TestMineralTemplate(unittest.TestCase):
