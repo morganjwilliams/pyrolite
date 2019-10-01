@@ -17,7 +17,7 @@ from ..util.plot import (
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    get_twiny,
+    get_twins,
 )
 from ..util.meta import get_additional_params, subkwargs
 
@@ -316,7 +316,7 @@ def REE_v_radii(
     if xlim is not None:
         ax.set_xlim(xlim)
 
-    twinys = get_twiny(ax)
+    twinys = get_twins(ax, which="y")
     if len(twinys):
         _ax = twinys[0]
     else:
