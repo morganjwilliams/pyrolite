@@ -229,7 +229,7 @@ def REE_v_radii(
     arr=None,
     ax=None,
     ree=REE(),
-    index="radii",
+    index="elements",
     mode="plot",
     tl_rotation=60,
     unity_line=False,
@@ -290,16 +290,16 @@ def REE_v_radii(
     xtitle, _xtitle = r"Ionic Radius ($\mathrm{\AA}$)", "Element"
 
     if index == "radii":
+        invertx = False
         indexes = radii
         xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
     else:  # mode == 'elements'
-
-        indexes = None
+        invertx = True
+        indexes = radii
         xlim = None
         # swap ticks labels etc,
         _xtitle, xtitle = xtitle, _xtitle
         _xlabels, xlabels = xlabels, _xlabels
-        _xticks, xticks = np.arange(len(ree)), np.arange(len(ree))
         _xlabelrotation, xlabelrotation = xlabelrotation, _xlabelrotation
 
     if arr is not None:
@@ -313,6 +313,8 @@ def REE_v_radii(
     ax.set_xticklabels(xlabels, rotation=xlabelrotation)
     if xlim is not None:
         ax.set_xlim(xlim)
+    if invertx:
+        ax.invert_xaxis()
     _ax = ax.twiny()
     _ax.set_xlabel(_xtitle)
     _ax.set_xticks(_xticks)
