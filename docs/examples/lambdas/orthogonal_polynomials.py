@@ -48,7 +48,6 @@ else:
     subset_Y, subset_ree, subset_radii = Y, data_ree, data_radii
 
 params = OP_constants(subset_radii, degree=4)
-subset_Y.shape
 ls = lambdas(np.log(subset_Y), subset_radii, params=params, degree=4)
 continuous_radii = np.linspace(subset_radii[0], subset_radii[-1], 20)
 l_func = lambda_poly_func(ls, pxs=subset_radii, params=params)

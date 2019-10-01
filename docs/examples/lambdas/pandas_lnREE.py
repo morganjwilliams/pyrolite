@@ -41,7 +41,7 @@ from pyrolite.util.plot import save_figure
 
 save_figure(ax.figure, save_at="../../source/_static", name="PandasLambdaData")
 # %% Reduce to Orthogonal Polynomials --------------------------------------------------
-ls = lambda_lnREE(df, exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON")
+ls = df.pyrochem.lambda_lnREE(exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON")
 # %% Plot the Results ------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, figsize=(9, 3))
 ax_labels = [chr(955) + "$_{}$".format(str(d)) for d in range(4)]

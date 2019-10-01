@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from pyrolite.geochem.ind import __common_oxides__
 from pyrolite.ext.alphamelts.tables import MeltsOutput
 
 # %% ---
@@ -7,7 +6,6 @@ from pyrolite.ext.alphamelts.tables import MeltsOutput
 output = MeltsOutput(folder, kelvin=False)  # tables in degrees C
 
 # this object has a number of useful attributes
-
 output.tables  # list of tables accessible from the object
 
 {"bulkcomp", "liquidcomp", "phasemass", "phasevol", "solidcomp", "system", "tracecomp"}

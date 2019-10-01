@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from pyrolite.plot import pyroplot
+import pyrolite.geochem
+import pyrolite.plot
 from pyrolite.comp.codata import ilr, inverse_ilr
-
 from pyrolite.util.meta import stream_log
 import logging
 
@@ -38,12 +38,11 @@ MORB["Increment Pressure"] = 0
 # %% replicate and add noise
 from pyrolite.util.text import slugify
 from pyrolite.util.pd import accumulate
-from pyrolite.geochem.ind import common_oxides
 
 reps = 5
 df = accumulate([pd.DataFrame(MORB).T] * reps)
 df = df.reset_index().drop(columns="index")
-compositional = [i for i in df if i in common_oxides(as_set=True)]
+compositional = df.pyrochem.oxides
 df[compositional] = df[compositional].astype(float).renormalise()
 df[compositional] = blur_compositions(df[compositional])
 

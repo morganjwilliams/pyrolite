@@ -32,6 +32,26 @@ class pyrochem(object):
     def _validate(obj):
         pass
 
+    # pyrolite.geochem.ind functions
+
+    @property
+    def elements(self):
+        return [i for i in self._obj.columns if i in common_elements()]
+
+    @property
+    def REE(self):
+        return [i for i in self._obj.columns if i in REE()]
+
+    @property
+    def oxides(self):
+        return [i for i in self._obj.columns if i in common_oxides()]
+
+    def get_elements(self):
+        return self._obj.loc[:, self.elements]
+
+    def get_oxides(self):
+        return self._obj.loc[:, self.oxides]
+
     # pyrolite.geochem.parse functions
 
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
@@ -398,3 +418,39 @@ class pyrochem(object):
         pass
         # if the normalisation requires modification to the reference composition
         # note it here in a logger.debug call
+
+    def convert_chemistry(self, to=[], logdata=False, renorm=False, molecular=False):
+        """
+        Attempts to convert a dataframe with one set of components to another.
+
+        Parameters
+        -----------
+        to : :class:`list`
+            Set of columns to try to extract from the dataframe.
+
+            Can also include a dictionary for iron speciation.
+            See :func:`pyrolite.geochem.recalculate_Fe`.
+        logdata : :class:`bool`, :code:`False`
+            Whether chemical data has been log transformed. Necessary for aggregation
+            functions.
+        renorm : :class:`bool`, :code:`False`
+            Whether to renormalise the data after transformation.
+        molecular : :class:`bool`, :code:`False`
+            Flag that data is in molecular units, rather than weight units.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Dataframe with converted chemistry.
+
+        Todo
+        ------
+            * Check for conflicts between oxides and elements
+            * Aggregator for ratios
+            * Implement generalised redox transformation.
+            * Add check for dicitonary components (e.g. Fe) in tests
+        """
+        obj = self._obj
+        return convert_chemistry(
+            obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
+        )

@@ -3,12 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.tern import ternary
-from pyrolite.geochem.ind import common_oxides
 
 np.random.seed(82)
 # %% Minimal Example -------------------------------------------------------------------
 # create some example data
-oxs = common_oxides()
+oxs = ['SiO2', 'MgO', 'CaO']
 ys = np.random.rand(3, len(oxs))
 ys = np.exp(ys)
 df = pd.DataFrame(data=ys, columns=oxs)
