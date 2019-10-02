@@ -10,10 +10,10 @@ matrix:
       env: PYVERSION=36
     - python: 3.7
       env: PYVERSION=37
-    - python: "3.8-dev"
+    - python: 3.8-dev
       env: PYVERSION=38
   allow_failures:
-    - python: "3.8-dev"
+    - python: 3.8-dev
 
 install:
   - pip install -q pytest pytest-runner pytest-cov coverage
