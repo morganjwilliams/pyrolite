@@ -138,7 +138,7 @@ class pyrochem(object):
 
     def to_molecular(self, renorm=True):
         """
-        Converts mass quantities to molar quantities of the same order.
+        Converts mass quantities to molar quantities.
 
         Parameters
         -----------
@@ -159,7 +159,7 @@ class pyrochem(object):
 
     def to_weight(self, renorm=True):
         """
-        Converts molar quantities to mass quantities of the same order.
+        Converts molar quantities to mass quantities.
 
         Parameters
         -----------
