@@ -35,22 +35,82 @@ class pyrochem(object):
     # pyrolite.geochem.ind functions
 
     @property
-    def elements(self):
+    def list_elements(self):
+        """
+        Get the subset of columns which are element names.
+
+        Returns
+        --------
+        :class:`list`
+        """
         return [i for i in self._obj.columns if i in common_elements()]
 
     @property
-    def REE(self):
+    def list_REE(self):
+        """
+        Get the subset of columns which are Rare Earth Element names.
+
+        Returns
+        --------
+        :class:`list`
+        """
         return [i for i in self._obj.columns if i in REE()]
 
     @property
-    def oxides(self):
+    def list_oxides(self):
+        """
+        Get the subset of columns which are oxide names.
+
+        Returns
+        --------
+        :class:`list`
+        """
         return [i for i in self._obj.columns if i in common_oxides()]
 
-    def get_elements(self):
+    @property
+    def elements(self):
+        """
+        Get the subset of a dataframe for which columns are element names.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
         return self._obj.loc[:, self.elements]
 
-    def get_oxides(self):
-        return self._obj.loc[:, self.oxides]
+    @elements.setter
+    def elements(self, df):
+        self._obj.loc[:, self.list_elements] = df
+
+    @property
+    def REE(self):
+        """
+        Get the subset of a dataframe for which columns are Rare Earth Element names.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj.loc[:, self.list_REE]
+
+    @REE.setter
+    def REE(self, df):
+        self._obj.loc[:, self.list_REE] = df
+
+    @property
+    def oxides(self):
+        """
+        Get the subset of a dataframe for which columns are oxide names.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj.loc[:, self.list_oxides]
+
+    @oxides.setter
+    def oxides(self, df):
+        self._obj.loc[:, self.list_oxides] = df
 
     # pyrolite.geochem.parse functions
 

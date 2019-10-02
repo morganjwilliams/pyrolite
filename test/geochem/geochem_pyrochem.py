@@ -16,6 +16,10 @@ class TestPyrochem(unittest.TestCase):
     def setUp(self):
         self.df = renormalise(test_df(index_length=4))
 
+    # pyrolite.geochem.ind functions
+
+    # pyrolite.geochem.parse functions
+
     def test_pyrochem_check_multiple_cation_inclusion(self):
         obj = self.df.copy()
         cations = obj.pyrochem.check_multiple_cation_inclusion()

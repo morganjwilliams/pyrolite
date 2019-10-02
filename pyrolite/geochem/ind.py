@@ -22,8 +22,7 @@ assert hasattr(__shannon__, "element")
 @functools.lru_cache(maxsize=None)  # cache outputs for speed
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
-    Provides a list of elements up to a particular cutoff (default: including U)
-    Output options are 'formula', or 'string'.
+    Provides a list of elements up to a particular cutoff (by default including U).
 
     Parameters
     -----------
@@ -45,12 +44,14 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
 
     Notes
     ------
-        Formulae cannot be used as members of a set, and hence sets returned will
-        instead consist only of strings.
+
+    Formulae cannot be used as members of a set, and hence sets returned will
+    instead consist only of strings.
 
     Todo
     -----
-        * Implement ordering for e.g. incompatibility.
+
+    * Implement ordering for e.g. incompatibility.
     """
     elements = [el for el in pt.elements if not (str(el) == "n" or el.number > cutoff)]
 
