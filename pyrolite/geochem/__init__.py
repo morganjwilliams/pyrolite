@@ -76,7 +76,7 @@ class pyrochem(object):
         --------
         :class:`pandas.Dataframe`
         """
-        return self._obj.loc[:, self.elements]
+        return self._obj.loc[:, self.list_elements]
 
     @elements.setter
     def elements(self, df):
@@ -132,9 +132,7 @@ class pyrochem(object):
         -----
             * Options for output (string/formula).
         """
-
-        obj = self._obj
-        return check_multiple_cation_inclusion(obj, exclude=exclude)
+        return check_multiple_cation_inclusion(self._obj, exclude=exclude)
 
     # pyrolite.geochem.transform functions
 
@@ -156,8 +154,8 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        obj = self._obj
-        return to_molecular(obj, renorm=renorm)
+        self._obj = to_molecular(self._obj, renorm=renorm)
+        return self._obj
 
     def to_weight(self, renorm=True):
         """
@@ -177,8 +175,8 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        obj = self._obj
-        return to_weight(obj, renorm=renorm)
+        self._obj = to_weight(self._obj, renorm=renorm)
+        return self._obj
 
     def devolatilise(
         self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
@@ -198,8 +196,8 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        obj = self._obj
-        return devolatilise(obj, exclude=exclude, renorm=renorm)
+        self._obj = devolatilise(self._obj, exclude=exclude, renorm=renorm)
+        return self._obj
 
     def elemental_sum(
         self, component=None, to=None, total_suffix="T", logdata=False, molecular=False
@@ -224,9 +222,8 @@ class pyrochem(object):
         :class:`pandas.Series`
             Series with cation aggregated.
         """
-        obj = self._obj
         return elemental_sum(
-            obj,
+            self._obj,
             component=component,
             to=to,
             total_suffix=total_suffix,
@@ -268,9 +265,8 @@ class pyrochem(object):
         :class:`pandas.Series`
             Series with cation aggregated.
         """
-        obj = self._obj
         return aggregate_element(
-            obj,
+            self._obj,
             to,
             total_suffix=total_suffix,
             logdata=logdata,
@@ -279,7 +275,7 @@ class pyrochem(object):
         )
 
     def recalculate_Fe(
-        self, to="FeOT", renorm=True, total_suffix="T", logdata=False, molecular=False
+        self, to="FeOT", renorm=False, total_suffix="T", logdata=False, molecular=False
     ):
         """
         Recalculates abundances of iron, and normalises a dataframe to contain  either
@@ -296,7 +292,7 @@ class pyrochem(object):
             If more than one component is specified with proportions in a dictionary
             (e.g. :code:`{'FeO': 0.9, 'Fe2O3': 0.1}`), the components will be split as a
             fraction of Fe.
-        renorm : :class:`bool`, :code:`True`
+        renorm : :class:`bool`, :code:`False`
             Whether to renormalise the dataframe after recalculation.
         total_suffix : :class:`str`, 'T'
             Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
@@ -310,25 +306,17 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-
-        obj = self._obj
-        return recalculate_Fe(
-            obj,
+        self._obj = recalculate_Fe(
+            self._obj,
             to,
             total_suffix=total_suffix,
             logdata=logdata,
             renorm=renorm,
             molecular=molecular,
         )
+        return self._obj
 
-    def add_ratio(
-        self,
-        ratio: str,
-        alias: str = "",
-        norm_to=None,
-        convert=lambda x: x,
-        molecular=False,
-    ):
+    def add_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """
         Add a ratio of components A and B, given in the form of string 'A/B'.
         Returned series be assigned an alias name.
@@ -361,10 +349,10 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_MgNo`
         """
-        obj = self._obj
-        return add_ratio(
-            obj, ratio, alias, norm_to=norm_to, convert=convert, molecular=molecular
+        self._obj = add_ratio(
+            self._obj, ratio, alias, norm_to=norm_to, molecular=molecular
         )
+        return self._obj
 
     def add_MgNo(
         self, molecular=False, use_total_approx=False, approx_Fe203_frac=0.1, name="Mg#"
@@ -392,15 +380,14 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_ratio`
         """
-
-        obj = self._obj
-        return add_MgNo(
-            obj,
+        add_MgNo(
+            self._obj,
             molecular=molecular,
             use_total_approx=use_total_approx,
             approx_Fe203_frac=approx_Fe203_frac,
             name=name,
         )
+        return self._obj
 
     @update_docstring_references
     def lambda_lnREE(
@@ -455,9 +442,8 @@ class pyrochem(object):
         :func:`~pyrolite.plot.REE_radii_plot`
         :func:`~pyrolite.geochem.norm.ReferenceCompositions`
         """
-        obj = self._obj
         return lambda_lnREE(
-            obj,
+            self._obj,
             norm_to=norm_to,
             exclude=exclude,
             params=params,
@@ -466,18 +452,6 @@ class pyrochem(object):
             scale=scale,
             **kwargs
         )
-
-    def normalize_to(self, norm_to=None):
-        """
-        Normalise a dataframe to a given reference composition.
-
-        Note
-        ------
-        This assumes that the two dataframes have equivalent units.
-        """
-        pass
-        # if the normalisation requires modification to the reference composition
-        # note it here in a logger.debug call
 
     def convert_chemistry(self, to=[], logdata=False, renorm=False, molecular=False):
         """
@@ -510,7 +484,68 @@ class pyrochem(object):
             * Implement generalised redox transformation.
             * Add check for dicitonary components (e.g. Fe) in tests
         """
-        obj = self._obj
-        return convert_chemistry(
-            obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
+        self._obj = convert_chemistry(
+            self._obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
         )
+        return self._obj
+
+    # pyrolite.geochem.norm functions
+
+    def normalize_to(self, norm_to=None, units="wt%"):
+        """
+        Normalise a dataframe to a given reference composition.
+
+        Parameters
+        -----------
+        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+            Reference composition to normalise to.
+        units : :class:`str`
+            Units of the input dataframe, to convert the reference composition.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Dataframe with normalised chemistry.
+
+        Notes
+        ------
+        This assumes that the two dataframes have equivalent units.
+        """
+        cols = self._obj.columns
+        if isinstance(norm_to, str):
+            norm = get_reference_composition(norm_to)
+            norm.set_units(units)
+            norm_abund = np.array(
+                [norm[str(el)].value if str(el) in norm else np.nan for el in cols]
+            )
+        elif isinstance(norm_to, RefComp):
+            norm = norm_to
+            norm.set_units(units)
+            norm_abund = np.array(
+                [norm[str(el)].value if str(el) in norm.data else np.nan for el in cols]
+            )
+        else:  # list, iterable, pd.Index etc
+            norm_abund = np.array(norm_to)
+            assert len(norm_abund) == len(cols)
+
+        self._obj = np.divide(self._obj.values, norm_abund)
+        return self._obj
+
+    def scale(self, in_unit, target_unit="ppm"):
+        """
+        Scale a dataframe from one set of units to another.
+
+        Parameters
+        -----------
+        in_unit : :class:`str`
+            Units to be converted from
+        target_unit : :class:`str`, :code:`"ppm"`
+            Units to scale to.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Dataframe with new scale.
+        """
+        self._obj *= scale(in_unit, target_unit)
+        return self._obj

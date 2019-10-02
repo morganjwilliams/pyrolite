@@ -202,7 +202,9 @@ def elemental_sum(
     poss_specs += [i + total_suffix for i in poss_specs]
     species = [i for i in set(poss_specs) if i in df.columns]
     if not species:
-        logger.warn("No relevant species ({}) found to aggregate.".format(poss_specs))
+        logger.warning(
+            "No relevant species ({}) found to aggregate.".format(poss_specs)
+        )
         # return nulls
         subsum = pd.Series(np.ones(df.index.size) * np.nan, index=df.index)
     else:
@@ -335,7 +337,7 @@ def aggregate_element(
 def recalculate_Fe(
     df: pd.DataFrame,
     to="FeOT",
-    renorm=True,
+    renorm=False,
     total_suffix="T",
     logdata=False,
     molecular=False,
@@ -357,7 +359,7 @@ def recalculate_Fe(
         If more than one component is specified with proportions in a dictionary
         (e.g. :code:`{'FeO': 0.9, 'Fe2O3': 0.1}`), the components will be split as a
         fraction of Fe.
-    renorm : :class:`bool`, :code:`True`
+    renorm : :class:`bool`, :code:`False`
         Whether to renormalise the dataframe after recalculation.
     total_suffix : :class:`str`, 'T'
         Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
@@ -382,7 +384,7 @@ def recalculate_Fe(
 
 
 def add_ratio(
-    df: pd.DataFrame, ratio: str, alias: str = "", norm_to=None, molecular=False
+    df: pd.DataFrame, ratio: str, alias: str = None, norm_to=None, molecular=False
 ):
     """
     Add a ratio of components A and B, given in the form of string 'A/B'.
@@ -436,7 +438,7 @@ def add_ratio(
             norm = get_reference_composition("Chondrite_PON")
             num_n, den_n = norm[num].value, norm[den].value
 
-    name = [ratio if not alias else alias][0]
+    name = [ratio if ((not alias) or (alias is None)) else alias][0]
     logger.debug("Adding Ratio: {}".format(name))
     numsum, densum = (
         elemental_sum(df, num, to=num, molecular=molecular),
@@ -496,7 +498,7 @@ def add_MgNo(
 
     mgnos = mg.values / (mg.values + fe.values)
     if mgnos.size:  # to cope with empty arrays
-        df.loc[:, name] = mgnos
+        df[name] = mgnos
     else:
         df[name] = None
     return df
