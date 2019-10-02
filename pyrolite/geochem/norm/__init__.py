@@ -156,7 +156,7 @@ def all_reference_compositions(path=None):
     db = TinyDB(str(path))
     refs = {}
     for r in db.table().all():
-        n, c = r.values()
+        n, c = r["name"], r["composition"]
         refs[n] = Composition(json.loads(c), name=n)
     return refs
 
@@ -177,8 +177,7 @@ def get_reference_composition(name):
     res = __db__.search(Query().name == name)
     assert len(res) == 1
     res = res[0]
-    name, composition = res.values()
-
+    name, composition = res["name"], res["composition"]
     return Composition(json.loads(composition), name=name)
 
 
