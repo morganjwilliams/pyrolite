@@ -145,7 +145,7 @@ class pyrochem(object):
         renorm : :class:`bool`, :code:`True`
             Whether to renormalise the dataframe after converting to relative moles.
 
-        Note
+        Notes
         ------
         Does not convert units (i.e. mass% --> mol%; mass-ppm --> mol-ppm).
 
@@ -166,7 +166,7 @@ class pyrochem(object):
         renorm : :class:`bool`, :code:`True`
             Whether to renormalise the dataframe after converting to relative moles.
 
-        Note
+        Notes
         ------
         Does not convert units (i.e. mol% --> mass%; mol-ppm --> mass-ppm).
 
