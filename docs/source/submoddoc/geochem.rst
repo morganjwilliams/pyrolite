@@ -1,3 +1,9 @@
+Pandas Interface: pyrolite\.geochem\.pyrochem
+----------------------------------------------
+  .. autoclass:: pyrolite.geochem.pyrochem
+      :members:
+      :undoc-members:
+
 pyrolite\.geochem\.ind
 -------------------------------
   .. automodule:: pyrolite.geochem.ind

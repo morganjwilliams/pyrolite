@@ -271,5 +271,8 @@ def update_docstring_references(obj, ref="ref"):
     :class:`func` | :class:`class`
         Object with modified docstring.
     """
-    obj.__doc__ = str(obj.__doc__).replace(ref, obj.__name__)
+    name = obj.__name__
+    if hasattr(obj, "__module__"):
+        name = obj.__module__ + "." + name
+    obj.__doc__ = str(obj.__doc__).replace(ref, name)
     return obj

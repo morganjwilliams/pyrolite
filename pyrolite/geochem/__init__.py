@@ -70,7 +70,7 @@ class pyrochem(object):
     @property
     def elements(self):
         """
-        Get the subset of a dataframe for which columns are element names.
+        Get an elemental subset of a DataFrame.
 
         Returns
         --------
@@ -85,7 +85,7 @@ class pyrochem(object):
     @property
     def REE(self):
         """
-        Get the subset of a dataframe for which columns are Rare Earth Element names.
+        Get a Rare Earth Element subset of a DataFrame.
 
         Returns
         --------
@@ -100,7 +100,7 @@ class pyrochem(object):
     @property
     def oxides(self):
         """
-        Get the subset of a dataframe for which columns are oxide names.
+        Get an oxide subset of a DataFrame.
 
         Returns
         --------
@@ -323,8 +323,6 @@ class pyrochem(object):
 
         Parameters
         -----------
-        df : :class:`pandas.DataFrame`
-            Dataframe to append ratio to.
         ratio : :class:`str`
             String decription of ratio in the form A/B[_n].
         alias : :class:`str`
@@ -338,12 +336,6 @@ class pyrochem(object):
         -------
         :class:`pandas.DataFrame`
             Dataframe with ratio appended.
-
-        Todo
-        ------
-            * Use elemental sum from reference compositions
-            * Use sympy-like functionality to accept arbitrary input e.g.
-                :code:`"MgNo = Mg / (Mg + Fe)"` for subsequent calculation.
 
         See Also
         --------
@@ -389,7 +381,6 @@ class pyrochem(object):
         )
         return self._obj
 
-    @update_docstring_references
     def lambda_lnREE(
         self,
         norm_to="Chondrite_PON",
@@ -402,8 +393,8 @@ class pyrochem(object):
     ):
         """
         Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
-        normalised to a specific composition [#ref_1]_. Lambda factors are given for the
-        radii vs. ln(REE/NORM) polynomical combination.
+        normalised to a specific composition [#localref_1]_. Lambda factors are given for the
+        radii vs. ln(REE/NORM) polynomial combination.
 
         Parameters
         ------------
@@ -421,15 +412,9 @@ class pyrochem(object):
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.
 
-        Todo
-        -----
-            * Operate only on valid rows.
-            * Add residuals, Eu, Ce anomalies as options to `append`.
-            * Pre-build orthagonal parameters for REE combinations for calculation speed?
-
         References
         -----------
-        .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+        .. [#localref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
                Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
                doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
 
@@ -549,3 +534,8 @@ class pyrochem(object):
         """
         self._obj *= scale(in_unit, target_unit)
         return self._obj
+
+
+pyrochem.lambda_lnREE = update_docstring_references(
+    pyrochem.lambda_lnREE, ref="localref"
+)

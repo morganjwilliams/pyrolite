@@ -29,8 +29,7 @@ logger = logging.getLogger(__name__)
 
 def to_molecular(df: pd.DataFrame, renorm=True):
     """
-    Converts mass quantities to molar quantities of the same order. Does not convert
-    units (i.e. mass% --> mol%; mass-ppm --> mol-ppm).
+    Converts mass quantities to molar quantities of the same order.
 
     Parameters
     -----------
@@ -43,6 +42,10 @@ def to_molecular(df: pd.DataFrame, renorm=True):
     -------
     :class:`pandas.DataFrame`
         Transformed dataframe.
+
+    Notes
+    ------
+    Does not convert units (i.e. mass% --> mol%; mass-ppm --> mol-ppm).
     """
     # df = df.to_frame()
     MWs = [pt.formula(c).mass for c in df.columns]
@@ -54,8 +57,7 @@ def to_molecular(df: pd.DataFrame, renorm=True):
 
 def to_weight(df: pd.DataFrame, renorm=True):
     """
-    Converts molar quantities to mass quantities of the same order. Does not convert
-    units (i.e. mol% --> mass%; mol-ppm --> mass-ppm).
+    Converts molar quantities to mass quantities of the same order.
 
     Parameters
     -----------
@@ -68,6 +70,10 @@ def to_weight(df: pd.DataFrame, renorm=True):
     -------
     :class:`pandas.DataFrame`
         Transformed dataframe.
+
+    Notes
+    -------
+    Does not convert units (i.e. mol% --> mass%; mol-ppm --> mass-ppm).
     """
     # df = df.to_frame()
     MWs = [pt.formula(c).mass for c in df.columns]
@@ -504,7 +510,6 @@ def add_MgNo(
     return df
 
 
-@update_docstring_references
 def lambda_lnREE(
     df,
     norm_to="Chondrite_PON",
@@ -517,7 +522,7 @@ def lambda_lnREE(
 ):
     """
     Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
-    normalised to a specific composition [#ref_1]_. Lambda factors are given for the
+    normalised to a specific composition [#localref_1]_. Lambda factors are given for the
     radii vs. ln(REE/NORM) polynomical combination.
 
     Parameters
@@ -546,7 +551,7 @@ def lambda_lnREE(
 
     References
     -----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+    .. [#localref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
 
@@ -620,6 +625,9 @@ def lambda_lnREE(
     lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
     assert lambdadf.index.size == df.index.size
     return lambdadf
+
+
+lambda_lnREE = update_docstring_references(lambda_lnREE, ref="localref")
 
 
 def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=False):

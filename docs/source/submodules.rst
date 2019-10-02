@@ -15,9 +15,6 @@ pyrolite\.geochem
 ------------------------
 
   .. automodule:: pyrolite.geochem
-    :members:
-    :undoc-members:
-
 
   .. toctree::
     :maxdepth: 2
@@ -28,8 +25,6 @@ pyrolite\.comp
 ---------------------
 
   .. automodule:: pyrolite.comp
-     :members:
-     :undoc-members:
 
   .. toctree::
      :maxdepth: 2

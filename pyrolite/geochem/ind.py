@@ -138,13 +138,13 @@ def common_oxides(
 
     Notes
     ------
-        Formulae cannot be used as members of a set, and hence sets returned will
-        instead consist only of strings.
+    Formulae cannot be used as members of a set, and hence sets returned will
+    instead consist only of strings.
 
     Todo
     ----
-        * Element verification
-        * Conditional additional components on the presence of others (e.g. Fe - FeOT)
+    * Element verification
+    * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
     if not elements:
         elements = __common_elements__ - set(exclude)
@@ -165,8 +165,7 @@ def common_oxides(
 @functools.lru_cache(maxsize=None)  # cache outputs for speed
 def simple_oxides(cation, output="string"):
     """
-    Creates a list of oxides for a cationic element
-    (oxide of ions with c=1+ and above).
+    Creates a list of oxides for a cationic element (oxide of ions with c=1+ and above).
 
     Parameters
     -----------
@@ -299,8 +298,8 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
 
     Todo
     -----
-        * Implement interpolation for coordination +/- charge.
-        * Finish Shannon Radii tests
+    * Implement interpolation for coordination +/- charge.
+    * Finish Shannon Radii tests
     """
     if isinstance(element, list):
         return [

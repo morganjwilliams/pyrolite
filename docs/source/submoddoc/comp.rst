@@ -1,3 +1,10 @@
+Pandas Interface: pyrolite\.comp\.pyrocomp
+-------------------------------------------
+
+  .. autoclass:: pyrolite.comp.pyrocomp
+    :members:
+    :undoc-members:
+
 pyrolite\.comp\.codata
 -------------------------------
   .. automodule:: pyrolite.comp.codata
