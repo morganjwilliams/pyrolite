@@ -36,8 +36,8 @@ class Composition(object):
 
         if isinstance(src, (str, Path)):
             self.filename = str(src)
-            self.import_file(self.filename, **kwargs)
-            self.process_imported_frame()
+            self._import_file(self.filename, **kwargs)
+            self._process_imported_frame()
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
             self.comp = pd.DataFrame(
                 src.loc[src.index[0], src.pyrochem.list_compositional].astype(np.float),
@@ -45,7 +45,7 @@ class Composition(object):
             )
         elif isinstance(src, dict):
             self._df = pd.DataFrame.from_dict(src).T
-            self.process_imported_frame()
+            self._process_imported_frame()
         else:
             raise NotImplementedError(
                 "Import of compostions as {} not yet implemented.".format(type(src))
@@ -54,13 +54,13 @@ class Composition(object):
         if (self.name is not None) and (self.filename is None):
             self.filename = "{}.csv".format(self.name)  # default naming
 
-    def import_file(self, filename, **kwargs):
+    def _import_file(self, filename, **kwargs):
         if filename.endswith(".csv"):
             self._df = pd.read_csv(filename, **kwargs).set_index("var").T
         elif filename.endswith("json"):
             self._df = pd.read_json(filename, **kwargs).set_index("var").T
 
-    def process_imported_frame(self):
+    def _process_imported_frame(self):
         assert self._df is not None
         metadata = self._df.loc[
             "value", ["ModelName", "Reference", "Reservoir", "ModelType"]
