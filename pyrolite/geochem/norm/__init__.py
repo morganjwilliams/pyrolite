@@ -139,7 +139,7 @@ class Composition(object):
         return r
 
 
-def all_reference_compositions(path=__dbfile__):
+def all_reference_compositions(path=None):
     """
     Get a dictionary of all reference compositions indexed by name.
 
@@ -151,6 +151,8 @@ def all_reference_compositions(path=__dbfile__):
     --------
     :class:`dict`
     """
+    if path is None:
+        path = __dbfile__
     db = TinyDB(str(path))
     refs = {}
     for r in db.table().all():
@@ -203,7 +205,7 @@ def get_reference_files(directory=None, formats=["csv"]):
     return files
 
 
-def update_database(path=__dbfile__, encoding="cp1252", **kwargs):
+def update_database(path=None, encoding="cp1252", **kwargs):
     """
     Update the reference composition database.
 
@@ -212,6 +214,8 @@ def update_database(path=__dbfile__, encoding="cp1252", **kwargs):
     This will take all csv files from the geochem/refcomp pyrolite data folder
     and construct a document-based JSON database.
     """
+    if path is None:
+        path = __dbfile__
     db = TinyDB(str(path))
     db.purge()
 
