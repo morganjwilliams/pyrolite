@@ -8,7 +8,7 @@ from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from .norm import RefComp, get_reference_composition
+from .norm import RefComp, Composition, get_reference_composition
 from ..util.units import scale
 from .ind import (
     REE,
@@ -435,14 +435,18 @@ def add_ratio(
     if _to_norm or (norm_to is not None):  # if molecular, this will need to change
         if isinstance(norm_to, str):
             norm = get_reference_composition(norm_to)
-            num_n, den_n = norm[num].value, norm[den].value
+            num_n, den_n = norm[num], norm[den]
+        elif isinstance(norm_to, Composition):
+            norm = norm_to
+            num_n, den_n = norm[num], norm[den]
         elif isinstance(norm_to, RefComp):
             num_n, den_n = norm_to[num].value, norm_to[den].value
         elif iscollection(norm_to):  # list, iterable, pd.Index etc
             num_n, den_n = norm_to
         else:
+            logger.warning("Unknown normalization, defaulting to Chondrite.")
             norm = get_reference_composition("Chondrite_PON")
-            num_n, den_n = norm[num].value, norm[den].value
+            num_n, den_n = norm[num], norm[den]
 
     name = [ratio if ((not alias) or (alias is None)) else alias][0]
     logger.debug("Adding Ratio: {}".format(name))
@@ -588,8 +592,12 @@ def lambda_lnREE(
         if isinstance(norm_to, str):
             norm = get_reference_composition(norm_to)
             norm.set_units(scale)
-            norm_abund = np.array([norm[str(el)].value for el in ree])
-        elif isinstance(norm_to, RefComp):
+            norm_abund = norm[ree]
+        elif isinstance(norm_to, Composition):
+            norm = norm_to
+            norm.set_units(scale)
+            norm_abund = norm[ree]
+        elif isinstance(norm_to, RefComp):  # old way, to be removed
             norm = norm_to
             norm.set_units(scale)
             norm_abund = np.array([norm[str(el)].value for el in ree])

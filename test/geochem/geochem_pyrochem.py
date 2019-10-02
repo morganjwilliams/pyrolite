@@ -118,6 +118,9 @@ class TestPyrochem(unittest.TestCase):
 
     # pyrolite.geochem.norm functions
 
+    def test_pyrochem_normalize_to(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.normalize_to("Chondrite_PON")
 
     def test_pyrochem_scale(self):
         obj = self.df.copy(deep=True)

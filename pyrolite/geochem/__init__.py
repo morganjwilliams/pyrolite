@@ -68,6 +68,10 @@ class pyrochem(object):
         return [i for i in self._obj.columns if i in common_oxides()]
 
     @property
+    def list_compositional(self):
+        return self.list_oxides + self.list_elements
+
+    @property
     def elements(self):
         """
         Get an elemental subset of a DataFrame.
@@ -494,15 +498,17 @@ class pyrochem(object):
 
         Notes
         ------
-        This assumes that the two dataframes have equivalent units.
+        This assumes that dataframes have a single set of units.
         """
-        cols = self._obj.columns
-        if isinstance(norm_to, str):
-            norm = get_reference_composition(norm_to)
+
+        if isinstance(norm_to, (str, Composition)):
+            if not isinstance(norm_to, Composition):
+                norm = get_reference_composition(norm_to)
+            else:
+                norm = norm_to
             norm.set_units(units)
-            norm_abund = np.array(
-                [norm[str(el)].value if str(el) in norm else np.nan for el in cols]
-            )
+            norm.comp = convert_chemistry(norm.comp, self.list_compositional)
+            norm_abund = norm[self.list_compositional]
         elif isinstance(norm_to, RefComp):
             norm = norm_to
             norm.set_units(units)
@@ -513,7 +519,49 @@ class pyrochem(object):
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(cols)
 
-        self._obj = np.divide(self._obj.values, norm_abund)
+        self._obj[self.list_compositional] /= norm_abund
+        return self._obj
+
+    def denormalize_from(self, norm_from=None, units="wt%"):
+        """
+        De-normalise a dataframe from a given reference composition.
+
+        Parameters
+        -----------
+        norm_from : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+            Reference composition to normalise to.
+        units : :class:`str`
+            Units of the input dataframe, to convert the reference composition.
+
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            Dataframe with normalised chemistry.
+
+        Notes
+        ------
+        This assumes that dataframes have a single set of units.
+        """
+
+        if isinstance(norm_to, (str, Composition)):
+            if not isinstance(norm_to, Composition):
+                norm = get_reference_composition(norm_to)
+            else:
+                norm = norm_to
+            norm.set_units(units)
+            norm.comp = convert_chemistry(norm.comp, self.list_compositional)
+            norm_abund = norm[self.list_compositional]
+        elif isinstance(norm_to, RefComp):
+            norm = norm_to
+            norm.set_units(units)
+            norm_abund = np.array(
+                [norm[str(el)].value if str(el) in norm.data else np.nan for el in cols]
+            )
+        else:  # list, iterable, pd.Index etc
+            norm_abund = np.array(norm_to)
+            assert len(norm_abund) == len(cols)
+
+        self._obj[self.list_compositional] *= norm_abund
         return self._obj
 
     def scale(self, in_unit, target_unit="ppm"):
