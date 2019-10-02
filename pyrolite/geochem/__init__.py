@@ -331,7 +331,7 @@ class pyrochem(object):
             String decription of ratio in the form A/B[_n].
         alias : :class:`str`
             Alternate name for ratio to be used as column name.
-        norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
+        norm_to : :class:`str` | :class:`pyrolite.geochem.norm.Composition`, `None`
             Reference composition to normalise to.
         molecular : :class:`bool`, :code:`False`
             Flag that data is in molecular units, rather than weight units.
@@ -402,7 +402,7 @@ class pyrochem(object):
 
         Parameters
         ------------
-        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
         exclude : :class:`list`, :code:`["Pm", "Eu"]`
             Which REE elements to exclude from the fit. May wish to include Ce for minerals
@@ -429,7 +429,6 @@ class pyrochem(object):
         :func:`~pyrolite.util.math.lambdas`
         :func:`~pyrolite.util.math.OP_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
-        :func:`~pyrolite.geochem.norm.ReferenceCompositions`
         """
         return lambda_lnREE(
             self._obj,
@@ -486,7 +485,7 @@ class pyrochem(object):
 
         Parameters
         -----------
-        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition to normalise to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
@@ -509,12 +508,6 @@ class pyrochem(object):
             norm.set_units(units)
             norm.comp = convert_chemistry(norm.comp, self.list_compositional)
             norm_abund = norm[self.list_compositional]
-        elif isinstance(norm_to, RefComp):
-            norm = norm_to
-            norm.set_units(units)
-            norm_abund = np.array(
-                [norm[str(el)].value if str(el) in norm.data else np.nan for el in cols]
-            )
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(cols)
@@ -528,7 +521,7 @@ class pyrochem(object):
 
         Parameters
         -----------
-        norm_from : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+        norm_from : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition to normalise to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
@@ -551,12 +544,6 @@ class pyrochem(object):
             norm.set_units(units)
             norm.comp = convert_chemistry(norm.comp, self.list_compositional)
             norm_abund = norm[self.list_compositional]
-        elif isinstance(norm_to, RefComp):
-            norm = norm_to
-            norm.set_units(units)
-            norm_abund = np.array(
-                [norm[str(el)].value if str(el) in norm.data else np.nan for el in cols]
-            )
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(cols)

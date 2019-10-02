@@ -139,44 +139,24 @@ class Composition(object):
         return r
 
 
-def ReferenceCompositions(directory=None, formats=["csv"], **kwargs):
+def all_reference_compositions(path=__dbfile__):
     """
-    Build all reference models in a given directory. Here we use either the input
-    directory, or the default data directory within this module.
+    Get a dictionary of all reference compositions indexed by name.
 
     Parameters
-    ----------
-    directory : :class:`str`, :code:`None`
-        Location of reference data files.
-    formats : :class:`list`, :code:`["csv"]`
-        List of potential data formats to draw from.
-        Currently only csv will work.
+    -----------
+    path : :class:`str` | :class:`pathlib.Path`
 
     Returns
     --------
     :class:`dict`
-        Dictionary of reference compositions.
     """
-    # if platform.system() == "Windows":
-    #    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
-    # else:
-    kwargs["encoding"] = kwargs.get("encoding", None) or "cp1252"
-
-    curr_dir = os.path.realpath(__file__)
-    module_dir = Path(sys.modules["pyrolite"].__file__).parent
-    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
-
-    assert directory.exists() and directory.is_dir()
-
-    files = []
-    for fmt in formats:
-        files.extend(directory.glob("./*." + fmt))
-
-    comps = {}
-    for f in files:
-        r = RefComp(f, **kwargs)
-        comps[r.ModelName] = r
-    return comps
+    db = TinyDB(str(path))
+    refs = {}
+    for r in db.table().all():
+        n, c = r.values()
+        refs[n] = Composition(json.loads(c), name=n)
+    return refs
 
 
 def get_reference_composition(name):

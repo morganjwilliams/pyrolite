@@ -8,7 +8,7 @@ from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from .norm import RefComp, Composition, get_reference_composition
+from .norm import Composition, get_reference_composition
 from ..util.units import scale
 from .ind import (
     REE,
@@ -404,7 +404,7 @@ def add_ratio(
         String decription of ratio in the form A/B[_n].
     alias : :class:`str`
         Alternate name for ratio to be used as column name.
-    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.RefComp`, `None`
+    norm_to : :class:`str` | :class:`pyrolite.geochem.norm.Composition`, `None`
         Reference composition to normalise to.
     molecular : :class:`bool`, :code:`False`
         Flag that data is in molecular units, rather than weight units.
@@ -439,8 +439,6 @@ def add_ratio(
         elif isinstance(norm_to, Composition):
             norm = norm_to
             num_n, den_n = norm[num], norm[den]
-        elif isinstance(norm_to, RefComp):
-            num_n, den_n = norm_to[num].value, norm_to[den].value
         elif iscollection(norm_to):  # list, iterable, pd.Index etc
             num_n, den_n = norm_to
         else:
@@ -533,7 +531,7 @@ def lambda_lnREE(
     ------------
     df : :class:`pandas.DataFrame`
         Dataframe to calculate lambda coefficients for.
-    norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.RefComp` | :class:`numpy.ndarray`
+    norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
         Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
     exclude : :class:`list`, :code:`["Pm", "Eu"]`
         Which REE elements to exclude from the fit. May wish to include Ce for minerals
@@ -566,7 +564,6 @@ def lambda_lnREE(
     :func:`~pyrolite.util.math.lambdas`
     :func:`~pyrolite.util.math.OP_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
-    :func:`~pyrolite.geochem.norm.ReferenceCompositions`
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
     ree = [
@@ -597,10 +594,6 @@ def lambda_lnREE(
             norm = norm_to
             norm.set_units(scale)
             norm_abund = norm[ree]
-        elif isinstance(norm_to, RefComp):  # old way, to be removed
-            norm = norm_to
-            norm.set_units(scale)
-            norm_abund = np.array([norm[str(el)].value for el in ree])
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm_to)
             assert len(norm_abund) == len(ree)
