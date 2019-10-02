@@ -222,7 +222,7 @@ refs = all_reference_compositions()
 reservoirs = set([refs[n].reservoir for n in refs.keys() if refs[n].reservoir is not None])
 comps = []
 for r in reservoirs:
-    comps += [n for kn in refs if refs[n].reservoir == r]
+    comps += [n for n in refs if refs[n].reservoir == r]
 refcomps = (
     "    <dl>"
     + "\n    ".join(["<dt>{}</dt><dd>{}</dd>".format(n, refs[n]) for n in comps])
