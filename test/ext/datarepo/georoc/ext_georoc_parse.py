@@ -7,6 +7,9 @@ from pyrolite.ext.datarepo.georoc.parse import (
     parse_citations,
     subsitute_commas,
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TestParseValues(unittest.TestCase):
