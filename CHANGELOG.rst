@@ -10,6 +10,37 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <installation.html#development-installation>`__.
 
+* Added alt-text to documentation example images
+* Updated contributing guidelines
+* Added Python 3.8-dev to Travis config (not yet available)
+* Removed :mod:`pandas-flavor` decorators from :mod:`pyrolite.geochem` and
+  :mod:`pyrolite.comp`, eliminating the dependency on :mod:`pandas-flavor`
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Expanded :class:`pyrolite.geochem.pyrochem` DataFrame accessor and constituent
+  methods
+* Updates and bugfixes for :mod:`pyrolite.geochem.transform` and
+  :mod:`pyrolite.geochem.norm`
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :class:`pyrolite.comp.pyrocomp` DataFrame accessor with the
+  :func:`pyrolite.comp.codata.renormalise` method.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updates and bugfixes for :func:`pyrolite.plot.spider.REE_v_radii`, including updating
+  spacing to reflect relative ionic radii
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.plot.get_twins`
+
 
 `0.1.21`_
 --------------
