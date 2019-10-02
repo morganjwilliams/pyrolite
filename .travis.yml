@@ -12,6 +12,7 @@ matrix:
       env: PYVERSION=37
     - python: 3.8-dev
       env: PYVERSION=38
+      sudo: true
   allow_failures:
     - python: 3.8-dev
 
