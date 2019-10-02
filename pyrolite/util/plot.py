@@ -98,12 +98,35 @@ def share_axes(axes, which="xy"):
 
 
 def get_twins(ax, which="y"):
+    """
+    Get twin axes of a specified axis.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to get twins for.
+    which : :class:`str`
+        Which twins to get (shared :code:`'x'`, shared :code:`'y'` or the concatenatation
+        of both, :code:`'xy'`).
+
+    Returns
+    --------
+    :class:`list`
+
+    Notes
+    ------
+    This function was designed to assist in avoiding creating a series of duplicate
+    axes when replotting on an existing axis using a function which would typically
+    create a twin axis.
+    """
     s = []
     if "y" in which:
         s += ax.get_shared_y_axes().get_siblings(ax)
     if "x" in which:
         s += ax.get_shared_x_axes().get_siblings(ax)
-    return [a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)]
+    return list(
+        set([a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)])
+    )
 
 
 def modify_legend_handles(ax, **kwargs):
@@ -225,8 +248,8 @@ def get_contour_paths(ax, resolution=100):
     contourstyles : :class:`list`
         List of styles for contours.
 
-    Note
-    -----
+    Notes
+    ------
 
         This method assumes that contours are the only
         :code:`matplotlib.collections.LineCollection` objects within an axes;
@@ -575,11 +598,13 @@ def conditional_prob_density(
 
     Notes
     ------
+
         * Bins along the x axis are defined such that the x points (including
-            interpolated points) are the centres.
+          interpolated points) are the centres.
 
     Todo
     -----
+
         * Tests
         * Implement log grids (for y)
         * Add approach for interpolation? (need resolution etc) - this will resolve lines, not points!

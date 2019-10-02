@@ -1,7 +1,3 @@
-.. automodule:: pyrolite.comp
-    :members:
-    :undoc-members:
-
 pyrolite\.comp\.codata
 -------------------------------
   .. automodule:: pyrolite.comp.codata

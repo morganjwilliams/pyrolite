@@ -176,8 +176,9 @@ def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
 
     Notes
     -----
-        * Avoid using .loc or .iloc on the LHS to make sure that data dtypes
-            are propagated.
+
+    Avoid using .loc or .iloc on the LHS to make sure that data dtypes
+    are propagated.
     """
     cols = df.select_dtypes(exclude=exclude).columns
     df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)

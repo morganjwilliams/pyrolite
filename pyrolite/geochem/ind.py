@@ -7,7 +7,7 @@ import periodictable as pt
 from tinydb import TinyDB, Query
 from ..mineral import ions
 from ..util.text import titlecase, remove_suffix
-from ..util.meta import pyrolite_datafolder
+from ..util.meta import pyrolite_datafolder, sphinx_doi_link
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -260,9 +260,9 @@ def get_isotopes(ratio_text):
 def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling=True):
     """
     Function to obtain Shannon's radii for a given ion [1]_. Shannon published two sets of
-    radii. The first ('Crystal Radii') were using Shannon's value for r($O^{2-}_{VI}$)
-    of 1.26 $\AA$, while the second ('Ionic Radii') is consistent with the
-    Pauling (1960) value of r($O^{2-}_{VI}$) of 1.40 $\AA$; see `pauling` below.
+    radii. The first ('Crystal Radii') were using Shannon's value for :math:`r(O^{2-}_{VI})`
+    of 1.26 Å, while the second ('Ionic Radii') is consistent with the
+    Pauling (1960) value of :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
 
     Parameters
     -----------
@@ -291,8 +291,10 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
     ----------
     .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
             studies of interatomic distances in halides and chalcogenides.
-            Acta Crystallographica Section A 32:751–767. doi: 10.1107/S0567739476001551
-            https://dx.doi.org/10.1107/S0567739476001551
+            Acta Crystallographica Section A 32:751–767.
+            doi: shannon1976
+    .. [2] Pauling, L., 1960. The Nature of the Chemical Bond.
+            Cornell University Press, Ithaca, NY.
 
     Todo
     -----
@@ -347,6 +349,9 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         return result  # return the series
 
 
+get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
+    "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
+)
 # generate sets
 __db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
 __common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])

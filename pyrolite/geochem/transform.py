@@ -408,9 +408,11 @@ def add_ratio(
 
     Todo
     ------
+
         * Use elemental sum from reference compositions
-        * Use sympy-like functionality to accept arbitrary input e.g.
-            :code:`"MgNo = Mg / (Mg + Fe)"` for subsequent calculation.
+        * Use sympy-like functionality to accept arbitrary input for calculation
+
+            e.g. :code:`"MgNo = Mg / (Mg + Fe)"`
 
     See Also
     --------
