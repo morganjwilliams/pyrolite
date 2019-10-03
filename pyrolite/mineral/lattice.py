@@ -169,6 +169,7 @@ def youngs_modulus_approximation(z, r):
         * Add links to docstring
 
     """
+    assert (z is not None) and (r is not None), "Need charge and radii to approximate Young's Modulus"
     d = r + 1.38
     E = 1.5 * 750 * (z / d ** 3) * 10 ** 9
     return E
