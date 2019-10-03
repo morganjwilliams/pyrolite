@@ -31,7 +31,7 @@ class TestReadTable(unittest.TestCase):
         for fn, ex in zip(
             self.files, ["to_excel", "to_excel", "to_csv"]
         ):  # make some csvs
-            kw = dict(engine="xlsxwriter")
+            kw = dict(engine="openpyxl")
             getattr(self.expect, ex)(str(fn), **subkwargs(kw, getattr(self.expect, ex)))
 
     def test_read_csv(self):
