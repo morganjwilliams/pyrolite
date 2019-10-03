@@ -13,5 +13,18 @@ class TestUrlify(unittest.TestCase):
                 self.assertFalse(" " in urlify(s))
 
 
+class TestDownloadFile(unittest.TestCase):
+
+    def test_non_existant(self):
+        url = "http://www.notquitegoogle.com/"
+        out = download_file(url, encoding=None)
+        self.assertTrue(out is None)
+
+    def test_image(self):
+        url = "https://pyrolite.readthedocs.io/en/master/_images/logo_eg_contours.png"
+        out = download_file(url, encoding=None)
+        self.assertTrue(out is not None)
+
+
 if __name__ == "__main__":
     unittest.main()

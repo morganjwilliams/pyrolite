@@ -48,7 +48,7 @@ def read_table(filepath, index_col=0, **kwargs):
     elif ext in ["csv"]:
         reader = pd.read_csv
     else:
-        logger.warn
+        raise NotImplementedError("Only .xls* and .csv currently supported.")
     df = reader(str(filepath), index_col=index_col, **subkwargs(kwargs, reader))
     df = drop_where_all_empty(df)
     return df
