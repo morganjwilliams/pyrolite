@@ -61,7 +61,7 @@ def fit_save_classifier(
     fpath = (clf_dir / name).with_suffix(extension)
     # save metadata
     if isinstance(X_train, pd.DataFrame):  # save the features used in the model for ref
-        components = [i for i in X_train.columns]
+        components = [str(i) for i in X_train.columns]
         with open(
             clf_dir / "{}_features.txt".format(name), "w", encoding="utf-8"
         ) as fp:
