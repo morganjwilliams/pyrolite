@@ -42,6 +42,10 @@ class pyrochem(object):
         Returns
         --------
         :class:`list`
+
+        Notes
+        -------
+        The list will have the same ordering as the source DataFrame.
         """
         return [i for i in self._obj.columns if i in common_elements()]
 
@@ -53,8 +57,12 @@ class pyrochem(object):
         Returns
         --------
         :class:`list`
+
+        Notes
+        -------
+        The returned list will reorder REE based on atomic number.
         """
-        return [i for i in self._obj.columns if i in REE()]
+        return [i for i in REE() if i in self._obj.columns]
 
     @property
     def list_oxides(self):
@@ -64,6 +72,10 @@ class pyrochem(object):
         Returns
         --------
         :class:`list`
+
+        Notes
+        -------
+        The list will have the same ordering as the source DataFrame.
         """
         return [i for i in self._obj.columns if i in common_oxides()]
 
@@ -131,10 +143,6 @@ class pyrochem(object):
         --------
         :class:`set`
             Set of elements for which multiple components exist in the dataframe.
-
-        Todo
-        -----
-            * Options for output (string/formula).
         """
         return check_multiple_cation_inclusion(self._obj, exclude=exclude)
 
@@ -479,7 +487,7 @@ class pyrochem(object):
 
     # pyrolite.geochem.norm functions
 
-    def normalize_to(self, norm=None, units="wt%"):
+    def normalize_to(self, norm=None, units=None):
         """
         Normalise a dataframe to a given reference composition.
 
@@ -505,7 +513,8 @@ class pyrochem(object):
                 N = get_reference_composition(norm)
             else:
                 N = norm
-            N.set_units(units)
+            if units is not None:
+                N.set_units(units)
             N.comp = convert_chemistry(N.comp, self.list_compositional)
             norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
@@ -515,7 +524,7 @@ class pyrochem(object):
         self._obj[self.list_compositional] /= norm_abund
         return self._obj
 
-    def denormalize_from(self, norm=None, units="wt%"):
+    def denormalize_from(self, norm=None, units=None):
         """
         De-normalise a dataframe from a given reference composition.
 
@@ -541,7 +550,8 @@ class pyrochem(object):
                 N = get_reference_composition(norm)
             else:
                 N = norm
-            N.set_units(units)
+            if units is not None:
+                N.set_units(units)
             N.comp = convert_chemistry(N.comp, self.list_compositional)
             norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc

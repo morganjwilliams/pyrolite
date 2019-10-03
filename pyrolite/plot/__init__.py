@@ -111,7 +111,9 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 8.0)
-        ax = density.density(obj.loc[:, components].values, ax=ax, **kwargs)
+        ax = density.density(
+            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
+        )
         if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
@@ -193,7 +195,12 @@ class pyroplot(object):
         ree = REE()
 
         ax = spider.REE_v_radii(
-            obj.loc[:, ree].values, index=index, ree=ree, mode=mode, ax=ax, **kwargs
+            obj.loc[:, ree].astype(np.float).values,
+            index=index,
+            ree=ree,
+            mode=mode,
+            ax=ax,
+            **kwargs
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
