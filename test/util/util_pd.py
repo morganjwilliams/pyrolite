@@ -2,10 +2,11 @@ import os, time
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.util.synthetic import test_df, test_ser
-from pyrolite.util.pd import *
-from pyrolite.util.general import temp_path, remove_tempdir
 from pathlib import Path
+from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.general import temp_path, remove_tempdir
+from pyrolite.util.meta import subkwargs
+from pyrolite.util.pd import *
 
 
 class TestColumnOrderedAppend(unittest.TestCase):
@@ -30,7 +31,8 @@ class TestReadTable(unittest.TestCase):
         for fn, ex in zip(
             self.files, ["to_excel", "to_excel", "to_csv"]
         ):  # make some csvs
-            getattr(self.expect, ex)(fn)
+            kw = dict(engine="xlsxwriter")
+            getattr(self.expect, ex)(str(fn), **subkwargs(kw, getattr(self.expect, ex)))
 
     def test_read_csv(self):
         f = self.fn.with_suffix(".csv")
