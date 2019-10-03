@@ -1168,7 +1168,7 @@ def save_figure(
     config = default_config.copy()
     config.update(kwargs)
     for fmt in save_fmts:
-        out_filename = os.path.join(save_at, name + "." + fmt)
+        out_filename = os.path.join(str(save_at), name + "." + fmt)
         if output:
             logger.info("Saving " + out_filename)
         figure.savefig(out_filename, format=fmt, **config)
