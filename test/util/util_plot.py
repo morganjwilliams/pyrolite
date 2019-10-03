@@ -22,6 +22,18 @@ except ImportError:
     HAVE_SKLEARN = False
 
 
+class TestMarkerCycle(unittest.TestCase):
+    def test_iterable(self):
+        mkrs = marker_cycle()
+        for i in range(15):
+            mkr = next(mkrs)
+
+    def test_makes_line(self):
+        mkrs = marker_cycle()
+        for i in range(10):
+            matplotlib.lines.Line2D([0], [0], marker=next(mkrs))
+
+
 class TestShareAxes(unittest.TestCase):
     """
     Tests the share_axes utility function.
