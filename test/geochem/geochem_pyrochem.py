@@ -4,6 +4,7 @@ import pandas as pd
 import pyrolite.geochem
 from pyrolite.comp.codata import renormalise
 from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.geochem.norm import get_reference_composition
 
 # [print("# " + i) for i in dir(df.pyrochem) if "__" not in i and not i.startswith("_")]
 
@@ -43,6 +44,12 @@ class TestPyrochem(unittest.TestCase):
             with self.subTest(subset=subset):
                 out = getattr(obj.pyrochem, subset)
                 self.assertIsInstance(out, obj.__class__)  # in this case a dataframe
+
+    def test_pyrochem_subsetter_assignment(self):
+        obj = self.df
+        for subset in ["REE", "elements", "oxides"]:
+            with self.subTest(subset=subset):
+                setattr(obj.pyrochem, subset, getattr(obj.pyrochem, subset) * 1.0)
 
     # pyrolite.geochem.parse functions
 
@@ -116,11 +123,41 @@ class TestPyrochem(unittest.TestCase):
         self.assertIn("FeO", obj.columns)
         self.assertTrue((obj.FeO.values > obj.Fe2O3.values).all())
 
+    def test_pyrochem_convert_chemistry(self):
+        obj = self.df.copy(deep=True)
+        obj = obj.pyrochem.convert_chemistry(
+            to=["MgO", "Si", "Ti", "HfO2", "La2O3", dict(FeO=0.9, Fe2O3=0.1)]
+        )
+        self.assertIn("Fe2O3", obj.columns)
+        self.assertIn("Si", obj.columns)
+        self.assertIn("Si", obj.columns)
+        self.assertTrue((obj.FeO.values > obj.Fe2O3.values).all())
+
     # pyrolite.geochem.norm functions
 
-    def test_pyrochem_normalize_to(self):
+    def test_pyrochem_normalize_to_str(self):
         obj = self.df.copy(deep=True)
         out = obj.pyrochem.normalize_to("Chondrite_PON")
+
+    def test_pyrochem_normalize_to_composition(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.normalize_to(get_reference_composition("Chondrite_PON"))
+
+    def test_pyrochem_normalize_to_array(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.normalize_to(np.ones(obj.columns.size))
+
+    def test_pyrochem_denormalize_from_str(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.denormalize_from("Chondrite_PON")
+
+    def test_pyrochem_denormalize_from_composition(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.denormalize_from(get_reference_composition("Chondrite_PON"))
+
+    def test_pyrochem_denormalize_from_array(self):
+        obj = self.df.copy(deep=True)
+        out = obj.pyrochem.denormalize_from(np.ones(obj.columns.size))
 
     def test_pyrochem_scale(self):
         obj = self.df.copy(deep=True)

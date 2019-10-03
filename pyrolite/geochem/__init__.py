@@ -472,20 +472,20 @@ class pyrochem(object):
             * Implement generalised redox transformation.
             * Add check for dicitonary components (e.g. Fe) in tests
         """
-        self._obj = convert_chemistry(
+        obj = convert_chemistry(
             self._obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
         )
-        return self._obj
+        return obj  # can't update the source nicely here, need to assign output
 
     # pyrolite.geochem.norm functions
 
-    def normalize_to(self, norm_to=None, units="wt%"):
+    def normalize_to(self, norm=None, units="wt%"):
         """
         Normalise a dataframe to a given reference composition.
 
         Parameters
         -----------
-        norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
+        norm : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition to normalise to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
@@ -500,29 +500,29 @@ class pyrochem(object):
         This assumes that dataframes have a single set of units.
         """
 
-        if isinstance(norm_to, (str, Composition)):
-            if not isinstance(norm_to, Composition):
-                norm = get_reference_composition(norm_to)
+        if isinstance(norm, (str, Composition)):
+            if not isinstance(norm, Composition):
+                N = get_reference_composition(norm)
             else:
-                norm = norm_to
-            norm.set_units(units)
-            norm.comp = convert_chemistry(norm.comp, self.list_compositional)
-            norm_abund = norm[self.list_compositional]
+                N = norm
+            N.set_units(units)
+            N.comp = convert_chemistry(N.comp, self.list_compositional)
+            norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
-            norm_abund = np.array(norm_to)
-            assert len(norm_abund) == len(cols)
+            norm_abund = np.array(norm)
+            assert len(norm_abund) == len(self.list_compositional)
 
         self._obj[self.list_compositional] /= norm_abund
         return self._obj
 
-    def denormalize_from(self, norm_from=None, units="wt%"):
+    def denormalize_from(self, norm=None, units="wt%"):
         """
         De-normalise a dataframe from a given reference composition.
 
         Parameters
         -----------
-        norm_from : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
-            Reference composition to normalise to.
+        norm : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
+            Reference composition which the composition is normalised to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
 
@@ -536,17 +536,17 @@ class pyrochem(object):
         This assumes that dataframes have a single set of units.
         """
 
-        if isinstance(norm_to, (str, Composition)):
-            if not isinstance(norm_to, Composition):
-                norm = get_reference_composition(norm_to)
+        if isinstance(norm, (str, Composition)):
+            if not isinstance(norm, Composition):
+                N = get_reference_composition(norm)
             else:
-                norm = norm_to
-            norm.set_units(units)
-            norm.comp = convert_chemistry(norm.comp, self.list_compositional)
-            norm_abund = norm[self.list_compositional]
+                N = norm
+            N.set_units(units)
+            N.comp = convert_chemistry(N.comp, self.list_compositional)
+            norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
-            norm_abund = np.array(norm_to)
-            assert len(norm_abund) == len(cols)
+            norm_abund = np.array(norm)
+            assert len(norm_abund) == len(self.list_compositional)
 
         self._obj[self.list_compositional] *= norm_abund
         return self._obj
