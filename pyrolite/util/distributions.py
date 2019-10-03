@@ -1,8 +1,36 @@
 import numpy as np
 import logging
+from scipy.stats.kde import gaussian_kde
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def sample_kde(data, *coords, renorm=False):
+    """
+    Sample a Kernel Density Estimate based on data,
+    at points or a grid defined by coords: xi, yi.
+
+    Parameters
+    ------------
+    data : :class:`numpy.ndarray`
+        Source data to estimate the kernel density estimate.
+    coords : :class:`numpy.ndarray`
+        Arrays of coordiantes (xi, yi,..) to sample the KDE estimate at.
+
+    Returns
+    ----------
+    :class:`numpy.ndarray`
+    """
+    data = data[:, np.isfinite(data).all(axis=0)]
+    k = gaussian_kde(data)
+    kcoords = np.vstack([c.flatten() for c in coords])
+    zi = k(kcoords).T
+    zi = zi.reshape(coords[0].shape)
+    if renorm:
+        zi = zi / np.nanmax(zi)
+    return zi
 
 
 def lognorm_to_norm(mu, s):
