@@ -22,7 +22,7 @@ try:
 except ImportError:
     msg = "imbalanced-learn not installed"
     logger.warning(msg)
-    from sklearn.pipeline import make_pipeline # fallback to default skl
+    from sklearn.pipeline import make_pipeline  # fallback to default skl
 
 from .vis import plot_confusion_matrix, plot_gs_results
 
@@ -63,10 +63,10 @@ def fit_save_classifier(
     if isinstance(X_train, pd.DataFrame):  # save the features used in the model for ref
         components = [str(i) for i in X_train.columns]
         with open(
-            clf_dir / "{}_features.txt".format(name), "w", encoding="utf-8"
+            str(clf_dir / "{}_features.txt".format(name)), "w", encoding="utf-8"
         ) as fp:
             fp.write(",".join(components))
-    _ = joblib.dump(clf, fpath, compress=9)
+    _ = joblib.dump(clf, str(fpath), compress=9)
     return clf
 
 
@@ -93,7 +93,7 @@ def classifier_performance_report(clf, X_test, y_test, classes=[], dir=".", name
         params = gs.best_params_
         clf = gs.best_estimator_
     score = clf.score(X_test, y_test)
-    with open(clf_dir / "scores_{}.txt".format(name), "a") as fp:
+    with open(str(clf_dir / "scores_{}.txt".format(name)), "a") as fp:
         line = "Score: {:01.3g}".format(score)
         if gs:  # add the gridsearch parameters
             line += "\t{}\n".format(
@@ -187,7 +187,7 @@ def SVC_pipeline(
         "probability": probability,
         "decision_function_shape": decision_function_shape,
         "cache_size": cache_size,
-        "gamma": "scale", # suppress warnings; 'auto' deprecated, likely changes with gs
+        "gamma": "scale",  # suppress warnings; 'auto' deprecated, likely changes with gs
         **kwargs,
     }
 
