@@ -20,6 +20,21 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
+def sample_kde(data, *coords, renorm=True):
+    """
+    Sample a Kernel Density Estimate based on data,
+    at points or a grid defined by coords: xi, yi, ..
+    """
+    data = data[:, np.isfinite(data).all(axis=0)]
+    k = gaussian_kde(data)
+    kcoords = np.vstack([c.flatten() for c in coords])
+    zi = k(kcoords).T
+    zi = zi.reshape(coords[0].shape)
+    if renorm:
+        zi = zi / np.nanmax(zi)
+    return zi
+
+
 def density(
     arr,
     ax=None,
@@ -220,13 +235,7 @@ def density(
                     ye = np.log(ye)
 
                 xi, yi = np.meshgrid(xs, ys)
-                # remove nan, inf bearing rows
-                kdedata = kdedata[:, np.isfinite(kdedata).all(axis=0)]
-                assert np.isfinite(kdedata).all()
-                k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
-                zi = k(np.vstack([xi.flatten(), yi.flatten()])).T.reshape(xi.shape)
-                assert np.isfinite(zi).all()
-                zi = zi / zi.max()
+                zi = sample_kde(kdedata, xi, yi)
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                     logger.debug(
@@ -284,7 +293,7 @@ def density(
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
 
-        if contours: # could do this in logspace for accuracy?
+        if contours:  # could do this in logspace for accuracy?
             levels = contours or kwargs.pop("levels", None)
             cags = xi, yi, zi  # contour-like function arguments, point estimates
             if percentiles and not isinstance(levels, int):

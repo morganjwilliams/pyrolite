@@ -238,7 +238,6 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         if ax is None:
-
             fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots))
 
         fontsize = kwargs.get("fontsize", 8.0)
@@ -305,7 +304,11 @@ class pyroplot(object):
         assert len(components) != 0
 
         ax = spider.spider(
-            obj.loc[:, components].values, indexes=indexes, ax=ax, mode=mode, **kwargs
+            obj.loc[:, components].astype(np.float).values,
+            indexes=indexes,
+            ax=ax,
+            mode=mode,
+            **kwargs
         )
         ax.set_xticklabels(components, rotation=60)
         return ax
