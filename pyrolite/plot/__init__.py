@@ -571,3 +571,16 @@ pyroplot.ternary.__doc__ = pyroplot.ternary.__doc__.format(
         ),
     ][_add_additional_parameters]
 )
+
+
+pyroplot.heatscatter.__doc__ = pyroplot.heatscatter.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            pyroplot.scatter,
+            header="Other Parameters",
+            indent=8,
+            subsections=True,
+        ),
+    ][_add_additional_parameters]
+)
