@@ -1,34 +1,34 @@
 Normalisation
 ==============
 
-A selection of reference compositions are included:
+A selection of reference compositions are included in pyrolite, and can be easily
+accessed with :func:`pyrolite.geochem.norm.get_reference_composition` (see the list
+at the bottom of the page for a complete list):
 
-.. code-block:: python
+.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+  :language: python
+  :end-before: # %% getref
 
-  >>> CH = refcomp['Chondrite_PON']
-  >>> PM = refcomp['PM_PON']
-  >>> CH[REE()]
-        value  unc_2sigma units
-  var
-  La    0.2414    0.014484   ppm
-  Ce    0.6194    0.037164   ppm
-  ...
-  Tm   0.02609    0.001565   ppm
-  Yb    0.1687    0.010122   ppm
-  Lu   0.02503    0.001502   ppm
+.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+  :language: python
+  :start-after: # %% getref
+  :end-before: # %% set units
 
+To use the compositions with a specific set of units, you can change them with
+:func:`pyrolite.geochem.norm.Composition.set_units`:
 
-The `normalize` method can be used to normalise dataframes to a given reference (e.g. for spiderplots):
+.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+  :language: python
+  :start-after: # %% set units
+  :end-before: # REE plot
 
-.. code-block:: python
+The :func:`~pyrolite.geochem.pyrochem.normalize_to` method can be used to
+normalise DataFrames to a given reference (e.g. for spiderplots):
 
-  >>> refcomp = ReferenceCompositions()
-  >>> CH = refcomp['Chondrite_PON']
-  >>> DMM = refcomp['DMM_WH2005']
-
-  >>> df = DMM.data.loc[REE(), ['value']]
-  >>> CH.normalize(df).pyroplot.spider(label=f'{DMM.Reference}')
-
+.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+  :language: python
+  :start-after: # REE plot
+  :end-before: # %% save_figure
 
 .. image:: ../../../_static/NormSpiderplot.png
    :height: 250px
