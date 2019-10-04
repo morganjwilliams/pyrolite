@@ -20,13 +20,15 @@ def blur_compositions(df, noise=0.05, scale=100):
     xvals = ilr(df.values)
     xvals += np.random.randn(*xvals.shape) * noise
     return inverse_ilr(xvals) * scale
+
+
 # %% Data
-from pyrolite.geochem.norm import ReferenceCompositions
+from pyrolite.geochem.norm import get_reference_composition
 
 # get the major element composition of MORB from Gale et al (2013)
-Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
-majors = ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"]
-MORB = Gale_MORB.original_data.loc[majors, "value"].apply(pd.to_numeric)
+Gale_MORB = get_reference_composition(["MORB_Gale2013"])
+MORB = Gale_MORB.comp[majors].reset_index(drop=True)
+
 MORB["Title"] = Gale_MORB.ModelName
 MORB["Initial Temperature"] = 1300
 MORB["Final Temperature"] = 800

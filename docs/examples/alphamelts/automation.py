@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 import pyrolite.plot
-from pyrolite.geochem.norm import ReferenceCompositions
+from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.ext.alphamelts.env import MELTS_Env
 from pyrolite.ext.alphamelts.automation import MeltsBatch
 
@@ -14,14 +14,14 @@ import logging
 logger = logging.Logger(__name__)
 stream_log(logger) # print the logging output
 # %% Data
-Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
+Gale_MORB = get_reference_composition("MORB_Gale2013")
 majors = ["SiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "TiO2", "K2O", "P2O5"]
-MORB = Gale_MORB.original_data.loc[majors, "value"].apply(pd.to_numeric)
-MORB = pd.DataFrame([MORB]).reset_index()
+MORB = Gale_MORB[majors]
 MORB["Title"] = [
-    "{}_{}".format(Gale_MORB.ModelName, ix)
+    "{}_{}".format(Gale_MORB.name, ix)
     for ix in MORB.index.values.astype(str)
 ]
+MORB
 MORB["Initial Temperature"] = 1300
 MORB["Final Temperature"] = 800
 MORB["Initial Pressure"] = 5000

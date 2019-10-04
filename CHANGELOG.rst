@@ -29,10 +29,12 @@ All notable changes to this project will be documented here.
 
 * Added :class:`pyrolite.comp.pyrocomp` DataFrame accessor with the
   :func:`pyrolite.comp.codata.renormalise` method.
+* Removed unused imputation and aggregation functions.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* Added :func:`~pyrolite.plot.pyroplot.heatscatter` and docs example.
 * Updates and bugfixes for :func:`pyrolite.plot.spider.REE_v_radii`, including updating
   spacing to reflect relative ionic radii
 
