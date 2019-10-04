@@ -165,6 +165,8 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         data, samples = obj.loc[:, components].values, obj.loc[:, components].values
+        kdefunc = [sample_kde, sample_ternary_kde][len(components) == 3]
+        zi = kdefunc(data, samples)
         ax = obj.loc[:, components].pyroplot.scatter(
             ax=ax, axlabels=axlabels, c=zi, **kwargs
         )
