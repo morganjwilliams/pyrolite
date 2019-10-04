@@ -80,6 +80,12 @@ class TestPyroPlot(unittest.TestCase):
     def test_density_with_more_components_specified_ternary(self):
         self.multidf.pyroplot.density(components=self.multidf.columns[:3])
 
+    def test_heatscatter(self):
+        self.bidf.pyroplot.heatscatter()
+
+    def test_heatscatter_ternary(self):
+        self.tridf.pyroplot.heatscatter()
+
     def test_ree(self):
         self.multidf.pyroplot.REE()
 

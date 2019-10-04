@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 from scipy.stats.kde import gaussian_kde
+from ..util.math import flattengrid
 from ..comp.codata import ilr, close
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -21,16 +22,19 @@ def sample_kde(data, samples, renorm=False):
     Returns
     ----------
     :class:`numpy.ndarray`
-
-    Todo
-    -----
-    * Support for supplying a meshgrid (i.e. a list of arrays) for samples and
-        and transforming the output zi to the shape of the grid
     """
     data = data[np.isfinite(data).all(axis=1), :]
     K = gaussian_kde(data.T)
-    zi = K(samples.T)
-    zi = zi.reshape(samples.shape[0])
+
+    if isinstance(samples, list) and isinstance(samples[0], np.ndarray): # meshgrid
+        zshape = samples[0].shape
+        ks = flatten_grid(ks)
+    else:
+        zshape = samples.shape[0]
+        ks = samples.T
+
+    zi = K(ks)
+    zi = zi.reshape(zshape)
     if renorm:
         zi = zi / np.nanmax(zi)
     return zi
