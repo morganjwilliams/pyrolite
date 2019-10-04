@@ -3,13 +3,11 @@ import matplotlib.pyplot as plt
 import pyrolite.plot
 from pyrolite.geochem.ind import REE
 from pyrolite.geochem.norm import get_reference_composition, all_reference_compositions
-
+# %% getref
 chondrite = get_reference_composition("Chondrite_PON")
-
-# %% REE plot
-
+# %% set units
 CI = chondrite.set_units("ppm")
-# %%
+# %% REE plot
 fig, ax = plt.subplots(1)
 
 for name, ref in list(all_reference_compositions().items())[::2]:
@@ -23,7 +21,6 @@ ax.set_ylabel("X/X$_{Chondrite}$")
 ax.legend(
     frameon=False, facecolor=None, loc="upper left", bbox_to_anchor=(1.0, 1.0), ncol=2
 )
-# %% REE plot
+# %% save_figure
 from pyrolite.util.plot import save_figure
-
 save_figure(ax.figure, name="Chondrite_REE", save_at="../../source/_static")

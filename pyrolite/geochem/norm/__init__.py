@@ -107,9 +107,9 @@ class Composition(object):
         """
         if isinstance(vars, (list, np.ndarray, pd.Index)):  # if iterable
             vars = [v if isinstance(v, str) else str(v) for v in vars]
-        elif not isinstance(vars, str):
-            vars = str(vars)
-        qry = self.comp[vars].values.flatten()
+        else:
+            vars = [str(vars)]
+        qry = self.comp.reindex(columns=vars).values.flatten()
         if len(qry) == 1:
             qry = qry[0]
         return qry
