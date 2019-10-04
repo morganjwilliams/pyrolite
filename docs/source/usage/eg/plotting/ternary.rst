@@ -29,4 +29,5 @@ change in the near future as needs change, but works well for scatter plots.
    :align: center
    :alt: Two ternary plots placed on separate axes by specifying a pre-existing axis.
 
-.. seealso:: `Density Plots <../plotting/density.html>`__
+.. seealso:: `Density Plots <../plotting/density.html>`__,
+             `Heatmapped Scatter Plots <heatscatter.html>`__

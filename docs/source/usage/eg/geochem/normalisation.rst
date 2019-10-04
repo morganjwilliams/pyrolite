@@ -5,20 +5,6 @@ A selection of reference compositions are included:
 
 .. code-block:: python
 
-  >>> from pyrolite.geochem.norm import ReferenceCompositions
-  >>> refcomp = ReferenceCompositions()
-  >>> refcomp
-  {
-   'BCC_RG2003': Model of BulkContinentalCrust (Rudnick & Gao 2003),
-   'BCC_RG2014': Model of BulkContinentalCrust (Rudnick & Gao 2014),
-   'Chondrite_MS95': Model of Chondrite (McDonough & Sun 1995),
-   ...
-   'UCC_RG2014': Model of UpperContinentalCrust (Rudnick & Gao 2014)
-  }
-
-
-.. code-block:: python
-
   >>> CH = refcomp['Chondrite_PON']
   >>> PM = refcomp['PM_PON']
   >>> CH[REE()]

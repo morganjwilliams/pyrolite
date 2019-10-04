@@ -126,3 +126,4 @@ are specified:
 
 .. seealso:: `Ternary Plots <../plotting/ternary.html>`__,
              `Spider Density Diagrams <conditionaldensity.html>`__,
+             `Heatmapped Scatter Plots <heatscatter.html>`__,
