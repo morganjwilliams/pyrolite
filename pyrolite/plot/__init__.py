@@ -19,6 +19,7 @@ from . import tern
 from . import stem
 from . import parallel
 
+from ..util.distributions import sample_kde, sample_ternary_kde
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "tern", "pyroplot"]
 
@@ -429,6 +430,66 @@ class pyroplot(object):
         else:  # label by default
             set_labels(components)
         ax.set_aspect("equal")
+        return ax
+
+    def heatscatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
+        r"""
+        Heatmapped scatter plots using the pyroplot API. See further parameters
+        for `matplotlib.pyplot.scatter` function below.
+
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Elements or compositional components to plot.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        axlabels : :class:`bool`, :code:`True`
+            Whether to add x-y axis labels.
+
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the scatterplot is added.
+        """
+        obj = to_frame(self._obj)
+        try:
+            if obj.columns.size not in [2, 3]:
+                assert len(components) in [2, 3]
+
+            if components is None:
+                components = obj.columns.values
+        except:
+            msg = "Suggest components or provide a slice of the dataframe."
+            raise AssertionError(msg)
+
+        if ax is None:
+            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots))
+
+        fontsize = kwargs.get("fontsize", 8.0)
+
+        # process colors
+
+        if len(components) == 3:
+            zi = sample_ternary_kde(
+                obj.loc[:, components].values, obj.loc[:, components].values
+            )
+            ax = obj.loc[:, components].pyroplot.ternary(
+                ax=ax, axlabels=axlabels, c=zi, **kwargs
+            )
+        else:  # len(components) == 2
+            xvar, yvar = components
+            zi = sample_kde(
+                obj.loc[:, components].values, obj.loc[:, components].values
+            )
+            sc = ax.scatter(
+                *obj.loc[:, components].values.T, c=zi, **subkwargs(kwargs, ax.scatter)
+            )
+            if axlabels:
+                ax.set_xlabel(xvar, fontsize=fontsize)
+                ax.set_ylabel(yvar, fontsize=fontsize)
+
         return ax
 
 

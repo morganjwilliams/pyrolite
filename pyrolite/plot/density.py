@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
-from scipy.stats.kde import gaussian_kde
+
 from .tern import ternary
 from ..comp.codata import close
-from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_
+from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
+from ..util.distributions import sample_kde
 from ..util.plot import (
     ternary_heatmap,
     add_colorbar,
@@ -18,21 +19,6 @@ from ..util.meta import get_additional_params
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-def sample_kde(data, *coords, renorm=True):
-    """
-    Sample a Kernel Density Estimate based on data,
-    at points or a grid defined by coords: xi, yi, ..
-    """
-    data = data[:, np.isfinite(data).all(axis=0)]
-    k = gaussian_kde(data)
-    kcoords = np.vstack([c.flatten() for c in coords])
-    zi = k(kcoords).T
-    zi = zi.reshape(coords[0].shape)
-    if renorm:
-        zi = zi / np.nanmax(zi)
-    return zi
 
 
 def density(
@@ -224,18 +210,21 @@ def density(
                 xe, ye = bin_centres_to_edges(xs), bin_centres_to_edges(ys)
 
                 assert np.isfinite(xs).all() and np.isfinite(ys).all()
-                kdedata = arr.T
+                kdedata = arr
                 if logx:  # generate x grid over range spanned by log(x)
-                    kdedata[0] = np.log(kdedata[0])
+                    kdedata[:, 0] = np.log(kdedata[:, 0])
                     xs = np.log(xs)
                     xe = np.log(xe)
                 if logy:  # generate y grid over range spanned by log(y)
-                    kdedata[1] = np.log(kdedata[1])
+                    kdedata[:, 1] = np.log(kdedata[:, 1])
                     ys = np.log(ys)
                     ye = np.log(ye)
 
-                xi, yi = np.meshgrid(xs, ys)
-                zi = sample_kde(kdedata, xi, yi)
+                xymesh = np.meshgrid(xs, ys)
+                xi, yi = xymesh
+
+                zi = sample_kde(kdedata, flattengrid(xymesh))
+                zi = zi.reshape(xi.shape)
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                     logger.debug(

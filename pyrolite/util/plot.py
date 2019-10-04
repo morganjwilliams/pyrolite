@@ -37,6 +37,7 @@ from ..util.math import (
     linspc_,
     logspc_,
 )
+from ..util.distributions import sample_kde, sample_ternary_kde
 from ..util.missing import cooccurence_pattern
 from ..util.meta import subkwargs
 from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
@@ -401,13 +402,64 @@ def xy_to_ABC(xy, xscale=1.0, yscale=1.0):
         np.array([[1 / xscale, 0, 0], [0, 1 / yscale, 0], [0, 0, 1]])
     )
     shear = affine_transform(np.array([[1, -1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
-    xs, ys = shear(scale(xy).T)
-    zs = 1.0 - (xs + ys)  # + (xscale-1) + (yscale-1)
-    return np.vstack([xs, ys, zs]).T
+    A, B = shear(scale(xy).T)
+    C = 1.0 - (A + B)  # + (xscale-1) + (yscale-1)
+    return np.vstack([A, B, C]).T
+
+
+def ternary_grid(
+    data, nbins=10, margin=0.01, force_margin=False, yscale=1.0, tfm=lambda x: x
+):
+    data = close(data)
+
+    if not force_margin:
+        margin = min([margin, np.nanmin(data[data > 0])])
+
+    bounds = np.array(  # three points defining the edges of what will be rendered
+        [
+            [margin, margin, 1 - 2 * margin],
+            [margin, 1 - 2 * margin, margin],
+            [1 - 2 * margin, margin, margin],
+        ]
+    )
+    xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T
+    xbounds = np.hstack((xbounds, [xbounds[0]]))
+    ybounds = np.hstack((ybounds, [ybounds[0]]))
+    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
+
+    A, B, C = xy_to_ABC(np.vstack([xi, yi]).T, yscale=yscale).T
+    abcbounds = np.vstack([A, B, C])
+
+    abounds = tfm(abcbounds.T)
+    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
+    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
+
+    ndim = abounds.shape[1]
+    # bins for evaluation
+    bins = [
+        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), nbins)
+        for dim in range(ndim)
+    ]
+    binedges = [bin_centres_to_edges(b) for b in bins]
+    centregrid = np.meshgrid(*bins)
+    edgegrid = np.meshgrid(*binedges)
+
+    assert len(bins) == ndim
+    return bins, binedges, centregrid, edgegrid
+
+
+def ternarygrid_to_xy(arr, tfm=lambda x: x, yscale=1.0):
+    shape = arr[0].shape
+    flat = np.vstack([a.flatten() for a in arr])
+    xi, yi = ABC_to_xy(tfm(flat.T), yscale=yscale).T
+    xi, yi = xi.reshape(shape), yi.reshape(shape)
+    return xi, yi
 
 
 def ternary_heatmap(
     data,
+    sample_at=None,
     bins=10,
     margin=0.01,
     force_margin=False,
@@ -426,6 +478,8 @@ def ternary_heatmap(
     -----------
     data : :class:`numpy.ndarray`
         Ternary data to obtain heatmap coords from.
+    sample_at : :class:`numpy.ndarray`:
+        Locations to sample the heatmap at rather than a specificed grid.
     bins : :class:`int`
         Number of bins for the grid.
     margin : :class:`float`
@@ -457,6 +511,7 @@ def ternary_heatmap(
     -----
         * Add hexbin mode
         * Find minimum bounds via rotation about a centre, tranform and invert coords
+        * Update to use ternary kernel density function, supplied ternary data and ternary samples
     """
     if inspect.isclass(transform):
         # TransformerMixin
@@ -474,54 +529,32 @@ def ternary_heatmap(
     else:
         yscale = np.sqrt(3) / 2
 
-    AXtfm = lambda x: ABC_to_xy(x, yscale=yscale).T
-    XAtfm = lambda x: xy_to_ABC(x, yscale=yscale).T
-
     data = close(data)
-    if not force_margin:
-        margin = min([margin, np.nanmin(data[data > 0])])
-    # this appears to cause problems for ternary density diagrams
-    _min, _max = (margin, 1.0 - margin)
 
-    bounds = np.array(  # three points defining the edges of what will be rendered
-        [
-            [margin, margin, 1 - 2 * margin],
-            [margin, 1 - 2 * margin, margin],
-            [1 - 2 * margin, margin, margin],
-        ]
-    )
-    xbounds, ybounds = AXtfm(bounds)
-    xbounds = np.hstack((xbounds, [xbounds[0]]))
-    ybounds = np.hstack((ybounds, [ybounds[0]]))
-    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
-    xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
+    if sample_at is None:
+        bins, binedges, centregrid, edgegrid = ternary_grid(
+            data,
+            nbins=bins,
+            margin=margin,
+            force_margin=force_margin,
+            yscale=yscale,
+            tfm=tfm,
+        )
+        xe, ye = ternarygrid_to_xy(edgegrid, yscale=yscale, tfm=itfm)
 
-    xs, ys, zs = XAtfm(np.vstack([xi, yi]).T)
-    bound_data = np.vstack([xs, ys, zs])
-    abounds = tfm(bound_data.T)
-    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
-    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
+    else:
+        assert mode == "density"  # could do this based on a histogram, actually
+        centregrid = sample_at
+        xe, ye = None, None
+
+    xi, yi = ternarygrid_to_xy(centregrid, yscale=yscale, tfm=itfm)
+    centres = [xi, yi]
 
     adata = tfm(data)
-
-    ndim = adata.shape[1]
-    # bins for evaluation
-    bins = [
-        np.linspace(np.nanmin(abounds[:, dim]), np.nanmax(abounds[:, dim]), bins)
-        for dim in range(ndim)
-    ]
-    centres = np.meshgrid(*bins)
-    binedges = [bin_centres_to_edges(b) for b in bins]
-    edges = np.meshgrid(*binedges)
-
-    assert len(bins) == ndim
-    # histogram in logspace
     if mode == "density":
-        kdedata = adata[np.isfinite(adata).all(axis=1), :]
-        k = gaussian_kde(kdedata.T)  # gaussian kernel approximation on the grid
-        cdata = np.vstack([c.flatten() for c in centres])
-        H = k(cdata).T.reshape((bins[0].size, bins[1].size))
-    elif "hist" in mode:
+        H = sample_kde(adata, flattengrid(centregrid))
+        H = H.reshape(xi.shape)
+    elif "hist" in mode:  # histogram in logspace
         H, hedges = np.histogramdd(adata, bins=binedges)
         H = H.T
     elif "hex" in mode:
@@ -530,19 +563,8 @@ def ternary_heatmap(
     else:
         raise NotImplementedError
 
-    e_shape = edges[0].shape
-    flatedges = np.vstack([e.flatten() for e in edges])
-    xe, ye = AXtfm(itfm(flatedges.T))
-    xe, ye = xe.reshape(e_shape), ye.reshape(e_shape)
-
-    c_shape = centres[0].shape
-    flatcentres = np.vstack([c.flatten() for c in centres])
-    xi, yi = AXtfm(itfm(flatcentres.T))
-    xi, yi = xi.reshape(c_shape), yi.reshape(c_shape)
-    centres = [xi, yi]
-
     if remove_background:
-        H[H == 0] = np.nan
+        H[H == 0.0] = np.nan
     if ret_centres:
         return xe, ye, H, centres
     return xe, ye, H

@@ -1,36 +1,63 @@
 import numpy as np
 import logging
 from scipy.stats.kde import gaussian_kde
-
+from ..comp.codata import ilr, close
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def sample_kde(data, *coords, renorm=False):
+def sample_kde(data, samples, renorm=False):
     """
-    Sample a Kernel Density Estimate based on data,
-    at points or a grid defined by coords: xi, yi.
+    Sample a Kernel Density Estimate at points or a grid defined.
 
     Parameters
     ------------
     data : :class:`numpy.ndarray`
-        Source data to estimate the kernel density estimate.
-    coords : :class:`numpy.ndarray`
-        Arrays of coordiantes (xi, yi,..) to sample the KDE estimate at.
+        Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
+    samples : :class:`numpy.ndarray`
+        Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`).
+
+    Returns
+    ----------
+    :class:`numpy.ndarray`
+
+    Todo
+    -----
+    * Support for supplying a meshgrid (i.e. a list of arrays) for samples and
+        and transforming the output zi to the shape of the grid
+    """
+    data = data[np.isfinite(data).all(axis=1), :]
+    K = gaussian_kde(data.T)
+    zi = K(samples.T)
+    zi = zi.reshape(samples.shape[0])
+    if renorm:
+        zi = zi / np.nanmax(zi)
+    return zi
+
+
+def sample_ternary_kde(data, samples, transform=ilr):
+    """
+    Sample a Kernel Density Estimate in ternary space points or a grid defined by
+    samples.
+
+    Parameters
+    ------------
+    data : :class:`numpy.ndarray`
+        Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
+    samples : :class:`numpy.ndarray`
+        Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`)..
+    transform
+        Transformation used prior to kernel density estimate.
 
     Returns
     ----------
     :class:`numpy.ndarray`
     """
-    data = data[:, np.isfinite(data).all(axis=0)]
-    k = gaussian_kde(data)
-    kcoords = np.vstack([c.flatten() for c in coords])
-    zi = k(kcoords).T
-    zi = zi.reshape(coords[0].shape)
-    if renorm:
-        zi = zi / np.nanmax(zi)
-    return zi
+    tfm = lambda x: transform(close(x))
+    tdata = tfm(data)
+    tsamples = tfm(samples)
+    return sample_kde(tdata, tsamples)
 
 
 def lognorm_to_norm(mu, s):
