@@ -16,6 +16,8 @@ from .validate import *
 from .alteration import *
 from .norm import *
 
+from .ind import __common_elements__, __common_oxides__
+
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
 @pd.api.extensions.register_dataframe_accessor("pyrochem")
@@ -47,7 +49,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return [i for i in self._obj.columns if i in common_elements()]
+        return list(set(self._obj.columns) & __common_elements__)
 
     @property
     def list_REE(self):
@@ -77,7 +79,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return [i for i in self._obj.columns if i in common_oxides()]
+        return list(set(self._obj.columns) & __common_oxides__)
 
     @property
     def list_compositional(self):
@@ -92,7 +94,7 @@ class pyrochem(object):
         --------
         :class:`pandas.Dataframe`
         """
-        return self._obj.loc[:, self.list_elements]
+        return self._obj[self.list_elements]
 
     @elements.setter
     def elements(self, df):
@@ -107,7 +109,7 @@ class pyrochem(object):
         --------
         :class:`pandas.Dataframe`
         """
-        return self._obj.loc[:, self.list_REE]
+        return self._obj[self.list_REE]
 
     @REE.setter
     def REE(self, df):
@@ -480,14 +482,13 @@ class pyrochem(object):
             * Implement generalised redox transformation.
             * Add check for dicitonary components (e.g. Fe) in tests
         """
-        obj = convert_chemistry(
+        return convert_chemistry(
             self._obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
-        )
-        return obj  # can't update the source nicely here, need to assign output
+        )  # can't update the source nicely here, need to assign output
 
     # pyrolite.geochem.norm functions
 
-    def normalize_to(self, norm=None, units=None):
+    def normalize_to(self, norm=None, units=None, convert_first=False):
         """
         Normalise a dataframe to a given reference composition.
 
@@ -497,6 +498,10 @@ class pyrochem(object):
             Reference composition to normalise to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
+        convert_first : :class:`bool`
+            Whether to first convert the referenece compostion before normalisation.
+            This is useful where elements are presented as different components (e.g.
+            Ti, TiO2).
 
         Returns
         --------
@@ -515,14 +520,14 @@ class pyrochem(object):
                 N = norm
             if units is not None:
                 N.set_units(units)
-            N.comp = convert_chemistry(N.comp, self.list_compositional)
+            if convert_first:
+                N.comp = convert_chemistry(N.comp, self.list_compositional)
             norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
             norm_abund = np.array(norm)
             assert len(norm_abund) == len(self.list_compositional)
 
-        self._obj[self.list_compositional] /= norm_abund
-        return self._obj
+        return self._obj[self.list_compositional].div(norm_abund)
 
     def denormalize_from(self, norm=None, units=None):
         """
@@ -558,8 +563,7 @@ class pyrochem(object):
             norm_abund = np.array(norm)
             assert len(norm_abund) == len(self.list_compositional)
 
-        self._obj[self.list_compositional] *= norm_abund
-        return self._obj
+        return self._obj[self.list_compositional] * norm_abund
 
     def scale(self, in_unit, target_unit="ppm"):
         """
@@ -577,8 +581,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Dataframe with new scale.
         """
-        self._obj *= scale(in_unit, target_unit)
-        return self._obj
+        return self._obj * scale(in_unit, target_unit)
 
 
 pyrochem.lambda_lnREE = update_docstring_references(

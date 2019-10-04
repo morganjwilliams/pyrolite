@@ -658,12 +658,13 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=Fa
 
     Todo
     ------
-        * Check for conflicts between oxides and elements
-        * Aggregator for ratios
-        * Implement generalised redox transformation.
-        * Add check for dicitonary components (e.g. Fe) in tests
+    * Check for conflicts between oxides and elements
+    * Aggregator for ratios
+    * Implement generalised redox transformation.
+    * Add check for dicitonary components (e.g. Fe) in tests
+    * Subsequent calls to convert_chemistry via normalize_to result in memory leaks
     """
-    df = input_df.copy()
+    df = input_df.copy(deep=True)
     oxides = __common_oxides__
     elements = __common_elements__
     compositional_components = oxides | elements
