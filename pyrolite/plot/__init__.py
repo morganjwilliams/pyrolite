@@ -19,7 +19,8 @@ from . import tern
 from . import stem
 from . import parallel
 
-from ..util.distributions import sample_kde, sample_ternary_kde
+from ..comp.codata import close, ilr
+from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "tern", "pyroplot"]
@@ -132,7 +133,15 @@ class pyroplot(object):
 
         return ax
 
-    def heatscatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def heatscatter(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        logx=False,
+        logy=False,
+        **kwargs
+    ):
         r"""
         Heatmapped scatter plots using the pyroplot API. See further parameters
         for `matplotlib.pyplot.scatter` function below.
@@ -145,6 +154,10 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
+        logx : :class:`bool`, `False`
+            Whether to log-transform x values before the KDE for bivariate plots.
+        logy : :class:`bool`, `False`
+            Whether to log-transform y values before the KDE for bivariate plots.
 
         {otherparams}
 
@@ -165,8 +178,13 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         data, samples = obj.loc[:, components].values, obj.loc[:, components].values
-        kdefunc = [sample_kde, sample_ternary_kde][len(components) == 3]
-        zi = kdefunc(data, samples, **subkwargs(kwargs, kdefunc))
+        kdetfm = [  # log transforms
+            get_scaler([None, np.log][logx], [None, np.log][logy]),
+            lambda x: ilr(close(x)),
+        ][len(components) == 3]
+        zi = sample_kde(
+            data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
+        )
         ax = obj.loc[:, components].pyroplot.scatter(
             ax=ax, axlabels=axlabels, c=zi, **kwargs
         )
@@ -574,10 +592,7 @@ pyroplot.heatscatter.__doc__ = pyroplot.heatscatter.__doc__.format(
     otherparams=[
         "",
         get_additional_params(
-            pyroplot.scatter,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
+            pyroplot.scatter, header="Other Parameters", indent=8, subsections=True
         ),
     ][_add_additional_parameters]
 )

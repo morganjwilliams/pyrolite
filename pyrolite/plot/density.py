@@ -230,7 +230,6 @@ def density(
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
-                # TODO: update xi, yi to bin edges.
                 if logx:
                     xi = np.exp(xi)
                     xe = np.exp(xe)

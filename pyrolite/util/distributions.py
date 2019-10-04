@@ -4,11 +4,35 @@ from scipy.stats.kde import gaussian_kde
 from ..util.math import flattengrid
 from ..comp.codata import ilr, close
 
+from functools import partial
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def sample_kde(data, samples, renorm=False):
+def get_scaler(*fs):
+    """
+    Generate a function which will transform columns of an array
+    based on input functions (e.g. :code:`np.log` will log-transform the x values,
+    :code:`None, np.log` will log-transform the y values but not the x).
+
+    Parameters
+    ------------
+    fs
+        A series of functions to apply to subsequent axes of an array.
+    """
+
+    def scaler(arr, fs=fs):
+        A = arr.copy()
+        for ix, f in enumerate(fs):
+            if f is not None:
+                A[:, ix] = f(A[:, ix])
+        return A
+
+    return partial(scaler, fs=fs)
+
+
+def sample_kde(data, samples, renorm=False, transform=lambda x: x):
     """
     Sample a Kernel Density Estimate at points or a grid defined.
 
@@ -18,22 +42,26 @@ def sample_kde(data, samples, renorm=False):
         Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
     samples : :class:`numpy.ndarray`
         Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`).
+    transform
+        Transformation used prior to kernel density estimate.
 
     Returns
     ----------
     :class:`numpy.ndarray`
     """
     data = data[np.isfinite(data).all(axis=1), :]
-    K = gaussian_kde(data.T)
+    tdata = transform(data)
 
-    if isinstance(samples, list) and isinstance(samples[0], np.ndarray): # meshgrid
+    K = gaussian_kde(tdata.T)
+
+    if isinstance(samples, list) and isinstance(samples[0], np.ndarray):  # meshgrid
         zshape = samples[0].shape
-        ks = flatten_grid(ks)
+        ksamples = transform(flatten_grid(ks).T)
     else:
         zshape = samples.shape[0]
-        ks = samples.T
+        ksamples = transform(samples)
 
-    zi = K(ks)
+    zi = K(ksamples.T)
     zi = zi.reshape(zshape)
     if renorm:
         zi = zi / np.nanmax(zi)
@@ -58,10 +86,7 @@ def sample_ternary_kde(data, samples, transform=ilr):
     ----------
     :class:`numpy.ndarray`
     """
-    tfm = lambda x: transform(close(x))
-    tdata = tfm(data)
-    tsamples = tfm(samples)
-    return sample_kde(tdata, tsamples)
+    return sample_kde(data, samples, transform=lambda x: transform(close(x)))
 
 
 def lognorm_to_norm(mu, s):
