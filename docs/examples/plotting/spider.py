@@ -8,13 +8,11 @@ from pyrolite.geochem.ind import common_elements
 np.random.seed(82)
 # %% Minimal Example -------------------------------------------------------------------
 # create some example data
-els = common_elements(cutoff=47)
+els = common_elements(cutoff=47)[10:]
 ys = np.random.rand(3, len(els))
 ys = np.exp(ys)
 df = pd.DataFrame(data=ys, columns=els)
 
-ax = spider(df.loc[0, :].values, color="k")
-# or, alternatively directly from the dataframe:
 ax = df.loc[0, :].pyroplot.spider(color="k")
 ax.set_ylabel("Abundance")
 # %% Save Figure
@@ -24,8 +22,6 @@ save_figure(ax.figure, save_at="../../source/_static", name="spider_minimal")
 
 # %% Fill Plot -------------------------------------------------------------------------
 # This behaviour can be modified (see spider docs) to provide filled ranges:
-ax = spider(df.values, mode="fill", color="k", alpha=0.5)
-# or, alternatively directly from the dataframe:
 ax = df.pyroplot.spider(mode="fill", color="k", alpha=0.5)
 ax.set_ylabel("Abundance")
 # %% Save Figure
@@ -46,10 +42,8 @@ save_figure(fig, save_at="../../source/_static", name="spider_dual")
 # %% Normalised Data -------------------------------------------------------------------
 # spiders are most commonly used to disply normalised abundances. This is easily
 # accomplished using pyrolite.norm:
-from pyrolite.geochem.norm import ReferenceCompositions
 
-rc = ReferenceCompositions()["Chondrite_PON"]
-normdf = rc.normalize(df)
+normdf = df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
 
 ax = spider(normdf.values, color="k")
 # or, alternatively directly from the dataframe:
