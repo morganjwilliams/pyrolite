@@ -6,7 +6,7 @@ import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
 
 
-def random_cov_matrix(dim, sigmas=None, validate=False):
+def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
 
@@ -28,6 +28,8 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
     -----
         * Implement a characteristic scale for the covariance matrix.
     """
+    if seed is not None:
+        np.random.seed(seed)
     # create a matrix of correlation coefficients
     corr = (np.random.rand(dim, dim) - 0.5) * 2  # values between -1 and 1
     corr[np.tril_indices(dim)] = corr.T[np.tril_indices(dim)]  # lower=upper
@@ -56,7 +58,14 @@ def random_cov_matrix(dim, sigmas=None, validate=False):
 
 
 def random_composition(
-    size=1000, D=4, mean=None, cov=None, propnan=0.1, missingcols=None, missing=None
+    size=1000,
+    D=4,
+    mean=None,
+    cov=None,
+    propnan=0.1,
+    missingcols=None,
+    missing=None,
+    seed=None,
 ):
     """
     Generate a simulated random unimodal compositional dataset,
@@ -112,6 +121,8 @@ def random_composition(
         D = mean.size
         mean = mean.reshape(1, -1)
 
+    if seed is not None:
+        np.random.seed(seed)
     # mean
     if mean is None:
         if D > 1:
@@ -128,7 +139,7 @@ def random_composition(
     # covariance
     if cov is None:
         if D != 1:
-            cov = random_cov_matrix(D - 1, sigmas=np.abs(mean) * 0.1)  # 10% sigmas
+            cov = random_cov_matrix(D - 1, sigmas=np.abs(mean) * 0.1, seed=seed)  # 10% sigmas
         else:
             cov = np.array([[1]])
 

@@ -166,7 +166,7 @@ class pyroplot(object):
 
         data, samples = obj.loc[:, components].values, obj.loc[:, components].values
         kdefunc = [sample_kde, sample_ternary_kde][len(components) == 3]
-        zi = kdefunc(data, samples)
+        zi = kdefunc(data, samples, **subkwargs(kwargs, kdefunc))
         ax = obj.loc[:, components].pyroplot.scatter(
             ax=ax, axlabels=axlabels, c=zi, **kwargs
         )
@@ -379,8 +379,6 @@ class pyroplot(object):
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
 
-        Other Parameters
-        ------------------
         {otherparams}
 
         Returns
@@ -429,7 +427,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add axis labels.
-
 
         {otherparams}
 

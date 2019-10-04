@@ -52,7 +52,7 @@ def sample_ternary_kde(data, samples, transform=ilr):
     samples : :class:`numpy.ndarray`
         Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`)..
     transform
-        Transformation used prior to kernel density estimate.
+        Log-transformation used prior to kernel density estimate.
 
     Returns
     ----------
