@@ -31,7 +31,6 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
   :end-before: # %% save_figure
 
 .. image:: ../../../_static/REEvChondrite.png
-   :height: 250px
    :align: center
    :alt: Rare earth element spider plot of a selection of reference compositions relative to Chondrite.
 
