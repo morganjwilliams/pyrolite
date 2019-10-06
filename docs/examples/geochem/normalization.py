@@ -14,7 +14,7 @@ for name, ref in list(all_reference_compositions().items())[::2]:
     if name != "Chondrite_PON":
         ref.set_units("ppm")
         ref.comp.pyrochem.REE.pyrochem.normalize_to(
-            CI, units="ppm", convert_first=False
+            CI, units="ppm"
         ).pyroplot.REE(unity_line=True, ax=ax, label=name)
 
 ax.set_ylabel("X/X$_{Chondrite}$")
