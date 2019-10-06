@@ -19,6 +19,9 @@ from . import tern
 from . import stem
 from . import parallel
 
+from ..comp.codata import close, ilr
+from ..util.distributions import sample_kde, get_scaler
+
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "tern", "pyroplot"]
 
@@ -111,7 +114,9 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         fontsize = kwargs.get("fontsize", 8.0)
-        ax = density.density(obj.loc[:, components].values, ax=ax, **kwargs)
+        ax = density.density(
+            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
+        )
         if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
@@ -128,6 +133,63 @@ class pyroplot(object):
 
         return ax
 
+    def heatscatter(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        logx=False,
+        logy=False,
+        **kwargs
+    ):
+        r"""
+        Heatmapped scatter plots using the pyroplot API. See further parameters
+        for `matplotlib.pyplot.scatter` function below.
+
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Elements or compositional components to plot.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        axlabels : :class:`bool`, :code:`True`
+            Whether to add x-y axis labels.
+        logx : :class:`bool`, `False`
+            Whether to log-transform x values before the KDE for bivariate plots.
+        logy : :class:`bool`, `False`
+            Whether to log-transform y values before the KDE for bivariate plots.
+
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the heatmapped scatterplot is added.
+        """
+        obj = to_frame(self._obj)
+        try:
+            if obj.columns.size not in [2, 3]:
+                assert len(components) in [2, 3]
+
+            if components is None:
+                components = obj.columns.values
+        except:
+            msg = "Suggest components or provide a slice of the dataframe."
+            raise AssertionError(msg)
+
+        data, samples = obj.loc[:, components].values, obj.loc[:, components].values
+        kdetfm = [  # log transforms
+            get_scaler([None, np.log][logx], [None, np.log][logy]),
+            lambda x: ilr(close(x)),
+        ][len(components) == 3]
+        zi = sample_kde(
+            data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
+        )
+        ax = obj.loc[:, components].pyroplot.scatter(
+            ax=ax, axlabels=axlabels, c=zi, **kwargs
+        )
+        return ax
+
     def parallel(
         self,
         columns=None,
@@ -139,14 +201,20 @@ class pyroplot(object):
         **kwargs
     ):
 
-        """Pass the pandas object to :func:`pyrolite.plot.parallel.parallel`.
+        """
+        Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
+        the columns of the :class:`~pandas.DataFrame`.
 
         {otherparams}
 
         Returns
         -------
         :class:`matplotlib.axes.Axes`
-            Axes on which the REE plot is added.
+            Axes on which the parallel coordinates plot is added.
+
+        Todo
+        ------
+        * Adapt figure size based on number of columns.
         """
 
         obj = to_frame(self._obj)
@@ -162,7 +230,7 @@ class pyroplot(object):
         )
         return ax
 
-    def REE(self, index="radii", ax=None, mode="plot", **kwargs):
+    def REE(self, index="elements", ax=None, mode="plot", **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -187,7 +255,12 @@ class pyroplot(object):
         ree = REE()
 
         ax = spider.REE_v_radii(
-            obj.loc[:, ree].values, index=index, ree=ree, mode=mode, ax=ax, **kwargs
+            obj.loc[:, ree].astype(np.float).values,
+            index=index,
+            ree=ree,
+            mode=mode,
+            ax=ax,
+            **kwargs
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
@@ -199,11 +272,11 @@ class pyroplot(object):
 
         Parameters
         -----------
-        components : :class:`list`, `None`
+        components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
-        axlabels : :class:`bool`, True
+        axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
 
         {otherparams}
@@ -225,7 +298,6 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         if ax is None:
-
             fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots))
 
         fontsize = kwargs.get("fontsize", 8.0)
@@ -292,7 +364,11 @@ class pyroplot(object):
         assert len(components) != 0
 
         ax = spider.spider(
-            obj.loc[:, components].values, indexes=indexes, ax=ax, mode=mode, **kwargs
+            obj.loc[:, components].astype(np.float).values,
+            indexes=indexes,
+            ax=ax,
+            mode=mode,
+            **kwargs
         )
         ax.set_xticklabels(components, rotation=60)
         return ax
@@ -321,8 +397,6 @@ class pyroplot(object):
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
 
-        Other Parameters
-        ------------------
         {otherparams}
 
         Returns
@@ -371,7 +445,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add axis labels.
-
 
         {otherparams}
 
@@ -510,6 +583,16 @@ pyroplot.ternary.__doc__ = pyroplot.ternary.__doc__.format(
             header="Other Parameters",
             indent=8,
             subsections=True,
+        ),
+    ][_add_additional_parameters]
+)
+
+
+pyroplot.heatscatter.__doc__ = pyroplot.heatscatter.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            pyroplot.scatter, header="Other Parameters", indent=8, subsections=True
         ),
     ][_add_additional_parameters]
 )

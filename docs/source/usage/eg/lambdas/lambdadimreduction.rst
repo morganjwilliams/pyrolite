@@ -27,6 +27,7 @@ resulting dimensionally reduced data.
 .. image:: ../../../_static/LambdaData.png
   :width: 60%
   :align: center
+  :alt: Rare Earth Element spider plot of synthetic data showing variable Light REE enrichment.
 
 .. literalinclude:: ../../../../examples/lambdas/lambdas.py
   :language: python
@@ -40,6 +41,7 @@ resulting dimensionally reduced data.
 
 .. image:: ../../../_static/Lambdas.png
    :align: center
+   :alt: Scatter plot of orthogonal polynomial component weights, here termed lambdas, for the parameterisation of the synthetic dataset.
 
 For more on using orthogonal polynomials to describe geochemical pattern data, see:
 O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth

@@ -8,6 +8,7 @@ from pyrolite.plot.tern import ternary
 
 logger = logging.getLogger(__name__)
 
+
 class TestTernaryplot(unittest.TestCase):
     """Tests the Ternary functionality."""
 
@@ -19,7 +20,9 @@ class TestTernaryplot(unittest.TestCase):
         arr = np.empty(0)
         out = ternary(arr)
         self.assertTrue(hasattr(out, "tax"))
-        self.assertEqual(type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertEqual(
+            type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot
+        )
         plt.close("all")
 
     def test_one(self):
@@ -27,7 +30,9 @@ class TestTernaryplot(unittest.TestCase):
         arr = self.arr[0, :]
         out = ternary(arr)
         self.assertTrue(hasattr(out, "tax"))
-        self.assertEqual(type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertEqual(
+            type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot
+        )
         plt.close("all")
 
     def test_multiple(self):
@@ -35,7 +40,9 @@ class TestTernaryplot(unittest.TestCase):
         arr = self.arr
         out = ternary(arr)
         self.assertTrue(hasattr(out, "tax"))
-        self.assertEqual(type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot)
+        self.assertEqual(
+            type(out.tax), pyternary.ternary_axes_subplot.TernaryAxesSubplot
+        )
         plt.close("all")
 
     def test_overplotting(self):
@@ -44,7 +51,6 @@ class TestTernaryplot(unittest.TestCase):
 
     def tearDown(self):
         plt.close("all")
-
 
 
 if __name__ == "__main__":

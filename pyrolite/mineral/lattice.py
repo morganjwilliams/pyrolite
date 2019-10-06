@@ -169,6 +169,9 @@ def youngs_modulus_approximation(z, r):
         * Add links to docstring
 
     """
+    assert (z is not None) and (
+        r is not None
+    ), "Need charge and radii to approximate Young's Modulus"
     d = r + 1.38
     E = 1.5 * 750 * (z / d ** 3) * 10 ** 9
     return E
@@ -197,7 +200,9 @@ sc_ref = r"""References
     brice1975=sphinx_doi_link("10.1016/0022-0248(75)90241-9"),
     blundy1994=sphinx_doi_link("10.1038/372452a0"),
 )
-sc_ref = sc_ref.replace("ref", strain_coefficient.__name__)
+sc_ref = sc_ref.replace(
+    "ref", strain_coefficient.__module__ + "." + strain_coefficient.__name__
+)
 strain_coefficient.__doc__ = strain_coefficient.__doc__ + sc_ref
 
 bm_ref = r"""References
@@ -219,5 +224,10 @@ bm_ref = r"""References
     hazen1979=sphinx_doi_link("10.1029/JB084iB12p06723"),
     wood2014=sphinx_doi_link("10.1016/B978-0-08-095975-7.00209-6"),
 )
-bm_ref = bm_ref.replace("ref", youngs_modulus_approximation.__name__)
+bm_ref = bm_ref.replace(
+    "ref",
+    youngs_modulus_approximation.__module__
+    + "."
+    + youngs_modulus_approximation.__name__,
+)
 youngs_modulus_approximation.__doc__ = youngs_modulus_approximation.__doc__ + bm_ref

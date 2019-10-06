@@ -22,6 +22,18 @@ except ImportError:
     HAVE_SKLEARN = False
 
 
+class TestMarkerCycle(unittest.TestCase):
+    def test_iterable(self):
+        mkrs = marker_cycle()
+        for i in range(15):
+            mkr = next(mkrs)
+
+    def test_makes_line(self):
+        mkrs = marker_cycle()
+        for i in range(10):
+            matplotlib.lines.Line2D([0], [0], marker=next(mkrs))
+
+
 class TestShareAxes(unittest.TestCase):
     """
     Tests the share_axes utility function.
@@ -57,6 +69,30 @@ class TestShareAxes(unittest.TestCase):
 
     def tearDown(self):
         plt.close("all")
+
+
+class TestGetTwinAxes(unittest.TestCase):
+    def setUp(self):
+        fig, ax = plt.subplots(1)
+        self.ax = ax
+        self.axy = self.ax.twiny()  # independent x axis on top, same y axis
+        self.axx = self.ax.twinx()  # independent y axis on right, same x axis
+
+    def test_y(self):
+        out = get_twins(self.ax, which="y")
+        self.assertNotIn(self.axx, out)
+        self.assertIn(self.axy, out)
+
+    def test_x(self):
+        out = get_twins(self.ax, which="x")
+        self.assertNotIn(self.axy, out)
+        self.assertIn(self.axx, out)
+
+    def test_both(self):
+        out = get_twins(self.ax, which="xy")
+        self.assertIn(self.axx, out)
+        self.assertIn(self.axy, out)
+        self.assertTrue(len(out) == 2)
 
 
 class TestAddColorbar(unittest.TestCase):

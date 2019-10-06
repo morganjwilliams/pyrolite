@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
-from scipy.stats.kde import gaussian_kde
+
 from .tern import ternary
 from ..comp.codata import close
-from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_
+from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
+from ..util.distributions import sample_kde
 from ..util.plot import (
     ternary_heatmap,
     add_colorbar,
@@ -209,30 +210,26 @@ def density(
                 xe, ye = bin_centres_to_edges(xs), bin_centres_to_edges(ys)
 
                 assert np.isfinite(xs).all() and np.isfinite(ys).all()
-                kdedata = arr.T
+                kdedata = arr
                 if logx:  # generate x grid over range spanned by log(x)
-                    kdedata[0] = np.log(kdedata[0])
+                    kdedata[:, 0] = np.log(kdedata[:, 0])
                     xs = np.log(xs)
                     xe = np.log(xe)
                 if logy:  # generate y grid over range spanned by log(y)
-                    kdedata[1] = np.log(kdedata[1])
+                    kdedata[:, 1] = np.log(kdedata[:, 1])
                     ys = np.log(ys)
                     ye = np.log(ye)
 
-                xi, yi = np.meshgrid(xs, ys)
-                # remove nan, inf bearing rows
-                kdedata = kdedata[:, np.isfinite(kdedata).all(axis=0)]
-                assert np.isfinite(kdedata).all()
-                k = gaussian_kde(kdedata)  # gaussian kernel approximation on the grid
-                zi = k(np.vstack([xi.flatten(), yi.flatten()])).T.reshape(xi.shape)
-                assert np.isfinite(zi).all()
-                zi = zi / zi.max()
+                xymesh = np.meshgrid(xs, ys)
+                xi, yi = xymesh
+
+                zi = sample_kde(kdedata, flattengrid(xymesh))
+                zi = zi.reshape(xi.shape)
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
-                # TODO: update xi, yi to bin edges.
                 if logx:
                     xi = np.exp(xi)
                     xe = np.exp(xe)
@@ -284,7 +281,7 @@ def density(
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
 
-        if contours: # could do this in logspace for accuracy?
+        if contours:  # could do this in logspace for accuracy?
             levels = contours or kwargs.pop("levels", None)
             cags = xi, yi, zi  # contour-like function arguments, point estimates
             if percentiles and not isinstance(levels, int):

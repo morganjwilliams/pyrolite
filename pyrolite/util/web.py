@@ -56,16 +56,22 @@ def download_file(url: str, encoding="UTF-8", postprocess=None):
         Callable function to post-process the requested content.
     """
     with requests.Session() as s:
-        response = s.get(url)
-        if response.status_code == requests.codes.ok:
-            logger.debug("Response recieved from {}.".format(url))
-            out = response.content
-            if encoding is not None:
-                out = response.content.decode(encoding)
-            if postprocess is not None:
-                out = postprocess(out)
-            return out
-        else:
-            msg = "Failed download - bad status code at {}".format(url)
-            logger.warning(msg)
-            response.raise_for_status()
+        try:
+            response = s.get(url)
+            if response.status_code == requests.codes.ok:
+                logger.debug("Response recieved from {}.".format(url))
+                out = response.content
+
+                if out is not None and encoding is not None:
+                    out = response.content.decode(encoding)
+                if postprocess is not None:
+                    out = postprocess(out)
+            else:
+                msg = "Failed download - bad status code at {}".format(url)
+                logger.warning(msg)
+                response.raise_for_status()
+                out = None
+        except requests.exceptions.ConnectionError:
+            logger.warning("Failed Connection to {}".format(url))
+            out = None
+    return out

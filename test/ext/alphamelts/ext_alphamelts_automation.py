@@ -4,13 +4,12 @@ import pandas as pd
 from pyrolite.util.pd import to_numeric
 from pyrolite.util.meta import pyrolite_datafolder, stream_log
 from pyrolite.util.general import check_perl, temp_path, remove_tempdir
-from pyrolite.geochem.norm import ReferenceCompositions
+from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.ext.alphamelts.download import install_melts
 from pyrolite.ext.alphamelts.automation import *
 import logging
 
 logger = logging.Logger(__name__)
-
 
 if not (pyrolite_datafolder(subfolder="alphamelts") / "localinstall").exists():
     stream_log("pyrolite.ext.alphamelts")
@@ -114,7 +113,7 @@ class TestMeltsBatch(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path() / ("test_melts_temp" + self.__class__.__name__)
 
-        Gale_MORB = ReferenceCompositions()["MORB_Gale2013"]
+        Gale_MORB = get_reference_composition("MORB_Gale2013")
         majors = [
             "SiO2",
             "Al2O3",
@@ -127,10 +126,10 @@ class TestMeltsBatch(unittest.TestCase):
             "K2O",
             "P2O5",
         ]
-        MORB = Gale_MORB.original_data.loc[majors, "value"].apply(pd.to_numeric)
-        MORB = pd.DataFrame([MORB, MORB]).reset_index().drop(columns="index")
+        MORB = Gale_MORB.comp.loc[:, majors].apply(pd.to_numeric)
+        MORB = MORB.append(MORB).reset_index().drop(columns="index")
         MORB["Title"] = [
-            "{}_{}".format(Gale_MORB.ModelName, ix).replace("_", "")
+            "{}_{}".format(Gale_MORB.name, ix).replace("_", "")
             for ix in MORB.index.values.astype(str)
         ]
         MORB["Initial Temperature"] = 1300

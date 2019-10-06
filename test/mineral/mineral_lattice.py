@@ -24,6 +24,12 @@ class TestStrainCoefficient(unittest.TestCase):
             self.assertTrue(D_j > 0.0)
             self.assertTrue(D_j < self.D0)
 
+    def test_modulus_not_specified(self):
+        rx = get_ionic_radii("Sr", charge=2, coordination=8)
+        D_j = self.D0 * strain_coefficient(self.ri, rx, r0=self.r0, z=2, T=self.Tk)
+        self.assertTrue(D_j > 0.0)
+        self.assertTrue(D_j < self.D0)
+
 
 if __name__ == "__main__":
     unittest.main()

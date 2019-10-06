@@ -20,6 +20,14 @@ __chem__ = __common_elements__ | __common_oxides__
 
 
 class MeltsOutput(object):
+    """
+    alphaMELTS output tables acessible from a single object.
+
+    Todo
+    -----
+    * Master experimenttable so everything is accessible without having to browse tables
+    """
+
     def __init__(self, directory, kelvin=True):
         self.title = None
         self.kelvin = kelvin

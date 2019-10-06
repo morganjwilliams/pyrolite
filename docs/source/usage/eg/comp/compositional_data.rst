@@ -42,6 +42,7 @@ have negative atoms!
 .. image:: ../../../_static/CompositionalDistributions.png
   :width: 100%
   :align: center
+  :alt: Figure illustrating the probability density functions for normal, lognormal and Poisson distributions over linear and log-scaled axes.
 
 The form of these distributions is a reflection of the fact that geochemical data
 is at is core a measure of relative quantities of atoms. Quantities of atoms have
@@ -60,6 +61,7 @@ inherent covariance):
   .. image:: ../../../_static/PoissonLognormals.png
     :width: 100%
     :align: center
+    :alt: Figure illustrating how the distributions of ratios of Poisson-distributed variables are better approximated by lognormal distributions than normal distributions.
 
 Accounting for these inherent features of geochemical data will allow you to
 accurately estimate means and variances, and from this enables the use of
@@ -78,3 +80,4 @@ you:
 .. image:: ../../../_static/LogRatioMeansTernary.png
   :width: 100%
   :align: center
+  :alt: Ternary scatter plots highlighting the improved accuracy of a logratio mean relative to simple geometric mean.

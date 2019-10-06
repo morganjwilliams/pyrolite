@@ -1,4 +1,3 @@
-import pandas_flavor as pf
 import pandas as pd
 import re
 from ..util.text import titlecase
@@ -80,8 +79,6 @@ def repr_isotope_ratio(isotope_ratio):
     return "{}{}{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
 
 
-@pf.register_series_method
-@pf.register_dataframe_method
 def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     """
     Returns cations which are present in both oxide and elemental form.

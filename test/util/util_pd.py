@@ -2,9 +2,11 @@ import os, time
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.util.synthetic import test_df, test_ser
-from pyrolite.util.pd import *
 from pathlib import Path
+from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.general import temp_path, remove_tempdir
+from pyrolite.util.meta import subkwargs
+from pyrolite.util.pd import *
 
 
 class TestColumnOrderedAppend(unittest.TestCase):
@@ -16,6 +18,39 @@ class TestColumnOrderedAppend(unittest.TestCase):
 
     def test_index_preservation(self):
         pass
+
+
+class TestReadTable(unittest.TestCase):
+    def setUp(self):
+        self.dir = temp_path()
+        self.fn = self.dir / "test_read_table.csv"
+        self.files = [self.fn.with_suffix(s) for s in [".xlsx", ".xls", ".csv"]]
+        self.expect = pd.DataFrame(
+            np.ones((2, 2)), columns=["C1", "C2"], index=["i0", "i1"]
+        )
+        for fn, ex in zip(
+            self.files, ["to_excel", "to_excel", "to_csv"]
+        ):  # make some csvs
+            kw = dict(engine="openpyxl")
+            getattr(self.expect, ex)(str(fn), **subkwargs(kw, getattr(self.expect, ex)))
+
+    def test_read_csv(self):
+        f = self.fn.with_suffix(".csv")
+        df = read_table(f, index=0)
+        self.assertTrue((df.values == self.expect.values).all())
+        self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
+
+    def test_read_xlsx(self):
+        f = self.fn.with_suffix(".xlsx")
+        df = read_table(f)
+        self.assertTrue((df.values == self.expect.values).all())
+        self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
+
+    def test_read_xls(self):
+        f = self.fn.with_suffix(".xls")
+        df = read_table(f)
+        self.assertTrue((df.values == self.expect.values).all())
+        self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
 
 
 class TestAccumulate(unittest.TestCase):
@@ -187,66 +222,22 @@ class TestDFFromCSVs(unittest.TestCase):
     """Tests automated loading of CSVs into a pd.DataFrame."""
 
     def setUp(self):
-        self.df = None
+        self.dir = temp_path()
+        names = ["a", "b", "c"]
+        self.files = [self.dir / "{}.csv".format(n) for n in names]
+        for n, fn in zip(names, self.files):  # make some csvs
+            with open(str(fn), "w") as f:
+                f.write("C1,C{}\n{},{}\n{},{}".format(n, n, n, n, n))
 
     def test_df_generation(self):
-        pass
-        df_from_csvs
-
-
-class TestPickleFromCSVS(unittest.TestCase):
-    """Test the CSV pickler."""
-
-    def setUp(self):
-        self.dfs = [pd.DataFrame(), pd.DataFrame]
-
-
-class TestSparsePickleDF(unittest.TestCase):
-    """Test the pickler."""
-
-    def setUp(self):
-        self.df = pd.DataFrame()
-        self.filename = "tst_save_pickle.pkl"
-
-    def test_pickling(self):
-        sparse_pickle_df(self.df, self.filename)
-        file = Path(self.filename)
-        for cond in [file.exists(), file.is_file()]:
-            with self.subTest(cond=cond):
-                self.assertTrue(cond)
+        df = df_from_csvs(self.files)
+        expect_cols = ["C1", "Ca", "Cb", "Cc"]
+        self.assertIn("C1", df.columns)
+        self.assertTrue(len(df.columns) == len(expect_cols))
+        self.assertTrue((df.columns == np.array(expect_cols)).all())
 
     def tearDown(self):
-        try:
-            os.remove(self.filename)
-        except PermissionError:
-            time.sleep(2)
-            os.remove(self.filename)
-
-
-class TestLoadSparsePickleDF(unittest.TestCase):
-    """Test the pickle loader."""
-
-    def setUp(self):
-        # create test file
-        self.df = pd.DataFrame()
-        self.filename = "tst_load_pickle.pkl"
-
-    def test_load(self):
-        """Test loading a dataframe."""
-
-        sparse_pickle_df(self.df, self.filename)
-        try:
-            for keep_sparse in [True, False]:
-                with self.subTest(keep_sparse=keep_sparse):
-                    df = load_sparse_pickle_df(self.filename, keep_sparse=keep_sparse)
-                    if keep_sparse:
-                        self.assertTrue(isinstance(df, pd.SparseDataFrame))
-        finally:
-            try:
-                os.remove(self.filename)
-            except PermissionError:
-                time.sleep(2)
-                os.remove(self.filename)
+        remove_tempdir(self.dir)
 
 
 if __name__ == "__main__":

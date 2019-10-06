@@ -18,6 +18,7 @@ First we generate some example REE data, and plot this on a
 .. image:: ../../../_static/PandasLambdaData.png
   :width: 60%
   :align: center
+  :alt: Rare Earth Element spider plot of synthetic data indexed by radii generated using the pyroplot interface.
 
 The reduction to lambdas using the pandas interface is much simpler than using the
 numpy-based utility functions (see :func:`pyrolite.util.math.lambdas`, `Dimensional Reduction <lambdadimreduction.html>`__):
@@ -34,6 +35,7 @@ numpy-based utility functions (see :func:`pyrolite.util.math.lambdas`, `Dimensio
 
 .. image:: ../../../_static/PandasLambdas.png
    :align: center
+   :alt: Scatter plot of orthogonal polynomial component weights, here termed lambdas, generated using the DataFrame lambda_lnREE method.
 
 
 For more on using orthogonal polynomials to describe geochemical pattern data, see:

@@ -29,3 +29,4 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 .. image:: ../../../_static/manifold_uncertainty.png
    :width: 100%
    :align: center
+   :alt: Two axes showing data points coloured by predicted classes; the second exhibits using entropy to modulate opacity.

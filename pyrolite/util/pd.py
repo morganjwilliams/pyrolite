@@ -27,7 +27,7 @@ def drop_where_all_empty(df):
     return df
 
 
-def read_table(filepath, **kwargs):
+def read_table(filepath, index_col=0, **kwargs):
     """
     Read tabluar data from an excel or csv text-based file.
 
@@ -48,8 +48,8 @@ def read_table(filepath, **kwargs):
     elif ext in ["csv"]:
         reader = pd.read_csv
     else:
-        logger.warn
-    df = reader(str(filepath), **subkwargs(kwargs, reader))
+        raise NotImplementedError("Only .xls* and .csv currently supported.")
+    df = reader(str(filepath), index_col=index_col, **subkwargs(kwargs, reader))
     df = drop_where_all_empty(df)
     return df
 
@@ -72,7 +72,7 @@ def column_ordered_append(df1, df2, **kwargs):
     :class:`pandas.DataFrame`
     """
     outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
-    return df1.append(df2, **kwargs).reindex(columns=outcols)
+    return df1.append(df2, sort=False, **kwargs).reindex(columns=outcols)
 
 
 def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
@@ -176,8 +176,9 @@ def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
 
     Notes
     -----
-        * Avoid using .loc or .iloc on the LHS to make sure that data dtypes
-            are propagated.
+
+    Avoid using .loc or .iloc on the LHS to make sure that data dtypes
+    are propagated.
     """
     cols = df.select_dtypes(exclude=exclude).columns
     df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)
@@ -309,9 +310,9 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
 
     Todo
     -----
-        Attempt to preserve column ordering across column sets, assuming
-        they are generally in the same order but preserving only some of the
-        information.
+    Attempt to preserve column ordering across column sets, assuming
+    they are generally in the same order but preserving only some of the
+    information.
     """
     cols = []
     dfs = []
@@ -321,25 +322,3 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
 
     df = accumulate(dfs, ignore_index=ignore_index)
     return df
-
-
-def pickle_from_csvs(targets, out_filename, sep="\t", suffix=".pkl"):
-    df = df_from_csvs(targets, sep=sep, low_memory=False)
-    sparse_pickle_df(df, out_filename, suffix=suffix)
-
-
-def sparse_pickle_df(df: pd.DataFrame, filename, suffix=".pkl"):
-    """
-    Converts dataframe to sparse dataframe before pickling to disk.
-    """
-    df.to_sparse().to_pickle(pathify(filename).with_suffix(suffix))
-
-
-def load_sparse_pickle_df(filename, suffix=".pkl", keep_sparse=False):
-    """
-    Loads sparse dataframe from disk, with optional densification.
-    """
-    if keep_sparse:
-        return pd.read_pickle(pathify(filename).with_suffix(suffix))
-    else:
-        return pd.read_pickle(pathify(filename).with_suffix(suffix)).to_dense()

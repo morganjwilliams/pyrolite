@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.density import density
-from pyrolite.geochem.ind import common_oxides
 from pyrolite.comp.codata import close
 
 np.random.seed(82)
@@ -12,14 +11,14 @@ np.random.seed(82)
 oxs = ["SiO2", "CaO", "MgO", "Na2O"]
 ys = np.random.rand(1000, len(oxs))
 ys[:, 1] += 0.7
-ys[:, 2] += 1.
+ys[:, 2] += 1.0
 df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
 # plot
 ax = density(df.loc[:, ["SiO2", "MgO"]].values)
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
-ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax, s=10, alpha=0.3, c="k", zorder=2)
 # %% Save Figure
 from pyrolite.util.plot import save_figure
 
@@ -41,9 +40,7 @@ plt.tight_layout()
 save_figure(fig, save_at="../../source/_static", name="density_dual")
 
 # %% Percentiles -----------------------------------------------------------------------
-ax = df.loc[:, ["SiO2", "CaO"]].plot.scatter(
-    x="SiO2", y="CaO", s=10, alpha=0.3, c="k", zorder=2
-)
+ax = df.loc[:, ["SiO2", "CaO"]].pyroplot.scatter(s=10, alpha=0.3, c="k", zorder=2)
 df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax, contours=[0.95, 0.66, 0.33])
 # %% Save Figure
 save_figure(ax.figure, save_at="../../source/_static", name="density_percentiles")
@@ -90,7 +87,7 @@ for a, (ls, grid, scale) in zip(ax, params):
         cmap="viridis",
         fontsize=10,
     )
-    a.scatter(*asym_df.values.T, s=10, alpha=0.3, c="k", zorder=2)
+    asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
     a.set_title("{}-{}".format(grid, scale), fontsize=10)
     if scale in ["logscale", "semilogx"]:
         a.set_xscale("log")
@@ -118,7 +115,7 @@ save_figure(fig, save_at="../../source/_static", name="density_vmin")
 
 # %% Density Ternary -------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color='k')
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
     df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
     a.set_title("Mode: {}".format(mode))

@@ -30,9 +30,7 @@ for ix, el in enumerate(data_ree):
         lnY[:, ix] += np.random.rand(no_analyses) * 0.6
 data_radii
 df = pd.DataFrame(np.exp(lnY), columns=data_ree)
-ax = df.pyroplot.spider(
-    ax=REE_v_radii(),
-    indexes=get_ionic_radii(data_ree, charge=3, coordination=8),
+ax = df.pyroplot.REE(
     marker="D",
     alpha=0.01,
     c="0.5",
@@ -43,7 +41,7 @@ from pyrolite.util.plot import save_figure
 
 save_figure(ax.figure, save_at="../../source/_static", name="PandasLambdaData")
 # %% Reduce to Orthogonal Polynomials --------------------------------------------------
-ls = df.lambda_lnREE(exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON")
+ls = df.pyrochem.lambda_lnREE(exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON")
 # %% Plot the Results ------------------------------------------------------------------
 fig, ax = plt.subplots(1, 3, figsize=(9, 3))
 ax_labels = [chr(955) + "$_{}$".format(str(d)) for d in range(4)]

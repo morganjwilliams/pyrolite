@@ -44,6 +44,7 @@ This represents a relatively small variation in composition:
 .. image:: ../../../_static/melt_blurredmorb.png
    :width: 60%
    :align: center
+   :alt: Ternary plot illustrating the addition of noise to generate multiple compositions from a single starting point.
 
 Now we can conduct a MELTS run for each of these compositions:
 
@@ -65,6 +66,7 @@ variations in composition can manifest as significant uncertainties in outputs:
 .. image:: ../../../_static/melts_montecarlo.png
    :width: 80%
    :align: center
+   :alt: Phase volume versus temperature results of a Monte Carlo simulation to asses the nonlinear uncertainty of alphaMELTS fractionation models.
 
 .. seealso::
 

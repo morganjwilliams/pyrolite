@@ -21,6 +21,7 @@ A minimal stem plot can be constructed as follows:
 .. image:: ../../../_static/stem_minimal.png
    :width: 50%
    :align: center
+   :alt: A minimal example of a simple stem plot oriented horizontally.
 
 Stem plots can also be used in a vertical orientation, such as for visualising
 discrete observations down a drill hole:
@@ -33,3 +34,4 @@ discrete observations down a drill hole:
 .. image:: ../../../_static/stem_vertical.png
    :width: 35%
    :align: center
+   :alt: An example of a simple stem plot oriented vertically, as expected for drill core.

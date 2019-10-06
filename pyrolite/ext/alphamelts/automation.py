@@ -533,7 +533,7 @@ class MeltsBatch(object):
                 ].items():  # this isn't quite corect , you'd need to modify everything else too
                     edf[k] = v
                 cc = [i for i in edf.columns if i in __chem__]
-                edf.loc[:, cc] = edf.loc[:, cc].renormalise()
+                edf.loc[:, cc] = renormalise(edf.loc[:, cc])
             P = exp["Initial Pressure"]
             T0, T1 = exp["Initial Temperature"], exp["Final Temperature"]
             edf["Initial Pressure"] = P

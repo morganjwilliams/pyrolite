@@ -17,6 +17,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
 .. image:: ../../../_static/EMCOMP_comparison.png
   :width: 100%
   :align: center
+  :alt: Three ternary scatter plots illustrating original compositional data, the new points imputed using EMCOMP and the full imputed dataset.
 
 
 .. note:: Other features in this module are currently incomplete and a work in progress.

@@ -35,6 +35,25 @@ Perhaps also check the
 `Issues Board <https://github.com/morganjwilliams/pyrolite/issues>`__ first to see if
 someone else is having the same issue, and comment there.
 
+Contributing to Documentation
+------------------------------
+
+The `documentation and examples <https://pyrolite.readthedocs.io>`__ for :code:`pyrolite`
+are gradually being developed, and any contributions or corrections would be greatly
+appreciated. Currently the examples are patchy, and a 'getting started' guide would be
+a helpful addition. If you'd like to edit an existing page, the easiest way to
+get started is via the 'Edit on GitHub' links:
+
+.. image:: https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/source/_static/editongithub.png
+  :width: 100%
+  :align: center
+  :alt: Header found on each documentation page highlighting the "Edit on GitHub" link.
+
+These pages serve multiple purposes:
+  * A human-readable reference of the source code (compiled from docstrings).
+  * A set of simple examples to demonstrate use and utility.
+  * A place for developing extended examples [#edu]_
+
 Contributing Code
 -------------------------
 
@@ -83,19 +102,6 @@ to `Coveralls <https://coveralls.io/github/morganjwilliams/pyrolite>`__.
 Adding or expanding tests is a helpful way to ensure :code:`pyrolite` does what is meant to,
 and does it reproducibly. The unit test suite one critical component of the package,
 and necessary to enable sufficient trust to use :code:`pyrolite` for scientific purposes.
-
-Contributing to Documentation
-------------------------------
-
-The `documentation and examples <https://pyrolite.readthedocs.io>`__ for :code:`pyrolite`
-are slowly being developed, and any contributions or corrections would be greatly
-appreciated. Currently the examples are patchy, and a 'getting started' guide would be
-a helpful addition.
-
-These pages serve multiple purposes:
-  * A human-readable reference of the source code (compiled from docstrings).
-  * A set of simple examples to demonstrate use and utility.
-  * A place for developing extended examples [#edu]_
 
 
 .. [#edu] Such examples could easily be distributed as educational resources showcasing

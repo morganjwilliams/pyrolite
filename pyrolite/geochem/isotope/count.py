@@ -27,6 +27,6 @@ def deadtime_correction(data, deadtime):
             data * dt * np.exp(data * dt * np.exp(data * dt * np.exp(data * dt)))
         )
     else:
-        data = data / (1 - data * dt)
+        data = data / (1. - (data * dt))
 
     return data

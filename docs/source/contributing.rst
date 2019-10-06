@@ -1,7 +1,7 @@
 Contributing
 =============
 
-.. note:: This project is currently in `alpha`, and as such there's much work to be
+.. note:: This project is currently in `beta`, and as such there's much work to be
           done.
 
 .. raw:: html

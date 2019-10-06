@@ -23,6 +23,7 @@ Visualising Orthogonal Polynomials
 .. image:: ../../../_static/OrthogPolyDeconstruction.png
    :width: 80%
    :align: center
+   :alt: Figure illustrating the decomposition of a function over radii into a weighted sum of independent polynomial components.
 
 For more on using orthogonal polynomials to describe geochemical pattern data, see:
 O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth

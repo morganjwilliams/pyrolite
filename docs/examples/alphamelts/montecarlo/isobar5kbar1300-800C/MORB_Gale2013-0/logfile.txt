@@ -1,0 +1,22 @@
+
+! Default values of environment variables (pyrolite export)
+! Variables preceeded by '!' are 'unset' (i.e. 'false')
+ALPHAMELTS_VERSION MELTS
+ALPHAMELTS_MODE isobaric
+ALPHAMELTS_DELTAP 1000.0
+ALPHAMELTS_DELTAT -5.0
+ALPHAMELTS_MAXP 10000.0
+ALPHAMELTS_MINP 0.0
+ALPHAMELTS_MAXT 2000.0
+ALPHAMELTS_MINT 0.0
+ALPHAMELTS_MINF 0.005
+ALPHAMELTS_MASSIN 0.001
+ALPHAMELTS_MGO_TARGET 8.0
+ALPHAMELTS_DRY_ITER_PATIENCE 100
+ALPHAMELTS_HK_PXGT_TRACE_H2O True
+ALPHAMELTS_FAILED_ITER_PATIENCE 10
+
+! alphamelts run by wil9dh 
+! Time: Sep 18 2019 at 11:03 
+! Command line: -m MORB_Gale2013-0.melts -f environment.txt 
+! Settings file: environment.txt

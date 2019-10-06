@@ -1,4 +1,4 @@
-from pyrolite.geochem.transform import convert_chemistry
+import pyrolite.geochem
 
 # %% Random data
 import numpy as np
@@ -10,16 +10,15 @@ df = (test_df(cols=["MgO", "SiO2", "FeO", "CaO", "Na2O"]) * 100).join(
     test_df(cols=["Ca", "Te", "K", "Na"]) * 1000
 )
 # %% Unit Conversion
-from pyrolite.geochem.ind import common_elements
 from pyrolite.geochem.norm import scale
 
-ppm_cols = [i for i in df.columns if i in common_elements()]  # elemental headers
-df.loc[:, ppm_cols] *= scale("ppm", "wt%")
+df.loc[:, df.pyrochem.elements] *= scale("ppm", "wt%")
 # %% Conversion
-new_df = convert_chemistry(
-    df, to=["MgO", "SiO2", "FeO", "CaO", "Te", "Na", "Na/Te", "MgO/SiO2"]
+new_df = df.pyrochem.convert_chemistry(
+    to=["MgO", "SiO2", "FeO", "CaO", "Te", "Na", "Na/Te", "MgO/SiO2"]
 )
-ppm_cols = [i for i in new_df.columns if i in common_elements()]  # elemental headers
-df.loc[:, ppm_cols] *= scale("wt%", "ppm") # convert Te, Na to ppm
+df.loc[:, new_df.pyrochem.elements] *= scale("wt%", "ppm")  # convert Te, Na to ppm
 # %% Iron Conversion
-new_df = convert_chemistry(df, to=["MgO", "SiO2", {"FeO": 0.9, "Fe2O3": 0.1}, "CaO"])
+new_df = df.pyrochem.convert_chemistry(
+    to=["MgO", "SiO2", {"FeO": 0.9, "Fe2O3": 0.1}, "CaO"]
+)

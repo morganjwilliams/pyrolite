@@ -102,6 +102,7 @@ pygments_style = "sphinx"
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+autodoc_member_order = "bysource"
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -199,7 +200,7 @@ texinfo_documents = [
 # -- intersphinx
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "matplotlib": ("https://matplotlib.org/", None),
@@ -215,16 +216,18 @@ github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs
 
 # metadata
 # ordered reference composition list
-from pyrolite.geochem.norm import ReferenceCompositions as rc
+from pyrolite.geochem.norm import all_reference_compositions
 
-RC = rc()
-reservoirs = set([RC[k].Reservoir for k in RC])
+refs = all_reference_compositions()
+reservoirs = set(
+    [refs[n].reservoir for n in refs.keys() if refs[n].reservoir is not None]
+)
 comps = []
 for r in reservoirs:
-    comps += [k for k in RC if RC[k].Reservoir == r]
+    comps += [n for n in refs if refs[n].reservoir == r]
 refcomps = (
     "    <dl>"
-    + "\n    ".join(["<dt>{}</dt><dd>{}</dd>".format(k, RC[k]) for k in comps])
+    + "\n    ".join(["<dt>{}</dt><dd>{}</dd>".format(n, refs[n]) for n in comps])
     + "</dl>"
 )
 rst_prolog = """

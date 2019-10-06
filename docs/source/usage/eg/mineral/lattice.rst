@@ -79,6 +79,7 @@ coefficient can be calculated:
 .. image:: ../../../_static/plag_lattice.png
    :width: 100%
    :align: center
+   :alt: Lattice strain model parabolas for partition coefficients vs. radii for Rare Earth Elements and alkalis in plagioclase. The incorporation of both Eu2+ and Eu3+ generating the apparent Eu-anomaly is highlighted.
 
 .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
              from elastic moduli. Nature 372, 452. https://doi.org/10.1038/372452A0

@@ -1,4 +1,7 @@
-.. automodule:: pyrolite.comp
+Pandas Interface: pyrolite\.comp\.pyrocomp
+-------------------------------------------
+
+  .. autoclass:: pyrolite.comp.pyrocomp
     :members:
     :undoc-members:
 

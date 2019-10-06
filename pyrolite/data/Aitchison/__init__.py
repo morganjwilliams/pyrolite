@@ -27,9 +27,9 @@ __folder__ = pyrolite_datafolder(subfolder="Aitchison")
 def _load_frame(filename):
     path = __folder__ / filename
     df = pd.read_csv(path)
-    df.loc[:, ["A", "B", "C", "D", "E"]] = df.loc[
-        :, ["A", "B", "C", "D", "E"]
-    ].renormalise()  # some of these are not closed to 100%
+    df.loc[:, ["A", "B", "C", "D", "E"]] = renormalise(
+        df.loc[:, ["A", "B", "C", "D", "E"]]
+    )  # some of these are not closed to 100%
     df = df.set_index("Specimen")
     df.name = titlecase(path.stem)
     return df

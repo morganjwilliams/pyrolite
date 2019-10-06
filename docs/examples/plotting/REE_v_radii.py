@@ -7,7 +7,7 @@ from pyrolite.geochem.ind import REE, get_ionic_radii
 # %% Minimal Example -------------------------------------------------------------------
 # Where data is not specified, it will return a formatted axis which can be used for
 # subsequent plotting:
-ax = REE_v_radii(mode='radii') # radii mode will put ionic radii on the x axis
+ax = REE_v_radii(index='radii') # radii mode will put ionic radii on the x axis
 
 # create some example data
 ree = REE()
@@ -72,7 +72,7 @@ fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
 
 df1.pyroplot.REE(ax=ax[0])
 # we can also change the index of the second figure
-ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='elements')
+ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='radii')
 plt.tight_layout()
 
 # %% Save Figure

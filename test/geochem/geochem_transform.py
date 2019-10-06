@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from pyrolite.util.synthetic import test_df, test_ser
 from pyrolite.geochem.transform import *
+from pyrolite.geochem.norm import get_reference_composition
 
 
 class TestToMolecular(unittest.TestCase):
@@ -399,7 +400,7 @@ class TestAddRatio(unittest.TestCase):
 
         for norm_to in [
             "Chondrite_PON",
-            ReferenceCompositions()["Chondrite_PON"],
+            get_reference_composition("Chondrite_PON"),
             (1.0, 2.0),
         ]:
             with self.subTest(norm_to=norm_to):
@@ -465,9 +466,9 @@ class TestAddMgNo(unittest.TestCase):
 
 class TestLambdaLnREE(unittest.TestCase):
     def setUp(self):
-        self.rc = ReferenceCompositions()
+        self.C = get_reference_composition("Chondrite_PON")
         els = [i for i in REE() if not i == "Pm"]
-        vals = [self.rc["Chondrite_PON"][el].value for el in els]
+        vals = self.C[els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
         self.df.loc[1, :] = self.df.loc[0, :]
         self.default_degree = 3
@@ -494,7 +495,7 @@ class TestLambdaLnREE(unittest.TestCase):
         """
         Tests the ability to generate lambdas using different normalisations."""
         for norm_to in [
-            self.rc["Chondrite_PON"],
+            self.C,
             np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
         ]:
             with self.subTest(norm_to=norm_to):

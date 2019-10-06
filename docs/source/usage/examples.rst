@@ -73,10 +73,10 @@ utilities will likely also make use of the under-development python-melts.
   eg/alphamelts/*
 
 
-Classification
+Utilities
 -----------------
 .. toctree::
   :glob:
   :maxdepth: 2
 
-  eg/classification/*
+  eg/util/*/*

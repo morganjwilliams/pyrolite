@@ -44,24 +44,24 @@ setup(
     keywords=["geochemistry", "compositional data", "visualisation", "petrology"],
     packages=find_packages(exclude=["test*"]),
     install_requires=[
-        "pathlib",
-        "psutil",
         "numpy",
+        "numpydoc",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
         "pandas>=0.23",  # dataframe acccessors
+        "xlrd",  # reading excel from pandas
+        "openpyxl",  # writing excel from pandas
+        "pathlib",
+        "psutil",
         "matplotlib",
         "periodictable",
-        "xlrd",
         "python-ternary",
+        "joblib",
         "requests",
         "dicttoxml",
         "xmljson",
         "beautifulsoup4",
-        "joblib",
-        "pandas_flavor",
-        "numpydoc",
         "tinydb",
         "tqdm",
     ],
