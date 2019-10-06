@@ -46,6 +46,6 @@ Spider Plots
    :alt: A Chondrite normalised spider plot generated from synthetic data.
 
 .. seealso:: `Spider Density Diagrams <conditionaldensity.html>`__,
-             `Normalisation <../geochem/normalisation.html>`__,
+             `Normalisation <../geochem/normalization.html>`__,
              `REE Radii Plot <REE_v_radii.html>`__,
              `REE Dimensional Reduction <../lambdas/lambdadimreduction.html>`__
