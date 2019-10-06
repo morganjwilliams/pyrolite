@@ -598,7 +598,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...develop
+.. _0.2.0: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...0.2.0
 .. _0.1.21: https://github.com/morganjwilliams/pyrolite/compare/0.1.20...0.1.21
 .. _0.1.20: https://github.com/morganjwilliams/pyrolite/compare/0.1.19...0.1.20
 .. _0.1.19: https://github.com/morganjwilliams/pyrolite/compare/0.1.18...0.1.19
