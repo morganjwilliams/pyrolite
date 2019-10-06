@@ -23,4 +23,4 @@ ax.legend(
 )
 # %% save_figure
 from pyrolite.util.plot import save_figure
-save_figure(ax.figure, name="Chondrite_REE", save_at="../../source/_static")
+save_figure(ax.figure, name="REEvChondrite", save_at="../../source/_static")

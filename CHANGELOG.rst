@@ -10,6 +10,10 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <installation.html#development-installation>`__.
 
+
+`0.2.0`_
+--------------
+
 * Added alt-text to documentation example images
 * Updated contributing guidelines
 * Added Python 3.8-dev to Travis config (not yet available)
@@ -23,6 +27,7 @@ All notable changes to this project will be documented here.
   methods
 * Updates and bugfixes for :mod:`pyrolite.geochem.transform` and
   :mod:`pyrolite.geochem.norm`
+* Updated the `normalization example <./usage/eg/geochem/normalization.html>`__
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +108,7 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Moved normalisation into :mod:`pyrolite.geochem`
+* Moved normalization into :mod:`pyrolite.geochem`
 * Improved support for molecular-based calculations in :mod:`pyrolite.geochem`
 * Added :mod:`pyrolite.geochem` section to API docs
 * Added the :func:`~pyrolite.geochem.convert_chemistry` docs example

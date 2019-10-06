@@ -1,15 +1,15 @@
-Normalisation
+Normalization
 ==============
 
 A selection of reference compositions are included in pyrolite, and can be easily
 accessed with :func:`pyrolite.geochem.norm.get_reference_composition` (see the list
 at the bottom of the page for a complete list):
 
-.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+.. literalinclude:: ../../../../examples/geochem/normalization.py
   :language: python
   :end-before: # %% getref
 
-.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+.. literalinclude:: ../../../../examples/geochem/normalization.py
   :language: python
   :start-after: # %% getref
   :end-before: # %% set units
@@ -17,23 +17,23 @@ at the bottom of the page for a complete list):
 To use the compositions with a specific set of units, you can change them with
 :func:`pyrolite.geochem.norm.Composition.set_units`:
 
-.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+.. literalinclude:: ../../../../examples/geochem/normalization.py
   :language: python
   :start-after: # %% set units
-  :end-before: # REE plot
+  :end-before: # %% REE plot
 
 The :func:`~pyrolite.geochem.pyrochem.normalize_to` method can be used to
 normalise DataFrames to a given reference (e.g. for spiderplots):
 
-.. literalinclude:: ../../../../examples/geochem/normalisiation.py
+.. literalinclude:: ../../../../examples/geochem/normalization.py
   :language: python
-  :start-after: # REE plot
+  :start-after: # %% REE plot
   :end-before: # %% save_figure
 
-.. image:: ../../../_static/NormSpiderplot.png
+.. image:: ../../../_static/REEvChondrite.png
    :height: 250px
    :align: center
-   :alt: Spider plot of chondrite-normalised depleted MORB mantle abundances.
+   :alt: Rare earth element spider plot of a selection of reference compositions relative to Chondrite.
 
 .. seealso::
 
