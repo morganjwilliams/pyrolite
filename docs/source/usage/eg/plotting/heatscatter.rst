@@ -24,19 +24,7 @@ visualisations for the same data:
 .. image:: ../../../_static/heatscatter_compare.png
    :width: 100%
    :align: center
-   :alt: Comparison of bivariate scatter plots, density plots and heatscatter plots.
-
-We can use the same interface for ternary diagrams:
-
-.. literalinclude:: ../../../../examples/plotting/heatscatter.py
-   :language: python
-   :start-after: # %% Density Ternary
-   :end-before: # %% Save Figure
-
-.. image:: ../../../_static/heatscatter_ternary.png
-   :width: 100%
-   :align: center
-   :alt: Comparison of ternary scatter plots, density plots and heatscatter plots.
+   :alt: Comparison of bivariate and ternary scatter plots, density plots and heatscatter plots.
 
 .. seealso:: `Ternary Plots <../plotting/ternary.html>`__,
              `Density Plots <../plotting/density.html>`__,

@@ -120,14 +120,17 @@ class pyroplot(object):
         if axlabels and len(components) == 2:
             ax.set_xlabel(components[0], fontsize=fontsize)
             ax.set_ylabel(components[1], fontsize=fontsize)
+
+            ax.tick_params("both", labelsize=fontsize * 0.9)
         elif axlabels and len(components) == 3:
             tax = ax.tax
             # python-ternary uses "right, top, left"
             # Check if there's already labels
+            offset = kwargs.get("offset", 0.2)  # offset axes labels
             if not len(tax._labels.keys()):
-                tax.right_axis_label(components[0], fontsize=fontsize)
-                tax.left_axis_label(components[1], fontsize=fontsize)
-                tax.bottom_axis_label(components[2], fontsize=fontsize)
+                tax.right_axis_label(components[0], fontsize=fontsize, offset=offset)
+                tax.left_axis_label(components[1], fontsize=fontsize, offset=offset)
+                tax.bottom_axis_label(components[2], fontsize=fontsize, offset=offset)
         else:
             pass
 
@@ -318,6 +321,7 @@ class pyroplot(object):
                 ax.set_xlabel(xvar, fontsize=fontsize)
                 ax.set_ylabel(yvar, fontsize=fontsize)
 
+            ax.tick_params("both", labelsize=fontsize * 0.9)
         return ax
 
     def spider(
@@ -471,10 +475,12 @@ class pyroplot(object):
         )
         tax = ax.tax
 
+        offset = kwargs.get("offset", 0.2)  # offset axes labels
+
         def set_labels(labels):  # local function to set ternary labels
-            tax.right_axis_label(labels[0], fontsize=fontsize)
-            tax.left_axis_label(labels[1], fontsize=fontsize)
-            tax.bottom_axis_label(labels[2], fontsize=fontsize)
+            tax.right_axis_label(labels[0], fontsize=fontsize, offset=offset)
+            tax.left_axis_label(labels[1], fontsize=fontsize, offset=offset)
+            tax.bottom_axis_label(labels[2], fontsize=fontsize, offset=offset)
 
         if axlabels is not None:
             if not len(tax._labels.keys()) and axlabels:

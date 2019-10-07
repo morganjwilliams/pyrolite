@@ -130,11 +130,18 @@ def ternary(
         tax.legend(frameon=False)
 
     # Check if there's already labels
+    fontsize = kwargs.get("fontsize", 8.0)
     if not len(tax._labels.keys()):
         # python-ternary uses "right, top, left"
         tax.gridlines(multiple=gridsize, color="k", alpha=0.5)
         if not no_ticks:
-            tax.ticks(linewidth=1, clockwise=clockwise, multiple=gridsize)
+            tax.ticks(
+                linewidth=1,
+                clockwise=clockwise,
+                multiple=gridsize,
+                fontsize=fontsize,
+                offset=0.03,
+            )
         tax.boundary(linewidth=1.0)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
