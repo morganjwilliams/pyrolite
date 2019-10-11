@@ -15,8 +15,8 @@ Debugging
 
 This section contains some tips for debugging issues and common errors associated with
 pyrolite. Note that the scope of these suggestions is necessarily limited, and specific
-issues which relate more to :mod:`matplotlib`, :mod:`pandas`, and :mod:`numpy` are
-often well documented elsewhere online.
+issues which relate more to :mod:`matplotlib.pyplot`, :mod:`pandas`, and :mod:`numpy`
+are often well documented elsewhere online.
 
 Questions
 -----------

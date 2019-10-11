@@ -9,8 +9,15 @@ Citation
           authors.
 
 If you use :mod:`pyrolite` extensively for your research, citation of the software
-would be particularly appreciated. As no overview papers have yet been published,
-the best option is to reference the `Zenodo <https://zenodo.org>`__ DOI.
+would be particularly appreciated. It helps quantify the impact of the project
+(assisting those contributing through paid and volunteer work), and is one way to get
+the mesasge out and help build the pyrolite community.
+
+As no overview papers have yet been published,
+the best option is to reference the `Zenodo <https://zenodo.org>`__ archive DOI. Ideally
+reference a specific version if you know which one you used
+(:code:`import pyrolite; pyrolite.__version__`) to make your work more replicable.
+
 While the exact format of your citation will vary
 with wherever you're publishing, it should take the general form:
 
