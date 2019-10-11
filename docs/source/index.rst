@@ -46,14 +46,13 @@ make use of your geochemical data to build and test geological models.
    installation
    usage/examples
    submodules
+   debugging
+   development
    changelog
-   future
-   tests
-   contributing
    conduct
+   contributing
    contributors
    cite
-
 
 .. note:: This documentation is a work in progress and is updated regularly. Contact
           the maintainer with any specific questions/requests.

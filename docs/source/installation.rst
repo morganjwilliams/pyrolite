@@ -21,24 +21,11 @@ on `PyPi <https://pypi.org/project/pyrolite/>`_ using the :code:`--upgrade` flag
 
    pip install --upgrade pyrolite
 
+Optional Dependencies
+-----------------------
 
-Development Installation
-----------------------------
-
-To access and use the development version, you can either
-`clone the repository <https://github.com/morganjwilliams/pyrolite>`__ or install
-via pip directly from GitHub:
-
-.. code-block:: bash
-
-  pip install git+git://github.com//morganjwilliams/pyrolite.git@develop#egg=pyrolite
-
-
-Optional Dependencies and Local Development
--------------------------------------------
-
-Optional dependencies (`dev`, `skl`, `spatial`, `db`) can be specified during pip installation.
-For example:
+Optional dependencies (`dev`, `skl`, `spatial`, `db`) can be specified during pip
+installation. For example:
 
 .. code-block:: bash
 
