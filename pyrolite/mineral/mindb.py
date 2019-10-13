@@ -81,7 +81,7 @@ def parse_composition(composition, drop_zeros=True):
 
     Parameters
     -----------
-    composition : :class:`str` | :class:`periodictable.formale`
+    composition : :class:`str` | :class:`periodictable.formulas.Formula`
     """
     mnrl = None
     if composition in list_minerals():
