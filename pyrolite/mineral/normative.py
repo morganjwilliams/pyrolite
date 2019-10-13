@@ -19,9 +19,9 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
     Parameters
     --------------
     comp : :class:`numpy.ndarray`
-        Array of compositions (shape :code:`nsamples, ncommponents`).
+        Array of compositions (shape :math:`n_S, n_C`).
     parts : :class:`numpy.ndarray`
-        Array of endmembers (shape :code:`nendmembers, ncommponents`).
+        Array of endmembers (shape :math:`n_E, n_C`).
     ord : :class:`int`
         Order of regularization, defaults to L1 for sparsity.
     det_lim : :class:`float`
@@ -30,7 +30,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
     Returns
     --------
     :class:`numpy.ndarray`
-        Array of endmember modal abundances (shape :code:`nsamples, nendmembers`)
+        Array of endmember modal abundances (shape :math:`n_S, n_E`)
     """
     nsamples, nscomponents = comp.shape
     nparts, ncomponents = parts.shape

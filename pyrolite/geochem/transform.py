@@ -274,6 +274,9 @@ def aggregate_element(
     -------
     This won't convert units, so need to start from single set of units.
 
+    This function as currently formulated consumes a lot of memory, and seems causes
+    memory leaks.
+
     Returns
     -------
     :class:`pandas.Series`
