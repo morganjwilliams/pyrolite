@@ -14,11 +14,33 @@ from sqlite3 import OperationalError as SQLOperationalError
 from pyodbc import DatabaseError as PyODBCDatabaseError
 from pyodbc import ProgrammingError as PyODBCProgrammingError
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from tinydb import TinyDB, Query
 import logging
 from .text import *
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def _list_tindyb_unique_values(variable, dbpath=None):
+    """
+    List unique values from a column of a :mod:`TinyDB` json database.
+
+    Parameters
+    -----------
+    variable : :class:`str`
+        Name of the variable to check for unique values.
+    dbpath : :class:`pathlib.Path` | :class:`str`
+        Path to the relevant database.
+
+    Returns
+    ----------
+    :class:`list`
+    """
+
+    with TinyDB(str(dbpath)) as db:
+        out = list(set([a.get(variable, None) for a in db.all()]))
+    return out
 
 
 def check_access_driver():
