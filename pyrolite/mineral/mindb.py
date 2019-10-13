@@ -68,6 +68,7 @@ def get_mineral(name="", dbpath=None):
     if dbpath is None:
         dbpath = __dbpath__
 
+    assert name in list_minerals()
     with TinyDB(str(dbpath)) as db:
         out = db.get(Query().name == name)
 
@@ -82,21 +83,21 @@ def parse_composition(composition, drop_zeros=True):
     -----------
     composition : :class:`str` | :class:`periodictable.formale`
     """
-    min = None
+    mnrl = None
     if composition in list_minerals():
-        min = get_mineral(composition)
+        mnrl = get_mineral(composition)
 
     try:  # formulae
         form = pt.formula(composition)
-        min = pd.Series(formula_to_elemental(form))
+        mnrl = pd.Series(formula_to_elemental(form))
         # could also check for formulae in the database, using f.atoms
     except:
         pass
 
-    if min is not None:
-        if drop_zeros:
-            min = min[min != 0]
-        return min
+    assert mnrl is not None
+    if drop_zeros:
+        mnrl = mnrl[mnrl != 0]
+    return mnrl
 
 
 def get_mineral_group(group=""):
@@ -113,6 +114,7 @@ def get_mineral_group(group=""):
     :class:`pandas.DataFrame`
         Dataframe of group members and compositions.
     """
+    assert group in list_groups()
     with TinyDB(str(__dbpath__)) as db:
         grp = db.search(Query().group == group)
 
