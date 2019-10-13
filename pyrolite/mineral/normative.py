@@ -150,6 +150,10 @@ def CIPW_norm(df, form="weight"):
     Returns
     --------
     :class:`pandas.DataFrame`
+
+    Note
+    -----
+    This function is currently a stub.
     """
 
     # devolatilise and renormalise
