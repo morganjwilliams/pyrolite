@@ -2,6 +2,7 @@ import functools
 import pandas as pd
 import numpy as np
 import periodictable as pt
+from pathlib import Path
 from tinydb import TinyDB, Query
 from .transform import formula_to_elemental
 from ..util.meta import pyrolite_datafolder
@@ -129,9 +130,14 @@ def get_mineral_group(group=""):
     return df
 
 
-def update_database(path=None, encoding="cp1252", **kwargs):
+def update_database(path=None, **kwargs):
     """
     Update the mineral composition database.
+
+    Parameters
+    -----------
+    path : :class:`str` | :class:`pathlib.Path`
+        The desired filepath for the JSON database.
 
     Note
     ------
@@ -151,6 +157,8 @@ def update_database(path=None, encoding="cp1252", **kwargs):
 
     if path is None:
         path = __dbpath__
+
+    path = Path(path).with_suffix(".json")
 
     # name group formula composition
     with TinyDB(str(path)) as db:
