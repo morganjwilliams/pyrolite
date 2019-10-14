@@ -65,8 +65,7 @@ def endmember_decompose(
 
     Parameters
     -----------
-    composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` |
-    :class:`~periodictable.formulas.Formula` | :class:`str`
+    composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` | :class:`~periodictable.formulas.Formula` | :class:`str`
         Composition to decompose into endmember components.
     endmembers : :class:`str` | :class:`list` | :class:`dict`
 
