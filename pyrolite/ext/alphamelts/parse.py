@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 import logging
 import periodictable as pt
-from ...mineral.mineral import merge_formulae
+from ...mineral.transform import merge_formulae
 from .env import MELTS_Env
 from .meltsfile import to_meltsfile
 
