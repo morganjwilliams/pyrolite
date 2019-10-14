@@ -111,8 +111,9 @@ def endmember_decompose(
     elif isinstance(endmembers, (list, set, dict, tuple)):
         if isinstance(endmembers, dict):
             aliases, endmembers = list(endmembers.keys()), list(endmembers.values())
-        _em = [parse_composition(em) for em in endmembers]
-        Y = pd.DataFrame(_em, index=aliases or endmembers)
+        Y = pd.DataFrame(
+            [parse_composition(em) for em in endmembers], index=aliases or endmembers
+        )
     else:
         raise NotImplementedError("Unknown endmember specification format.")
 

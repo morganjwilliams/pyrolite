@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import periodictable as pt
 from tinydb import TinyDB, Query
-from .mineral import formula_to_elemental
+from .transform import formula_to_elemental
 from ..util.meta import pyrolite_datafolder
 from ..util.database import _list_tindyb_unique_values
 import logging

@@ -4,9 +4,22 @@
 
 .. note:: This module is a work in progress and will be gradually updated.
 
-pyrolite\.mineral\.mineral
+pyrolite\.mineral\.template
 -------------------------------
-  .. automodule:: pyrolite.mineral.mineral
+  .. automodule:: pyrolite.mineral.template
+      :members:
+      :undoc-members:
+
+pyrolite\.mineral\.normative
+-------------------------------
+  .. automodule:: pyrolite.mineral.normative
+      :members:
+      :undoc-members:
+
+
+pyrolite\.mineral\.transform
+-------------------------------
+  .. automodule:: pyrolite.mineral.transform
       :members:
       :undoc-members:
 
@@ -17,12 +30,6 @@ pyrolite\.mineral\.sites
       :members:
       :undoc-members:
 
-
-pyrolite\.mineral\.normative
--------------------------------
-  .. automodule:: pyrolite.mineral.normative
-      :members:
-      :undoc-members:
 
 
 pyrolite\.mineral\.ions

@@ -1,10 +1,11 @@
 import pandas as pd
 import numpy as np
 import periodictable as pt
-from pyrolite.util.pd import to_frame
 from collections import OrderedDict
 import scipy.optimize
 from .sites import *
+from .transform import *
+from .mindb import get_mineral
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -91,8 +92,6 @@ class MineralTemplate(object):
 class Mineral(object):
     """Mineral, with structure and composition."""
 
-    db = {}
-
     def __init__(self, name=None, template=None, composition=None, endmembers=None):
         self.name = name
         self.template = None
@@ -104,7 +103,6 @@ class Mineral(object):
         self.set_endmembers(endmembers)
         self.endmember_decomposition = None
         self.init = True
-        self.db[self.name] = self
 
     def set_endmembers(self, endmembers=None):
         """Set the endmbmer components for a mineral."""
@@ -124,7 +122,8 @@ class Mineral(object):
         if min is not None:
             # process different options for getting a mineral output
             if isinstance(min, str):
-                min = self.db.get(em, None)
+                name = name or str(min)
+                min = Mineral(name, None, pt.formula(get_mineral(em)["formula"]))
             elif isinstance(min, pt.formulas.Formula):
                 name = name or str(min)
                 min = Mineral(name, None, min)
@@ -448,141 +447,89 @@ class Mineral(object):
         return hash(self.__repr__().encode("UTF-8"))
 
 
-def formula_to_elemental(formula, weight=True):
-    """Convert a periodictable.formulas.Formula to elemental composition."""
-    formula = pt.formula(formula)
-    fmass = formula.mass
-    composition = {}
-    if weight:
-        for a, c in formula.atoms.items():
-            composition[str(a)] = (c * a.mass) / fmass
-    else:
-        atoms = sum([c for a, c in formula.atoms.items()])
-        for a, c in formula.atoms.items():
-            composition[str(a)] = c / atoms
-    return composition
+OLIVINE = MineralTemplate(
+    "olivine",
+    MX(
+        "M1",
+        affinities={
+            "Mg{2+}": 0,
+            "Fe{2+}": 1,
+            "Mn{2+}": 2,
+            "Li{+}": 3,
+            "Ca{2+}": 4,
+            "Na{+}": 5,
+        },
+    ),
+    MX(
+        "M2",
+        affinities={
+            "Al{3+}": 0,
+            "Fe{3+}": 1,
+            "Ti{4+}": 2,
+            "Cr{3+}": 3,
+            "V{3+}": 4,
+            "Ti{3+}": 5,
+            "Zr{4+}": 6,
+            "Sc{3+}": 7,
+            "Zn{2+}": 8,
+            "Mg{2+}": 9,
+            "Fe{2+}": 10,
+            "Mn{2+}": 11,
+        },
+    ),
+    TX(),
+    *[OX()] * 2,
+)
+
+PYROXENE = MineralTemplate(
+    "pyroxene",
+    MX(
+        "M1",
+        affinities={
+            "Mg{2+}": 0,
+            "Fe{2+}": 1,
+            "Mn{2+}": 2,
+            "Li{+}": 3,
+            "Ca{2+}": 4,
+            "Na{+}": 5,
+        },
+    ),
+    MX(
+        "M2",
+        affinities={
+            "Al{3+}": 0,
+            "Fe{3+}": 1,
+            "Ti{4+}": 2,
+            "Cr{3+}": 3,
+            "V{3+}": 4,
+            "Ti{3+}": 5,
+            "Zr{4+}": 6,
+            "Sc{3+}": 7,
+            "Zn{2+}": 8,
+            "Mg{2+}": 9,
+            "Fe{2+}": 10,
+            "Mn{2+}": 11,
+        },
+    ),
+    *[TX()] * 2,
+    *[OX()] * 6,
+)
 
 
-def merge_formulae(formulas):
-    """
-    Combine multiple formulae into one. Particularly useful for defining oxide mineral
-    formulae.
-
-    Parameters
-    -----------
-    formulas: iterable
-        Iterable of multiple formulae to merge into a single larger molecular formulae.
-    """
-    molecule = pt.formula("")
-    for f in formulas:
-        molecule += pt.formula(f)
-    return molecule
-
-
-def parse_composition(composition):
-    """
-    Parse a composition to provide an ionic elemental version in the form of a
-    pandas.Series. Currently accepts pandas.Series, periodictable.formulas.Formula
-    and structures which will directly convert to pandas.Series (list of tuples, dict).
-
-    Parameters
-    -----------
-    composition : {pandas.Series, periodictable.formulas.Formula}
-        Formulation of composition to parse.
-    """
-    if composition is not None:
-        if isinstance(composition, pd.Series):
-            # convert to molecular oxides, then to formula, then to wt% elemental
-            components = [pt.formula(c) for c in composition.index]
-            values = composition.values
-            formula = merge_formulae(
-                [v / c.mass * c for v, c in zip(values, components)]
-            )
-            return pd.Series(formula_to_elemental(formula))
-        elif isinstance(composition, pt.formulas.Formula):
-            return pd.Series(formula_to_elemental(composition))
-        else:
-            return parse_composition(pd.Series(composition))
-
-
-def recalc_cations(
-    df,
-    ideal_cations=4,
-    ideal_oxygens=6,
-    Fe_species=["FeO", "Fe", "Fe2O3"],
-    oxygen_constrained=False,
-):
-    """
-    Recalculate a composition to a.p.f.u.
-    """
-    assert ideal_cations is not None or ideal_oxygens is not None
-    # if Fe2O3 and FeO are specified, calculate based on oxygen
-    moles = to_frame(df)
-    moles = moles.div([pt.formula(c).mass for c in moles.columns])
-    moles = moles.where(~np.isclose(moles, 0.0), np.nan)
-
-    # determine whether oxygen is an open or closed system
-    count_iron_species = np.array([i in moles.columns for i in Fe_species]).sum()
-    oxygen_constrained = oxygen_constrained
-    if not oxygen_constrained:
-        if count_iron_species > 1:  # check that only one is defined
-            oxygen_constrained = (
-                count_iron_species
-                - pd.isnull(moles.loc[:, Fe_species]).all(axis=1).sum()
-            ) > 1
-
-            if oxygen_constrained:
-                logger.info("Multiple iron species defined. Calculating using oxygen.")
-            else:
-                logger.info("Single iron species defined. Calculating using cations.")
-
-    components = moles.columns
-    as_oxides = len(list(pt.formula(components[0]).atoms)) > 1
-    schema = []
-    # if oxygen_constrained:  # need to specifically separate Fe2 and Fe3
-    if as_oxides:
-        parts = [pt.formula(c).atoms for c in components]
-        for p in parts:
-            oxygens = p[pt.O]
-            other_components = [i for i in list(p) if not i == pt.O]
-            assert len(other_components) == 1  # need to be simple oxides
-            other = other_components[0]
-            charge = oxygens * 2 / p[other]
-            ion = other.ion[charge]
-            schema.append({str(ion): p[other], "O": oxygens})
-    else:
-        # elemental composition
-        parts = components
-        for part in parts:
-            p = list(pt.formula(part).atoms)[0]
-            if p.charge != 0:
-                charge = p.charge
-            else:
-                charge = p.default_charge
-            schema.append({p.ion[charge]: 1})
-
-    ref = pd.DataFrame(data=schema)
-    ref.columns = ref.columns.map(str)
-    ref.index = components
-
-    cation_masses = {c: pt.formula(c).mass for c in ref.columns}
-    oxygen_index = [i for i in ref.columns if "O" in i][0]
-    ref = ref.loc[:, [i for i in ref.columns if not i == oxygen_index] + [oxygen_index]]
-    moles_ref = ref.copy(deep=True)
-    moles_ref.loc[:, :] = (
-        ref.values * moles.T.values
-    )  # this works for series, not for frame
-
-    moles_O = moles_ref[oxygen_index].sum()
-    moles_cations = (
-        moles_ref.loc[:, [i for i in moles_ref.columns if not i == oxygen_index]]
-        .sum()
-        .sum()
-    )
-    if not oxygen_constrained:  # oxygen unquantified, try to calculate using cations
-        scale = ideal_cations / moles_cations
-    else:  # oxygen quantified, try to calculate using oxygen
-        scale = ideal_oxygens / moles_O
-
-    moles_ref *= scale
-    return moles_ref.sum(axis=0)
+SPINEL = MineralTemplate(
+    "spinel",
+    Site(
+        "A",
+        affinities={"Mg{2+}": 0, "Fe{2+}": 1, "Mn{2+}": 2, "Zn{2+}": 3},
+        coordination=4,
+    ),
+    *[
+        Site(
+            "B",
+            affinities={"Al{3+}": 0, "Fe{3+}": 1, "Cr{3+}": 3, "V{3+}": 3},
+            coordination=6,
+        )
+    ]
+    * 2,
+    *[OX()] * 4,
+)
