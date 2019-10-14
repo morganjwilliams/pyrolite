@@ -135,6 +135,8 @@ def endmember_decompose(
     )
     if drop_zeros:
         modal = modal.loc[:, modal.sum(axis=0) > 0.0]
+
+    modal = renormalise(modal)
     return modal
 
 
