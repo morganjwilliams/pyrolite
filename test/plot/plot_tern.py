@@ -49,6 +49,22 @@ class TestTernaryplot(unittest.TestCase):
         """Test use of the plot for multiple rounds of plotting."""
         pass
 
+    def test_color_tuple(self):
+        pass
+
+    def test_color_cmap_c_combination(self):
+        """
+        Check than array of values specified using `c`
+        can be used for a colormap.
+        """
+        pass
+
+    def test_norm_specified(self):
+        pass
+
+    def test_label_specified(self):
+        pass
+
     def tearDown(self):
         plt.close("all")
 
