@@ -51,13 +51,6 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-def pathify(path):
-    """Converts strings to pathlib.Path objects."""
-    if not isinstance(path, Path):
-        path = Path(path)
-    return path
-
-
 def temp_path(suffix=""):
     """Return the path of a temporary directory."""
     dir = mkdtemp(suffix=suffix)

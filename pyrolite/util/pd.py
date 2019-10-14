@@ -6,7 +6,6 @@ import numpy as np
 import logging
 import inspect
 
-from .general import pathify
 from .meta import subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
