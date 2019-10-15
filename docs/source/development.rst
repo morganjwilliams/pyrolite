@@ -4,22 +4,17 @@ Development
 Development History and Planning
 --------------------------------
 
-.. toctree::
-   :maxdepth: 1
-
-   changelog
-   future
+* `Changelog <changelog.html>`__
+* `Future <future.html>`__
 
 
 Contributing
 --------------
 
-.. toctree::
-   :maxdepth: 1
+* `Contributing <contributing.html>`__
+* `Contributors <contributors.html>`__
+* `Code of Conduct <conduct.html>`__
 
-   contributing
-   contributors
-   conduct
 
 Development Installation
 ----------------------------

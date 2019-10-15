@@ -49,6 +49,7 @@ make use of your geochemical data to build and test geological models.
    debugging
    development
    changelog
+   future
    conduct
    contributing
    contributors
