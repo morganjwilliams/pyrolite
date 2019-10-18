@@ -80,3 +80,6 @@ Utilities
   :maxdepth: 2
 
   eg/util/*/*
+
+
+.. include:: ../gallery/index.rst

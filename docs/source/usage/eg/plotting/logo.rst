@@ -75,7 +75,7 @@ vectors using principal component analysis:
 
 
 We can also look at data density (here using kernel density estimation)
-in log-space:
+in logratio-space:
 
 
 .. literalinclude:: ../../../../examples/plotting/logo.py

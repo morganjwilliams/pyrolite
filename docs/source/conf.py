@@ -22,6 +22,10 @@ import os
 import sys
 import re
 from datetime import date
+from pathlib import Path
+import warnings
+
+warnings.filterwarnings("ignore", "Unknown section")
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../."))
@@ -63,7 +67,9 @@ extensions = [
     "sphinx.ext.napoleon",
     "recommonmark",
     "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
+    "sphinx_gallery.gen_gallery",  # sphinx gallery
 ]
+
 
 napoleon_google_docstring = False
 napoleon_use_param = False
@@ -215,6 +221,32 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
 }
+
+# sphinx_gallery config
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples/_auto/",  # path to your example scripts
+    "gallery_dirs": "gallery",  # path to where to save gallery generated output
+    "filename_pattern": r"\.py",
+    "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
+    "download_all_examples": False,
+    "reference_url": {"pyrolite": None},
+    "image_scrapers": ("altmatplot"),
+    "binder": {
+        # Required keys
+        "org": "morganjwilliams",
+        "repo": "pyrolite",
+        "branch": "develop",  # Can be any branch, tag, or commit hash. Use a branch that hosts your docs.
+        "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
+        "dependencies": ["../binder/environment.yml"],
+        # Optional keys
+        #'filepath_prefix': '<prefix>' # A prefix to prepend to any filepaths in Binder links.
+        #'notebooks_dir': '<notebooks-directory-name>' # Jupyter notebooks for Binder will be copied to this directory (relative to built documentation root).
+        #'use_jupyter_lab': <bool> # Whether Binder links should start Jupyter Lab instead of the Jupyter Notebook interface.
+    },
+    "first_notebook_cell": "%matplotlib inline\n",
+}
+
+from docpatch import *  # patch for sphinx_gallery pages
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
 
