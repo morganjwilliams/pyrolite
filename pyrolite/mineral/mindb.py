@@ -139,7 +139,7 @@ def update_database(path=None, **kwargs):
     path : :class:`str` | :class:`pathlib.Path`
         The desired filepath for the JSON database.
 
-    Note
+    Notes
     ------
     This will take the 'mins.csv' file from the mineral pyrolite data folder
     and construct a document-based JSON database.

@@ -151,7 +151,9 @@ def install_melts(
     try:
         if check_perl() and (not native):
             """
-            Note: setting an install folder other than the download folder
+            Notes
+            -----
+            Setting an install folder other than the download folder
             seems to fail here.
             Melts gets confused with the directory structure...
             and creates .bat files which point to the wrong place

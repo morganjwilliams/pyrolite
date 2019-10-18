@@ -29,7 +29,7 @@ def combine_choices(choices):
     :class:`list`
         List of dictionaries containing each set of choice combinations.
 
-    Note
+    Notes
     -----
 
         Will not append choices which are set to None.

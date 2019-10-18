@@ -3,11 +3,14 @@ import io
 import inspect
 import webbrowser
 from pathlib import Path
-from numpydoc.docscrape import FunctionDoc, ClassDoc
+import numpydoc.docscrape
 import logging
+import warnings
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+warnings.filterwarnings("ignore", "Unknown section")
 
 
 def pyrolite_datafolder(subfolder=None):
@@ -218,7 +221,7 @@ def get_additional_params(
     else:
         sectionheader = []
 
-    docs = [(f, FunctionDoc(f)) for f in fs]
+    docs = [(f, numpydoc.docscrape.FunctionDoc(f)) for f in fs]
     pars = []
     subsects = []
     p0 = [i[0] for i in docs[0][1][t]]

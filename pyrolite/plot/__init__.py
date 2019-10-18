@@ -1,13 +1,17 @@
 """
 Submodule with various plotting and visualisation functions.
 """
-import matplotlib.pyplot as plt
-import pandas as pd
 import logging
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+import warnings
+
+warnings.filterwarnings("ignore", "Unknown section")
 
 from ..util.plot import plot_cooccurence
 from ..util.pd import to_frame

@@ -153,7 +153,7 @@ def CIPW_norm(df, form="weight"):
     --------
     :class:`pandas.DataFrame`
 
-    Note
+    Notes
     -----
     This function is currently a stub.
     """
