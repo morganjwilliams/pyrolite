@@ -108,7 +108,7 @@ kwargs = dict(marker="D", alpha=0.1, s=3, no_ticks=True, axlabels=False)
 for ix, sample in enumerate(df.Sample.unique()):
     comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
     comp.pyroplot.ternary(ax=ax[0], color=t10b3[ix], **kwargs)
-plt.show()
+fig
 #######################################################################################
 # We can take the mean and covariance in log-space to create covariance ellipses and
 # vectors using principal component analysis:
@@ -120,7 +120,7 @@ for ix, sample in enumerate(df.Sample.unique()):
     tcomp = to_log(comp)
     plot_stdev_ellipses(tcomp.values, color=t10b3[ix], resolution=1000, **kwargs)
     plot_pca_vectors(tcomp.values, ls="-", lw=0.5, color="k", **kwargs)
-plt.show()
+fig
 #######################################################################################
 # We can also look at data density (here using kernel density estimation)
 # in logratio-space:
@@ -136,14 +136,14 @@ for ix, sample in enumerate(df.Sample.unique()):
         contour_labels={0.68: "σ", 0.95: "2σ"},
         **kwargs,
     )
-plt.show()
+fig
 #######################################################################################
 # We can also do this for individual samples, and estimate percentile contours:
 #
 kwargs = dict(ax=ax[-1], no_ticks=True, axlabels=False)
 ax[-1].set_title("Overall Density")
 df.loc[:, ["SiO2", "MgO", "FeO"]].pyroplot.density(bins=100, cmap="Greys", **kwargs)
-plt.show()
+fig
 #######################################################################################
 
 for a in ax:
@@ -153,3 +153,4 @@ for a in ax:
     a.get_yaxis().set_ticks([])
     a.set_aspect("equal")
     a.patch.set_visible(False)
+fig

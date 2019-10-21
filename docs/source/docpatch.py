@@ -40,25 +40,26 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
 
     image_paths = []
 
-    for fig, image_path in zip(
-        [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()],
-        image_path_iterator,
-    ):
-        # image_path = "%s-%s" % (os.path.splitext(image_path)[0], ln)
-        # Set the fig_num figure as the current figure as we can't
-        # save a figure that's not the current figure.
-        to_rgba = matplotlib.colors.colorConverter.to_rgba
-        # shallow copy should be fine here, just want to avoid changing
-        # "kwargs" for subsequent figures processed by the loop
+    if ("fig" in cnt) or ("plt.show" in cnt):  # where figure or plt.show is called
+        for fig, image_path in zip(
+            [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()],
+            image_path_iterator,
+        ):
+            # image_path = "%s-%s" % (os.path.splitext(image_path)[0], ln)
+            # Set the fig_num figure as the current figure as we can't
+            # save a figure that's not the current figure.
+            to_rgba = matplotlib.colors.colorConverter.to_rgba
+            # shallow copy should be fine here, just want to avoid changing
+            # "kwargs" for subsequent figures processed by the loop
 
-        save_figure(
-            fig,
-            save_at=Path(image_path).parent,
-            name=Path(image_path).stem,
-            save_fmts=["png"],
-            **kwargs.copy()
-        )
-        image_paths.append(image_path)
+            save_figure(
+                fig,
+                save_at=Path(image_path).parent,
+                name=Path(image_path).stem,
+                save_fmts=["png"],
+                **kwargs.copy()
+            )
+            image_paths.append(image_path)
 
     return figure_rst(image_paths, gallery_conf["src_dir"])
 
