@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.axes
 import pyrolite.plot
 import pyrolite.data.Aitchison
+# sphinx_gallery_thumbnail_number = 3
 
 ########################################################################################
 # To start, let's load up an example dataset from Aitchison

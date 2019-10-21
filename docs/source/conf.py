@@ -244,11 +244,10 @@ sphinx_gallery_conf = {
         "repo": "pyrolite",
         "branch": "develop",  # Can be any branch, tag, or commit hash. Use a branch that hosts your docs.
         "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
-        "dependencies": ["../../binder/environment.yml"],
+        "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
         # Optional keys
         #'filepath_prefix': '<prefix>' # A prefix to prepend to any filepaths in Binder links.
-        #'notebooks_dir': '<notebooks-directory-name>' # Jupyter notebooks for Binder will be copied to this directory (relative to built documentation root).
-        #'use_jupyter_lab': <bool> # Whether Binder links should start Jupyter Lab instead of the Jupyter Notebook interface.
+        "notebooks_dir": "notebooks",
     },
     "first_notebook_cell": "%matplotlib inline\n",
 }
