@@ -1,7 +1,6 @@
 Lattice Strain Calculations
 ------------------------------
 
-
 .. note::
 
     This example follows that given during a Institute of Advanced Studies Masterclass

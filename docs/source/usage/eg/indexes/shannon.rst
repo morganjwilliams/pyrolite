@@ -1,8 +1,6 @@
 Shannon Radii
 =============
 
-.. note:: This page is currently incomplete and a work in progress.
-
 .. literalinclude:: ../../../../_examples/indexes/shannon.py
   :language: python
   :end-before: # %% End

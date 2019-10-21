@@ -11,7 +11,7 @@ from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.transform import lambda_lnREE
 from pyrolite.plot.spider import REE_v_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 1
 
 np.random.seed(82)
 ########################################################################################
