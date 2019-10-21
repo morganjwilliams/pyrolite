@@ -1,1 +1,1 @@
--e .[dev,skl]
+-e .[dev,stats]
