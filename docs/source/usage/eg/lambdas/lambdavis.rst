@@ -1,21 +1,21 @@
 Visualising Orthogonal Polynomials
 ==================================
 
-.. literalinclude:: ../../../../examples/lambdas/orthogonal_polynomials.py
+.. literalinclude:: ../../../../_examples/lambdas/orthogonal_polynomials.py
    :language: python
    :end-before: # %% Generate Some Example Data
 
-.. literalinclude:: ../../../../examples/lambdas/orthogonal_polynomials.py
+.. literalinclude:: ../../../../_examples/lambdas/orthogonal_polynomials.py
    :language: python
    :start-after: # %% Generate Some Example Data
    :end-before: # %% Reduce to Orthogonal Polynomials
 
-.. literalinclude:: ../../../../examples/lambdas/orthogonal_polynomials.py
+.. literalinclude:: ../../../../_examples/lambdas/orthogonal_polynomials.py
    :language: python
    :start-after: # %% Reduce to Orthogonal Polynomials
    :end-before: # %% Plot the Results
 
-.. literalinclude:: ../../../../examples/lambdas/orthogonal_polynomials.py
+.. literalinclude:: ../../../../_examples/lambdas/orthogonal_polynomials.py
   :language: python
   :start-after: # %% Plot the Results
   :end-before: # %% End

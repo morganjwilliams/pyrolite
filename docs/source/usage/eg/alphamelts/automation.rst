@@ -7,21 +7,21 @@ experiments at different conditions for a single MORB composition. Once we have 
 data in a :class:`~pandas.DataFrame`, we configure the default alphaMELTS environment
 before running the batch of experiments.
 
-.. literalinclude:: ../../../../examples/alphamelts/automation.py
+.. literalinclude:: ../../../../_examples/alphamelts/automation.py
   :language: python
   :end-before: # %% Data
 
-.. literalinclude:: ../../../../examples/alphamelts/automation.py
+.. literalinclude:: ../../../../_examples/alphamelts/automation.py
   :language: python
   :start-after: # %% Data
   :end-before: # %% Environment
 
-.. literalinclude:: ../../../../examples/alphamelts/automation.py
+.. literalinclude:: ../../../../_examples/alphamelts/automation.py
   :language: python
   :start-after: # %% Environment
   :end-before: # %% Batch
 
-.. literalinclude:: ../../../../examples/alphamelts/automation.py
+.. literalinclude:: ../../../../_examples/alphamelts/automation.py
   :language: python
   :start-after: # %% Batch
 

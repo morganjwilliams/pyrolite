@@ -5,11 +5,11 @@ Compositional Data?
           overview can be found here :mod:`pyrolite.comp.codata`.
 
 
-.. literalinclude:: ../../../../examples/comp/compositional_data.py
+.. literalinclude:: ../../../../_examples/comp/compositional_data.py
   :language: python
   :end-before: # %% Data
 
-.. literalinclude:: ../../../../examples/comp/compositional_data.py
+.. literalinclude:: ../../../../_examples/comp/compositional_data.py
   :language: python
   :start-after: # %% Data
   :end-before: # %% Simple Means and covariance
@@ -19,7 +19,7 @@ tend to use ratios to express differences or changes between things. However,
 if we make incorrect assumptions about the nature of our data, we can get some incorrect
 answers:
 
-.. literalinclude:: ../../../../examples/comp/compositional_data.py
+.. literalinclude:: ../../../../_examples/comp/compositional_data.py
   :language: python
   :start-after: # %% Simple Means and covariance
   :end-before: # %% Ratios of Poisson Data
@@ -34,7 +34,7 @@ but different forms, and note that the normal distribution has one immediate
 failure, in that it has non-zero probability density below 0, and we know that you can't
 have negative atoms!
 
-.. literalinclude:: ../../../../examples/comp/compositional_data.py
+.. literalinclude:: ../../../../_examples/comp/compositional_data.py
   :language: python
   :start-after: # %% Compositional data distributions
   :end-before: # %% Save Figure
@@ -53,7 +53,7 @@ distribution. If you measure two components, the probability density distributio
 ratio is well approximated by a lognormal distribution (note this doesn't consider
 inherent covariance):
 
-  .. literalinclude:: ../../../../examples/comp/compositional_data.py
+  .. literalinclude:: ../../../../_examples/comp/compositional_data.py
     :language: python
     :start-after: # %% Ratios of Poisson Data
     :end-before: # %% Save Figure
@@ -72,7 +72,7 @@ additive logratio :func:`~pyrolite.comp.codata.alr`, centred logratio
 :func:`~pyrolite.comp.codata.ilr`). In this case, the logratio-mean is implemented for
 you:
 
-.. literalinclude:: ../../../../examples/comp/compositional_data.py
+.. literalinclude:: ../../../../_examples/comp/compositional_data.py
   :language: python
   :start-after: # %% Higher Dimensional Visualisation of Mean
   :end-before: # %% Save Figure --

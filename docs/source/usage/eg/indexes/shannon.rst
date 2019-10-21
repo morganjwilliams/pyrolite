@@ -3,7 +3,7 @@ Shannon Radii
 
 .. note:: This page is currently incomplete and a work in progress.
 
-.. literalinclude:: ../../../../examples/indexes/shannon.py
+.. literalinclude:: ../../../../_examples/indexes/shannon.py
   :language: python
   :end-before: # %% End
 

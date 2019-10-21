@@ -15,11 +15,11 @@ summarised by 3-4 shape parameters).
 Here we generate some example data, reduce these to lambda values, and plot the
 resulting dimensionally reduced data.
 
-.. literalinclude:: ../../../../examples/lambdas/lambdas.py
+.. literalinclude:: ../../../../_examples/lambdas/lambdas.py
   :language: python
   :end-before: # %% Generate Some Example Data
 
-.. literalinclude:: ../../../../examples/lambdas/lambdas.py
+.. literalinclude:: ../../../../_examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Generate Some Example Data
   :end-before: # %% Plot Data
@@ -29,12 +29,12 @@ resulting dimensionally reduced data.
   :align: center
   :alt: Rare Earth Element spider plot of synthetic data showing variable Light REE enrichment.
 
-.. literalinclude:: ../../../../examples/lambdas/lambdas.py
+.. literalinclude:: ../../../../_examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Reduce to Orthogonal Polynomials
   :end-before: # %% Plot the Results
 
-.. literalinclude:: ../../../../examples/lambdas/lambdas.py
+.. literalinclude:: ../../../../_examples/lambdas/lambdas.py
   :language: python
   :start-after: # %% Plot the Results
   :end-before: # %% End

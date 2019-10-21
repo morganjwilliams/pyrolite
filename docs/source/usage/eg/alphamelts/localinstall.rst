@@ -5,7 +5,7 @@ pyrolite can download and manage its own version of alphaMELTS (without any real
 'installation', *per-se*), and use this for :mod:`~pyrolite.util.alphamelts.automation`
 purposes.
 
-.. literalinclude:: ../../../../examples/alphamelts/install.py
+.. literalinclude:: ../../../../_examples/alphamelts/install.py
   :language: python
 
 .. warning:: This 'local install' method still requires that you have Perl installed,

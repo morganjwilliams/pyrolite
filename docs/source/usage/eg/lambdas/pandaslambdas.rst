@@ -3,14 +3,14 @@ Pandas Lambdas from Ln(REE/Reference)
 
 .. note:: This page is currently incomplete and a work in progress.
 
-.. literalinclude:: ../../../../examples/lambdas/pandas_lnREE.py
+.. literalinclude:: ../../../../_examples/lambdas/pandas_lnREE.py
    :language: python
    :end-before: # %% Generate Some Example Data
 
 First we generate some example REE data, and plot this on a
 :func:`pyrolite.plot.REE_v_radii`:
 
-.. literalinclude:: ../../../../examples/lambdas/pandas_lnREE.py
+.. literalinclude:: ../../../../_examples/lambdas/pandas_lnREE.py
   :language: python
   :start-after: # %% Generate Some Example Data
   :end-before: # %% Plot Data
@@ -23,12 +23,12 @@ First we generate some example REE data, and plot this on a
 The reduction to lambdas using the pandas interface is much simpler than using the
 numpy-based utility functions (see :func:`pyrolite.util.math.lambdas`, `Dimensional Reduction <lambdadimreduction.html>`__):
 
-.. literalinclude:: ../../../../examples/lambdas/pandas_lnREE.py
+.. literalinclude:: ../../../../_examples/lambdas/pandas_lnREE.py
   :language: python
   :start-after: # %% Reduce to Orthogonal Polynomials
   :end-before: # %% Plot the Results
 
-.. literalinclude:: ../../../../examples/lambdas/pandas_lnREE.py
+.. literalinclude:: ../../../../_examples/lambdas/pandas_lnREE.py
   :language: python
   :start-after: # %% Plot the Results
   :end-before: # %% End

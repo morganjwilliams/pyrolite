@@ -9,14 +9,14 @@ A scatter plot where individual points are coloured by data density in some resp
 represents the best of both worlds. A version inspired by similar existing
 visualisations is implemented with :func:`~pyrolite.plot.pyroplot.heatscatter`.
 
-.. literalinclude:: ../../../../examples/plotting/heatscatter.py
+.. literalinclude:: ../../../../_examples/plotting/heatscatter.py
    :language: python
    :end-before: # %% Minimal Example
 
 We can compare a minimal :func:`~pyrolite.plot.pyroplot.heatscatter` plot to other
 visualisations for the same data:
 
-.. literalinclude:: ../../../../examples/plotting/heatscatter.py
+.. literalinclude:: ../../../../_examples/plotting/heatscatter.py
    :language: python
    :start-after: # %% Minimal Example
    :end-before: # %% Save Figure

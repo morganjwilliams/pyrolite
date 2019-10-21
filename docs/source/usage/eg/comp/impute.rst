@@ -5,11 +5,11 @@ pyrolite includes the :func:`~pyrolite.comp.impute.EMCOMP` compositional missing
 imputation algorithm of Palarea-Albaladejo and Martín-Fernández (2008).
 This algorithm imputes 'below-detection' data based on specified proportion thresholds:
 
-.. literalinclude:: ../../../../examples/comp/EMCOMP.py
+.. literalinclude:: ../../../../_examples/comp/EMCOMP.py
   :language: python
   :end-before: # %% Plot Data
 
-.. literalinclude:: ../../../../examples/comp/EMCOMP.py
+.. literalinclude:: ../../../../_examples/comp/EMCOMP.py
   :language: python
   :start-after: # %% Plot Data
   :end-before: # %% Save Figure

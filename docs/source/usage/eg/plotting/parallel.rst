@@ -5,16 +5,16 @@ Parallel coordinate plots are one way to visualise data relationships and cluste
 higher dimensional data. pyrolite now includes an implementation of this which allows
 a handy quick exploratory visualisation.
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
    :language: python
    :end-before: # %% Data
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
    :language: python
    :start-after: # %% Data
    :end-before: # %% Default
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
    :language: python
    :start-after: # %% Default
    :end-before: # %% save
@@ -27,7 +27,7 @@ a handy quick exploratory visualisation.
 By rescaling this using the mean and standard deviation, we can account for scale
 differences between variables:
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
   :language: python
   :start-after: # %% Default Rescale
   :end-before: # %% save
@@ -40,7 +40,7 @@ differences between variables:
 We can also use a centred-log transform for compositional data to reduce the effects
 of spurious correlation:
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
   :language: python
   :start-after: # %% CLR
   :end-before: # %% save
@@ -53,7 +53,7 @@ of spurious correlation:
 Further, we can also rescale this if there remain significant scale differences (e.g.
 majors and traces):
 
-.. literalinclude:: ../../../../examples/plotting/parallel.py
+.. literalinclude:: ../../../../_examples/plotting/parallel.py
   :language: python
   :start-after: # %% CLR Rescale
   :end-before: # %% save

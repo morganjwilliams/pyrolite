@@ -11,32 +11,32 @@ represent analytical uncertainty. Geological uncertainties are typically strongl
 correlated, and the uncertainties associated with e.g. variable mineral assemblages
 should be modelled differently.
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :end-before: # %% Data
 
 First we create a :class:`~pandas.DataFrame` with our composition, which we then 'blur':
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% Data
   :end-before: # %% replicate
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% replicate
   :end-before: # %% setup an environment
 
 Then we can configure an environment:
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% setup an environment
   :end-before: # %% compositional
 
 This represents a relatively small variation in composition:
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% compositional variation
   :end-before: # %% save figure
@@ -48,7 +48,7 @@ This represents a relatively small variation in composition:
 
 Now we can conduct a MELTS run for each of these compositions:
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% run the models
   :end-before: # %% aggregate the results
@@ -57,7 +57,7 @@ And finally, we can visualise the results, and start to understand uncertainties
 various parameters we extract from these models. Notably, even 'relatively small'
 variations in composition can manifest as significant uncertainties in outputs:
 
-.. literalinclude:: ../../../../examples/alphamelts/montecarlo.py
+.. literalinclude:: ../../../../_examples/alphamelts/montecarlo.py
   :language: python
   :start-after: # %% aggregate the results
   :end-before: # %% save figure

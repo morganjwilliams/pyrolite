@@ -8,7 +8,7 @@ show distribution of (homogeneous, or near so) compositional data for explorator
 analysis.
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :end-before: # %% colors
 
@@ -25,19 +25,19 @@ This synthetic dataset is added into a :class:`~pandas.DataFrame` for convenient
 to plotting functions via the pandas API defined in :class:`pyrolite.plot.pyroplot`.
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% colors
    :end-before: # %% data and transforms
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% data and transforms
    :end-before: # %% figure
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% figure
    :end-before: # %% scatter
@@ -46,7 +46,7 @@ to plotting functions via the pandas API defined in :class:`pyrolite.plot.pyropl
 First, let's look at the synthetic data itself in the ternary space:
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% scatter
    :end-before: # %% ellipses and vectors from PCA
@@ -62,7 +62,7 @@ We can take the mean and covariance in log-space to create covariance ellipses a
 vectors using principal component analysis:
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% ellipses and vectors from PCA
    :end-before: # %% individual density diagrams
@@ -78,7 +78,7 @@ We can also look at data density (here using kernel density estimation)
 in logratio-space:
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
   :language: python
   :start-after: # %% overall density diagram
   :end-before: # %% axes cleanup
@@ -93,7 +93,7 @@ in logratio-space:
 We can also do this for individual samples, and estimate percentile contours:
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
    :language: python
    :start-after: # %% individual density diagrams
    :end-before: # %% overall density diagram
@@ -108,7 +108,7 @@ We can also do this for individual samples, and estimate percentile contours:
 Typically, you'll want to do some axes clean-up, this is what's used for these figures:
 
 
-.. literalinclude:: ../../../../examples/plotting/logo.py
+.. literalinclude:: ../../../../_examples/plotting/logo.py
   :language: python
   :start-after: # %% axes cleanup
   :end-before: # %% Save Figure

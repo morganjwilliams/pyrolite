@@ -1,11 +1,11 @@
 REE Radii Plots
 ============================
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :end-before: # %% Minimal Example
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :start-after: # %% Minimal Example
    :end-before: # %% Save Figure
@@ -15,12 +15,12 @@ REE Radii Plots
    :align: center
    :alt: Minimal example of a Rare Earth Element spider plot index by radii.
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :start-after: # %% Generate Some Example Data
    :end-before: # %% Data Specified
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :start-after: # %% Data Specified
    :end-before: # %% Save Figure
@@ -30,7 +30,7 @@ REE Radii Plots
    :align: center
    :alt: Rare Earth Element spider plot generated using the dataframe pyroplot interface.
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :start-after: # %% Fill Plot
    :end-before: # %% Save Figure
@@ -40,7 +40,7 @@ REE Radii Plots
    :align: center
    :alt: A color-filled Rare Earth Element spider plot generated using the dataframe pyroplot interface.
 
-.. literalinclude:: ../../../../examples/plotting/REE_v_radii.py
+.. literalinclude:: ../../../../_examples/plotting/REE_v_radii.py
    :language: python
    :start-after: # %% Specify External Axis
    :end-before: # %% Save Figure

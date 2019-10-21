@@ -4,7 +4,7 @@ Conditional Density Spiderplots
 The spiderplot can be extended to provide visualisations of ranges and density via the
 various modes:
 
-.. literalinclude:: ../../../../examples/plotting/conditionalspider.py
+.. literalinclude:: ../../../../_examples/plotting/conditionalspider.py
    :language: python
    :end-before: # %% save figure
 

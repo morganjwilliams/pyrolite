@@ -7,5 +7,5 @@ This page is home to longer examples which incorporate multiple components of
 .. note:: This page is a work in progress. Feel free to request tutorials or examples
     with a feature request.
 
-.. include:: ../tutorials_gallery/index.rst
+.. include:: ../galleries/tutorials/index.rst
     :start-line: 2

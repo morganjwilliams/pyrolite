@@ -11,7 +11,7 @@ The basic functionality of this is demonstrated below (obtaining valid phases an
 for a specific model of MELTS, and performing a single computation). Here we use a
 dictionary to pass information to the service; this can be customised to your use case.
 
-.. literalinclude:: ../../../../examples/alphamelts/meltsweb.py
+.. literalinclude:: ../../../../_examples/alphamelts/meltsweb.py
   :language: python
   :end-before: # %% Oxides
 
@@ -19,7 +19,7 @@ To obtain a list of phases or oxides for a specific model of MELTS (defaulting t
 rhyolite-MELTS version 1.0.2, can be changed with a `modelSelection` parameter; see
 below), you can use the Phases and Oxides services:
 
-.. literalinclude:: ../../../../examples/alphamelts/meltsweb.py
+.. literalinclude:: ../../../../_examples/alphamelts/meltsweb.py
   :language: python
   :start-after: # %% Oxides
   :end-before: # %% Phases
@@ -29,7 +29,7 @@ below), you can use the Phases and Oxides services:
   ["SiO2", "TiO2", "Al2O3", "Fe2O3", "Cr2O3", "FeO", "MnO", "MgO", "NiO", "CoO", "CaO",
       "Na2O", "K2O", "P2O5", "H2O", "CO2",  "SO3", "Cl2O-1", "F2O-1"]
 
-.. literalinclude:: ../../../../examples/alphamelts/meltsweb.py
+.. literalinclude:: ../../../../_examples/alphamelts/meltsweb.py
   :language: python
   :start-after: # %% Phases
   :end-before: # %% Compute
@@ -47,7 +47,7 @@ The compute service is also simple to access, and can be customised to provide
 different versions of MELTS and different computation modes
 (:code:`"findLiquidus", "equilibrate", "findWetLiquidus"`).
 
-.. literalinclude:: ../../../../examples/alphamelts/meltsweb.py
+.. literalinclude:: ../../../../_examples/alphamelts/meltsweb.py
   :language: python
   :start-after: # %% Compute
 

@@ -1,11 +1,11 @@
 Spider Plots
 ==============
 
-.. literalinclude:: ../../../../examples/plotting/spider.py
+.. literalinclude:: ../../../../_examples/plotting/spider.py
    :language: python
    :end-before: # %% Minimal Example
 
-.. literalinclude:: ../../../../examples/plotting/spider.py
+.. literalinclude:: ../../../../_examples/plotting/spider.py
    :language: python
    :start-after: # %% Minimal Example
    :end-before: # %% Save Figure
@@ -15,7 +15,7 @@ Spider Plots
    :align: center
    :alt: Minimal example of a simple spider plot generated from synthetic data.
 
-.. literalinclude:: ../../../../examples/plotting/spider.py
+.. literalinclude:: ../../../../_examples/plotting/spider.py
    :language: python
    :start-after: # %% Fill Plot
    :end-before: # %% Save Figure
@@ -25,7 +25,7 @@ Spider Plots
    :align: center
    :alt: A colour-filled spider plot generated from synthetic data.
 
-.. literalinclude:: ../../../../examples/plotting/spider.py
+.. literalinclude:: ../../../../_examples/plotting/spider.py
    :language: python
    :start-after: # %% Specify External Axis
    :end-before: # %% Save Figure
@@ -35,7 +35,7 @@ Spider Plots
    :align: center
    :alt: Two spider plots placed on separate axes by specifying a pre-existing axis; the second is colour-filled.
 
-.. literalinclude:: ../../../../examples/plotting/spider.py
+.. literalinclude:: ../../../../_examples/plotting/spider.py
    :language: python
    :start-after: # %% Normalised Data
    :end-before: # %% Save Figure

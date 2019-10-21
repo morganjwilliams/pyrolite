@@ -1,5 +1,4 @@
 cd ./docs/
 make html
 mkdir notebooks
-cp ./source/examples_gallery/*.ipynb ./notebooks/
-cp ./source/tutorials_gallery/*.ipynb ./notebooks/
+cp ./source/galleries/*/*.ipynb ./notebooks/

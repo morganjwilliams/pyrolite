@@ -25,7 +25,7 @@ Earth Elements). The final section of the example highlights the mechanism which
 generates plagioclase's hallmark 'europium anomaly', and the effects of variable
 europium oxidation state on bulk europium partitioning.
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
    :language: python
    :end-before: # %% config
 
@@ -34,7 +34,7 @@ moduli for the :math:`X^{2+}` and :math:`X^{3+}` sites in plagioclase (:math:`E_
 :math:`E_3`), and some reference partition coefficients and radii for calcium and
 sodium:
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
    :language: python
    :start-after: # %% config
    :end-before: # %% 2+ cations
@@ -42,7 +42,7 @@ sodium:
 We can calculate and plot the partitioning of :math:`X^{2+}` cations relative to
 :math:`Ca^{2+}` at a given temperature using their radii and the lattice strain function:
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
    :language: python
    :start-after: # %% 2+ cations
    :end-before: # %% Calculate D(La)
@@ -53,14 +53,14 @@ Rare Earth Elements, although you may have noticed it is not defined above.
 Through a handy relationship, we can estimate :math:`D_{La}`
 based on the easier measured :math:`D_{Ca}`, :math:`D_{Na}` and temperature [#ref_2]_:
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
   :language: python
   :start-after: # %% Calculate D(La)
   :end-before: # %% 3+ cations
 
 Now :math:`D_{La}` is defined, we can use it as a reference for the other REE:
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
   :language: python
   :start-after: # %% 3+ cations
   :end-before: # %% Effective europium anomaly
@@ -71,7 +71,7 @@ between that of :math:`D_{Eu^{2+}}`and :math:`D_{Eu^{3+}}`. Using a 60:40 mixtur
 of :math:`Eu^{3+}` : :math:`Eu^{2+}` as an example, this effective partition
 coefficient can be calculated:
 
-.. literalinclude:: ../../../../examples/mineral/lattice.py
+.. literalinclude:: ../../../../_examples/mineral/lattice.py
   :language: python
   :start-after: # %% Effective europium anomaly
   :end-before: # %% save figure
