@@ -19,7 +19,7 @@ chondrite = get_reference_composition("Chondrite_PON")
 # :func:`pyrolite.geochem.norm.Composition.set_units`:
 #
 CI = chondrite.set_units("ppm")
-# ########################################################################################
+#########################################################################################
 # The :func:`~pyrolite.geochem.pyrochem.normalize_to` method can be used to
 # normalise DataFrames to a given reference (e.g. for spiderplots):
 #

@@ -246,8 +246,8 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
         "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
         # Optional keys
-        "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
-        "notebooks_dir": "notebooks",
+        #"filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
+        "notebooks_dir": "docs/source/",
     },
     "first_notebook_cell": "%matplotlib inline\n",
 }
