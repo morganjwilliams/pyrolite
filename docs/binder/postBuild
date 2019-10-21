@@ -1,0 +1,2 @@
+mkdir /notebooks/
+cp source/gallery/*.ipynb /notebooks/
