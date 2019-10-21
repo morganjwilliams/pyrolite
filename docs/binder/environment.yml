@@ -11,7 +11,4 @@ dependencies:
   - scipy>=1.2
   - pandas>=0.23
   - pip:
-      - pyrolite[dev,skl]
-
-script:
-  - make html
+      - -e .[dev,skl]
