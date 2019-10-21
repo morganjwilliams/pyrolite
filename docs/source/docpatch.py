@@ -11,6 +11,13 @@ import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
 from pyrolite.util.plot import save_figure
 
+gen_rst.SINGLE_IMAGE = """
+.. image:: /%s
+    :class: sphx-glr-single-img
+    :width: 80 %
+    :align: center
+"""
+
 
 def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
     """Patched matplotlib scraper which won't close figures.
@@ -39,19 +46,11 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
     image_path_iterator = block_vars["image_path_iterator"]
 
     image_paths = []
-
-    if ("fig" in cnt) or ("plt.show" in cnt):  # where figure or plt.show is called
-        for fig, image_path in zip(
-            [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()],
-            image_path_iterator,
-        ):
-            # image_path = "%s-%s" % (os.path.splitext(image_path)[0], ln)
-            # Set the fig_num figure as the current figure as we can't
-            # save a figure that's not the current figure.
+    figs = [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()]
+    fltr = ["fig", "ax", "figure", "axes", "plt.show", "plt.gcf", "plt.gca"]
+    if figs and any([i in cnt for i in fltr]):  # where figure or plt.show is called
+        for fig, image_path in zip([figs[-1]], image_path_iterator):
             to_rgba = matplotlib.colors.colorConverter.to_rgba
-            # shallow copy should be fine here, just want to avoid changing
-            # "kwargs" for subsequent figures processed by the loop
-
             save_figure(
                 fig,
                 save_at=Path(image_path).parent,
@@ -161,6 +160,7 @@ def _save_rst_example(
     # in case it wasn't in our pattern, only replace the file if it's
     # still stale.
     gen_rst._replace_md5(write_file_new)
+    plt.close("all")
 
 
 scrapers._scraper_dict = dict(

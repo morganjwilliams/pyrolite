@@ -224,8 +224,14 @@ intersphinx_mapping = {
 
 # sphinx_gallery config
 sphinx_gallery_conf = {
-    "examples_dirs": "../examples/_auto/",  # path to your example scripts
-    "gallery_dirs": "gallery",  # path to where to save gallery generated output
+    "examples_dirs": [
+        "../examples/_auto/",
+        "../tutorials/_auto/",
+    ],  # path to your example scripts
+    "gallery_dirs": [
+        "examples_gallery",
+        "tutorials_gallery",
+    ],  # path to where to save gallery generated output
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
     "remove_config_comments": True,

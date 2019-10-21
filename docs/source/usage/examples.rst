@@ -82,4 +82,5 @@ Utilities
   eg/util/*/*
 
 
-.. include:: ../gallery/index.rst
+.. include:: ../examples_gallery/index.rst
+    :start-line: 2
