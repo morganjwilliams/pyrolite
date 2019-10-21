@@ -32,7 +32,13 @@ from pyrolite.util.plot import (
     ternary_patch,
 )
 
+# sphinx_gallery_thumbnail_number = 6
 np.random.seed(82)
+
+# ignore sphinx_gallery warnings
+import warnings
+
+warnings.filterwarnings("ignore", "Matplotlib is currently using agg")
 #######################################################################################
 # First we choose some colors, create some log-distributed synthetic data. Here I've
 # generated a synthetic dataset with four samples having means equidistant from the
@@ -147,4 +153,3 @@ for a in ax:
     a.get_yaxis().set_ticks([])
     a.set_aspect("equal")
     a.patch.set_visible(False)
-plt.tight_layout()

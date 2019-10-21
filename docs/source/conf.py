@@ -228,6 +228,7 @@ sphinx_gallery_conf = {
     "gallery_dirs": "gallery",  # path to where to save gallery generated output
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
+    "remove_config_comments": True,
     "download_all_examples": False,
     "reference_url": {"pyrolite": None},
     "image_scrapers": ("altmatplot"),
