@@ -17,7 +17,7 @@ rn = get_reference_composition("EMORB_SM89")  # emorb composition as a starting 
 rn.set_units("ppm")
 data = rn.comp[REE(dropPm=True)]
 ########################################################################################
-nindex, nobs = data.size, 200
+nindex, nobs = data.size, 120
 ss = [0.1, 0.2, 0.5]  # sigmas for noise
 
 modes = [
@@ -30,8 +30,6 @@ modes = [
         [],
         dict(contours=[0.95], resolution=10),  # 95th percentile contour
     ),
-    ("ckde", "ckde", [], dict(resolution=5)),
-    ("kde", "kde", [], dict(resolution=5)),
     ("histogram", "histogram", [], dict(resolution=5, ybins=30)),
 ]
 ########################################################################################
