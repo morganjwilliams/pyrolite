@@ -11,12 +11,12 @@ import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
 from pyrolite.util.plot import save_figure
 
-gen_rst.SINGLE_IMAGE = """
+_si = """
 .. image:: /%s
-    :class: sphx-glr-single-img
     :width: 80 %
     :align: center
 """
+gen_rst.SINGLE_IMAGE = _si
 
 
 def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):

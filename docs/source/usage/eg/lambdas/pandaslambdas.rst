@@ -1,8 +1,6 @@
 Pandas Lambdas from Ln(REE/Reference)
 ======================================
 
-.. note:: This page is currently incomplete and a work in progress.
-
 .. literalinclude:: ../../../../_examples/lambdas/pandas_lnREE.py
    :language: python
    :end-before: # %% Generate Some Example Data
