@@ -16,6 +16,7 @@ dev_require = [
 
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
+stats_require = ["statsmodels", "scikit-learn"]
 impute_require = ["fancyimpute"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
@@ -72,6 +73,7 @@ setup(
         "skl": skl_require,
         "spatial": spatial_require,
         "db": db_require,
+        "stats": stats_require,
     },
     tests_require=tests_require,
     test_suite="test",
