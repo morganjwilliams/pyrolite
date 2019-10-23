@@ -49,7 +49,8 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return list(set(self._obj.columns) & __common_elements__)
+        fltr = self._obj.columns.isin(__common_elements__)
+        return self._obj.columns[fltr].tolist()
 
     @property
     def list_REE(self):
@@ -79,7 +80,8 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return list(set(self._obj.columns) & __common_oxides__)
+        fltr = self._obj.columns.isin(__common_oxides__)
+        return self._obj.columns[fltr].tolist()
 
     @property
     def list_compositional(self):
@@ -527,6 +529,7 @@ class pyrochem(object):
             norm_abund = np.array(norm)
             assert len(norm_abund) == len(self.list_compositional)
 
+        # this list should have the same ordering as the input dataframe
         return self._obj[self.list_compositional].div(norm_abund)
 
     def denormalize_from(self, norm=None, units=None):
