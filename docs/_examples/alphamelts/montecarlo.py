@@ -26,10 +26,11 @@ def blur_compositions(df, noise=0.05, scale=100):
 from pyrolite.geochem.norm import get_reference_composition
 
 # get the major element composition of MORB from Gale et al (2013)
-Gale_MORB = get_reference_composition(["MORB_Gale2013"])
-MORB = Gale_MORB.comp[majors].reset_index(drop=True)
+Gale_MORB = get_reference_composition("MORB_Gale2013")
 
-MORB["Title"] = Gale_MORB.ModelName
+MORB = Gale_MORB.comp.pyrochem.oxides.reset_index(drop=True)
+
+MORB["Title"] = Gale_MORB.name
 MORB["Initial Temperature"] = 1300
 MORB["Final Temperature"] = 800
 MORB["Initial Pressure"] = 5000
@@ -41,12 +42,13 @@ MORB["Increment Pressure"] = 0
 from pyrolite.util.text import slugify
 from pyrolite.util.pd import accumulate
 
-reps = 5
-df = accumulate([pd.DataFrame(MORB).T] * reps)
+reps = 25
+df = accumulate([MORB] * reps)
 df = df.reset_index().drop(columns="index")
-compositional = df.pyrochem.oxides
-df[compositional] = df[compositional].astype(float).renormalise()
-df[compositional] = blur_compositions(df[compositional])
+df[df.pyrochem.list_oxides] = (
+    df.loc[:, df.pyrochem.list_oxides].astype(float).pyrocomp.renormalise()
+)
+df[df.pyrochem.list_oxides] = blur_compositions(df[df.pyrochem.list_oxides])
 
 df.Title = df.Title + " " + df.index.map(str)  # differentiate titles
 df.Title = df.Title.apply(slugify)
