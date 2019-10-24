@@ -64,6 +64,19 @@ __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 
+def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
+    """
+    Create a scalar mappable object from an array of values.
+
+    Returns
+    -----------
+    :class:`matplotlib.cm.ScalarMappable`
+    """
+    sm = plt.cm.ScalarMappable(cmap=cmap)
+    sm.set_array(values)
+    return sm
+
+
 def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     """
     Cycle through a set of markers.

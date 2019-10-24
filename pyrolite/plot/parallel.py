@@ -1,8 +1,10 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors
 from pandas.plotting import parallel_coordinates
 from ..util.meta import subkwargs
+from ..util.plot import __DEFAULT_CONT_COLORMAP__
 
 
 def parallel(
@@ -12,9 +14,11 @@ def parallel(
     rescale=True,
     color_by=None,
     legend=False,
-    cmap=plt.cm.viridis,
+    cmap=__DEFAULT_CONT_COLORMAP__,
     ax=None,
-    **kwargs
+    alpha=1.0,
+    label_rotate=60,
+    **kwargs,
 ):
     """
     Create a parallel coordinate plot across dataframe columns, with
@@ -36,6 +40,8 @@ def parallel(
         Colormap to use for :code:`color_by`.
     ax : :class:`matplotlib.axes.Axes`
         Axis to plot on (optional).
+    alpha : :class:`float`
+        Coefficient for the alpha channel for the colors, if color_by is specified.
 
     Todo
     ------
@@ -54,20 +60,22 @@ def parallel(
     if columns is None:
         columns = samples.columns.tolist()
 
+    color = None
     if color_by is not None:
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
 
-        if isinstance(color_by, str):  # column name
+        if isinstance(color_by, str) and (color_by in columns):  # column name
             cvals = samples[color_by].values
-        elif isinstance(color_by, (list, np.ndarray)):  # numeric values.
+        elif isinstance(color_by, (list, np.ndarray, pd.Series)):  # numeric values.
             cvals = np.array(color_by)
         else:
             raise NotImplementedError(
                 "'color_by' must be a column name or 1D array of values."
             )
         norm = matplotlib.colors.Normalize(vmin=np.nanmin(cvals), vmax=np.nanmax(cvals))
-        kwargs["color"] = cmap(norm(cvals))
+        color = cmap(norm(cvals))
+        color[:, -1] *= alpha
 
     non_target = [i for i in columns if i != target]
     if rescale:
@@ -78,11 +86,15 @@ def parallel(
         samples.loc[:, [target] + non_target],
         target,
         ax=ax,
-        **subkwargs(kwargs, parallel_coordinates)
+        color=color,
+        **subkwargs(kwargs, parallel_coordinates),
     )
     ax.spines["bottom"].set_color("none")
     ax.spines["top"].set_color("none")
     if not legend:
         ax.get_legend().remove()
+
+    if label_rotate is not None:
+        [i.set_rotation(label_rotate) for i in ax.get_xticklabels()]
 
     return ax
