@@ -18,7 +18,7 @@ def parallel(
     ax=None,
     alpha=1.0,
     label_rotate=60,
-    **kwargs,
+    **kwargs
 ):
     """
     Create a parallel coordinate plot across dataframe columns, with
