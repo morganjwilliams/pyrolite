@@ -170,8 +170,8 @@ def spider(
         ax.axhline(1.0, ls="--", c="k", lw=0.5)
 
     if "fill" in mode.lower():
-        mins = arr.nanmin(axis=0)
-        maxs = arr.nanmax(axis=0)
+        mins = np.nanmin(arr, axis=0)
+        maxs = np.nanmax(arr, axis=0)
         plycol = ax.fill_between(
             indexes0,
             mins,

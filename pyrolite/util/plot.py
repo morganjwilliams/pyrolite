@@ -744,7 +744,7 @@ def conditional_prob_density(
     xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
 
     if mode == "ckde":
-        fltr = np.isfinite(y.flatten())
+        fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
         x, y = x.flatten()[fltr], y.flatten()[fltr]
         if HAVE_SM:
             dens_c = sm.nonparametric.KDEMultivariateConditional(
@@ -755,8 +755,8 @@ def conditional_prob_density(
         # statsmodels pdf takes values in reverse order
         zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
-        fltr = np.isfinite(y.flatten())
         xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
+        fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
         x, y = x.flatten()[fltr], y.flatten()[fltr]
         try:
             kde = gaussian_kde(np.vstack([x, y]))
