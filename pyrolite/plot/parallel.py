@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors
 from pandas.plotting import parallel_coordinates
+from ..util.meta import subkwargs
 
 
 def parallel(
@@ -45,9 +46,9 @@ def parallel(
     """
     samples = df.copy()
     if ax is None:
-        fig, ax = plt.subplots(1)
+        fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
 
-    target = samples.index.name or 'index'
+    target = samples.index.name or "index"
     samples = samples.reset_index()  # to access the index to use as a 'class'
 
     if columns is None:
@@ -73,7 +74,12 @@ def parallel(
         samples[non_target] = samples.loc[:, non_target].apply(
             lambda x: (x - x.mean()) / x.std()
         )
-    ax = parallel_coordinates(samples.loc[:, [target] + non_target], target, **kwargs)
+    parallel_coordinates(
+        samples.loc[:, [target] + non_target],
+        target,
+        ax=ax,
+        **subkwargs(kwargs, parallel_coordinates)
+    )
     ax.spines["bottom"].set_color("none")
     ax.spines["top"].set_color("none")
     if not legend:
