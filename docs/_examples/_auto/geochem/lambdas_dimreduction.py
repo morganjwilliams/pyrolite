@@ -60,6 +60,7 @@ ax = REE_v_radii(
     markerfacecolor="k",
     index="elements",
 )
+plt.show()
 ########################################################################################
 # From this data we can calculate and plot the lambda values:
 #
@@ -77,7 +78,7 @@ ls = np.apply_along_axis(
     lambda x: lambdas(x, subset_radii, params=params, degree=4), 1, np.log(subset_Y)
 )
 
-#--------------------------------------------------------------------------------------
+########################################################################################
 
 fig, ax = plt.subplots(1, lambda_degree - 1, figsize=(9, 3))
 ax_labels = [chr(955) + "$_{}$".format(str(d)) for d in range(lambda_degree)]
@@ -88,7 +89,7 @@ for ix in range(lambda_degree - 1):
     ax[ix].set_ylabel(ax_labels[ix + 1])
 
 plt.tight_layout()
-fig.suptitle("Lambdas for Dimensional Reduction", y=1.05)
+fig.suptitle("lambdas for Dimensional Reduction", y=1.05)
 ########################################################################################
 # For more on using orthogonal polynomials to describe geochemical pattern data, see:
 # O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth

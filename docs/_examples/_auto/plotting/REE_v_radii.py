@@ -20,7 +20,7 @@ ree = REE()
 xs = get_ionic_radii(ree, coordination=8, charge=3)
 ys = np.linspace(1, 20, len(xs))
 ax.plot(xs, ys, marker='D', color='k')
-
+plt.show()
 ########################################################################################
 # Here we generate some example data:
 #
@@ -60,13 +60,14 @@ ax = REE_v_radii(df1.values, ree=data_ree)
 
 # or, alternatively directly from the dataframe:
 ax = df1.pyroplot.REE()
+plt.show()
 ########################################################################################
 # This behaviour can be modified (see spiderplot docs) to provide filled ranges:
 #
 ax = REE_v_radii(df1.values, ree=data_ree, mode='fill')
 # or, alternatively directly from the dataframe:
 ax = df1.pyroplot.REE(mode='fill')
-
+plt.show()
 ########################################################################################
 # The plotting axis can be specified to use exisiting axes:
 fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
@@ -75,6 +76,7 @@ df1.pyroplot.REE(ax=ax[0])
 # we can also change the index of the second figure
 ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='radii')
 plt.tight_layout()
+plt.show()
 ########################################################################################
 # .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
 #              `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,

@@ -59,7 +59,7 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    'sphinx.ext.autosummary',
+    "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
@@ -225,15 +225,26 @@ intersphinx_mapping = {
 }
 
 # sphinx_gallery config
+from sphinx_gallery.sorting import ExplicitOrder
+
 sphinx_gallery_conf = {
     "examples_dirs": [
         "../_examples/_auto/",
         "../_tutorials/_auto/",
     ],  # path to your example scripts
+    "subsection_order": ExplicitOrder(
+        [
+            "../_examples/_auto/plotting",
+            "../_examples/_auto/geochem",
+            "../_examples/_auto/comp",
+            "../_tutorials/_auto",
+        ]
+    ),
     "gallery_dirs": [
         "galleries/examples",
         "galleries/tutorials",
     ],  # path to where to save gallery generated output
+    "capture_repr": ("_repr_html_", "__repr__", "__str__"),
     "backreferences_dir": "galleries/backreferences",
     "doc_module": ("pyrolite"),
     "filename_pattern": r"\.py",

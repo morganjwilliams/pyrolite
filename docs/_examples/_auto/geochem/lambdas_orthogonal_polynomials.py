@@ -3,6 +3,7 @@ lambdas: Visualising Orthogonal Polynomials
 ============================================
 """
 import numpy as np
+import matplotlib.pyplot as plt
 from pyrolite.plot.spider import REE_v_radii
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
@@ -73,6 +74,7 @@ REE_v_radii(
 plot_orthagonal_polynomial_components(ax, continuous_radii, ls, params, log=True)
 ax.plot(continuous_radii, smooth_profile, label="Reconstructed\nProfile", c="k", lw=2)
 ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
+plt.show()
 ########################################################################################
 # For more on using orthogonal polynomials to describe geochemical pattern data, see:
 # O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth

@@ -25,6 +25,7 @@ df.loc[:, ["SiO2", "MgO", "CaO"]]
 ax = ternary(df.loc[:, ["SiO2", "MgO", "CaO"]].values, color="k")
 # or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO", "CaO"]].pyroplot.ternary(color="k")
+plt.show()
 ########################################################################################
 # The plotting axis can be specified to use exisiting axes:
 #

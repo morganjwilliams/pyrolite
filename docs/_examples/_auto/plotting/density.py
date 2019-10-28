@@ -34,11 +34,13 @@ ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=
 # or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
 df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax, s=10, alpha=0.3, c="k", zorder=2)
+plt.show()
 ########################################################################################
 # A colorbar linked to the KDE estimate colormap can be added using the `colorbar`
 # boolean switch:
 #
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density(colorbar=True)
+plt.show()
 ########################################################################################
 # `density` by default will create a new axis, but can also be plotted over an
 # existing axis for more control:
@@ -48,11 +50,13 @@ df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[0])
 df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax[1])
 
 plt.tight_layout()
+plt.show()
 ########################################################################################
 # Contours are also easily created, which by default are percentile values:
 #
 ax = df.loc[:, ["SiO2", "CaO"]].pyroplot.scatter(s=10, alpha=0.3, c="k", zorder=2)
 df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax, contours=[0.95, 0.66, 0.33])
+plt.show()
 ########################################################################################
 # Geochemical data is commonly log-normally distributed and is best analysed
 # and visualised after log-transformation. The density estimation can be conducted
@@ -108,6 +112,7 @@ for a, (ls, grid, scale) in zip(ax, params):
     if scale in ["logscale", "semilogy"]:
         a.set_yscale("log")
 plt.tight_layout()
+plt.show()
 ########################################################################################
 # There are two other implemented modes beyond the default `density`: `hist2d` and
 # `hexbin`, which parallel their equivalents in matplotlib.
@@ -117,6 +122,7 @@ fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(14, 5))
 for a, mode in zip(ax, ["density", "hexbin", "hist2d"]):
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, mode=mode)
     a.set_title("Mode: {}".format(mode))
+plt.show()
 ########################################################################################
 # For the ``density`` mode, a ``vmin`` parameter is used to choose the lower
 # threshold, and by default is the 99th percentile (``vmin=0.01``), but can be
@@ -127,6 +133,7 @@ fig, ax = plt.subplots(1, 3, figsize=(14, 4))
 for a, vmin in zip(ax, [0.01, 0.1, 0.4]):
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, bins=30, vmin=vmin, colorbar=True)
 plt.tight_layout()
+plt.show()
 ########################################################################################
 # Density plots can also be used for ternary diagrams, where more than two components
 # are specified:
@@ -136,6 +143,7 @@ df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color="
 for a, mode in zip(ax[1:], ["hist", "density"]):
     df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
     a.set_title("Mode: {}".format(mode))
+plt.show()
 ########################################################################################
 # .. note:: Using alpha with the ``density`` mode induces a known and old matplotlib bug,
 #           where the edges of bins within a ``pcolormesh`` image (used for plotting the

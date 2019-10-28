@@ -18,10 +18,12 @@ df = pd.DataFrame(data=ys, columns=els)
 
 ax = df.loc[0, :].pyroplot.spider(color="k")
 ax.set_ylabel("Abundance")
+plt.show()
 ########################################################################################
 # This behaviour can be modified (see spider docs) to provide filled ranges:
 ax = df.pyroplot.spider(mode="fill", color="k", alpha=0.5)
 ax.set_ylabel("Abundance")
+plt.show()
 ########################################################################################
 # The plotting axis can be specified to use exisiting axes:
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
@@ -42,6 +44,7 @@ ax = spider(normdf.values, color="k")
 ax = normdf.pyroplot.spider(color="k")
 
 ax.set_ylabel("Abundance / Chondrite")
+plt.show()
 ########################################################################################
 # .. seealso:: `Spider Density Diagrams <conditionaldensity.html>`__,
 #              `Normalisation <../geochem/normalization.html>`__,

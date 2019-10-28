@@ -1,6 +1,6 @@
 """
-lambdas : Pandas Lambdas from ln(REE/Reference)
-=================================================
+lambdas: pyrochem
+===================
 """
 import numpy as np
 import pandas as pd

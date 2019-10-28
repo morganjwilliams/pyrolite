@@ -72,6 +72,7 @@ for l, r, d in zip(site2labels, site2radii, site2Ds):
     ax.annotate(
         l, xy=(r, d), xycoords="data", ha="left", va="bottom", fontsize=fontsize
     )
+fig
 ########################################################################################
 # When it comes to estimating the partitioning of :math:`X^{3+}` cations, we'll need a reference
 # point - here we'll use :math:`D_{La}` to calculate relative partitioning of the other
@@ -103,6 +104,7 @@ for l, r, d in zip(site3labels, site3radii, site3Ds):
 ax.set_yscale("log")
 ax.set_ylabel("$D_X$")
 ax.set_xlabel("Radii ($\AA$)")
+fig
 ########################################################################################
 # As europium is commonly present as a mixture of both :math:`Eu^{2+}`
 # and :math:`Eu^{3+}`, the effective partitioning of Eu will be intermediate
@@ -130,6 +132,7 @@ ax.plot(
     radii, ds, ls="--", color="0.9", marker="D", label="Effective $D_{Eu}$", zorder=-1
 )
 ax.legend(loc="upper left", bbox_to_anchor=(1.05, 1), frameon=False, facecolor=None)
+fig
 ########################################################################################
 # .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
 #              from elastic moduli. Nature 372, 452. https://doi.org/10.1038/372452A0
