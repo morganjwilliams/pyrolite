@@ -59,6 +59,7 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    'sphinx.ext.autosummary',
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
@@ -70,6 +71,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",  # sphinx gallery
 ]
 
+autosummary_generate = True
 
 napoleon_google_docstring = False
 napoleon_use_param = False
@@ -232,6 +234,8 @@ sphinx_gallery_conf = {
         "galleries/examples",
         "galleries/tutorials",
     ],  # path to where to save gallery generated output
+    "backreferences_dir": "galleries/backreferences",
+    "doc_module": ("pyrolite"),
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
     "remove_config_comments": True,
@@ -246,7 +250,7 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
         "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
         # Optional keys
-        #"filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
+        # "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
         "notebooks_dir": "docs/source/",
     },
     "first_notebook_cell": "%matplotlib inline\n",
