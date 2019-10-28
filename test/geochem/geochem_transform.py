@@ -356,7 +356,7 @@ class TestAggregateElement(unittest.TestCase):
         # Check no additional features
 
 
-class TestAddRatio(unittest.TestCase):
+class TestGetRatio(unittest.TestCase):
     """Tests the ratio addition."""
 
     def setUp(self):
@@ -366,14 +366,14 @@ class TestAddRatio(unittest.TestCase):
         """Check the ratio addition copes with no records."""
         df = self.df.head(0).copy()
         ratio = "CaO/Si"
-        outdf = add_ratio(df, ratio=ratio)
-        self.assertTrue(ratio in outdf.columns)
+        r =  get_ratio(df, ratio=ratio)
+        self.assertTrue(r.name == ratio)
 
     def test_one(self):
         """Check the ratio addition for one record."""
         df = self.df.head(1).copy()
         ratio = "CaO/Si"
-        outdf = add_ratio(df, ratio=ratio)
+        r = get_ratio(df, ratio=ratio)
 
     @unittest.expectedFailure
     def test_invalid_ratios(self):
@@ -385,13 +385,13 @@ class TestAddRatio(unittest.TestCase):
             "Mg/Si/MgO",  # multiple delimiters
         ]:
             with self.subTest(ratio=ratio):
-                outdf = add_ratio(df, ratio=ratio)
+                r = get_ratio(df, ratio=ratio)
 
     def test_norm_n(self):
         """Check that norm indicator _n can be used."""
         df = self.df.copy()
         ratio = "Li/B_n"
-        outdf = add_ratio(df, ratio=ratio)
+        r = get_ratio(df, ratio=ratio)
 
     def test_norm_n_normto(self):
         """Check that norm indicator _n can be used with a specific norm."""
@@ -404,19 +404,15 @@ class TestAddRatio(unittest.TestCase):
             (1.0, 2.0),
         ]:
             with self.subTest(norm_to=norm_to):
-                outdf = add_ratio(df, ratio=ratio, norm_to=norm_to)
+                r = get_ratio(df, ratio=ratio, norm_to=norm_to)
 
     def test_alias(self):
         """Check that aliases can be used."""
         df = self.df.copy()
         ratio = "Li/B"
         alias = "LithBoroRatio"
-        outdf = add_ratio(df, ratio=ratio, alias=alias)
-        self.assertTrue(alias in outdf.columns)
-
-    def test_convert(self):
-        """Check that lambda conversion works."""
-        pass
+        r = get_ratio(df, ratio=ratio, alias=alias)
+        self.assertTrue(r.name == alias)
 
 
 class TestAddMgNo(unittest.TestCase):

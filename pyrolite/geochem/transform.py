@@ -392,11 +392,11 @@ def recalculate_Fe(
     )
 
 
-def add_ratio(
+def get_ratio(
     df: pd.DataFrame, ratio: str, alias: str = None, norm_to=None, molecular=False
 ):
     """
-    Add a ratio of components A and B, given in the form of string 'A/B'.
+    Get a ratio of components A and B, given in the form of string 'A/B'.
     Returned series be assigned an alias name.
 
     Parameters
@@ -457,8 +457,8 @@ def add_ratio(
     )
     ratio = numsum / densum
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
-    df[name] = ratio
-    return df
+    ratio.name = name
+    return ratio
 
 
 def add_MgNo(
@@ -491,7 +491,7 @@ def add_MgNo(
 
     See Also
     --------
-    :func:`~pyrolite.geochem.transform.add_ratio`
+    :func:`~pyrolite.geochem.transform.get_ratio`
     """
     logger.debug("Adding Mg#")
     mg = elemental_sum(df, "Mg", molecular=molecular)
@@ -726,8 +726,8 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=Fa
     if new_ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(new_ratios)))
         for r in new_ratios:
-            df = add_ratio(df, r, molecular=molecular)
-            # df = add_ratio(df, r)
+            r = get_ratio(df, r, molecular=molecular)
+            df[r.name] = r
 
     # Last Minute Checks ---------------------------------------------------------------
     remaining = [i for i in get_comp if i not in df.columns]
