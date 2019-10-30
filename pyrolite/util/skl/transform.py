@@ -326,26 +326,6 @@ class Devolatilizer(BaseEstimator, TransformerMixin):
         return devolatilise(X, exclude=exclude, renorm=self.renorm)
 
 
-class RedoxAggregator(BaseEstimator, TransformerMixin):
-    def __init__(self, to_oxidised=False, renorm=True, total_suffix="T"):
-        self.to_oxidised = to_oxidised
-        self.renorm = renorm
-        self.total_suffix = total_suffix
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        assert isinstance(X, pd.DataFrame)
-        if self.to_oxidised:
-            Fe_form = "Fe2O3T"
-        else:
-            Fe_form = "FeOT"
-        return recalculate_Fe(
-            X, to=Fe_form, renorm=self.renorm, total_suffix=self.total_suffix
-        )
-
-
 class ElementAggregator(BaseEstimator, TransformerMixin):
     def __init__(self, renorm=True, form="oxide"):
         self.renorm = renorm

@@ -211,7 +211,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     """
     Update the reference composition database.
 
-    Note
+    Notes
     ------
     This will take all csv files from the geochem/refcomp pyrolite data folder
     and construct a document-based JSON database.

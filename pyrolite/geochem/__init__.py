@@ -49,7 +49,8 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return list(set(self._obj.columns) & __common_elements__)
+        fltr = self._obj.columns.isin(__common_elements__)
+        return self._obj.columns[fltr].tolist()
 
     @property
     def list_REE(self):
@@ -79,11 +80,12 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        return list(set(self._obj.columns) & __common_oxides__)
+        fltr = self._obj.columns.isin(__common_oxides__)
+        return self._obj.columns[fltr].tolist()
 
     @property
     def list_compositional(self):
-        return self.list_oxides + self.list_elements
+        return list(self.list_oxides + self.list_elements)
 
     @property
     def elements(self):
@@ -129,6 +131,21 @@ class pyrochem(object):
     @oxides.setter
     def oxides(self, df):
         self._obj.loc[:, self.list_oxides] = df
+
+    @property
+    def compositional(self):
+        """
+        Get an oxide & elemental subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj.loc[:, self.list_compositional]
+
+    @compositional.setter
+    def compositional(self, df):
+        self._obj.loc[:, self.list_compositional] = df
 
     # pyrolite.geochem.parse functions
 
@@ -330,6 +347,33 @@ class pyrochem(object):
         )
         return self._obj
 
+    def get_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
+        """
+        Add a ratio of components A and B, given in the form of string 'A/B'.
+        Returned series be assigned an alias name.
+
+        Parameters
+        -----------
+        ratio : :class:`str`
+            String decription of ratio in the form A/B[_n].
+        alias : :class:`str`
+            Alternate name for ratio to be used as column name.
+        norm_to : :class:`str` | :class:`pyrolite.geochem.norm.Composition`, `None`
+            Reference composition to normalise to.
+        molecular : :class:`bool`, :code:`False`
+            Flag that data is in molecular units, rather than weight units.
+
+        Returns
+        -------
+        :class:`pandas.DataFrame`
+            Dataframe with ratio appended.
+
+        See Also
+        --------
+        :func:`~pyrolite.geochem.transform.add_MgNo`
+        """
+        return get_ratio(self._obj, ratio, alias, norm_to=norm_to, molecular=molecular)
+
     def add_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """
         Add a ratio of components A and B, given in the form of string 'A/B'.
@@ -355,9 +399,8 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_MgNo`
         """
-        self._obj = add_ratio(
-            self._obj, ratio, alias, norm_to=norm_to, molecular=molecular
-        )
+        r = self.get_ratio(ratio, alias, norm_to=norm_to, molecular=molecular)
+        self._obj[r.name] = r
         return self._obj
 
     def add_MgNo(
@@ -527,6 +570,7 @@ class pyrochem(object):
             norm_abund = np.array(norm)
             assert len(norm_abund) == len(self.list_compositional)
 
+        # this list should have the same ordering as the input dataframe
         return self._obj[self.list_compositional].div(norm_abund)
 
     def denormalize_from(self, norm=None, units=None):

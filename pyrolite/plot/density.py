@@ -15,7 +15,7 @@ from ..util.plot import (
     __DEFAULT_CONT_COLORMAP__,
     __DEFAULT_DISC_COLORMAP__,
 )
-from ..util.meta import get_additional_params
+from ..util.meta import get_additional_params, subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -242,7 +242,13 @@ def density(
                 if not contours:
                     # pcolormesh using bin edges
                     mappable = pc(
-                        xe, ye, zi, cmap=cmap, shading=shading, vmin=vmin, **kwargs
+                        xe,
+                        ye,
+                        zi,
+                        cmap=cmap,
+                        shading=shading,
+                        vmin=vmin,
+                        **subkwargs(kwargs, pc)
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -270,7 +276,14 @@ def density(
 
             if not contours:
                 zi[zi == 0.0] = np.nan  #
-                mappable = pc(xe * scale, ye * scale, zi, cmap=cmap, vmin=vmin)
+                mappable = pc(
+                    xe * scale,
+                    ye * scale,
+                    zi,
+                    cmap=cmap,
+                    vmin=vmin,
+                    **subkwargs(kwargs, pc)
+                )
 
             ax.spines["top"].set_visible(False)
             ax.spines["right"].set_visible(False)

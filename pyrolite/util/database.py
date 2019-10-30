@@ -1,24 +1,66 @@
-import os, sys
-from pathlib import Path
 import re
-import struct
-import subprocess
-from subprocess import Popen, PIPE
+import os, sys
 import shlex
-from contextlib import contextmanager
+import struct
 import getpass
-import pyodbc, psycopg2, sqlite3
-from psycopg2 import ProgrammingError as PGProgrammingError
-from sqlite3 import Error as SQLiteError
-from sqlite3 import OperationalError as SQLOperationalError
-from pyodbc import DatabaseError as PyODBCDatabaseError
-from pyodbc import ProgrammingError as PyODBCProgrammingError
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import subprocess
+from pathlib import Path
+from subprocess import Popen, PIPE
+from contextlib import contextmanager
+from tinydb import TinyDB, Query
+
+__backend__ = None
+try:
+    import psycopg2
+    from psycopg2 import ProgrammingError as PGProgrammingError
+    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+    __backend__ = psycopg2
+except:
+    pass
+
+try:
+    import sqlite3
+    from sqlite3 import Error as SQLiteError
+    from sqlite3 import OperationalError as SQLOperationalError
+except:
+    pass
+
+try:
+    import pyodbc
+    from pyodbc import DatabaseError as PyODBCDatabaseError
+    from pyodbc import ProgrammingError as PyODBCProgrammingError
+
+    __backend__ = pyodbc
+except:
+    pass
+
 import logging
 from .text import *
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def _list_tindyb_unique_values(variable, dbpath=None):
+    """
+    List unique values from a column of a :mod:`TinyDB` json database.
+
+    Parameters
+    -----------
+    variable : :class:`str`
+        Name of the variable to check for unique values.
+    dbpath : :class:`pathlib.Path` | :class:`str`
+        Path to the relevant database.
+
+    Returns
+    ----------
+    :class:`list`
+    """
+
+    with TinyDB(str(dbpath)) as db:
+        out = list(set([a.get(variable, None) for a in db.all()]))
+    return out
 
 
 def check_access_driver():
@@ -37,7 +79,7 @@ def open_db_connection(
     encoding="utf-8",
     short_decoding="utf-8",
     wide_decoding="utf-16",
-    backend=pyodbc,
+    backend=__backend__,
 ):
     """
     https://github.com/mkleehammer/pyodbc/wiki/Unicode

@@ -8,17 +8,14 @@ geochemical variables (e.g. elements to oxides), functions for common plotting
 tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagrams),
 and numerous auxiliary utilities.
 
-- On this site you can browse the various `submodules <./submodules.html>`__, or look
+- On this site you can browse the  `API <./api/API.html>`__, or look
   through some of the `usage examples <./usage/examples.html>`__.
 
 - There's also a quick `installation guide <./installation.html>`__ and some notes on
-  where the project is heading in the near `future <./future.html>`__.
+  where the project is heading in the near `future <./dev/future.html>`__.
 
-- If you're interested in `contributing to the project <./contributing.html>`__, there are
+- If you're interested in `contributing to the project <./dev/contributing.html>`__, there are
   many potential avenues, whether you're experienced with python or not.
-
-- pyrolite comes with an extensive set of `tests <./tests.html>`__, and while these
-  cover most core functions and classes, they do not yet cover the entire codebase.
 
 Why *pyrolite*?
 ..................
@@ -45,15 +42,17 @@ make use of your geochemical data to build and test geological models.
 
    installation
    usage/examples
-   submodules
-   changelog
-   future
-   tests
-   contributing
-   conduct
-   contributors
+   usage/tutorials
+   api/API
+   ext/extensions
+   dev/debugging
+   dev/development
+   dev/changelog
+   dev/future
+   dev/conduct
+   dev/contributing
+   dev/contributors
    cite
-
 
 .. note:: This documentation is a work in progress and is updated regularly. Contact
           the maintainer with any specific questions/requests.

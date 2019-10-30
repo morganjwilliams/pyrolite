@@ -1,0 +1,14 @@
+name: pyrolitedocs
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.7
+  - pip
+  - matplotlib
+  - scipy>=1.2
+  - pandas>=0.23
+  - pip:
+      - -e git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite[dev,skl]

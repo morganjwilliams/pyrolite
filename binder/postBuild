@@ -1,0 +1,4 @@
+cd ./docs/
+make html
+mkdir notebooks
+find './source/galleries/' -name "*.ipynb" -print0 | xargs -0 cp -t './notebooks/'

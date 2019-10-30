@@ -36,6 +36,7 @@ def spider(
     figsize=None,
     logy=True,
     mode="plot",
+    unity_line=False,
     **kwargs
 ):
     """
@@ -70,6 +71,8 @@ def spider(
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
+    unity_line : :class:`bool`
+        Add a line at y=1 for reference.
 
     {otherparams}
 
@@ -163,9 +166,12 @@ def spider(
             # remove color from lnkw, we'll update it after plotting
             lnkw.pop("color")
 
+    if unity_line:
+        ax.axhline(1.0, ls="--", c="k", lw=0.5)
+
     if "fill" in mode.lower():
-        mins = arr.min(axis=0)
-        maxs = arr.max(axis=0)
+        mins = np.nanmin(arr, axis=0)
+        maxs = np.nanmax(arr, axis=0)
         plycol = ax.fill_between(
             indexes0,
             mins,
@@ -175,7 +181,7 @@ def spider(
                 local_kw,
                 ax.fill_between,
                 matplotlib.collections.PolyCollection,
-                matplotlib.patches.Patch
+                matplotlib.patches.Patch,
             )
         )
     elif "plot" in mode.lower():
@@ -202,7 +208,7 @@ def spider(
             ret_centres=True,
             **subkwargs(local_kw, conditional_prob_density)
         )
-
+        # can have issues with nans here?
         vmin = kwargs.pop("get", 0)
         vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "contours" in kwargs:
@@ -304,10 +310,8 @@ def REE_v_radii(
 
     if arr is not None:
         kwargs["indexes"] = kwargs.get("indexes", indexes)
-        ax = spider(arr, ax=ax, logy=True, mode=mode, **kwargs)
+        ax = spider(arr, ax=ax, logy=True, mode=mode, unity_line=unity_line, **kwargs)
 
-    if unity_line:
-        ax.axhline(1.0, ls="--", c="k", lw=0.5)
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)
     ax.set_xticklabels(xlabels, rotation=xlabelrotation)

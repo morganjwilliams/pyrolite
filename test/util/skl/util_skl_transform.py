@@ -121,14 +121,6 @@ class TestAgumentors(unittest.TestCase):
             with self.subTest(input=input):
                 out = tmr.transform(input)
 
-    def test_RedoxAggregator(self):
-        """Test the RedoxAggregator transfomer."""
-        df = self.df
-        tmr = RedoxAggregator()
-        for input in [df]:
-            with self.subTest(input=input):
-                out = tmr.transform(input)
-
     def test_ElementAggregator(self):
         """Test the ElementAggregator transfomer."""
         df = self.df

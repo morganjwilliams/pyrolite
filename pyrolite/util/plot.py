@@ -64,6 +64,19 @@ __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 
 
+def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
+    """
+    Create a scalar mappable object from an array of values.
+
+    Returns
+    -----------
+    :class:`matplotlib.cm.ScalarMappable`
+    """
+    sm = plt.cm.ScalarMappable(cmap=cmap)
+    sm.set_array(values)
+    return sm
+
+
 def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     """
     Cycle through a set of markers.
@@ -744,7 +757,7 @@ def conditional_prob_density(
     xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
 
     if mode == "ckde":
-        fltr = np.isfinite(y.flatten())
+        fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
         x, y = x.flatten()[fltr], y.flatten()[fltr]
         if HAVE_SM:
             dens_c = sm.nonparametric.KDEMultivariateConditional(
@@ -755,8 +768,8 @@ def conditional_prob_density(
         # statsmodels pdf takes values in reverse order
         zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
     elif mode == "kde":  # kde of dataset
-        fltr = np.isfinite(y.flatten())
         xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
+        fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
         x, y = x.flatten()[fltr], y.flatten()[fltr]
         try:
             kde = gaussian_kde(np.vstack([x, y]))

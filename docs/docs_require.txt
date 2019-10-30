@@ -1,1 +1,1 @@
--e .[skl]
+-e .[dev,skl]
