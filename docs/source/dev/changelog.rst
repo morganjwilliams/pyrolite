@@ -11,8 +11,58 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <installation.html#development-installation>`__.
 
-* :func:`pyrolite.plot.parallel.parallel` now better handles matplotlib figure and
-  subplot arguments
+
+
+`0.2.1`_
+--------------
+
+* Updated and refactored documentation
+
+  * Added `Development <development.html>`__, `Debugging <debugging.html>`__
+  * Added :mod:`sphinx_gallery` with binder links for examples
+  * Removed duplicated examples
+  * Amended `citation guidelines <citation.html>`__
+
+* Removed extensions from pyrolite (:code:`pyrolite.ext.datarepo`,
+  :code:`pyrolite.ext.alphamelts`). These will soon be available as separate extension
+  packages. This enabled faster build and test times, and removed extraneous dependencies
+  for the core :mod:`pyrolite` package.
+* Added :code:`stats_require` as optional requirements in :code:`setup.py`
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`~pyrolite.geochem.transform.get_ratio` and
+  :func:`pyrolite.geochem.pyrochem.get_ratio`
+* Added :func:`pyrolite.geochem.pyroplot.compositional` selector
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :func:`~pyrolite.plot.parallel.parallel` now better handles :mod:`~matplotlib.pyplot`
+  figure and subplot arguments
+* :func:`~pyrolite.plot.tern.ternary` and related functions now handle label offsets
+  and label fontsizes
+* Minor bugfixes for :mod:`~pyrolite.plot.density`
+* Added :code:`unity_line` argument to :func:`~pyrolite.plot.spider.spider`
+  to be consistent with :func:`~pyrolite.plot.spider.REE_v_radii`
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added a simple :mod:`pyrolite.mineral.mindb` database
+* Added :mod:`pyrolite.mineral.transform` to house mineral transformation functions
+* Expanded :mod:`pyrolite.mineral.normative` to include
+  :func:`~pyrolite.mineral.normaative.unmix` and
+  :func:`pyrolite.mineral.normaative.endmember_decompose` for composition-based
+  mineral endmember decomposition
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.plot.mappable_from_values` to enable generating
+  :class:`~matplotlib.cm.ScalarMappable` objects from an array of values, for use
+  in generating colorbars
 
 `0.2.0`_
 --------------
@@ -601,7 +651,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...develop
+.. _0.2.1: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...0.2.1
 .. _0.2.0: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...0.2.0
 .. _0.1.21: https://github.com/morganjwilliams/pyrolite/compare/0.1.20...0.1.21
 .. _0.1.20: https://github.com/morganjwilliams/pyrolite/compare/0.1.19...0.1.20

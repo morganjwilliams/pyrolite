@@ -222,6 +222,8 @@ intersphinx_mapping = {
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
+    "sphinx_gallery": ("https://sphinx-gallery.github.io/", None),
+    "pyrolite_meltsutil": ("https://pyrolite-meltsutil.readthedocs.io/en/develop/", None),
 }
 
 # sphinx_gallery config
