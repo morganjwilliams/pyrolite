@@ -11,6 +11,8 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <installation.html#development-installation>`__.
 
+* :func:`pyrolite.plot.parallel.parallel` now better handles matplotlib figure and
+  subplot arguments
 
 `0.2.0`_
 --------------

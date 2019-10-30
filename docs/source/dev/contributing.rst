@@ -78,8 +78,8 @@ remote fork, and then submit a pull request onto
 .. note::
 
   * See `Installation <installation.html>`__ for directions for installing extra
-    dependencies for development, and `Testing <tests.html>`__ for information on running
-    tests.
+    dependencies for development, and `Development <development.html>`__ for information
+    on development environments and tests.
 
   * :code:`pyrolite` development roughly follows a
     `gitflow workflow <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>`__.

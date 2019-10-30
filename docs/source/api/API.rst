@@ -1,4 +1,4 @@
-Submodules
+API
 ================
 
 pyrolite\.plot
@@ -9,7 +9,7 @@ pyrolite\.plot
  .. toctree::
     :maxdepth: 2
 
-    submoddoc/plot
+    plot
 
 pyrolite\.geochem
 ------------------------
@@ -19,7 +19,7 @@ pyrolite\.geochem
   .. toctree::
     :maxdepth: 2
 
-    submoddoc/geochem
+    geochem
 
 pyrolite\.comp
 ---------------------
@@ -29,7 +29,7 @@ pyrolite\.comp
   .. toctree::
      :maxdepth: 2
 
-     submoddoc/comp
+     comp
 
 pyrolite\.mineral
 ---------------------
@@ -41,7 +41,7 @@ pyrolite\.mineral
   .. toctree::
      :maxdepth: 2
 
-     submoddoc/mineral
+     mineral
 
 
 pyrolite\.ext
@@ -54,7 +54,7 @@ pyrolite\.ext
   .. toctree::
     :maxdepth: 2
 
-    submoddoc/external
+    external
 
 pyrolite\.util
 -------------------------------
@@ -66,4 +66,4 @@ pyrolite\.util
   .. toctree::
     :maxdepth: 2
 
-    submoddoc/util
+    util
