@@ -30,6 +30,11 @@ setup(
     long_description_content_type="text/markdown",
     version=versioneer.get_version(),
     url="https://github.com/morganjwilliams/pyrolite",
+    project_urls={
+        "Documentation": "https://pyrolite.readthedocs.com/",
+        "Code": "https://github.com/morganjwilliams/pyrolite",
+        "Issue tracker": "https://github.com/morganjwilliams/pyrolite/issues",
+    },
     author="Morgan Williams",
     author_email="morgan.williams@csiro.au",
     classifiers=[
