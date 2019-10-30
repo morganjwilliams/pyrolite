@@ -229,15 +229,15 @@ from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
     "examples_dirs": [
-        "../_examples/_auto/",
-        "../_tutorials/_auto/",
+        "_examples/_auto/",
+        "_tutorials/_auto/",
     ],  # path to your example scripts
     "subsection_order": ExplicitOrder(
         [
-            "../_examples/_auto/plotting",
-            "../_examples/_auto/geochem",
-            "../_examples/_auto/comp",
-            "../_tutorials/_auto",
+            "_examples/_auto/plotting",
+            "_examples/_auto/geochem",
+            "_examples/_auto/comp",
+            "_tutorials/_auto",
         ]
     ),
     "gallery_dirs": [
@@ -266,6 +266,13 @@ sphinx_gallery_conf = {
     },
     "first_notebook_cell": "%matplotlib inline\n",
 }
+# Remove matplotlib agg warnings from generated doc when using plt.show
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="Matplotlib is currently using agg, which is a"
+    " non-GUI backend, so cannot show the figure.",
+)
 
 from docpatch import *  # patch for sphinx_gallery pages
 

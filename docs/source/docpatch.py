@@ -5,7 +5,6 @@ from sphinx_gallery import binder
 from sphinx_gallery.gen_rst import *
 from sphinx_gallery.binder import *
 from sphinx_gallery import scrapers
-from sphinx_gallery.scrapers import *
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
@@ -40,7 +39,7 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
     -------
     rst : str
         The ReSTructuredText that will be rendered to HTML containing
-        the images. This is often produced by :func:`figure_rst`.
+        the images. This is often produced by :func:`~sphinx_galleryscrapers.figure_rst`.
     """
     lbl, cnt, ln = block
     image_path_iterator = block_vars["image_path_iterator"]
@@ -60,7 +59,7 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
             )
             image_paths.append(image_path)
 
-    return figure_rst(image_paths, gallery_conf["src_dir"])
+    return scrapers.figure_rst(image_paths, gallery_conf["src_dir"])
 
 
 def alt_gen_binder_rst(
@@ -162,11 +161,6 @@ def _save_rst_example(
     gen_rst._replace_md5(write_file_new)
     plt.close("all")
 
-
-scrapers._scraper_dict = dict(
-    matplotlib=matplotlib_scraper,
-    mayavi=mayavi_scraper,
-    altmatplot=alt_matplotlib_scraper,
-)
+scrapers._scraper_dict.update(dict(altmatplot=alt_matplotlib_scraper))
 # binder.gen_binder_rst = alt_gen_binder_rst
 gen_rst.save_rst_example = _save_rst_example

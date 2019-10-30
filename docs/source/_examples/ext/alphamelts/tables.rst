@@ -5,7 +5,7 @@ To automatically import alphaMELTS tables as :class:`~pandas.DataFrame`s, you ca
 :class:`~pyrolite.util.alphamelts.tables.MeltsOutput`, from which you can then
 develop plots and interrogate data.
 
-.. literalinclude:: ../../../../_examples/alphamelts/tables.py
+.. literalinclude:: tables.py
   :language: python
 
 .. seealso::

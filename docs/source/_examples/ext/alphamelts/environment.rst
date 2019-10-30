@@ -1,16 +1,16 @@
 alphaMELTS Environment
 ------------------------
 
-.. literalinclude:: ../../../../_examples/alphamelts/env.py
+.. literalinclude:: env.py
   :language: python
   :end-before: # %% Env
 
-.. literalinclude:: ../../../../_examples/alphamelts/env.py
+.. literalinclude:: env.py
   :language: python
   :start-after: # %% Env
   :end-before: # %% save file
 
-.. literalinclude:: ../../../../_examples/alphamelts/env.py
+.. literalinclude:: env.py
   :language: python
   :start-after: # %% save file
 

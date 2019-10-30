@@ -43,19 +43,6 @@ pyrolite\.mineral
 
      mineral
 
-
-pyrolite\.ext
--------------------------------
-
-  .. automodule:: pyrolite.ext
-    :members:
-    :undoc-members:
-
-  .. toctree::
-    :maxdepth: 2
-
-    external
-
 pyrolite\.util
 -------------------------------
 
@@ -67,3 +54,6 @@ pyrolite\.util
     :maxdepth: 2
 
     util
+
+
+.. seealso:: `Extensions <../ext/extensions.html>`__
