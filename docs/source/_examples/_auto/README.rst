@@ -1,4 +1,4 @@
-pyrolite Examples
+Examples
 ==================
 
 This example gallery includes a variety of examples for using pyrolite

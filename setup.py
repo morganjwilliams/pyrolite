@@ -53,24 +53,23 @@ setup(
     install_requires=[
         "numpy",
         "numpydoc",
+        "pathlib",
+        "tinydb",
+        "periodictable",
+        "matplotlib",
+        "python-ternary",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
         "pandas>=0.23",  # dataframe acccessors
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas
-        "pathlib",
-        "psutil",
-        "matplotlib",
-        "periodictable",
-        "python-ternary",
         "joblib",
-        "requests",
-        "dicttoxml",
-        "xmljson",
-        "beautifulsoup4",
-        "tinydb",
-        "tqdm",
+        "requests",  # used by alphaMELTS utilities, util.wfs, util.web
+        "psutil",  # only needed for alphaMELTS utilities
+        "xmljson",  # only needed for alphaMELTS utilities
+        "dicttoxml",  # only needed for alphaMELTS utilities
+        "tqdm",  # only needed for alphaMELTS utilities
     ],
     extras_require={
         "impute": impute_require,
