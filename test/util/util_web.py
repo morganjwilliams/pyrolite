@@ -21,7 +21,7 @@ class TestDownloadFile(unittest.TestCase):
         self.assertTrue(out is None)
 
     def test_image(self):
-        url = "https://pyrolite.readthedocs.io/en/master/_images/logo_eg_contours.png"
+        url = "https://pyrolite.readthedocs.io/en/develop/_static/icon_small.png"
         out = download_file(url, encoding=None)
         self.assertTrue(out is not None)
 
