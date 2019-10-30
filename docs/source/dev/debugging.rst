@@ -35,7 +35,7 @@ Reporting
 
 Followed the debugging guidelines, checked out some of the previous questions and
 still can't solve the issue? Think it's a bug or problem with pyrolite specifically?
-Some guidelines for reporting issues and bugs is given below.
+Some guidelines for reporting issues and bugs are given below.
 
 
 .. seealso::
