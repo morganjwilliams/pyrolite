@@ -9,7 +9,7 @@ All notable changes to this project will be documented here.
 
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
-        `development install <installation.html#development-installation>`__.
+        `development install <development.html#development-installation>`__.
 
 
 
@@ -18,10 +18,11 @@ All notable changes to this project will be documented here.
 
 * Updated and refactored documentation
 
-  * Added `Development <development.html>`__, `Debugging <debugging.html>`__
+  * Added `Development <development.html>`__, `Debugging <debugging.html>`__,
+    `Extensions <../ext/extensions.html>`__
   * Added :mod:`sphinx_gallery` with binder links for examples
   * Removed duplicated examples
-  * Amended `citation guidelines <citation.html>`__
+  * Amended `citation guidelines <../cite.html>`__
 
 * Removed extensions from pyrolite (:code:`pyrolite.ext.datarepo`,
   :code:`pyrolite.ext.alphamelts`). These will soon be available as separate extension
@@ -34,7 +35,7 @@ All notable changes to this project will be documented here.
 
 * Added :func:`~pyrolite.geochem.transform.get_ratio` and
   :func:`pyrolite.geochem.pyrochem.get_ratio`
-* Added :func:`pyrolite.geochem.pyroplot.compositional` selector
+* Added :func:`pyrolite.geochem.pyrochem.compositional` selector
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,8 +54,8 @@ All notable changes to this project will be documented here.
 * Added a simple :mod:`pyrolite.mineral.mindb` database
 * Added :mod:`pyrolite.mineral.transform` to house mineral transformation functions
 * Expanded :mod:`pyrolite.mineral.normative` to include
-  :func:`~pyrolite.mineral.normaative.unmix` and
-  :func:`pyrolite.mineral.normaative.endmember_decompose` for composition-based
+  :func:`~pyrolite.mineral.normative.unmix` and
+  :func:`pyrolite.mineral.normative.endmember_decompose` for composition-based
   mineral endmember decomposition
 
 :mod:`pyrolite.util`
