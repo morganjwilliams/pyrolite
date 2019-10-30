@@ -41,7 +41,6 @@ class TestPyroliteDataFolder(unittest.TestCase):
 
         for subf in [
             "Aitchison",
-            "alphamelts",
             "geochem",
             "models",
             "shannon",
