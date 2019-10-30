@@ -11,7 +11,7 @@ Citation
 If you use :mod:`pyrolite` extensively for your research, citation of the software
 would be particularly appreciated. It helps quantify the impact of the project
 (assisting those contributing through paid and volunteer work), and is one way to get
-the mesasge out and help build the pyrolite community.
+the message out and help build the pyrolite community.
 
 As no overview papers have yet been published,
 the best option is to reference the `Zenodo <https://zenodo.org>`__ archive DOI. Ideally

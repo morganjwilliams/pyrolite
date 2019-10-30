@@ -13,6 +13,25 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", "Unknown section")
 
 
+def get_module_datafolder(module="pyrolite", subfolder=None):
+    """
+    Returns the path of a module data folder.
+
+    Parameters
+    -----------
+    subfolder : :class:`str`
+        Subfolder within the module data folder.
+
+    Returns
+    -------
+    :class:`pathlib.Path`
+    """
+    pth = Path(sys.modules[module].__file__).parent / "data"
+    if subfolder:
+        pth /= subfolder
+    return pth
+
+
 def pyrolite_datafolder(subfolder=None):
     """
     Returns the path of the pyrolite data folder.
@@ -26,10 +45,7 @@ def pyrolite_datafolder(subfolder=None):
     -------
     :class:`pathlib.Path`
     """
-    pth = Path(sys.modules["pyrolite"].__file__).parent / "data"
-    if subfolder:
-        pth /= subfolder
-    return pth
+    return get_module_datafolder(module="pyrolite", subfolder=subfolder)
 
 
 class ToLogger(io.StringIO):
