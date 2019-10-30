@@ -43,7 +43,6 @@ class TestPyroliteDataFolder(unittest.TestCase):
             "Aitchison",
             "alphamelts",
             "geochem",
-            "georoc",
             "models",
             "shannon",
             "timescale",
