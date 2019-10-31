@@ -27,8 +27,7 @@ europium oxidation state on bulk europium partitioning.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.geochem import get_ionic_radii
-from pyrolite.geochem.ind import REE
+from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.mineral.lattice import strain_coefficient
 # sphinx_gallery_thumbnail_number = 3
 ########################################################################################
