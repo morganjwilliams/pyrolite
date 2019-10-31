@@ -13,7 +13,13 @@ from ..util import units
 from . import parse
 from . import transform
 from . import norm
-from .ind import __common_elements__, __common_oxides__, REE
+from .ind import (
+    common_elements,
+    common_oxides,
+    __common_elements__,
+    __common_oxides__,
+    REE,
+)
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
@@ -369,7 +375,9 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_MgNo`
         """
-        return transform.get_ratio(self._obj, ratio, alias, norm_to=norm_to, molecular=molecular)
+        return transform.get_ratio(
+            self._obj, ratio, alias, norm_to=norm_to, molecular=molecular
+        )
 
     def add_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """

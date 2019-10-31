@@ -1,15 +1,10 @@
 import logging
 import numpy as np
 import pandas as pd
-from ...geochem import (
-    recalculate_Fe,
-    check_multiple_cation_inclusion,
-    aggregate_element,
-    get_ionic_radii,
-    lambda_lnREE,
-    devolatilise,
-    REE,
-)
+from ...geochem import transform
+from ...geochem import ind
+from ...geochem import parse
+
 from ...comp.codata import (
     alr,
     inverse_alr,
@@ -323,7 +318,7 @@ class Devolatilizer(BaseEstimator, TransformerMixin):
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
         exclude = [i for i in X.columns if i.upper() in self.exclude]
-        return devolatilise(X, exclude=exclude, renorm=self.renorm)
+        return transform.devolatilise(X, exclude=exclude, renorm=self.renorm)
 
 
 class ElementAggregator(BaseEstimator, TransformerMixin):
@@ -336,14 +331,14 @@ class ElementAggregator(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
-        multiple_entries = check_multiple_cation_inclusion(X)
+        multiple_entries = parse.check_multiple_cation_inclusion(X)
 
         for el in multiple_entries:
             if self.form == "oxide":
-                out = simple_oxides(el)[0]
+                out = ind.simple_oxides(el)[0]
             else:
                 out = el
-            X = aggregate_element(X, to=out)
+            X = transform.aggregate_element(X, to=out)
         return X
 
 
@@ -353,7 +348,7 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
     ):
         self.norm_to = norm_to
         self.ree = [i for i in REE() if not i in exclude]
-        self.radii = np.array(get_ionic_radii(self.ree, charge=3, coordination=8))
+        self.radii = np.array(ind.get_ionic_radii(self.ree, charge=3, coordination=8))
         self.exclude = exclude
         if params is None:
             self.degree = degree
@@ -373,7 +368,7 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
             self.radii = self.radii[ree_present]
             self.params = OP_constants(self.radii, degree=self.degree)
 
-        return lambda_lnREE(
+        return transform.lambda_lnREE(
             X,
             norm_to=self.norm_to,
             params=self.params,
