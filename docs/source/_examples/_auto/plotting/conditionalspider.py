@@ -10,7 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.spider import spider
-from pyrolite.geochem import REE, get_reference_composition
+from pyrolite.geochem.ind import REE
+from pyrolite.geochem.norm import get_reference_composition
 import logging
 
 rn = get_reference_composition("EMORB_SM89")  # emorb composition as a starting point
