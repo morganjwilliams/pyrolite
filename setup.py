@@ -77,8 +77,7 @@ setup(
         "skl": skl_require,
         "spatial": spatial_require,
         "db": db_require,
-        "stats": stats_require,
-        # "melts": ["pyrolite-meltsutil"] # meltsutil soon to be added to pypi
+        "stats": stats_require
     },
     tests_require=tests_require,
     test_suite="test",

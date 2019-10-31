@@ -3,20 +3,17 @@ Submodule for working with geochemical data.
 """
 import logging
 import pandas as pd
+import numpy as np
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-# direct imports for backwards compatibility
-from .ind import *
-from .magma import *
-from .parse import *
-from .transform import *
-from .validate import *
-from .alteration import *
-from .norm import *
-
-from .ind import __common_elements__, __common_oxides__
+from ..util.meta import update_docstring_references
+from ..util import units
+from . import parse
+from . import transform
+from . import norm
+from .ind import __common_elements__, __common_oxides__, REE
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
@@ -163,7 +160,7 @@ class pyrochem(object):
         :class:`set`
             Set of elements for which multiple components exist in the dataframe.
         """
-        return check_multiple_cation_inclusion(self._obj, exclude=exclude)
+        return parse.check_multiple_cation_inclusion(self._obj, exclude=exclude)
 
     # pyrolite.geochem.transform functions
 
@@ -185,7 +182,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = to_molecular(self._obj, renorm=renorm)
+        self._obj = transform.to_molecular(self._obj, renorm=renorm)
         return self._obj
 
     def to_weight(self, renorm=True):
@@ -206,7 +203,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = to_weight(self._obj, renorm=renorm)
+        self._obj = transform.to_weight(self._obj, renorm=renorm)
         return self._obj
 
     def devolatilise(
@@ -227,7 +224,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = devolatilise(self._obj, exclude=exclude, renorm=renorm)
+        self._obj = transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
         return self._obj
 
     def elemental_sum(
@@ -253,7 +250,7 @@ class pyrochem(object):
         :class:`pandas.Series`
             Series with cation aggregated.
         """
-        return elemental_sum(
+        return transform.elemental_sum(
             self._obj,
             component=component,
             to=to,
@@ -296,7 +293,7 @@ class pyrochem(object):
         :class:`pandas.Series`
             Series with cation aggregated.
         """
-        return aggregate_element(
+        return transform.aggregate_element(
             self._obj,
             to,
             total_suffix=total_suffix,
@@ -337,7 +334,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = recalculate_Fe(
+        self._obj = transform.recalculate_Fe(
             self._obj,
             to,
             total_suffix=total_suffix,
@@ -372,7 +369,7 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_MgNo`
         """
-        return get_ratio(self._obj, ratio, alias, norm_to=norm_to, molecular=molecular)
+        return transform.get_ratio(self._obj, ratio, alias, norm_to=norm_to, molecular=molecular)
 
     def add_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """
@@ -429,7 +426,7 @@ class pyrochem(object):
         --------
         :func:`~pyrolite.geochem.transform.add_ratio`
         """
-        add_MgNo(
+        transform.add_MgNo(
             self._obj,
             molecular=molecular,
             use_total_approx=use_total_approx,
@@ -483,7 +480,7 @@ class pyrochem(object):
         :func:`~pyrolite.util.math.OP_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
         """
-        return lambda_lnREE(
+        return transform.lambda_lnREE(
             self._obj,
             norm_to=norm_to,
             exclude=exclude,
@@ -525,19 +522,19 @@ class pyrochem(object):
             * Implement generalised redox transformation.
             * Add check for dicitonary components (e.g. Fe) in tests
         """
-        return convert_chemistry(
+        return transform.convert_chemistry(
             self._obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
         )  # can't update the source nicely here, need to assign output
 
     # pyrolite.geochem.norm functions
 
-    def normalize_to(self, norm=None, units=None, convert_first=False):
+    def normalize_to(self, reference=None, units=None, convert_first=False):
         """
         Normalise a dataframe to a given reference composition.
 
         Parameters
         -----------
-        norm : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
+        reference : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition to normalise to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
@@ -556,30 +553,30 @@ class pyrochem(object):
         This assumes that dataframes have a single set of units.
         """
 
-        if isinstance(norm, (str, Composition)):
-            if not isinstance(norm, Composition):
-                N = get_reference_composition(norm)
+        if isinstance(reference, (str, norm.Composition)):
+            if not isinstance(reference, norm.Composition):
+                N = norm.get_reference_composition(reference)
             else:
-                N = norm
+                N = reference
             if units is not None:
                 N.set_units(units)
             if convert_first:
-                N.comp = convert_chemistry(N.comp, self.list_compositional)
+                N.comp = transform.convert_chemistry(N.comp, self.list_compositional)
             norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
-            norm_abund = np.array(norm)
+            norm_abund = np.array(reference)
             assert len(norm_abund) == len(self.list_compositional)
 
         # this list should have the same ordering as the input dataframe
         return self._obj[self.list_compositional].div(norm_abund)
 
-    def denormalize_from(self, norm=None, units=None):
+    def denormalize_from(self, reference=None, units=None):
         """
         De-normalise a dataframe from a given reference composition.
 
         Parameters
         -----------
-        norm : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
+        reference : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition which the composition is normalised to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
@@ -594,17 +591,17 @@ class pyrochem(object):
         This assumes that dataframes have a single set of units.
         """
 
-        if isinstance(norm, (str, Composition)):
-            if not isinstance(norm, Composition):
-                N = get_reference_composition(norm)
+        if isinstance(reference, (str, norm.Composition)):
+            if not isinstance(reference, norm.Composition):
+                N = norm.get_reference_composition(reference)
             else:
-                N = norm
+                N = reference
             if units is not None:
                 N.set_units(units)
-            N.comp = convert_chemistry(N.comp, self.list_compositional)
+            N.comp = transform.convert_chemistry(N.comp, self.list_compositional)
             norm_abund = N[self.list_compositional]
         else:  # list, iterable, pd.Index etc
-            norm_abund = np.array(norm)
+            norm_abund = np.array(reference)
             assert len(norm_abund) == len(self.list_compositional)
 
         return self._obj[self.list_compositional] * norm_abund
@@ -625,7 +622,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Dataframe with new scale.
         """
-        return self._obj * scale(in_unit, target_unit)
+        return self._obj * units.scale(in_unit, target_unit)
 
 
 pyrochem.lambda_lnREE = update_docstring_references(
