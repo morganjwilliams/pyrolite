@@ -347,7 +347,7 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
         self, norm_to="Chondrite_PON", exclude=["Pm", "Eu", "Ce"], params=None, degree=5
     ):
         self.norm_to = norm_to
-        self.ree = [i for i in REE() if not i in exclude]
+        self.ree = [i for i in ind.REE() if not i in exclude]
         self.radii = np.array(ind.get_ionic_radii(self.ree, charge=3, coordination=8))
         self.exclude = exclude
         if params is None:
