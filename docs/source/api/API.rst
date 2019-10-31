@@ -7,9 +7,17 @@ pyrolite\.plot
  .. automodule:: pyrolite.plot
 
  .. toctree::
-    :maxdepth: 2
+   :glob:
+   :maxdepth: 1
 
-    plot
+   plot/pyroplot
+   plot/spider
+   plot/tern
+   plot/density
+   plot/parallel
+   plot/stem
+   plot/biplot
+   plot/templates
 
 pyrolite\.geochem
 ------------------------
@@ -17,9 +25,19 @@ pyrolite\.geochem
   .. automodule:: pyrolite.geochem
 
   .. toctree::
-    :maxdepth: 2
+    :glob:
+    :maxdepth: 1
 
-    geochem
+    geochem/pyrochem
+    geochem/ind
+    geochem/transform
+    geochem/norm
+    geochem/parse
+    geochem/validate
+    geochem/magma
+    geochem/alteration
+    geochem/isotope
+
 
 pyrolite\.comp
 ---------------------
@@ -27,9 +45,13 @@ pyrolite\.comp
   .. automodule:: pyrolite.comp
 
   .. toctree::
-     :maxdepth: 2
+    :glob:
+    :maxdepth: 1
 
-     comp
+    comp/pyrocomp
+    comp/codata
+    comp/aggregate
+    comp/impute
 
 pyrolite\.mineral
 ---------------------
