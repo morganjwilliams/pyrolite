@@ -1,5 +1,6 @@
-from pathlib import Path
+import re
 import logging
+from pathlib import Path
 from sphinx_gallery import gen_rst
 from sphinx_gallery import binder
 from sphinx_gallery.gen_rst import *
@@ -46,8 +47,8 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
 
     image_paths = []
     figs = [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()]
-    fltr = ["fig", "figure", "plt.show", "plt.gcf"]
-    if figs and any([i in cnt for i in fltr]):  # where figure or plt.show is called
+    fltr = "[^a-zA-Z0-9]+fig\s??|[^a-zA-Z0-9]+figure\s?|plt.show()|plt.gcf()"
+    if figs and re.search(fltr, cnt):  # where figure or plt.show is called
         for fig, image_path in zip([figs[-1]], image_path_iterator):
             to_rgba = matplotlib.colors.colorConverter.to_rgba
             save_figure(
@@ -160,6 +161,7 @@ def _save_rst_example(
     # still stale.
     gen_rst._replace_md5(write_file_new)
     plt.close("all")
+
 
 scrapers._scraper_dict.update(dict(altmatplot=alt_matplotlib_scraper))
 # binder.gen_binder_rst = alt_gen_binder_rst
