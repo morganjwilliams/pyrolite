@@ -11,7 +11,8 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-
+* Added :func:`¬pyrolite.geochem.magma.SCSS` for modelling sulfur content at
+  sulfate/sulfide saturation.
 
 `0.2.1`_
 --------------

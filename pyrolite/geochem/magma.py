@@ -1,5 +1,10 @@
 import numpy as np
+import pandas as pd
+import periodictable as pt
+from .ind import __common_elements__, __common_oxides__
+from .transform import to_molecular, to_weight
 from ..util.meta import update_docstring_references
+from ..util.units import scale
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -83,3 +88,141 @@ def NaAt8MgO(Na2O: float, MgO: float) -> float:
     Na8 = 0.6074 - 3.523 * (Na2O + 0.00529 * MgO ** 2 - 0.9495) / (
         MgO - 0.05297 * MgO ** 2 - 8.133
     )
+    return Na8
+
+
+@update_docstring_references
+def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
+    r"""
+    Obtain the sulfur content at sulfate and sulfide saturation [#ref_1]_ [#ref_2]_.
+
+    Parameters
+    -------------
+    df : :class:`pandas.Dataframe`
+        Dataframe of compositions.
+    T : :class:`float` | :class:`numpy.ndarray`
+        Temperature
+    P : :class:`float` | :class:`numpy.ndarray`
+        Pressure (kbar)
+    kelvin : :class:`bool`
+        Whether temperature values are in kelvin (:code:`True`) or celsuis (:code:`False`)
+    grid : :code:`None`, :code:`'geotherm'`, :code:`'grid'`
+        Whether to consider temperature and pressure as a geotherm (:code:`geotherm`),
+        or independently (as a grid, :code:`grid`).
+
+    Returns
+    -------
+    sulfate, sulfide : :class:`numpy.ndarray`, :class:`numpy.ndarray`
+        Arrays of mass fraction sulfate and sulfide abundances at saturation.
+
+    Notes
+    ------
+
+    For anhydrite-saturated systems, the sulfur content at sulfate saturation is given
+    by the following:
+
+    .. math::
+
+        \begin{align}
+        ln(X_S) = &10.07
+        - 1.151 \cdot (10^4 / T_K)
+        + 0.104 \cdot P_{kbar}\\
+        &- 7.1 \cdot X_{SiO_2}
+        - 14.02 \cdot X_{MgO}
+        - 14.164 \cdot X_{Al_2O_3}\\
+        \end{align}
+
+    For sulfide-liquid saturated systems, the sulfur content at sulfide saturation is
+    given by the following:
+
+    .. math::
+
+        \begin{align}
+        ln(X_S) = &{-1.76}
+        - 0.474 \cdot (10^4 / T_K)
+        + 0.021 \cdot P_{kbar}\\
+        &+ 5.559 \cdot X_{FeO}
+        + 2.565 \cdot X_{TiO_2}
+        + 2.709 \cdot X_{CaO}\\
+        &- 3.192 \cdot X_{SiO_2}
+        - 3.049 \cdot X_{H_2O}\\
+        \end{align}
+
+    References
+    -----------
+    .. [#ref_1] Li, C., and Ripley, E.M. (2009).
+        Sulfur Contents at Sulfide-Liquid or Anhydrite Saturation in Silicate Melts:
+        Empirical Equations and Example Applications. Economic Geology 104, 405–412.
+        doi: `gsecongeo.104.3.405 <https://doi.org/10.2113/gsecongeo.104.3.405>`__
+
+    .. [#ref_2] Smythe, D.J., Wood, B.J., and Kiseeva, E.S. (2017).
+        The S content of silicate melts at sulfide saturation:
+        New experiments and a model incorporating the effects of sulfide composition.
+        American Mineralogist 102, 795–803.
+        doi: `10.2138/am-2017-5800CCBY <https://doi.org/10.2138/am-2017-5800CCBY>`__
+
+    Todo
+    -----
+    * Produce an updated version based on log-regressions?
+    * Add updates from Smythe et al. (2017)?
+    """
+    T, P = np.array(T), np.array(P)
+    if not kelvin:
+        T = T + 273.15
+
+    C = np.ones(df.index.size)
+    assert grid in [None, "geotherm", "grid"]
+    if grid == "grid":
+        cc, tt, pp = np.meshgrid(C, T, P, indexing="ij")
+    elif grid == "geotherm":
+        assert T.shape == P.shape
+        cc = C[:, np.newaxis]
+        tt = T[np.newaxis, :]
+        pp = P[np.newaxis, :]
+    elif grid is None:
+        _dims = C.size, T.size, P.size
+        maxdim = max(_dims)
+        assert all([x == maxdim or x == 1 for x in _dims])
+        cc, tt, pp = C, T, P
+
+    comp = set(df.columns) & (__common_elements__ | __common_oxides__)
+    moldf = to_molecular(df.loc[:, comp], renorm=True) / 100  # mole-fraction
+    molsum = to_molecular(df.loc[:, comp], renorm=False).sum(axis=1)
+
+    def gridify(ser):
+        arr = ser.replace(np.nan, 0).values
+        if grid == "grid":
+            return arr[:, np.newaxis, np.newaxis]
+        elif grid == "geotherm":
+            return arr[:, np.newaxis]
+        elif grid is None:
+            return arr
+
+    ln_sulfate = 10.07 * cc - 1.151 * 10 ** 4 / tt + 0.104 * pp
+    for x, D in [("SiO2", -7.1), ("MgO", -14.02), ("Al2O3", -14.164)]:
+        if x in moldf:
+            ln_sulfate += gridify(moldf[x]) * D * cc
+
+    ln_sulfide = -1.76 * cc - 0.474 * 10 ** 4 / tt + 0.021 * pp
+
+    for x, D in [
+        ("FeO", 5.559),
+        ("TiO2", 2.565),
+        ("CaO", 2.709),
+        ("SiO2", -3.192),
+        ("H2O", -3.049),
+    ]:
+        if x in moldf:
+            ln_sulfide += gridify(moldf[x]) * D * cc
+
+    sulfate, sulfide = np.exp(ln_sulfate), np.exp(ln_sulfide)
+
+    _s = gridify(molsum * pt.S.mass) * scale("wt%", outunit)
+    _so4 = gridify(molsum * pt.formula("SO4").mass) * scale("wt%", outunit)
+    sulfide *= _s
+    sulfate *= _so4
+
+    if sulfate.size == 1:  # 0D
+        return sulfate.flatten()[0], sulfide.flatten()[0]
+    else:  # 2D
+        return sulfate, sulfide
