@@ -98,7 +98,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
 
     Parameters
     -------------
-    df : :class:`pandas.Dataframe`
+    df : :class:`pandas.DataFrame`
         Dataframe of compositions.
     T : :class:`float` | :class:`numpy.ndarray`
         Temperature
