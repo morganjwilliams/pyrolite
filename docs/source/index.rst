@@ -41,8 +41,8 @@ make use of your geochemical data to build and test geological models.
    :hidden:
 
    installation
-   usage/examples
-   usage/tutorials
+   examples/index
+   tutorials/index
    api/API
    ext/extensions
    dev/debugging

@@ -223,7 +223,10 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "sphinx_gallery": ("https://sphinx-gallery.github.io/", None),
-    "pyrolite_meltsutil": ("https://pyrolite-meltsutil.readthedocs.io/en/develop/", None),
+    "pyrolite_meltsutil": (
+        "https://pyrolite-meltsutil.readthedocs.io/en/develop/",
+        None,
+    ),
 }
 
 # sphinx_gallery config
@@ -234,6 +237,10 @@ sphinx_gallery_conf = {
         "usage/examples/_auto/",
         "usage/tutorials/_auto/",
     ],  # path to your example scripts
+    "gallery_dirs": [
+        "examples",
+        "tutorials",
+    ],  # path to where to save gallery generated output
     "subsection_order": ExplicitOrder(
         [
             "usage/examples/_auto/plotting",
@@ -242,12 +249,8 @@ sphinx_gallery_conf = {
             "usage/tutorials/_auto",
         ]
     ),
-    "gallery_dirs": [
-        "usage/galleries/examples",
-        "usage/galleries/tutorials",
-    ],  # path to where to save gallery generated output
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
-    "backreferences_dir": "usage/galleries/backreferences",
+    "backreferences_dir": "_backreferences",
     "doc_module": ("pyrolite"),
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
