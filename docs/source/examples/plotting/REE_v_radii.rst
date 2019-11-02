@@ -1,0 +1,227 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_examples_plotting_REE_v_radii.py>` to download the full example code or run this example in your browser via Binder
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_examples_plotting_REE_v_radii.py:
+
+
+REE Radii Plots
+============================
+
+
+.. code-block:: default
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from pyrolite.plot import pyroplot
+    from pyrolite.plot.spider import REE_v_radii
+    from pyrolite.geochem.ind import REE, get_ionic_radii
+
+
+
+
+
+
+
+
+Where data is not specified, it will return a formatted axis which can be used for
+subsequent plotting:
+
+
+.. code-block:: default
+
+    ax = REE_v_radii(index='radii') # radii mode will put ionic radii on the x axis
+
+    # create some example data
+    ree = REE()
+    xs = get_ionic_radii(ree, coordination=8, charge=3)
+    ys = np.linspace(1, 20, len(xs))
+    ax.plot(xs, ys, marker='D', color='k')
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_001.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+Here we generate some example data:
+
+
+
+.. code-block:: default
+
+    no_analyses = 10
+
+    data_ree = REE(dropPm=True)
+    data_radii = np.array(get_ionic_radii(data_ree, coordination=8, charge=3))
+    data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
+        no_analyses, data_radii.shape[0]
+    )
+
+    dataframes = []
+
+    for i in range(2):
+        noise = np.random.randn(*data_radii.shape) * 0.1
+        constant = -0.1
+        lin = np.tile(np.linspace(3.0, 0.0, data_radii.shape[1]), (no_analyses, 1))
+        lin = (lin.T * (1.1 + i/2 * np.random.rand(data_radii.shape[0]))).T
+        quad = -1.2 * (data_radii - 1.11) ** 2.0
+
+        lnY = noise + constant + lin + quad
+
+        for ix, el in enumerate(data_ree):
+            if el in ["Ce", "Eu"]:
+                lnY[:, ix] += np.random.rand(no_analyses) * 0.6
+
+        Y = np.exp(lnY)
+
+        df = pd.DataFrame(Y, columns=data_ree)
+        dataframes.append(df)
+
+    df1 = dataframes[0]
+    df2 = dataframes[1]
+
+
+
+
+
+
+
+Where data is specified, the default plot is a line-based spiderplot:
+
+
+.. code-block:: default
+
+    ax = REE_v_radii(df1.values, ree=data_ree)
+
+    # or, alternatively directly from the dataframe:
+    ax = df1.pyroplot.REE()
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_002.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    C:\ProgramData\Anaconda3_64\lib\site-packages\pandas\core\indexing.py:1494: FutureWarning: 
+    Passing list-likes to .loc or [] with any missing label will raise
+    KeyError in the future, you can use .reindex() as an alternative.
+
+    See the documentation here:
+    https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
+      return self._getitem_tuple(key)
+
+
+
+
+This behaviour can be modified (see spiderplot docs) to provide filled ranges:
+
+
+
+.. code-block:: default
+
+    ax = REE_v_radii(df1.values, ree=data_ree, mode='fill')
+    # or, alternatively directly from the dataframe:
+    ax = df1.pyroplot.REE(mode='fill')
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_003.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
+      max_open_warning, RuntimeWarning)
+    C:\GitHub\pyrolite\pyrolite\plot\spider.py:173: RuntimeWarning: All-NaN slice encountered
+      mins = np.nanmin(arr, axis=0)
+    C:\GitHub\pyrolite\pyrolite\plot\spider.py:174: RuntimeWarning: All-NaN slice encountered
+      maxs = np.nanmax(arr, axis=0)
+
+
+
+
+The plotting axis can be specified to use exisiting axes:
+
+
+.. code-block:: default
+
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
+
+    df1.pyroplot.REE(ax=ax[0])
+    # we can also change the index of the second figure
+    ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='radii')
+    plt.tight_layout()
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_004.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+.. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
+             `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+             `Spider Density Diagrams <conditionaldensity.html>`__,
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  15.234 seconds)
+
+
+.. _sphx_glr_download_examples_plotting_REE_v_radii.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+  .. container:: binder-badge
+
+    .. image:: https://mybinder.org/badge_logo.svg
+      :target: https://mybinder.org/v2/gh/morganjwilliams/pyrolite/develop?filepath=docs/source/examples/plotting/REE_v_radii.ipynb
+      :width: 150 px
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: REE_v_radii.py <REE_v_radii.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: REE_v_radii.ipynb <REE_v_radii.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
