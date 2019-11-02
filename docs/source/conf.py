@@ -133,11 +133,12 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-
+# from pandas-dev theme
+html_css_files = ["css/custom.css"]
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 html_sidebars = {
-    "**": [
+    "**"    : [
         "globaltoc.html",
         "sourcelink.html",
         # "relations.html",  # needs 'show_related': True theme option to display
@@ -223,7 +224,10 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "sphinx_gallery": ("https://sphinx-gallery.github.io/", None),
-    "pyrolite_meltsutil": ("https://pyrolite-meltsutil.readthedocs.io/en/develop/", None),
+    "pyrolite_meltsutil": (
+        "https://pyrolite-meltsutil.readthedocs.io/en/develop/",
+        None,
+    ),
 }
 
 # sphinx_gallery config
@@ -231,23 +235,23 @@ from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
     "examples_dirs": [
-        "_examples/_auto/",
-        "_tutorials/_auto/",
+        "usage/examples/_auto/",
+        "usage/tutorials/_auto/",
     ],  # path to your example scripts
+    "gallery_dirs": [
+        "examples",
+        "tutorials",
+    ],  # path to where to save gallery generated output
     "subsection_order": ExplicitOrder(
         [
-            "_examples/_auto/plotting",
-            "_examples/_auto/geochem",
-            "_examples/_auto/comp",
-            "_tutorials/_auto",
+            "usage/examples/_auto/plotting",
+            "usage/examples/_auto/geochem",
+            "usage/examples/_auto/comp",
+            "usage/tutorials/_auto",
         ]
     ),
-    "gallery_dirs": [
-        "galleries/examples",
-        "galleries/tutorials",
-    ],  # path to where to save gallery generated output
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
-    "backreferences_dir": "galleries/backreferences",
+    "backreferences_dir": "_backreferences",
     "doc_module": ("pyrolite"),
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),

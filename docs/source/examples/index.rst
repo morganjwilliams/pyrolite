@@ -1,0 +1,524 @@
+:orphan:
+
+
+
+.. _sphx_glr_examples:
+
+Examples
+==================
+
+This example gallery includes a variety of examples for using pyrolite
+which you can copy, download and alter, or run on Binder.
+
+
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. _sphx_glr_examples_plotting:
+
+Plotting Examples
+~~~~~~~~~~~~~~~~~~~~
+
+Pyrolite provides some functionality for basic plotting of geochemical data in the form
+of spidergrams (pyrolite.plot.spider), ternary diagrams (pyrolite.plot.tern) and
+density diagrams (i.e. 2D histograms, pyrolite.plot.density).
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Stem plots are commonly used to visualise discrete distributions of data, and are useful to hig...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_stem_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_stem.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/stem
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Ternary Plots">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_tern_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_tern.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/tern
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Visualisation of data which has high dimensionality is challenging, and one solution is to prov...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_manifold_vis_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_manifold_vis.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/manifold_vis
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Parallel coordinate plots are one way to visualise data relationships and clusters in higher di...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_parallel_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_parallel.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/parallel
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Spider Plots">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_spider_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_spider.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/spider
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="While density plots are useful summary visualizations for large datasets, scatterplots are more...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_heatscatter_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_heatscatter.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/heatscatter
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="REE Radii Plots">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_REE_v_radii_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_REE_v_radii.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/REE_v_radii
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The spiderplot can be extended to provide visualisations of ranges and density via the various ...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_conditionalspider_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_conditionalspider.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/conditionalspider
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="While individual point data are useful, we commonly want to understand the the distribution of ...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_density_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_density.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/density
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. _sphx_glr_examples_geochem:
+
+Geochemistry Examples
+~~~~~~~~~~~~~~~~~~~~~
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes a limited mineral database which is useful for for looking up endmember compo...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_mineral_mindb_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_mineral_mindb.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/mineral_mindb
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Unit Scaling">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_scaling_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_scaling.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/scaling
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Shannon Radii">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_shannon_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_shannon.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/shannon
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="One of pyrolite&#x27;s strengths is converting mixed elemental and oxide data to a new form. The sim...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_convert_chemistry_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_convert_chemistry.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/convert_chemistry
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Geochemical Indexes and Selectors">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_indexes_selectors_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_indexes_selectors.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/indexes_selectors
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A selection of reference compositions are included in pyrolite, and can be easily accessed with...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_normalization_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_normalization.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/normalization
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A common task when working with mineral chemistry data is to take measured compositions and dec...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_mineral_endmembers_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_mineral_endmembers.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/mineral_endmembers
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="lambdas">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_pyrochem_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_lambdas_pyrochem.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/lambdas_pyrochem
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Orthogonal polynomial decomposition can be used for dimensional reduction of smooth function ov...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_dimreduction_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_lambdas_dimreduction.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/lambdas_dimreduction
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="lambdas">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_orthogonal_polynomials_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_lambdas_orthogonal_polynomials.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/lambdas_orthogonal_polynomials
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This example follows that given during a Institute of Advanced Studies Masterclass     with...">
+
+.. only:: html
+
+    .. figure:: /examples/geochem/images/thumb/sphx_glr_mineral_lattice_thumb.png
+
+        :ref:`sphx_glr_examples_geochem_mineral_lattice.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/mineral_lattice
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. _sphx_glr_examples_comp:
+
+Compositional Data Examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes the EMCOMP compositional missing data imputation algorithm of Palarea-Albalad...">
+
+.. only:: html
+
+    .. figure:: /examples/comp/images/thumb/sphx_glr_EMCOMP_thumb.png
+
+        :ref:`sphx_glr_examples_comp_EMCOMP.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/comp/EMCOMP
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Logratios for Average Compositions">
+
+.. only:: html
+
+    .. figure:: /examples/comp/images/thumb/sphx_glr_logratios_thumb.png
+
+        :ref:`sphx_glr_examples_comp_logratios.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/comp/logratios
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Compositional Data">
+
+.. only:: html
+
+    .. figure:: /examples/comp/images/thumb/sphx_glr_compositional_data_thumb.png
+
+        :ref:`sphx_glr_examples_comp_compositional_data.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/comp/compositional_data
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

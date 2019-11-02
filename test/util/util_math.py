@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
-from pyrolite.geochem import REE, get_ionic_radii
+from pyrolite.geochem.ind import REE, get_ionic_radii
 
 
 class TestAugmentedCovarianceMatrix(unittest.TestCase):

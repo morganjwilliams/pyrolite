@@ -1,0 +1,73 @@
+
+/**
+ * Styling for field lists
+ */
+
+ /* grey highlighting of 'parameter' and 'returns' field */
+table.field-list {
+    border-collapse: separate;
+    border-spacing: 10px;
+    margin-left: 1px;
+    /* border-left: 5px solid rgb(238, 238, 238) !important; */
+}
+
+table.field-list th.field-name {
+    /* display: inline-block; */
+    padding: 1px 8px 1px 5px;
+    white-space: nowrap;
+    background-color: rgb(238, 238, 238);
+}
+
+/* italic font for parameter types */
+table.field-list td.field-body > p {
+    font-style: italic;
+}
+
+table.field-list td.field-body > p > strong {
+    font-style: normal;
+}
+
+/* reduced space around parameter description */
+td.field-body blockquote {
+    border-left: none;
+    margin: 0em 0em 0.3em;
+    padding-left: 30px;
+}
+
+// Adapted from the new Jupyter notebook style
+// https://github.com/jupyter/notebook/blob/c8841b68c4c0739bbee1291e0214771f24194079/notebook/static/notebook/less/renderedhtml.less#L59
+table {
+    margin-left: auto;
+    margin-right: auto;
+    border: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: @rendered_html_border_color;
+    table-layout: fixed;
+}
+thead {
+    border-bottom: 1px solid @rendered_html_border_color;
+    vertical-align: bottom;
+}
+tr, th, td {
+    vertical-align: middle;
+    padding: 0.5em 0.5em;
+    line-height: normal;
+    white-space: normal;
+    max-width: none;
+    border: none;
+}
+th {
+    font-weight: bold;
+}
+th.col_heading {
+    text-align: right;
+}
+tbody tr:nth-child(odd) {
+    background: #f5f5f5;
+}
+
+table td.data, table th.row_heading table th.col_heading {
+    font-family: monospace;
+    text-align: right;
+}

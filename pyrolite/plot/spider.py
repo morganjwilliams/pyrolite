@@ -8,7 +8,7 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-from ..geochem import get_ionic_radii, REE
+from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
 from ..util.plot import (
     __DEFAULT_CONT_COLORMAP__,

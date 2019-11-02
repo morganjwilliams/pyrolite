@@ -8,8 +8,8 @@ from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from .norm import Composition, get_reference_composition
 from ..util.units import scale
+
 from .ind import (
     REE,
     get_ionic_radii,
@@ -20,7 +20,9 @@ from .ind import (
     __common_oxides__,
     get_cations,
 )
+from .norm import Composition, get_reference_composition
 from .parse import check_multiple_cation_inclusion, tochem
+
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

@@ -1,6 +1,7 @@
 import unittest
 from pyrolite.util.synthetic import test_df
 from pyrolite.comp.codata import close
+from pyrolite.geochem.ind import REE
 
 try:
     import sklearn

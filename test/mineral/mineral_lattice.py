@@ -1,6 +1,6 @@
 import unittest
 from pyrolite.mineral.lattice import strain_coefficient
-from pyrolite.geochem import get_ionic_radii
+from pyrolite.geochem.ind import get_ionic_radii
 
 
 class TestStrainCoefficient(unittest.TestCase):
