@@ -11,8 +11,23 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-* Added :func:`¬pyrolite.geochem.magma.SCSS` for modelling sulfur content at
+
+`0.2.2`_
+--------------
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`~pyrolite.geochem.magma.SCSS` for modelling sulfur content at
   sulfate/sulfide saturation.
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added `mineral database <../examples/geochem/mineral_mindb.html>`__ and
+  and `mineral endmember decomposition <../examples/geochem/mineral_endmembers.html>`__
+  examples
+
 
 `0.2.1`_
 --------------
@@ -82,7 +97,7 @@ All notable changes to this project will be documented here.
   methods
 * Updates and bugfixes for :mod:`pyrolite.geochem.transform` and
   :mod:`pyrolite.geochem.norm`
-* Updated the `normalization example <./usage/eg/geochem/normalization.html>`__
+* Updated the `normalization example <../examples/geochem/normalization.html>`__
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +109,7 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Added :func:`~pyrolite.plot.pyroplot.heatscatter` and `example <./usage/eg/plotting/heatscatter.html>`__.
+* Added :func:`~pyrolite.plot.pyroplot.heatscatter` and `example <../examples/plotting/heatscatter.html>`__.
 * Updates and bugfixes for :func:`pyrolite.plot.spider.REE_v_radii`, including updating
   spacing to reflect relative ionic radii
 
@@ -522,10 +537,10 @@ All notable changes to this project will be documented here.
   line and density base methods of visualising spider plots consistent with
   :func:`~pyrolite.plot.spider.spider`
 * Added :func:`~pyrolite.plot.spider.spider`
-  `examples for conditional density plots <./usage/eg/plotting/conditionaldensity.html>`__
+  `examples for conditional density plots <../examples/plotting/conditionaldensity.html>`__
   using :func:`~pyrolite.util.plot.conditional_prob_density`
 * Bugfix for :code:`set_under` in :func:`~pyrolite.plot.density.density`
-* Updated `logo example <./usage/eg/plotting/logo.html>`__
+* Updated `logo example <../tutorials/logo.html>`__
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -555,7 +570,7 @@ All notable changes to this project will be documented here.
 ~~~~~~~~~~~~~~~~~~~~~~
 
 * Expanded :mod:`pyrolite.comp.impute` and improved :func:`pyrolite.comp.impute.EMCOMP`
-* Added `EMCOMP example <./usage/eg/comp/impute.html>`__
+* Added `EMCOMP example <../examples/comp/EMCOMP.html>`__
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
@@ -582,7 +597,7 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-* Added `logo example <./usage/eg/plotting/logo.html>`__
+* Added `logo example <../tutorials/logo.html>`__
 * Refactored :mod:`pyrolite.plot` to use the :class:`pyrolite.plot.pyroplot` DataFrame
   accessor:
 
