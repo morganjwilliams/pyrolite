@@ -231,23 +231,23 @@ from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
     "examples_dirs": [
-        "_examples/_auto/",
-        "_tutorials/_auto/",
+        "usage/examples/_auto/",
+        "usage/tutorials/_auto/",
     ],  # path to your example scripts
     "subsection_order": ExplicitOrder(
         [
-            "_examples/_auto/plotting",
-            "_examples/_auto/geochem",
-            "_examples/_auto/comp",
-            "_tutorials/_auto",
+            "usage/examples/_auto/plotting",
+            "usage/examples/_auto/geochem",
+            "usage/examples/_auto/comp",
+            "usage/tutorials/_auto",
         ]
     ),
     "gallery_dirs": [
-        "galleries/examples",
-        "galleries/tutorials",
+        "usage/galleries/examples",
+        "usage/galleries/tutorials",
     ],  # path to where to save gallery generated output
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
-    "backreferences_dir": "galleries/backreferences",
+    "backreferences_dir": "usage/galleries/backreferences",
     "doc_module": ("pyrolite"),
     "filename_pattern": r"\.py",
     "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
