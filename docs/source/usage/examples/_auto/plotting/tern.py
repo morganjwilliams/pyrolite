@@ -14,7 +14,7 @@ from pyrolite.plot.tern import ternary
 
 np.random.seed(82)
 ########################################################################################
-# create some example data
+# Let's first create some example data:
 #
 oxs = ["SiO2", "MgO", "CaO"]
 ys = np.random.rand(3, len(oxs))

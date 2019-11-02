@@ -1,4 +1,10 @@
 import re
+import os
+import sys
+import copy
+import ast
+from functools import partial
+from io import StringIO
 import logging
 from pathlib import Path
 from sphinx_gallery import gen_rst
@@ -16,7 +22,11 @@ _si = """
     :width: 80 %
     :align: center
 """
-gen_rst.SINGLE_IMAGE = _si
+html_header = """.. only:: builder_html
+
+.. raw:: html
+
+    {0}\n        <br />\n        <br />"""
 
 
 def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
@@ -163,6 +173,139 @@ def _save_rst_example(
     plt.close("all")
 
 
+def execute_code_block(compiler, block, example_globals, script_vars, gallery_conf):
+    """Executes the code block of the example file"""
+    blabel, bcontent, lineno = block
+    # If example is not suitable to run, skip executing its blocks
+    if not script_vars["execute_script"] or blabel == "text":
+        return ""
+
+    cwd = os.getcwd()
+    # Redirect output to stdout and
+    orig_stdout, orig_stderr = sys.stdout, sys.stderr
+    src_file = script_vars["src_file"]
+
+    # First cd in the original example dir, so that any file
+    # created by the example get created in this directory
+
+    captured_std = StringIO()
+    os.chdir(os.path.dirname(src_file))
+
+    sys_path = copy.deepcopy(sys.path)
+    sys.path.append(os.getcwd())
+    sys.stdout = sys.stderr = LoggingTee(captured_std, logger, src_file)
+
+    try:
+        dont_inherit = 1
+        if sys.version_info >= (3, 8):
+            ast_Module = partial(ast.Module, type_ignores=[])
+        else:
+            ast_Module = ast.Module
+        code_ast = ast_Module([bcontent])
+        code_ast = compile(
+            bcontent, src_file, "exec", ast.PyCF_ONLY_AST | compiler.flags, dont_inherit
+        )
+        ast.increment_lineno(code_ast, lineno - 1)
+        # capture output if last line is expression
+        is_last_expr = False
+        if len(code_ast.body) and isinstance(code_ast.body[-1], ast.Expr):
+            is_last_expr = True
+            last_val = code_ast.body.pop().value
+            # exec body minus last expression
+            _, mem_body = gen_rst._memory_usage(
+                gen_rst._exec_once(
+                    compiler(code_ast, src_file, "exec"), example_globals
+                ),
+                gallery_conf,
+            )
+            # exec last expression, made into assignment
+            body = [
+                ast.Assign(
+                    targets=[ast.Name(id="___", ctx=ast.Store())], value=last_val
+                )
+            ]
+            last_val_ast = ast_Module(body=body)
+            ast.fix_missing_locations(last_val_ast)
+            _, mem_last = gen_rst._memory_usage(
+                gen_rst._exec_once(
+                    compiler(last_val_ast, src_file, "exec"), example_globals
+                ),
+                gallery_conf,
+            )
+            # capture the assigned variable
+            ___ = example_globals["___"]
+            mem_max = max(mem_body, mem_last)
+        else:
+            _, mem_max = gen_rst._memory_usage(
+                gen_rst._exec_once(
+                    compiler(code_ast, src_file, "exec"), example_globals
+                ),
+                gallery_conf,
+            )
+        script_vars["memory_delta"].append(mem_max)
+
+    except Exception:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        sys.stdout, sys.stderr = orig_stdout, orig_stderr
+        except_rst = gen_rst.handle_exception(
+            sys.exc_info(), src_file, script_vars, gallery_conf
+        )
+        code_output = u"\n{0}\n\n\n\n".format(except_rst)
+        # still call this even though we won't use the images so that
+        # figures are closed
+        scrapers.save_figures(block, script_vars, gallery_conf)
+    else:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        sys.stdout, orig_stderr = orig_stdout, orig_stderr
+        sys.path = sys_path
+        os.chdir(cwd)
+
+        last_repr = None
+        repr_meth = None
+        if gallery_conf["capture_repr"] != () and is_last_expr:
+            for meth in gallery_conf["capture_repr"]:
+                try:
+                    last_repr = getattr(___, meth)()
+                    # for case when last statement is print()
+                    if last_repr == "None":
+                        repr_meth = None
+                    else:
+                        repr_meth = meth
+                except Exception:
+                    pass
+                else:
+                    if isinstance(last_repr, str):
+                        break
+        captured_std = captured_std.getvalue().expandtabs()
+        # normal string output
+        if repr_meth in ["__repr__", "__str__"] and last_repr:
+            captured_std = u"{0}\n{1}".format(captured_std, last_repr)
+        if captured_std and not captured_std.isspace():
+            captured_std = CODE_OUTPUT.format(indent(captured_std, u" " * 4))
+        else:
+            captured_std = ""
+        images_rst = scrapers.save_figures(block, script_vars, gallery_conf)
+        # give html output its own header
+        if repr_meth == "_repr_html_":
+            captured_html = html_header.format(indent(last_repr, u" " * 8))
+        else:
+            captured_html = ""
+        code_output = u"\n{0}\n\n{1}\n{2}\n\n".format(
+            images_rst, captured_std, captured_html
+        )
+    finally:
+        os.chdir(cwd)
+        sys.path = sys_path
+        sys.stdout, sys.stderr = orig_stdout, orig_stderr
+
+    return code_output
+
+
 scrapers._scraper_dict.update(dict(altmatplot=alt_matplotlib_scraper))
+
+gen_rst.SINGLE_IMAGE = _si
+
+gen_rst.execute_code_block = execute_code_block
 # binder.gen_binder_rst = alt_gen_binder_rst
-gen_rst.save_rst_example = _save_rst_example

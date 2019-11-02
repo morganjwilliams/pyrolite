@@ -3,12 +3,14 @@ Geochemical Indexes and Selectors
 ==================================
 
 """
-
 import pyrolite.geochem
+import pandas as pd
+
+pd.set_option("precision", 3)  # smaller outputs
 ########################################################################################
 from pyrolite.util.synthetic import test_df
 
-df = test_df(cols=['CaO', 'MgO', 'SiO2', 'FeO', 'Mn', 'Ti', 'La', 'Lu', 'Mg/Fe'])
+df = test_df(cols=["CaO", "MgO", "SiO2", "FeO", "Mn", "Ti", "La", "Lu", "Mg/Fe"])
 ########################################################################################
 
 df.head(2).pyrochem.oxides
@@ -51,7 +53,7 @@ common_elements()  # string return
 ########################################################################################
 # All elements, returned as a list of `~periodictable.core.Formula`:
 #
-common_elements(output='formula')  # periodictable.core.Formula return
+common_elements(output="formula")  # periodictable.core.Formula return
 
 ########################################################################################
 # Oxides for elements with positive charges (up to U):

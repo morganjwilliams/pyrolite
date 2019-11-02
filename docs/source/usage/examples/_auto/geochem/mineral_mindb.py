@@ -14,6 +14,8 @@ from pyrolite.mineral.mindb import (
     get_mineral,
     get_mineral_group,
 )
+
+pd.set_option("precision", 3)  # smaller outputs
 ########################################################################################
 # From the database, you can get the list of its contents using a few utility
 # functions:
@@ -28,5 +30,5 @@ list_formulae()
 get_mineral("forsterite")
 ########################################################################################
 # If you want to get compositions for all minerals within a specific group, you can
-# use :func:`~pyrolite.mineral.get_mineral_group`:
+# use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 get_mineral_group("olivine")

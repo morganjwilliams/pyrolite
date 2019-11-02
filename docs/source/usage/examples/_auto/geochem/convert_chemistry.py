@@ -8,7 +8,9 @@ form. The simplest way to perform this is by using the
 pyrolite assumes that data are in the same units.
 """
 import pyrolite.geochem
+import pandas as pd
 
+pd.set_option("precision", 3)  # smaller outputs
 ########################################################################################
 # Here we create some synthetic data to work with, which has some variables in Wt% and
 # some in ppm. Notably some elements are present in more than one column (Ca, Na):

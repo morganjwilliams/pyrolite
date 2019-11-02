@@ -3,6 +3,9 @@ Unit Scaling
 =============
 """
 import pyrolite.geochem
+import pandas as pd
+
+pd.set_option("precision", 3)  # smaller outputs
 ########################################################################################
 from pyrolite.util.synthetic import test_df
 
