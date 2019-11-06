@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_plotting_spider.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_plotting_spider.py:
@@ -122,7 +118,7 @@ accomplished using :mod:`pyrolite.geochem.norm`:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  14.996 seconds)
+   **Total running time of the script:** ( 0 minutes  9.622 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:

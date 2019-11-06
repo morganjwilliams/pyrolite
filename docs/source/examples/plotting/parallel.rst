@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_plotting_parallel.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_plotting_parallel.py:
@@ -132,7 +128,7 @@ of spurious correlation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  9.230 seconds)
+   **Total running time of the script:** ( 0 minutes  6.260 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_parallel.py:

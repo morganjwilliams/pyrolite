@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_normalization.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_normalization.py:
@@ -84,8 +80,6 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
 
  .. code-block:: none
 
-    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
-      max_open_warning, RuntimeWarning)
     C:\ProgramData\Anaconda3_64\lib\site-packages\pandas\core\indexing.py:1494: FutureWarning: 
     Passing list-likes to .loc or [] with any missing label will raise
     KeyError in the future, you can use .reindex() as an alternative.
@@ -94,7 +88,7 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
     https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
       return self._getitem_tuple(key)
 
-    <matplotlib.legend.Legend object at 0x000001C509A23DA0>
+    <matplotlib.legend.Legend object at 0x000002811D82EEB8>
 
 
 
@@ -112,7 +106,7 @@ Currently available models include:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.637 seconds)
+   **Total running time of the script:** ( 0 minutes  1.590 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_normalization.py:

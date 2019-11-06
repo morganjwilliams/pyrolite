@@ -5,10 +5,10 @@ import pandas as pd
 import numpy as np
 from tinydb import TinyDB, Query
 import json
-from ...comp import *
-from ...util.pd import to_frame
-from ...util.units import scale
-from ...util.meta import pyrolite_datafolder
+from ..comp import *
+from ..util.pd import to_frame
+from ..util.units import scale
+from ..util.meta import pyrolite_datafolder
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

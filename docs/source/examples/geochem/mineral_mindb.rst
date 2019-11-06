@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_mineral_mindb.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_mineral_mindb.py:
@@ -235,7 +231,7 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.528 seconds)
+   **Total running time of the script:** ( 0 minutes  0.694 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_mindb.py:

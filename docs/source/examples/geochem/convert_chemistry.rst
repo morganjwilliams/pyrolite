@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_convert_chemistry.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_convert_chemistry.py:
@@ -91,25 +87,25 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
           <tbody>
             <tr>
               <th>0</th>
-              <td>9.233</td>
-              <td>16.476</td>
-              <td>32.152</td>
-              <td>3.843</td>
-              <td>8.396</td>
-              <td>1875.359</td>
-              <td>500.886</td>
-              <td>613.733</td>
+              <td>3.902</td>
+              <td>5.044</td>
+              <td>6.060</td>
+              <td>45.156</td>
+              <td>2.777</td>
+              <td>444.778</td>
+              <td>2275.896</td>
+              <td>985.441</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>9.203</td>
-              <td>16.465</td>
-              <td>32.648</td>
-              <td>3.586</td>
-              <td>9.116</td>
-              <td>1712.691</td>
-              <td>535.495</td>
-              <td>650.032</td>
+              <td>4.294</td>
+              <td>5.076</td>
+              <td>6.225</td>
+              <td>44.370</td>
+              <td>2.845</td>
+              <td>417.600</td>
+              <td>2240.456</td>
+              <td>1060.880</td>
             </tr>
           </tbody>
         </table>
@@ -184,25 +180,25 @@ Note that you can also use this function to calculate mass ratios:
           <tbody>
             <tr>
               <th>0</th>
-              <td>9.233</td>
-              <td>16.476</td>
-              <td>32.152</td>
-              <td>2.746</td>
-              <td>0.188</td>
-              <td>6.290</td>
-              <td>33.541</td>
-              <td>0.560</td>
+              <td>3.902</td>
+              <td>5.044</td>
+              <td>6.060</td>
+              <td>32.273</td>
+              <td>0.044</td>
+              <td>2.159</td>
+              <td>48.538</td>
+              <td>0.774</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>9.203</td>
-              <td>16.465</td>
-              <td>32.648</td>
-              <td>2.563</td>
-              <td>0.171</td>
-              <td>6.828</td>
-              <td>39.865</td>
-              <td>0.559</td>
+              <td>4.294</td>
+              <td>5.076</td>
+              <td>6.225</td>
+              <td>31.711</td>
+              <td>0.042</td>
+              <td>2.217</td>
+              <td>53.086</td>
+              <td>0.846</td>
             </tr>
           </tbody>
         </table>
@@ -252,13 +248,13 @@ species within the single dataframe:
           <tbody>
             <tr>
               <th>0</th>
-              <td>28.937</td>
-              <td>3.573</td>
+              <td>5.454</td>
+              <td>0.673</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>29.383</td>
-              <td>3.628</td>
+              <td>5.603</td>
+              <td>0.692</td>
             </tr>
           </tbody>
         </table>
@@ -269,7 +265,7 @@ species within the single dataframe:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.364 seconds)
+   **Total running time of the script:** ( 0 minutes  0.295 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_convert_chemistry.py:

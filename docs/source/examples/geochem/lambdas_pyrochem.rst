@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_lambdas_pyrochem.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_lambdas_pyrochem.py:
@@ -76,8 +72,6 @@ First we generate some example REE data, and plot this on a
     See the documentation here:
     https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
       return self._getitem_tuple(key)
-    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
-      max_open_warning, RuntimeWarning)
 
 
 
@@ -147,7 +141,7 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.116 seconds)
+   **Total running time of the script:** ( 0 minutes  11.019 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas_pyrochem.py:

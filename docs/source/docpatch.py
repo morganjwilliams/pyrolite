@@ -309,3 +309,4 @@ gen_rst.SINGLE_IMAGE = _si
 
 gen_rst.execute_code_block = execute_code_block
 # binder.gen_binder_rst = alt_gen_binder_rst
+gen_rst.save_rst_example = _save_rst_example

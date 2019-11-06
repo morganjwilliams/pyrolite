@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_plotting_REE_v_radii.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_plotting_REE_v_radii.py:
@@ -151,8 +147,6 @@ This behaviour can be modified (see spiderplot docs) to provide filled ranges:
 
  .. code-block:: none
 
-    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
-      max_open_warning, RuntimeWarning)
     C:\GitHub\pyrolite\pyrolite\plot\spider.py:173: RuntimeWarning: All-NaN slice encountered
       mins = np.nanmin(arr, axis=0)
     C:\GitHub\pyrolite\pyrolite\plot\spider.py:174: RuntimeWarning: All-NaN slice encountered
@@ -190,7 +184,7 @@ The plotting axis can be specified to use exisiting axes:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  15.234 seconds)
+   **Total running time of the script:** ( 0 minutes  8.158 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:
