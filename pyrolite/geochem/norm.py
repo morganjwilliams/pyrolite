@@ -17,6 +17,96 @@ logger = logging.getLogger(__name__)
 __dbfile__ = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
 
 
+def all_reference_compositions(path=None):
+    """
+    Get a dictionary of all reference compositions indexed by name.
+
+    Parameters
+    -----------
+    path : :class:`str` | :class:`pathlib.Path`
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    if path is None:
+        path = __dbfile__
+    with TinyDB(str(path)) as db:
+        refs = {}
+        for r in db.table().all():
+            n, c = r["name"], r["composition"]
+            refs[n] = Composition(json.loads(c), name=n)
+        db.close()
+    return refs
+
+
+def get_reference_composition(name):
+    """
+    Retrieve a particular composition from the reference database.
+
+    Parameters
+    ------------
+    name : :class:`str`
+        Name of the reference composition model.
+
+    Returns
+    --------
+    :class:`pyrolite.geochem.norm.Composition`
+    """
+    with TinyDB(str(__dbfile__)) as db:
+        res = db.search(Query().name == name)
+        db.close()
+    assert len(res) == 1
+    res = res[0]
+    name, composition = res["name"], res["composition"]
+    return Composition(json.loads(composition), name=name)
+
+
+def get_reference_files(directory=None, formats=["csv"]):
+    """
+    Get a list of the reference composition files.
+
+    Parameters
+    -----------
+    directory : :class:`str`, :code:`None`
+        Location of reference data files.
+    formats : :class:`list`, :code:`["csv"]`
+        List of potential data formats to draw from. Currently only csv will work.
+
+    Returns
+    --------
+    :class:`list`
+    """
+    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
+    assert directory.exists() and directory.is_dir()
+    files = []
+    for fmt in formats:
+        files.extend(directory.glob("./*." + fmt))
+    return files
+
+
+def update_database(path=None, encoding="cp1252", **kwargs):
+    """
+    Update the reference composition database.
+
+    Notes
+    ------
+    This will take all csv files from the geochem/refcomp pyrolite data folder
+    and construct a document-based JSON database.
+    """
+    if path is None:
+        path = __dbfile__
+    with TinyDB(str(path)) as db:
+        db.purge()
+
+        for f in get_reference_files():
+            C = Composition(f, encoding=encoding, **kwargs)
+            db.insert(
+                {"name": C.name, "composition": C._df.T.to_json(force_ascii=False)}
+            )
+        db.close()
+
+
 class Composition(object):
     def __init__(
         self, src, name=None, reference=None, reservoir=None, source=None, **kwargs
@@ -137,93 +227,3 @@ class Composition(object):
                 )
         r += ")"
         return r
-
-
-def all_reference_compositions(path=None):
-    """
-    Get a dictionary of all reference compositions indexed by name.
-
-    Parameters
-    -----------
-    path : :class:`str` | :class:`pathlib.Path`
-
-    Returns
-    --------
-    :class:`dict`
-    """
-    if path is None:
-        path = __dbfile__
-    with TinyDB(str(path)) as db:
-        refs = {}
-        for r in db.table().all():
-            n, c = r["name"], r["composition"]
-            refs[n] = Composition(json.loads(c), name=n)
-        db.close()
-    return refs
-
-
-def get_reference_composition(name):
-    """
-    Retrieve a particular composition from the reference database.
-
-    Parameters
-    ------------
-    name : :class:`str`
-        Name of the reference composition model.
-
-    Returns
-    --------
-    :class:`pyrolite.geochem.norm.Composition`
-    """
-    with TinyDB(str(__dbfile__)) as db:
-        res = db.search(Query().name == name)
-        db.close()
-    assert len(res) == 1
-    res = res[0]
-    name, composition = res["name"], res["composition"]
-    return Composition(json.loads(composition), name=name)
-
-
-def get_reference_files(directory=None, formats=["csv"]):
-    """
-    Get a list of the reference composition files.
-
-    Parameters
-    -----------
-    directory : :class:`str`, :code:`None`
-        Location of reference data files.
-    formats : :class:`list`, :code:`["csv"]`
-        List of potential data formats to draw from. Currently only csv will work.
-
-    Returns
-    --------
-    :class:`list`
-    """
-    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
-    assert directory.exists() and directory.is_dir()
-    files = []
-    for fmt in formats:
-        files.extend(directory.glob("./*." + fmt))
-    return files
-
-
-def update_database(path=None, encoding="cp1252", **kwargs):
-    """
-    Update the reference composition database.
-
-    Notes
-    ------
-    This will take all csv files from the geochem/refcomp pyrolite data folder
-    and construct a document-based JSON database.
-    """
-    if path is None:
-        path = __dbfile__
-    with TinyDB(str(path)) as db:
-        db.purge()
-
-        for f in get_reference_files():
-            C = Composition(f, encoding=encoding, **kwargs)
-            db.insert(
-                {"name": C.name, "composition": C._df.T.to_json(force_ascii=False)}
-            )
-        db.close()
