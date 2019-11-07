@@ -305,7 +305,7 @@ class pyroplot(object):
             raise AssertionError(msg)
 
         if ax is None:
-            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots))
+            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
 
         fontsize = kwargs.get("fontsize", 8.0)
 
