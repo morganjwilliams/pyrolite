@@ -206,6 +206,7 @@ lookup the compositions for our endmembers:
               <th>K</th>
               <th>H</th>
               <th>Ti</th>
+              <th>Ce{3+}</th>
             </tr>
           </thead>
           <tbody>
@@ -218,20 +219,21 @@ lookup the compositions for our endmembers:
               <td>0.200</td>
               <td>0.455</td>
               <td>0.000</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
             </tr>
             <tr>
               <th>1</th>
@@ -242,20 +244,21 @@ lookup the compositions for our endmembers:
               <td>0.138</td>
               <td>0.314</td>
               <td>0.548</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
             </tr>
           </tbody>
         </table>
@@ -399,7 +402,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.350 seconds)
+   **Total running time of the script:** ( 0 minutes  0.429 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:

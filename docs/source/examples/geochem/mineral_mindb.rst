@@ -48,7 +48,7 @@ functions:
  .. code-block:: none
 
 
-    ['amphibole', 'feldspar', 'olivine', 'pyroxene', 'spinel']
+    ['amphibole', 'epidote', 'feldspar', 'garnet', 'mica', 'olivine', 'pyroxene', 'spinel']
 
 
 
@@ -67,7 +67,7 @@ functions:
  .. code-block:: none
 
 
-    ['aegirine', 'albite', 'anorthite', 'anthopyllite', 'arvedsonite', 'barroisite', 'chromite', 'diopside', 'eckermanite', 'edenite', 'enstatite', 'esseneite', 'fayalite', 'ferroeckermanite', 'ferroedenite', 'ferrohornblende', 'ferrokaersutite', 'ferrokatophorite', 'ferropargasite', 'ferrorichterite', 'ferrosilite', 'ferrotschermakite', 'forsterite', 'gedrite', 'glaucophane', 'hastingsite', 'hedenbergite', 'hercynite', 'jadeite', 'johannsenite', 'kaersutite', 'katophorite', 'kosmochlor', 'liebenbergite', 'magnesioarfvedsonite', 'magnesiochromite', 'magnesioferrite', 'magnesiohastingsite', 'magnesiohornblende', 'magnesioreibeckite', 'magnetite', 'microcline', 'namansilite', 'pargasite', 'richterite', 'riebeckite', 'spinel', 'spodumene', 'taramite', 'tephroite', 'tremolite', 'tschermakite', 'winchite']
+    ['aegirine', 'albite', 'allanite', 'almandine', 'aluminoceladonite', 'andradite', 'annite', 'anorthite', 'anthopyllite', 'arvedsonite', 'barroisite', 'celadonite', 'chromite', 'chromoceladonite', 'chromphyllite', 'clinozoisite', 'clintonite', 'diopside', 'eastonite', 'eckermanite', 'edenite', 'enstatite', 'epidote', 'esseneite', 'fayalite', 'ferroaluminoceladonite', 'ferroceladonite', 'ferroeckermanite', 'ferroedenite', 'ferrohornblende', 'ferrokaersutite', 'ferrokatophorite', 'ferropargasite', 'ferrorichterite', 'ferrosilite', 'ferrotschermakite', 'forsterite', 'gedrite', 'glaucophane', 'grossular', 'hastingsite', 'hedenbergite', 'hercynite', 'jadeite', 'johannsenite', 'kaersutite', 'katophorite', 'kosmochlor', 'liebenbergite', 'magnesioarfvedsonite', 'magnesiochromite', 'magnesioferrite', 'magnesiohastingsite', 'magnesiohornblende', 'magnesioreibeckite', 'magnetite', 'manganiceladonite', 'margarite', 'microcline', 'muscovite', 'namansilite', 'paragonite', 'pargasite', 'phengite', 'phlogopite', 'piemontite', 'polylithionite', 'pyrope', 'richterite', 'riebeckite', 'siderophyllite', 'spessartine', 'spinel', 'spodumene', 'taramite', 'tephroite', 'tremolite', 'trilithionite', 'tschermakite', 'uvarovite', 'winchite']
 
 
 
@@ -86,7 +86,7 @@ functions:
  .. code-block:: none
 
 
-    ['(Ca2)(Fe3Al2)(Si6Al2)O22(OH)2', '(Ca2)(Fe4Al)(Si7Al)O22(OH)2', '(Ca2)(Mg3Al2)(Si6Al2)O22(OH)2', '(Ca2)(Mg4Al)(Si7Al)O22(OH)2', '(Ca2)(Mg5)(Si8)O22(OH)2', '(Mg2)(Mg3Al2)(Si6Al2)O22(OH)2', '(Mg2)(Mg5)(Si8)O22(OH)2', '(Na2)(Fe3Fe{3+}2)(Si8)O22(OH)2', '(Na2)(Mg3Al2)(Si8)O22(OH)2', '(Na2)(Mg3Fe{3+}2)(Si8)O22(OH)2', '(NaCa)(Mg3Al2)(Si7Al)O22(OH)2', '(NaCa)(Mg4Al)(Si8)O22(OH)2', 'CaAl2Si2O8', 'CaAlFe{3+}SiO6', 'CaFeSi2O6', 'CaMgSi2O6', 'CaMnSi2O6', 'Fe2Si2O6', 'Fe2SiO4', 'Fe{2+}Al2O4', 'Fe{2+}Cr{3+}2O4', 'Fe{2+}Fe{3+}2O4', 'KAlSi3O8', 'LiAlSi2O6', 'Mg2Si2O6', 'Mg2SiO4', 'MgAl2O4', 'MgCr{3+}2O4', 'MgFe{3+}2O4', 'Mn2SiO4', 'Na(Ca2)(Fe4Al)(Si6Al2)O22(OH)2', 'Na(Ca2)(Fe4Ti)(Si6Al2)O22(OH)2', 'Na(Ca2)(Fe5)(Si7Al)O22(OH)2', 'Na(Ca2)(Fe{2+}4Fe{3+})(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Al)(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Fe{3+})(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Ti)(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg5)(Si7Al)O22(OH)2', 'Na(Na2)(Fe4Al)(Si8)O22(OH)2', 'Na(Na2)(Fe{2+}4Fe{3+})(Si8)O22(OH)2', 'Na(Na2)(Mg4Al)(Si8)O22(OH)2', 'Na(Na2)(Mg4Fe{3+})(Si8)O22(OH)2', 'Na(NaCa)(Fe4Al)(Si7Al)O22(OH)2', 'Na(NaCa)(Fe5)(Si8)O22(OH)2', 'Na(NaCa)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(NaCa)(Mg4Al)(Si7Al)O22(OH)2', 'Na(NaCa)(Mg5)(Si8)O22(OH)2', 'NaAlSi2O6', 'NaAlSi3O8', 'NaCrSi2O6', 'NaFe{3+}Si2O6', 'NaMn{3+}Si2O6', 'Ni1.5Mg0.5SiO4']
+    ['(Ca2)(Fe3Al2)(Si6Al2)O22(OH)2', '(Ca2)(Fe4Al)(Si7Al)O22(OH)2', '(Ca2)(Mg3Al2)(Si6Al2)O22(OH)2', '(Ca2)(Mg4Al)(Si7Al)O22(OH)2', '(Ca2)(Mg5)(Si8)O22(OH)2', '(Mg2)(Mg3Al2)(Si6Al2)O22(OH)2', '(Mg2)(Mg5)(Si8)O22(OH)2', '(Na2)(Fe3Fe{3+}2)(Si8)O22(OH)2', '(Na2)(Mg3Al2)(Si8)O22(OH)2', '(Na2)(Mg3Fe{3+}2)(Si8)O22(OH)2', '(NaCa)(Mg3Al2)(Si7Al)O22(OH)2', '(NaCa)(Mg4Al)(Si8)O22(OH)2', 'Ca2(Al4)(Si4Al4)O20(OH)4', 'Ca2(Mg4Al2)(Si2Al6)O20(OH)4', 'Ca2Al2Fe{3+}(Si2O7)(SiO4)O(OH)', 'Ca2Al2Mn{3+}(Si2O7)(SiO4)O(OH)', 'Ca2Al3(Si2O7)(SiO4)O(OH)', 'Ca3Al2Si3O12', 'Ca3Cr2Si3O12', 'Ca3Fe{3+}2Si3O12', 'CaAl2Si2O8', 'CaAlFe{3+}SiO6', 'CaCe{3+}Al2Fe{2+}(Si2O7)(SiO4)O(OH)', 'CaFeSi2O6', 'CaMgSi2O6', 'CaMnSi2O6', 'Fe2Si2O6', 'Fe2SiO4', 'Fe{2+}3Al2Si3O12', 'Fe{2+}Al2O4', 'Fe{2+}Cr{3+}2O4', 'Fe{2+}Fe{3+}2O4', 'K2(Al2Li2)(Si8)O20(OH)4', 'K2(Al3Li3)(Si6Al2)O20(OH)4', 'K2(Al3Mg)(Si7Al)O20(OH)4', 'K2(Al4)(Si6Al2)O20(OH)4', 'K2(Cr{3+}4)(Si6Al2)O20(OH)4', 'K2(Fe{2+}2Al2)(Si8)O20(OH)4', 'K2(Fe{2+}4)(Si4Al6)O20(OH)4', 'K2(Fe{2+}6)(Si6Al2)O20(OH)4', 'K2(Fe{3+}2Fe{2+}2)(Si8)O20(OH)4', 'K2(Fe{3+}2Mg2)(Si8)O20(OH)4', 'K2(Mg2Al2)(Si8)O20(OH)4', 'K2(Mg2Cr{3+}2)(Si8)O20(OH)4', 'K2(Mg4)(Si4Al6)O20(OH)4', 'K2(Mg6)(Si6Al2)O20(OH)4', 'K2(Mn{3+}2Mg2)(Si8)O20(OH)4', 'KAlSi3O8', 'LiAlSi2O6', 'Mg2Si2O6', 'Mg2SiO4', 'Mg3Al2Si3O12', 'MgAl2O4', 'MgCr{3+}2O4', 'MgFe{3+}2O4', 'Mn2SiO4', 'Mn3Al2Si3O12', 'Na(Ca2)(Fe4Al)(Si6Al2)O22(OH)2', 'Na(Ca2)(Fe4Ti)(Si6Al2)O22(OH)2', 'Na(Ca2)(Fe5)(Si7Al)O22(OH)2', 'Na(Ca2)(Fe{2+}4Fe{3+})(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Al)(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Fe{3+})(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Ti)(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg5)(Si7Al)O22(OH)2', 'Na(Na2)(Fe4Al)(Si8)O22(OH)2', 'Na(Na2)(Fe{2+}4Fe{3+})(Si8)O22(OH)2', 'Na(Na2)(Mg4Al)(Si8)O22(OH)2', 'Na(Na2)(Mg4Fe{3+})(Si8)O22(OH)2', 'Na(NaCa)(Fe4Al)(Si7Al)O22(OH)2', 'Na(NaCa)(Fe5)(Si8)O22(OH)2', 'Na(NaCa)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(NaCa)(Mg4Al)(Si7Al)O22(OH)2', 'Na(NaCa)(Mg5)(Si8)O22(OH)2', 'Na2(Al4)(Si6Al2)O20(OH)4', 'NaAlSi2O6', 'NaAlSi3O8', 'NaCrSi2O6', 'NaFe{3+}Si2O6', 'NaMn{3+}Si2O6', 'Ni1.5Mg0.5SiO4']
 
 
 
@@ -129,6 +129,7 @@ You can also directly get the composition of specific minerals by name:
     K                   0
     H                   0
     Ti                  0
+    Ce{3+}              0
     dtype: object
 
 
@@ -231,7 +232,7 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.694 seconds)
+   **Total running time of the script:** ( 0 minutes  0.490 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_mindb.py:
