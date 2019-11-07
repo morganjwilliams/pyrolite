@@ -1,3 +1,6 @@
+"""
+Reference compostitions and compositional normalisation.
+"""
 import os, sys
 from pathlib import Path
 import platform

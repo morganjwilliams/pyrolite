@@ -1,3 +1,7 @@
+"""
+Collections and indexes of elements and oxides, and functions
+for obtaining these and relevant properties (e.g. radii).
+"""
 import re
 import sys
 import functools
