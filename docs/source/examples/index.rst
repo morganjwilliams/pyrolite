@@ -130,26 +130,6 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Spider Plots">
-
-.. only:: html
-
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_spider_thumb.png
-
-        :ref:`sphx_glr_examples_plotting_spider.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/plotting/spider
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="While density plots are useful summary visualizations for large datasets, scatterplots are more...">
 
 .. only:: html
@@ -190,13 +170,13 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The spiderplot can be extended to provide visualisations of ranges and density via the various ...">
+    <div class="sphx-glr-thumbcontainer" tooltip="Spiderplots">
 
 .. only:: html
 
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_conditionalspider_thumb.png
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_spider_thumb.png
 
-        :ref:`sphx_glr_examples_plotting_conditionalspider.py`
+        :ref:`sphx_glr_examples_plotting_spider.py`
 
 .. raw:: html
 
@@ -206,7 +186,7 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 .. toctree::
    :hidden:
 
-   /examples/plotting/conditionalspider
+   /examples/plotting/spider
 
 .. raw:: html
 
