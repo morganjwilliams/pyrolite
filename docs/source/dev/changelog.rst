@@ -11,6 +11,17 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated database for :mod:`pyrolite.mineral.mindb` to include epidotes,
+  garnets, micas
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Minor updates for :mod:`pyrolite.plot.templates`, added functionality to
+  :func:`pyrolite.plot.templates.TAS` stub.
 
 `0.2.2`_
 --------------
