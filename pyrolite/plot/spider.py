@@ -209,7 +209,7 @@ def spider(
             **subkwargs(local_kw, conditional_prob_density)
         )
         # can have issues with nans here?
-        vmin = kwargs.pop("get", 0)
+        vmin = kwargs.pop("vmin", 0)
         vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]  # pctl
         if "contours" in kwargs:
             pzpkwargs = {  # keyword arguments to forward to plot_Z_percentiles
