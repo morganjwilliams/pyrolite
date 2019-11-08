@@ -1,16 +1,30 @@
 import matplotlib.pyplot as plt
 from ...util.classification import Geochemistry
-from ...util.meta import subkwargs
+from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 
-# @update_docstring_references
+
+@update_docstring_references
 def TAS(ax=None, relim=True, color="k", **kwargs):
     """
-    Adds the TAS diagram to an axes.
+    Adds the TAS diagram from Le Bas (1993) [#ref_1]_ to an axes.
 
     Parameters
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template on to.
+    relim : :class:`bool`
+        Whether to relimit axes to fit the built in ranges for this diagram.
+    color : :class:`str`
+        Line color for the diagram.
+
+    References
+    -----------
+    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+                The construction of the Total Alkali-Silica chemical
+                classification of volcanic rocks.
+                Mineralogy and Petrology 46, 1–22.
+                doi: {LeBas1992}
+
 
     Returns
     -------
@@ -33,3 +47,7 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
     return ax
+
+
+for f in [TAS]:
+    f.__doc__ = f.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))

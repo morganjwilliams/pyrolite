@@ -19,6 +19,10 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template onto.
+    relim : :class:`bool`
+        Whether to relimit axes to fit the built in ranges for this diagram.
+    color : :class:`str`
+        Line color for the diagram.
 
     References
     -----------
@@ -70,7 +74,11 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template onto.
-
+    relim : :class:`bool`
+        Whether to relimit axes to fit the built in ranges for this diagram.
+    color : :class:`str`
+        Line color for the diagram.
+        
     References
     -----------
     .. [#ref_1] Pearce J. A. (2008) Geochemical fingerprinting of oceanic basalts

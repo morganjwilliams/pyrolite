@@ -30,6 +30,26 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes some ready-made templates for well-known plots. These can be used to create n...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_templates_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_templates.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/templates
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Stem plots are commonly used to visualise discrete distributions of data, and are useful to hig...">
 
 .. only:: html
