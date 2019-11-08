@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.plot.spider import REE_v_radii
 from pyrolite.util.math import lambdas, lambda_poly_func, OP_constants
+
 # sphinx_gallery_thumbnail_number = 2
 
 np.random.seed(82)
@@ -79,14 +80,25 @@ ls = np.apply_along_axis(
 )
 
 ########################################################################################
+# The reduction to lambdas using the pandas interface is much simpler than using the
+# numpy-based utility functions above (:func:`pyrolite.util.math.lambdas`):
+#
+
+df = pd.DataFrame(Y, columns=data_ree)
+ls = df.pyrochem.lambda_lnREE(
+    exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON"
+)
+
+########################################################################################
 
 fig, ax = plt.subplots(1, lambda_degree - 1, figsize=(9, 3))
-ax_labels = [chr(955) + "$_{}$".format(str(d)) for d in range(lambda_degree)]
+ax_labels = ls.columns
 
-for ix in range(lambda_degree - 1):
-    ax[ix].scatter(ls[:, ix], ls[:, ix + 1], alpha=0.1, c="k")
-    ax[ix].set_xlabel(ax_labels[ix])
-    ax[ix].set_ylabel(ax_labels[ix + 1])
+for ix in range(ls.columns.size - 1):
+    l1, l2 = ax_labels[ix], ax_labels[ix + 1]
+    ax[ix].scatter(ls[l1], ls[l2], alpha=0.1, c="k")
+    ax[ix].set_xlabel(l1)
+    ax[ix].set_ylabel(l2)
 
 plt.tight_layout()
 fig.suptitle("lambdas for Dimensional Reduction", y=1.05)
@@ -99,5 +111,4 @@ fig.suptitle("lambdas for Dimensional Reduction", y=1.05)
 # .. seealso::
 #
 #   Examples:
-#     `Visualising Orthogonal Polynomials <lambdavis.html>`__,
-#     `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__
+#     `Visualising Orthogonal Polynomials <lambdavis.html>`__
