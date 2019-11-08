@@ -21,7 +21,7 @@ class ClassifierModel(object):
         if __name__ == "__main__":
             modeldir = Path(os.getcwd()) / "models"
         else:
-            modeldir = pyrolite_datafolder(subfolder="models") 
+            modeldir = pyrolite_datafolder(subfolder="models")
         self.diskname = modeldir / str(self.clsf_modelname)
         self.deterministic = deterministic
         self.clsf = None
@@ -90,14 +90,16 @@ class SimpleDeterministicClassifer(object):
         else:
             pass
 
-    def add_to_axes(self, ax=None, **kwargs):
+    def add_to_axes(self, ax=None, fill=False, **kwargs):
         polys = [(c, self.fields[c]) for c in self.fclasses if self.fields[c]["poly"]]
         if ax is None:
             fig, ax = plt.subplots(1)
         pgns = []
         for c, f in polys:
             label = f["names"]
-            pg = Polygon(f["poly"], closed=True, **kwargs)
+            if not fill:
+                kwargs['facecolor'] = 'none'
+            pg = Polygon(f["poly"], closed=True, edgecolor="k", **kwargs)
             pgns.append(pg)
             x, y = pg.get_xy().T
             ax.annotate(c, xy=(np.nanmean(x), np.nanmean(y)))
