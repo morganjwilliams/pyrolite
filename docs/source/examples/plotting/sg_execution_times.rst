@@ -5,9 +5,9 @@
 
 Computation times
 =================
-**00:03.785** total execution time for **examples_plotting** files:
+**00:03.969** total execution time for **examples_plotting** files:
 
-- **00:03.785**: :ref:`sphx_glr_examples_plotting_templates.py` (``templates.py``)
+- **00:03.969**: :ref:`sphx_glr_examples_plotting_templates.py` (``templates.py``)
 - **00:00.000**: :ref:`sphx_glr_examples_plotting_REE_v_radii.py` (``REE_v_radii.py``)
 - **00:00.000**: :ref:`sphx_glr_examples_plotting_conditionalspider.py` (``conditionalspider.py``)
 - **00:00.000**: :ref:`sphx_glr_examples_plotting_density.py` (``density.py``)

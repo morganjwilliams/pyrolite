@@ -12,7 +12,8 @@ from pyrolite.util.plot import share_axes
 # sphinx_gallery_thumbnail_number = 2
 
 ########################################################################################
-# First let's build a simple total-alkali vs silica (TAS) diagram:
+# First let's build a simple total-alkali vs silica (
+# :func:`~pyrolite.plot.templates.TAS`) diagram:
 #
 from pyrolite.plot.templates import TAS
 
@@ -20,8 +21,8 @@ ax = TAS()
 plt.show()
 ########################################################################################
 # The other templates currently included in :mod:`pyrolite` are the
-# :func:`~pyrolite.plot.templates.pearce.pearceThNbYb` and
-# :func:`~pyrolite.plot.templates.pearce.pearceTiNbYb` diagrams.
+# :func:`~pyrolite.plot.templates.pearceThNbYb` and
+# :func:`~pyrolite.plot.templates.pearceTiNbYb` diagrams.
 # We can create some axes and add these templates to them:
 #
 from pyrolite.plot.templates import pearceThNbYb, pearceTiNbYb

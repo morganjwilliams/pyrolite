@@ -24,7 +24,8 @@ be used to create new plots, or add a template to an existing
 
 
 
-First let's build a simple total-alkali vs silica (TAS) diagram:
+First let's build a simple total-alkali vs silica (
+:func:`~pyrolite.plot.templates.TAS`) diagram:
 
 
 
@@ -45,8 +46,8 @@ First let's build a simple total-alkali vs silica (TAS) diagram:
 
 
 The other templates currently included in :mod:`pyrolite` are the
-:func:`~pyrolite.plot.templates.pearce.pearceThNbYb` and
-:func:`~pyrolite.plot.templates.pearce.pearceTiNbYb` diagrams.
+:func:`~pyrolite.plot.templates.pearceThNbYb` and
+:func:`~pyrolite.plot.templates.pearceTiNbYb` diagrams.
 We can create some axes and add these templates to them:
 
 
@@ -100,6 +101,10 @@ and within the pyrolite documentation:
         ----------
         ax : :class:`matplotlib.axes.Axes`
             Axes to add the template on to.
+        relim : :class:`bool`
+            Whether to relimit axes to fit the built in ranges for this diagram.
+        color : :class:`str`
+            Line color for the diagram.
     
         References
         -----------
@@ -121,7 +126,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.785 seconds)
+   **Total running time of the script:** ( 0 minutes  3.969 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:
