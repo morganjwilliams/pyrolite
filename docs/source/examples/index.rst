@@ -22,7 +22,7 @@ which you can copy, download and alter, or run on Binder.
 Plotting Examples
 ~~~~~~~~~~~~~~~~~~~~
 
-Pyrolite provides some functionality for basic plotting of geochemical data in the form
+pyrolite provides some functionality for basic plotting of geochemical data in the form
 of spidergrams (pyrolite.plot.spider), ternary diagrams (pyrolite.plot.tern) and
 density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
@@ -531,6 +531,44 @@ Compositional Data Examples
    :hidden:
 
    /examples/comp/compositional_data
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. _sphx_glr_examples_util:
+
+Utility Examples
+~~~~~~~~~~~~~~~~~~~~
+
+pyrolite includes a range of utilities for everything from dealing with
+the web to plotting, synthetic data and machine learning. While most of these
+are used as part of the core functions of pyrolite, you may also find
+other uses for them, and this section provides some simple examples for
+some of these.
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Some simple discrimination methods are implemented, including the Total Alkali-Silica (TAS) cla...">
+
+.. only:: html
+
+    .. figure:: /examples/util/images/thumb/sphx_glr_TAS_thumb.png
+
+        :ref:`sphx_glr_examples_util_TAS.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/util/TAS
 .. raw:: html
 
     <div style='clear:both'></div>

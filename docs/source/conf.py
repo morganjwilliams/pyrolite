@@ -247,6 +247,7 @@ sphinx_gallery_conf = {
             "usage/examples/_auto/plotting",
             "usage/examples/_auto/geochem",
             "usage/examples/_auto/comp",
+            "usage/examples/_auto/util",
             "usage/tutorials/_auto",
         ]
     ),
