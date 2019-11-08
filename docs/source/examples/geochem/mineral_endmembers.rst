@@ -86,8 +86,8 @@ We can break this down into olivine endmebmers using the
           <tbody>
             <tr>
               <th>0</th>
-              <td>79.994</td>
-              <td>20.006</td>
+              <td>79.994321</td>
+              <td>20.005679</td>
             </tr>
           </tbody>
         </table>
@@ -140,8 +140,8 @@ endmembers:
           <tbody>
             <tr>
               <th>0</th>
-              <td>79.994</td>
-              <td>20.006</td>
+              <td>79.994384</td>
+              <td>20.005616</td>
             </tr>
           </tbody>
         </table>
@@ -157,7 +157,7 @@ lookup the compositions for our endmembers:
 .. code-block:: default
 
     em = pd.DataFrame([get_mineral("forsterite"), get_mineral("fayalite")])
-    em
+    em.loc[:, ~(em == 0).all(axis=0)]  # columns not full of zeros
 
 
 
@@ -192,21 +192,6 @@ lookup the compositions for our endmembers:
               <th>Si</th>
               <th>O</th>
               <th>Fe</th>
-              <th>Mn</th>
-              <th>Ni</th>
-              <th>Ca</th>
-              <th>Al</th>
-              <th>Fe{3+}</th>
-              <th>Na</th>
-              <th>Mn{3+}</th>
-              <th>Cr</th>
-              <th>Li</th>
-              <th>Cr{3+}</th>
-              <th>Fe{2+}</th>
-              <th>K</th>
-              <th>H</th>
-              <th>Ti</th>
-              <th>Ce{3+}</th>
             </tr>
           </thead>
           <tbody>
@@ -215,50 +200,20 @@ lookup the compositions for our endmembers:
               <td>forsterite</td>
               <td>olivine</td>
               <td>Mg2SiO4</td>
-              <td>0.346</td>
-              <td>0.200</td>
-              <td>0.455</td>
-              <td>0.000</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
+              <td>0.345504</td>
+              <td>0.199622</td>
+              <td>0.454874</td>
+              <td>0.00000</td>
             </tr>
             <tr>
               <th>1</th>
               <td>fayalite</td>
               <td>olivine</td>
               <td>Fe2SiO4</td>
-              <td>0.000</td>
-              <td>0.138</td>
-              <td>0.314</td>
-              <td>0.548</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
+              <td>0.000000</td>
+              <td>0.137827</td>
+              <td>0.314063</td>
+              <td>0.54811</td>
             </tr>
           </tbody>
         </table>
@@ -316,15 +271,15 @@ First we have to convert these element-based compositions to oxide-based composi
           <tbody>
             <tr>
               <th>0</th>
-              <td>0.667</td>
-              <td>0.333</td>
-              <td>0.000</td>
+              <td>0.666667</td>
+              <td>0.333333</td>
+              <td>0.000000</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>0.000</td>
-              <td>0.333</td>
-              <td>0.667</td>
+              <td>0.000000</td>
+              <td>0.333333</td>
+              <td>0.666667</td>
             </tr>
           </tbody>
         </table>
@@ -375,9 +330,9 @@ These can now be used with our endmember proportions to regenerate a composition
           <tbody>
             <tr>
               <th>0</th>
-              <td>42.059</td>
-              <td>39.191</td>
-              <td>18.75</td>
+              <td>42.059488</td>
+              <td>39.190701</td>
+              <td>18.749811</td>
             </tr>
           </tbody>
         </table>
@@ -402,7 +357,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.381 seconds)
+   **Total running time of the script:** ( 0 minutes  0.850 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:

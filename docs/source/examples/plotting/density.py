@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.density import density
 from pyrolite.comp.codata import close
-# sphinx_gallery_thumbnail_number = 7
+# sphinx_gallery_thumbnail_number = 6
 
 np.random.seed(82)
 ########################################################################################

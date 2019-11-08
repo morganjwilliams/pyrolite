@@ -382,26 +382,6 @@ Geochemistry Examples
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="lambdas">
-
-.. only:: html
-
-    .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_pyrochem_thumb.png
-
-        :ref:`sphx_glr_examples_geochem_lambdas_pyrochem.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/geochem/lambdas_pyrochem
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Orthogonal polynomial decomposition can be used for dimensional reduction of smooth function ov...">
 
 .. only:: html
