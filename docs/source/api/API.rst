@@ -33,7 +33,6 @@ pyrolite\.geochem
     geochem/transform
     geochem/norm
     geochem/parse
-    geochem/validate
     geochem/magma
     geochem/alteration
     geochem/isotope

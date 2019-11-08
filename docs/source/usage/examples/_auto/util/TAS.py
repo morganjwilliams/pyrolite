@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyrolite.util.classification import Geochemistry
 from pyrolite.util.synthetic import test_df, random_cov_matrix
+# sphinx_gallery_thumbnail_number = 2
 
 ########################################################################################
 # We'll first generate some synthetic data to play with:

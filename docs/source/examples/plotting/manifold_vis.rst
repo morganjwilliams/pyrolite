@@ -90,9 +90,9 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 
     Fitting 10 folds for each of 1 candidates, totalling 10 fits
     [Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    3.0s remaining:    3.0s
-    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    3.0s remaining:    1.2s
-    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    3.0s finished
+    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    2.3s remaining:    2.3s
+    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    2.3s remaining:    0.9s
+    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    2.3s finished
     C:\ProgramData\Anaconda3_64\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
       DeprecationWarning)
 
@@ -102,7 +102,7 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.444 seconds)
+   **Total running time of the script:** ( 0 minutes  4.458 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_manifold_vis.py:

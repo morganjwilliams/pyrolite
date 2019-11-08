@@ -412,7 +412,7 @@ you:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  15.782 seconds)
+   **Total running time of the script:** ( 0 minutes  16.978 seconds)
 
 
 .. _sphx_glr_download_examples_comp_compositional_data.py:
