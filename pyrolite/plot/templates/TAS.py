@@ -6,7 +6,7 @@ from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 @update_docstring_references
 def TAS(ax=None, relim=True, color="k", **kwargs):
     """
-    Adds the TAS diagram from Le Bas (1993) [#ref_1]_ to an axes.
+    Adds the TAS diagram from Le Bas (1992) [#ref_1]_ to an axes.
 
     Parameters
     ----------
