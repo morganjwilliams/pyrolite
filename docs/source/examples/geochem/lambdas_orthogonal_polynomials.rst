@@ -129,14 +129,13 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
 .. seealso::
 
   Examples:
-    `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__,
     `Dimensional Reduction <lambdadimreduction.html>`__,
     `REE Radii Plot <../plotting/REE_v_radii.html>`__
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.852 seconds)
+   **Total running time of the script:** ( 0 minutes  2.930 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas_orthogonal_polynomials.py:

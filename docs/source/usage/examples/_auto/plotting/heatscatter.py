@@ -17,7 +17,7 @@ from pyrolite.plot import pyroplot
 
 np.random.seed(12)
 ########################################################################################
-# create some example data
+# First we'll create some example data
 from pyrolite.util.synthetic import test_df, random_cov_matrix
 
 df = test_df(
@@ -72,4 +72,4 @@ for t, a in zip(titles + [i + " (log-log)" for i in titles], ax):
 ########################################################################################
 # .. seealso:: `Ternary Plots <ternary.html>`__,
 #              `Density Plots <density.html>`__,
-#              `Spider Density Diagrams <conditionaldensity.html>`__
+#              `Spider Density Diagrams <spider.html>`__

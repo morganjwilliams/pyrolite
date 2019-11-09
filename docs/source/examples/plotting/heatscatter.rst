@@ -30,7 +30,7 @@ visualisations is implemented with :func:`~pyrolite.plot.pyroplot.heatscatter`.
 
 
 
-create some example data
+First we'll create some example data
 
 
 .. code-block:: default
@@ -108,12 +108,12 @@ visualisations for the same data:
 
 .. seealso:: `Ternary Plots <ternary.html>`__,
              `Density Plots <density.html>`__,
-             `Spider Density Diagrams <conditionaldensity.html>`__
+             `Spider Density Diagrams <spider.html>`__
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.598 seconds)
+   **Total running time of the script:** ( 0 minutes  8.503 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_heatscatter.py:

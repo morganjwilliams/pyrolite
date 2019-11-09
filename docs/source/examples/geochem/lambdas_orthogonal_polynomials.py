@@ -84,6 +84,5 @@ plt.show()
 # .. seealso::
 #
 #   Examples:
-#     `Pandas Lambda Ln(REE) Function <pandaslambdas.html>`__,
 #     `Dimensional Reduction <lambdadimreduction.html>`__,
 #     `REE Radii Plot <../plotting/REE_v_radii.html>`__

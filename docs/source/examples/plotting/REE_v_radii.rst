@@ -179,12 +179,12 @@ The plotting axis can be specified to use exisiting axes:
 
 .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
              `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
-             `Spider Density Diagrams <conditionaldensity.html>`__,
+             `Spider Diagrams <spider.html>`__,
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  9.849 seconds)
+   **Total running time of the script:** ( 0 minutes  9.371 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:

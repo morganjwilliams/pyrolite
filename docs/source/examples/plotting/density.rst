@@ -23,7 +23,26 @@ implemented features.
     from pyrolite.plot.density import density
     from pyrolite.comp.codata import close
 
+
     np.random.seed(82)
+
+
+
+
+
+
+
+First we create some example data :
+
+
+
+.. code-block:: default
+
+    oxs = ["SiO2", "CaO", "MgO", "Na2O"]
+    ys = np.random.rand(1000, len(oxs))
+    ys[:, 1] += 0.7
+    ys[:, 2] += 1.0
+    df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
 
 
 
@@ -37,14 +56,6 @@ A minimal density plot can be constructed as follows:
 
 .. code-block:: default
 
-
-    # create some example data
-    oxs = ["SiO2", "CaO", "MgO", "Na2O"]
-    ys = np.random.rand(1000, len(oxs))
-    ys[:, 1] += 0.7
-    ys[:, 2] += 1.0
-    df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
-    # plot
     ax = density(df.loc[:, ["SiO2", "MgO"]].values)
     ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
     # or, alternatively directly from the dataframe:
@@ -281,7 +292,7 @@ are specified:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  22.188 seconds)
+   **Total running time of the script:** ( 0 minutes  21.769 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_density.py:
