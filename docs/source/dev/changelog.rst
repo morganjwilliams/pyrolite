@@ -45,7 +45,7 @@ All notable changes to this project will be documented here.
 
 * Updated and refactored documentation
 
-  * Added `Development <development.html>`__, `Debugging <debugging.html>`__,
+  * Added `Development <development.html>`__, Debugging section,
     `Extensions <../ext/extensions.html>`__
   * Added :mod:`sphinx_gallery` with binder links for examples
   * Removed duplicated examples

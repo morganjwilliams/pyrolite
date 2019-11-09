@@ -41,11 +41,11 @@ make use of your geochemical data to build and test geological models.
    :hidden:
 
    installation
+   gettingstarted
    examples/index
    tutorials/index
    api/API
    ext/extensions
-   dev/debugging
    dev/development
    dev/changelog
    dev/future
