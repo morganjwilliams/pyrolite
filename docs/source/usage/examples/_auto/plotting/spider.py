@@ -13,14 +13,14 @@ import matplotlib.pyplot as plt
 #
 from pyrolite.geochem.norm import get_reference_composition
 
-ref = get_reference_composition("EMORB_SM89")  # emorb composition as a starting point
+ref = get_reference_composition("EMORB_SM89")  # EMORB composition as a starting point
 ref.set_units("ppm")
 df = ref.comp.pyrochem.compositional
 ########################################################################################
 # Basic spider plots are straightforward to produce:
 import pyrolite.plot
 
-ax = df.pyroplot.spider(color="k")
+df.pyroplot.spider(color="k")
 plt.show()
 ########################################################################################
 # Typically we'll normalise trace element compositions to a reference composition
@@ -28,7 +28,7 @@ plt.show()
 # processes:
 #
 normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-ax = normdf.pyroplot.spider(color="k", unity_line=True)
+normdf.pyroplot.spider(color="k", unity_line=True)
 plt.show()
 ########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
@@ -50,7 +50,7 @@ distdf = distdf.applymap(np.exp)
 ########################################################################################
 # We could now plot the range of compositions as a filled range:
 #
-ax = distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
+distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
 plt.show()
 ########################################################################################
 # Alternatively, we can plot a conditional density spider plot:
