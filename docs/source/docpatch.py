@@ -57,7 +57,7 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
 
     image_paths = []
     figs = [m.canvas.figure for m in _pylab_helpers.Gcf.get_all_fig_managers()]
-    fltr = "[^a-zA-Z0-9]+fig\s??|[^a-zA-Z0-9]+figure\s?|plt.show()|plt.gcf()"
+    fltr = "[^a-zA-Z0-9]+fig,\s??|[^a-zA-Z0-9]+fig\s??|[^a-zA-Z0-9]+figure\s?|plt.show()|plt.gcf()"
     if figs and re.search(fltr, cnt):  # where figure or plt.show is called
         for fig, image_path in zip([figs[-1]], image_path_iterator):
             to_rgba = matplotlib.colors.colorConverter.to_rgba

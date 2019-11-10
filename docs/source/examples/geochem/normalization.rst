@@ -70,8 +70,12 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
 
     ax.set_ylabel("X/X$_{Chondrite}$")
     ax.legend(frameon=False, facecolor=None, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+    plt.show()
 
 
+
+.. image:: /examples/geochem/images/sphx_glr_normalization_001.png
+    :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
@@ -88,7 +92,6 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
     https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
       return self._getitem_tuple(key)
 
-    <matplotlib.legend.Legend object at 0x0000025084ECCEB8>
 
 
 
@@ -106,7 +109,7 @@ Currently available models include:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.881 seconds)
+   **Total running time of the script:** ( 0 minutes  3.594 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_normalization.py:
