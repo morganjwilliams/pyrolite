@@ -13,7 +13,7 @@ import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot import plot_cooccurence
+from ..util.plot import plot_cooccurence, set_ternary_labels
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs
 from ..geochem import common_elements, REE
@@ -31,6 +31,8 @@ __all__ = ["density", "spider", "tern", "pyroplot"]
 
 import pandas as pd
 
+# todo: global style variables
+FONTSIZE = 12
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyroplot")
@@ -81,7 +83,14 @@ class pyroplot(object):
         ax.set_yticklabels(obj.columns, minor=False)
         return ax
 
-    def density(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def density(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        fontsize=FONTSIZE,
+        **kwargs
+    ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
         esitimates from point data. Convenience access function to
@@ -96,6 +105,8 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
+        fontsize : :class:`int`
+            Fontsize for axis labels.
 
         Other Parameters
         ------------------
@@ -117,7 +128,6 @@ class pyroplot(object):
             msg = "Suggest components or provide a slice of the dataframe."
             raise AssertionError(msg)
 
-        fontsize = kwargs.get("fontsize", 8.0)
         ax = density.density(
             obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
         )
@@ -128,13 +138,13 @@ class pyroplot(object):
             ax.tick_params("both", labelsize=fontsize * 0.9)
         elif axlabels and len(components) == 3:
             tax = ax.tax
-            # python-ternary uses "right, top, left"
-            # Check if there's already labels
-            offset = kwargs.get("offset", 0.2)  # offset axes labels
-            if not len(tax._labels.keys()):
-                tax.right_axis_label(components[0], fontsize=fontsize, offset=offset)
-                tax.left_axis_label(components[1], fontsize=fontsize, offset=offset)
-                tax.bottom_axis_label(components[2], fontsize=fontsize, offset=offset)
+            set_ternary_labels(
+                tax,
+                components,
+                fontsize=fontsize,
+                axlabels=axlabels,
+                **subkwargs(kwargs, set_ternary_labels)
+            )
         else:
             pass
 
@@ -147,6 +157,7 @@ class pyroplot(object):
         axlabels=True,
         logx=False,
         logy=False,
+        fontsize=FONTSIZE,
         **kwargs
     ):
         r"""
@@ -165,6 +176,8 @@ class pyroplot(object):
             Whether to log-transform x values before the KDE for bivariate plots.
         logy : :class:`bool`, `False`
             Whether to log-transform y values before the KDE for bivariate plots.
+        fontsize : :class:`int`
+            Fontsize for axis labels.
 
         {otherparams}
 
@@ -193,7 +206,7 @@ class pyroplot(object):
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
         )
         ax = obj.loc[:, components].pyroplot.scatter(
-            ax=ax, axlabels=axlabels, c=zi, **kwargs
+            ax=ax, axlabels=axlabels, c=zi, fontsize=fontsize, **kwargs
         )
         return ax
 
@@ -272,7 +285,14 @@ class pyroplot(object):
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
-    def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def scatter(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        fontsize=FONTSIZE,
+        **kwargs
+    ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -285,7 +305,8 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
-
+        fontsize : :class:`int`
+            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -307,11 +328,9 @@ class pyroplot(object):
         if ax is None:
             fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
 
-        fontsize = kwargs.get("fontsize", 8.0)
-
         if len(components) == 3:
             ax = obj.loc[:, components].pyroplot.ternary(
-                ax=ax, axlabels=axlabels, **kwargs
+                ax=ax, axlabels=axlabels, fontsize=fontsize, **kwargs
             )
         else:  # len(components) == 2
             xvar, yvar = components
@@ -334,6 +353,7 @@ class pyroplot(object):
         indexes: list = None,
         ax=None,
         mode="plot",
+        fontsize=FONTSIZE,
         **kwargs
     ):
         r"""
@@ -352,7 +372,8 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-
+        fontsize : :class:`int`
+            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -387,6 +408,7 @@ class pyroplot(object):
         ax=None,
         orientation="horizontal",
         axlabels=True,
+        fontsize=FONTSIZE,
         **kwargs
     ):
         r"""
@@ -404,7 +426,8 @@ class pyroplot(object):
             Orientation of the plot (horizontal or vertical).
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-
+        fontsize : :class:`int`
+            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -438,7 +461,14 @@ class pyroplot(object):
 
         return ax
 
-    def ternary(self, components: list = None, ax=None, axlabels=None, **kwargs):
+    def ternary(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=None,
+        fontsize=FONTSIZE,
+        **kwargs
+    ):
         r"""
         Method for ternary scatter plots. Convenience access function to
         :func:`~pyrolite.plot.tern.ternary` (see `Other Parameters`, below), where
@@ -453,7 +483,8 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add axis labels.
-
+        fontsize : :class:`int`
+            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -473,28 +504,18 @@ class pyroplot(object):
             msg = "Suggest components or provide a slice of the dataframe."
             raise AssertionError(msg)
 
-        fontsize = kwargs.get("fontsize", 10.0)
         ax = tern.ternary(
             obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
         )
         tax = ax.tax
 
-        offset = kwargs.get("offset", 0.2)  # offset axes labels
-
-        def set_labels(labels):  # local function to set ternary labels
-            tax.right_axis_label(labels[0], fontsize=fontsize, offset=offset)
-            tax.left_axis_label(labels[1], fontsize=fontsize, offset=offset)
-            tax.bottom_axis_label(labels[2], fontsize=fontsize, offset=offset)
-
-        if axlabels is not None:
-            if not len(tax._labels.keys()) and axlabels:
-                set_labels(components)
-            elif len(tax._labels.keys()) and not axlabels:  # are labels, should be none
-                set_labels([None, None, None])
-            else:
-                pass
-        else:  # label by default
-            set_labels(components)
+        set_ternary_labels(
+            tax,
+            components,
+            fontsize=fontsize,
+            axlabels=axlabels,
+            **subkwargs(kwargs, set_ternary_labels)
+        )
         ax.set_aspect("equal")
         return ax
 

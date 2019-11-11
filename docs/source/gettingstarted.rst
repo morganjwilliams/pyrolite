@@ -1,7 +1,6 @@
 Getting Started
 ----------------
 
-
 .. note:: This page is under construction. Feel free to send through suggestions or
           questions.
 
