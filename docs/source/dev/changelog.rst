@@ -22,6 +22,9 @@ Todo
 * Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
 
+`0.2.3`_
+--------------
+
 * Added `Getting Started page <../gettingstarted.html>`__
 
 :mod:`pyrolite.mineral`
@@ -706,7 +709,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...develop
+.. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
 .. _0.2.2: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...0.2.2
 .. _0.2.1: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...0.2.1
 .. _0.2.0: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...0.2.0
