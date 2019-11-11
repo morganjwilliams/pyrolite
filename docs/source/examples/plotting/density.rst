@@ -292,7 +292,7 @@ are specified:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  21.769 seconds)
+   **Total running time of the script:** ( 0 minutes  22.374 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_density.py:

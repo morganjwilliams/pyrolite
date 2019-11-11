@@ -29,7 +29,7 @@ Here we'll set up an example which uses EMORB as a starting point:
 
     from pyrolite.geochem.norm import get_reference_composition
 
-    ref = get_reference_composition("EMORB_SM89")  # emorb composition as a starting point
+    ref = get_reference_composition("EMORB_SM89")  # EMORB composition as a starting point
     ref.set_units("ppm")
     df = ref.comp.pyrochem.compositional
 
@@ -46,7 +46,7 @@ Basic spider plots are straightforward to produce:
 
     import pyrolite.plot
 
-    ax = df.pyroplot.spider(color="k")
+    df.pyroplot.spider(color="k")
     plt.show()
 
 
@@ -67,7 +67,7 @@ processes:
 .. code-block:: default
 
     normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-    ax = normdf.pyroplot.spider(color="k", unity_line=True)
+    normdf.pyroplot.spider(color="k", unity_line=True)
     plt.show()
 
 
@@ -112,7 +112,7 @@ We could now plot the range of compositions as a filled range:
 
 .. code-block:: default
 
-    ax = distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
+    distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
     plt.show()
 
 
@@ -223,7 +223,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  22.575 seconds)
+   **Total running time of the script:** ( 0 minutes  20.062 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:

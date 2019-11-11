@@ -303,7 +303,7 @@ We can also do this for individual samples, and estimate percentile contours:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  38.292 seconds)
+   **Total running time of the script:** ( 0 minutes  43.176 seconds)
 
 
 .. _sphx_glr_download_tutorials_logo.py:
