@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_mineral_endmembers.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_mineral_endmembers.py:
@@ -161,7 +157,7 @@ lookup the compositions for our endmembers:
 .. code-block:: default
 
     em = pd.DataFrame([get_mineral("forsterite"), get_mineral("fayalite")])
-    em
+    em.loc[:, ~(em == 0).all(axis=0)]  # columns not full of zeros
 
 
 
@@ -196,20 +192,6 @@ lookup the compositions for our endmembers:
               <th>Si</th>
               <th>O</th>
               <th>Fe</th>
-              <th>Mn</th>
-              <th>Ni</th>
-              <th>Ca</th>
-              <th>Al</th>
-              <th>Fe{3+}</th>
-              <th>Na</th>
-              <th>Mn{3+}</th>
-              <th>Cr</th>
-              <th>Li</th>
-              <th>Cr{3+}</th>
-              <th>Fe{2+}</th>
-              <th>K</th>
-              <th>H</th>
-              <th>Ti</th>
             </tr>
           </thead>
           <tbody>
@@ -222,20 +204,6 @@ lookup the compositions for our endmembers:
               <td>0.199622</td>
               <td>0.454874</td>
               <td>0.00000</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
             </tr>
             <tr>
               <th>1</th>
@@ -246,20 +214,6 @@ lookup the compositions for our endmembers:
               <td>0.137827</td>
               <td>0.314063</td>
               <td>0.54811</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
-              <td>0.0</td>
             </tr>
           </tbody>
         </table>
@@ -403,7 +357,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.630 seconds)
+   **Total running time of the script:** ( 0 minutes  0.850 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:

@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_scaling.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_scaling.py:
@@ -78,17 +74,17 @@ Unit Scaling
           <tbody>
             <tr>
               <th>0</th>
-              <td>0.114</td>
-              <td>0.144</td>
-              <td>0.096</td>
-              <td>0.112</td>
+              <td>0.644</td>
+              <td>0.820</td>
+              <td>0.004</td>
+              <td>0.005</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>0.118</td>
-              <td>0.150</td>
-              <td>0.097</td>
-              <td>0.114</td>
+              <td>0.650</td>
+              <td>0.827</td>
+              <td>0.004</td>
+              <td>0.004</td>
             </tr>
           </tbody>
         </table>
@@ -99,7 +95,7 @@ Unit Scaling
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.275 seconds)
+   **Total running time of the script:** ( 0 minutes  0.300 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_scaling.py:

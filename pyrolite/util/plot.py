@@ -62,6 +62,7 @@ except ImportError:
 
 __DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+FONTSIZE = 12
 
 
 def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
@@ -533,6 +534,41 @@ def ternary_grid(
 
     assert len(bins) == ndim
     return bins, binedges, centregrid, edgegrid
+
+
+def set_ternary_labels(tax, labels, fontsize=FONTSIZE, offset=0.2, axlabels=True):
+    """
+    Set the labels and positions in a ternary plot.
+    """
+    if len(tax._labels.keys()) and not axlabels:  # are labels, should be none
+        labels = [None, None, None]
+    tax.right_axis_label(
+        labels[0],
+        fontsize=fontsize,
+        offset=0,
+        position=(1.0, 0, 0),
+        rotation=0.0,
+        verticalalignment="top",
+        # horizontalalignment="left",
+    )
+    tax.left_axis_label(
+        labels[1],
+        fontsize=fontsize,
+        offset=0,
+        position=(-offset / 2, 1.0 + offset, -offset / 2),
+        rotation=0.0,
+        verticalalignment="bottom",
+        # horizontalalignment="center",
+    )
+    tax.bottom_axis_label(
+        labels[2],
+        fontsize=fontsize,
+        offset=0,
+        position=(0.0, 0.0, 1.0),
+        rotation=0.0,
+        verticalalignment="top",
+        # horizontalalignment="right",
+    )
 
 
 def ternarygrid_to_xy(arr, tfm=lambda x: x, yscale=1.0):

@@ -80,4 +80,4 @@ plt.show()
 ########################################################################################
 # .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
 #              `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
-#              `Spider Density Diagrams <conditionaldensity.html>`__,
+#              `Spider Diagrams <spider.html>`__,

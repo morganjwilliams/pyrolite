@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_comp_EMCOMP.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_comp_EMCOMP.py:
@@ -98,10 +94,8 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
 
  .. code-block:: none
 
-    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
-      max_open_warning, RuntimeWarning)
 
-    <matplotlib.axes._subplots.AxesSubplot object at 0x000001C5586B8160>
+    <matplotlib.axes._subplots.AxesSubplot object at 0x0000025084F3F3C8>
 
 
 
@@ -138,7 +132,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.181 seconds)
+   **Total running time of the script:** ( 0 minutes  4.458 seconds)
 
 
 .. _sphx_glr_download_examples_comp_EMCOMP.py:

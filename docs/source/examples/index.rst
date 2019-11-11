@@ -22,11 +22,31 @@ which you can copy, download and alter, or run on Binder.
 Plotting Examples
 ~~~~~~~~~~~~~~~~~~~~
 
-Pyrolite provides some functionality for basic plotting of geochemical data in the form
+pyrolite provides some functionality for basic plotting of geochemical data in the form
 of spidergrams (pyrolite.plot.spider), ternary diagrams (pyrolite.plot.tern) and
 density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes some ready-made templates for well-known plots. These can be used to create n...">
+
+.. only:: html
+
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_templates_thumb.png
+
+        :ref:`sphx_glr_examples_plotting_templates.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/plotting/templates
 
 .. raw:: html
 
@@ -110,26 +130,6 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Spider Plots">
-
-.. only:: html
-
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_spider_thumb.png
-
-        :ref:`sphx_glr_examples_plotting_spider.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/plotting/spider
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="While density plots are useful summary visualizations for large datasets, scatterplots are more...">
 
 .. only:: html
@@ -170,13 +170,13 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The spiderplot can be extended to provide visualisations of ranges and density via the various ...">
+    <div class="sphx-glr-thumbcontainer" tooltip="Spiderplots">
 
 .. only:: html
 
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_conditionalspider_thumb.png
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_spider_thumb.png
 
-        :ref:`sphx_glr_examples_plotting_conditionalspider.py`
+        :ref:`sphx_glr_examples_plotting_spider.py`
 
 .. raw:: html
 
@@ -186,7 +186,7 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 .. toctree::
    :hidden:
 
-   /examples/plotting/conditionalspider
+   /examples/plotting/spider
 
 .. raw:: html
 
@@ -362,26 +362,6 @@ Geochemistry Examples
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="lambdas">
-
-.. only:: html
-
-    .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_pyrochem_thumb.png
-
-        :ref:`sphx_glr_examples_geochem_lambdas_pyrochem.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/geochem/lambdas_pyrochem
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Orthogonal polynomial decomposition can be used for dimensional reduction of smooth function ov...">
 
 .. only:: html
@@ -511,6 +491,44 @@ Compositional Data Examples
    :hidden:
 
    /examples/comp/compositional_data
+.. raw:: html
+
+    <div style='clear:both'></div>
+
+
+
+.. _sphx_glr_examples_util:
+
+Utility Examples
+~~~~~~~~~~~~~~~~~~~~
+
+pyrolite includes a range of utilities for everything from dealing with
+the web to plotting, synthetic data and machine learning. While most of these
+are used as part of the core functions of pyrolite, you may also find
+other uses for them, and this section provides some simple examples for
+some of these.
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Some simple discrimination methods are implemented, including the Total Alkali-Silica (TAS) cla...">
+
+.. only:: html
+
+    .. figure:: /examples/util/images/thumb/sphx_glr_TAS_thumb.png
+
+        :ref:`sphx_glr_examples_util_TAS.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/util/TAS
 .. raw:: html
 
     <div style='clear:both'></div>

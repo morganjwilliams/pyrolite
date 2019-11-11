@@ -38,7 +38,7 @@ ed
 # lookup the compositions for our endmembers:
 #
 em = pd.DataFrame([get_mineral("forsterite"), get_mineral("fayalite")])
-em
+em.loc[:, ~(em == 0).all(axis=0)]  # columns not full of zeros
 ########################################################################################
 # First we have to convert these element-based compositions to oxide-based compositions:
 #

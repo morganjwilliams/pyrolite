@@ -11,6 +11,47 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+Todo
+~~~~~~~
+
+* Update ternary plots to use :mod:`mpltern`
+  (`#28 <https://github.com/morganjwilliams/pyrolite/issues/28>`__)
+* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+* Index memory for :func:`~pyrolite.plot.spider.spider`
+  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
+* Updates to include more lithogeochemical plot templates
+  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
+
+`0.2.3`_
+--------------
+
+* Added `Getting Started page <../gettingstarted.html>`__
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated database for :mod:`pyrolite.mineral.mindb` to include epidotes,
+  garnets, micas
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Minor updates for :mod:`pyrolite.plot.templates`, added functionality to
+  :func:`pyrolite.plot.templates.TAS` stub.
+* Fixed a bug for :code:`vmin` in :mod:`pyrolite.plot.spider` density modes
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :mod:`pyrolite.geochem.parse` now also includes functions which were previously
+  included in :mod:`pyrolite.geochem.validate`
+* Fixed some typos in reference compositions from Gale et al. (2013)
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.plot.set_ternary_labels` for setting and positioning
+  ternary plot labels
 
 `0.2.2`_
 --------------
@@ -34,7 +75,7 @@ All notable changes to this project will be documented here.
 
 * Updated and refactored documentation
 
-  * Added `Development <development.html>`__, `Debugging <debugging.html>`__,
+  * Added `Development <development.html>`__, Debugging section,
     `Extensions <../ext/extensions.html>`__
   * Added :mod:`sphinx_gallery` with binder links for examples
   * Removed duplicated examples
@@ -668,7 +709,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...develop
+.. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
 .. _0.2.2: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...0.2.2
 .. _0.2.1: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...0.2.1
 .. _0.2.0: https://github.com/morganjwilliams/pyrolite/compare/0.1.21...0.2.0

@@ -1,7 +1,3 @@
-.. note::
-    :class: sphx-glr-download-link-note
-
-    Click :ref:`here <sphx_glr_download_examples_geochem_mineral_lattice.py>` to download the full example code or run this example in your browser via Binder
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_geochem_mineral_lattice.py:
@@ -115,8 +111,6 @@ We can calculate and plot the partitioning of :math:`X^{2+}` cations relative to
 
  .. code-block:: none
 
-    C:\ProgramData\Anaconda3_64\lib\site-packages\matplotlib\pyplot.py:514: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`).
-      max_open_warning, RuntimeWarning)
 
     <Figure size 640x480 with 1 Axes>
 
@@ -263,7 +257,7 @@ coefficient can be calculated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.110 seconds)
+   **Total running time of the script:** ( 0 minutes  4.447 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_lattice.py:

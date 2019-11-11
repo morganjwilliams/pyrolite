@@ -15,20 +15,21 @@ import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.density import density
 from pyrolite.comp.codata import close
-# sphinx_gallery_thumbnail_number = 7
+
+# sphinx_gallery_thumbnail_number = 6
 
 np.random.seed(82)
 ########################################################################################
-# A minimal density plot can be constructed as follows:
+# First we create some example data :
 #
-
-# create some example data
 oxs = ["SiO2", "CaO", "MgO", "Na2O"]
 ys = np.random.rand(1000, len(oxs))
 ys[:, 1] += 0.7
 ys[:, 2] += 1.0
 df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
-# plot
+########################################################################################
+# A minimal density plot can be constructed as follows:
+#
 ax = density(df.loc[:, ["SiO2", "MgO"]].values)
 ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
 # or, alternatively directly from the dataframe:

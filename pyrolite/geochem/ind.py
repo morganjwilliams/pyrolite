@@ -1,3 +1,11 @@
+"""
+Collections and indexes of elements and oxides, and functions
+for obtaining these and relevant properties (e.g. radii).
+
+Todo
+------
+* Incompatibility indexes for spider plot ordering.
+"""
 import re
 import sys
 import functools

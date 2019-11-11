@@ -1,3 +1,6 @@
+"""
+Functions for converting, transforming and parameterizing geochemical data.
+"""
 import periodictable as pt
 import pandas as pd
 import numpy as np
@@ -21,7 +24,7 @@ from .ind import (
     get_cations,
 )
 from .norm import Composition, get_reference_composition
-from .parse import check_multiple_cation_inclusion, tochem
+from .parse import tochem, check_multiple_cation_inclusion
 
 import logging
 

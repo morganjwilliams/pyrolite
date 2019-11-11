@@ -11,7 +11,8 @@ and numerous auxiliary utilities.
 - On this site you can browse the  `API <./api/API.html>`__, or look
   through some of the `usage examples <./usage/examples.html>`__.
 
-- There's also a quick `installation guide <./installation.html>`__ and some notes on
+- There's also a quick `installation guide <./installation.html>`__, a list of
+  `recent changes <./dev/changelog.html>`__ and some notes on
   where the project is heading in the near `future <./dev/future.html>`__.
 
 - If you're interested in `contributing to the project <./dev/contributing.html>`__, there are
@@ -41,11 +42,11 @@ make use of your geochemical data to build and test geological models.
    :hidden:
 
    installation
+   gettingstarted
    examples/index
    tutorials/index
    api/API
    ext/extensions
-   dev/debugging
    dev/development
    dev/changelog
    dev/future

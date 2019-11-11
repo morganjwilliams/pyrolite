@@ -1,3 +1,6 @@
+"""
+Functions for calcuating indexes of chemical alteration.
+"""
 import numpy as np
 import pandas as pd
 from ..util.meta import update_docstring_references

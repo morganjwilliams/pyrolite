@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.util.meta import sphinx_doi_link
-from ...util.meta import sphinx_doi_link, update_docstring_references
+from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from .components import *
 
 
@@ -19,6 +19,10 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template onto.
+    relim : :class:`bool`
+        Whether to relimit axes to fit the built in ranges for this diagram.
+    color : :class:`str`
+        Line color for the diagram.
 
     References
     -----------
@@ -33,7 +37,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     """
     xlim, ylim = (0.1, 100), (0.01, 10)
     if ax is None:
-        fig, ax = plt.subplots(1)
+        fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
     else:
         # if the axes limits are not defaults, update to reflect the axes
         defaults = (0, 1)
@@ -51,14 +55,15 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
     geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
 
-    ax.set_ylabel('Th/Yb')
-    ax.set_xlabel('Nb/Yb')
+    ax.set_ylabel("Th/Yb")
+    ax.set_xlabel("Nb/Yb")
     if relim:
         ax.set_xscale("log")
         ax.set_yscale("log")
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
     return ax
+
 
 @update_docstring_references
 def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
@@ -69,7 +74,11 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template onto.
-
+    relim : :class:`bool`
+        Whether to relimit axes to fit the built in ranges for this diagram.
+    color : :class:`str`
+        Line color for the diagram.
+        
     References
     -----------
     .. [#ref_1] Pearce J. A. (2008) Geochemical fingerprinting of oceanic basalts
@@ -118,8 +127,8 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     )
 
     geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
-    ax.set_ylabel('TiO$_2$/Yb')
-    ax.set_xlabel('Nb/Yb')
+    ax.set_ylabel("TiO$_2$/Yb")
+    ax.set_xlabel("Nb/Yb")
     if relim:
         ax.set_xscale("log")
         ax.set_yscale("log")

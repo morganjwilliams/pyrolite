@@ -17,7 +17,7 @@ from pyrolite.plot import pyroplot
 
 np.random.seed(12)
 ########################################################################################
-# create some example data
+# First we'll create some example data
 from pyrolite.util.synthetic import test_df, random_cov_matrix
 
 df = test_df(
@@ -32,35 +32,44 @@ df = test_df(
 #
 from pyrolite.util.plot import share_axes
 
-fig, ax = plt.subplots(3, 3, figsize=(10, 10))
-ax = ax.flat
-share_axes(ax[:3], which="xy")
-share_axes(ax[3:6], which="xy")
-share_axes(ax[6:], which="xy")
+fig, ax = plt.subplots(3, 4, figsize=(12, 9))
 
+ax = ax.flat
+share_axes(ax[:4], which="xy")
+share_axes(ax[4:8], which="xy")
+share_axes(ax[8:], which="xy")
+
+contours = [0.95, 0.66, 0.3]
 # linear-scaled comparison
 df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax[0], c="k", s=10, alpha=0.3)
 df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[1])
-df.loc[:, ["SiO2", "MgO"]].pyroplot.heatscatter(ax=ax[2], s=10, alpha=0.3)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[2], contours=contours)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.heatscatter(ax=ax[3], s=10, alpha=0.3)
 
 # log-log plots
-df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax[3], c="k", s=10, alpha=0.3)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[4], logx=True, logy=True)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax[4], c="k", s=10, alpha=0.3)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[5], logx=True, logy=True)
+df.loc[:, ["SiO2", "MgO"]].pyroplot.density(
+    ax=ax[6], contours=contours, logx=True, logy=True
+)
 df.loc[:, ["SiO2", "MgO"]].pyroplot.heatscatter(
-    ax=ax[5], s=10, alpha=0.3, logx=True, logy=True
+    ax=ax[7], s=10, alpha=0.3, logx=True, logy=True
 )
 # ternary plots
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[6], c="k", s=10, alpha=0.1)
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=ax[7], bins=100)
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[8], c="k", s=10, alpha=0.1)
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=ax[9], bins=100)
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(
+    ax=ax[10], contours=contours, bins=100
+)
 df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.heatscatter(
-    ax=ax[8], s=10, alpha=0.3, renorm=True
+    ax=ax[11], s=10, alpha=0.3, renorm=True
 )
 fig.subplots_adjust(hspace=0.4, wspace=0.4)
 
-titles = ["Scatter", "Density", "Heatscatter"]
+titles = ["Scatter", "Density", "Contours", "Heatscatter"]
 for t, a in zip(titles + [i + " (log-log)" for i in titles], ax):
     a.set_title(t)
 ########################################################################################
 # .. seealso:: `Ternary Plots <ternary.html>`__,
 #              `Density Plots <density.html>`__,
-#              `Spider Density Diagrams <conditionaldensity.html>`__
+#              `Spider Density Diagrams <spider.html>`__

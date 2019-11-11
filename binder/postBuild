@@ -1,4 +1,4 @@
 cd ./docs/
-make html
 mkdir notebooks
-find './source/usage/galleries/' -name "*.ipynb" -print0 | xargs -0 cp -t './notebooks/'
+find './source/examples/' -name "*.ipynb" -print0 | xargs -0 cp -t './notebooks/'
+find './source/tutorials/' -name "*.ipynb" -print0 | xargs -0 cp -t './notebooks/'
