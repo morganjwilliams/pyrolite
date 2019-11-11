@@ -11,6 +11,19 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+Todo
+~~~~~~~
+
+* Update ternary plots to use :mod:`mpltern`
+  (`#28 <https://github.com/morganjwilliams/pyrolite/issues/28>`__)
+* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+* Index memory for :func:`~pyrolite.plot.spider.spider`
+  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
+* Updates to include more lithogeochemical plot templates
+  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
+
+* Added `Getting Started page <../gettingstarted.html>`__
+
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -22,6 +35,20 @@ All notable changes to this project will be documented here.
 
 * Minor updates for :mod:`pyrolite.plot.templates`, added functionality to
   :func:`pyrolite.plot.templates.TAS` stub.
+* Fixed a bug for :code:`vmin` in :mod:`pyrolite.plot.spider` density modes
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :mod:`pyrolite.geochem.parse` now also includes functions which were previously
+  included in :mod:`pyrolite.geochem.validate`
+* Fixed some typos in reference compositions from Gale et al. (2013)
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :func:`pyrolite.util.plot.set_ternary_labels` for setting and positioning
+  ternary plot labels
 
 `0.2.2`_
 --------------
