@@ -82,33 +82,33 @@ We'll first generate some synthetic data to play with:
           <tbody>
             <tr>
               <th>0</th>
-              <td>50.949</td>
-              <td>10.522</td>
-              <td>14.147</td>
-              <td>3.752</td>
-              <td>0.435</td>
-              <td>3.851</td>
-              <td>1.342</td>
+              <td>50.949397</td>
+              <td>10.522376</td>
+              <td>14.147124</td>
+              <td>3.752489</td>
+              <td>0.435464</td>
+              <td>3.851314</td>
+              <td>1.341837</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>47.525</td>
-              <td>11.133</td>
-              <td>15.962</td>
-              <td>4.216</td>
-              <td>0.513</td>
-              <td>4.189</td>
-              <td>1.462</td>
+              <td>47.524764</td>
+              <td>11.132643</td>
+              <td>15.962294</td>
+              <td>4.216451</td>
+              <td>0.512898</td>
+              <td>4.188675</td>
+              <td>1.462274</td>
             </tr>
             <tr>
               <th>2</th>
-              <td>48.273</td>
-              <td>11.044</td>
-              <td>16.082</td>
-              <td>3.823</td>
-              <td>0.479</td>
-              <td>3.935</td>
-              <td>1.363</td>
+              <td>48.273004</td>
+              <td>11.044344</td>
+              <td>16.082470</td>
+              <td>3.823156</td>
+              <td>0.479132</td>
+              <td>3.935174</td>
+              <td>1.362721</td>
             </tr>
           </tbody>
         </table>
@@ -200,7 +200,7 @@ TAS diagram is illustrated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.134 seconds)
+   **Total running time of the script:** ( 0 minutes  4.710 seconds)
 
 
 .. _sphx_glr_download_examples_util_TAS.py:

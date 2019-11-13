@@ -194,7 +194,7 @@ class Timescale(object):
         except:
             return self.locate[entry.lower().strip()]
 
-    def named_age(self, age, level="Period"):
+    def named_age(self, age, level="Specific"):
         """
         Converts a numeric age (in Ma) to named age at a specific level.
 
