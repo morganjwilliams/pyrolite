@@ -11,7 +11,8 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-__DATA__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_spans.csv"
+__data__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_spans.csv"
+__colors__ = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
 
 
 def listify(df, axis=1):
@@ -90,7 +91,23 @@ def age_name(
         return nameguess
 
 
-def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Aliases"]):
+def import_colors(filename=__colors__, delim="/"):
+    """
+    Import a list of timescale names with associated colors.
+    """
+    c = pd.read_csv(filename).dropna(how="all")
+    if delim is not None:  # and ("RGB" in c.columns):
+        c["RGB"] = c["RGB"].apply(
+            lambda x: tuple(
+                [float(i) / 255.0 for i in x.split(delim)] + [1.0]
+            )  # add alpha
+        )
+    return {name: rgb for name, rgb in c.values}
+
+
+def timescale_reference_frame(
+    filename=__data__, info_cols=["Start", "End", "Aliases"], color_info=None
+):
     """
     Rearrange the text-based timescale dataframe. Utility function for
     timescale class.
@@ -131,10 +148,12 @@ def timescale_reference_frame(filename=__DATA__, info_cols=["Start", "End", "Ali
     _df.Aliases = _df.apply(lambda x: [x.Name, x.Ident] + x.Aliases, axis=1)
     _df.Aliases = _df.Aliases.apply(lambda x: [i.lower().strip() for i in x])
 
+    colors = color_info or import_colors()
+    _df["Color"] = _df.Name.apply(lambda x: colors.get(x, None))
     col_order = (
         ["Ident", "Name", "Level", "Start", "End", "MeanAge", "Unc"]
         + grps
-        + ["Aliases"]
+        + ["Aliases", "Color"]
     )
 
     return _df.loc[:, col_order]
