@@ -40,8 +40,7 @@ ts.named_age(1212.1, level="Epoch")
 # given named age:
 ts.text2age("Holocene")
 #########################################################################################
-# We can use this to create a simple template to visualise the geological timescale
-# (noting that the the official colours have not yet been implemented):
+# We can use this to create a simple template to visualise the geological timescale:
 #
 import pandas as pd
 import matplotlib.pyplot as plt

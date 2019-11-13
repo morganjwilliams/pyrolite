@@ -124,8 +124,7 @@ given named age:
 
 
 
-We can use this to create a simple template to visualise the geological timescale
-(noting that the the official colours have not yet been implemented):
+We can use this to create a simple template to visualise the geological timescale:
 
 
 
@@ -243,7 +242,7 @@ be integrated as a :class:`~pyrolite.util.time.Timescale` method, if there's int
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  6.098 seconds)
+   **Total running time of the script:** ( 0 minutes  10.981 seconds)
 
 
 .. _sphx_glr_download_examples_util_timescale.py:
