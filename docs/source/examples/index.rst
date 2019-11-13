@@ -512,26 +512,6 @@ some of these.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes a simple geological timescale, based on a recent verion of the International ...">
-
-.. only:: html
-
-    .. figure:: /examples/util/images/thumb/sphx_glr_timescale_thumb.png
-
-        :ref:`sphx_glr_examples_util_timescale.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/util/timescale
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Some simple discrimination methods are implemented, including the Total Alkali-Silica (TAS) cla...">
 
 .. only:: html
@@ -549,6 +529,26 @@ some of these.
    :hidden:
 
    /examples/util/TAS
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes a simple geological timescale, based on a recent verion of the International ...">
+
+.. only:: html
+
+    .. figure:: /examples/util/images/thumb/sphx_glr_timescale_thumb.png
+
+        :ref:`sphx_glr_examples_util_timescale.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/util/timescale
 .. raw:: html
 
     <div style='clear:both'></div>
