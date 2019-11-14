@@ -88,7 +88,7 @@ class TestTimescaleReferenceFrame(unittest.TestCase):
     """
 
     def setUp(self):
-        self.filename = pyrotime.__DATA__
+        self.filename = pyrotime.__data__
 
     def test_frame_build(self):
         data = pyrotime.timescale_reference_frame(self.filename)
