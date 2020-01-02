@@ -91,22 +91,32 @@ def stream_log(module, level="INFO"):
         logger = module  # enable passing a logger instance
     else:
         raise NotImplementedError
-
+    int_level = getattr(logging, level)
     # check there are no handlers other than Null
+    # need to check if handler level is notset
     active_handlers = [
         i
         for i in logger.handlers
         if (
-            not isinstance(i, (logging.NullHandler))  # not a null handler
-            # and i.level > getattr(logging, level)  # more specific handler pressent
+            (not isinstance(i, (logging.NullHandler)))  # not a null handler
+            and (i.level <= int_level)  # more specific handler pressent
         )
     ]
     if not active_handlers:
-        ch = logging.StreamHandler()
-        fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+        # use ipython active stream handler if present
+        active = [
+            h
+            for h in logging.getLogger().handlers
+            if isinstance(h, logging.StreamHandler)
+        ]
+        if active:
+            ch = active[0]
+        else:
+            ch = logging.StreamHandler()
+        fmt = logging.Formatter("%(name)s - %(levelname)s: %(message)s")
         ch.setFormatter(fmt)
+        ch.setLevel(int_level)
         logger.addHandler(ch)
-        logger.setLevel(getattr(logging, level))
     return logger
 
 
