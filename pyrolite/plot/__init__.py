@@ -26,7 +26,6 @@ from ..util.meta import get_additional_params, subkwargs
 from ..geochem import common_elements, REE
 from . import density
 from . import spider
-from . import ternary
 from . import stem
 from . import parallel
 
