@@ -1,12 +1,21 @@
+"""
+
+Attributes
+----------
+USE_PCOLOR : :class:`bool`
+    Option to use the :func:`matplotlib.pyplot.pcolor` function in place
+    of :func:`matplotlib.pyplot.pcolormesh`.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
 
-from ..comp.codata import close
-from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
-from ..util.distributions import sample_kde
-from ..util.plot import (
+from ...comp.codata import close
+from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
+from ...util.distributions import sample_kde
+from ...util.plot import (
     ternary_heatmap,
+    xy_to_ABC,
     add_colorbar,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
@@ -15,19 +24,23 @@ from ..util.plot import (
     __DEFAULT_DISC_COLORMAP__,
     init_axes,
 )
-from ..util.meta import get_additional_params, subkwargs
+from ...util.meta import get_additional_params, subkwargs
+
+from .grid import DensityGrid
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+USE_PCOLOR = False
 
-def _get_density_methods(ax, use_pcolor=False):
+
+def _get_density_methods(ax):
     if ax.name == "ternary":
         pcolor = ax.tripcolor
         contour = ax.tricontour
         contourf = ax.tricontourf
     else:
-        if use_pcolor:
+        if USE_PCOLOR:
             pcolor = ax.pcolor
         else:
             pcolor = ax.pcolormesh
@@ -52,7 +65,6 @@ def density(
     vmin=0.0,
     shading="flat",
     colorbar=False,
-    use_pcolor=False,
     no_ticks=False,
     **kwargs
 ):
@@ -84,8 +96,6 @@ def density(
     extent : :class:`list`
         Predetermined extent of the grid for which to from the histogram/KDE. In the
         general form (xmin, xmax, ymin, ymax).
-    coverage_scale : :class:`float`, 1.1
-        Scale the area over which the density plot is drawn.
     contours : :class:`list`
         Contours to add to the plot.
     percentiles :  :class:`bool`, `True`
@@ -100,9 +110,6 @@ def density(
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
-    use_pcolor : :class:`bool`
-        Option to use the :func:`matplotlib.pyplot.pcolor` function in place
-        of :func:`matplotlib.pyplot.pcolormesh`.
     no_ticks : :class:`bool`
         Option to *suppress* tickmarks and labels.
 
@@ -137,7 +144,7 @@ def density(
 
     ax = init_axes(ax=ax, projection=projection, **kwargs)
 
-    pcolor, contour, contourf = _get_density_methods(ax, use_pcolor=use_pcolor)
+    pcolor, contour, contourf = _get_density_methods(ax)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
 
     if isinstance(cmap, str):
@@ -150,7 +157,6 @@ def density(
     else:
         cbarlabel = "Frequency"
 
-    exp = (coverage_scale - 1.0) / 2
     valid_rows = np.isfinite(arr).all(axis=-1)
     if (arr.size > 0) and valid_rows.any():
         # Data can't be plotted if there's any nans, so we can exclude these
@@ -158,105 +164,48 @@ def density(
 
         if projection is None:  # binary
             x, y = arr.T
-            if extent is not None:  # Expanded extent
-                xmin, xmax, ymin, ymax = extent
-            else:
-                # get the range from the data itself. data > 0 for log grids
-                xmin, xmax = [linrng_, logrng_][logx](x, exp=exp)
-                ymin, ymax = [linrng_, logrng_][logy](y, exp=exp)
-
-            xstep = [(xmax - xmin) / bins, (xmax / xmin) / bins][logx]
-            ystep = [(ymax - ymin) / bins, (ymax / ymin) / bins][logy]
-            extent = xmin, xmax, ymin, ymax
-
+            grid = DensityGrid(x, y, bins=bins, logx=logx, logy=logy, extent=extent)
+            xs, ys = grid.grid_xc, grid.grid_yc
+            xci, yci = grid.grid_xci, grid.grid_yci
+            xe, ye = grid.grid_xe, grid.grid_ye
+            xei, yei = grid.grid_xei, grid.grid_yei
             if mode == "hexbin":
-                hex_extent = (
-                    [
-                        [xmin - xstep, xmax + xstep],
-                        [np.log(xmin / xstep), np.log(xmax * xstep)],
-                    ][logx]
-                    + [
-                        [ymin - ystep, ymax + ystep],
-                        [np.log(ymin / ystep), np.log(ymax * ystep)],
-                    ][logy]
-                )
                 # extent values are exponents (i.e. 3 -> 10**3)
                 mappable = ax.hexbin(
                     x,
                     y,
                     gridsize=bins,
                     cmap=cmap,
-                    extent=hex_extent,
+                    extent=grid.get_hex_extent(),
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
                     **kwargs
                 )
 
             elif mode == "hist2d":
-                if logx:
-                    assert (xmin / xstep) > 0.0
-                if logy:
-                    assert (ymin / ystep) > 0.0
-
-                xs = [linspc_, logspc_][logx](xmin, xmax, xstep, bins)
-                ys = [linspc_, logspc_][logy](ymin, ymax, ystep, bins)
-                xi, yi = np.meshgrid(xs, ys)  # indexes for potential contouring..
-                xe, ye = (
-                    bin_centres_to_edges(np.sort(xs)),
-                    bin_centres_to_edges(np.sort(ys)),
-                )
-                range = [[extent[0], extent[1]], [extent[2], extent[3]]]
                 zi, xe, ye, im = ax.hist2d(
-                    x, y, bins=[xe, ye], range=range, cmap=cmap, **kwargs
+                    x, y, bins=[xe, ye], range=grid.get_range(), cmap=cmap, **kwargs
                 )
                 mappable = im
 
             elif mode == "density":
-                if logx:
-                    assert xmin > 0.0
-                if logy:
-                    assert ymin > 0.0
 
-                # Generate Grid of centres
-                xs = [linspc_, logspc_][logx](xmin, xmax, bins=bins)
-                ys = [linspc_, logspc_][logy](ymin, ymax, bins=bins)
-                xe, ye = bin_centres_to_edges(xs), bin_centres_to_edges(ys)
-
-                assert np.isfinite(xs).all() and np.isfinite(ys).all()
-                kdedata = arr
-                if logx:  # generate x grid over range spanned by log(x)
-                    kdedata[:, 0] = np.log(kdedata[:, 0])
-                    xs = np.log(xs)
-                    xe = np.log(xe)
-                if logy:  # generate y grid over range spanned by log(y)
-                    kdedata[:, 1] = np.log(kdedata[:, 1])
-                    ys = np.log(ys)
-                    ye = np.log(ye)
-
-                xymesh = np.meshgrid(xs, ys)
-                xi, yi = xymesh
-
-                zi = sample_kde(kdedata, flattengrid(xymesh))
-                zi = zi.reshape(xi.shape)
+                zi = grid.kdefrom(
+                    arr,
+                    xtransform=[lambda x: x, np.log][logx],
+                    ytransform=[lambda y: y, np.log][logy],
+                )
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
-                if logx:
-                    xi = np.exp(xi)
-                    xe = np.exp(xe)
-                if logy:
-                    yi = np.exp(yi)
-                    ye = np.exp(ye)
-
-                xe, ye = np.meshgrid(xe, ye)
 
                 if not contours:
                     # pcolormesh using bin edges
                     mappable = pcolor(
-                        xe,
-                        ye,
+                        grid.grid_xei,
+                        grid.grid_yei,
                         zi,
                         cmap=cmap,
                         shading=shading,
@@ -267,7 +216,7 @@ def density(
                     mappable.set_linestyle("None")
                     mappable.set_lw(0.0)
 
-            if relim:
+            if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
             arr = close(arr)
@@ -286,12 +235,14 @@ def density(
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
 
             if not contours:
-                zi[zi == 0.0] = np.nan  #
-                # _a, _b, _c = xy_to_ABC(xi, yi)
+                zi[zi == 0.0] = np.nan
+                _xy = np.vstack([xe.flatten(), ye.flatten()]).T
+                _a, _b, _c = xy_to_ABC(_xy / scale).T
                 mappable = pcolor(
-                    xe * scale,
-                    ye * scale,
-                    zi,
+                    _a,
+                    _b,
+                    _c,
+                    zi.flatten(),
                     cmap=cmap,
                     vmin=vmin,
                     **subkwargs(kwargs, pcolor)
@@ -302,26 +253,17 @@ def density(
                 raise NotImplementedError
 
         if contours:  # could do this in logspace for accuracy?
-            levels = contours or kwargs.pop("levels", None)
-            cags = xi, yi, zi  # contour-like function arguments, point estimates
-            if percentiles and not isinstance(levels, int):
-                _cs = plot_Z_percentiles(
-                    *cags, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
-                )
-                mappable = _cs
-            else:
-                if levels is None:
-                    levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
-                elif isinstance(levels, int):
-                    levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
-                # filled contours
-                mappable = contourf(
-                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-                )
-                # contours
-                contour(
-                    *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
-                )
+            mappable = _add_contours(
+                grid.grid_xci,
+                grid.grid_yci,
+                zi=zi,
+                ax=ax,
+                contours=contours,
+                percentiles=percentiles,
+                cmap=cmap,
+                vmin=vmin,
+                **kwargs
+            )
 
         if colorbar:
             cbkwargs = kwargs.copy()
@@ -334,6 +276,45 @@ def density(
         if logy:
             ax.set_yscale("log")
     return ax
+
+
+def _add_contours(
+    *coords,
+    zi=None,
+    ax=None,
+    contours=[],
+    percentiles=True,
+    cmap=__DEFAULT_CONT_COLORMAP__,
+    vmin=0.0,
+    extent=None,
+    **kwargs
+):
+    # get the contour levels
+    levels = contours or kwargs.get("levels", None)
+
+    if percentiles and not isinstance(levels, int):
+        # plot individual percentile contours
+        _cs = plot_Z_percentiles(
+            *coords, zi, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
+        )
+        mappable = _cs
+    else:
+        # plot interval contours
+        if levels is None:
+            levels = MaxNLocator(nbins=10).tick_values(zi.min(), zi.max())
+        elif isinstance(levels, int):
+            levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
+        else:
+            raise NotImplementedError
+        # filled contours
+        mappable = contourf(
+            coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+        )
+        # contours
+        contour(
+            xi, yi, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+        )
+    return mappable
 
 
 _add_additional_parameters = True
