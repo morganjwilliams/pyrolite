@@ -4,8 +4,6 @@ dist: xenial
 
 matrix:
   include:
-    - python: 3.5
-      env: PYVERSION=35
     - python: 3.6
       env: PYVERSION=36
     - python: 3.7
