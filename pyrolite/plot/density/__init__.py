@@ -186,7 +186,6 @@ def density(
                 mappable = im
 
             elif mode == "density":
-
                 zi = grid.kdefrom(
                     arr,
                     xtransform=[lambda x: x, np.log][logx],

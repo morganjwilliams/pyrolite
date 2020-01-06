@@ -69,7 +69,7 @@ from scipy import stats
 xs = stats.norm.rvs(loc=6, scale=3, size=(200, 1))
 ys = stats.norm.rvs(loc=20, scale=3, size=(200, 1)) + 5 * xs + 50
 data = np.append(xs, ys, axis=1).T
-asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 15))
+asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 25.0))
 asym_df.columns = ["A", "B"]
 grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
 scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
@@ -105,6 +105,7 @@ for a, (ls, grid, scale) in zip(ax, params):
         fontsize=10,
     )
     asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
+
     a.set_title("{}-{}".format(grid, scale), fontsize=10)
     if scale in ["logscale", "semilogx"]:
         a.set_xscale("log")

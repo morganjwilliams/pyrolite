@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class DensityGrid(object):
-    def __init__(self, x, y, extent=None, bins=20, logx=False, logy=False):
+    def __init__(self, x, y, extent=None, bins=50, logx=False, logy=False):
         # limits
         self.logx = logx
         self.logy = logy
@@ -48,7 +48,7 @@ class DensityGrid(object):
         else:
             return (self.xmax - self.xmin) / self.bins
 
-    def extent_from_xy(self, x, y, coverage_scale=1.1):
+    def extent_from_xy(self, x, y, coverage_scale=1.05):
         expand_grid = (coverage_scale - 1.0) / 2
         return [
             *[linrng_, logrng_][self.logx](x, exp=expand_grid),
@@ -62,25 +62,33 @@ class DensityGrid(object):
         return self.ymin, self.ymax
 
     def get_extent(self):
-        return tuple(*self.get_xrange(), *self.get_yrange())
+        return [*self.get_xrange(), *self.get_yrange()]
 
     def get_range(self):
         return [[*self.get_xrange()], [*self.get_yrange()]]
 
     def update_grid_centre_ticks(self):
-        self.grid_xc = [linspc_, logspc_][self.logx](
-            self.xmin, self.xmax, self.xstep, self.bins
-        )
-        self.grid_yc = [linspc_, logspc_][self.logy](
-            self.ymin, self.ymax, self.ystep, self.bins
-        )
+        if self.logx:
+            self.grid_xc = logspc_(self.xmin, self.xmax, 1., self.bins)
+        else:
+            self.grid_xc = linspc_(self.xmin, self.xmax, self.xstep, self.bins)
+
+        if self.logy:
+            self.grid_yc = logspc_(self.ymin, self.ymax, 1., self.bins)
+        else:
+            self.grid_yc = linspc_(self.ymin, self.ymax, self.ystep, self.bins)
 
     def update_grid_edge_ticks(self):
         self.update_grid_centre_ticks()
-        self.grid_xe, self.grid_ye = (
-            bin_centres_to_edges(np.sort(self.grid_xc)),
-            bin_centres_to_edges(np.sort(self.grid_yc)),
-        )
+        if self.logx:
+            self.grid_xe = np.exp(bin_centres_to_edges(np.log(np.sort(self.grid_xc))))
+        else:
+            self.grid_xe = bin_centres_to_edges(np.sort(self.grid_xc))
+
+        if self.logy:
+            self.grid_ye = np.exp(bin_centres_to_edges(np.log(np.sort(self.grid_yc))))
+        else:
+            self.grid_ye = bin_centres_to_edges(np.sort(self.grid_yc))
 
     def get_centre_grid(self):
         self.update_grid_centre_ticks()
