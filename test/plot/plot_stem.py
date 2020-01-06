@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import logging
-import ternary as pyternary
 from pyrolite.plot.stem import stem
 
 logger = logging.getLogger(__name__)
