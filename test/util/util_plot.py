@@ -8,6 +8,10 @@ import matplotlib.axes
 import matplotlib.patches
 import matplotlib.path
 import matplotlib.pyplot as plt
+
+from mpltern.ternary import TernaryAxes
+from mpltern.ternary.datasets import get_spiral
+
 from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
@@ -32,6 +36,69 @@ class TestMarkerCycle(unittest.TestCase):
         mkrs = marker_cycle()
         for i in range(10):
             matplotlib.lines.Line2D([0], [0], marker=next(mkrs))
+
+
+class TestReplaceWithTernaryAxis(unittest.TestCase):
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        tax = replace_with_ternary_axis(ax[ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        self.assertEqual(fig.orderedaxes[ix], tax)
+        self.assertIsInstance(tax, TernaryAxes)
+
+
+axes_to_ternary
+
+init_axes
+
+
+class TestSetAxesToTernary(unittest.TestCase):
+    def setUp(self):
+        self.tlr = get_spiral()
+
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        self.assertIsInstance(fig.orderedaxes[ix], TernaryAxes)
+
+    def test_multiple_grid(self):
+        ix = [1, 3]
+        fig, ax = plt.subplots(2, 2)
+        ax = ax.flat
+        ax = axes_to_ternary([ax[i] for i in ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        for i in ix:
+            self.assertIsInstance(fig.orderedaxes[i], TernaryAxes)
+
+    def test_plot(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        ax[ix].plot(*self.tlr, "k")
+
+
+class GetAxesIndex(unittest.TestCase):
+    def test_default(self):
+        ix = 2
+        grid = (5, 1)
+        fig, ax = plt.subplots(*grid)
+        ax = ax.flat
+        triple = get_axes_index(ax[ix])
+        self.assertEqual(triple, (*grid, ix + 1))
+
+    def test_grid(self):
+        ix = 2
+        grid = (2, 3)
+        fig, ax = plt.subplots(*grid)
+        ax = ax.flat
+        triple = get_axes_index(ax[ix])
+        self.assertEqual(triple, (*grid, ix + 1))
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestShareAxes(unittest.TestCase):

@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import logging
 
-from .tern import ternary
 from ..comp.codata import close
 from ..util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
 from ..util.distributions import sample_kde
@@ -14,11 +13,27 @@ from ..util.plot import (
     bin_centres_to_edges,
     __DEFAULT_CONT_COLORMAP__,
     __DEFAULT_DISC_COLORMAP__,
+    init_axes,
 )
 from ..util.meta import get_additional_params, subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+
+def _get_density_methods(ax, use_pcolor=False):
+    if ax.name == "ternary":
+        pcolor = ax.tripcolor
+        contour = ax.tricontour
+        contourf = ax.tricontourf
+    else:
+        if use_pcolor:
+            pcolor = ax.pcolor
+        else:
+            pcolor = ax.pcolormesh
+        contour = ax.contour
+        contourf = ax.contourf
+    return pcolor, contour, contourf
 
 
 def density(
@@ -33,19 +48,17 @@ def density(
     contours=[],
     percentiles=True,
     relim=True,
-    figsize=(6, 6),
     cmap=__DEFAULT_CONT_COLORMAP__,
     vmin=0.0,
     shading="flat",
     colorbar=False,
-    pcolor=False,
+    use_pcolor=False,
     no_ticks=False,
     **kwargs
 ):
     """
     Creates diagramatic representation of data density and/or frequency for either
-    binary diagrams (X-Y) or in a ternary plot
-    (limited functionality and poorly tested for the latter).
+    binary diagrams (X-Y) or ternary plots.
     Additional arguments are typically forwarded
     to respective :mod:`matplotlib` functions
     :func:`~matplotlib.pyplot.pcolormesh`,
@@ -79,8 +92,6 @@ def density(
         Whether contours specified are to be converted to percentiles.
     relim : :class:`bool`, :code:`True`
         Whether to relimit the plot based on xmin, xmax values.
-    figsize : :class:`tuple`, (6, 6)
-        Size of the figure generated.
     cmap : :class:`matplotlib.colors.Colormap`
         Colormap for mapping surfaces.
     vmin : :class:`float`, 0.
@@ -89,7 +100,7 @@ def density(
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
-    pcolor : :class:`bool`
+    use_pcolor : :class:`bool`
         Option to use the :func:`matplotlib.pyplot.pcolor` function in place
         of :func:`matplotlib.pyplot.pcolormesh`.
     no_ticks : :class:`bool`
@@ -115,16 +126,23 @@ def density(
             :func:`matplotlib.pyplot.pcolormesh`
             :func:`matplotlib.pyplot.hist2d`
             :func:`matplotlib.pyplot.contourf`
-            :func:`pyrolite.plot.tern.ternary`
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
 
-    ax = ax or plt.subplots(1, figsize=figsize)[1]
+    if arr.shape[-1] == 3:
+        projection = "ternary"
+    else:
+        projection = None
 
+    ax = init_axes(ax=ax, projection=projection, **kwargs)
+
+    pcolor, contour, contourf = _get_density_methods(ax, use_pcolor=use_pcolor)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
+
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
+
     cmap.set_under(color=(1, 1, 1, 0))
 
     if mode == "density":
@@ -132,18 +150,13 @@ def density(
     else:
         cbarlabel = "Frequency"
 
-    if pcolor:
-        pc = ax.pcolor
-    else:
-        pc = ax.pcolormesh
-
     exp = (coverage_scale - 1.0) / 2
     valid_rows = np.isfinite(arr).all(axis=-1)
-    if valid_rows.any():
+    if (arr.size > 0) and valid_rows.any():
         # Data can't be plotted if there's any nans, so we can exclude these
         arr = arr[valid_rows]
 
-        if arr.shape[-1] == 2:  # binary
+        if projection is None:  # binary
             x, y = arr.T
             if extent is not None:  # Expanded extent
                 xmin, xmax, ymin, ymax = extent
@@ -241,14 +254,14 @@ def density(
 
                 if not contours:
                     # pcolormesh using bin edges
-                    mappable = pc(
+                    mappable = pcolor(
                         xe,
                         ye,
                         zi,
                         cmap=cmap,
                         shading=shading,
                         vmin=vmin,
-                        **subkwargs(kwargs, pc)
+                        **subkwargs(kwargs, pcolor)
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -256,39 +269,33 @@ def density(
 
             if relim:
                 ax.axis(extent)
-
-        elif arr.shape[-1] == 3:  # ternary
+        elif projection == "ternary":  # ternary
             arr = close(arr)
             scale = kwargs.pop("scale", 100.0)
             aspect = kwargs.pop("aspect", "eq")
-            nanarr = np.ones(3) * np.nan  # update to array method
-            ternary(nanarr, ax=ax, scale=scale, figsize=figsize, no_ticks=no_ticks)
-            tax = ax.tax
+
             xe, ye, zi, centres = ternary_heatmap(
                 arr, bins=bins, mode=mode, aspect=aspect, ret_centres=True
             )
             xi, yi = centres  # coordinates of grid centres for possible contouring
             xi, yi = xi * scale, yi * scale
             zi[np.isnan(zi)] = 0.0
+
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
 
             if not contours:
                 zi[zi == 0.0] = np.nan  #
-                mappable = pc(
+                # _a, _b, _c = xy_to_ABC(xi, yi)
+                mappable = pcolor(
                     xe * scale,
                     ye * scale,
                     zi,
                     cmap=cmap,
                     vmin=vmin,
-                    **subkwargs(kwargs, pc)
+                    **subkwargs(kwargs, pcolor)
                 )
-
-            ax.spines["top"].set_visible(False)
-            ax.spines["right"].set_visible(False)
-            ax.spines["bottom"].set_visible(False)
-            ax.spines["left"].set_visible(False)
             ax.set_aspect("equal")
         else:
             if not arr.ndim in [0, 1, 2]:
@@ -308,11 +315,11 @@ def density(
                 elif isinstance(levels, int):
                     levels = MaxNLocator(nbins=levels).tick_values(zi.min(), zi.max())
                 # filled contours
-                mappable = ax.contourf(
+                mappable = contourf(
                     *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
                 )
                 # contours
-                ax.contour(
+                contour(
                     *cags, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
                 )
 

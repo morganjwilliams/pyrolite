@@ -100,7 +100,7 @@ def stream_log(logger=None, level="INFO"):
     else:
         raise NotImplementedError
 
-    logger.propagate = propagate # don't duplicate by propagating to root
+    logger.propagate = propagate  # don't duplicate by propagating to root
     int_level = getattr(logging, level)
     # check there are no handlers other than Null
     active_handlers = [
@@ -167,7 +167,7 @@ def subkwargs(kwargs, *f):
     return {k: v for k, v in kwargs.items() if inargs(k, *f)}
 
 
-def inargs(name, *f):
+def inargs(name, *funcs):
     """
     Check if an argument is a possible input for a specific function.
 
@@ -183,9 +183,9 @@ def inargs(name, *f):
     :class:`bool`
     """
     args = []
-    for f in f:
+    for f in funcs:
         args += inspect.getfullargspec(f).args
-    return name in args
+    return name in set(args)
 
 
 def numpydoc_str_param_list(iterable, indent=4):

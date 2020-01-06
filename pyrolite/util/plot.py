@@ -26,9 +26,11 @@ import matplotlib.lines
 import matplotlib.patches
 import matplotlib.path
 import matplotlib.collections
+import matplotlib.artist
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.axes as matax
+import matplotlib.axes
 from matplotlib.transforms import Bbox
+import mpltern.ternary
 from ..util.math import (
     eigsorted,
     nancov,
@@ -65,6 +67,81 @@ __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 FONTSIZE = 12
 
 
+def linekwargs(kwargs):
+    """
+    Get a subset of keyword arguments to pass to a matplotlib line-plot call.
+
+    Parameters
+    -----------
+    kwargs : :class:`dict`
+        Dictionary of keyword arguments to subset.
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    kw = subkwargs(
+        kwargs,
+        plt.plot,
+        matplotlib.axes.Axes.plot,
+        matplotlib.lines.Line2D,
+        matplotlib.collections.Collection,
+    )
+    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    return kw
+
+
+def scatterkwargs(kwargs):
+    """
+    Get a subset of keyword arguments to pass to a matplotlib scatter call.
+
+    Parameters
+    -----------
+    kwargs : :class:`dict`
+        Dictionary of keyword arguments to subset.
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    kw = subkwargs(
+        kwargs,
+        plt.scatter,
+        matplotlib.axes.Axes.scatter,
+        matplotlib.collections.Collection,
+    )
+    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    return kw
+
+
+def patchkwargs(kwargs):
+    kw = subkwargs(
+        kwargs,
+        matplotlib.axes.Axes.fill_between,
+        matplotlib.collections.PolyCollection,
+        matplotlib.patches.Patch,
+    )
+    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    return kw
+
+
+def _mpl_sp_kw_split(kwargs):
+    """
+    Process keyword arguments supplied to a matplotlib plot function.
+
+    Returns
+    --------
+    :class:`tuple` ( :class:`dict`, :class:`dict` )
+    """
+    sctr_kwargs = scatterkwargs(kwargs)
+    # c kwarg is first priority, if it isn't present, use the color arg
+    if sctr_kwargs.get("c") is None:
+        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
+
+    line_kwargs = linekwargs(kwargs)
+    return sctr_kwargs, line_kwargs
+
+
 def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
     """
     Create a scalar mappable object from an array of values.
@@ -88,6 +165,147 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
         List of markers to provide to matplotlib.
     """
     return itertools.cycle(markers)
+
+
+def replace_with_ternary_axis(ax):
+    """
+    Replace a specified axis with a ternary equivalent.
+
+    Parameters
+    ------------
+    ax : :class:`~matplotlib.axes.Axes`
+
+    Returns
+    ------------
+    tax : :class:`~mpltern.ternary.TernaryAxes`
+    """
+    fig = ax.figure
+    axes = get_ordered_axes(fig)
+    idx = axes.index(ax)
+    tax = fig.add_subplot(*get_axes_index(ax), projection="ternary")
+    fig.add_axes(tax)  # make sure the axis is added to fig.children
+    fig.delaxes(ax)  # remove the original axes
+    # update figure ordered axes
+    fig.orderedaxes = [a if ix != idx else tax for (ix, a) in enumerate(axes)]
+    return tax
+
+
+def label_axes(ax, labels=[], **kwargs):
+    """
+    Convenience function for labelling rectilinear and ternary axes.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes`
+        Axes to label.
+    labels : :class:`list`
+        List of labels: [x, y] | or [t, l, r]
+    """
+    if (ax.name == "ternary") and (len(labels) == 3):
+        tvar, lvar, rvar = labels
+        ax.set_tlabel(tvar, **kwargs)
+        ax.set_llabel(lvar, **kwargs)
+        ax.set_rlabel(rvar, **kwargs)
+    elif len(labels) == 2:
+        xvar, yvar = labels
+        ax.set_xlabel(xvar, **kwargs)
+        ax.set_ylabel(yvar, **kwargs)
+    else:
+        raise NotImplementedError
+
+
+def axes_to_ternary(ax):
+    """
+    Set axes to ternary projection after axis creation. As currently implemented,
+    note that this will replace and reorder axes as acecessed from the figure (the
+    ternary axis will then be at the end), and as such this returns a list of axes
+    in the correct order.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes` | :class:`list` (:class:`~matplotlib.axes.Axes`)
+        Axis (or axes) to convert projection for.
+
+    Returns
+    ---------
+    axes : :class:`list' (:class:`~matplotlib.axes.Axes`, class:`~mpltern.ternary.TernaryAxes`)
+    """
+
+    if isinstance(ax, (list, np.ndarray, tuple)):  # multiple Axes specified
+        fig = ax[0].figure
+        for a in ax:  # axes to set to ternary
+            replace_with_ternary_axis(a)
+    else:  # a single Axes is passed
+        fig = ax.figure
+        tax = replace_with_ternary_axis(ax)
+    return fig.orderedaxes
+
+
+def init_axes(ax=None, projection=None, **kwargs):
+    """
+    Get or create an Axes from an optionally-specified starting Axes.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes`
+        Specified starting axes, optional.
+    projection : :class:`str`
+        Whether to create a projected (e.g. ternary) axes.
+
+    Returns
+    --------
+    ax : :class:`~matplotlib.axes.Axes`
+    """
+    if projection is not None:  # e.g. ternary
+        if ax is None:
+            fig, ax = plt.subplots(
+                1,
+                subplot_kw=dict(projection=projection),
+                **subkwargs(kwargs, plt.subplots, plt.figure)
+            )
+        else:  # axes passed
+            if ax.name != "ternary":
+                ix = get_ordered_axes(ax.figure).index(ax)
+                axes = axes_to_ternary(ax)  # returns list of axes
+                ax = axes[ix]
+            else:
+                pass
+    else:
+        if ax is None:
+            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+    return ax
+
+
+def get_ordered_axes(fig):
+    """
+    Get the axes from a figure, which may or may not have been modified by
+    pyrolite functions. This ensures that ordering is preserved.
+    """
+    if hasattr(fig, "orderedaxes"):  # previously modified
+        axes = fig.orderedaxes
+    else:  # unmodified axes
+        axes = fig.axes
+    return axes
+
+
+def get_axes_index(ax):
+    """
+    Get the three-digit integer index of a subplot in a regular grid.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axis to to get the gridspec index for.
+
+    Returns
+    -----------
+    :class:`tuple`
+        Rows, columns and axis index for the gridspec.
+    """
+    nrow, ncol = ax.get_gridspec()._nrows, ax.get_gridspec()._ncols
+    index = get_ordered_axes(ax.figure).index(ax)
+    triple = nrow, ncol, index + 1
+    return triple
 
 
 def share_axes(axes, which="xy"):
@@ -663,7 +881,6 @@ def ternary_heatmap(
             tfm=tfm,
         )
         xe, ye = ternarygrid_to_xy(edgegrid, yscale=yscale, tfm=itfm)
-
     else:
         assert mode == "density"  # could do this based on a histogram, actually
         centregrid = sample_at
@@ -1331,7 +1548,7 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     """
     # Check if axes is a single axis or list of axes
 
-    if isinstance(ax, matax.Axes):
+    if isinstance(ax, matplotlib.axes.Axes):
         extent = get_full_extent(ax, pad=pad)
         figure = ax.figure
     else:
@@ -1392,23 +1609,3 @@ def get_full_extent(ax, pad=0.0):
     else:
         raise NotImplementedError
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
-
-
-def _mpl_sp_kw_split(kwargs):
-    """
-    Process keyword arguments supplied to a matplotlib plot function.
-
-    Returns
-    --------
-    :class:`tuple` ( :class:`dict`, :class:`dict` )
-    """
-    sctr_kwargs = subkwargs(kwargs, plt.scatter, matplotlib.collections.Collection)
-    # c kwarg is first priority, if it isn't present, use the color arg
-    if sctr_kwargs.get("c") is None:
-        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
-
-    line_kwargs = subkwargs(
-        kwargs, plt.plot, matplotlib.lines.Line2D, matplotlib.collections.Collection
-    )
-
-    return sctr_kwargs, line_kwargs

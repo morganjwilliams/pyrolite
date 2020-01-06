@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from numpy.random import multivariate_normal
-import logging
-from pyrolite.plot import tern, spider, density, pyroplot
+from pyrolite.plot import spider, density, pyroplot
 from pyrolite.geochem import REE
 from pyrolite.util.synthetic import test_df
+
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +31,12 @@ class TestPyroPlot(unittest.TestCase):
 
     def test_pyroplot_class_structure(self):
         pplot = pyroplot  # class
-        for attr in ["spider", "ternary", "density", "REE", "stem", "parallel"]:
+        for attr in ["spider", "scatter", "plot", "density", "REE", "stem", "parallel"]:
             self.assertTrue(hasattr(pplot, attr))
 
     def test_pyroplot_instance_structure(self):
         pplot = pyroplot(self.bidf)  # instance
-        for attr in ["spider", "ternary", "density", "REE", "stem", "parallel"]:
+        for attr in ["spider", "scatter", "plot", "density", "REE", "stem", "parallel"]:
             self.assertTrue(hasattr(pplot, attr))
 
     def test_pandas_api_accessor_exists(self):
@@ -104,24 +105,20 @@ class TestPyroPlot(unittest.TestCase):
     def test_stem_v(self):
         self.bidf.pyroplot.stem(orientation="V")
 
-    def test_ternary(self):
-        self.tridf.pyroplot.ternary()
+    def test_scatter_ternary(self):
+        self.tridf.pyroplot.scatter()
 
-    def test_ternary_labels(self):
-        for labels in [[], self.tridf.columns.tolist()]:
+    def test_scatter_ternary_labels(self):
+        for labels in [False, True]:
             with self.subTest(labels=labels):
-                self.tridf.pyroplot.ternary(axlabels=labels)
+                self.tridf.pyroplot.scatter(axlabels=labels)
 
     @unittest.expectedFailure
-    def test_ternary_with_two_components(self):
-        self.bidf.pyroplot.ternary()
+    def test_scatter_with_more_components(self):
+        self.multidf.pyroplot.scatter()
 
-    @unittest.expectedFailure
-    def test_ternary_with_more_components(self):
-        self.multidf.pyroplot.ternary()
-
-    def test_ternary_with_more_components_specified(self):
-        self.multidf.pyroplot.ternary(components=self.multidf.columns[:3])
+    def test_scatter_with_more_components_specified(self):
+        self.multidf.pyroplot.scatter(components=self.multidf.columns[:3])
 
 
 if __name__ == "__main__":

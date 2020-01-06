@@ -13,13 +13,20 @@ import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot import plot_cooccurence, set_ternary_labels
+from ..util.plot import (
+    plot_cooccurence,
+    set_ternary_labels,
+    init_axes,
+    label_axes,
+    linekwargs,
+    scatterkwargs,
+)
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs
 from ..geochem import common_elements, REE
 from . import density
 from . import spider
-from . import tern
+from . import ternary
 from . import stem
 from . import parallel
 
@@ -33,6 +40,38 @@ import pandas as pd
 
 # todo: global style variables
 FONTSIZE = 12
+
+
+def _check_components(obj, components=None, valid_sizes=[2, 3]):
+    """
+    Check that the components provided within a dataframe are consistent with the
+    form of plot being used.
+
+    Parameters
+    ----------
+    obj : :class:`pandas.DataFrame`
+        Object to check.
+    components : :class:`list`
+        List of components, optionally specified.
+    valid_sizes : :class:`list`
+        Component list lengths which are valid for the plot type.
+
+    Returns
+    ---------
+    :class:`list`
+        Components for the plot.
+    """
+    try:
+        if obj.columns.size not in valid_sizes:
+            assert len(components) in valid_sizes
+
+        if components is None:
+            components = obj.columns.values
+    except:
+        msg = "Suggest components or provide a slice of the dataframe."
+        raise AssertionError(msg)
+    return components
+
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyroplot")
@@ -118,35 +157,13 @@ class pyroplot(object):
             Axes on which the density diagram is plotted.
         """
         obj = to_frame(self._obj)
-        try:
-            if obj.columns.size not in [2, 3]:
-                assert len(components) in [2, 3]
-
-            if components is None:
-                components = obj.columns.values
-        except:
-            msg = "Suggest components or provide a slice of the dataframe."
-            raise AssertionError(msg)
+        components = _check_components(obj, components=components)
 
         ax = density.density(
             obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
         )
-        if axlabels and len(components) == 2:
-            ax.set_xlabel(components[0], fontsize=fontsize)
-            ax.set_ylabel(components[1], fontsize=fontsize)
-
-            ax.tick_params("both", labelsize=fontsize * 0.9)
-        elif axlabels and len(components) == 3:
-            tax = ax.tax
-            set_ternary_labels(
-                tax,
-                components,
-                fontsize=fontsize,
-                axlabels=axlabels,
-                **subkwargs(kwargs, set_ternary_labels)
-            )
-        else:
-            pass
+        if axlabels:
+            label_axes(ax, labels=components, fontsize=fontsize)
 
         return ax
 
@@ -187,16 +204,7 @@ class pyroplot(object):
             Axes on which the heatmapped scatterplot is added.
         """
         obj = to_frame(self._obj)
-        try:
-            if obj.columns.size not in [2, 3]:
-                assert len(components) in [2, 3]
-
-            if components is None:
-                components = obj.columns.values
-        except:
-            msg = "Suggest components or provide a slice of the dataframe."
-            raise AssertionError(msg)
-
+        components = _check_components(obj, components=components)
         data, samples = obj.loc[:, components].values, obj.loc[:, components].values
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
@@ -248,6 +256,49 @@ class pyroplot(object):
             ax=ax,
             **kwargs
         )
+        return ax
+
+    def plot(
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        fontsize=FONTSIZE,
+        **kwargs,
+    ):
+        r"""
+        Convenience method for line plots using the pyroplot API. See
+        further parameters for `matplotlib.pyplot.scatter` function below.
+
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Elements or compositional components to plot.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        axlabels : :class:`bool`, :code:`True`
+            Whether to add x-y axis labels.
+        fontsize : :class:`int`
+            Fontsize for axis labels.
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the plot is added.
+        """
+        obj = to_frame(self._obj)
+        components = _check_components(obj, components=components)
+        projection = [None, "ternary"][len(components) == 3]
+        ax = init_axes(ax=ax, projection=projection, **kwargs)
+        lines = ax.plot(*obj.loc[:, components].values.T, **linekwargs(kwargs))
+
+        if axlabels:
+            label_axes(ax, labels=components, fontsize=fontsize)
+
+        ax.tick_params("both", labelsize=fontsize * 0.9)
+        # ax.grid()
+        # ax.set_aspect("equal")
         return ax
 
     def REE(self, index="elements", ax=None, mode="plot", **kwargs):
@@ -315,36 +366,18 @@ class pyroplot(object):
             Axes on which the scatterplot is added.
         """
         obj = to_frame(self._obj)
-        try:
-            if obj.columns.size not in [2, 3]:
-                assert len(components) in [2, 3]
+        components = _check_components(obj, components=components)
 
-            if components is None:
-                components = obj.columns.values
-        except:
-            msg = "Suggest components or provide a slice of the dataframe."
-            raise AssertionError(msg)
+        projection = [None, "ternary"][len(components) == 3]
+        ax = init_axes(ax=ax, projection=projection, **kwargs)
+        sc = ax.scatter(*obj.loc[:, components].values.T, **scatterkwargs(kwargs))
 
-        if ax is None:
-            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+        if axlabels:
+            label_axes(ax, labels=components, fontsize=fontsize)
 
-        if len(components) == 3:
-            ax = obj.loc[:, components].pyroplot.ternary(
-                ax=ax, axlabels=axlabels, fontsize=fontsize, **kwargs
-            )
-        else:  # len(components) == 2
-            xvar, yvar = components
-
-            sc = ax.scatter(
-                obj.loc[:, xvar].values,
-                obj.loc[:, yvar].values,
-                **subkwargs(kwargs, ax.scatter)
-            )
-            if axlabels:
-                ax.set_xlabel(xvar, fontsize=fontsize)
-                ax.set_ylabel(yvar, fontsize=fontsize)
-
-            ax.tick_params("both", labelsize=fontsize * 0.9)
+        ax.tick_params("both", labelsize=fontsize * 0.9)
+        # ax.grid()
+        # ax.set_aspect("equal")
         return ax
 
     def spider(
@@ -436,87 +469,17 @@ class pyroplot(object):
             Axes on which the stem diagram is plotted.
         """
         obj = to_frame(self._obj)
-        try:
-            if obj.columns.size not in [2, 3]:
-                assert len(components) in [2, 3]
+        components = _check_components(obj, components=components, valid_sizes=[2])
 
-            if components is None:
-                components = obj.columns.values
-        except:
-            msg = "Suggest components or provide a slice of the dataframe."
-            raise AssertionError(msg)
         ax = stem.stem(
-            obj[components[0]].values,
-            obj[components[1]].values,
-            ax=ax,
-            orientation=orientation,
-            **kwargs
+            *obj.loc[:, components].values.T, ax=ax, orientation=orientation, **kwargs
         )
 
         if axlabels:
             if "h" not in orientation.lower():
                 components = components[::-1]
-            ax.set_xlabel(components[0])
-            ax.set_ylabel(components[1])
+            label_axes(ax, labels=components, fontsize=fontsize)
 
-        return ax
-
-    def ternary(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=None,
-        fontsize=FONTSIZE,
-        **kwargs
-    ):
-        r"""
-        Method for ternary scatter plots. Convenience access function to
-        :func:`~pyrolite.plot.tern.ternary` (see `Other Parameters`, below), where
-        further parameters for relevant `matplotlib` functions are also listed.
-
-
-        Parameters
-        -----------
-        components : :class:`list`, `None`
-            Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
-            The subplot to draw on.
-        axlabels : :class:`bool`, True
-            Whether to add axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
-        {otherparams}
-
-        Returns
-        -------
-        :class:`matplotlib.axes.Axes`
-            Axes on which the ternary diagram is plotted.
-        """
-        obj = to_frame(self._obj)
-
-        try:
-            if not obj.columns.size == 3:
-                assert len(components) == 3
-
-            if components is None:
-                components = obj.columns.values
-        except:
-            msg = "Suggest components or provide a slice of the dataframe."
-            raise AssertionError(msg)
-
-        ax = tern.ternary(
-            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
-        )
-        tax = ax.tax
-
-        set_ternary_labels(
-            tax,
-            components,
-            fontsize=fontsize,
-            axlabels=axlabels,
-            **subkwargs(kwargs, set_ternary_labels)
-        )
-        ax.set_aspect("equal")
         return ax
 
 
@@ -578,6 +541,19 @@ pyroplot.scatter.__doc__ = pyroplot.scatter.__doc__.format(
     ][_add_additional_parameters]
 )
 
+pyroplot.plot.__doc__ = pyroplot.plot.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            pyroplot.plot,
+            plt.plot,
+            header="Other Parameters",
+            indent=8,
+            subsections=True,
+        ),
+    ][_add_additional_parameters]
+)
+
 pyroplot.spider.__doc__ = pyroplot.spider.__doc__.format(
     otherparams=[
         "",
@@ -604,20 +580,6 @@ pyroplot.stem.__doc__ = pyroplot.stem.__doc__.format(
         ),
     ][_add_additional_parameters]
 )
-
-pyroplot.ternary.__doc__ = pyroplot.ternary.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.ternary,
-            tern.ternary,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
 
 pyroplot.heatscatter.__doc__ = pyroplot.heatscatter.__doc__.format(
     otherparams=[

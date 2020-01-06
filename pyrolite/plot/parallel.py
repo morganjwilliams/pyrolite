@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 from pandas.plotting import parallel_coordinates
 from ..util.meta import subkwargs
-from ..util.plot import __DEFAULT_CONT_COLORMAP__
+from ..util.plot import __DEFAULT_CONT_COLORMAP__, init_axes
 
 
 def parallel(
@@ -51,8 +51,7 @@ def parallel(
         Rather than just a list of numbers to be converted to colors.
     """
     samples = df.copy()
-    if ax is None:
-        fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+    ax = init_axes(ax=ax, **kwargs)
 
     target = samples.index.name or "index"
     samples = samples.reset_index()  # to access the index to use as a 'class'
