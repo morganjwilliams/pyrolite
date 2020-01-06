@@ -62,10 +62,9 @@ def density(
     percentiles=True,
     relim=True,
     cmap=__DEFAULT_CONT_COLORMAP__,
-    vmin=0.0,
     shading="flat",
+    vmin=0.0,
     colorbar=False,
-    no_ticks=False,
     **kwargs
 ):
     """
@@ -110,8 +109,6 @@ def density(
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
-    no_ticks : :class:`bool`
-        Option to *suppress* tickmarks and labels.
 
     {otherparams}
 
@@ -208,8 +205,8 @@ def density(
                         grid.grid_yei,
                         zi,
                         cmap=cmap,
-                        shading=shading,
                         vmin=vmin,
+                        shading=shading,
                         **subkwargs(kwargs, pcolor)
                     )
                     mappable.set_edgecolor(background_color)
@@ -223,28 +220,29 @@ def density(
             scale = kwargs.pop("scale", 100.0)
             aspect = kwargs.pop("aspect", "eq")
 
+            # density, histogram etc parsed here
             xe, ye, zi, centres = ternary_heatmap(
-                arr, bins=bins, mode=mode, aspect=aspect, ret_centres=True
+                arr,
+                bins=bins,
+                mode=mode,
+                aspect=aspect,
+                remove_background=True,
+                ret_centres=True,
             )
             xi, yi = centres  # coordinates of grid centres for possible contouring
             xi, yi = xi * scale, yi * scale
-            zi[np.isnan(zi)] = 0.0
-
+            mask = np.isfinite(zi.flatten())
+            xi, yi, zi = xi.flatten()[mask], yi.flatten()[mask], zi.flatten()[mask]
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
-
             if not contours:
-                zi[zi == 0.0] = np.nan
-                _xy = np.vstack([xe.flatten(), ye.flatten()]).T
-                _a, _b, _c = xy_to_ABC(_xy / scale).T
                 mappable = pcolor(
-                    _a,
-                    _b,
-                    _c,
-                    zi.flatten(),
+                    *xy_to_ABC(np.vstack([xi, yi]).T / scale).T,
+                    zi,
                     cmap=cmap,
                     vmin=vmin,
+                    shading=shading,
                     **subkwargs(kwargs, pcolor)
                 )
             ax.set_aspect("equal")
@@ -256,7 +254,7 @@ def density(
             mappable = _add_contours(
                 grid.grid_xci,
                 grid.grid_yci,
-                zi=zi,
+                zi=zi.reshape(grid.grid_xci.shape),
                 ax=ax,
                 contours=contours,
                 percentiles=percentiles,
@@ -270,11 +268,11 @@ def density(
             cbkwargs["label"] = cbarlabel
             add_colorbar(mappable, **cbkwargs)
 
-    if relim:
-        if logx:
-            ax.set_xscale("log")
-        if logy:
-            ax.set_yscale("log")
+        if relim:
+            if logx:
+                ax.set_xscale("log")
+            if logy:
+                ax.set_yscale("log")
     return ax
 
 
