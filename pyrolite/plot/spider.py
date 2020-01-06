@@ -18,6 +18,9 @@ from ..util.plot import (
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
     get_twins,
+    init_axes,
+    linekwargs,
+    patchkwargs,
 )
 from ..util.meta import get_additional_params, subkwargs
 
@@ -33,7 +36,6 @@ def spider(
     marker="D",
     markersize=5.0,
     label=None,
-    figsize=None,
     logy=True,
     mode="plot",
     unity_line=False,
@@ -66,8 +68,6 @@ def spider(
         Size of individual markers.
     label : :class:`str`, :code:`None`
         Label for the individual series.
-    figsize : :class:`tuple`, `None`
-        Size of the figure to be generated, if not using an existing :class:`~matplotlib.axes.Axes`.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -103,9 +103,9 @@ def spider(
 
     # ---------------------------------------------------------------------
     ncomponents = arr.shape[-1]
-    figsize = figsize or (ncomponents * 0.3, 4)
+    figsize = kwargs.pop("figsize", None) or (ncomponents * 0.3, 4)
 
-    ax = ax or plt.subplots(1, figsize=figsize)[1]
+    ax = init_axes(ax=ax, figsize=figsize, **kwargs)
 
     if logy:
         ax.set_yscale("log")
@@ -172,20 +172,9 @@ def spider(
     if "fill" in mode.lower():
         mins = np.nanmin(arr, axis=0)
         maxs = np.nanmax(arr, axis=0)
-        plycol = ax.fill_between(
-            indexes0,
-            mins,
-            maxs,
-            alpha=alpha,
-            **subkwargs(
-                local_kw,
-                ax.fill_between,
-                matplotlib.collections.PolyCollection,
-                matplotlib.patches.Patch,
-            )
-        )
+        plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(local_kw))
     elif "plot" in mode.lower():
-        ls = ax.plot(indexes.T, arr.T, alpha=alpha, **lnkw)
+        ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
             cshape = np.array(c).shape
@@ -283,11 +272,7 @@ def REE_v_radii(
             :func:`spider`
             :func:`pyrolite.geochem.transform.lambda_lnREE`
     """
-    if ax is not None:
-        fig = ax.figure
-        ax = ax
-    else:
-        fig, ax = plt.subplots()
+    ax = init_axes(ax=ax, **kwargs)
 
     radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
 

@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
-from pyrolite.util.meta import subkwargs
+from ..util.meta import subkwargs
+from ..util.plot import init_axes
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def stem(x, y, ax=None, orientation="horizontal", color="0.5", figsize=None, **kwargs):
+def stem(x, y, ax=None, orientation="horizontal", color="0.5", **kwargs):
     """
     Create a stem (or 'lollipop') plot, with optional orientation.
 
@@ -21,16 +22,13 @@ def stem(x, y, ax=None, orientation="horizontal", color="0.5", figsize=None, **k
         Orientation of the plot (horizontal or vertical).
     color : :class:`str`
         Color of lines and markers (unless otherwise overridden).
-    figsize : :class:`tuple`
-        Size of the figure, where an axis is not specified.
 
     Returns
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the stem diagram is plotted.
     """
-    if ax is None:
-        fig, ax = plt.subplots(1, figsize=figsize)
+    ax = init_axes(ax=ax, **kwargs)
 
     orientation = orientation.lower()
     xs, ys = [x, x], [np.zeros_like(y), y]
