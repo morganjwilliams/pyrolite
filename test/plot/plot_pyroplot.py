@@ -128,7 +128,7 @@ class TestPyroTernary(unittest.TestCase):
         self.cols = ["MgO", "SiO2", "CaO"]
 
         # can run into interesting singular matrix errors with bivariate random data
-        self.tridf = test_df(cols=self.cols, index_length=10)
+        self.tridf = test_df(cols=self.cols, index_length=100)
 
     def test_default(self):
         """Test generation of plot with one record."""
@@ -153,11 +153,11 @@ class TestPyroTernary(unittest.TestCase):
         Check than array of values specified using `c`
         can be used for a colormap.
         """
-        ax = self.tridf.pyroplot.scatter(c=np.linspace(0, 10, 10), cmap="viridis")
+        ax = self.tridf.pyroplot.scatter(c=np.linspace(0, 10, 100), cmap="viridis")
 
     def test_norm_specified(self):
         ax = self.tridf.pyroplot.scatter(
-            c=np.random.randn(10),
+            c=np.random.randn(100),
             cmap="viridis",
             norm=matplotlib.colors.Normalize(vmin=-1.0, vmax=1.0),
         )
