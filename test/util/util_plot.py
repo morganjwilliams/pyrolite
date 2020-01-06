@@ -48,7 +48,32 @@ class TestReplaceWithTernaryAxis(unittest.TestCase):
         self.assertIsInstance(tax, TernaryAxes)
 
 
-axes_to_ternary
+class TestAxesToTernary(unittest.TestCase):
+    def setUp(self):
+        self.tlr = get_spiral()
+
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        self.assertIsInstance(ax, list)
+        self.assertIsInstance(ax[ix], TernaryAxes)
+
+    def test_multiple_grid(self):
+        ix = [1, 3]
+        fig, ax = plt.subplots(2, 2)
+        ax = ax.flat
+        ax = axes_to_ternary([ax[i] for i in ix])
+        self.assertIsInstance(ax, list)
+        for i in ix:
+            self.assertIsInstance(ax[i], TernaryAxes)
+
+    def test_plot(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        ax[ix].plot(*self.tlr, "k")
+
 
 init_axes
 

@@ -6,6 +6,8 @@ from numpy.random import multivariate_normal
 from pyrolite.plot import spider, density, pyroplot
 from pyrolite.geochem import REE
 from pyrolite.util.synthetic import test_df
+import matplotlib.colors
+import mpltern.ternary
 
 import logging
 
@@ -119,6 +121,52 @@ class TestPyroPlot(unittest.TestCase):
 
     def test_scatter_with_more_components_specified(self):
         self.multidf.pyroplot.scatter(components=self.multidf.columns[:3])
+
+
+class TestPyroTernary(unittest.TestCase):
+    def setUp(self):
+        self.cols = ["MgO", "SiO2", "CaO"]
+
+        # can run into interesting singular matrix errors with bivariate random data
+        self.tridf = test_df(cols=self.cols, index_length=10)
+
+    def test_default(self):
+        """Test generation of plot with one record."""
+        ax = self.tridf.pyroplot.scatter()
+        self.assertIsInstance(ax, mpltern.ternary.TernaryAxes)
+
+    def test_overplotting(self):
+        """Test use of the plot for multiple rounds of plotting."""
+        ax1 = self.tridf.pyroplot.scatter()
+        ax2 = self.tridf.pyroplot.scatter(ax=ax1)
+        self.assertIsInstance(ax2, mpltern.ternary.TernaryAxes)
+        self.assertTrue(ax1 is ax2)  # hasn't added a new ternary axis
+
+    def test_color_tuple(self):
+        ax = self.tridf.pyroplot.scatter(c=(0.1, 0.2, 0.5, 0.3))
+
+    def test_color_hex(self):
+        ax = self.tridf.pyroplot.scatter(c="#0f0f0f")
+
+    def test_color_cmap_c_combination(self):
+        """
+        Check than array of values specified using `c`
+        can be used for a colormap.
+        """
+        ax = self.tridf.pyroplot.scatter(c=np.linspace(0, 10, 10), cmap="viridis")
+
+    def test_norm_specified(self):
+        ax = self.tridf.pyroplot.scatter(
+            c=np.random.randn(10),
+            cmap="viridis",
+            norm=matplotlib.colors.Normalize(vmin=-1.0, vmax=1.0),
+        )
+
+    def test_label_specified(self):
+        ax = self.tridf.pyroplot.scatter(label="testarr")
+
+    def tearDown(self):
+        plt.close("all")
 
 
 if __name__ == "__main__":
