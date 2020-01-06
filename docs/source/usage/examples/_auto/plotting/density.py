@@ -30,9 +30,6 @@ df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
 ########################################################################################
 # A minimal density plot can be constructed as follows:
 #
-ax = density(df.loc[:, ["SiO2", "MgO"]].values)
-ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
-# or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
 df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax, s=10, alpha=0.3, c="k", zorder=2)
 plt.show()
@@ -47,6 +44,7 @@ plt.show()
 # existing axis for more control:
 #
 fig, ax = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
+
 df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[0])
 df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax[1])
 
@@ -140,10 +138,11 @@ plt.show()
 # are specified:
 #
 fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color="k")
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
     df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
     a.set_title("Mode: {}".format(mode))
+plt.tight_layout()
 plt.show()
 ########################################################################################
 # .. note:: Using alpha with the ``density`` mode induces a known and old matplotlib bug,
