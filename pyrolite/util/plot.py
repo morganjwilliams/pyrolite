@@ -1035,8 +1035,11 @@ def conditional_prob_density(
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
+            # if np.isfinite(y[:, bin]).any(): # bins can be empty
             kde = gaussian_kde(y[np.isfinite(y[:, bin]), bin])
             zi[:, bin] = kde(yi[:, bin])
+            # else:
+            # pass
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins, requires logbins be transformed
         # calculate histogram in logy if needed
