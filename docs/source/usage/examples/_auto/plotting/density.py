@@ -137,11 +137,19 @@ plt.show()
 # Density plots can also be used for ternary diagrams, where more than two components
 # are specified:
 #
-fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
+fig, ax = plt.subplots(
+    1,
+    3,
+    sharex=True,
+    sharey=True,
+    figsize=(15, 5),
+    subplot_kw=dict(projection="ternary"),
+)
 df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
     df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
-    a.set_title("Mode: {}".format(mode))
+    a.set_title("Mode: {}".format(mode), y=1.2)
+
 plt.tight_layout()
 plt.show()
 ########################################################################################
