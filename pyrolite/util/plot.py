@@ -903,7 +903,7 @@ def ternary_heatmap(
         raise NotImplementedError
 
     if remove_background:
-        H[np.isclose(H, 0.)] = np.nan
+        H[H == 0] = np.nan
     if ret_centres:
         return xe, ye, H, centres
     return xe, ye, H

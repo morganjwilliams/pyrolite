@@ -230,15 +230,16 @@ def density(
                 ret_centres=True,
             )
             xi, yi = centres  # coordinates of grid centres for possible contouring
-            xi, yi = xi * scale, yi * scale
+
             mask = np.isfinite(zi.flatten())
             xi, yi, zi = xi.flatten()[mask], yi.flatten()[mask], zi.flatten()[mask]
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
+
             if not contours:
                 mappable = pcolor(
-                    *xy_to_ABC(np.vstack([xi, yi]).T / scale).T,
+                    *xy_to_ABC(np.vstack([xi, yi]).T).T,
                     zi,
                     cmap=cmap,
                     vmin=vmin,
