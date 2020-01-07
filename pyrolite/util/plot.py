@@ -62,7 +62,7 @@ except ImportError:
     HAVE_SM = False
 
 
-__DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
+DEFAULT_CONT_COLORMAP = plt.cm.viridis
 __DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
 FONTSIZE = 12
 
@@ -142,7 +142,7 @@ def _mpl_sp_kw_split(kwargs):
     return sctr_kwargs, line_kwargs
 
 
-def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
+def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     """
     Create a scalar mappable object from an array of values.
 
@@ -924,9 +924,9 @@ def conditional_prob_density(
 
     Parameters
     -----------
-    y : :class:`np.ndarray`
+    y : :class:`numpy.ndarray`
         Dependent variable for which to calculate conditional probability P(y | X=x)
-    x : :class:`np.ndarray`, :code:`None`
+    x : :class:`numpy.ndarray`, :code:`None`
         Optionally-specified independent index.
     logy : :class:`bool`
         Whether to use a logarithmic bin spacing on the y axis.

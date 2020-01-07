@@ -20,7 +20,7 @@ from ...util.plot import (
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
     bin_centres_to_edges,
-    __DEFAULT_CONT_COLORMAP__,
+    DEFAULT_CONT_COLORMAP,
     __DEFAULT_DISC_COLORMAP__,
     init_axes,
 )
@@ -61,7 +61,7 @@ def density(
     contours=[],
     percentiles=True,
     relim=True,
-    cmap=__DEFAULT_CONT_COLORMAP__,
+    cmap=DEFAULT_CONT_COLORMAP,
     shading="flat",
     vmin=0.0,
     colorbar=False,
@@ -211,7 +211,18 @@ def density(
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
                     mappable.set_lw(0.0)
-
+            if contours:
+                mappable = _add_contours(
+                    grid.grid_xci,
+                    grid.grid_yci,
+                    zi=zi.reshape(grid.grid_xci.shape),
+                    ax=ax,
+                    contours=contours,
+                    percentiles=percentiles,
+                    cmap=cmap,
+                    vmin=vmin,
+                    **kwargs
+                )
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
@@ -230,38 +241,42 @@ def density(
             )
             xi, yi = centres  # coordinates of grid centres for possible contouring
 
-            mask = np.isfinite(zi.flatten())
-            xi, yi, zi = xi.flatten()[mask], yi.flatten()[mask], zi.flatten()[mask]
+            mask = np.isfinite(zi)
+            xi, yi, zi = xi[mask], yi[mask], zi[mask]
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
 
             if not contours:
                 mappable = pcolor(
-                    *xy_to_ABC(np.vstack([xi, yi]).T).T,
+                    *[
+                        i.reshape(xi.shape)
+                        for i in xy_to_ABC(np.vstack([xi.flatten(), yi.flatten()]).T).T
+                    ],
                     zi,
                     cmap=cmap,
                     vmin=vmin,
                     shading=shading,
                     **subkwargs(kwargs, pcolor)
                 )
+            else:
+                mappable = _add_contours(
+                    *[
+                        i.reshape(xi.shape)
+                        for i in xy_to_ABC(np.vstack([xi.flatten(), yi.flatten()]).T).T
+                    ],
+                    zi=zi,
+                    ax=ax,
+                    contours=contours,
+                    percentiles=percentiles,
+                    cmap=cmap,
+                    vmin=vmin,
+                    **kwargs
+                )
             ax.set_aspect("equal")
         else:
             if not arr.ndim in [0, 1, 2]:
                 raise NotImplementedError
-
-        if contours:  # could do this in logspace for accuracy?
-            mappable = _add_contours(
-                grid.grid_xci,
-                grid.grid_yci,
-                zi=zi.reshape(grid.grid_xci.shape),
-                ax=ax,
-                contours=contours,
-                percentiles=percentiles,
-                cmap=cmap,
-                vmin=vmin,
-                **kwargs
-            )
 
         if colorbar:
             cbkwargs = kwargs.copy()
@@ -282,7 +297,7 @@ def _add_contours(
     ax=None,
     contours=[],
     percentiles=True,
-    cmap=__DEFAULT_CONT_COLORMAP__,
+    cmap=DEFAULT_CONT_COLORMAP,
     vmin=0.0,
     extent=None,
     **kwargs
@@ -306,11 +321,11 @@ def _add_contours(
             raise NotImplementedError
         # filled contours
         mappable = contourf(
-            coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+            *coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
         )
         # contours
         contour(
-            xi, yi, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+            *coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
         )
     return mappable
 

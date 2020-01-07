@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
 from ..util.plot import (
-    __DEFAULT_CONT_COLORMAP__,
+    DEFAULT_CONT_COLORMAP,
     __DEFAULT_DISC_COLORMAP__,
     _mpl_sp_kw_split,
     conditional_prob_density,
@@ -30,7 +30,7 @@ def spider(
     indexes=None,
     ax=None,
     color=None,
-    cmap=__DEFAULT_CONT_COLORMAP__,
+    cmap=DEFAULT_CONT_COLORMAP,
     norm=None,
     alpha=1.0,
     marker="D",
@@ -143,10 +143,6 @@ def spider(
         local_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
 
     sctkw, lnkw = _mpl_sp_kw_split(local_kw)
-
-    if isinstance(cmap, str):
-        cmap = plt.get_cmap(cmap)
-    cmap.set_under(color=(1, 1, 1, 0.0))
 
     # check if colors vary per line/sctr
     variable_colors = False

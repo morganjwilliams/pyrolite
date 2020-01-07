@@ -28,6 +28,7 @@ from . import density
 from . import spider
 from . import stem
 from . import parallel
+from ._c import process_color
 
 from ..comp.codata import close, ilr
 from ..util.distributions import sample_kde, get_scaler
@@ -212,8 +213,12 @@ class pyroplot(object):
         zi = sample_kde(
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
         )
+        kwargs.update({"c": zi})
         ax = obj.loc[:, components].pyroplot.scatter(
-            ax=ax, axlabels=axlabels, c=zi, fontsize=fontsize, **kwargs
+            ax=ax,
+            axlabels=axlabels,
+            fontsize=fontsize,
+            **scatterkwargs(process_color(**kwargs)),
         )
         return ax
 
@@ -290,8 +295,9 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
-        lines = ax.plot(*obj.loc[:, components].values.T, **linekwargs(kwargs))
-
+        kw = linekwargs(kwargs)
+        lines = ax.plot(*obj.loc[:, components].values.T, **kw)
+        # if color is multi, could update line colors here
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
 
@@ -330,7 +336,7 @@ class pyroplot(object):
             ree=ree,
             mode=mode,
             ax=ax,
-            **kwargs
+            **linekwargs(kwargs)
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
@@ -369,7 +375,9 @@ class pyroplot(object):
 
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
-        sc = ax.scatter(*obj.loc[:, components].values.T, **scatterkwargs(kwargs))
+        sc = ax.scatter(
+            *obj.loc[:, components].values.T, **scatterkwargs(process_color(**kwargs))
+        )
 
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
@@ -429,7 +437,7 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
-            **kwargs
+            **linekwargs(process_color(**kwargs)),
         )
         ax.set_xticklabels(components, rotation=60)
         return ax
@@ -471,7 +479,10 @@ class pyroplot(object):
         components = _check_components(obj, components=components, valid_sizes=[2])
 
         ax = stem.stem(
-            *obj.loc[:, components].values.T, ax=ax, orientation=orientation, **kwargs
+            *obj.loc[:, components].values.T,
+            ax=ax,
+            orientation=orientation,
+            **process_color(**kwargs),
         )
 
         if axlabels:

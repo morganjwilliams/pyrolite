@@ -13,6 +13,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+np.random.seed(81)
+
 
 class TestPyroPlot(unittest.TestCase):
     def setUp(self):
