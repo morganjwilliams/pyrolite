@@ -12,7 +12,7 @@ from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
 from ..util.plot import (
     DEFAULT_CONT_COLORMAP,
-    __DEFAULT_DISC_COLORMAP__,
+    DEFAULT_DISC_COLORMAP,
     _mpl_sp_kw_split,
     conditional_prob_density,
     plot_Z_percentiles,

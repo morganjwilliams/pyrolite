@@ -21,7 +21,7 @@ from ...util.plot import (
     percentile_contour_values_from_meshz,
     bin_centres_to_edges,
     DEFAULT_CONT_COLORMAP,
-    __DEFAULT_DISC_COLORMAP__,
+    DEFAULT_DISC_COLORMAP,
     init_axes,
 )
 from ...util.meta import get_additional_params, subkwargs

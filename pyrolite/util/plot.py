@@ -63,7 +63,7 @@ except ImportError:
 
 
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
-__DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+DEFAULT_DISC_COLORMAP = plt.cm.tab10
 FONTSIZE = 12
 
 
