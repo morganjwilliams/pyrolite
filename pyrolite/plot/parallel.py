@@ -14,7 +14,7 @@ def parallel(
     rescale=True,
     color_by=None,
     legend=False,
-    cmap=__DEFAULT_CONT_COLORMAP__,
+    cmap=DEFAULT_CONT_COLORMAP,
     ax=None,
     alpha=1.0,
     label_rotate=60,

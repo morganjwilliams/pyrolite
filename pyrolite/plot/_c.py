@@ -63,6 +63,7 @@ def process_color(
     alpha=None,
     norm=None,
     cmap_under=(1, 1, 1, 0.0),
+    color_converter=matplotlib.colors.to_rgba,
     **otherkwargs
 ):
     """
@@ -104,7 +105,8 @@ def process_color(
     if cmode in ["hex", "named", "rgb", "rgba"]:  # single color
         C = matplotlib.colors.to_rgba(C)
         if alpha is not None:
-            C[-1] = 1 - alpha
+            C = (*C[:-1], alpha)  # can't assign to tuple, create new one instead
+        C = np.array([C])  # Convert to standardised form
     else:
         if cmode in ["hex_array", "named_array", "mixed_str_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
@@ -123,7 +125,7 @@ def process_color(
         else:
             pass
         if alpha is not None:
-            C[:, -1] = 1 - alpha
+            C[:, -1] = alpha
     return {"c": C, "color": C, **otherkwargs}
 
 

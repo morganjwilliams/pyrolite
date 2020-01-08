@@ -7,6 +7,17 @@ Todo
     * Functions for working with and modifying legend entries.
 
         ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
+
+
+Attributes
+----------
+DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+    Default continuous colormap.
+DEFAULT_DICS_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+    Default discrete colormap.
+USE_PCOLOR : :class:`bool`
+    Option to use the :func:`matplotlib.pyplot.pcolor` function in place
+    of :func:`matplotlib.pyplot.pcolormesh`.
 """
 import os
 import inspect
@@ -64,6 +75,7 @@ except ImportError:
 
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = plt.cm.tab10
+USE_PCOLOR = False
 FONTSIZE = 12
 
 
@@ -87,7 +99,9 @@ def linekwargs(kwargs):
         matplotlib.lines.Line2D,
         matplotlib.collections.Collection,
     )
-    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
     return kw
 
 
@@ -110,7 +124,9 @@ def scatterkwargs(kwargs):
         matplotlib.axes.Axes.scatter,
         matplotlib.collections.Collection,
     )
-    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
     return kw
 
 
@@ -121,7 +137,9 @@ def patchkwargs(kwargs):
         matplotlib.collections.PolyCollection,
         matplotlib.patches.Patch,
     )
-    kw.update(**{"alpha": kwargs.get("alpha")})  # issues with introspection for alpha
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
     return kw
 
 
@@ -1235,12 +1253,14 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
+        """
         if line.shape[1] == 3:
             xy = ABC_to_xy(line, yscale=np.sqrt(3) / 2)
         else:
             xy = line
-        xy *= scale
-        ax.plot(*xy.T, **kwargs)
+        """
+        line *= scale
+        ax.plot(*line.T, **kwargs)
     return ax
 
 
@@ -1260,6 +1280,34 @@ def plot_2dhull(data, ax=None, splines=False, s=0, **plotkwargs):
         xi, yi = scipy.interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
+
+
+def get_axis_density_methods(ax):
+    """
+    Get the relevant density and contouring methods for a given axis.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes` | :class:`mpltern.ternary.TernaryAxes`
+        Axis to check.
+
+    Returns
+    --------
+    pcolor, contour, contourf
+        Relevant functions for this axis.
+    """
+    if ax.name == "ternary":
+        pcolor = ax.tripcolor
+        contour = ax.tricontour
+        contourf = ax.tricontourf
+    else:
+        if USE_PCOLOR:
+            pcolor = ax.pcolor
+        else:
+            pcolor = ax.pcolormesh
+        contour = ax.contour
+        contourf = ax.contourf
+    return pcolor, contour, contourf
 
 
 def percentile_contour_values_from_meshz(
@@ -1304,9 +1352,8 @@ def percentile_contour_values_from_meshz(
 
 
 def plot_Z_percentiles(
-    xi,
-    yi,
-    zi,
+    *coords,
+    zi=None,
     percentiles=[0.95, 0.66, 0.33],
     ax=None,
     extent=None,
@@ -1322,6 +1369,8 @@ def plot_Z_percentiles(
 
     Parameters
     ------------
+    coords : :class:`numpy.ndarray`
+        Arrays of (x, y) or (a, b, c) coordinates.
     z : :class:`numpy.ndarray`
         Probability density function over x, y.
     percentiles : :class:`list`
@@ -1347,14 +1396,15 @@ def plot_Z_percentiles(
         fig, ax = plt.subplots(1, figsize=(6, 6))
 
     if extent is None:
-        xmin, xmax = np.min(xi), np.max(xi)
-        ymin, ymax = np.min(yi), np.max(yi)
-        extent = [xmin, xmax, ymin, ymax]
+        if len(coords) == 2:  # currently won't work for ternary
+            extent = np.array([[np.min(c), np.max(c)] for c in coords]).flatten()
 
     clabels, contours = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, cmap=cmap, **kwargs)
+
+    pcolor, contour, contourf = get_axis_density_methods(ax)
+    cs = contour(*coords, zi, levels=contours, extent=extent, cmap=cmap, **kwargs)
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)

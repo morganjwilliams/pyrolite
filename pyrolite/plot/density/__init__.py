@@ -1,10 +1,5 @@
 """
 
-Attributes
-----------
-USE_PCOLOR : :class:`bool`
-    Option to use the :func:`matplotlib.pyplot.pcolor` function in place
-    of :func:`matplotlib.pyplot.pcolormesh`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,6 +18,7 @@ from ...util.plot import (
     DEFAULT_CONT_COLORMAP,
     DEFAULT_DISC_COLORMAP,
     init_axes,
+    get_axis_density_methods,
 )
 from ...util.meta import get_additional_params, subkwargs
 
@@ -31,22 +27,6 @@ from .grid import DensityGrid
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-USE_PCOLOR = False
-
-
-def _get_density_methods(ax):
-    if ax.name == "ternary":
-        pcolor = ax.tripcolor
-        contour = ax.tricontour
-        contourf = ax.tricontourf
-    else:
-        if USE_PCOLOR:
-            pcolor = ax.pcolor
-        else:
-            pcolor = ax.pcolormesh
-        contour = ax.contour
-        contourf = ax.contourf
-    return pcolor, contour, contourf
 
 
 def density(
@@ -141,7 +121,7 @@ def density(
 
     ax = init_axes(ax=ax, projection=projection, **kwargs)
 
-    pcolor, contour, contourf = _get_density_methods(ax)
+    pcolor, contour, contourf = get_axis_density_methods(ax)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
 
     if isinstance(cmap, str):
@@ -296,19 +276,25 @@ def _add_contours(
     zi=None,
     ax=None,
     contours=[],
-    percentiles=True,
     cmap=DEFAULT_CONT_COLORMAP,
     vmin=0.0,
     extent=None,
     **kwargs
 ):
     # get the contour levels
+    percentiles = kwargs.pop("percentiles", True)
     levels = contours or kwargs.get("levels", None)
-
+    pcolor, contour, contourf = get_axis_density_methods(ax)
     if percentiles and not isinstance(levels, int):
         # plot individual percentile contours
         _cs = plot_Z_percentiles(
-            *coords, zi, ax=ax, percentiles=levels, extent=extent, cmap=cmap, **kwargs
+            *coords,
+            zi=zi,
+            ax=ax,
+            percentiles=levels,
+            extent=extent,
+            cmap=cmap,
+            **kwargs
         )
         mappable = _cs
     else:
