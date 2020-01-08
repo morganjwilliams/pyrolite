@@ -88,26 +88,21 @@ from_log = T.inverse_transform
 df = pd.DataFrame(np.vstack(pts))
 df.columns = ["SiO2", "MgO", "FeO"]
 df["Sample"] = np.repeat(np.arange(df.columns.size + 1), size).flatten()
+chem = ["MgO", "SiO2", "FeO"]
 #######################################################################################
 #
-scale = 100
-fig, ax = plt.subplots(2, 2, figsize=(10, 10 * np.sqrt(3) / 2))
+fig, ax = plt.subplots(
+    2, 2, figsize=(10, 10 * np.sqrt(3) / 2), subplot_kw=dict(projection="ternary")
+)
 ax = ax.flat
-
-for a in ax:  # append ternary axes
-    _, a.tax = pyternary.figure(ax=a, scale=scale)
-    a.tax.boundary(linewidth=1.0)
-    a.tax.patch = ternary_patch(
-        scale=scale, yscale=np.sqrt(3) / 2, color=a.patch.get_facecolor(), zorder=-10
-    )
-    a.add_artist(a.tax.patch)
+_ = [[x.set_ticks([]) for x in [a.taxis, a.laxis, a.raxis]] for a in ax]
 #######################################################################################
 # First, let's look at the synthetic data itself in the ternary space:
 #
-kwargs = dict(marker="D", alpha=0.1, s=3, no_ticks=True, axlabels=False)
+kwargs = dict(marker="D", alpha=0.2, s=3, no_ticks=True, axlabels=False)
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
-    comp.pyroplot.ternary(ax=ax[0], color=t10b3[ix], **kwargs)
+    comp = df.query("Sample == {}".format(sample))
+    comp.loc[:, chem].pyroplot.scatter(ax=ax[0], c=t10b3[ix], **kwargs)
 fig
 #######################################################################################
 # We can take the mean and covariance in log-space to create covariance ellipses and
@@ -116,8 +111,8 @@ fig
 kwargs = dict(ax=ax[1], transform=from_log, nstds=3)
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
-    tcomp = to_log(comp)
+    comp = df.query("Sample == {}".format(sample))
+    tcomp = to_log(comp.loc[:, chem])
     plot_stdev_ellipses(tcomp.values, color=t10b3[ix], resolution=1000, **kwargs)
     plot_pca_vectors(tcomp.values, ls="-", lw=0.5, color="k", **kwargs)
 fig
@@ -128,9 +123,9 @@ fig
 kwargs = dict(ax=ax[-2], bins=100, no_ticks=True, axlabels=False)
 ax[-2].set_title("Individual Density, with Contours")
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample)).loc[:, ["SiO2", "MgO", "FeO"]]
-    comp.pyroplot.density(cmap="Blues", pcolor=True, **kwargs)
-    comp.pyroplot.density(
+    comp = df.query("Sample == {}".format(sample))
+    comp.loc[:, chem].pyroplot.density(cmap="Blues", **kwargs)
+    comp.loc[:, chem].pyroplot.density(
         contours=[0.68, 0.95],
         cmap="Blues_r",
         contour_labels={0.68: "σ", 0.95: "2σ"},
@@ -142,15 +137,11 @@ fig
 #
 kwargs = dict(ax=ax[-1], no_ticks=True, axlabels=False)
 ax[-1].set_title("Overall Density")
-df.loc[:, ["SiO2", "MgO", "FeO"]].pyroplot.density(bins=100, cmap="Greys", **kwargs)
+df.loc[:, chem].pyroplot.density(bins=100, cmap="Greys", **kwargs)
 fig
 #######################################################################################
 
 for a in ax:
-    for side in ["top", "right", "bottom", "left"]:
-        a.spines[side].set_visible(False)
-    a.get_xaxis().set_ticks([])
-    a.get_yaxis().set_ticks([])
     a.set_aspect("equal")
     a.patch.set_visible(False)
 fig

@@ -69,6 +69,7 @@ fig.subplots_adjust(hspace=0.4, wspace=0.4)
 titles = ["Scatter", "Density", "Contours", "Heatscatter"]
 for t, a in zip(titles + [i + " (log-log)" for i in titles], ax):
     a.set_title(t)
+plt.tight_layout()
 ########################################################################################
 # .. seealso:: `Ternary Plots <ternary.html>`__,
 #              `Density Plots <density.html>`__,
