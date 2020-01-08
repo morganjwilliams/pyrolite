@@ -12,7 +12,6 @@ pyrolite\.plot
 
    plot/pyroplot
    plot/spider
-   plot/tern
    plot/density
    plot/parallel
    plot/stem
