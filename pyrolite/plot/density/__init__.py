@@ -28,7 +28,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-
 def density(
     arr,
     ax=None,
@@ -207,9 +206,7 @@ def density(
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
             arr = close(arr)
-            scale = kwargs.pop("scale", 100.0)
             aspect = kwargs.pop("aspect", "eq")
-
             # density, histogram etc parsed here
             xe, ye, zi, centres = ternary_heatmap(
                 arr,
@@ -226,7 +223,6 @@ def density(
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
-
             if not contours:
                 mappable = pcolor(
                     *[

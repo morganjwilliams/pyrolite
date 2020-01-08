@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 from pyrolite.plot._c import *
 
+
 class TestProcessColor(unittest.TestCase):
     def setUp(self):
         self.black = (0.0, 0.0, 0.0, 1.0)
@@ -11,25 +12,29 @@ class TestProcessColor(unittest.TestCase):
         hex = "#000000"
         for c in [hex]:
             out = process_color(c=c)
-            self.assertEqual(out.get("c"), self.black)
+            self.assertEqual(out.get("color"), self.black)
+            self.assertTrue((out.get("c") == np.array([self.black])).all())
 
     def test_named(self):
         named = "black"
         for c in [named]:
             out = process_color(c=c)
-            self.assertEqual(out.get("c"), self.black)
+            self.assertEqual(out.get("color"), self.black)
+            self.assertTrue((out.get("c") == np.array([self.black])).all())
 
     def test_rgb(self):
         rgb = (0, 0, 0)
         for c in [rgb]:
             out = process_color(c=c)
-            self.assertEqual(out.get("c"), self.black)
+            self.assertEqual(out.get("color"), self.black)
+            self.assertTrue((out.get("c") == np.array([self.black])).all())
 
     def test_rgba(self):
         rgba = (0, 0, 0, 1)
         for c in [rgba]:
             out = process_color(c=c)
-            self.assertEqual(out.get("c"), self.black)
+            self.assertEqual(out.get("color"), self.black)
+            self.assertTrue((out.get("c") == np.array([self.black])).all())
 
     def test_hex_array(self):
         hex_list = ["#000000", "#000000"]

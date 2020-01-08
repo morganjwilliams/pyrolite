@@ -143,7 +143,7 @@ def spider(
         local_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
 
     sctkw, lnkw = _mpl_sp_kw_split(local_kw)
-
+    _ = lnkw.pop("label")
     # check if colors vary per line/sctr
     variable_colors = False
     c = sctkw.get("c", None)
@@ -170,6 +170,7 @@ def spider(
         maxs = np.nanmax(arr, axis=0)
         plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(local_kw))
     elif "plot" in mode.lower():
+
         ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
@@ -178,8 +179,8 @@ def spider(
                 c = np.tile(c, (arr.shape[1], 1))
             for l, ic in zip(ls, c):
                 l.set_color(ic)
-
-        sc = ax.scatter(indexes.T, arr.T, label=label, **sctkw)
+        sctkw.update(dict(label=label))
+        sc = ax.scatter(indexes.T, arr.T, **sctkw)
 
         # should create a custom legend handle here
 

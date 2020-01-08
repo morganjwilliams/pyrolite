@@ -702,7 +702,7 @@ def xy_to_ABC(xy, xscale=1.0, yscale=1.0):
 
 
 def ternary_grid(
-    data, nbins=10, margin=0.01, force_margin=False, yscale=1.0, tfm=lambda x: x
+    data, nbins=10, margin=0.001, force_margin=False, yscale=1.0, tfm=lambda x: x
 ):
     """
     Construct a grid within a ternary space.
@@ -738,11 +738,12 @@ def ternary_grid(
     if not force_margin:
         margin = min([margin, np.nanmin(data[data > 0])])
 
+    # let's construct a bounding triangle
     bounds = np.array(  # three points defining the edges of what will be rendered
         [
-            [margin, margin, 1 - 2 * margin],
-            [margin, 1 - 2 * margin, margin],
-            [1 - 2 * margin, margin, margin],
+            [margin, margin, 1.0 - 2 * margin],
+            [margin, 1.0 - 2 * margin, margin],
+            [1.0 - 2 * margin, margin, margin],
         ]
     )
     xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T
@@ -755,9 +756,6 @@ def ternary_grid(
     abcbounds = np.vstack([A, B, C])
 
     abounds = tfm(abcbounds.T)
-    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
-    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
-
     ndim = abounds.shape[1]
     # bins for evaluation
     bins = [
@@ -1080,7 +1078,7 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
-def ternary_patch(scale=100.0, yscale=np.sqrt(3) / 2, xscale=1.0, **kwargs):
+def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
     """
     Create the background triangle patch for a ternary plot.
     """
@@ -1204,7 +1202,7 @@ def plot_stdev_ellipses(
             points = transform(points)  # transform to compositional data
 
         if points.shape[1] == 3:
-            xy = ABC_to_xy(points, yscale=np.sqrt(3) / 2)
+            xy = ABC_to_xy(points)
         else:
             xy = points
         xy *= scale
@@ -1387,6 +1385,7 @@ def plot_Z_percentiles(
         Labels to assign to contours, organised by level.
     label_contours :class:`bool`
         Whether to add text labels to individual contours.
+
     Returns
     -------
     :class:`matplotlib.contour.QuadContourSet`
@@ -1396,15 +1395,15 @@ def plot_Z_percentiles(
         fig, ax = plt.subplots(1, figsize=(6, 6))
 
     if extent is None:
-        if len(coords) == 2:  # currently won't work for ternary
-            extent = np.array([[np.min(c), np.max(c)] for c in coords]).flatten()
+        # if len(coords) == 2:  # currently won't work for ternary
+        extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
 
     clabels, contours = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
 
     pcolor, contour, contourf = get_axis_density_methods(ax)
-    cs = contour(*coords, zi, levels=contours, extent=extent, cmap=cmap, **kwargs)
+    cs = contour(*coords, zi, levels=contours, cmap=cmap, **kwargs)
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
