@@ -437,7 +437,7 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
-            **linekwargs(process_color(**kwargs)),
+            **process_color(**kwargs),
         )
         ax.set_xticklabels(components, rotation=60)
         return ax

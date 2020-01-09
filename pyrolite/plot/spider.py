@@ -32,7 +32,7 @@ def spider(
     color=None,
     cmap=DEFAULT_CONT_COLORMAP,
     norm=None,
-    alpha=1.0,
+    alpha=None,
     marker="D",
     markersize=5.0,
     label=None,
@@ -60,8 +60,6 @@ def spider(
         Colormap for mapping point and line colors.
     norm : :class:`matplotlib.colors.Normalize`, :code:`None`
         Normalization instane for the colormap.
-    alpha : :class:`float`, 1.
-        Opacity for the plotted series.
     marker : :class:`str`, 'D'
         Matplotlib :mod:`~matplotlib.markers` designation.
     markersize : :class:`int`, 5.
@@ -130,13 +128,7 @@ def spider(
         indexes = np.tile(indexes0, (arr.shape[0], 1))
 
     local_kw = dict(  # register aliases
-        c=color,
-        color=color,
-        marker=marker,
-        alpha=alpha,
-        a=alpha,
-        markersize=markersize,
-        s=markersize ** 2,
+        c=color, color=color, marker=marker, markersize=markersize, s=markersize ** 2
     )
     local_kw = {**local_kw, **kwargs}
     if local_kw.get("color") is None and local_kw.get("c") is None:
@@ -147,20 +139,10 @@ def spider(
     # check if colors vary per line/sctr
     variable_colors = False
     c = sctkw.get("c", None)
+
     if c is not None:
-        if iscollection(c):  # process cmap, norm here
+        if iscollection(c):
             variable_colors = True
-            try:
-                c = mcolors.to_rgba_array(c)
-            except:
-                pass
-            if cmap is not None:
-                if norm is not None:
-                    c = [norm(ic) for ic in c]
-                c = [cmap(ic) for ic in c]
-            sctkw["c"] = c
-            # remove color from lnkw, we'll update it after plotting
-            lnkw.pop("color")
 
     if unity_line:
         ax.axhline(1.0, ls="--", c="k", lw=0.5)
@@ -170,18 +152,13 @@ def spider(
         maxs = np.nanmax(arr, axis=0)
         plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(local_kw))
     elif "plot" in mode.lower():
-
         ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
-            cshape = np.array(c).shape
-            if cshape != arr.shape:  # color-per-row
-                c = np.tile(c, (arr.shape[1], 1))
-            for l, ic in zip(ls, c):
-                l.set_color(ic)
+            [l.set_color(ic) for l, ic in zip(ls, c)]
+
         sctkw.update(dict(label=label))
         sc = ax.scatter(indexes.T, arr.T, **sctkw)
-
         # should create a custom legend handle here
 
         # could modify legend here.
@@ -203,7 +180,7 @@ def spider(
                 **{"percentiles": kwargs["contours"]},
             }
             plot_Z_percentiles(  # pass all relevant kwargs including contours
-                xi, yi, zi, ax=ax, cmap=cmap, **pzpkwargs
+                xi, yi, zi=zi, ax=ax, cmap=cmap, **pzpkwargs
             )
         else:
             ax.pcolormesh(
