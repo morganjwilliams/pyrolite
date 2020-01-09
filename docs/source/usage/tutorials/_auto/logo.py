@@ -122,9 +122,10 @@ fig
 #
 kwargs = dict(ax=ax[-2], bins=100, no_ticks=True, axlabels=False)
 ax[-2].set_title("Individual Density, with Contours")
+
 for ix, sample in enumerate(df.Sample.unique()):
     comp = df.query("Sample == {}".format(sample))
-    comp.loc[:, chem].pyroplot.density(cmap="Blues", **kwargs)
+    comp.loc[:, chem].pyroplot.density(cmap="Blues", vmin=0.05, **kwargs)
     comp.loc[:, chem].pyroplot.density(
         contours=[0.68, 0.95],
         cmap="Blues_r",
@@ -140,7 +141,6 @@ ax[-1].set_title("Overall Density")
 df.loc[:, chem].pyroplot.density(bins=100, cmap="Greys", **kwargs)
 fig
 #######################################################################################
-
 for a in ax:
     a.set_aspect("equal")
     a.patch.set_visible(False)
