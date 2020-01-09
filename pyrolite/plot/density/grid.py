@@ -9,11 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class DensityGrid(object):
-    def __init__(self, x, y, extent=None, bins=50, logx=False, logy=False):
+    def __init__(
+        self, x, y, extent=None, bins=50, logx=False, logy=False, coverage_scale=1.2
+    ):
         # limits
         self.logx = logx
         self.logy = logy
         self.bins = bins
+        self.coverage_scale = coverage_scale
 
         if extent is None:
             self.xmin, self.xmax, self.ymin, self.ymax = self.extent_from_xy(x, y)
@@ -48,8 +51,9 @@ class DensityGrid(object):
         else:
             return (self.xmax - self.xmin) / self.bins
 
-    def extent_from_xy(self, x, y, coverage_scale=1.05):
-        expand_grid = (coverage_scale - 1.0) / 2
+    def extent_from_xy(self, x, y, coverage_scale=None):
+        cov = coverage_scale or self.coverage_scale
+        expand_grid = (cov - 1.0) / 2
         return [
             *[linrng_, logrng_][self.logx](x, exp=expand_grid),
             *[linrng_, logrng_][self.logy](y, exp=expand_grid),
@@ -69,12 +73,12 @@ class DensityGrid(object):
 
     def update_grid_centre_ticks(self):
         if self.logx:
-            self.grid_xc = logspc_(self.xmin, self.xmax, 1., self.bins)
+            self.grid_xc = logspc_(self.xmin, self.xmax, 1.0, self.bins)
         else:
             self.grid_xc = linspc_(self.xmin, self.xmax, self.xstep, self.bins)
 
         if self.logy:
-            self.grid_yc = logspc_(self.ymin, self.ymax, 1., self.bins)
+            self.grid_yc = logspc_(self.ymin, self.ymax, 1.0, self.bins)
         else:
             self.grid_yc = linspc_(self.ymin, self.ymax, self.ystep, self.bins)
 

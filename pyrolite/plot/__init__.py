@@ -336,7 +336,7 @@ class pyroplot(object):
             ree=ree,
             mode=mode,
             ax=ax,
-            **linekwargs(kwargs)
+            **process_color(**kwargs),
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax

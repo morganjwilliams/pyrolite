@@ -128,6 +128,18 @@ def process_color(
         if alpha is not None:
             C[:, -1] = alpha
         _c, _color = C, C
+
+    for kw in [ # extra color kwargs
+        "markerfacecolor",
+        "markeredgecolor",
+        "linecolor",
+        "ecolor",
+        "facecolor",
+    ]:
+        if kw in otherkwargs: # this allows processing of alpha with a given color
+            otherkwargs[kw] = process_color(
+                c=otherkwargs[kw], alpha=alpha, cmap=cmap, norm=norm
+            )["color"]
     return {"c": _c, "color": _color, **otherkwargs}
 
 

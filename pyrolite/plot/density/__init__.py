@@ -34,7 +34,6 @@ def density(
     bins=25,
     mode="density",
     extent=None,
-    coverage_scale=1.1,
     contours=[],
     percentiles=True,
     relim=True,
@@ -138,7 +137,15 @@ def density(
 
         if projection is None:  # binary
             x, y = arr.T
-            grid = DensityGrid(x, y, bins=bins, logx=logx, logy=logy, extent=extent)
+            grid = DensityGrid(
+                x,
+                y,
+                bins=bins,
+                logx=logx,
+                logy=logy,
+                extent=extent,
+                **subkwargs(kwargs, DensityGrid)
+            )
             xs, ys = grid.grid_xc, grid.grid_yc
             xci, yci = grid.grid_xci, grid.grid_yci
             xe, ye = grid.grid_xe, grid.grid_ye
