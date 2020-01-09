@@ -148,7 +148,7 @@ fig, ax = plt.subplots(
 )
 df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
-    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
+    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode)
     a.set_title("Mode: {}".format(mode), y=1.2)
 
 plt.tight_layout()
