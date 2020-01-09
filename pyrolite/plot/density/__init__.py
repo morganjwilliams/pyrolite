@@ -9,12 +9,9 @@ from ...comp.codata import close
 from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
 from ...util.distributions import sample_kde
 from ...util.plot import (
-    ternary_heatmap,
-    xy_to_ABC,
     add_colorbar,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    bin_centres_to_edges,
     DEFAULT_CONT_COLORMAP,
     DEFAULT_DISC_COLORMAP,
     init_axes,
@@ -23,6 +20,7 @@ from ...util.plot import (
 from ...util.meta import get_additional_params, subkwargs
 
 from .grid import DensityGrid
+from .ternary import ternary_heatmap
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -33,7 +31,7 @@ def density(
     ax=None,
     logx=False,
     logy=False,
-    bins=20,
+    bins=25,
     mode="density",
     extent=None,
     coverage_scale=1.1,
@@ -126,7 +124,7 @@ def density(
     if isinstance(cmap, str):
         cmap = plt.get_cmap(cmap)
 
-    cmap.set_under(color=(1, 1, 1, 0))
+    cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
@@ -160,7 +158,13 @@ def density(
 
             elif mode == "hist2d":
                 zi, xe, ye, im = ax.hist2d(
-                    x, y, bins=[xe, ye], range=grid.get_range(), cmap=cmap, **kwargs
+                    x,
+                    y,
+                    bins=[xe, ye],
+                    range=grid.get_range(),
+                    cmap=cmap,
+                    cmin=[0, 1][vmin > 0],
+                    **kwargs
                 )
                 mappable = im
 
@@ -170,6 +174,7 @@ def density(
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
                 )
+
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                     logger.debug(
@@ -206,42 +211,35 @@ def density(
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
             arr = close(arr)
-            aspect = kwargs.pop("aspect", "eq")
+            if mode == "hexbin":
+                raise NotImplementedError
             # density, histogram etc parsed here
-            xe, ye, zi, centres = ternary_heatmap(
-                arr,
-                bins=bins,
-                mode=mode,
-                aspect=aspect,
-                remove_background=True,
-                ret_centres=True,
-            )
-            xi, yi = centres  # coordinates of grid centres for possible contouring
+            coords, zi, data = ternary_heatmap(arr, bins=bins, mode=mode)
 
-            mask = np.isfinite(zi)
-            xi, yi, zi = xi[mask], yi[mask], zi[mask]
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
+
+            # remove coords where H==0, as ax.tripcolor can't deal with variable alpha :'(
+            fltr = (zi != 0) & (zi > vmin)
+            coords = coords[fltr.flatten(), :]
+            zi = zi[fltr]
+
             if not contours:
-                mappable = pcolor(
-                    *[
-                        i.reshape(xi.shape)
-                        for i in xy_to_ABC(np.vstack([xi.flatten(), yi.flatten()]).T).T
-                    ],
-                    zi,
+                tri_poly_collection = pcolor(
+                    *coords.T,
+                    zi.flatten(),
                     cmap=cmap,
                     vmin=vmin,
                     shading=shading,
                     **subkwargs(kwargs, pcolor)
                 )
+
+                mappable = tri_poly_collection
             else:
                 mappable = _add_contours(
-                    *[
-                        i.reshape(xi.shape)
-                        for i in xy_to_ABC(np.vstack([xi.flatten(), yi.flatten()]).T).T
-                    ],
-                    zi=zi,
+                    *coords.T,
+                    zi=zi.flatten(),
                     ax=ax,
                     contours=contours,
                     percentiles=percentiles,
