@@ -596,9 +596,14 @@ def add_colorbar(mappable, **kwargs):
     pad = kwargs.pop("pad", 0.05)
 
     fig = ax.figure
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes(position, size=size, pad=pad)
-    return fig.colorbar(mappable, cax=cax, **kwargs)
+    if ax.name == "ternary":
+        cax = ax.inset_axes([1.05, 0.1, 0.05, 0.9], transform=ax.transAxes)
+        colorbar = fig.colorbar(mappable, cax=cax, **kwargs)
+    else:
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes(position, size=size, pad=pad)
+        colorbar = fig.colorbar(mappable, cax=cax, **kwargs)
+    return colorbar
 
 
 def bin_centres_to_edges(centres):
