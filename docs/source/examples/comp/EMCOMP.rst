@@ -95,7 +95,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
  .. code-block:: none
 
 
-    <matplotlib.axes._subplots.TernaryAxesSubplot object at 0x0000024E44195470>
+    <matplotlib.axes._subplots.TernaryAxesSubplot object at 0x000002CE58A3B550>
 
 
 
@@ -132,7 +132,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.394 seconds)
+   **Total running time of the script:** ( 0 minutes  5.475 seconds)
 
 
 .. _sphx_glr_download_examples_comp_EMCOMP.py:

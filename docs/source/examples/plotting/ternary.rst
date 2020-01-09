@@ -114,14 +114,6 @@ Now we can create a simple scatter plot:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
-
 
 
 
@@ -163,15 +155,6 @@ The plotting axis can be specified to use exisiting axes:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
-    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
-
 
 
 
@@ -182,7 +165,7 @@ The plotting axis can be specified to use exisiting axes:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.458 seconds)
+   **Total running time of the script:** ( 0 minutes  6.837 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_ternary.py:

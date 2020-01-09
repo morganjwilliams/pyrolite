@@ -357,7 +357,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.455 seconds)
+   **Total running time of the script:** ( 0 minutes  0.337 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:

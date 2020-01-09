@@ -5,6 +5,6 @@
 
 Computation times
 =================
-**00:24.537** total execution time for **tutorials** files:
+**00:28.217** total execution time for **tutorials** files:
 
-- **00:24.537**: :ref:`sphx_glr_tutorials_logo.py` (``logo.py``)
+- **00:28.217**: :ref:`sphx_glr_tutorials_logo.py` (``logo.py``)

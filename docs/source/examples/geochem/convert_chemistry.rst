@@ -87,25 +87,25 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
           <tbody>
             <tr>
               <th>0</th>
-              <td>18.445</td>
-              <td>3.872</td>
-              <td>8.731</td>
-              <td>2.101</td>
-              <td>7.025</td>
-              <td>420.179</td>
-              <td>356.628</td>
-              <td>5205.854</td>
+              <td>3.902</td>
+              <td>5.044</td>
+              <td>6.060</td>
+              <td>45.156</td>
+              <td>2.777</td>
+              <td>444.778</td>
+              <td>2275.896</td>
+              <td>985.441</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>19.749</td>
-              <td>3.756</td>
-              <td>8.903</td>
-              <td>2.329</td>
-              <td>7.570</td>
-              <td>418.555</td>
-              <td>352.688</td>
-              <td>4998.054</td>
+              <td>4.294</td>
+              <td>5.076</td>
+              <td>6.225</td>
+              <td>44.370</td>
+              <td>2.845</td>
+              <td>417.600</td>
+              <td>2240.456</td>
+              <td>1060.880</td>
             </tr>
           </tbody>
         </table>
@@ -180,25 +180,25 @@ Note that you can also use this function to calculate mass ratios:
           <tbody>
             <tr>
               <th>0</th>
-              <td>18.445</td>
-              <td>3.872</td>
-              <td>8.731</td>
-              <td>1.501</td>
-              <td>0.042</td>
-              <td>5.732</td>
-              <td>136.415</td>
-              <td>4.763</td>
+              <td>3.902</td>
+              <td>5.044</td>
+              <td>6.060</td>
+              <td>32.273</td>
+              <td>0.044</td>
+              <td>2.159</td>
+              <td>48.538</td>
+              <td>0.774</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>19.749</td>
-              <td>3.756</td>
-              <td>8.903</td>
-              <td>1.665</td>
+              <td>4.294</td>
+              <td>5.076</td>
+              <td>6.225</td>
+              <td>31.711</td>
               <td>0.042</td>
-              <td>6.116</td>
-              <td>146.115</td>
-              <td>5.258</td>
+              <td>2.217</td>
+              <td>53.086</td>
+              <td>0.846</td>
             </tr>
           </tbody>
         </table>
@@ -248,13 +248,13 @@ species within the single dataframe:
           <tbody>
             <tr>
               <th>0</th>
-              <td>7.858</td>
-              <td>0.970</td>
+              <td>5.454</td>
+              <td>0.673</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>8.013</td>
-              <td>0.989</td>
+              <td>5.603</td>
+              <td>0.692</td>
             </tr>
           </tbody>
         </table>
@@ -265,7 +265,7 @@ species within the single dataframe:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.393 seconds)
+   **Total running time of the script:** ( 0 minutes  0.268 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_convert_chemistry.py:

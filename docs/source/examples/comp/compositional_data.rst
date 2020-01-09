@@ -406,36 +406,13 @@ you:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    (0.0, 0.0, 0.0, 1)
-    (0.0, 0.0, 0.0, 0.0)
-    (0.0, 0.0, 0.0, 0.0)
-    No handles with labels found to put in legend.
-    (0.0, 0.0, 0.0, 1)
-    (0.0, 0.0, 0.0, 0.0)
-    (0.0, 0.0, 0.0, 0.0)
-    No handles with labels found to put in legend.
-    (0.0, 0.0, 0.0, 1)
-    (0.0, 0.0, 0.0, 0.0)
-    (0.0, 0.0, 0.0, 0.0)
-    No handles with labels found to put in legend.
-    (0.0, 0.0, 0.0, 1)
-    (0.0, 0.0, 0.0, 0.0)
-    (0.0, 0.0, 0.0, 0.0)
-    No handles with labels found to put in legend.
-
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.290 seconds)
+   **Total running time of the script:** ( 0 minutes  19.020 seconds)
 
 
 .. _sphx_glr_download_examples_comp_compositional_data.py:

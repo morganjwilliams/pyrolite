@@ -126,7 +126,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.314 seconds)
+   **Total running time of the script:** ( 0 minutes  3.789 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:
