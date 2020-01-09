@@ -22,7 +22,7 @@ class TestDensityplot(unittest.TestCase):
         cov = np.array([[2, -1, -0.5], [-1, 2, -1], [-0.5, -1, 2]])
 
         self.biarr = multivariate_normal(data[:2], cov[:2, :2], 100)
-        self.triarr = multivariate_normal(data, cov, 100)
+        self.triarr = np.abs(multivariate_normal(data, cov, 100)) # needs to be >0
 
         self.biarr[0, 1] = np.nan
         self.triarr[0, 1] = np.nan
@@ -48,7 +48,7 @@ class TestDensityplot(unittest.TestCase):
         """Test generation of plot with multiple records."""
         for arr in [self.biarr, self.triarr]:
             with self.subTest(arr=arr):
-                out = density(arr)
+                out = density(arr, vmin=0)
                 self.assertTrue(isinstance(out, matplotlib.axes.Axes))
                 plt.close("all")
 
@@ -59,16 +59,16 @@ class TestDensityplot(unittest.TestCase):
                 for mode in ["density", "hist2d", "hexbin"]:
                     with self.subTest(mode=mode):
                         try:
-                            out = density(arr, mode=mode)
+                            out = density(arr, mode=mode, vmin=0)
                             self.assertTrue(isinstance(out, matplotlib.axes.Axes))
                             plt.close("all")
-                        except NotImplementedError: # some are not implemented for 3D
+                        except NotImplementedError:  # some are not implemented for 3D
                             pass
 
     def test_bivariate_logscale(self):  #
         """Tests logscale for different ploting modes using bivariate data."""
         arr = self.biarr
-        with np.errstate(invalid="ignore"): # ignore for tests
+        with np.errstate(invalid="ignore"):  # ignore for tests
             arr[arr < 0] = np.nan
         for logspacing in [(True, True), (False, False), (False, True), (True, False)]:
             lx, ly = logspacing
@@ -84,4 +84,4 @@ class TestDensityplot(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(argv=[""], exit=False)

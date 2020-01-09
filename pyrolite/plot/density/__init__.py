@@ -210,6 +210,7 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
+            assert (arr > 0).all()
             arr = close(arr)
             if mode == "hexbin":
                 raise NotImplementedError
@@ -221,7 +222,7 @@ def density(
                 logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
 
             # remove coords where H==0, as ax.tripcolor can't deal with variable alpha :'(
-            fltr = (zi != 0) & (zi > vmin)
+            fltr = (zi != 0) & (zi >= vmin)
             coords = coords[fltr.flatten(), :]
             zi = zi[fltr]
 
