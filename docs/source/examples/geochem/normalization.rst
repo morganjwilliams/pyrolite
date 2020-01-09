@@ -91,6 +91,7 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
     See the documentation here:
     https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
       return self._getitem_tuple(key)
+    No handles with labels found to put in legend.
 
 
 
@@ -109,7 +110,7 @@ Currently available models include:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.644 seconds)
+   **Total running time of the script:** ( 0 minutes  3.215 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_normalization.py:

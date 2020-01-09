@@ -38,13 +38,13 @@ ax[0].set_title("Original Data")
 ax[1].set_title("New Imputed Data")
 ax[2].set_title("Imputed Dataset")
 fltr = (np.isfinite(sample_data).sum(axis=1)) == sample_data.shape[1]
-imputed_data.loc[fltr, ["A", "B", "C"]].pyroplot.ternary(
+imputed_data.loc[fltr, ["A", "B", "C"]].pyroplot.scatter(
     marker="D", color="0.5", alpha=0.1, ax=ax[0], no_ticks=True
 )
-imputed_data.loc[~fltr, ["A", "B", "C"]].pyroplot.ternary(
+imputed_data.loc[~fltr, ["A", "B", "C"]].pyroplot.scatter(
     marker="D", color="r", alpha=0.1, ax=ax[1], no_ticks=True
 )
-imputed_data.loc[:, ["A", "B", "C"]].pyroplot.ternary(
+imputed_data.loc[:, ["A", "B", "C"]].pyroplot.scatter(
     marker="D", color="k", alpha=0.1, ax=ax[2], no_ticks=True
 )
 ########################################################################################

@@ -16,6 +16,7 @@ Logratios for Average Compositions
     import matplotlib.pyplot as plt
     from pyrolite.plot import pyroplot
 
+
     np.random.seed(82)
 
 
@@ -68,7 +69,8 @@ First we create an array of compositions which represent a trend.
     )
 
     trend = pd.DataFrame(
-        random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000)
+        random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000),
+        columns=["A", "B", "C"],
     )
 
 
@@ -101,12 +103,8 @@ First we can see where the geometric mean would fall:
 
 .. code-block:: default
 
-    ax.tax.scatter(
-        close(np.nanmean(trend.values, axis=0))[np.newaxis, :] * 100,
-        marker="o",
-        color="r",
-        label="GeoMean",
-    )
+    geomean = trend.mean(axis=0).to_frame().T
+    ax = geomean.pyroplot.scatter(ax=ax, marker="o", color="r", zorder=2, label="GeoMean")
     plt.show()
 
 
@@ -124,12 +122,11 @@ Finally, we can also see where the logratio mean would fall:
 
 .. code-block:: default
 
-    ax.tax.scatter(
-        inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :]) * 100,
-        marker="D",
-        color="k",
-        label="LogMean",
+
+    ilrmean = pd.DataFrame(
+        inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :])
     )
+    ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
     plt.show()
 
 
@@ -144,7 +141,7 @@ Finally, we can also see where the logratio mean would fall:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  11.250 seconds)
+   **Total running time of the script:** ( 0 minutes  7.611 seconds)
 
 
 .. _sphx_glr_download_examples_comp_logratios.py:

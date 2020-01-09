@@ -1,0 +1,219 @@
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_examples_plotting_ternary.py:
+
+
+Ternary Plots
+=============
+
+
+.. code-block:: default
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from pyrolite.plot import pyroplot
+
+    np.random.seed(82)
+
+
+
+
+
+
+
+Let's first create some example data:
+
+
+
+.. code-block:: default
+
+    df = pd.DataFrame(data=np.exp(np.random.rand(100, 3)), columns=["SiO2", "MgO", "CaO"])
+    df.loc[:, ["SiO2", "MgO", "CaO"]].head()
+
+
+
+
+
+.. only:: builder_html
+
+.. raw:: html
+
+            <div>
+        <style scoped>
+            .dataframe tbody tr th:only-of-type {
+                vertical-align: middle;
+            }
+
+            .dataframe tbody tr th {
+                vertical-align: top;
+            }
+
+            .dataframe thead th {
+                text-align: right;
+            }
+        </style>
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>SiO2</th>
+              <th>MgO</th>
+              <th>CaO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>0</th>
+              <td>1.316828</td>
+              <td>1.895023</td>
+              <td>1.866191</td>
+            </tr>
+            <tr>
+              <th>1</th>
+              <td>2.177206</td>
+              <td>1.613029</td>
+              <td>2.609435</td>
+            </tr>
+            <tr>
+              <th>2</th>
+              <td>2.711316</td>
+              <td>2.299090</td>
+              <td>1.226108</td>
+            </tr>
+            <tr>
+              <th>3</th>
+              <td>1.143450</td>
+              <td>1.849684</td>
+              <td>1.809385</td>
+            </tr>
+            <tr>
+              <th>4</th>
+              <td>1.905569</td>
+              <td>2.687793</td>
+              <td>1.398168</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <br />
+        <br />
+
+Now we can create a simple scatter plot:
+
+
+
+.. code-block:: default
+
+    ax = df.loc[:, ["SiO2", "MgO", "CaO"]].pyroplot.scatter(c="k")
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_ternary_001.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
+
+
+
+
+If the data represent some continuting, you could also simply plot them as lines:
+
+
+
+.. code-block:: default
+
+    ax = df.loc[:, ["SiO2", "MgO", "CaO"]].pyroplot.plot(color="k", alpha=0.5)
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_ternary_002.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+The plotting axis can be specified to use exisiting axes:
+
+
+
+.. code-block:: default
+
+    fig, ax = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
+
+    df.loc[:, ["SiO2", "MgO", "CaO"]].sample(20).pyroplot.scatter(ax=ax[0], c="k")
+    df.loc[:, ["SiO2", "MgO", "CaO"]].sample(20).pyroplot.scatter(ax=ax[1], c="g")
+
+    ax = fig.orderedaxes  # creating scatter plots reorders axes, this is the correct order
+    plt.tight_layout()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_ternary_003.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
+    'c' argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with 'x' & 'y'.  Please use a 2-D array with a single row if you really want to specify the same RGB or RGBA value for all points.
+
+
+
+
+.. seealso:: `Heatscatter Plots <heatscatter.html>`__,
+             `Density Plots <density.html>`__,
+             `Spider Density Diagrams <conditionaldensity.html>`__
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  7.458 seconds)
+
+
+.. _sphx_glr_download_examples_plotting_ternary.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+  .. container:: binder-badge
+
+    .. image:: https://mybinder.org/badge_logo.svg
+      :target: https://mybinder.org/v2/gh/morganjwilliams/pyrolite/develop?filepath=docs/source/examples/plotting/ternary.ipynb
+      :width: 150 px
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: ternary.py <ternary.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: ternary.ipynb <ternary.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

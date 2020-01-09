@@ -74,17 +74,17 @@ Unit Scaling
           <tbody>
             <tr>
               <th>0</th>
-              <td>0.644</td>
-              <td>0.820</td>
-              <td>0.004</td>
-              <td>0.005</td>
+              <td>0.086</td>
+              <td>0.109</td>
+              <td>0.246</td>
+              <td>0.289</td>
             </tr>
             <tr>
               <th>1</th>
-              <td>0.650</td>
-              <td>0.827</td>
-              <td>0.004</td>
-              <td>0.004</td>
+              <td>0.084</td>
+              <td>0.107</td>
+              <td>0.244</td>
+              <td>0.287</td>
             </tr>
           </tbody>
         </table>
@@ -95,7 +95,7 @@ Unit Scaling
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.300 seconds)
+   **Total running time of the script:** ( 0 minutes  0.203 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_scaling.py:

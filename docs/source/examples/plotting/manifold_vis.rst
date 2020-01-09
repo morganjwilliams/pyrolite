@@ -20,7 +20,7 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
     import matplotlib.pyplot as plt
     from pyrolite.util.skl.pipeline import SVC_pipeline
     from pyrolite.util.skl.vis import plot_mapping
-    from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
+    from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 
     np.random.seed(82)
 
@@ -67,7 +67,7 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
     a, tfm, mapped = plot_mapping(
         data, gs.best_estimator_, ax=ax[1], s=50, init="pca"
     )
-    ax[0].scatter(*mapped.T, c=__DEFAULT_DISC_COLORMAP__(gs.predict(data)), s=50)
+    ax[0].scatter(*mapped.T, c=DEFAULT_DISC_COLORMAP(gs.predict(data)), s=50)
 
     ax[0].set_title("Predicted Classes")
     ax[1].set_title("With Relative Certainty")
@@ -90,9 +90,9 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 
     Fitting 10 folds for each of 1 candidates, totalling 10 fits
     [Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    2.3s remaining:    2.3s
-    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    2.3s remaining:    0.9s
-    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    2.3s finished
+    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    2.4s remaining:    2.4s
+    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    2.4s remaining:    1.0s
+    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    2.4s finished
     C:\ProgramData\Anaconda3_64\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
       DeprecationWarning)
 
@@ -102,7 +102,7 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.458 seconds)
+   **Total running time of the script:** ( 0 minutes  4.882 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_manifold_vis.py:

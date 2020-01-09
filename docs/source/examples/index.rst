@@ -74,9 +74,9 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. only:: html
 
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_tern_thumb.png
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_ternary_thumb.png
 
-        :ref:`sphx_glr_examples_plotting_tern.py`
+        :ref:`sphx_glr_examples_plotting_ternary.py`
 
 .. raw:: html
 
@@ -86,7 +86,7 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 .. toctree::
    :hidden:
 
-   /examples/plotting/tern
+   /examples/plotting/ternary
 
 .. raw:: html
 

@@ -55,6 +55,14 @@ Basic spider plots are straightforward to produce:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    (0.0, 0.0, 0.0, 1)
+
 
 
 
@@ -75,6 +83,14 @@ processes:
 .. image:: /examples/plotting/images/sphx_glr_spider_002.png
     :class: sphx-glr-single-img
 
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    (0.0, 0.0, 0.0, 1)
 
 
 
@@ -121,6 +137,14 @@ We could now plot the range of compositions as a filled range:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    (0.0, 0.5019607843137255, 0.0, 0.5)
+
 
 
 
@@ -146,6 +170,14 @@ Alternatively, we can plot a conditional density spider plot:
 .. image:: /examples/plotting/images/sphx_glr_spider_004.png
     :class: sphx-glr-single-img
 
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    (0.0, 0.0, 0.0, 0.95)
 
 
 
@@ -214,6 +246,15 @@ modes for spider plots:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    (0.0, 0.0, 0.0, 0.99)
+    (0.0, 0.0, 0.0, 0.5)
+
 
 
 
@@ -223,7 +264,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.062 seconds)
+   **Total running time of the script:** ( 0 minutes  19.015 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:

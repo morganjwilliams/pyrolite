@@ -95,7 +95,7 @@ and within the pyrolite documentation:
     Help on function TAS in module pyrolite.plot.templates.TAS:
 
     TAS(ax=None, relim=True, color='k', **kwargs)
-        Adds the TAS diagram from Le Bas (1993) [#pyrolite.plot.templates.TAS.TAS_1]_ to an axes.
+        Adds the TAS diagram from Le Bas (1992) [#pyrolite.plot.templates.TAS.TAS_1]_ to an axes.
     
         Parameters
         ----------
@@ -126,7 +126,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.253 seconds)
+   **Total running time of the script:** ( 0 minutes  4.314 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:
