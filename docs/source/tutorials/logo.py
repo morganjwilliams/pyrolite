@@ -108,6 +108,7 @@ fig
 # We can take the mean and covariance in log-space to create covariance ellipses and
 # vectors using principal component analysis:
 #
+
 kwargs = dict(ax=ax[1], transform=from_log, nstds=3)
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 for ix, sample in enumerate(df.Sample.unique()):
