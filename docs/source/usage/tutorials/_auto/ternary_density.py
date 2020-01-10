@@ -19,8 +19,8 @@ import pandas as pd
 from mpltern.ternary.datasets import get_scatter_points
 
 np.random.seed(43)
-df = pd.DataFrame(np.array([*get_scatter_points(n=100)]).T, columns=["A", "B", "C"])
-df = df.loc[(df > 0.15).all(axis=1), :]
+df = pd.DataFrame(np.array([*get_scatter_points(n=80)]).T, columns=["A", "B", "C"])
+df = df.loc[(df > 0.1).all(axis=1), :]
 #######################################################################################
 # From this dataset we'll generate a
 # :func:`~pyrolite.plot.density.ternary.ternary_heatmap`, which is the basis
@@ -86,18 +86,20 @@ ax[5].scatter(*data["tern_bound_points"].T, c="k")
 
 plt.tight_layout()
 #######################################################################################
+plt.close("all")  # let's save some memory..
+#######################################################################################
 # We can see how this works almost exactly the same for the histograms:
 #
 coords, H, data = ternary_heatmap(
     df.values,
-    bins=12,
+    bins=10,
     mode="histogram",
     remove_background=True,
     transform=ilr,
     inverse_transform=inverse_ilr,
     grid_border_frac=0.2,
 )
-
+#######################################################################################
 fig, ax = plt.subplots(3, 2, figsize=(8, 12))
 ax = ax.flat
 

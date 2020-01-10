@@ -210,6 +210,17 @@ switches). Notably, this makes both the KDE image and contours behave more natur
 
 
 
+
+.. code-block:: default
+
+    plt.close("all")  # let's save some memory..
+
+
+
+
+
+
+
 There are two other implemented modes beyond the default `density`: `hist2d` and
 `hexbin`, which parallel their equivalents in matplotlib.
 Contouring is not enabled for these histogram methods.
@@ -252,6 +263,17 @@ reduce the overall complexity/colour intensity of a figure (also good for printi
 
 .. image:: /examples/plotting/images/sphx_glr_density_007.png
     :class: sphx-glr-single-img
+
+
+
+
+
+
+.. code-block:: default
+
+    plt.close("all")  # let's save some memory..
+
+
 
 
 
@@ -300,7 +322,7 @@ are specified:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.910 seconds)
+   **Total running time of the script:** ( 0 minutes  23.580 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_density.py:

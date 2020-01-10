@@ -26,8 +26,8 @@ which we can use here:
     from mpltern.ternary.datasets import get_scatter_points
 
     np.random.seed(43)
-    df = pd.DataFrame(np.array([*get_scatter_points(n=100)]).T, columns=["A", "B", "C"])
-    df = df.loc[(df > 0.15).all(axis=1), :]
+    df = pd.DataFrame(np.array([*get_scatter_points(n=80)]).T, columns=["A", "B", "C"])
+    df = df.loc[(df > 0.1).all(axis=1), :]
 
 
 
@@ -122,6 +122,17 @@ and interpoalted for the ternary heatmap:
 
 
 
+
+.. code-block:: default
+
+    plt.close("all")  # let's save some memory..
+
+
+
+
+
+
+
 We can see how this works almost exactly the same for the histograms:
 
 
@@ -130,13 +141,22 @@ We can see how this works almost exactly the same for the histograms:
 
     coords, H, data = ternary_heatmap(
         df.values,
-        bins=12,
+        bins=10,
         mode="histogram",
         remove_background=True,
         transform=ilr,
         inverse_transform=inverse_ilr,
         grid_border_frac=0.2,
     )
+
+
+
+
+
+
+
+
+.. code-block:: default
 
     fig, ax = plt.subplots(3, 2, figsize=(8, 12))
     ax = ax.flat
@@ -184,7 +204,7 @@ We can see how this works almost exactly the same for the histograms:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  13.084 seconds)
+   **Total running time of the script:** ( 0 minutes  11.744 seconds)
 
 
 .. _sphx_glr_download_tutorials_ternary_density.py:

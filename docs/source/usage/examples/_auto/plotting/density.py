@@ -113,6 +113,8 @@ for a, (ls, grid, scale) in zip(ax, params):
         a.set_yscale("log")
 plt.tight_layout()
 plt.show()
+#######################################################################################
+plt.close("all")  # let's save some memory..
 ########################################################################################
 # There are two other implemented modes beyond the default `density`: `hist2d` and
 # `hexbin`, which parallel their equivalents in matplotlib.
@@ -134,6 +136,8 @@ for a, vmin in zip(ax, [0.01, 0.1, 0.4]):
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, bins=30, vmin=vmin, colorbar=True)
 plt.tight_layout()
 plt.show()
+#######################################################################################
+plt.close("all")  # let's save some memory..
 ########################################################################################
 # Density plots can also be used for ternary diagrams, where more than two components
 # are specified:
