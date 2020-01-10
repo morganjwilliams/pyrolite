@@ -37,7 +37,7 @@ Todo
   through the same interface as bivariate plots using
   :meth:`pyrolite.plot.pyroplot.scatter`, :meth:`pyrolite.plot.pyroplot.plot`,
   and :meth:`pyrolite.plot.pyroplot.plot`)
-* Added :mod:`pyrolite.plot._c` for processing color arguments.
+* Added :mod:`pyrolite.plot.color` for processing color arguments.
 * Moved :mod:`pyrolite.plot.density` to its own sub-submodule, including
   :mod:`pyrolite.plot.density.ternary` and :mod:`pyrolite.plot.density.grid`
 
@@ -63,8 +63,8 @@ Todo
 * Added :func:`pyrolite.util.plot.get_axis_density_methods` to access the relevant
   histogram/density methods for bivariate and ternary axes
 * Renamed private attributes for default colormaps to
-  :class:`~pyrolite.util.plot.DEFAULT_DISC_COLORMAP` and
-    :class:`~pyrolite.util.plot.DEFAULT_CONT_COLORMAP`
+  :data:`~pyrolite.util.plot.DEFAULT_DISC_COLORMAP` and
+  :data:`~pyrolite.util.plot.DEFAULT_CONT_COLORMAP`
 * Updated :func:`pyrolite.util.plot.add_colorbar` to better handle colorbars
   for ternary diagrams
 
