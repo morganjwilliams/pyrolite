@@ -138,7 +138,7 @@ First, let's look at the synthetic data itself in the ternary space:
     for ix, sample in enumerate(df.Sample.unique()):
         comp = df.query("Sample == {}".format(sample))
         comp.loc[:, chem].pyroplot.scatter(ax=ax[0], c=t10b3[ix], **kwargs)
-    fig
+    plt.show()
 
 
 
@@ -146,14 +146,6 @@ First, let's look at the synthetic data itself in the ternary space:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-
-    <Figure size 1000x866.025 with 4 Axes>
 
 
 
@@ -171,7 +163,7 @@ vectors using principal component analysis:
         tcomp = to_log(comp.loc[:, chem])
         plot_stdev_ellipses(tcomp.values, color=t10b3[ix], resolution=1000, **kwargs)
         plot_pca_vectors(tcomp.values, ls="-", lw=0.5, color="k", **kwargs)
-    fig
+    plt.show()
 
 
 
@@ -179,14 +171,6 @@ vectors using principal component analysis:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-
-    <Figure size 1000x866.025 with 4 Axes>
 
 
 
@@ -197,7 +181,7 @@ in logratio-space:
 
 .. code-block:: default
 
-    kwargs = dict(ax=ax[-2], bins=100, no_ticks=True, axlabels=False)
+    kwargs = dict(ax=ax[-2], bins=100, axlabels=False)
     ax[-2].set_title("Individual Density, with Contours")
 
     for ix, sample in enumerate(df.Sample.unique()):
@@ -209,7 +193,7 @@ in logratio-space:
             contour_labels={0.68: "σ", 0.95: "2σ"},
             **kwargs,
         )
-    fig
+    plt.show()
 
 
 
@@ -217,22 +201,6 @@ in logratio-space:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    C:\ProgramData\Anaconda3_64\lib\site-packages\mpltern\ternary\_axes.py:765: UserWarning: The following kwargs were not used by contour: 'no_ticks'
-      return super().tricontour(*args, **kwargs)
-    C:\ProgramData\Anaconda3_64\lib\site-packages\mpltern\ternary\_axes.py:765: UserWarning: The following kwargs were not used by contour: 'no_ticks'
-      return super().tricontour(*args, **kwargs)
-    C:\ProgramData\Anaconda3_64\lib\site-packages\mpltern\ternary\_axes.py:765: UserWarning: The following kwargs were not used by contour: 'no_ticks'
-      return super().tricontour(*args, **kwargs)
-    C:\ProgramData\Anaconda3_64\lib\site-packages\mpltern\ternary\_axes.py:765: UserWarning: The following kwargs were not used by contour: 'no_ticks'
-      return super().tricontour(*args, **kwargs)
-
-    <Figure size 1000x866.025 with 4 Axes>
 
 
 
@@ -242,10 +210,10 @@ We can also do this for individual samples, and estimate percentile contours:
 
 .. code-block:: default
 
-    kwargs = dict(ax=ax[-1], no_ticks=True, axlabels=False)
+    kwargs = dict(ax=ax[-1], axlabels=False)
     ax[-1].set_title("Overall Density")
     df.loc[:, chem].pyroplot.density(bins=100, cmap="Greys", **kwargs)
-    fig
+    plt.show()
 
 
 
@@ -253,14 +221,6 @@ We can also do this for individual samples, and estimate percentile contours:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-
-    <Figure size 1000x866.025 with 4 Axes>
 
 
 
@@ -270,7 +230,7 @@ We can also do this for individual samples, and estimate percentile contours:
     for a in ax:
         a.set_aspect("equal")
         a.patch.set_visible(False)
-    fig
+    plt.show()
 
 
 
@@ -278,21 +238,13 @@ We can also do this for individual samples, and estimate percentile contours:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-
-    <Figure size 1000x866.025 with 4 Axes>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  29.095 seconds)
+   **Total running time of the script:** ( 0 minutes  28.632 seconds)
 
 
 .. _sphx_glr_download_tutorials_logo.py:
