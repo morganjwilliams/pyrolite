@@ -27,7 +27,7 @@ from . import density
 from . import spider
 from . import stem
 from . import parallel
-from ._c import process_color
+from .color import process_color
 
 from ..comp.codata import close, ilr
 from ..util.distributions import sample_kde, get_scaler

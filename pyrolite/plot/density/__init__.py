@@ -93,12 +93,6 @@ def density(
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
 
-    Todo
-    -----
-        * More accurate ternary density plots see :func:`~pyrolite.util.plot.ternary_heatmap` for now.
-        * Fix the pcolormesh grid - coordinates are corners, need to increase to N+1 pt
-        * Contouring in logspace and transformation back to compositional space
-
     .. seealso::
 
         Functions:

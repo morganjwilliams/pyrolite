@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from pyrolite.plot._c import *
+from pyrolite.plot.color import *
 
 
 class TestProcessColor(unittest.TestCase):
