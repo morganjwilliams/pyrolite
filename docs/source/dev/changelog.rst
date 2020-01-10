@@ -60,12 +60,12 @@ Todo
   :func:`~pyrolite.util.plot.replace_with_ternary_axis`,
   :func:`~pyrolite.util.plot.axes_to_ternary` (and
   :func:`~pyrolite.util.plot.get_axes_index` to maintain ordering of new axes)
-* Added :func:`pyrolite.util.plot.get_axis_density_methods` to access the relevant
+* Added :func:`~pyrolite.util.plot.get_axis_density_methods` to access the relevant
   histogram/density methods for bivariate and ternary axes
 * Renamed private attributes for default colormaps to
   :data:`~pyrolite.util.plot.DEFAULT_DISC_COLORMAP` and
   :data:`~pyrolite.util.plot.DEFAULT_CONT_COLORMAP`
-* Updated :func:`pyrolite.util.plot.add_colorbar` to better handle colorbars
+* Updated :func:`~pyrolite.util.plot.add_colorbar` to better handle colorbars
   for ternary diagrams
 
 `0.2.3`_
