@@ -49,49 +49,28 @@ lnY = noise + constant + lin + quad
 for ix, el in enumerate(data_ree):
     if el in ["Ce", "Eu"]:
         lnY[:, ix] += np.random.rand(no_analyses) * 0.6
-
-Y = np.exp(lnY)
-
-ax = REE_v_radii(
-    Y,
-    ree=data_ree,
+########################################################################################
+df = pd.DataFrame(np.exp(lnY), columns=data_ree)
+########################################################################################
+ax = df.pyroplot.REE(
     marker="D",
     alpha=0.01,
-    color="0.5",
+    c="0.5",
     markerfacecolor="k",
+    markeredgecolor="k",
     index="elements",
 )
 plt.show()
 ########################################################################################
 # From this data we can calculate and plot the lambda values:
 #
-lambda_degree = 4
-
-exclude = ["Ce", "Eu", "Pm"]
-if exclude:
-    subset_Y = Y[:, [i not in exclude for i in data_ree]]
-    subset_ree = [i for i in REE() if not i in exclude]
-    subset_radii = np.array(get_ionic_radii(subset_ree, charge=3, coordination=8))
-
-params = OP_constants(subset_radii, degree=lambda_degree)
-
-ls = np.apply_along_axis(
-    lambda x: lambdas(x, subset_radii, params=params, degree=4), 1, np.log(subset_Y)
-)
-
-########################################################################################
-# The reduction to lambdas using the pandas interface is much simpler than using the
-# numpy-based utility functions above (:func:`pyrolite.util.math.lambdas`):
-#
-
-df = pd.DataFrame(Y, columns=data_ree)
 ls = df.pyrochem.lambda_lnREE(
     exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON"
 )
 
 ########################################################################################
 
-fig, ax = plt.subplots(1, lambda_degree - 1, figsize=(9, 3))
+fig, ax = plt.subplots(1, 3, figsize=(9, 3))
 ax_labels = ls.columns
 
 for ix in range(ls.columns.size - 1):

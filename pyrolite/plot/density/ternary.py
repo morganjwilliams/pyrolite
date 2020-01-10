@@ -143,61 +143,10 @@ def ternary_heatmap(
         tfm_edges=tfm_edgegrid,
         tern_edges=tern_edge_grid,
         tern_centres=tern_centre_grid,
+        tern_bound_points=ternbound_points,
+        tfm_tern_bound_points=ternbound_points_tfmd,
         grid_transform=tfm,
         grid_inverse_transform=itfm,
     )
     H[~np.isfinite(H)] = 0
     return coords, H, data
-
-
-"""
-import pandas as pd
-
-from mpltern.ternary.datasets import get_scatter_points
-import pyrolite.plot
-
-
-df = pd.DataFrame(np.array([*get_scatter_points(n=500)]).T, columns=["A", "B", "C"])
-df = df.loc[df.min(axis=1) > 0.05, :]
-cmap = plt.cm.get_cmap("viridis")
-cmap.set_under((0, 0, 0, 1))
-fig, ax = plt.subplots(1, 2, subplot_kw=dict(projection="ternary"), figsize=(10, 4))
-for ix, mode in enumerate(["density", "hist"]):
-    coords, H, data = ternary_heatmap(
-        df.values,
-        bins=20,
-        mode=mode,
-        remove_background=True,
-        transform=alr,
-        inverse_transform=inverse_alr,
-        grid_border_frac=0.05,
-    )
-    ax[ix].tripcolor(*coords.T, H.flatten(), cmap=cmap)
-plt.tight_layout()
-
-# %%
-
-fig, ax = plt.subplots(2, 2, figsize=(8, 8))
-ax = ax.flat
-ax = axes_to_ternary([ax[0], ax[-1]])
-
-ax[0].set_title("data", y=1.2)
-ax[1].set_title("transformed data", y=1.2)
-ax[2].set_title("ternary grid", y=1.2)
-
-ax[0].scatter(*arr.T, c="k", alpha=0.1)
-ax[0].scatter(*ternbound_points.T, c="k")
-ax[1].scatter(*ternbound_points_tfmd.T, c="k")
-ax[1].scatter(*tdata.T, c="k", alpha=0.1)
-
-ax[2].scatter(*flattengrid(tfm_centregrid).T, c="0.5", marker="x", s=2)
-ax[2].scatter(*flattengrid(tfm_edgegrid).T, c="k", marker="x", s=2)
-ax[2].pcolormesh(*tfm_edgegrid, H)
-ax[2].scatter(*tdata.T, c="white", alpha=0.8, s=4)
-
-ax[-1].scatter(*tern_centre_grid.T, c="k", marker="x", s=2)
-ax[-1].tripcolor(*coords.T, H.flatten())
-ax[-1].scatter(*arr.T, c="r")
-ax[-1].scatter(*ternbound_points.T, c="k")
-
-"""

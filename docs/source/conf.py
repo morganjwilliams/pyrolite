@@ -224,6 +224,7 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "sphinx_gallery": ("https://sphinx-gallery.github.io/stable/", None),
+    "mpltern": ("https://yuzie007.github.io/mpltern/", None),
     "pyrolite_meltsutil": (
         "https://pyrolite-meltsutil.readthedocs.io/en/develop/",
         None,

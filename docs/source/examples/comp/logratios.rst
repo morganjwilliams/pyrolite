@@ -85,7 +85,7 @@ We can visualise this compositional trend with a density plot.
 
 .. code-block:: default
 
-    ax = trend.pyroplot.density(mode="density", bins=100)
+    ax = trend.pyroplot.density(mode="density", vmin=0.1, bins=100)
     plt.show()
 
 
@@ -141,7 +141,7 @@ Finally, we can also see where the logratio mean would fall:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  8.219 seconds)
+   **Total running time of the script:** ( 0 minutes  8.296 seconds)
 
 
 .. _sphx_glr_download_examples_comp_logratios.py:

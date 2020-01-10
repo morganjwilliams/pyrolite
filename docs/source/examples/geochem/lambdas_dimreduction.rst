@@ -66,15 +66,32 @@ First we'll generate some example data:
         if el in ["Ce", "Eu"]:
             lnY[:, ix] += np.random.rand(no_analyses) * 0.6
 
-    Y = np.exp(lnY)
 
-    ax = REE_v_radii(
-        Y,
-        ree=data_ree,
+
+
+
+
+
+
+.. code-block:: default
+
+    df = pd.DataFrame(np.exp(lnY), columns=data_ree)
+
+
+
+
+
+
+
+
+.. code-block:: default
+
+    ax = df.pyroplot.REE(
         marker="D",
         alpha=0.01,
-        color="0.5",
+        c="0.5",
         markerfacecolor="k",
+        markeredgecolor="k",
         index="elements",
     )
     plt.show()
@@ -85,6 +102,20 @@ First we'll generate some example data:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    C:\ProgramData\Anaconda3_64\lib\site-packages\pandas\core\indexing.py:1494: FutureWarning: 
+    Passing list-likes to .loc or [] with any missing label will raise
+    KeyError in the future, you can use .reindex() as an alternative.
+
+    See the documentation here:
+    https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
+      return self._getitem_tuple(key)
+
 
 
 
@@ -94,36 +125,6 @@ From this data we can calculate and plot the lambda values:
 
 .. code-block:: default
 
-    lambda_degree = 4
-
-    exclude = ["Ce", "Eu", "Pm"]
-    if exclude:
-        subset_Y = Y[:, [i not in exclude for i in data_ree]]
-        subset_ree = [i for i in REE() if not i in exclude]
-        subset_radii = np.array(get_ionic_radii(subset_ree, charge=3, coordination=8))
-
-    params = OP_constants(subset_radii, degree=lambda_degree)
-
-    ls = np.apply_along_axis(
-        lambda x: lambdas(x, subset_radii, params=params, degree=4), 1, np.log(subset_Y)
-    )
-
-
-
-
-
-
-
-
-The reduction to lambdas using the pandas interface is much simpler than using the
-numpy-based utility functions above (:func:`pyrolite.util.math.lambdas`):
-
-
-
-.. code-block:: default
-
-
-    df = pd.DataFrame(Y, columns=data_ree)
     ls = df.pyrochem.lambda_lnREE(
         exclude=["Ce", "Eu", "Pm"], degree=4, norm_to="Chondrite_PON"
     )
@@ -139,7 +140,7 @@ numpy-based utility functions above (:func:`pyrolite.util.math.lambdas`):
 .. code-block:: default
 
 
-    fig, ax = plt.subplots(1, lambda_degree - 1, figsize=(9, 3))
+    fig, ax = plt.subplots(1, 3, figsize=(9, 3))
     ax_labels = ls.columns
 
     for ix in range(ls.columns.size - 1):
@@ -181,7 +182,7 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  25.548 seconds)
+   **Total running time of the script:** ( 0 minutes  27.022 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas_dimreduction.py:
