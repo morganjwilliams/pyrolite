@@ -7,8 +7,6 @@ from numpy.random import multivariate_normal
 import logging
 from pyrolite.plot.density import density
 from pyrolite.comp.codata import close
-from pyrolite.util.plot import ternary_heatmap
-
 
 logger = logging.getLogger(__name__)
 

@@ -263,63 +263,6 @@ class TestTernaryTransforms(unittest.TestCase):
             self.assertTrue(np.allclose(xy_to_ABC(out, yscale=yscale), close(self.ABC)))
 
 
-class TestTernaryHeatmap(unittest.TestCase):
-    def setUp(self):
-        self.data = np.random.rand(100, 3)
-
-    def test_default(self):
-        out = ternary_heatmap(self.data)
-        self.assertTrue(isinstance(out, tuple))
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        # zi could have more or less bins depending on mode..
-
-    def test_aspect(self):
-        """
-        The ternary heatmap can be used in different aspects for either equilateral
-        triangle mode ('eq') or as a triangle which would fit in a unit square ('unit').
-        """
-        for aspect, expect in [("eq", np.sqrt(3) / 2), ("unit", 1.0)]:
-            with self.subTest(aspect=aspect, expect=expect):
-                out = ternary_heatmap(self.data, aspect=aspect)
-                self.assertTrue(isinstance(out, tuple))
-                xe, ye, zi = out
-                self.assertTrue(xe.shape == ye.shape)
-                ymax = np.nanmax(ye)
-                self.assertTrue(ymax < expect)
-
-    def test_histogram(self):
-        out = ternary_heatmap(self.data, mode="histogram")
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
-        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
-
-    def test_density(self):
-        out = ternary_heatmap(self.data, mode="density")
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
-        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
-
-    def test_transform(self):
-        for tfm, itfm in [
-            (alr, inverse_alr),
-            (ilr, inverse_ilr),
-            (ILRTransform, None),
-            (ALRTransform, None),
-        ]:
-            with self.subTest(tfm=tfm, itfm=itfm):
-                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
-                xe, ye, zi = out
-
-    @unittest.expectedFailure
-    def test_need_inverse_transform(self):
-        for tfm, itfm in [(alr, None), (ilr, None)]:
-            with self.subTest(tfm=tfm, itfm=itfm):
-                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
-
-
 class TestBinConversions(unittest.TestCase):
     def setUp(self):
         self.binedges = np.array([0, 1, 2, 3, 4, 5])

@@ -15,7 +15,6 @@ warnings.filterwarnings("ignore", "Unknown section")
 
 from ..util.plot import (
     plot_cooccurence,
-    set_ternary_labels,
     init_axes,
     label_axes,
     linekwargs,
