@@ -66,10 +66,6 @@ setup(
         "openpyxl",  # writing excel from pandas
         "joblib",
         "requests",  # used by alphaMELTS utilities, util.wfs, util.web
-        "psutil",  # only needed for alphaMELTS utilities
-        "xmljson",  # only needed for alphaMELTS utilities
-        "dicttoxml",  # only needed for alphaMELTS utilities
-        "tqdm",  # only needed for alphaMELTS utilities
     ],
     extras_require={
         "impute": impute_require,
