@@ -1038,7 +1038,12 @@ def plot_stdev_ellipses(
     theta = np.degrees(np.arctan2(*vecs[::-1]))
 
     if ax is None:
-        fig, ax = plt.subplots(1)
+        projection = None
+        if callable(transform) and (transform is not None):
+            if transform(comp).shape[1] == 3:
+                projection = "ternary"
+
+        fig, ax = plt.subplots(1, subplot_kw=dict(projection=projection))
 
     for nstd in np.arange(1, nstds + 1)[::-1]:  # backwards for svg construction
         # here we use the absolute eigenvalues

@@ -359,7 +359,7 @@ class TestPlotStDevEllipses(unittest.TestCase):
     def test_axis_specified(self):
         for comp in [self.comp2d]:
             with self.subTest(comp=comp):
-                fig, ax = plt.subplots(1)
+                fig, ax = plt.subplots(1, subplot_kw=dict(projection="ternary"))
                 plot_stdev_ellipses(comp, ax=ax, transform=self.T.inverse_transform)
 
     def test_transform(self):
