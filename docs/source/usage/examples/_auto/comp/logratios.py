@@ -8,6 +8,7 @@ from pyrolite.comp.codata import ilr, inverse_ilr, close
 from pyrolite.util.synthetic import random_cov_matrix
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
+
 # sphinx_gallery_thumbnail_number = 3
 
 np.random.seed(82)
@@ -43,7 +44,8 @@ c1, c2 = (
 )
 
 trend = pd.DataFrame(
-    random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000)
+    random_compositional_trend(m1, m2, c1, c2, resolution=100, size=5000),
+    columns=["A", "B", "C"],
 )
 ########################################################################################
 # We can visualise this compositional trend with a density plot.
@@ -53,20 +55,15 @@ plt.show()
 ########################################################################################
 # First we can see where the geometric mean would fall:
 #
-ax.tax.scatter(
-    close(np.nanmean(trend.values, axis=0))[np.newaxis, :] * 100,
-    marker="o",
-    color="r",
-    label="GeoMean",
-)
+geomean = trend.mean(axis=0).to_frame().T
+ax = geomean.pyroplot.scatter(ax=ax, marker="o", color="r", zorder=2, label="GeoMean")
 plt.show()
 ########################################################################################
 # Finally, we can also see where the logratio mean would fall:
 #
-ax.tax.scatter(
-    inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :]) * 100,
-    marker="D",
-    color="k",
-    label="LogMean",
+
+ilrmean = pd.DataFrame(
+    inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :])
 )
+ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
 plt.show()

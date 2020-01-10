@@ -56,9 +56,6 @@ A minimal density plot can be constructed as follows:
 
 .. code-block:: default
 
-    ax = density(df.loc[:, ["SiO2", "MgO"]].values)
-    ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
-    # or, alternatively directly from the dataframe:
     ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
     df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax, s=10, alpha=0.3, c="k", zorder=2)
     plt.show()
@@ -99,6 +96,7 @@ existing axis for more control:
 .. code-block:: default
 
     fig, ax = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
+
     df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[0])
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax[1])
 
@@ -149,7 +147,7 @@ switches). Notably, this makes both the KDE image and contours behave more natur
     xs = stats.norm.rvs(loc=6, scale=3, size=(200, 1))
     ys = stats.norm.rvs(loc=20, scale=3, size=(200, 1)) + 5 * xs + 50
     data = np.append(xs, ys, axis=1).T
-    asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 15))
+    asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 25.0))
     asym_df.columns = ["A", "B"]
     grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
     scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
@@ -194,6 +192,7 @@ switches). Notably, this makes both the KDE image and contours behave more natur
             fontsize=10,
         )
         asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
+
         a.set_title("{}-{}".format(grid, scale), fontsize=10)
         if scale in ["logscale", "semilogx"]:
             a.set_xscale("log")
@@ -206,6 +205,17 @@ switches). Notably, this makes both the KDE image and contours behave more natur
 
 .. image:: /examples/plotting/images/sphx_glr_density_005.png
     :class: sphx-glr-single-img
+
+
+
+
+
+
+.. code-block:: default
+
+    plt.close("all")  # let's save some memory..
+
+
 
 
 
@@ -258,6 +268,17 @@ reduce the overall complexity/colour intensity of a figure (also good for printi
 
 
 
+
+.. code-block:: default
+
+    plt.close("all")  # let's save some memory..
+
+
+
+
+
+
+
 Density plots can also be used for ternary diagrams, where more than two components
 are specified:
 
@@ -265,11 +286,20 @@ are specified:
 
 .. code-block:: default
 
-    fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
-    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color="k")
+    fig, ax = plt.subplots(
+        1,
+        3,
+        sharex=True,
+        sharey=True,
+        figsize=(15, 5),
+        subplot_kw=dict(projection="ternary"),
+    )
+    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
     for a, mode in zip(ax[1:], ["hist", "density"]):
-        df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
-        a.set_title("Mode: {}".format(mode))
+        df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode)
+        a.set_title("Mode: {}".format(mode), y=1.2)
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -292,7 +322,7 @@ are specified:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  22.374 seconds)
+   **Total running time of the script:** ( 0 minutes  23.580 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_density.py:

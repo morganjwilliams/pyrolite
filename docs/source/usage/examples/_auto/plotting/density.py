@@ -30,9 +30,6 @@ df = pd.DataFrame(data=close(np.exp(ys)), columns=oxs)
 ########################################################################################
 # A minimal density plot can be constructed as follows:
 #
-ax = density(df.loc[:, ["SiO2", "MgO"]].values)
-ax.scatter(*df.loc[:, ["SiO2", "MgO"]].values.T, s=10, alpha=0.3, c="k", zorder=2)
-# or, alternatively directly from the dataframe:
 ax = df.loc[:, ["SiO2", "MgO"]].pyroplot.density()
 df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax, s=10, alpha=0.3, c="k", zorder=2)
 plt.show()
@@ -47,6 +44,7 @@ plt.show()
 # existing axis for more control:
 #
 fig, ax = plt.subplots(1, 2, sharex=True, sharey=True, figsize=(12, 5))
+
 df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[0])
 df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=ax[1])
 
@@ -71,7 +69,7 @@ from scipy import stats
 xs = stats.norm.rvs(loc=6, scale=3, size=(200, 1))
 ys = stats.norm.rvs(loc=20, scale=3, size=(200, 1)) + 5 * xs + 50
 data = np.append(xs, ys, axis=1).T
-asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 15))
+asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 25.0))
 asym_df.columns = ["A", "B"]
 grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
 scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
@@ -107,6 +105,7 @@ for a, (ls, grid, scale) in zip(ax, params):
         fontsize=10,
     )
     asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
+
     a.set_title("{}-{}".format(grid, scale), fontsize=10)
     if scale in ["logscale", "semilogx"]:
         a.set_xscale("log")
@@ -114,6 +113,8 @@ for a, (ls, grid, scale) in zip(ax, params):
         a.set_yscale("log")
 plt.tight_layout()
 plt.show()
+#######################################################################################
+plt.close("all")  # let's save some memory..
 ########################################################################################
 # There are two other implemented modes beyond the default `density`: `hist2d` and
 # `hexbin`, which parallel their equivalents in matplotlib.
@@ -135,15 +136,26 @@ for a, vmin in zip(ax, [0.01, 0.1, 0.4]):
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, bins=30, vmin=vmin, colorbar=True)
 plt.tight_layout()
 plt.show()
+#######################################################################################
+plt.close("all")  # let's save some memory..
 ########################################################################################
 # Density plots can also be used for ternary diagrams, where more than two components
 # are specified:
 #
-fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(15, 5))
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.ternary(ax=ax[0], alpha=0.05, color="k")
+fig, ax = plt.subplots(
+    1,
+    3,
+    sharex=True,
+    sharey=True,
+    figsize=(15, 5),
+    subplot_kw=dict(projection="ternary"),
+)
+df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
-    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode, bins=50)
-    a.set_title("Mode: {}".format(mode))
+    df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode)
+    a.set_title("Mode: {}".format(mode), y=1.2)
+
+plt.tight_layout()
 plt.show()
 ########################################################################################
 # .. note:: Using alpha with the ``density`` mode induces a known and old matplotlib bug,

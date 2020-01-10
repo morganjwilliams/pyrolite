@@ -7,6 +7,17 @@ Todo
     * Functions for working with and modifying legend entries.
 
         ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
+
+
+Attributes
+----------
+DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+    Default continuous colormap.
+DEFAULT_DICS_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+    Default discrete colormap.
+USE_PCOLOR : :class:`bool`
+    Option to use the :func:`matplotlib.pyplot.pcolor` function in place
+    of :func:`matplotlib.pyplot.pcolormesh`.
 """
 import os
 import inspect
@@ -26,9 +37,11 @@ import matplotlib.lines
 import matplotlib.patches
 import matplotlib.path
 import matplotlib.collections
+import matplotlib.artist
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib.axes as matax
+import matplotlib.axes
 from matplotlib.transforms import Bbox
+import mpltern.ternary
 from ..util.math import (
     eigsorted,
     nancov,
@@ -60,12 +73,94 @@ except ImportError:
     HAVE_SM = False
 
 
-__DEFAULT_CONT_COLORMAP__ = plt.cm.viridis
-__DEFAULT_DISC_COLORMAP__ = plt.cm.tab10
+DEFAULT_CONT_COLORMAP = plt.cm.viridis
+DEFAULT_DISC_COLORMAP = plt.cm.tab10
+USE_PCOLOR = False
 FONTSIZE = 12
 
 
-def mappable_from_values(values, cmap=__DEFAULT_CONT_COLORMAP__, **kwargs):
+def linekwargs(kwargs):
+    """
+    Get a subset of keyword arguments to pass to a matplotlib line-plot call.
+
+    Parameters
+    -----------
+    kwargs : :class:`dict`
+        Dictionary of keyword arguments to subset.
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    kw = subkwargs(
+        kwargs,
+        plt.plot,
+        matplotlib.axes.Axes.plot,
+        matplotlib.lines.Line2D,
+        matplotlib.collections.Collection,
+    )
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
+    return kw
+
+
+def scatterkwargs(kwargs):
+    """
+    Get a subset of keyword arguments to pass to a matplotlib scatter call.
+
+    Parameters
+    -----------
+    kwargs : :class:`dict`
+        Dictionary of keyword arguments to subset.
+
+    Returns
+    --------
+    :class:`dict`
+    """
+    kw = subkwargs(
+        kwargs,
+        plt.scatter,
+        matplotlib.axes.Axes.scatter,
+        matplotlib.collections.Collection,
+    )
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
+    return kw
+
+
+def patchkwargs(kwargs):
+    kw = subkwargs(
+        kwargs,
+        matplotlib.axes.Axes.fill_between,
+        matplotlib.collections.PolyCollection,
+        matplotlib.patches.Patch,
+    )
+    kw.update(
+        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+    )  # issues with introspection for alpha
+    return kw
+
+
+def _mpl_sp_kw_split(kwargs):
+    """
+    Process keyword arguments supplied to a matplotlib plot function.
+
+    Returns
+    --------
+    :class:`tuple` ( :class:`dict`, :class:`dict` )
+    """
+    sctr_kwargs = scatterkwargs(kwargs)
+    # c kwarg is first priority, if it isn't present, use the color arg
+    if sctr_kwargs.get("c") is None:
+        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
+
+    line_kwargs = linekwargs(kwargs)
+    return sctr_kwargs, line_kwargs
+
+
+def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     """
     Create a scalar mappable object from an array of values.
 
@@ -88,6 +183,147 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
         List of markers to provide to matplotlib.
     """
     return itertools.cycle(markers)
+
+
+def replace_with_ternary_axis(ax):
+    """
+    Replace a specified axis with a ternary equivalent.
+
+    Parameters
+    ------------
+    ax : :class:`~matplotlib.axes.Axes`
+
+    Returns
+    ------------
+    tax : :class:`~mpltern.ternary.TernaryAxes`
+    """
+    fig = ax.figure
+    axes = get_ordered_axes(fig)
+    idx = axes.index(ax)
+    tax = fig.add_subplot(*get_axes_index(ax), projection="ternary")
+    fig.add_axes(tax)  # make sure the axis is added to fig.children
+    fig.delaxes(ax)  # remove the original axes
+    # update figure ordered axes
+    fig.orderedaxes = [a if ix != idx else tax for (ix, a) in enumerate(axes)]
+    return tax
+
+
+def label_axes(ax, labels=[], **kwargs):
+    """
+    Convenience function for labelling rectilinear and ternary axes.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes`
+        Axes to label.
+    labels : :class:`list`
+        List of labels: [x, y] | or [t, l, r]
+    """
+    if (ax.name == "ternary") and (len(labels) == 3):
+        tvar, lvar, rvar = labels
+        ax.set_tlabel(tvar, **kwargs)
+        ax.set_llabel(lvar, **kwargs)
+        ax.set_rlabel(rvar, **kwargs)
+    elif len(labels) == 2:
+        xvar, yvar = labels
+        ax.set_xlabel(xvar, **kwargs)
+        ax.set_ylabel(yvar, **kwargs)
+    else:
+        raise NotImplementedError
+
+
+def axes_to_ternary(ax):
+    """
+    Set axes to ternary projection after axis creation. As currently implemented,
+    note that this will replace and reorder axes as acecessed from the figure (the
+    ternary axis will then be at the end), and as such this returns a list of axes
+    in the correct order.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes` | :class:`list` (:class:`~matplotlib.axes.Axes`)
+        Axis (or axes) to convert projection for.
+
+    Returns
+    ---------
+    axes : :class:`list' (:class:`~matplotlib.axes.Axes`, class:`~mpltern.ternary.TernaryAxes`)
+    """
+
+    if isinstance(ax, (list, np.ndarray, tuple)):  # multiple Axes specified
+        fig = ax[0].figure
+        for a in ax:  # axes to set to ternary
+            replace_with_ternary_axis(a)
+    else:  # a single Axes is passed
+        fig = ax.figure
+        tax = replace_with_ternary_axis(ax)
+    return fig.orderedaxes
+
+
+def init_axes(ax=None, projection=None, **kwargs):
+    """
+    Get or create an Axes from an optionally-specified starting Axes.
+
+    Parameters
+    -----------
+    ax : :class:`~matplotlib.axes.Axes`
+        Specified starting axes, optional.
+    projection : :class:`str`
+        Whether to create a projected (e.g. ternary) axes.
+
+    Returns
+    --------
+    ax : :class:`~matplotlib.axes.Axes`
+    """
+    if projection is not None:  # e.g. ternary
+        if ax is None:
+            fig, ax = plt.subplots(
+                1,
+                subplot_kw=dict(projection=projection),
+                **subkwargs(kwargs, plt.subplots, plt.figure)
+            )
+        else:  # axes passed
+            if ax.name != "ternary":
+                ix = get_ordered_axes(ax.figure).index(ax)
+                axes = axes_to_ternary(ax)  # returns list of axes
+                ax = axes[ix]
+            else:
+                pass
+    else:
+        if ax is None:
+            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+    return ax
+
+
+def get_ordered_axes(fig):
+    """
+    Get the axes from a figure, which may or may not have been modified by
+    pyrolite functions. This ensures that ordering is preserved.
+    """
+    if hasattr(fig, "orderedaxes"):  # previously modified
+        axes = fig.orderedaxes
+    else:  # unmodified axes
+        axes = fig.axes
+    return axes
+
+
+def get_axes_index(ax):
+    """
+    Get the three-digit integer index of a subplot in a regular grid.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axis to to get the gridspec index for.
+
+    Returns
+    -----------
+    :class:`tuple`
+        Rows, columns and axis index for the gridspec.
+    """
+    nrow, ncol = ax.get_gridspec()._nrows, ax.get_gridspec()._ncols
+    index = get_ordered_axes(ax.figure).index(ax)
+    triple = nrow, ncol, index + 1
+    return triple
 
 
 def share_axes(axes, which="xy"):
@@ -360,9 +596,14 @@ def add_colorbar(mappable, **kwargs):
     pad = kwargs.pop("pad", 0.05)
 
     fig = ax.figure
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes(position, size=size, pad=pad)
-    return fig.colorbar(mappable, cax=cax, **kwargs)
+    if ax.name == "ternary":
+        cax = ax.inset_axes([1.05, 0.1, 0.05, 0.9], transform=ax.transAxes)
+        colorbar = fig.colorbar(mappable, cax=cax, **kwargs)
+    else:
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes(position, size=size, pad=pad)
+        colorbar = fig.colorbar(mappable, cax=cax, **kwargs)
+    return colorbar
 
 
 def bin_centres_to_edges(centres):
@@ -466,7 +707,7 @@ def xy_to_ABC(xy, xscale=1.0, yscale=1.0):
 
 
 def ternary_grid(
-    data, nbins=10, margin=0.01, force_margin=False, yscale=1.0, tfm=lambda x: x
+    data, nbins=10, margin=0.001, force_margin=False, yscale=1.0, tfm=lambda x: x
 ):
     """
     Construct a grid within a ternary space.
@@ -502,11 +743,12 @@ def ternary_grid(
     if not force_margin:
         margin = min([margin, np.nanmin(data[data > 0])])
 
+    # let's construct a bounding triangle
     bounds = np.array(  # three points defining the edges of what will be rendered
         [
-            [margin, margin, 1 - 2 * margin],
-            [margin, 1 - 2 * margin, margin],
-            [1 - 2 * margin, margin, margin],
+            [margin, margin, 1.0 - 2 * margin],
+            [margin, 1.0 - 2 * margin, margin],
+            [1.0 - 2 * margin, margin, margin],
         ]
     )
     xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T
@@ -519,9 +761,6 @@ def ternary_grid(
     abcbounds = np.vstack([A, B, C])
 
     abounds = tfm(abcbounds.T)
-    axmin, axmax = np.nanmin(abounds[:, 0]), np.nanmax(abounds[:, 0])
-    aymin, aymax = np.nanmin(abounds[:, 1]), np.nanmax(abounds[:, 1])
-
     ndim = abounds.shape[1]
     # bins for evaluation
     bins = [
@@ -534,162 +773,6 @@ def ternary_grid(
 
     assert len(bins) == ndim
     return bins, binedges, centregrid, edgegrid
-
-
-def set_ternary_labels(tax, labels, fontsize=FONTSIZE, offset=0.2, axlabels=True):
-    """
-    Set the labels and positions in a ternary plot.
-    """
-    if len(tax._labels.keys()) and not axlabels:  # are labels, should be none
-        labels = [None, None, None]
-    tax.right_axis_label(
-        labels[0],
-        fontsize=fontsize,
-        offset=0,
-        position=(1.0, 0, 0),
-        rotation=0.0,
-        verticalalignment="top",
-        # horizontalalignment="left",
-    )
-    tax.left_axis_label(
-        labels[1],
-        fontsize=fontsize,
-        offset=0,
-        position=(-offset / 2, 1.0 + offset, -offset / 2),
-        rotation=0.0,
-        verticalalignment="bottom",
-        # horizontalalignment="center",
-    )
-    tax.bottom_axis_label(
-        labels[2],
-        fontsize=fontsize,
-        offset=0,
-        position=(0.0, 0.0, 1.0),
-        rotation=0.0,
-        verticalalignment="top",
-        # horizontalalignment="right",
-    )
-
-
-def ternarygrid_to_xy(arr, tfm=lambda x: x, yscale=1.0):
-    shape = arr[0].shape
-    flat = np.vstack([a.flatten() for a in arr])
-    xi, yi = ABC_to_xy(tfm(flat.T), yscale=yscale).T
-    xi, yi = xi.reshape(shape), yi.reshape(shape)
-    return xi, yi
-
-
-def ternary_heatmap(
-    data,
-    sample_at=None,
-    bins=10,
-    margin=0.01,
-    force_margin=False,
-    remove_background=True,
-    transform=ilr,
-    inverse_transform=inverse_ilr,
-    mode="histogram",
-    aspect="eq",
-    ret_centres=False,
-    **kwargs
-):
-    """
-    Heatmap for ternary diagrams.
-
-    Parameters
-    -----------
-    data : :class:`numpy.ndarray`
-        Ternary data to obtain heatmap coords from.
-    sample_at : :class:`numpy.ndarray`:
-        Locations to sample the heatmap at rather than a specificed grid.
-    bins : :class:`int`
-        Number of bins for the grid.
-    margin : :class:`float`
-        Optional specification of margin around ternary diagram to draw the grid.
-    force_margin : :class:`bool`
-        Whether to enforce the minimum margin.
-    remove_background : :class:`bool`
-        Whether to display cells with no counts.
-    transform : :class:`callable` | :class:`sklearn.base.TransformerMixin`, :func:`~pyrolite.comp.codata.ilr`
-        Callable function or Transformer class.
-    inverse_transform : :class:`callable`, :func:`~pyrolite.comp.codata.inverse_ilr`
-        Inverse function for `transform`, necessary if transformer class not specified.
-    mode : :class:`str`, {'histogram', 'density'}
-        Which mode to render the histogram/KDE in.
-    aspect : :class:`str`, {'unit', 'equilateral'}
-        Aspect of the ternary plot - whether to plot with an equilateral triangle
-        (yscale = 3**0.5/2) or a triangle within a unit square (yscale = 1.)
-    ret_centres : :class:`bool`
-        Whether to return the centres of the ternary bins.
-
-    Returns
-    -------
-    :class:`tuple` of :class:`numpy.ndarray`
-        :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density estimates :code:`Z`.
-        If :code:`ret_centres` is :code:`True`, the last return value will contain the
-        bin :code:`centres`.
-
-    Todo
-    -----
-        * Add hexbin mode
-        * Find minimum bounds via rotation about a centre, tranform and invert coords
-        * Update to use ternary kernel density function, supplied ternary data and ternary samples
-    """
-    if inspect.isclass(transform):
-        # TransformerMixin
-        tcls = transform()
-        tfm = tcls.transform
-        itfm = tcls.inverse_transform
-    else:
-        # callable
-        tfm = transform
-        assert callable(inverse_transform)
-        itfm = inverse_transform
-
-    if aspect == "unit":
-        yscale = 1.0
-    else:
-        yscale = np.sqrt(3) / 2
-
-    data = close(data)
-
-    if sample_at is None:
-        bins, binedges, centregrid, edgegrid = ternary_grid(
-            data,
-            nbins=bins,
-            margin=margin,
-            force_margin=force_margin,
-            yscale=yscale,
-            tfm=tfm,
-        )
-        xe, ye = ternarygrid_to_xy(edgegrid, yscale=yscale, tfm=itfm)
-
-    else:
-        assert mode == "density"  # could do this based on a histogram, actually
-        centregrid = sample_at
-        xe, ye = None, None
-
-    xi, yi = ternarygrid_to_xy(centregrid, yscale=yscale, tfm=itfm)
-    centres = [xi, yi]
-
-    adata = tfm(data)
-    if mode == "density":
-        H = sample_kde(adata, flattengrid(centregrid))
-        H = H.reshape(xi.shape)
-    elif "hist" in mode:  # histogram in logspace
-        H, hedges = np.histogramdd(adata, bins=binedges)
-        H = H.T
-    elif "hex" in mode:
-        # could do this in practice, but need to immplement transforms for hexbins
-        raise NotImplementedError
-    else:
-        raise NotImplementedError
-
-    if remove_background:
-        H[H == 0.0] = np.nan
-    if ret_centres:
-        return xe, ye, H, centres
-    return xe, ye, H
 
 
 def conditional_prob_density(
@@ -707,9 +790,9 @@ def conditional_prob_density(
 
     Parameters
     -----------
-    y : :class:`np.ndarray`
+    y : :class:`numpy.ndarray`
         Dependent variable for which to calculate conditional probability P(y | X=x)
-    x : :class:`np.ndarray`, :code:`None`
+    x : :class:`numpy.ndarray`, :code:`None`
         Optionally-specified independent index.
     logy : :class:`bool`
         Whether to use a logarithmic bin spacing on the y axis.
@@ -818,8 +901,11 @@ def conditional_prob_density(
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
         for bin in range(x.shape[1]):
+            # if np.isfinite(y[:, bin]).any(): # bins can be empty
             kde = gaussian_kde(y[np.isfinite(y[:, bin]), bin])
             zi[:, bin] = kde(yi[:, bin])
+            # else:
+            # pass
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins, requires logbins be transformed
         # calculate histogram in logy if needed
@@ -842,7 +928,7 @@ def conditional_prob_density(
     return xe, ye, zi
 
 
-def ternary_patch(scale=100.0, yscale=np.sqrt(3) / 2, xscale=1.0, **kwargs):
+def ternary_patch(scale=100.0, yscale=1.0, xscale=1.0, **kwargs):
     """
     Create the background triangle patch for a ternary plot.
     """
@@ -952,7 +1038,12 @@ def plot_stdev_ellipses(
     theta = np.degrees(np.arctan2(*vecs[::-1]))
 
     if ax is None:
-        fig, ax = plt.subplots(1)
+        projection = None
+        if callable(transform) and (transform is not None):
+            if transform(comp).shape[1] == 3:
+                projection = "ternary"
+
+        fig, ax = plt.subplots(1, subplot_kw=dict(projection=projection))
 
     for nstd in np.arange(1, nstds + 1)[::-1]:  # backwards for svg construction
         # here we use the absolute eigenvalues
@@ -966,11 +1057,10 @@ def plot_stdev_ellipses(
             points = transform(points)  # transform to compositional data
 
         if points.shape[1] == 3:
-            xy = ABC_to_xy(points, yscale=np.sqrt(3) / 2)
-        else:
-            xy = points
-        xy *= scale
-        patch = matplotlib.patches.PathPatch(matplotlib.path.Path(xy), **kwargs)
+            ax_transfrom = (ax.transData + ax.transTernaryAxes.inverted()).inverted()
+            points = ax_transfrom.transform(points)  # transform to axes coords
+
+        patch = matplotlib.patches.PathPatch(matplotlib.path.Path(points), **kwargs)
         patch.set_edgecolor("k")
         patch.set_alpha(1.0 / nstd)
         patch.set_linewidth(0.5)
@@ -1015,12 +1105,8 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
-        if line.shape[1] == 3:
-            xy = ABC_to_xy(line, yscale=np.sqrt(3) / 2)
-        else:
-            xy = line
-        xy *= scale
-        ax.plot(*xy.T, **kwargs)
+        line *= scale
+        ax.plot(*line.T, **kwargs)
     return ax
 
 
@@ -1040,6 +1126,34 @@ def plot_2dhull(data, ax=None, splines=False, s=0, **plotkwargs):
         xi, yi = scipy.interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
+
+
+def get_axis_density_methods(ax):
+    """
+    Get the relevant density and contouring methods for a given axis.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes` | :class:`mpltern.ternary.TernaryAxes`
+        Axis to check.
+
+    Returns
+    --------
+    pcolor, contour, contourf
+        Relevant functions for this axis.
+    """
+    if ax.name == "ternary":
+        pcolor = ax.tripcolor
+        contour = ax.tricontour
+        contourf = ax.tricontourf
+    else:
+        if USE_PCOLOR:
+            pcolor = ax.pcolor
+        else:
+            pcolor = ax.pcolormesh
+        contour = ax.contour
+        contourf = ax.contourf
+    return pcolor, contour, contourf
 
 
 def percentile_contour_values_from_meshz(
@@ -1084,9 +1198,8 @@ def percentile_contour_values_from_meshz(
 
 
 def plot_Z_percentiles(
-    xi,
-    yi,
-    zi,
+    *coords,
+    zi=None,
     percentiles=[0.95, 0.66, 0.33],
     ax=None,
     extent=None,
@@ -1102,6 +1215,8 @@ def plot_Z_percentiles(
 
     Parameters
     ------------
+    coords : :class:`numpy.ndarray`
+        Arrays of (x, y) or (a, b, c) coordinates.
     z : :class:`numpy.ndarray`
         Probability density function over x, y.
     percentiles : :class:`list`
@@ -1118,6 +1233,7 @@ def plot_Z_percentiles(
         Labels to assign to contours, organised by level.
     label_contours :class:`bool`
         Whether to add text labels to individual contours.
+
     Returns
     -------
     :class:`matplotlib.contour.QuadContourSet`
@@ -1127,14 +1243,15 @@ def plot_Z_percentiles(
         fig, ax = plt.subplots(1, figsize=(6, 6))
 
     if extent is None:
-        xmin, xmax = np.min(xi), np.max(xi)
-        ymin, ymax = np.min(yi), np.max(yi)
-        extent = [xmin, xmax, ymin, ymax]
+        # if len(coords) == 2:  # currently won't work for ternary
+        extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
 
     clabels, contours = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
-    cs = ax.contour(xi, yi, zi, levels=contours, extent=extent, cmap=cmap, **kwargs)
+
+    pcolor, contour, contourf = get_axis_density_methods(ax)
+    cs = contour(*coords, zi, levels=contours, cmap=cmap, **kwargs)
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
@@ -1331,7 +1448,7 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     """
     # Check if axes is a single axis or list of axes
 
-    if isinstance(ax, matax.Axes):
+    if isinstance(ax, matplotlib.axes.Axes):
         extent = get_full_extent(ax, pad=pad)
         figure = ax.figure
     else:
@@ -1392,23 +1509,3 @@ def get_full_extent(ax, pad=0.0):
     else:
         raise NotImplementedError
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
-
-
-def _mpl_sp_kw_split(kwargs):
-    """
-    Process keyword arguments supplied to a matplotlib plot function.
-
-    Returns
-    --------
-    :class:`tuple` ( :class:`dict`, :class:`dict` )
-    """
-    sctr_kwargs = subkwargs(kwargs, plt.scatter, matplotlib.collections.Collection)
-    # c kwarg is first priority, if it isn't present, use the color arg
-    if sctr_kwargs.get("c") is None:
-        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
-
-    line_kwargs = subkwargs(
-        kwargs, plt.plot, matplotlib.lines.Line2D, matplotlib.collections.Collection
-    )
-
-    return sctr_kwargs, line_kwargs

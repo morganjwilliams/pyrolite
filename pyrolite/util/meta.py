@@ -69,14 +69,14 @@ class ToLogger(io.StringIO):
         self.logger.log(self.level, self.buf)
 
 
-def stream_log(module, level="INFO"):
+def stream_log(logger=None, level="INFO"):
     """
     Stream the log from a specific package or subpackage.
 
     Parameters
     ----------
-    module : :class:`str` | :class:`logging.Logger`
-        Name of the module to monitor logging from.
+    logger : :class:`str` | :class:`logging.Logger`
+        Name of the logger or module to monitor logging from.
     level : :class:`str`, :code:`'INFO'`
         Logging level at which to set the handler output.
 
@@ -85,28 +85,45 @@ def stream_log(module, level="INFO"):
     :class:`logging.Logger`
         Logger for the specified package with stream handler added.
     """
-    if isinstance(module, str):
-        logger = logging.getLogger(module)
-    elif isinstance(module, logging.Logger):
-        logger = module  # enable passing a logger instance
+    # remove ipython active stream handler if present
+
+    if logger is None:
+        logger = logging.getLogger()  # root logger
+        propagate = True
+    else:
+        propagate = False
+
+    if isinstance(logger, str):
+        logger = logging.getLogger(logger)  # module logger
+    elif isinstance(logger, logging.Logger):
+        pass  # enable passing a logger instance
     else:
         raise NotImplementedError
 
+    logger.propagate = propagate  # don't duplicate by propagating to root
+    int_level = getattr(logging, level)
     # check there are no handlers other than Null
     active_handlers = [
         i
         for i in logger.handlers
-        if (
-            not isinstance(i, (logging.NullHandler))  # not a null handler
-            # and i.level > getattr(logging, level)  # more specific handler pressent
-        )
+        if isinstance(i, (logging.StreamHandler))  # not a null handler
     ]
-    if not active_handlers:
-        ch = logging.StreamHandler()
-        fmt = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-        ch.setFormatter(fmt)
-        logger.addHandler(ch)
-        logger.setLevel(getattr(logging, level))
+
+    if active_handlers:
+        handler = active_handlers[0]  # use the existing one
+    else:
+        handler = logging.StreamHandler()  # make a new one
+
+    if handler.level <= int_level:
+        handler.setLevel(int_level)
+
+    fmt = logging.Formatter("%(name)s - %(levelname)s: %(message)s")
+    handler.setFormatter(fmt)
+    logger.addHandler(handler)
+
+    if (logger.level == 0) or (logger.level > int_level):
+        logger.setLevel(int_level)
+
     return logger
 
 
@@ -150,7 +167,7 @@ def subkwargs(kwargs, *f):
     return {k: v for k, v in kwargs.items() if inargs(k, *f)}
 
 
-def inargs(name, *f):
+def inargs(name, *funcs):
     """
     Check if an argument is a possible input for a specific function.
 
@@ -166,9 +183,9 @@ def inargs(name, *f):
     :class:`bool`
     """
     args = []
-    for f in f:
+    for f in funcs:
         args += inspect.getfullargspec(f).args
-    return name in args
+    return name in set(args)
 
 
 def numpydoc_str_param_list(iterable, indent=4):

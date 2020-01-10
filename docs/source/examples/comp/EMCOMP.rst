@@ -72,13 +72,13 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
     ax[1].set_title("New Imputed Data")
     ax[2].set_title("Imputed Dataset")
     fltr = (np.isfinite(sample_data).sum(axis=1)) == sample_data.shape[1]
-    imputed_data.loc[fltr, ["A", "B", "C"]].pyroplot.ternary(
+    imputed_data.loc[fltr, ["A", "B", "C"]].pyroplot.scatter(
         marker="D", color="0.5", alpha=0.1, ax=ax[0], no_ticks=True
     )
-    imputed_data.loc[~fltr, ["A", "B", "C"]].pyroplot.ternary(
+    imputed_data.loc[~fltr, ["A", "B", "C"]].pyroplot.scatter(
         marker="D", color="r", alpha=0.1, ax=ax[1], no_ticks=True
     )
-    imputed_data.loc[:, ["A", "B", "C"]].pyroplot.ternary(
+    imputed_data.loc[:, ["A", "B", "C"]].pyroplot.scatter(
         marker="D", color="k", alpha=0.1, ax=ax[2], no_ticks=True
     )
 
@@ -95,7 +95,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
  .. code-block:: none
 
 
-    <matplotlib.axes._subplots.AxesSubplot object at 0x0000025084F3F3C8>
+    <matplotlib.axes._subplots.TernaryAxesSubplot object at 0x000002CE58A3B550>
 
 
 
@@ -132,7 +132,7 @@ This algorithm imputes 'below-detection' data based on specified proportion thre
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.458 seconds)
+   **Total running time of the script:** ( 0 minutes  5.475 seconds)
 
 
 .. _sphx_glr_download_examples_comp_EMCOMP.py:

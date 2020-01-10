@@ -40,35 +40,29 @@ share_axes(ax[4:8], which="xy")
 share_axes(ax[8:], which="xy")
 
 contours = [0.95, 0.66, 0.3]
+bivar = ["SiO2", "MgO"]
+trivar = ["SiO2", "MgO", "TiO2"]
 # linear-scaled comparison
-df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax[0], c="k", s=10, alpha=0.3)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[1])
-df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[2], contours=contours)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.heatscatter(ax=ax[3], s=10, alpha=0.3)
-
+df.loc[:, bivar].pyroplot.scatter(ax=ax[0], c="k", s=10, alpha=0.3)
+df.loc[:, bivar].pyroplot.density(ax=ax[1])
+df.loc[:, bivar].pyroplot.density(ax=ax[2], contours=contours)
+df.loc[:, bivar].pyroplot.heatscatter(ax=ax[3], s=10, alpha=0.3)
 # log-log plots
-df.loc[:, ["SiO2", "MgO"]].pyroplot.scatter(ax=ax[4], c="k", s=10, alpha=0.3)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.density(ax=ax[5], logx=True, logy=True)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.density(
-    ax=ax[6], contours=contours, logx=True, logy=True
-)
-df.loc[:, ["SiO2", "MgO"]].pyroplot.heatscatter(
-    ax=ax[7], s=10, alpha=0.3, logx=True, logy=True
-)
+df.loc[:, bivar].pyroplot.scatter(ax=ax[4], c="k", s=10, alpha=0.3)
+df.loc[:, bivar].pyroplot.density(ax=ax[5], logx=True, logy=True)
+df.loc[:, bivar].pyroplot.density(ax=ax[6], contours=contours, logx=True, logy=True)
+df.loc[:, bivar].pyroplot.heatscatter(ax=ax[7], s=10, alpha=0.3, logx=True, logy=True)
 # ternary plots
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[8], c="k", s=10, alpha=0.1)
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=ax[9], bins=100)
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(
-    ax=ax[10], contours=contours, bins=100
-)
-df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.heatscatter(
-    ax=ax[11], s=10, alpha=0.3, renorm=True
-)
+df.loc[:, trivar].pyroplot.scatter(ax=ax[8], c="k", s=10, alpha=0.1)
+df.loc[:, trivar].pyroplot.density(ax=ax[9], bins=100)
+df.loc[:, trivar].pyroplot.density(ax=ax[10], contours=contours, bins=100)
+df.loc[:, trivar].pyroplot.heatscatter(ax=ax[11], s=10, alpha=0.3, renorm=True)
 fig.subplots_adjust(hspace=0.4, wspace=0.4)
 
 titles = ["Scatter", "Density", "Contours", "Heatscatter"]
 for t, a in zip(titles + [i + " (log-log)" for i in titles], ax):
     a.set_title(t)
+plt.tight_layout()
 ########################################################################################
 # .. seealso:: `Ternary Plots <ternary.html>`__,
 #              `Density Plots <density.html>`__,

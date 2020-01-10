@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from ..comp.codata import clr
+from ..util.plot import init_axes
 
 
 def compositional_SVD(X: np.ndarray):
@@ -63,8 +64,7 @@ def plot_origin_to_points(
         Axes on which radial plot is added.
     """
     x0, y0 = origin
-    if ax is None:
-        fig, ax = plt.subplots(1)
+    ax = init_axes(ax=ax, **kwargs)
     _xs, _ys = (
         np.vstack([x0 * np.ones_like(xs), xs]),
         np.vstack([y0 * np.ones_like(ys), ys]),
@@ -113,8 +113,7 @@ def compositional_biplot(data, labels=None, ax=None, **kwargs):
         Axes on which biplot is added.
     """
 
-    if ax is None:
-        fig, ax = plt.subplots(1)
+    ax = init_axes(ax=ax, **kwargs)
 
     v, c = compositional_SVD(data)
     ax.scatter(*c[:, :2].T, **kwargs)

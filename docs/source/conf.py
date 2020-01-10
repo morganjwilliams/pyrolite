@@ -138,7 +138,7 @@ html_css_files = ["css/custom.css"]
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 html_sidebars = {
-    "**"    : [
+    "**": [
         "globaltoc.html",
         "sourcelink.html",
         # "relations.html",  # needs 'show_related': True theme option to display
@@ -223,7 +223,8 @@ intersphinx_mapping = {
     "periodictable": ("https://periodictable.readthedocs.io/en/latest/", None),
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
-    "sphinx_gallery": ("https://sphinx-gallery.github.io/", None),
+    "sphinx_gallery": ("https://sphinx-gallery.github.io/stable/", None),
+    "mpltern": ("https://yuzie007.github.io/mpltern/", None),
     "pyrolite_meltsutil": (
         "https://pyrolite-meltsutil.readthedocs.io/en/develop/",
         None,

@@ -147,9 +147,9 @@ This behaviour can be modified (see spiderplot docs) to provide filled ranges:
 
  .. code-block:: none
 
-    C:\GitHub\pyrolite\pyrolite\plot\spider.py:173: RuntimeWarning: All-NaN slice encountered
+    C:\GitHub\pyrolite\pyrolite\plot\spider.py:151: RuntimeWarning: All-NaN slice encountered
       mins = np.nanmin(arr, axis=0)
-    C:\GitHub\pyrolite\pyrolite\plot\spider.py:174: RuntimeWarning: All-NaN slice encountered
+    C:\GitHub\pyrolite\pyrolite\plot\spider.py:152: RuntimeWarning: All-NaN slice encountered
       maxs = np.nanmax(arr, axis=0)
 
 
@@ -184,7 +184,7 @@ The plotting axis can be specified to use exisiting axes:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  9.371 seconds)
+   **Total running time of the script:** ( 0 minutes  8.171 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:

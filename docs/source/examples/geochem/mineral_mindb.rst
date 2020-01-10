@@ -232,7 +232,7 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.896 seconds)
+   **Total running time of the script:** ( 0 minutes  0.261 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_mindb.py:

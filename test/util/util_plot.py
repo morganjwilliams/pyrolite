@@ -8,6 +8,10 @@ import matplotlib.axes
 import matplotlib.patches
 import matplotlib.path
 import matplotlib.pyplot as plt
+
+from mpltern.ternary import TernaryAxes
+from mpltern.ternary.datasets import get_spiral
+
 from pyrolite.comp.codata import close
 from pyrolite.util.plot import *
 from pyrolite.util.general import remove_tempdir
@@ -32,6 +36,94 @@ class TestMarkerCycle(unittest.TestCase):
         mkrs = marker_cycle()
         for i in range(10):
             matplotlib.lines.Line2D([0], [0], marker=next(mkrs))
+
+
+class TestReplaceWithTernaryAxis(unittest.TestCase):
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        tax = replace_with_ternary_axis(ax[ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        self.assertEqual(fig.orderedaxes[ix], tax)
+        self.assertIsInstance(tax, TernaryAxes)
+
+
+class TestAxesToTernary(unittest.TestCase):
+    def setUp(self):
+        self.tlr = get_spiral()
+
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        self.assertIsInstance(ax, list)
+        self.assertIsInstance(ax[ix], TernaryAxes)
+
+    def test_multiple_grid(self):
+        ix = [1, 3]
+        fig, ax = plt.subplots(2, 2)
+        ax = ax.flat
+        ax = axes_to_ternary([ax[i] for i in ix])
+        self.assertIsInstance(ax, list)
+        for i in ix:
+            self.assertIsInstance(ax[i], TernaryAxes)
+
+    def test_plot(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        ax[ix].plot(*self.tlr, "k")
+
+
+init_axes
+
+
+class TestSetAxesToTernary(unittest.TestCase):
+    def setUp(self):
+        self.tlr = get_spiral()
+
+    def test_default(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        self.assertIsInstance(fig.orderedaxes[ix], TernaryAxes)
+
+    def test_multiple_grid(self):
+        ix = [1, 3]
+        fig, ax = plt.subplots(2, 2)
+        ax = ax.flat
+        ax = axes_to_ternary([ax[i] for i in ix])
+        self.assertTrue(hasattr(fig, "orderedaxes"))
+        for i in ix:
+            self.assertIsInstance(fig.orderedaxes[i], TernaryAxes)
+
+    def test_plot(self):
+        ix = 1
+        fig, ax = plt.subplots(1, 2)
+        ax = axes_to_ternary(ax[ix])
+        ax[ix].plot(*self.tlr, "k")
+
+
+class GetAxesIndex(unittest.TestCase):
+    def test_default(self):
+        ix = 2
+        grid = (5, 1)
+        fig, ax = plt.subplots(*grid)
+        ax = ax.flat
+        triple = get_axes_index(ax[ix])
+        self.assertEqual(triple, (*grid, ix + 1))
+
+    def test_grid(self):
+        ix = 2
+        grid = (2, 3)
+        fig, ax = plt.subplots(*grid)
+        ax = ax.flat
+        triple = get_axes_index(ax[ix])
+        self.assertEqual(triple, (*grid, ix + 1))
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestShareAxes(unittest.TestCase):
@@ -171,63 +263,6 @@ class TestTernaryTransforms(unittest.TestCase):
             self.assertTrue(np.allclose(xy_to_ABC(out, yscale=yscale), close(self.ABC)))
 
 
-class TestTernaryHeatmap(unittest.TestCase):
-    def setUp(self):
-        self.data = np.random.rand(100, 3)
-
-    def test_default(self):
-        out = ternary_heatmap(self.data)
-        self.assertTrue(isinstance(out, tuple))
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        # zi could have more or less bins depending on mode..
-
-    def test_aspect(self):
-        """
-        The ternary heatmap can be used in different aspects for either equilateral
-        triangle mode ('eq') or as a triangle which would fit in a unit square ('unit').
-        """
-        for aspect, expect in [("eq", np.sqrt(3) / 2), ("unit", 1.0)]:
-            with self.subTest(aspect=aspect, expect=expect):
-                out = ternary_heatmap(self.data, aspect=aspect)
-                self.assertTrue(isinstance(out, tuple))
-                xe, ye, zi = out
-                self.assertTrue(xe.shape == ye.shape)
-                ymax = np.nanmax(ye)
-                self.assertTrue(ymax < expect)
-
-    def test_histogram(self):
-        out = ternary_heatmap(self.data, mode="histogram")
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
-        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
-
-    def test_density(self):
-        out = ternary_heatmap(self.data, mode="density")
-        xe, ye, zi = out
-        self.assertTrue(xe.shape == ye.shape)
-        self.assertTrue(zi.shape != xe.shape)  # should be higher in x - they're edges
-        self.assertTrue(zi.shape == (xe.shape[0] - 1, xe.shape[1] - 1))
-
-    def test_transform(self):
-        for tfm, itfm in [
-            (alr, inverse_alr),
-            (ilr, inverse_ilr),
-            (ILRTransform, None),
-            (ALRTransform, None),
-        ]:
-            with self.subTest(tfm=tfm, itfm=itfm):
-                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
-                xe, ye, zi = out
-
-    @unittest.expectedFailure
-    def test_need_inverse_transform(self):
-        for tfm, itfm in [(alr, None), (ilr, None)]:
-            with self.subTest(tfm=tfm, itfm=itfm):
-                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
-
-
 class TestBinConversions(unittest.TestCase):
     def setUp(self):
         self.binedges = np.array([0, 1, 2, 3, 4, 5])
@@ -324,7 +359,7 @@ class TestPlotStDevEllipses(unittest.TestCase):
     def test_axis_specified(self):
         for comp in [self.comp2d]:
             with self.subTest(comp=comp):
-                fig, ax = plt.subplots(1)
+                fig, ax = plt.subplots(1, subplot_kw=dict(projection="ternary"))
                 plot_stdev_ellipses(comp, ax=ax, transform=self.T.inverse_transform)
 
     def test_transform(self):
@@ -497,21 +532,21 @@ class TestPlotZPercentiles(unittest.TestCase):
         self.zi = multivariate_normal([0.5, -0.2], [[2.0, 0.3], [0.3, 0.5]]).pdf(pos)
 
     def test_default(self):
-        plot_Z_percentiles(self.xi, self.yi, self.zi)
+        plot_Z_percentiles(self.xi, self.yi, zi=self.zi)
 
     def test_percentiles(self):
         for ps in [[1.0], [0.001], np.linspace(0.001, 1, 10), [0.95, 0.10]]:
             with self.subTest(ps=ps):
-                plot_Z_percentiles(self.xi, self.yi, self.zi, percentiles=ps)
+                plot_Z_percentiles(self.xi, self.yi, zi=self.zi, percentiles=ps)
 
     def test_external_ax(self):
         fig, ax = plt.subplots(1)
-        plot_Z_percentiles(self.xi, self.yi, self.zi, ax=ax)
+        plot_Z_percentiles(self.xi, self.yi, zi=self.zi, ax=ax)
 
     def test_extent(self):
         for extent in [[-1, 1, -1, 1], [-0.01, 0.99, -1.01, -0.01], [-2, 2, -2, -2]]:
             with self.subTest(extent=extent):
-                plot_Z_percentiles(self.xi, self.yi, self.zi, extent=extent)
+                plot_Z_percentiles(self.xi, self.yi, zi=self.zi, extent=extent)
 
     def tearDown(self):
         plt.close("all")

@@ -4,17 +4,13 @@ dist: xenial
 
 matrix:
   include:
-    - python: 3.5
-      env: PYVERSION=35
     - python: 3.6
       env: PYVERSION=36
     - python: 3.7
       env: PYVERSION=37
-    - python: 3.8-dev
+    - python: 3.8
       env: PYVERSION=38
       sudo: true
-  allow_failures:
-    - python: 3.8-dev
 
 install:
   - pip install -q pytest pytest-runner pytest-cov coverage

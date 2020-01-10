@@ -368,17 +368,17 @@ you:
     from pyrolite.comp.codata import logratiomean
     import itertools
 
-    fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+    fig, ax = plt.subplots(2, 2, figsize=(12, 12), subplot_kw=dict(projection="ternary"))
     ax = ax.flat
 
     for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
         columns = list(columns)
 
-        df.loc[:, columns].pyroplot.ternary(
+        df.loc[:, columns].pyroplot.scatter(
             ax=a, color="k", marker=".", label=df.name, no_ticks=True
         )
 
-        df.mean().loc[columns].pyroplot.ternary(
+        df.mean().loc[columns].pyroplot.scatter(
             ax=a,
             edgecolors="red",
             linewidths=2,
@@ -388,7 +388,7 @@ you:
             no_ticks=True,
         )
 
-        logratiomean(df.loc[:, columns]).pyroplot.ternary(
+        logratiomean(df.loc[:, columns]).pyroplot.scatter(
             ax=a,
             edgecolors="k",
             linewidths=2,
@@ -412,7 +412,7 @@ you:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  16.978 seconds)
+   **Total running time of the script:** ( 0 minutes  19.020 seconds)
 
 
 .. _sphx_glr_download_examples_comp_compositional_data.py:

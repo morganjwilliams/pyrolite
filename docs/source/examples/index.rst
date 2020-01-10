@@ -74,9 +74,9 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 
 .. only:: html
 
-    .. figure:: /examples/plotting/images/thumb/sphx_glr_tern_thumb.png
+    .. figure:: /examples/plotting/images/thumb/sphx_glr_ternary_thumb.png
 
-        :ref:`sphx_glr_examples_plotting_tern.py`
+        :ref:`sphx_glr_examples_plotting_ternary.py`
 
 .. raw:: html
 
@@ -86,7 +86,7 @@ density diagrams (i.e. 2D histograms, pyrolite.plot.density).
 .. toctree::
    :hidden:
 
-   /examples/plotting/tern
+   /examples/plotting/ternary
 
 .. raw:: html
 
@@ -529,6 +529,26 @@ some of these.
    :hidden:
 
    /examples/util/TAS
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes a simple geological timescale, based on a recent verion of the International ...">
+
+.. only:: html
+
+    .. figure:: /examples/util/images/thumb/sphx_glr_timescale_thumb.png
+
+        :ref:`sphx_glr_examples_util_timescale.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/util/timescale
 .. raw:: html
 
     <div style='clear:both'></div>

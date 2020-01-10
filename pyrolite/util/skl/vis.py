@@ -6,7 +6,7 @@ import scipy.stats
 import scipy.special
 import matplotlib.pyplot as plt
 import matplotlib.colors
-from pyrolite.util.plot import __DEFAULT_DISC_COLORMAP__
+from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 from pyrolite.util.meta import inargs, subkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -264,7 +264,7 @@ def plot_mapping(
         # need to split this into  multiple methods depending on form of classifier
         if hasattr(Y, "predict_proba"):
             classes = Y.predict(X_)
-            cmap = cmap or __DEFAULT_DISC_COLORMAP__
+            cmap = cmap or DEFAULT_DISC_COLORMAP
             c = cmap(classes)
             ps = Y.predict_proba(X_)
             a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)

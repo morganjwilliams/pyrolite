@@ -14,13 +14,59 @@ All notable changes to this project will be documented here.
 Todo
 ~~~~~~~
 
-* Update ternary plots to use :mod:`mpltern`
-  (`#28 <https://github.com/morganjwilliams/pyrolite/issues/28>`__)
-* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
 * Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 * Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
+* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+
+`0.2.4`_
+--------------
+
+* Removed Python 3.5 support, added Python 3.8 support.
+* Updated ternary plots to use :mod:`mpltern`
+  (`#28 <https://github.com/morganjwilliams/pyrolite/issues/28>`__)
+* Added a
+  `ternary heatmap tutorial <https://pyrolite.readthedocs.io/en/develop/tutorials/ternary_density.html>`__
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :meth:`pyrolite.plot.pyroplot.plot` method
+* Removed :meth:`pyrolite.plot.pyroplot.ternary` method (ternary plots now served
+  through the same interface as bivariate plots using
+  :meth:`pyrolite.plot.pyroplot.scatter`, :meth:`pyrolite.plot.pyroplot.plot`,
+  and :meth:`pyrolite.plot.pyroplot.plot`)
+* Added :mod:`pyrolite.plot.color` for processing color arguments.
+* Moved :mod:`pyrolite.plot.density` to its own sub-submodule, including
+  :mod:`pyrolite.plot.density.ternary` and :mod:`pyrolite.plot.density.grid`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :mod:`~pyrolite.util.time` to include official colors.
+* Added :mod:`pyrolite.util.time`
+  `example <https://pyrolite.readthedocs.io/en/develop/examples/util/timescale.html>`__
+* Updated :func:`~pyrolite.util.meta.stream_log` to deal with logger
+  duplication issues.
+* Various updates to :mod:`pyrolite.util.plot`, noted below:
+* Added universal axes initiation for bivariate/ternary diagrams using
+  :func:`~pyrolite.util.plot.init_axes` and axes labelling with
+  :func:`~pyrolite.util.plot.label_axes`,
+* Added keyword argument processing functions :func:`~pyrolite.util.plot.scatterkwargs`,
+  :func:`~pyrolite.util.plot.linekwargs`, and
+  :func:`~pyrolite.util.plot.patchkwargs`
+* Added functions for replacing non-projected axes with ternary axes, including
+  :func:`~pyrolite.util.plot.replace_with_ternary_axis`,
+  :func:`~pyrolite.util.plot.axes_to_ternary` (and
+  :func:`~pyrolite.util.plot.get_axes_index` to maintain ordering of new axes)
+* Added :func:`~pyrolite.util.plot.get_axis_density_methods` to access the relevant
+  histogram/density methods for bivariate and ternary axes
+* Renamed private attributes for default colormaps to
+  :data:`~pyrolite.util.plot.DEFAULT_DISC_COLORMAP` and
+  :data:`~pyrolite.util.plot.DEFAULT_CONT_COLORMAP`
+* Updated :func:`~pyrolite.util.plot.add_colorbar` to better handle colorbars
+  for ternary diagrams
 
 `0.2.3`_
 --------------
@@ -91,8 +137,8 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Added :func:`~pyrolite.geochem.transform.get_ratio` and
-  :func:`pyrolite.geochem.pyrochem.get_ratio`
-* Added :func:`pyrolite.geochem.pyrochem.compositional` selector
+  :meth:`pyrolite.geochem.pyrochem.get_ratio`
+* Added :meth:`pyrolite.geochem.pyrochem.compositional` selector
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,7 +196,7 @@ Todo
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Added :func:`~pyrolite.plot.pyroplot.heatscatter` and `example <../examples/plotting/heatscatter.html>`__.
+* Added :meth:`~pyrolite.plot.pyroplot.heatscatter` and `example <../examples/plotting/heatscatter.html>`__.
 * Updates and bugfixes for :func:`pyrolite.plot.spider.REE_v_radii`, including updating
   spacing to reflect relative ionic radii
 
@@ -166,7 +212,7 @@ Todo
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~
 
-* Added parallel coordinate plots: :func:`pyrolite.plot.pyroplot.parallel`
+* Added parallel coordinate plots: :meth:`pyrolite.plot.pyroplot.parallel`
 * Updated :func:`~pyrolite.plot.pyroplot.scatter` and
   :func:`~pyrolite.plot.tern.ternary` to better deal with colormaps
 
@@ -284,7 +330,7 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Expanded use of :mod:`pyrolite.plot.pyroplot` dataframe accessor
-* Added :func:`pyrolite.plot.pyrochem.cooccurence`
+* Added :meth:`pyrolite.plot.pyrochem.cooccurence`
 * Added :mod:`pyrolite.plot.biplot`
 * Added support for conditional density spiderplots
   within :func:`~pyrolite.plot.spider.spider` and :func:`~pyrolite.plot.spider.REE_v_radii`
@@ -499,7 +545,7 @@ Todo
 
 * Added :mod:`pyrolite.plot.templates`, and related API docs
 * Added Pearce templates under :mod:`pyrolite.plot.templates.pearce`
-* Update default colour schemes in scatter plots within :mod:`pyrolite.plot` to
+* Update default color schemes in scatter plots within :mod:`pyrolite.plot` to
   fall-back to :mod:`matplotlib.pyplot` cycling
 
 :mod:`pyrolite.util`
@@ -709,7 +755,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...develop
+.. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
 .. _0.2.2: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...0.2.2
 .. _0.2.1: https://github.com/morganjwilliams/pyrolite/compare/0.2.0...0.2.1

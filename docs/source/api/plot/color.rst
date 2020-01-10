@@ -1,5 +1,5 @@
-pyrolite\.plot\.tern
+pyrolite\.plot\.color
 -------------------------------
-  .. automodule:: pyrolite.plot.tern
+  .. automodule:: pyrolite.plot.color
       :members:
       :undoc-members:

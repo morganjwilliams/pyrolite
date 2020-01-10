@@ -184,9 +184,23 @@ def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
     return df
 
 
-def zero_to_nan(df):
+def zero_to_nan(df, rtol=1e-5, atol=1e-8):
     """
-    Replace floats close or equal to zero with np.nan in a dataframe.
+    Replace floats close, less or equal to zero with np.nan in a dataframe.
+
+    Parameters
+    ------------
+    df : :class:`pandas.DataFrame`
+        DataFrame to censor.
+    rtol : :class:`float`
+        The relative tolerance parameter.
+    atol : :class:`float`
+        The absolute  tolerance parameter.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+        Censored DataFrame.
     """
     cols = [
         name
@@ -194,8 +208,9 @@ def zero_to_nan(df):
         if isinstance(type, np.float)
     ]
     df.loc[:, cols] = np.where(
-        np.isclose(df[cols].values, 0.0), np.nan, df[cols].values
+        np.isclose(df[cols].values, 0.0, rtol=rtol, atol=atol), np.nan, df[cols].values
     )
+    df.loc[:, cols] = np.where(df[cols].values < 0.0, np.nan, df[cols].values)
     return df
 
 
