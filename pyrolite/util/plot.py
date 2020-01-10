@@ -1207,11 +1207,10 @@ def plot_stdev_ellipses(
             points = transform(points)  # transform to compositional data
 
         if points.shape[1] == 3:
-            xy = ABC_to_xy(points)
-        else:
-            xy = points
-        xy *= scale
-        patch = matplotlib.patches.PathPatch(matplotlib.path.Path(xy), **kwargs)
+            ax_transfrom = (ax.transData + ax.transTernaryAxes.inverted()).inverted()
+            points = ax_transfrom.transform(points)  # transform to axes coords
+
+        patch = matplotlib.patches.PathPatch(matplotlib.path.Path(points), **kwargs)
         patch.set_edgecolor("k")
         patch.set_alpha(1.0 / nstd)
         patch.set_linewidth(0.5)
@@ -1256,12 +1255,6 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
-        """
-        if line.shape[1] == 3:
-            xy = ABC_to_xy(line, yscale=np.sqrt(3) / 2)
-        else:
-            xy = line
-        """
         line *= scale
         ax.plot(*line.T, **kwargs)
     return ax
