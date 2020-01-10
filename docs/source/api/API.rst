@@ -12,11 +12,14 @@ pyrolite\.plot
 
    plot/pyroplot
    plot/spider
-   plot/density
+   plot/density/density
+   plot/density/density_grid
+   plot/density/density_ternary
    plot/parallel
    plot/stem
    plot/biplot
    plot/templates
+   plot/color
 
 pyrolite\.geochem
 ------------------------

@@ -12,7 +12,6 @@ Making the Logo
 import matplotlib
 import numpy as np
 import pandas as pd
-import ternary as pyternary
 import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm
@@ -21,16 +20,7 @@ from pyrolite.util.skl import ILRTransform, ALRTransform
 from pyrolite.util.synthetic import random_composition
 
 import pyrolite.plot
-from pyrolite.util.plot import (
-    plot_pca_vectors,
-    plot_stdev_ellipses,
-    ternary_heatmap,
-    plot_Z_percentiles,
-    percentile_contour_values_from_meshz,
-    bin_centres_to_edges,
-    bin_edges_to_centres,
-    ternary_patch,
-)
+from pyrolite.util.plot import plot_pca_vectors, plot_stdev_ellipses
 
 # sphinx_gallery_thumbnail_number = 6
 np.random.seed(82)
@@ -108,7 +98,6 @@ fig
 # We can take the mean and covariance in log-space to create covariance ellipses and
 # vectors using principal component analysis:
 #
-
 kwargs = dict(ax=ax[1], transform=from_log, nstds=3)
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 for ix, sample in enumerate(df.Sample.unique()):

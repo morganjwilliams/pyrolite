@@ -17,26 +17,6 @@ This page is home to longer examples which incorporate multiple components of
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="There are multiple ways you can acheive ternary heatmaps, but those based on the cartesian axes...">
-
-.. only:: html
-
-    .. figure:: /tutorials/images/thumb/sphx_glr_ternary_density_thumb.png
-
-        :ref:`sphx_glr_tutorials_ternary_density.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /tutorials/ternary_density
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Making the Logo">
 
 .. only:: html
@@ -54,6 +34,26 @@ This page is home to longer examples which incorporate multiple components of
    :hidden:
 
    /tutorials/logo
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="There are multiple ways you can acheive ternary heatmaps, but those based on the cartesian axes...">
+
+.. only:: html
+
+    .. figure:: /tutorials/images/thumb/sphx_glr_ternary_density_thumb.png
+
+        :ref:`sphx_glr_tutorials_ternary_density.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /tutorials/ternary_density
 .. raw:: html
 
     <div style='clear:both'></div>
