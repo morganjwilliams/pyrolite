@@ -1,1 +1,1 @@
--e .[dev,skl]
+-e .[docs,skl]

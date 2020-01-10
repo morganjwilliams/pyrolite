@@ -2,18 +2,13 @@ from setuptools import setup, find_packages
 import versioneer
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
-
-dev_require = [
-    "pytest",
-    "versioneer",
-    "black",
-    "twine",
+docs_require = [
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
     "sphinx_gallery",
     "recommonmark",
-] + tests_require
-
+]
+dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
 stats_require = ["statsmodels", "scikit-learn"]
@@ -70,10 +65,11 @@ setup(
     extras_require={
         "impute": impute_require,
         "dev": dev_require,
+        "docs": docs_require,
         "skl": skl_require,
         "spatial": spatial_require,
         "db": db_require,
-        "stats": stats_require
+        "stats": stats_require,
     },
     tests_require=tests_require,
     test_suite="test",
