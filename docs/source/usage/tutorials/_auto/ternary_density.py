@@ -51,7 +51,7 @@ import pyrolite.plot
 from pyrolite.util.math import flattengrid
 from pyrolite.util.plot import axes_to_ternary, share_axes
 
-fig, ax = plt.subplots(3, 2, figsize=(8, 12))
+fig, ax = plt.subplots(3, 2, figsize=(6, 9))
 ax = ax.flat
 
 share_axes([ax[1], ax[2], ax[3]])
@@ -100,7 +100,7 @@ coords, H, data = ternary_heatmap(
     grid_border_frac=0.2,
 )
 #######################################################################################
-fig, ax = plt.subplots(3, 2, figsize=(8, 12))
+fig, ax = plt.subplots(3, 2, figsize=(6, 9))
 ax = ax.flat
 
 share_axes([ax[1], ax[2], ax[3]])
