@@ -43,3 +43,48 @@ affiliations:
 date: 14 January 2020
 bibliography: paper.bib
 ---
+
+<!-- 250-1000 words -->
+
+# Summary
+
+``pyrolite`` is a Python package for working with multivariate geochemical data. built to contribute to more robust and efficient geochemical research and data-driven understanding of geological processes.
+``pyrolite`` provides tools for munging, transforming and visualising geochemical data from common tabular formats. It enables you to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous specific utilities (e.g. a geological timescale).
+
+``pyrolite`` has an API which follows and builds upon a number of existing packages and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010]. This enables geochemists new to Python to hit the ground running, and encourages development of
+transferable digital skills.
+
+## Features
+
+pyrolite.geochem
+
+* Transforming geochemical data
+* Reference compositions for normalisation
+
+pyrolite.mineral
+
+* Mineral endmember recalculation
+* Lattice strain calculations [@Blundy2003]
+* Rock-forming mineral database [@Deer2013]
+
+pyrolite.comp
+
+* Compositional data transformations
+
+pyrolite.plot
+
+* Ternary, spider, density diagrams and more.
+* Templated plots, e.g. the Total-Alkali Silica diagram [@LeBas1992], Pearce diagrams [@Pearce2008]
+
+pyrolite.util
+
+* Utilities for ``scikit-learn`` [@Pedregosa2011], plotting, web interfaces, synthetic data,
+  missing data, geological timescale & more
+
+## Extensions
+
+``pyrolite-meltsutil`` provides utilities for working with ``alphaMELTS`` [@Smith2005] and it's outputs, and is targeted towards performing large numbers of related experiments.
+
+# Acknowledgements
+
+# References
