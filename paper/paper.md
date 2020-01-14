@@ -48,13 +48,17 @@ bibliography: paper.bib
 
 # Summary
 
-``pyrolite`` is a Python package for working with multivariate geochemical data. built to contribute to more robust and efficient geochemical research and data-driven understanding of geological processes.
+
+<Geochem Intro>
+
+``pyrolite`` is a Python package for working with multivariate geochemical data. Geochemical data is compositional (i.e. sums to 100%), and as such requires non-standard statistical treatment [@Aitchison1984]. Further, the need to visualise geochemical data has historically limited the use of multivariate measures in geochemical research. While effectively visualising geochemical data remains a challenge, ``pyrolite`` enables users to make better use of their data dimensionality, calculate more accurate statistical measures, and provides access to visualisation methods useful for working with steadily growing volumes of geochemical data.
+
 ``pyrolite`` provides tools for munging, transforming and visualising geochemical data from common tabular formats. It enables you to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous specific utilities (e.g. a geological timescale).
 
 ``pyrolite`` has an API which follows and builds upon a number of existing packages and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010]. This enables geochemists new to Python to hit the ground running, and encourages development of
 transferable digital skills.
 
-## Features
+## Submodules
 
 pyrolite.geochem
 
