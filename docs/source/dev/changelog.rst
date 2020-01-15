@@ -14,11 +14,16 @@ All notable changes to this project will be documented here.
 Todo
 ~~~~~~~
 
-* Index memory for :func:`~pyrolite.plot.spider.spider`
-  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-* Updates to include more lithogeochemical plot templates
+* FEATURE: Incompatible element indexes for :mod:`pyrolite.geochem`
+  (`#30 <https://github.com/morganjwilliams/pyrolite/issues/30>`__)
+* FEATURE: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
+  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
+* BUG: Conditional density spider plots should have bins centred on the element indexes
+  (currently this is an edge)
+* BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
+  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
 `0.2.4`_
 --------------
