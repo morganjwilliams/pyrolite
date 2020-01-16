@@ -392,8 +392,9 @@ class pyroplot(object):
         indexes: list = None,
         ax=None,
         mode="plot",
+        index_order=None,
         fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Method for spider plots. Convenience access function to
@@ -408,6 +409,8 @@ class pyroplot(object):
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
+        index_order
+            Function to order spider plot indexes (e.g. by incompatibility).
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
@@ -430,6 +433,9 @@ class pyroplot(object):
             components = [el for el in obj.columns if el in common_elements()]
 
         assert len(components) != 0
+
+        if index_order is not None:
+            components = index_order(components)
 
         ax = spider.spider(
             obj.loc[:, components].astype(np.float).values,
