@@ -88,9 +88,9 @@ plotting. Here we order the elements by relative incompatiblity using
 
 .. code-block:: default
 
-    from pyrolite.geochem.ind import order_incompatibility
+    from pyrolite.geochem.ind import by_incompatibility
 
-    normdf.pyroplot.spider(color="k", unity_line=True, index_order=order_incompatibility)
+    normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
     plt.show()
 
 
@@ -140,7 +140,7 @@ We could now plot the range of compositions as a filled range:
         color="green",
         alpha=0.5,
         unity_line=True,
-        index_order=order_incompatibility,
+        index_order=by_incompatibility,
     )
     plt.show()
 
@@ -161,7 +161,7 @@ Alternatively, we can plot a conditional density spider plot:
 
     fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
     distdf.pyroplot.spider(
-        ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=order_incompatibility
+        ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=by_incompatibility
     )
     distdf.pyroplot.spider(
         ax=ax[1],
@@ -169,7 +169,7 @@ Alternatively, we can plot a conditional density spider plot:
         vmin=0.05,  # 95th percentile,
         resolution=10,
         unity_line=True,
-        index_order=order_incompatibility,
+        index_order=by_incompatibility,
     )
     plt.show()
 
@@ -233,7 +233,7 @@ modes for spider plots:
             vmin=0.05,  # minimum percentile
             fontsize=8,
             unity_line=True,
-            index_order=order_incompatibility,
+            index_order=by_incompatibility,
             *args,
             **kwargs
         )
@@ -255,7 +255,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  24.803 seconds)
+   **Total running time of the script:** ( 0 minutes  23.248 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:

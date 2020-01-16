@@ -36,9 +36,9 @@ plt.show()
 # argument can be used to supply a function which will reorder the elements before
 # plotting. Here we order the elements by relative incompatiblity using
 # :func:`pyrolite.geochem.ind.order_incompatibility`:
-from pyrolite.geochem.ind import order_incompatibility
+from pyrolite.geochem.ind import by_incompatibility
 
-normdf.pyroplot.spider(color="k", unity_line=True, index_order=order_incompatibility)
+normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
 plt.show()
 ########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
@@ -65,7 +65,7 @@ distdf.pyroplot.spider(
     color="green",
     alpha=0.5,
     unity_line=True,
-    index_order=order_incompatibility,
+    index_order=by_incompatibility,
 )
 plt.show()
 ########################################################################################
@@ -73,7 +73,7 @@ plt.show()
 #
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
 distdf.pyroplot.spider(
-    ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=order_incompatibility
+    ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=by_incompatibility
 )
 distdf.pyroplot.spider(
     ax=ax[1],
@@ -81,7 +81,7 @@ distdf.pyroplot.spider(
     vmin=0.05,  # 95th percentile,
     resolution=10,
     unity_line=True,
-    index_order=order_incompatibility,
+    index_order=by_incompatibility,
 )
 plt.show()
 ########################################################################################
@@ -123,7 +123,7 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
         vmin=0.05,  # minimum percentile
         fontsize=8,
         unity_line=True,
-        index_order=order_incompatibility,
+        index_order=by_incompatibility,
         *args,
         **kwargs
     )
