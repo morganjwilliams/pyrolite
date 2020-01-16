@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# sphinx_gallery_thumbnail_number = 4
+# sphinx_gallery_thumbnail_number = 5
 
 ########################################################################################
 # Here we'll set up an example which uses EMORB as a starting point:
@@ -31,6 +31,16 @@ normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
 normdf.pyroplot.spider(color="k", unity_line=True)
 plt.show()
 ########################################################################################
+# The default ordering here follows that of the dataframe columns, but we typically
+# want to reorder these based on some physical ordering. A :code:`index_order` keyword
+# argument can be used to supply a function which will reorder the elements before
+# plotting. Here we order the elements by relative incompatiblity using
+# :func:`pyrolite.geochem.ind.order_incompatibility`:
+from pyrolite.geochem.ind import order_incompatibility
+
+normdf.pyroplot.spider(color="k", unity_line=True, index_order=order_incompatibility)
+plt.show()
+########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
 # various modes. First let's take this composition and add some noise in log-space to
 # generate multiple compositions about this mean (i.e. a compositional distribution):
@@ -50,21 +60,30 @@ distdf = distdf.applymap(np.exp)
 ########################################################################################
 # We could now plot the range of compositions as a filled range:
 #
-distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
+distdf.pyroplot.spider(
+    mode="fill",
+    color="green",
+    alpha=0.5,
+    unity_line=True,
+    index_order=order_incompatibility,
+)
 plt.show()
 ########################################################################################
 # Alternatively, we can plot a conditional density spider plot:
 #
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
-_ = distdf.pyroplot.spider(ax=ax[0], color="k", alpha=0.05, unity_line=True)
-_ = distdf.pyroplot.spider(
+distdf.pyroplot.spider(
+    ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=order_incompatibility
+)
+distdf.pyroplot.spider(
     ax=ax[1],
     mode="binkde",
-    cmap="viridis",
-    vmin=0.05,  # minimum percentile,
+    vmin=0.05,  # 95th percentile,
     resolution=10,
-    unity_line=True
+    unity_line=True,
+    index_order=order_incompatibility,
 )
+plt.show()
 ########################################################################################
 # We can now assemble a more complete comparison of some of the conditional density
 # modes for spider plots:
@@ -101,10 +120,10 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
     distdf.pyroplot.spider(
         mode=m,
         ax=ax[mix],
-        cmap="viridis",
         vmin=0.05,  # minimum percentile
         fontsize=8,
         unity_line=True,
+        index_order=order_incompatibility,
         *args,
         **kwargs
     )

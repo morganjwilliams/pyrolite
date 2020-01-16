@@ -79,6 +79,29 @@ processes:
 
 
 
+The default ordering here follows that of the dataframe columns, but we typically
+want to reorder these based on some physical ordering. A :code:`index_order` keyword
+argument can be used to supply a function which will reorder the elements before
+plotting. Here we order the elements by relative incompatiblity using
+:func:`pyrolite.geochem.ind.order_incompatibility`:
+
+
+.. code-block:: default
+
+    from pyrolite.geochem.ind import order_incompatibility
+
+    normdf.pyroplot.spider(color="k", unity_line=True, index_order=order_incompatibility)
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_spider_003.png
+    :class: sphx-glr-single-img
+
+
+
+
+
 The spiderplot can be extended to provide visualisations of ranges and density via the
 various modes. First let's take this composition and add some noise in log-space to
 generate multiple compositions about this mean (i.e. a compositional distribution):
@@ -112,12 +135,18 @@ We could now plot the range of compositions as a filled range:
 
 .. code-block:: default
 
-    distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
+    distdf.pyroplot.spider(
+        mode="fill",
+        color="green",
+        alpha=0.5,
+        unity_line=True,
+        index_order=order_incompatibility,
+    )
     plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_003.png
+.. image:: /examples/plotting/images/sphx_glr_spider_004.png
     :class: sphx-glr-single-img
 
 
@@ -131,19 +160,22 @@ Alternatively, we can plot a conditional density spider plot:
 .. code-block:: default
 
     fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
-    _ = distdf.pyroplot.spider(ax=ax[0], color="k", alpha=0.05, unity_line=True)
-    _ = distdf.pyroplot.spider(
+    distdf.pyroplot.spider(
+        ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=order_incompatibility
+    )
+    distdf.pyroplot.spider(
         ax=ax[1],
         mode="binkde",
-        cmap="viridis",
-        vmin=0.05,  # minimum percentile,
+        vmin=0.05,  # 95th percentile,
         resolution=10,
-        unity_line=True
+        unity_line=True,
+        index_order=order_incompatibility,
     )
+    plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_004.png
+.. image:: /examples/plotting/images/sphx_glr_spider_005.png
     :class: sphx-glr-single-img
 
 
@@ -198,10 +230,10 @@ modes for spider plots:
         distdf.pyroplot.spider(
             mode=m,
             ax=ax[mix],
-            cmap="viridis",
             vmin=0.05,  # minimum percentile
             fontsize=8,
             unity_line=True,
+            index_order=order_incompatibility,
             *args,
             **kwargs
         )
@@ -210,7 +242,7 @@ modes for spider plots:
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_005.png
+.. image:: /examples/plotting/images/sphx_glr_spider_006.png
     :class: sphx-glr-single-img
 
 
@@ -223,7 +255,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.023 seconds)
+   **Total running time of the script:** ( 0 minutes  24.803 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:
