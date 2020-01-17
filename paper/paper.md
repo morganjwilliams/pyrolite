@@ -36,7 +36,7 @@ affiliations:
    index: 1
  - name: Institute of Geology and Geophysics, Chinese Academy of Geosciences
    index: 2
- - name: SAIC
+ - name: NASA Johnson Space Center
    index: 3
  - name: School of Earth Sciences, University of Melbourne
    index: 4
@@ -58,7 +58,7 @@ The ``pyrolite`` API follows and builds upon a number of existing packages, and 
 
 ![Example of different bivariate and ternary diagrams, highlighting the ability to visualise data distribution.](sphx_glr_heatscatter_001.png)
 
-![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_004.png)
+![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
 
 # Acknowledgements
