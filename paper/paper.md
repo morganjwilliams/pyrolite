@@ -52,17 +52,15 @@ bibliography: paper.bib
 
 ## Features
 
-A variety of standard diagram methods (e.g. ternary, spider, and data-density diagrams), templated diagrams [e.g. the Total-Alkali Silica diagram , @LeBas1992; and Pearce diagrams, @Pearce2008] and novel geochemical visualisation methods are available.
+A variety of standard diagram methods (e.g. ternary, spider, and data-density diagrams; see Figs. 1, 2), templated diagrams [e.g. the Total-Alkali Silica diagram , @LeBas1992; and Pearce diagrams, @Pearce2008] and novel geochemical visualisation methods are available.
+
+![Example of different bivariate and ternary diagrams, highlighting the ability to visualise data distribution.](sphx_glr_heatscatter_001.png)
 
 Reference datasets of compositional reservoirs (e.g. CI-Chondrite, Bulk Silicate Earth, Mid-Ocean Ridge Basalt) and a number of rock-forming mineral endmembers are installed with ``pyrolite``. The first of these enables normalisation of composition to investigate relative geochemical patterns, and the second facilitates mineral endmember recalculation and normative calculations.
 
 ``pyrolite`` also includes some specific methods to model geochemical patterns, such as the lattice strain model for trace element partitioning of @Blundy2003, the Sulfur Content at Sulfur Saturation (SCSS) model of @Li2009, and orthogonal polynomial decomposition for parameterising Rare Earth Element patterns of @ONeill2016.
 
 Extensions beyond the core functionality are also being developed, including ``pyrolite-meltsutil`` which provides utilities for working with ``alphaMELTS`` [@Smith2005] and it's outputs, and is targeted towards performing large numbers of related melting and fractionation experiments.
-
-![Example of different bivariate and ternary diagrams, highlighting the ability to visualise data distribution.](sphx_glr_heatscatter_001.png)
-
-![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
 ## Conventions
 
@@ -71,14 +69,14 @@ Extensions beyond the core functionality are also being developed, including ``p
 Tidy Geochemical Tables
 </dt>
 
-Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014]. ``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ca_Wt%$).
+Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014]. ``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti\_ppm$).
 
 <dt>
 Open to Oxygen
 </dt>
 
 <dd>
-Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance). This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment). Where multiple components are present in a table (e.g. $Fe$, $FeO$ and $Fe_2O_3$) and the chemistry is converted, the components will be aggregated based on molar cation abundances.
+Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance). This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment).
 <dd>
 
 </dl>
@@ -91,6 +89,7 @@ Geochemical data is compositional (i.e. sum to 100%), and as such requires non-s
 
 The ``pyrolite`` API follows and builds upon a number of existing packages, and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010]. This enables geochemists new to Python to hit the ground running, and encourages development of transferable digital skills.
 
+![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
 # Acknowledgements
 
