@@ -64,7 +64,6 @@ Extensions beyond the core functionality are also being developed, including ``p
 
 ![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
-
 ## Conventions
 
 <dl>
@@ -72,15 +71,14 @@ Extensions beyond the core functionality are also being developed, including ``p
 Tidy Geochemical Tables
 </dt>
 
-Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014]. ``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. Ca, MgO, Al<sub>2</sub>O<sub>3</sub>,
-but not Ca<sub>3</sub>Al<sub>3</sub>(SiO<sub>4</sub>)<sub>3</sub> or Ca_Wt%).
+Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014]. ``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ca_Wt%$).
 
 <dt>
 Open to Oxygen
 </dt>
 
 <dd>
-Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance). This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment). Where multiple components are present in a table (e.g. Fe, FeO and Fe<sub>2</sub>O<sub>3</sub>) and the chemistry is converted, the components will be aggregated based on molar cation abundances.
+Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance). This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment). Where multiple components are present in a table (e.g. $Fe$, $FeO$ and $Fe_2O_3$) and the chemistry is converted, the components will be aggregated based on molar cation abundances.
 <dd>
 
 </dl>
