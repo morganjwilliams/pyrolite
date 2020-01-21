@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
-from ..util.meta import subkwargs
-from ..util.plot import init_axes
+from ..util.plot import init_axes, linekwargs, scatterkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def stem(x, y, ax=None, orientation="horizontal", color="0.5", **kwargs):
+def stem(x, y, ax=None, orientation="horizontal", **kwargs):
     """
     Create a stem (or 'lollipop') plot, with optional orientation.
 
@@ -20,8 +19,6 @@ def stem(x, y, ax=None, orientation="horizontal", color="0.5", **kwargs):
         The subplot to draw on.
     orientation : :class:`str`
         Orientation of the plot (horizontal or vertical).
-    color : :class:`str`
-        Color of lines and markers (unless otherwise overridden).
 
     Returns
     -------
@@ -31,16 +28,17 @@ def stem(x, y, ax=None, orientation="horizontal", color="0.5", **kwargs):
     ax = init_axes(ax=ax, **kwargs)
 
     orientation = orientation.lower()
-    xs, ys = [x, x], [np.zeros_like(y), y]
+    xs, ys = np.array([x, x]), np.array([np.zeros_like(y), y])
     positivey = (y > 0 | ~np.isfinite(y)).all() | np.allclose(y, 0)
+    kwargs["color"] = kwargs.get("color") or "0.5"
     if "h" in orientation:
-        ax.plot(xs, ys, color=color, **subkwargs(kwargs, ax.plot))
-        ax.scatter(x, y, **{"c": color, **subkwargs(kwargs, ax.scatter)})
+        ax.plot(xs, ys, **linekwargs(kwargs))
+        ax.scatter(x, y, **scatterkwargs(kwargs))
         if positivey:
             ax.set_ylim(0, ax.get_ylim()[1])
     else:
-        ax.plot(ys, xs, color=color, **subkwargs(kwargs, ax.plot))
-        ax.scatter(y, x, **{"c": color, **subkwargs(kwargs, ax.scatter)})
+        ax.plot(ys, xs, **linekwargs(kwargs))
+        ax.scatter(y, x, **scatterkwargs(kwargs))
         if positivey:
             ax.set_xlim(0, ax.get_xlim()[1])
 

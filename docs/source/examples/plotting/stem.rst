@@ -21,6 +21,7 @@ emphasised by a scatter plot).
     from pyrolite.plot import pyroplot
     from pyrolite.plot.stem import stem
 
+
     np.random.seed(82)
 
 
@@ -50,9 +51,7 @@ A minimal stem plot can be constructed as follows:
 
 .. code-block:: default
 
-    ax = stem(df.Depth, df.Fe3O4, figsize=(5, 3))
-    # or, alternatively directly from the dataframe:
-    ax = df.pyroplot.stem(figsize=(5, 3))
+    ax = df.pyroplot.stem(color="k", figsize=(5, 3))
 
 
 
@@ -70,7 +69,14 @@ discrete observations down a drill hole:
 
 .. code-block:: default
 
-    ax = df.pyroplot.stem(orientation="vertical", figsize=(3, 5))
+    ax = df.pyroplot.stem(
+        orientation="vertical",
+        s=12,
+        linestyle="--",
+        linewidth=0.5,
+        color="k",
+        figsize=(3, 5),
+    )
     # the yaxes can then be inverted using:
     ax.invert_yaxis()
     # and if you'd like the xaxis to be labeled at the top:
@@ -89,7 +95,7 @@ discrete observations down a drill hole:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.613 seconds)
+   **Total running time of the script:** ( 0 minutes  1.739 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_stem.py:

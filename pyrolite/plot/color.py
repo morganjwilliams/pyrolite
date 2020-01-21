@@ -93,13 +93,31 @@ def process_color(
     This will not modify other named colors (e.g. linecolor, markercolor).
     """
     assert not ((c is not None) and (color is not None))
-
+    for kw in [  # extra color kwargs
+        "markerfacecolor",
+        "markeredgecolor",
+        "edgecolors",
+        "linecolor",
+        "ecolor",
+        "facecolor",
+    ]:
+        if kw in otherkwargs:  # this allows processing of alpha with a given color
+            otherkwargs[kw] = process_color(
+                c=otherkwargs[kw], alpha=alpha, cmap=cmap, norm=norm
+            )["color"]
     if c is not None:
         C = c
     elif color is not None:
         C = color
     else:
-        return {"c": c, "color": color, "cmap": cmap, "norm": norm, **otherkwargs}
+        return {
+            **{
+                k: v
+                for k, v in {"c": c, "color": color, "cmap": cmap, "norm": norm}.items()
+                if v is not None
+            },
+            **otherkwargs,
+        }
 
     cmode = get_cmode(C)
     _c, _color = None, None
@@ -129,17 +147,6 @@ def process_color(
             C[:, -1] = alpha
         _c, _color = C, C
 
-    for kw in [ # extra color kwargs
-        "markerfacecolor",
-        "markeredgecolor",
-        "linecolor",
-        "ecolor",
-        "facecolor",
-    ]:
-        if kw in otherkwargs: # this allows processing of alpha with a given color
-            otherkwargs[kw] = process_color(
-                c=otherkwargs[kw], alpha=alpha, cmap=cmap, norm=norm
-            )["color"]
     return {"c": _c, "color": _color, **otherkwargs}
 
 

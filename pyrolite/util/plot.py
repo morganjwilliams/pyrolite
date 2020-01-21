@@ -99,6 +99,7 @@ def linekwargs(kwargs):
         matplotlib.lines.Line2D,
         matplotlib.collections.Collection,
     )
+    # could trim cmap and norm here, in case they get passed accidentally
     kw.update(
         **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
     )  # issues with introspection for alpha
