@@ -4,13 +4,6 @@ Changelog
 
 All notable changes to this project will be documented here.
 
-`Development`_
---------------
-
-.. note:: Changes noted in this subsection are to be released in the next version.
-        If you're keen to check something out before its released, you can use a
-        `development install <development.html#development-installation>`__.
-
 Todo
 ~~~~~~~
 
@@ -24,6 +17,19 @@ Todo
   (currently this is an edge)
 * BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
+
+
+`Development`_
+--------------
+
+.. note:: Changes noted in this subsection are to be released in the next version.
+        If you're keen to check something out before its released, you can use a
+        `development install <development.html#development-installation>`__.
+
+* Updated the effect of :code:`relim` keyword argument of
+  :func:`~pyrolite.plot.density.density` to remove the scaling (it will no longer
+  log-scale the axes, just the grid/histogram bins).
+
 
 `0.2.4`_
 --------------
