@@ -259,11 +259,6 @@ def density(
             cbkwargs["label"] = cbarlabel
             add_colorbar(mappable, **cbkwargs)
 
-        if relim:
-            if logx:
-                ax.set_xscale("log")
-            if logy:
-                ax.set_yscale("log")
     return ax
 
 
