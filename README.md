@@ -20,7 +20,8 @@
 pip install pyrolite
 ```
 
-For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html).
+For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/master/gettingstarted.html).
+
 
 ### Contributing
 
