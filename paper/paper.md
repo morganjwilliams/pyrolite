@@ -98,6 +98,11 @@ This approach allows ``pyrolite`` to use more familiar syntax, helping geochemis
 
 ![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
+## Community
+
+* Develop a library of commonly used methods and diagram templates
+* Towards better practices and community standards for data processing and analysis for geochemistry
+* Contributions welcomed from the broader community to make pyrolite a useful toolkit and resource (especially for e.g. teaching)
 
 ## Todo
 
@@ -105,7 +110,7 @@ These are points yet to be incorporated into this overview.
 
 * Geochemical data is compositional (i.e. sum to 100%), and as such requires non-standard statistical treatment [@Aitchison1984].
 * The need to visualise geochemical data has historically limited the use of multivariate measures in geochemical research.
-* Visualisation methods useful for working with steadily growing volumes of geochemical data.
+* Visualisation methods useful for working with steadily growing volumes of geochemical data, including reducing the impact of 'overplotting'.
 
 # Acknowledgements
 
