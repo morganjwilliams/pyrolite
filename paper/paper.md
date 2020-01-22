@@ -53,7 +53,7 @@ The project aims to contribute to more robust, efficient and reproducible data-d
 
 ## Features
 
-``pyrolite`` provides tools for munging, transforming and visualising geochemical data from common tabular formats.
+``pyrolite`` provides tools for processing, transforming and visualising geochemical data from common tabular formats.
 The package includes methods to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous auxiliary utilities (e.g. a geological timescale).
 These tools also provide a foundation for preparing data for subsequent machine learning applications using ``scikit-learn``  [@Pedregosa2011].
 
