@@ -21,6 +21,9 @@ on `PyPi <https://pypi.org/project/pyrolite/>`_ using the :code:`--upgrade` flag
 
    pip install --upgrade pyrolite
 
+.. seealso:: `Development Installation <./dev/development.html#development-installation>`__
+
+
 Optional Dependencies
 -----------------------
 
