@@ -48,13 +48,19 @@ bibliography: paper.bib
 
 # Summary
 
-``pyrolite`` is a Python package for working with multivariate geochemical data, built with the aim of contributing to more robust, efficient and reproducible data-driven geochemical research. The package provides tools for munging, transforming and visualising geochemical data from common tabular formats. It enables you to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous specific utilities (e.g. a geological timescale). These tools also provide a foundation for preparing data for subsequent machine learning applications using ``scikit-learn``  [@Pedregosa2011].
+``pyrolite`` is a Python package for working with multivariate geochemical data, with a particular focus on rock and mineral chemistry.
+The project aims to contribute to more robust, efficient and reproducible data-driven geochemical research.
 
 ## Features
 
+``pyrolite`` provides tools for munging, transforming and visualising geochemical data from common tabular formats.
+The package includes methods to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous auxiliary utilities (e.g. a geological timescale).
+These tools also provide a foundation for preparing data for subsequent machine learning applications using ``scikit-learn``  [@Pedregosa2011].
+
 A variety of standard diagram methods (e.g. ternary, spider, and data-density diagrams; see Figs. 1, 2), templated diagrams [e.g. the Total-Alkali Silica diagram , @LeBas1992; and Pearce diagrams, @Pearce2008] and novel geochemical visualisation methods are available.
 
-Reference datasets of compositional reservoirs (e.g. CI-Chondrite, Bulk Silicate Earth, Mid-Ocean Ridge Basalt) and a number of rock-forming mineral endmembers are installed with ``pyrolite``. The first of these enables normalisation of composition to investigate relative geochemical patterns, and the second facilitates mineral endmember recalculation and normative calculations.
+Reference datasets of compositional reservoirs (e.g. CI-Chondrite, Bulk Silicate Earth, Mid-Ocean Ridge Basalt) and a number of rock-forming mineral endmembers are installed with ``pyrolite``.
+The first of these enables normalisation of composition to investigate relative geochemical patterns, and the second facilitates mineral endmember recalculation and normative calculations.
 
 ``pyrolite`` also includes some specific methods to model geochemical patterns, such as the lattice strain model for trace element partitioning of @Blundy2003, the Sulfur Content at Sulfur Saturation (SCSS) model of @Li2009, and orthogonal polynomial decomposition for parameterising Rare Earth Element patterns of @ONeill2016.
 
@@ -69,28 +75,40 @@ Extensions beyond the core functionality are also being developed, including ``p
 Tidy Geochemical Tables
 </dt>
 
-Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014]. ``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti\_ppm$).
+Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014].
+``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti_ppm$).
 
 <dt>
 Open to Oxygen
 </dt>
 
 <dd>
-Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance). This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment).
+Geochemical calculations in ``pyrolite`` conserve mass for all elements excluding oxygen (which for most geological scenarios is typically in abundance).
+This convention is equivalent to assuming that the system is open to oxygen, and saves accounting for a 'free oxygen' phase (which would not appear in a typical subsurface environment).
 <dd>
 
 </dl>
 
-## Compositional Data
-
-Geochemical data is compositional (i.e. sum to 100%), and as such requires non-standard statistical treatment [@Aitchison1984]. The need to visualise geochemical data has historically limited the use of multivariate measures in geochemical research. ``pyrolite`` enables users to make better use of their data dimensionality, calculate more accurate statistical measures, and provides access to visualisation methods useful for working with steadily growing volumes of geochemical data.
-
 ## API
 
-The ``pyrolite`` API follows and builds upon a number of existing packages, and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010]. This enables geochemists new to Python to hit the ground running, and encourages development of transferable digital skills.
+The ``pyrolite`` API follows and builds upon a number of existing packages, and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010].
+In particular, the API makes use of dataframe accessor classes provided by ``pandas`` to add additional dataframe 'namespaces' (e.g. accessing the ``pyrolite`` spiderplot method via `df.pyroplot.spider()`).
+This approach allows ``pyrolite`` to use more familiar syntax, helping geochemists new to Python to hit the ground running, and encouraging development of transferable knowledge and skills.
+
 
 ![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
 
+
+## Todo
+
+These are points yet to be incorporated into this overview.
+
+* Geochemical data is compositional (i.e. sum to 100%), and as such requires non-standard statistical treatment [@Aitchison1984].
+* The need to visualise geochemical data has historically limited the use of multivariate measures in geochemical research.
+* Visualisation methods useful for working with steadily growing volumes of geochemical data.
+
 # Acknowledgements
+
+The authors of this publication (listed in reverse alphabetical order) have all contributed to the development of ``pyrolite`` at an early stage.
 
 # References
