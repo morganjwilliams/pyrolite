@@ -28,7 +28,8 @@ plt.show()
 # processes:
 #
 normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-normdf.pyroplot.spider(color="k", unity_line=True)
+ax = normdf.pyroplot.spider(color="k", unity_line=True)
+ax.set_ylabel('X / $X_{Primitive Mantle}$')
 plt.show()
 ########################################################################################
 # The default ordering here follows that of the dataframe columns, but we typically
@@ -38,7 +39,8 @@ plt.show()
 # :func:`pyrolite.geochem.ind.order_incompatibility`:
 from pyrolite.geochem.ind import by_incompatibility
 
-normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
+ax = normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
+ax.set_ylabel('X / $X_{Primitive Mantle}$')
 plt.show()
 ########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
@@ -60,13 +62,14 @@ distdf = distdf.applymap(np.exp)
 ########################################################################################
 # We could now plot the range of compositions as a filled range:
 #
-distdf.pyroplot.spider(
+ax = distdf.pyroplot.spider(
     mode="fill",
     color="green",
     alpha=0.5,
     unity_line=True,
     index_order=by_incompatibility,
 )
+ax.set_ylabel('X / $X_{Primitive Mantle}$')
 plt.show()
 ########################################################################################
 # Alternatively, we can plot a conditional density spider plot:
@@ -83,6 +86,7 @@ distdf.pyroplot.spider(
     unity_line=True,
     index_order=by_incompatibility,
 )
+[a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
 plt.show()
 ########################################################################################
 # We can now assemble a more complete comparison of some of the conditional density
@@ -105,7 +109,7 @@ down, across = len(modes), 1
 fig, ax = plt.subplots(
     down, across, sharey=True, sharex=True, figsize=(across * 8, 2 * down)
 )
-
+[a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
 for a, (m, name, args, kwargs) in zip(ax, modes):
     a.annotate(  # label the axes rows
         "Mode: {}".format(name),

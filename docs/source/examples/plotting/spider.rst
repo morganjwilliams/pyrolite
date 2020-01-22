@@ -67,7 +67,8 @@ processes:
 .. code-block:: default
 
     normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-    normdf.pyroplot.spider(color="k", unity_line=True)
+    ax = normdf.pyroplot.spider(color="k", unity_line=True)
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
     plt.show()
 
 
@@ -90,7 +91,8 @@ plotting. Here we order the elements by relative incompatiblity using
 
     from pyrolite.geochem.ind import by_incompatibility
 
-    normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
+    ax = normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
     plt.show()
 
 
@@ -135,13 +137,14 @@ We could now plot the range of compositions as a filled range:
 
 .. code-block:: default
 
-    distdf.pyroplot.spider(
+    ax = distdf.pyroplot.spider(
         mode="fill",
         color="green",
         alpha=0.5,
         unity_line=True,
         index_order=by_incompatibility,
     )
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
     plt.show()
 
 
@@ -171,6 +174,7 @@ Alternatively, we can plot a conditional density spider plot:
         unity_line=True,
         index_order=by_incompatibility,
     )
+    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
     plt.show()
 
 
@@ -215,7 +219,7 @@ modes for spider plots:
     fig, ax = plt.subplots(
         down, across, sharey=True, sharex=True, figsize=(across * 8, 2 * down)
     )
-
+    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
     for a, (m, name, args, kwargs) in zip(ax, modes):
         a.annotate(  # label the axes rows
             "Mode: {}".format(name),
@@ -255,7 +259,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  23.248 seconds)
+   **Total running time of the script:** ( 0 minutes  31.210 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:
