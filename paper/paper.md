@@ -6,6 +6,7 @@ tags:
   - geology
   - mineralogy
   - petrology
+  - compositional data
 authors: # (Multiple affiliations must be quoted)
   - name: Morgan J. Williams
     orcid: 0000-0003-4764-9555
@@ -46,12 +47,10 @@ bibliography: paper.bib
 
 <!-- 250-1000 words -->
 
-# Summary
-
 ``pyrolite`` is a Python package for working with multivariate geochemical data, with a particular focus on rock and mineral chemistry.
 The project aims to contribute to more robust, efficient and reproducible data-driven geochemical research.
 
-## Features
+# Features
 
 ``pyrolite`` provides tools for processing, transforming and visualising geochemical data from common tabular formats.
 The package includes methods to recalculate and rescale whole-rock and mineral compositions, perform compositional statistics and create appropriate visualisations and also includes numerous auxiliary utilities (e.g. a geological timescale).
@@ -69,11 +68,11 @@ The first of these enables normalisation of composition to investigate relative 
 
 ``pyrolite`` also includes some specific methods to model geochemical patterns, such as the lattice strain model for trace element partitioning of @Blundy2003, the Sulfur Content at Sulfur Saturation (SCSS) model of @Li2009, and orthogonal polynomial decomposition for parameterising Rare Earth Element patterns of @ONeill2016.
 
-Extensions beyond the core functionality are also being developed, including ``pyrolite-meltsutil`` which provides utilities for working with ``alphaMELTS`` [@Smith2005] and it's outputs, and is targeted towards performing large numbers of related melting and fractionation experiments.
+Extensions beyond the core functionality are also being developed, including ``pyrolite-meltsutil`` which provides utilities for working with ``alphaMELTS`` and it's outputs [@Smith2005], and is targeted towards performing large numbers of related melting and fractionation experiments.
 
 ![Example of different bivariate and ternary diagrams, highlighting the ability to visualise data distribution.](sphx_glr_heatscatter_001.png)
 
-## API
+# API
 
 The ``pyrolite`` API follows and builds upon a number of existing packages, and where relevant exposes their API, particularly for ``matplotlib`` [@Hunter2007] and ``pandas`` [@McKinney2010].
 In particular, the API makes use of dataframe accessor classes provided by ``pandas`` to add additional dataframe 'namespaces' (e.g. accessing the ``pyrolite`` spiderplot method via `df.pyroplot.spider()`).
@@ -81,7 +80,7 @@ This approach allows ``pyrolite`` to use more familiar syntax, helping geochemis
 
 ![Standard and density-mode spider diagrams generated from a synthetic dataset centred around an Enriched- Mid-Ocean Ridge Basalt composition [@Sun1989], normalised to Primitive Mantle [@Palme2014]. Elements are ordered based on a proxy for trace element 'incompatibility' during mantle melting [e.g. as used by @Hofmann2014].](sphx_glr_spider_005.png)
 
-## Conventions
+# Conventions
 
 <dl>
 <dt>
@@ -89,7 +88,7 @@ Tidy Geochemical Tables
 </dt>
 
 Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014].
-``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti_ppm$).
+``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti_{ppm}$).
 
 <dt>
 Open to Oxygen
@@ -102,7 +101,7 @@ This convention is equivalent to assuming that the system is open to oxygen, and
 
 </dl>
 
-## Community
+# Community
 
 ``pyrolite`` aims to be designed, developed and supported by the geochemistry community.
 Community contributions are encouraged, and will help make ``pyrolite`` a broadly useful toolkit and resource (especially for e.g. teaching purposes).
