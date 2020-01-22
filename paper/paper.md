@@ -95,8 +95,7 @@ The ``pyrolite`` API follows and builds upon a number of existing packages, and 
 In particular, the API makes use of dataframe accessor classes provided by ``pandas`` to add additional dataframe 'namespaces' (e.g. accessing the ``pyrolite`` spiderplot method via `df.pyroplot.spider()`).
 This approach allows ``pyrolite`` to use more familiar syntax, helping geochemists new to Python to hit the ground running, and encouraging development of transferable knowledge and skills.
 
-
-![Example spider diagram, with comparison to a data-density based equivalent.](sphx_glr_spider_005.png)
+![Standard and density-mode spider diagrams using a synthetic dataset centred around an E-MORB composition [@Sun1989], normalised to Primitive Mantle [@Palme2014]. The trace elements are ordered based on a proxy for trace element 'incompatibility' in mantle melts (e.g. as used by @Hofmann2014).](sphx_glr_spider_005.png)
 
 ## Community
 
