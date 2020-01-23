@@ -88,7 +88,7 @@ Tidy Geochemical Tables
 </dt>
 
 Being based on ``pandas``, ``pyrolite`` operations are based on tabular structured data in dataframes, where each geochemical variable or component is a column, and each observation is a row [consistent with 'tidy data' principles, @Wickham2014].
-``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4)_3$ or $Ti_{ppm}$).
+``pyrolite`` additionally assumes that geochemical components are identifiable with either element- or oxide-based column names (which contain only one element excluding oxygen, e.g. $Ca$, $MgO$, $Al_2O_3$, but not $Ca_3Al_3(SiO_4){_3}$ or $Ti\_ppm$).
 
 <dt>
 Open to Oxygen
