@@ -1,7 +1,7 @@
 import os, sys
 import re
 import time
-import subprocess, shutil
+import shutil
 from tempfile import mkdtemp
 import operator
 import inspect
@@ -54,27 +54,6 @@ def temp_path(suffix=""):
     """Return the path of a temporary directory."""
     dir = mkdtemp(suffix=suffix)
     return Path(dir)
-
-
-def check_perl():
-    """
-    Checks whether perl is installed on the system.
-
-    Returns
-    -------
-    :class:`bool`
-        Boolean indication of whether there is an executable perl installation.
-    """
-    try:
-        p = subprocess.check_output(["perl", "-v"])
-        returncode = 0
-    except subprocess.CalledProcessError as e:
-        output = e.output
-        returncode = e.returncode
-    except FileNotFoundError:
-        returncode = 1
-
-    return returncode == 0
 
 
 def flatten_dict(d, climb=False, safemode=False):
