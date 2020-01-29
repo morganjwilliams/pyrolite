@@ -37,6 +37,3 @@ def load_extensions(base="pyrolite_", replace=["util"]):
         for r in replace:
             n = n.replace(r, "")
         setattr(extensions, n, m)
-
-
-load_extensions()
