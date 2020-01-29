@@ -37,6 +37,9 @@ services are often worth taking advantage of (e.g. hosting
 material and analyses from papers, posters or presentation, and linking this through
 to `Zenodo <https://jupyter.org/>`__ to get an archived version with a DOI).
 
+.. [*] If you're strapped for space, or are bloat-averse, you could also consider using
+      `Anaconda's miniconda distributions <https://docs.conda.io/en/latest/miniconda.html>`__.
+
 Installing pyrolite
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,6 +70,60 @@ can run them interatively in your browser thanks to
 (check for the links towards the bottom of each page). Have a play with these, and
 adapt them to your own purposes.
 
+.. [*] If you're completely new to Python, check out some of the many free online
+       courses to get up to scratch with basic Python concepts, data structures
+       and get in a bit of practice writing code (e.g. the basic Python course on
+       `Codecademy <https://www.codecademy.com/>`__). Knowing your way around some
+       of these things before you dive into applying them can help make it a much
+       more surmountable challenge. Remember that the pyrolite community is also
+       around to help out if you get stuck, and we all started from a similar place!
+       There are no 'stupid questions', so feel free to ping us on
+       `Gitter <https://gitter.im/pyrolite/community>`__ with any questions
+       or aspects that are proving particularly challenging.
+
+Importing Data
+~~~~~~~~~~~~~~~~
+
+A large part of the pyrolite API is based around :mod:`pandas` DataFrames.
+One of the first hurdles for new users is importing their own data tables.
+To make this as simple as possible, it's best to organise - or 'tidy' - your data
+tables [*]_. Minimise unnecessary whitespace, and
+where possible make sure your table columns are the first row of your table.
+In most cases, where these data are in the form of text or Excel files,
+the typical steps for data import are similar. A few simple examples are given
+below.
+
+To import a table from a .csv file:
+
+.. code-block:: python
+
+   from pathlib import Path
+   import pandas as pd
+
+   filepath = Path('./mydata.csv')
+   df = pd.read_csv(filepath)
+
+In the case of an excel table:
+
+.. code-block:: python
+
+  filepath = Path('./mydata.xlsx')
+  df = pd.read_excel(filepath)
+
+There is also a pyrolite function which abstracts away these differences by making a
+few assumptions, and enables you to import the table from either a csv or excel file:
+
+.. code-block:: python
+
+  from pyrolite.util.pd import read_table
+  df = read_table(filepath)
+
+.. [*] Where each variable is a column, and each observation is a row. If you're
+       unfamiliar with the 'Tidy Data' concept, check out [Wickham2014]_.
+
+.. [Wickham2014] Wickham, H., 2014. Tidy Data.
+                 Journal of Statistical Software 59, 1–23.
+                 `doi: doi.org/10.18637/jss.v059.i10 <https://doi.org/10.18637/jss.v059.i10>`__
 `Gitter Community <https://gitter.im/pyrolite/community>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -123,18 +180,3 @@ are often well documented elsewhere online.
     `API <./api/API.html>`__,
     `Changelog <./dev/changelog.html>`__,
     `Code of Conduct <./dev/conduct.html>`__
-
-
-.. [*] If you're strapped for space, or are bloat-averse, you could also consider using
-      `Anaconda's miniconda distributions <https://docs.conda.io/en/latest/miniconda.html>`__.
-
-.. [*] If you're completely new to Python, check out some of the many free online
-       courses to get up to scratch with basic Python concepts, data structures
-       and get in a bit of practice writing code (e.g. the basic Python course on
-       `Codecademy <https://www.codecademy.com/>`__). Knowing your way around some
-       of these things before you dive into applying them can help make it a much
-       more surmountable challenge. Remember that the pyrolite community is also
-       around to help out if you get stuck, and we all started from a similar place!
-       There are no 'stupid questions', so feel free to ping us on
-       `Gitter <https://gitter.im/pyrolite/community>`__ with any questions
-       or aspects that are proving particularly challenging.
