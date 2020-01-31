@@ -39,7 +39,7 @@ affiliations:
    index: 2
  - name: NASA Johnson Space Center
    index: 3
- - name: School of Earth Sciences, University of Melbourne
+ - name: School of Earth Science, University of Melbourne
    index: 4
 date: 14 January 2020
 bibliography: paper.bib
