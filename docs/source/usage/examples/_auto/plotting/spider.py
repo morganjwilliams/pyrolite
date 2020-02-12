@@ -31,6 +31,11 @@ normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
 ax = normdf.pyroplot.spider(color="k", unity_line=True)
 ax.set_ylabel('X / $X_{Primitive Mantle}$')
 plt.show()
+
+########################################################################################
+# .. seealso:: `Normalisation <../geochem/normalization.html>`__
+#
+
 ########################################################################################
 # The default ordering here follows that of the dataframe columns, but we typically
 # want to reorder these based on some physical ordering. A :code:`index_order` keyword
