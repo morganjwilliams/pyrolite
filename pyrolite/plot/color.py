@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.colors
 import matplotlib.pyplot as plt
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP
@@ -30,7 +31,7 @@ def get_cmode(c=None):
             pass
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
-            if isinstance(c, (np.ndarray, list)):
+            if isinstance(c, (np.ndarray, list, pd.Series)):
                 c = np.array(c)
                 if all([isinstance(_c, (np.ndarray, list, tuple)) for _c in c]):
                     # could have an error if you put in mixed rgb/rgba
@@ -127,6 +128,7 @@ def process_color(
             C = (*C[:-1], alpha)  # can't assign to tuple, create new one instead
         _c, _color = np.array([C]), C  # Convert to standardised form
     else:
+        C = np.array(C)
         if cmode in ["hex_array", "named_array", "mixed_str_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["rgb_array", "rgba_array"]:
