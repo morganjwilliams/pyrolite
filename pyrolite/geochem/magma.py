@@ -170,7 +170,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
     * Produce an updated version based on log-regressions?
     * Add updates from Smythe et al. (2017)?
     """
-    T, P = np.array(T), np.array(P)
+    T, P = np.array(T, dtype="float"), np.array(P, dtype="float")
     if not kelvin:
         T = T + 273.15
 
@@ -190,10 +190,14 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
         cc, tt, pp = C, T, P
 
     comp = set(df.columns) & (__common_elements__ | __common_oxides__)
-    moldf = to_molecular(df.loc[:, comp], renorm=True) / 100  # mole-fraction
+    moldf = to_molecular(df.loc[:, comp], renorm=True) / 100.0  # mole-fraction
     molsum = to_molecular(df.loc[:, comp], renorm=False).sum(axis=1)
 
     def gridify(ser):
+        """
+        Create a parameter grid from a pandas series to facilitate
+        array-addition of each component.
+        """
         arr = ser.replace(np.nan, 0).values
         if grid == "grid":
             return arr[:, np.newaxis, np.newaxis]
@@ -203,21 +207,21 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
             return arr
 
     ln_sulfate = 10.07 * cc - 1.151 * 10 ** 4 / tt + 0.104 * pp
-    for x, D in [("SiO2", -7.1), ("MgO", -14.02), ("Al2O3", -14.164)]:
-        if x in moldf:
-            ln_sulfate += gridify(moldf[x]) * D * cc
+    for chem, D in [("SiO2", -7.1), ("MgO", -14.02), ("Al2O3", -14.164)]:
+        if chem in moldf.columns:
+            ln_sulfate += gridify(moldf[chem]) * D * cc
 
     ln_sulfide = -1.76 * cc - 0.474 * 10 ** 4 / tt + 0.021 * pp
 
-    for x, D in [
+    for chem, D in [
         ("FeO", 5.559),
         ("TiO2", 2.565),
         ("CaO", 2.709),
         ("SiO2", -3.192),
         ("H2O", -3.049),
     ]:
-        if x in moldf:
-            ln_sulfide += gridify(moldf[x]) * D * cc
+        if chem in moldf.columns:
+            ln_sulfide += gridify(moldf[chem]) * D * cc
 
     sulfate, sulfide = np.exp(ln_sulfate), np.exp(ln_sulfide)
 
