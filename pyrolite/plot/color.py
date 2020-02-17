@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.colors
 import matplotlib.pyplot as plt
-from pyrolite.util.plot import DEFAULT_CONT_COLORMAP
+from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 
 def get_cmode(c=None):
@@ -42,12 +42,16 @@ def get_cmode(c=None):
                     else:
                         pass
                 elif all([isinstance(_c, str) for _c in c]):
-                    if all([_c.startswith("#") for _c in c]):
-                        cmode = "hex_array"
-                    elif not any([_c.startswith("#") for _c in c]):
-                        cmode = "named_array"
-                    else:
-                        cmode = "mixed_str_array"
+                    try:
+                        _ = matplotlib.colors.to_rgba(c[0])
+                        if all([_c.startswith("#") for _c in c]):
+                            cmode = "hex_array"
+                        elif not any([_c.startswith("#") for _c in c]):
+                            cmode = "named_array"
+                        else:
+                            cmode = "mixed_str_array"
+                    except ValueError:  # string cannot be converted to color
+                        cmode = "categories"
                 elif all([isinstance(_c, (np.float, np.int)) for _c in c]):
                     cmode = "value_array"
                 else:
@@ -143,6 +147,15 @@ def process_color(
                 vmin=np.nanmin(np.array(c)), vmax=np.nanmax(np.array(c))
             )
             C = cmap(norm(C))
+        elif cmode == "categories":
+            cmap = cmap or DEFAULT_DISC_COLORMAP
+            if isinstance(cmap, str):
+                cmap = plt.get_cmap(cmap)
+            _C = np.ones_like(C, dtype="int") * np.nan
+            uniqueC = np.unique(C)
+            for ix, cat in enumerate(uniqueC):
+                _C[C == cat] = ix / len(uniqueC)
+            C = cmap(_C)
         else:
             pass
         if alpha is not None:
