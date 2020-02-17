@@ -80,8 +80,6 @@ pyrolite\.util\.meta
 pyrolite\.util\.skl
 -------------------------------
   .. automodule:: pyrolite.util.skl
-      :members:
-      :undoc-members:
 
   .. toctree::
      :maxdepth: 2

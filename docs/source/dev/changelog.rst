@@ -24,15 +24,15 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
+  diagram example to add a link to the normalisation example (which lists
+  different reservoirs you can normalise to).
 * Added an 'Importing Data' section to the docs
-  `Getting Started page <../gettingstarted.html#Importing-Data>`__.
+  `Getting Started page <../gettingstarted.html#importing-data>`__.
 * Disabled automatic extension loading (e.g. for :mod:`pyrolite_meltsutil`) to
   avoid bugs during version mismatches.
 * Moved :func:`~pyrolite.util.general.check_perl` out of :mod:`pyrolite` into
   :mod:`pyrolite_meltsutil`
-* PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
-  diagram example to add a link to the normalisation example (which lists
-  different reservoirs you can normalise to).
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,7 +44,7 @@ Todo
 * Added a workaround for referring to axes positions where the projection is changed
   to a ternary projection (displacing the original axis), but the reference to the
   original axes object (now booted from :code:`fig.axes`/:code:`fig.orderedaxes`) is
-  subsequently used. 
+  subsequently used.
 * Updated :func:`~pyrolite.plot.color.process_color` processing of auxillary
   color keyword arguments (fixing a bug for color arguments in
   :func:`~pyrolite.plot.stem`)

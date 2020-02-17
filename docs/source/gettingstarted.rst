@@ -40,6 +40,7 @@ to `Zenodo <https://jupyter.org/>`__ to get an archived version with a DOI).
 .. [*] If you're strapped for space, or are bloat-averse, you could also consider using
       `Anaconda's miniconda distributions <https://docs.conda.io/en/latest/miniconda.html>`__.
 
+
 Installing pyrolite
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -57,6 +58,7 @@ following to update your local version:
 .. code-block:: bash
 
   pip install --upgrade pyrolite
+
 
 Writing Some Code
 ~~~~~~~~~~~~~~~~~~~
@@ -81,6 +83,7 @@ adapt them to your own purposes.
        `Gitter <https://gitter.im/pyrolite/community>`__ with any questions
        or aspects that are proving particularly challenging.
 
+
 Importing Data
 ~~~~~~~~~~~~~~~~
 
@@ -103,12 +106,14 @@ To import a table from a .csv file:
    filepath = Path('./mydata.csv')
    df = pd.read_csv(filepath)
 
+
 In the case of an excel table:
 
 .. code-block:: python
 
   filepath = Path('./mydata.xlsx')
   df = pd.read_excel(filepath)
+
 
 There is also a pyrolite function which abstracts away these differences by making a
 few assumptions, and enables you to import the table from either a csv or excel file:
@@ -118,12 +123,14 @@ few assumptions, and enables you to import the table from either a csv or excel 
   from pyrolite.util.pd import read_table
   df = read_table(filepath)
 
+
 .. [*] Where each variable is a column, and each observation is a row. If you're
        unfamiliar with the 'Tidy Data' concept, check out [Wickham2014]_.
 
 .. [Wickham2014] Wickham, H., 2014. Tidy Data.
                  Journal of Statistical Software 59, 1–23.
                  `doi: doi.org/10.18637/jss.v059.i10 <https://doi.org/10.18637/jss.v059.i10>`__
+
 `Gitter Community <https://gitter.im/pyrolite/community>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
