@@ -5,7 +5,7 @@ Changelog
 All notable changes to this project will be documented here.
 
 Todo
-~~~~~~~
+------
 
 * FEATURE: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
@@ -34,6 +34,13 @@ Todo
 * Moved :func:`~pyrolite.util.general.check_perl` out of :mod:`pyrolite` into
   :mod:`pyrolite_meltsutil`
 
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :class:`pyrolite.comp.pyrocomp` dataframe accessor API to include
+  reference to compositional data log transform functions within
+  :mod:`pyrolite.comp.codata`
+
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -48,6 +55,8 @@ Todo
 * Updated :func:`~pyrolite.plot.color.process_color` processing of auxillary
   color keyword arguments (fixing a bug for color arguments in
   :func:`~pyrolite.plot.stem`)
+* Added support for a :code:`color_mappings` keyword argument for mapping
+  categorical variables to specific colors.
 * Updated the effect of :code:`relim` keyword argument of
   :func:`~pyrolite.plot.density.density` to remove the scaling (it will no longer
   log-scale the axes, just the grid/histogram bins).
