@@ -87,16 +87,19 @@ def process_color(
         Alpha to modulate color opacity.
     norm : :class:`~matplotlib.colors.Normalize`
         Normalization for the colormap.
+    cmap_under : :class:`str` | :class:`tuple`
+        Color for values below the lower threshold for the cmap.
+    color_converter
+        Function to use to convert colors (from strings, hex, tuples etc).
+    color_mappings : :class:`dict`
+        Dictionary containing category-color mappings for individual color variables,
+        with the default color mapping having the key 'color'. For use where
+        categorical values are specified for a color variable.
 
     Returns
     --------
     C : :class:`tuple` | :class:`numpy.ndarray`
         Color returned in standardised RGBA format.
-
-    Notes
-    ---------
-
-    This will not modify other named colors (e.g. linecolor, markercolor).
     """
     assert not ((c is not None) and (color is not None))
     for kw in [  # extra color kwargs
