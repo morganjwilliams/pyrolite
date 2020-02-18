@@ -69,7 +69,8 @@ def process_color(
     norm=None,
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
-    **otherkwargs
+    color_mappings={},
+    **otherkwargs,
 ):
     """
     Color argument processing for pyrolite plots, returning a standardised output.
@@ -108,7 +109,11 @@ def process_color(
     ]:
         if kw in otherkwargs:  # this allows processing of alpha with a given color
             otherkwargs[kw] = process_color(
-                c=otherkwargs[kw], alpha=alpha, cmap=cmap, norm=norm
+                c=otherkwargs[kw],
+                alpha=alpha,
+                cmap=cmap,
+                norm=norm,
+                color_mappings={"color": color_mappings.get(kw)},
             )["color"]
     if c is not None:
         C = c
@@ -148,14 +153,23 @@ def process_color(
             )
             C = cmap(norm(C))
         elif cmode == "categories":
-            cmap = cmap or DEFAULT_DISC_COLORMAP
-            if isinstance(cmap, str):
-                cmap = plt.get_cmap(cmap)
-            _C = np.ones_like(C, dtype="int") * np.nan
             uniqueC = np.unique(C)
-            for ix, cat in enumerate(uniqueC):
-                _C[C == cat] = ix / len(uniqueC)
-            C = cmap(_C)
+            cmapper = color_mappings.get("color")
+            if cmapper is None:
+                _C = np.ones_like(C, dtype="int") * np.nan
+
+                cmap = cmap or DEFAULT_DISC_COLORMAP
+                if isinstance(cmap, str):
+                    cmap = plt.get_cmap(cmap)
+
+                for ix, cat in enumerate(uniqueC):
+                    _C[C == cat] = ix / len(uniqueC)
+                C = cmap(_C)
+            else:
+                _C = C.copy()
+                for cat in uniqueC:
+                    _C[C == cat] = cmapper.get(cat)  # get the mapping frome the dict
+                C = np.array([matplotlib.colors.to_rgba(ic) for ic in _C])
         else:
             pass
         if alpha is not None:
