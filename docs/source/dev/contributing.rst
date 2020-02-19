@@ -31,7 +31,7 @@ Bug Reports
 -------------------------
 
 If you've tried to do something with :code:`pyrolite`, but it didn't work, and googling
-erro messages didn't help (or, if the error messages are full of
+error messages didn't help (or, if the error messages are full of
 :code:`pyrolite.XX.xx`), you can submit a
 `Bug Report <https://github.com/morganjwilliams/pyrolite/issues/new?assignees=morganjwilliams&labels=bug&template=bug-report.md>`__ .
 Perhaps also check the

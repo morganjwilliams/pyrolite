@@ -1,7 +1,6 @@
 Changelog
 =============
 
-
 All notable changes to this project will be documented here.
 
 Todo
@@ -24,6 +23,9 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+`0.2.5`_
+--------------
+
 * PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
   diagram example to add a link to the normalisation example (which lists
   different reservoirs you can normalise to).
@@ -31,8 +33,6 @@ Todo
   `Getting Started page <../gettingstarted.html#importing-data>`__.
 * Disabled automatic extension loading (e.g. for :mod:`pyrolite_meltsutil`) to
   avoid bugs during version mismatches.
-* Moved :func:`~pyrolite.util.general.check_perl` out of :mod:`pyrolite` into
-  :mod:`pyrolite_meltsutil`
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +60,11 @@ Todo
 * Updated the effect of :code:`relim` keyword argument of
   :func:`~pyrolite.plot.density.density` to remove the scaling (it will no longer
   log-scale the axes, just the grid/histogram bins).
+* Updated :class:`~pyrolite.plot.ternary.grid.Grid` to accept an x-y tuple to specify
+  numbers of bins in each direction within a grid (e.g. :code:`bins=(20, 40)`)
+* Updated the grids used in some of the :func:`~pyrolite.plot.density.density`
+  methods to be edges, lining up the arrays such that shading parameters
+  will work as expected (e.g. :code:`shading='gouraud'`)
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +74,11 @@ Todo
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 * Minor bugfix for :func:`~pyrolite.mineral.mindb.update_database`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+* Moved :func:`~pyrolite.util.general.check_perl` out of :mod:`pyrolite` into
+  :mod:`pyrolite_meltsutil`
 
 `0.2.4`_
 --------------
@@ -806,6 +816,7 @@ Todo
     but were :code:`alpha` versions which were never considered stable.
 
 .. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...develop
+.. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
 .. _0.2.2: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...0.2.2
