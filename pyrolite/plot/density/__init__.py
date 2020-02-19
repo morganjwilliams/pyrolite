@@ -170,14 +170,15 @@ def density(
                 mappable = im
 
             elif mode == "density":
-                zi = grid.kdefrom(
+                zei = grid.kdefrom(
                     arr,
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
+                    mode="edges",
                 )
 
                 if percentiles:  # 98th percentile
-                    vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
+                    vmin = percentile_contour_values_from_meshz(zei, [1.0 - vmin])[1][0]
                     logger.debug(
                         "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
                     )
@@ -187,7 +188,7 @@ def density(
                     mappable = pcolor(
                         grid.grid_xei,
                         grid.grid_yei,
-                        zi,
+                        zei,
                         cmap=cmap,
                         vmin=vmin,
                         shading=shading,
@@ -198,9 +199,9 @@ def density(
                     mappable.set_lw(0.0)
             if contours:
                 mappable = _add_contours(
-                    grid.grid_xci,
-                    grid.grid_yci,
-                    zi=zi.reshape(grid.grid_xci.shape),
+                    grid.grid_xei,
+                    grid.grid_yei,
+                    zi=zei.reshape(grid.grid_xei.shape),
                     ax=ax,
                     contours=contours,
                     percentiles=percentiles,
