@@ -1,7 +1,3 @@
-.. automodule:: pyrolite.mineral
-    :members:
-    :undoc-members:
-
 .. note:: This module is a work in progress and will be gradually updated.
 
 pyrolite\.mineral\.template

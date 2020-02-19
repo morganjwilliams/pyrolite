@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
 from pyrolite.plot.stem import stem
+
 # sphinx_gallery_thumbnail_number = 2
 
 np.random.seed(82)
@@ -24,14 +25,19 @@ y = np.random.rand(10)
 df = pd.DataFrame(np.vstack([x, y]).T, columns=["Depth", "Fe3O4"])
 ########################################################################################
 # A minimal stem plot can be constructed as follows:
-ax = stem(df.Depth, df.Fe3O4, figsize=(5, 3))
-# or, alternatively directly from the dataframe:
-ax = df.pyroplot.stem(figsize=(5, 3))
+ax = df.pyroplot.stem(color="k", figsize=(5, 3))
 ########################################################################################
 # Stem plots can also be used in a vertical orientation, such as for visualising
 # discrete observations down a drill hole:
 #
-ax = df.pyroplot.stem(orientation="vertical", figsize=(3, 5))
+ax = df.pyroplot.stem(
+    orientation="vertical",
+    s=12,
+    linestyle="--",
+    linewidth=0.5,
+    color="k",
+    figsize=(3, 5),
+)
 # the yaxes can then be inverted using:
 ax.invert_yaxis()
 # and if you'd like the xaxis to be labeled at the top:

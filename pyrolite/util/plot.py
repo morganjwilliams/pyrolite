@@ -99,6 +99,7 @@ def linekwargs(kwargs):
         matplotlib.lines.Line2D,
         matplotlib.collections.Collection,
     )
+    # could trim cmap and norm here, in case they get passed accidentally
     kw.update(
         **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
     )  # issues with introspection for alpha
@@ -283,9 +284,17 @@ def init_axes(ax=None, projection=None, **kwargs):
             )
         else:  # axes passed
             if ax.name != "ternary":
-                ix = get_ordered_axes(ax.figure).index(ax)
-                axes = axes_to_ternary(ax)  # returns list of axes
-                ax = axes[ix]
+                # if an axis is converted previously, but the original axes reference
+                # is used again, we'll end up with an error
+                current_axes = get_ordered_axes(ax.figure)
+                try:
+                    ix = current_axes.index(ax)
+                    axes = axes_to_ternary(ax)  # returns list of axes
+                    ax = axes[ix]
+                except ValueError: #ax is not in list
+                    # ASSUMPTION due to mis-referencing:
+                    # take the first ternary one
+                    ax = [a for a in current_axes if a.name =='ternary'][0]
             else:
                 pass
     else:

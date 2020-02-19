@@ -87,7 +87,6 @@ def spider(
     Todo
     -----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
-        * Conflicts between scatter and plot methods (e.g. marker edges, linewidth etc)
         * Legend entries
 
     .. seealso::
@@ -180,9 +179,10 @@ def spider(
                 **{"percentiles": kwargs["contours"]},
             }
             plot_Z_percentiles(  # pass all relevant kwargs including contours
-                xi, yi, zi=zi, ax=ax, cmap=cmap, **pzpkwargs
+                xi, yi, zi=zi, ax=ax, cmap=cmap, vmin=vmin, **pzpkwargs
             )
         else:
+            zi[zi < vmin] = np.nan
             ax.pcolormesh(
                 xe, ye, zi, cmap=cmap, vmin=vmin, *subkwargs(kwargs, ax.pcolormesh)
             )

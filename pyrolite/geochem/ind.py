@@ -10,6 +10,7 @@ import re
 import sys
 import functools
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import periodictable as pt
 from tinydb import TinyDB, Query
@@ -355,6 +356,52 @@ def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling
         return result.values[0]  # return the specific number
     else:
         return result  # return the series
+
+
+def by_incompatibility(els, reverse=False):
+    """
+    Order a list of elements by their relative 'incompatibility' given by
+    a proxy of the relative abundances in Bulk Continental Crust over
+    a Primitive Mantle Composition.
+
+    Parameters
+    ------------
+    els : :class:`list`
+        List of element names to be reodered.
+    reverse : :class:`bool`
+        Whether to reverse the ordering.
+
+    Returns
+    ---------
+    :class:`list`
+        Reordered list of elements.
+
+    Notes
+    -----
+
+    Some elements are missing from this list, as as such will be omitted.
+    """
+    incomp = [
+        ["Tl", "Cs", "I", "W", "Rb", "Ba", "Th", "Bi", "Pb", "K", "U", "B"],
+        ["Sb", "As", "Be", "La", "Ce", "F", "Pr", "Mo", "Ta", "Nd", "Sr", "Nb"],
+        ["Zr", "Hf", "Sn", "Br", "Li", "Ag", "Sm", "Na", "Cl", "Eu", "Gd"],
+        ["Tb", "P", "Hg", "Dy", "Ho", "Y", "Er", "Lu", "Yb", "Tm", "Ga", "Al"],
+        ["Ti", "In", "Cd", "S", "Ca", "Se", "V", "Cu", "Zn", "Sc", "Si", "Ge"],
+        ["Fe", "Au", "Mn", "Re", "Co", "Pd", "Pt", "Mg", "Ru", "Cr", "Ni"],
+        ["Ir", "Os"],
+    ]
+    incomp = [i for part in incomp for i in part]
+    missing = np.array([el not in incomp for el in els])
+    if missing.any():
+        logger.warning(
+            "Some elements could not be ordered: {}.".format(
+                ",".join([els[m] for m in np.argwhere(missing).flatten()])
+            )
+        )
+    if reverse:
+        return [i for i in incomp[::-1] if i in els]
+    else:
+        return [i for i in incomp if i in els]
 
 
 get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(

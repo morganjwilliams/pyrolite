@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-import scipy.stats as scpstats
-import scipy.special as scpspec
+import scipy.stats
+import scipy.special
 
 # from .renorm import renormalise, close
 from ..util.math import orthogonal_basis_default, orthogonal_basis_from_array
@@ -276,7 +276,7 @@ def boxcox(
 
     if lmbda is None:
         l_search = np.linspace(*lmbda_search_space, search_steps)
-        llf = np.apply_along_axis(scpstats.boxcox_llf, 0, np.array([l_search]), _X.T)
+        llf = np.apply_along_axis(scipy.stats.boxcox_llf, 0, np.array([l_search]), _X.T)
         if llf.shape[0] == 1:
             mean_llf = llf[0]
         else:
@@ -284,11 +284,11 @@ def boxcox(
 
         lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
     if _X.ndim < 2:
-        out = scpstats.boxcox(_X, lmbda)
+        out = scipy.stats.boxcox(_X, lmbda)
     elif _X.shape[0] == 1:
-        out = scpstats.boxcox(np.squeeze(_X), lmbda)
+        out = scipy.stats.boxcox(np.squeeze(_X), lmbda)
     else:
-        out = np.apply_along_axis(scpstats.boxcox, 0, _X, lmbda)
+        out = np.apply_along_axis(scipy.stats.boxcox, 0, _X, lmbda)
 
     if isinstance(_X, pd.DataFrame) or isinstance(_X, pd.Series):
         _out = X.copy()
@@ -317,7 +317,7 @@ def inverse_boxcox(Y: np.ndarray, lmbda):
     :class:`numpy.ndarray`
         Inverse Box-Cox transformed array.
     """
-    return scpspec.inv_boxcox(Y, lmbda)
+    return scipy.special.inv_boxcox(Y, lmbda)
 
 
 def logratiomean(df, transform=clr, inverse_transform=inverse_clr):

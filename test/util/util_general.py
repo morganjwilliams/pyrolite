@@ -51,13 +51,6 @@ class TestSwapItem(unittest.TestCase):
                 self.assertTrue(result[L.index(pull)] == push)
 
 
-class TestCheckPerl(unittest.TestCase):
-    """Tests the check for a working perl installation."""
-
-    def test_check_perl(self):
-        val = check_perl()
-        self.assertTrue(isinstance(val, bool))
-
 
 class TestCopyFile(unittest.TestCase):
     """Tests copy_file utility function."""

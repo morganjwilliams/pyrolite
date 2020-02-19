@@ -20,12 +20,14 @@
 pip install pyrolite
 ```
 
+For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/master/gettingstarted.html).
+
+
 ### Contributing
 
 The long-term aim of this project is to be designed, built and supported by (and for)
 the geochemistry community. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
 Contributing page](https://pyrolite.readthedocs.io/en/latest/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/latest/conduct.html).
-
 
 ### Development & Build Status
 

@@ -147,7 +147,7 @@ def update_database(path=None, **kwargs):
     mindf = pd.read_csv(pyrolite_datafolder(subfolder="mineral") / "mins.csv")
     mindf = mindf.reindex(
         columns=mindf.columns.tolist()
-        + [str(a) for a in pt.formula(" ".join(mindf.formula.to_list())).atoms]
+        + [str(a) for a in pt.formula(" ".join(list(mindf.formula.values))).atoms]
     )
     for ix in mindf.index:  # add elemental compositions
         el = parse_composition(pt.formula(mindf.loc[ix, "formula"]))

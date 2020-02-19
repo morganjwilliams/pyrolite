@@ -58,11 +58,9 @@ pyrolite\.mineral
 ---------------------
 
   .. automodule:: pyrolite.mineral
-     :members:
-     :undoc-members:
 
   .. toctree::
-     :maxdepth: 2
+     :maxdepth: 1
 
      mineral
 
@@ -70,8 +68,6 @@ pyrolite\.util
 -------------------------------
 
   .. automodule:: pyrolite.util
-    :members:
-    :undoc-members:
 
   .. toctree::
     :maxdepth: 2

@@ -82,7 +82,8 @@ def recalc_cations(
     moles = moles.where(~np.isclose(moles, 0.0), np.nan)
 
     # determine whether oxygen is an open or closed system
-    count_iron_species = np.array([i in moles.columns for i in Fe_species]).sum()
+    Fe_species = [i for i in moles if i in Fe_species] # keep dataframe ordering
+    count_iron_species = len(Fe_species)
     oxygen_constrained = oxygen_constrained
     if not oxygen_constrained:
         if count_iron_species > 1:  # check that only one is defined

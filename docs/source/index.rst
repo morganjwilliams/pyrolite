@@ -9,7 +9,7 @@ tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagram
 and numerous auxiliary utilities.
 
 - On this site you can browse the  `API <./api/API.html>`__, or look
-  through some of the `usage examples <./usage/examples.html>`__.
+  through some of the `usage examples <./examples/index.html>`__.
 
 - There's also a quick `installation guide <./installation.html>`__, a list of
   `recent changes <./dev/changelog.html>`__ and some notes on

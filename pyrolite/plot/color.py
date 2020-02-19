@@ -1,7 +1,8 @@
 import numpy as np
+import pandas as pd
 import matplotlib.colors
 import matplotlib.pyplot as plt
-from pyrolite.util.plot import DEFAULT_CONT_COLORMAP
+from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 
 def get_cmode(c=None):
@@ -30,7 +31,7 @@ def get_cmode(c=None):
             pass
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
-            if isinstance(c, (np.ndarray, list)):
+            if isinstance(c, (np.ndarray, list, pd.Series)):
                 c = np.array(c)
                 if all([isinstance(_c, (np.ndarray, list, tuple)) for _c in c]):
                     # could have an error if you put in mixed rgb/rgba
@@ -41,12 +42,16 @@ def get_cmode(c=None):
                     else:
                         pass
                 elif all([isinstance(_c, str) for _c in c]):
-                    if all([_c.startswith("#") for _c in c]):
-                        cmode = "hex_array"
-                    elif not any([_c.startswith("#") for _c in c]):
-                        cmode = "named_array"
-                    else:
-                        cmode = "mixed_str_array"
+                    try:
+                        _ = matplotlib.colors.to_rgba(c[0])
+                        if all([_c.startswith("#") for _c in c]):
+                            cmode = "hex_array"
+                        elif not any([_c.startswith("#") for _c in c]):
+                            cmode = "named_array"
+                        else:
+                            cmode = "mixed_str_array"
+                    except ValueError:  # string cannot be converted to color
+                        cmode = "categories"
                 elif all([isinstance(_c, (np.float, np.int)) for _c in c]):
                     cmode = "value_array"
                 else:
@@ -64,7 +69,8 @@ def process_color(
     norm=None,
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
-    **otherkwargs
+    color_mappings={},
+    **otherkwargs,
 ):
     """
     Color argument processing for pyrolite plots, returning a standardised output.
@@ -81,25 +87,50 @@ def process_color(
         Alpha to modulate color opacity.
     norm : :class:`~matplotlib.colors.Normalize`
         Normalization for the colormap.
+    cmap_under : :class:`str` | :class:`tuple`
+        Color for values below the lower threshold for the cmap.
+    color_converter
+        Function to use to convert colors (from strings, hex, tuples etc).
+    color_mappings : :class:`dict`
+        Dictionary containing category-color mappings for individual color variables,
+        with the default color mapping having the key 'color'. For use where
+        categorical values are specified for a color variable.
 
     Returns
     --------
     C : :class:`tuple` | :class:`numpy.ndarray`
         Color returned in standardised RGBA format.
-
-    Notes
-    ---------
-
-    This will not modify other named colors (e.g. linecolor, markercolor).
     """
     assert not ((c is not None) and (color is not None))
-
+    for kw in [  # extra color kwargs
+        "markerfacecolor",
+        "markeredgecolor",
+        "edgecolors",
+        "linecolor",
+        "ecolor",
+        "facecolor",
+    ]:
+        if kw in otherkwargs:  # this allows processing of alpha with a given color
+            otherkwargs[kw] = process_color(
+                c=otherkwargs[kw],
+                alpha=alpha,
+                cmap=cmap,
+                norm=norm,
+                color_mappings={"color": color_mappings.get(kw)},
+            )["color"]
     if c is not None:
         C = c
     elif color is not None:
         C = color
     else:
-        return {"c": c, "color": color, "cmap": cmap, "norm": norm, **otherkwargs}
+        return {
+            **{
+                k: v
+                for k, v in {"c": c, "color": color, "cmap": cmap, "norm": norm}.items()
+                if v is not None
+            },
+            **otherkwargs,
+        }
 
     cmode = get_cmode(C)
     _c, _color = None, None
@@ -109,6 +140,7 @@ def process_color(
             C = (*C[:-1], alpha)  # can't assign to tuple, create new one instead
         _c, _color = np.array([C]), C  # Convert to standardised form
     else:
+        C = np.array(C)
         if cmode in ["hex_array", "named_array", "mixed_str_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["rgb_array", "rgba_array"]:
@@ -123,23 +155,30 @@ def process_color(
                 vmin=np.nanmin(np.array(c)), vmax=np.nanmax(np.array(c))
             )
             C = cmap(norm(C))
+        elif cmode == "categories":
+            uniqueC = np.unique(C)
+            cmapper = color_mappings.get("color")
+            if cmapper is None:
+                _C = np.ones_like(C, dtype="int") * np.nan
+
+                cmap = cmap or DEFAULT_DISC_COLORMAP
+                if isinstance(cmap, str):
+                    cmap = plt.get_cmap(cmap)
+
+                for ix, cat in enumerate(uniqueC):
+                    _C[C == cat] = ix / len(uniqueC)
+                C = cmap(_C)
+            else:
+                _C = C.copy()
+                for cat in uniqueC:
+                    _C[C == cat] = cmapper.get(cat)  # get the mapping frome the dict
+                C = np.array([matplotlib.colors.to_rgba(ic) for ic in _C])
         else:
             pass
         if alpha is not None:
             C[:, -1] = alpha
         _c, _color = C, C
 
-    for kw in [ # extra color kwargs
-        "markerfacecolor",
-        "markeredgecolor",
-        "linecolor",
-        "ecolor",
-        "facecolor",
-    ]:
-        if kw in otherkwargs: # this allows processing of alpha with a given color
-            otherkwargs[kw] = process_color(
-                c=otherkwargs[kw], alpha=alpha, cmap=cmap, norm=norm
-            )["color"]
     return {"c": _c, "color": _color, **otherkwargs}
 
 

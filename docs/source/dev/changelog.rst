@@ -1,8 +1,20 @@
 Changelog
 =============
 
-
 All notable changes to this project will be documented here.
+
+Todo
+------
+
+* FEATURE: Updates to include more lithogeochemical plot templates
+  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
+* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
+  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
+* BUG: Conditional density spider plots should have bins centred on the element indexes
+  (currently this is an edge)
+* BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
+  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
+
 
 `Development`_
 --------------
@@ -11,14 +23,62 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-Todo
-~~~~~~~
+`0.2.5`_
+--------------
 
-* Index memory for :func:`~pyrolite.plot.spider.spider`
-  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-* Updates to include more lithogeochemical plot templates
-  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+* PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
+  diagram example to add a link to the normalisation example (which lists
+  different reservoirs you can normalise to).
+* Added an 'Importing Data' section to the docs
+  `Getting Started page <../gettingstarted.html#importing-data>`__.
+* Disabled automatic extension loading (e.g. for :mod:`pyrolite_meltsutil`) to
+  avoid bugs during version mismatches.
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :class:`pyrolite.comp.pyrocomp` dataframe accessor API to include
+  reference to compositional data log transform functions within
+  :mod:`pyrolite.comp.codata`
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added support for spider plot index ordering added with the keyword
+  :code:`index_order` (`#30 <https://github.com/morganjwilliams/pyrolite/issues/30>`__)
+* Added support for color indexing in :mod:`~pyrolite.plot.color` using
+  :class:`pandas.Series`, and also for list-like arrays of categories
+* Added a workaround for referring to axes positions where the projection is changed
+  to a ternary projection (displacing the original axis), but the reference to the
+  original axes object (now booted from :code:`fig.axes`/:code:`fig.orderedaxes`) is
+  subsequently used.
+* Updated :func:`~pyrolite.plot.color.process_color` processing of auxillary
+  color keyword arguments (fixing a bug for color arguments in
+  :func:`~pyrolite.plot.stem`)
+* Added support for a :code:`color_mappings` keyword argument for mapping
+  categorical variables to specific colors.
+* Updated the effect of :code:`relim` keyword argument of
+  :func:`~pyrolite.plot.density.density` to remove the scaling (it will no longer
+  log-scale the axes, just the grid/histogram bins).
+* Updated :class:`~pyrolite.plot.ternary.grid.Grid` to accept an x-y tuple to specify
+  numbers of bins in each direction within a grid (e.g. :code:`bins=(20, 40)`)
+* Updated the grids used in some of the :func:`~pyrolite.plot.density.density`
+  methods to be edges, lining up the arrays such that shading parameters
+  will work as expected (e.g. :code:`shading='gouraud'`)
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Added sorting function :code:`~pyrolite.geochem.ind.by_imcompatibility`
+  for incompatible element sorting (based on BCC/PM relative abundances).
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* Minor bugfix for :func:`~pyrolite.mineral.mindb.update_database`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+* Moved :func:`~pyrolite.util.general.check_perl` out of :mod:`pyrolite` into
+  :mod:`pyrolite_meltsutil`
 
 `0.2.4`_
 --------------
@@ -756,6 +816,7 @@ Todo
     but were :code:`alpha` versions which were never considered stable.
 
 .. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...develop
+.. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
 .. _0.2.2: https://github.com/morganjwilliams/pyrolite/compare/0.2.1...0.2.2

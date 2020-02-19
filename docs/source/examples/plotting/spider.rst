@@ -67,12 +67,37 @@ processes:
 .. code-block:: default
 
     normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-    normdf.pyroplot.spider(color="k", unity_line=True)
+    ax = normdf.pyroplot.spider(color="k", unity_line=True)
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
     plt.show()
 
 
 
 .. image:: /examples/plotting/images/sphx_glr_spider_002.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+The default ordering here follows that of the dataframe columns, but we typically
+want to reorder these based on some physical ordering. A :code:`index_order` keyword
+argument can be used to supply a function which will reorder the elements before
+plotting. Here we order the elements by relative incompatiblity using
+:func:`pyrolite.geochem.ind.order_incompatibility`:
+
+
+.. code-block:: default
+
+    from pyrolite.geochem.ind import by_incompatibility
+
+    ax = normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
+    plt.show()
+
+
+
+.. image:: /examples/plotting/images/sphx_glr_spider_003.png
     :class: sphx-glr-single-img
 
 
@@ -112,12 +137,19 @@ We could now plot the range of compositions as a filled range:
 
 .. code-block:: default
 
-    distdf.pyroplot.spider(mode="fill", color="green", alpha=0.5, unity_line=True)
+    ax = distdf.pyroplot.spider(
+        mode="fill",
+        color="green",
+        alpha=0.5,
+        unity_line=True,
+        index_order=by_incompatibility,
+    )
+    ax.set_ylabel('X / $X_{Primitive Mantle}$')
     plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_003.png
+.. image:: /examples/plotting/images/sphx_glr_spider_004.png
     :class: sphx-glr-single-img
 
 
@@ -131,19 +163,23 @@ Alternatively, we can plot a conditional density spider plot:
 .. code-block:: default
 
     fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
-    _ = distdf.pyroplot.spider(ax=ax[0], color="k", alpha=0.05, unity_line=True)
-    _ = distdf.pyroplot.spider(
+    distdf.pyroplot.spider(
+        ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=by_incompatibility
+    )
+    distdf.pyroplot.spider(
         ax=ax[1],
         mode="binkde",
-        cmap="viridis",
-        vmin=0.05,  # minimum percentile,
+        vmin=0.05,  # 95th percentile,
         resolution=10,
-        unity_line=True
+        unity_line=True,
+        index_order=by_incompatibility,
     )
+    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
+    plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_004.png
+.. image:: /examples/plotting/images/sphx_glr_spider_005.png
     :class: sphx-glr-single-img
 
 
@@ -183,7 +219,7 @@ modes for spider plots:
     fig, ax = plt.subplots(
         down, across, sharey=True, sharex=True, figsize=(across * 8, 2 * down)
     )
-
+    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
     for a, (m, name, args, kwargs) in zip(ax, modes):
         a.annotate(  # label the axes rows
             "Mode: {}".format(name),
@@ -198,10 +234,10 @@ modes for spider plots:
         distdf.pyroplot.spider(
             mode=m,
             ax=ax[mix],
-            cmap="viridis",
             vmin=0.05,  # minimum percentile
             fontsize=8,
             unity_line=True,
+            index_order=by_incompatibility,
             *args,
             **kwargs
         )
@@ -210,7 +246,7 @@ modes for spider plots:
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_005.png
+.. image:: /examples/plotting/images/sphx_glr_spider_006.png
     :class: sphx-glr-single-img
 
 
@@ -223,7 +259,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  20.023 seconds)
+   **Total running time of the script:** ( 0 minutes  31.210 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:
