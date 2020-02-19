@@ -68,7 +68,7 @@ Todo
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-* Added sorting function :code:`~pyrolite.geochem.ind.by_imcompatibility`
+* Added sorting function :code:`~pyrolite.geochem.ind.by_incompatibility`
   for incompatible element sorting (based on BCC/PM relative abundances).
 
 :mod:`pyrolite.mineral`
@@ -815,7 +815,7 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...develop
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
