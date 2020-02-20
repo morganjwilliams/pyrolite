@@ -6,3 +6,4 @@ exclude_paths:
   - 'versioneer.py'
   - 'pyrolite/_version.py'
   - 'test/**'
+  - '.github/**'
