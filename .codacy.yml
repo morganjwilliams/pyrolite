@@ -1,0 +1,8 @@
+exclude_paths:
+  - 'draft/**'
+  - 'binder/**'
+  - 'docs/**'
+  - 'paper/**'
+  - 'versioneer.py'
+  - 'pyrolite/_version.py'
+  - 'test/**'
