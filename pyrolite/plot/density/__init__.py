@@ -2,23 +2,20 @@
 
 """
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 import logging
 
 from ...comp.codata import close
-from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
-from ...util.distributions import sample_kde
 from ...util.plot import (
     add_colorbar,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
     DEFAULT_CONT_COLORMAP,
-    DEFAULT_DISC_COLORMAP,
     init_axes,
     get_axis_density_methods,
 )
 from ...util.meta import get_additional_params, subkwargs
-
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
 
@@ -100,6 +97,7 @@ def density(
             :func:`matplotlib.pyplot.pcolormesh`
             :func:`matplotlib.pyplot.hist2d`
             :func:`matplotlib.pyplot.contourf`
+
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
@@ -140,10 +138,6 @@ def density(
                 extent=extent,
                 **subkwargs(kwargs, DensityGrid)
             )
-            xs, ys = grid.grid_xc, grid.grid_yc
-            xci, yci = grid.grid_xci, grid.grid_yci
-            xe, ye = grid.grid_xe, grid.grid_ye
-            xei, yei = grid.grid_xei, grid.grid_yei
             if mode == "hexbin":
                 # extent values are exponents (i.e. 3 -> 10**3)
                 mappable = ax.hexbin(
@@ -161,7 +155,7 @@ def density(
                 zi, xe, ye, im = ax.hist2d(
                     x,
                     y,
-                    bins=[xe, ye],
+                    bins=[grid.grid_xe, grid.grid_ye],
                     range=grid.get_range(),
                     cmap=cmap,
                     cmin=[0, 1][vmin > 0],

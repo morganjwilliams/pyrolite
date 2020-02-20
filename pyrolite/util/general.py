@@ -39,7 +39,7 @@ class Timewith:
         self.checkpoints.append((name, elapsed))
 
     def __enter__(self):
-        """Object returned on entry"""
+        """Object returned on entry."""
         return self
 
     def __exit__(self, type, value, traceback):
