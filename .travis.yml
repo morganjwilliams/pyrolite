@@ -25,4 +25,4 @@ script:
 after_success:
   - "ls -lr htmlcov"
   - coveralls # coverage to coveralls.io
-  - bash <(curl -Ls https://coverage.codacy.com/get.sh) # coverage to codacy.com
+  - python-codacy-coverage -r coverage.xml
