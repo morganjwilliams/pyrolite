@@ -13,9 +13,9 @@ jobs:
 
 before_install:
   - sudo apt-get install jq curl
-  
+
 install:
-  - pip install -q pytest pytest-runner pytest-cov coverage
+  - pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
   - pip install coveralls
   - pip install -e .[skl] # install skl dependencies
 
