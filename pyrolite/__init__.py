@@ -1,3 +1,6 @@
+"""
+pyrolite: A set of tools for getting the most from your geochemical data.
+"""
 import sys
 import logging
 import importlib
