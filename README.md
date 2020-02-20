@@ -32,6 +32,7 @@ Contributing page](https://pyrolite.readthedocs.io/en/latest/contributing.html) 
 ### Development & Build Status
 
 [![Formatted with Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Code Quality](https://api.codacy.com/project/badge/Grade/fd9912a3faae43bf84a47e3da685d84c)](https://www.codacy.com/manual/morganjwilliams/pyrolite?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=morganjwilliams/pyrolite&amp;utm_campaign=Badge_Grade)
 
 | **master** | **develop** |
 |:----------:|:-----------:|
