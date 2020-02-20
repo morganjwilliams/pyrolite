@@ -26,8 +26,7 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
 class ColumnSelector(BaseEstimator, TransformerMixin):
     def __init__(self, columns):
-        """
-        Select specific columns from a dataframe for further transformation.
+        """Select specific columns from a dataframe for further transformation.
         """
         self.columns = columns
 
@@ -48,8 +47,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 class CompositionalSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None, inverse=False):
-        """
-        Select the oxide and element components from a dataframe.
+        """Select the oxide and element components from a dataframe.
         """
         if components is None:
             components = __common_elements__ | __common_oxides__
@@ -71,8 +69,7 @@ class CompositionalSelector(BaseEstimator, TransformerMixin):
 
 class MajorsSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None):
-        """
-        Select the major element oxides from a dataframe.
+        """Select the major element oxides from a dataframe.
         """
         if components is None:
             components = __common_oxides__
@@ -90,8 +87,7 @@ class MajorsSelector(BaseEstimator, TransformerMixin):
 
 class ElementSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None):
-        """
-        Select the (trace) elements from a dataframe.
+        """Select the (trace) elements from a dataframe.
         """
         if components is None:
             components = __common_elements__
@@ -109,8 +105,7 @@ class ElementSelector(BaseEstimator, TransformerMixin):
 
 class REESelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None):
-        """
-        Select the Rare Earth Elements (REE) from a dataframe.
+        """Select the Rare Earth Elements (REE) from a dataframe.
         """
         if components is None:
             components = REE()
