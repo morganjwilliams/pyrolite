@@ -3,9 +3,9 @@ import numpy as np
 import periodictable as pt
 from collections import OrderedDict
 import scipy.optimize
-from .sites import *
-from .transform import *
-from .mindb import get_mineral
+from .sites import Site, MX, TX, OX
+from .transform import recalc_cations
+from .mindb import get_mineral, parse_composition
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -13,11 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class MineralTemplate(object):
-    """
-    Generic mineral stucture template. Formatted collection of crystallographic sites.
-    """
-
     def __init__(self, name, *components):
+        """
+        Generic mineral stucture template. Formatted collection of crystallographic sites.
+        """
         self.name = name
         self.structure = {}
         self.site_occupancy = None
@@ -71,8 +70,6 @@ class MineralTemplate(object):
         if self.structure != {}:
             structure = self.structure
             c_list = []
-            names = [c.name for c in list(structure)]
-            counts = [structure[c] for c in list(structure)]
             for site in list(structure):
                 n, c = site.name, structure[site]
                 if c > 1:
@@ -90,9 +87,8 @@ class MineralTemplate(object):
 
 
 class Mineral(object):
-    """Mineral, with structure and composition."""
-
     def __init__(self, name=None, template=None, composition=None, endmembers=None):
+        """Mineral, with structure and composition."""
         self.name = name
         self.template = None
         self.composition = None
@@ -116,22 +112,22 @@ class Mineral(object):
 
     def add_endmember(self, em, name=None):
         """Add a single endmember to the database."""
-        min = em
-        if isinstance(min, tuple):
-            name, min = min
-        if min is not None:
+        mineral = em
+        if isinstance(mineral, tuple):
+            name, mineral = mineral
+        if mineral is not None:
             # process different options for getting a mineral output
-            if isinstance(min, str):
-                name = name or str(min)
-                min = Mineral(name, None, pt.formula(get_mineral(em)["formula"]))
-            elif isinstance(min, pt.formulas.Formula):
-                name = name or str(min)
-                min = Mineral(name, None, min)
+            if isinstance(mineral, str):
+                name = name or str(mineral)
+                mineral = Mineral(name, None, pt.formula(get_mineral(em)["formula"]))
+            elif isinstance(mineral, pt.formulas.Formula):
+                name = name or str(mineral)
+                mineral = Mineral(name, None, mineral)
             else:
                 pass
 
-            name = name or min.name
-            self.endmembers[name] = min
+            name = name or mineral.name
+            self.endmembers[name] = mineral
 
     def set_template(self, template, name=None):
         """

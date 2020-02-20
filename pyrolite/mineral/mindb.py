@@ -4,7 +4,7 @@ import numpy as np
 import periodictable as pt
 from pathlib import Path
 from tinydb import TinyDB, Query
-from .transform import formula_to_elemental
+from .transform import formula_to_elemental, merge_formulae
 from ..util.meta import pyrolite_datafolder
 from ..util.database import _list_tindyb_unique_values
 import logging
@@ -78,27 +78,52 @@ def get_mineral(name="", dbpath=None):
 
 def parse_composition(composition, drop_zeros=True):
     """
-    Parse a composition reference and return the composiiton as a :class:`~pandas.Series`
+    Parse a composition reference to provide an ionic elemental version in the form of a
+    :class:`~pandas.Series`. Currently accepts :class:`pandas.Series`,
+    :class:`periodictable.formulas.Formula`
+    and structures which will directly convert to :class:`pandas.Series`
+    (list of tuples, dict).
 
     Parameters
     -----------
-    composition : :class:`str` | :class:`periodictable.formulas.Formula`
+    composition : :class:`str` | :class:`periodictable.formulas.Formula` | :class:`pandas.Series`
+        Name of a mineral, a formula or composition as a series
+    drop_zeros : :class:`bool`
+        Whether to drop compositional zeros.
+
+    Returns
+    --------
+    mineral : :class:`pandas.Series`
+        Composition formatted as a series.
     """
-    mnrl = None
-    if composition in list_minerals():
-        mnrl = get_mineral(composition)
+    mineral = None
+    if composition is not None:
+        if isinstance(composition, pd.Series):
+            # convert to molecular oxides, then to formula, then to wt% elemental
+            components = [pt.formula(c) for c in composition.index]
+            values = composition.values
+            formula = merge_formulae(
+                [v / c.mass * c for v, c in zip(values, components)]
+            )
+            mineral = pd.Series(formula_to_elemental(formula))
+        elif isinstance(composition, pt.formulas.Formula):
+            mineral = pd.Series(formula_to_elemental(composition))
+        elif isinstance(composition, str):
+            if composition in list_minerals():
+                mineral = get_mineral(composition)
+            else:
+                try:  # formulae
+                    form = pt.formula(composition)
+                    mineral = pd.Series(formula_to_elemental(form))
+                    # could also check for formulae in the database, using f.atoms
+                except:
+                    pass
+        else:
+            mineral = parse_composition(pd.Series(composition))
 
-    try:  # formulae
-        form = pt.formula(composition)
-        mnrl = pd.Series(formula_to_elemental(form))
-        # could also check for formulae in the database, using f.atoms
-    except:
-        pass
-
-    assert mnrl is not None
-    if drop_zeros:
-        mnrl = mnrl[mnrl != 0]
-    return mnrl
+    if drop_zeros and mineral is not None:
+        mineral = mineral[mineral != 0]
+    return mineral
 
 
 def get_mineral_group(group=""):
