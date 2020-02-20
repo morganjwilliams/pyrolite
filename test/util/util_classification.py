@@ -47,45 +47,5 @@ class TestPeralkalinity(unittest.TestCase):
         df.loc[:, "Peralk"] = cm.classify(df)
 
 
-class TestApahnitic(unittest.TestCase):
-    """Tests the aphanitic rock classifier - yet to be implemented."""
-
-    def setUp(self):
-        pass
-
-    def test_classifer_rebuild(self):
-        cm = Petrology.aphanitic(rebuild=True)
-
-
-class TestPhaneritic(unittest.TestCase):
-    """Tests the phaneritic rock classifier - yet to be implemented."""
-
-    def setUp(self):
-        pass
-
-    def test_classifer_rebuild(self):
-        cm = Petrology.phaneritic(rebuild=True)
-
-
-class TestGabbroic(unittest.TestCase):
-    """Tests the gabbroic rock classifier - yet to be implemented."""
-
-    def setUp(self):
-        pass
-
-    def test_classifer_rebuild(self):
-        cm = Petrology.gabbroic(rebuild=True)
-
-
-class TestUltramafic(unittest.TestCase):
-    """Tests the ultramafic rock classifier - yet to be implemented."""
-
-    def setUp(self):
-        pass
-
-    def test_classifer_rebuild(self):
-        cm = Petrology.ultramafic(rebuild=True)
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -1,12 +1,19 @@
+"""
+Utilities for rock chemistry and mineral abundance classification.
+
+Todo:
+-------
+
+* Petrological classifiers: QAPF (aphanitic/phaneritic),
+  gabbroic Pyroxene-Olivine-Plagioclase,
+  ultramafic Olivine-Orthopyroxene-Clinopyroxene
+"""
 import os
-import sys
 from pathlib import Path
-import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
-from matplotlib.collections import PatchCollection
 import logging
 import joblib
 from pyrolite.util.meta import pyrolite_datafolder
@@ -17,6 +24,16 @@ logger = logging.getLogger(__name__)
 
 class ClassifierModel(object):
     def __init__(self, rebuild=False, deterministic=False):
+        """
+        Build a ClassifierModel
+
+        Parameters
+        -----------
+        rebuild : :class:`bool`
+            Whether to rebuild a classifer which already exists from source files.
+        deterministic : :class:`bool`
+            Whether the classifier is deterministic.
+        """
         self.clsf_modelname = str(type(self).__name__)
         if __name__ == "__main__":
             modeldir = Path(os.getcwd()) / "models"
@@ -31,7 +48,7 @@ class ClassifierModel(object):
         try:
             self.clsf = self.load_clsf(self.diskname.with_suffix(".clsf.gz"))
             # logger.info(f'Loaded {self.diskname}')
-        except:
+        except FileNotFoundError:
             self.rebuild_clsf()
 
     def rebuild_clsf(self):
@@ -169,57 +186,3 @@ class Geochemistry(object):
 
         def classify(self, df: pd.DataFrame):
             return self.clsf.predict(df, cols=["SiO2", "TotalAlkali"])
-
-
-class Petrology(object):
-    class aphanitic(ClassifierModel):
-        """
-        QAPF Diagram
-        """
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            # Build
-            clsf = "thing"
-            return clsf
-
-    class phaneritic(ClassifierModel):
-        """
-        QAPF Diagram
-        """
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            # Build
-            clsf = "thing"
-            return clsf
-
-    class gabbroic(ClassifierModel):
-        """
-        Pyroxene-Olivine-Plagioclase
-        """
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            # Build
-            clsf = "thing"
-            return clsf
-
-    class ultramafic(ClassifierModel):
-        """
-        Olivine-Orthopyroxene-Clinopyroxene
-        """
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            # Build
-            clsf = "thing"
-            return clsf
