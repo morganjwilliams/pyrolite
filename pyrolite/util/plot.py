@@ -20,14 +20,10 @@ USE_PCOLOR : :class:`bool`
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
 import os
-import inspect
 import itertools
 from copy import copy
-from types import MethodType
-from pathlib import Path
 import numpy as np
 from numpy.linalg import LinAlgError
-import pandas as pd
 from scipy.stats.kde import gaussian_kde
 import scipy.spatial
 import scipy.interpolate
@@ -41,7 +37,6 @@ import matplotlib.artist
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.axes
 from matplotlib.transforms import Bbox
-import mpltern.ternary
 from ..util.math import (
     eigsorted,
     nancov,
@@ -50,10 +45,9 @@ from ..util.math import (
     linspc_,
     logspc_,
 )
-from ..util.distributions import sample_kde, sample_ternary_kde
 from ..util.missing import cooccurence_pattern
 from ..util.meta import subkwargs
-from ..comp.codata import close, alr, ilr, clr, inverse_alr, inverse_clr, inverse_ilr
+from ..comp.codata import close
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -590,7 +584,7 @@ def add_colorbar(mappable, **kwargs):
     ----------
     :class:`matplotlib.colorbar.Colorbar`
 
-    Todo
+    Todo:
     ------
     *  Where no mappable specificed, get most recent axes, and check for collections etc
     """
@@ -1489,7 +1483,7 @@ def get_full_extent(ax, pad=0.0):
         passed, the padding will be as above, but for x and y directions, respectively.
 
     Returns
-    --------
+    -------
     :class:`matplotlib.transforms.Bbox`
         Bbox of the axes with optional additional padding.
     """
