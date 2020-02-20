@@ -1,16 +1,11 @@
-import os, sys
+import os
 import re
 import time
 import shutil
 from tempfile import mkdtemp
 import operator
-import inspect
-import zipfile
-import timeit
 from collections import Mapping
 from pathlib import Path
-import numpy as np
-import pandas as pd
 import datetime
 import logging
 
@@ -23,6 +18,7 @@ _FLAG_FIRST = object()
 
 class Timewith:
     def __init__(self, name=""):
+        """Timewith context manager."""
         self.name = name
         self.start = time.time()
         self.checkpoints = []
@@ -43,17 +39,19 @@ class Timewith:
         self.checkpoints.append((name, elapsed))
 
     def __enter__(self):
+        """Object returned on entry"""
         return self
 
     def __exit__(self, type, value, traceback):
+        """Code to execute on exit."""
         self.checkpoint("Finished")
         self.checkpoints.append(("Finished", self.elapsed))
 
 
 def temp_path(suffix=""):
     """Return the path of a temporary directory."""
-    dir = mkdtemp(suffix=suffix)
-    return Path(dir)
+    directory = mkdtemp(suffix=suffix)
+    return Path(directory)
 
 
 def flatten_dict(d, climb=False, safemode=False):
@@ -114,13 +112,13 @@ def flatten_dict(d, climb=False, safemode=False):
     return dict(items)
 
 
-def swap_item(list: list, pull: object, push: object):
+def swap_item(startlist: list, pull: object, push: object):
     """
     Swap a specified item in a list for another.
 
     Parameters
     ----------
-    list : :class:`list`
+    startlist : :class:`list`
         List to replace item within.
     pull
         Item to replace in the list.
@@ -131,7 +129,7 @@ def swap_item(list: list, pull: object, push: object):
     -------
     list
     """
-    return [[i, push][i == pull] for i in list]
+    return [[i, push][i == pull] for i in startlist]
 
 
 def copy_file(src, dst, ext=None, permissions=None):
@@ -177,24 +175,3 @@ def remove_tempdir(directory):
         assert not directory.exists()
     except PermissionError:
         pass
-
-
-def extract_zip(zipfile, output_dir):
-    """
-    Extracts a zipfile without the uppermost folder.
-
-    Parameters
-    ----------
-    zipfile: zipfile object
-        Zipfile object to extract.
-    output_dir: str | Path
-        Directory to extract files to.
-    """
-    output_dir = Path(output_dir)
-    if zipfile.testzip() is None:
-        for m in zipfile.namelist():
-            fldr, name = re.split("/", m, maxsplit=1)
-            if name:
-                content = zipfile.open(m, "r").read()
-                with open(str(output_dir / name), "wb") as out:
-                    out.write(content)
