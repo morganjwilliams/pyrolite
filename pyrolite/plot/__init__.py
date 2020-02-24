@@ -34,9 +34,8 @@ from ..comp.codata import close, ilr
 from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
-__all__ = ["density", "spider", "tern", "pyroplot"]
+__all__ = ["density", "spider", "pyroplot"]
 
-import pandas as pd
 
 # todo: global style variables
 FONTSIZE = 12
@@ -77,16 +76,15 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
 @pd.api.extensions.register_series_accessor("pyroplot")
 @pd.api.extensions.register_dataframe_accessor("pyroplot")
 class pyroplot(object):
-    """
-    Custom dataframe accessor for pyrolite plotting.
-
-    Notes
-    -----
-        This accessor enables the coexistence of array-based plotting functions and
-        methods for pandas objects. This enables some separation of concerns.
-    """
-
     def __init__(self, obj):
+        """
+        Custom dataframe accessor for pyrolite plotting.
+
+        Notes
+        -----
+            This accessor enables the coexistence of array-based plotting functions and
+            methods for pandas objects. This enables some separation of concerns.
+        """
         self._validate(obj)
         self._obj = obj
 
@@ -113,6 +111,7 @@ class pyroplot(object):
         --------
         :class:`matplotlib.axes.Axes`
             Axes on which the cooccurence plot is added.
+
         """
         obj = to_frame(self._obj)
         ax = plot_cooccurence(
@@ -155,6 +154,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the density diagram is plotted.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -202,6 +202,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the heatmapped scatterplot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -245,8 +246,9 @@ class pyroplot(object):
             Axes on which the parallel coordinates plot is added.
 
         Todo
-        ------
+        ----
         * Adapt figure size based on number of columns.
+
         """
 
         obj = to_frame(self._obj)
@@ -290,6 +292,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the plot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -326,6 +329,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the REE plot is added.
+
         """
         obj = to_frame(self._obj)
         ree = REE()
@@ -369,6 +373,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the scatterplot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -427,6 +432,7 @@ class pyroplot(object):
         Todo
         -----
             * Add 'compositional data' filter for default components if None is given
+
         """
         obj = to_frame(self._obj)
 
@@ -480,6 +486,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the stem diagram is plotted.
+        
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components, valid_sizes=[2])
