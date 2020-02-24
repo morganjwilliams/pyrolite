@@ -18,9 +18,8 @@ from .codata import (
     inverse_clr,
     inverse_ilr,
     inverse_boxcox,
+    logratiomean
 )
-from .aggregate import *
-from .impute import *
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrocomp")
