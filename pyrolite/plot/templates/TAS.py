@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from ...util.classification import Geochemistry
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 
@@ -17,6 +18,10 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
     color : :class:`str`
         Line color for the diagram.
 
+    Returns
+    -------
+    ax : :class:`matplotlib.axes.Axes`
+
     References
     -----------
     .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
@@ -25,10 +30,6 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
 
-
-    Returns
-    -------
-    ax : :class:`matplotlib.axes.Axes`
     """
     xlim, ylim = (30, 90), (0, 20)
     if ax is None:
