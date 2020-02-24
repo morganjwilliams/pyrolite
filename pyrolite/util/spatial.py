@@ -22,7 +22,7 @@ def _spherical_law_cosinse_GC_distance(ps):
     φ1, φ2 = ps[2:]  # latitude
     λ1, λ2 = ps[:2]  # longitude
     Δλ = np.abs(λ1 - λ2)
-    Δφ = np.abs(φ1 - φ2)
+    # Δφ = np.abs(φ1 - φ2)
     return np.arccos(np.sin(φ1) * np.sin(φ2) + np.cos(φ1) * np.cos(φ2) * np.cos(Δλ))
 
 
