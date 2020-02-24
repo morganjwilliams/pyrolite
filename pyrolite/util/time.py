@@ -158,8 +158,6 @@ def timescale_reference_frame(
 
 
 class Timescale(object):
-
-
     def __init__(self, filename=None):
         """
         Geological Timescale class to provide time-focused utility functions.

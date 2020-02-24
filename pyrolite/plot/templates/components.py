@@ -1,7 +1,6 @@
 import logging
 import numpy as np
 from pyrolite.util.meta import subkwargs
-import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.collections import PathCollection
 
@@ -10,16 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class GeometryCollection(object):
-    """
-    Container for geometry objects.
-    """
-
     def __init__(self, *objects, **kwargs):
+        """Container for geometry objects."""
         self.objects = []
         self.objects += list(objects)
         self.update_dict()
 
     def update_dict(self):
+        """Generate the dictionary for referencing objects by name."""
         self._objects = {o.name: o for o in self.objects}
 
     @property
@@ -37,25 +34,34 @@ class GeometryCollection(object):
         for p in self.points:
             p.add_to_axes(ax, **kwargs)
 
-    def __add__(self, object):
-        self.objects.append(object)
+    def __add__(self, obj):
+        """Add a component to the collection."""
+        self.objects.append(obj)
         self.update_dict()
         return self
 
     def __getitem__(self, name):
+        """Get a component referenced by name."""
         return self._objects[name]
 
     def __iter__(self):
+        """Iterate through components."""
         return (i for i in self.objects)
 
 
 class Point(object):
-    """
-    Simple container for a 2D point object with basic utility functions.
-    """
-
     def __init__(self, point, name=None, **kwargs):
-        # todo: add ability to define loglinear lines
+        """
+        Simple container for a 2D point object with basic utility functions.
+
+        Parameters
+        ----------
+        point : :class:`tuple`
+            x-y point.
+        name : :class:`str`
+            Name of the specific x-y point.
+
+        """
         self.name = name or None
         self.x, self.y = point
         self.kwargs = kwargs
@@ -73,6 +79,7 @@ class Point(object):
         --------
         :class:`matplotlib.collections.PathCollection`
             PathCollection as plotted on the axes.
+
         """
         return ax.scatter(
             self.x,
@@ -83,15 +90,6 @@ class Point(object):
 
 
 class Linear2D(object):
-    """
-    Simple container for a 2D line object with basic utility functions.
-
-    Attributes
-    ----------
-    intercept
-    func
-    """
-
     def in_tfm(self, x):
         return np.array(x)
 
@@ -108,7 +106,37 @@ class Linear2D(object):
         ylim=None,
         **kwargs
     ):
-        # todo: add ability to define loglinear lines
+        """
+        Simple container for a 2D line object with basic utility functions.
+        Lines can be generated from two points or a point and a slope.
+
+        Parameters
+        ----------
+        p0 : :class:`numpy.ndarray` | :class:`tuple`
+            An x-y point which the line passes through.
+        p1 : :class:`numpy.ndarray` | :class:`tuple`
+            Optionally specified x-y second point.
+        slope : :class:`float`
+            Optionally-specified slope of the line.
+        name : :class:`str`
+            Name of the specific line.
+        xlim : :class:`tuple`
+            Optionally-specified limits of extent in `x`.
+        ylim : :class:`tuple`
+            Optionally-specified limits of extent in `y`.
+
+        Attributes
+        ----------
+        slope : :class:`float`
+            Slope of the line.
+        intercept : :class:`float`
+            Y-intercept of the line.
+        func
+            Callable function to evaluate :math:`y = m \cdot x + c`.
+        invfunc
+            Callable function to evaluate :math:`x = (y - c) / m`.
+
+        """
         self.name = name or None
         self.xlim = None
         self.ylim = None
@@ -144,9 +172,8 @@ class Linear2D(object):
 
     @property
     def invfunc(self):
-        """
-        Get the function corresponding to the line parameterised as
-        x = (y-c) /m
+        """Get the function corresponding to the line parameterised as
+        :math:`x = (y-c) /m`.
         """
 
         def line(ys):
@@ -274,8 +301,9 @@ class Linear2D(object):
                 **{**self.kwargs, **subkwargs(kwargs, ax.plot, Line2D)}
             )
 
-    def __add__(self, object):
-        return GeometryCollection(self, object)
+    def __add__(self, obj):
+        """Add this object to another and get a :class:`GeometryCollection`"""
+        return GeometryCollection(self, obj)
 
 
 class LogLinear2D(Linear2D):
