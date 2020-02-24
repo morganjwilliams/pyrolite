@@ -31,17 +31,17 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
                 doi: {LeBas1992}
 
     """
-
+    TAS_xlim, TAS_ylim = (30, 90), (0, 20)
     if ax is None:
         fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
-        xlim, ylim = (30, 90), (0, 20)
+        xlim, ylim = TAS_xlim, TAS_ylim
     else:
         # if the axes limits are not defaults, update to reflect the axes
-        defaults = (0, 1)
+        ax_defaults = (0, 1)
         ax_xlim, ax_ylim = ax.get_xlim(), ax.get_ylim()
         xlim, ylim = (
-            [ax_xlim, xlim][np.allclose(ax_xlim, defaults)],
-            [ax_ylim, ylim][np.allclose(ax_ylim, defaults)],
+            [ax_xlim, TAS_xlim][np.allclose(ax_xlim, ax_defaults)],
+            [ax_ylim, TAS_ylim][np.allclose(ax_ylim, ax_defaults)],
         )
     tas = Geochemistry.TAS()
     tas.add_to_axes(ax=ax, **kwargs)

@@ -115,7 +115,7 @@ class SimpleDeterministicClassifer(object):
         for c, f in polys:
             label = f["names"]
             if not fill:
-                kwargs['facecolor'] = 'none'
+                kwargs["facecolor"] = "none"
             pg = Polygon(f["poly"], closed=True, edgecolor="k", **kwargs)
             pgns.append(pg)
             x, y = pg.get_xy().T
