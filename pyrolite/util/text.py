@@ -229,7 +229,7 @@ def slugify(value, delim="-"):
 
     Returns
     -------
-    :class:`str`    
+    :class:`str`
     """
     value = re.sub("[^\w\s-]", "", value).strip()
     value = re.sub("[-\s]+", delim, value)

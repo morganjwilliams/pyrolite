@@ -14,7 +14,7 @@ def iscollection(obj):
     Returns
     -------
     :class:`bool`
-        Boolean indication of whether the object is a collection.        
+        Boolean indication of whether the object is a collection.
     """
 
     for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
