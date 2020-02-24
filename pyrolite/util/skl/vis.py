@@ -1,7 +1,6 @@
 import logging
 import itertools
 import numpy as np
-import pandas as pd
 import scipy.stats
 import scipy.special
 import matplotlib.pyplot as plt
@@ -13,7 +12,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 try:
-    from sklearn.model_selection import GridSearchCV
     from sklearn.metrics import confusion_matrix
     import sklearn.datasets
     import sklearn.manifold
@@ -89,7 +87,6 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     """Plots the results from a GridSearch showing location of optimum in 2D."""
     labels = gs.param_grid.keys()
     grid_items = list(gs.param_grid.items())
-    no_items = len(grid_items)
     if (
         len(grid_items) == 1
     ):  # if there's only one item, there's only one way to plot it.
@@ -108,7 +105,7 @@ def plot_gs_results(gs, xvar=None, yvar=None):
                 yy = gs.param_grid[yvar]
                 (xvar, xx) = [(k, v) for (k, v) in grid_items if not k == yvar][0]
     xx, yy = np.array(xx), np.array(yy)
-    other_keys = [i for i in gs.param_grid.keys() if i not in [xvar, yvar]]
+    other_keys = [i for i in labels if i not in [xvar, yvar]]
     if other_keys:
         pass
     else:
@@ -127,13 +124,13 @@ def plot_gs_results(gs, xvar=None, yvar=None):
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     ax.invert_yaxis()
 
-    max = np.nanmax(results)
-    locmax = np.where(results == max)
+    locmax = np.where(results == np.nanmax(results))
     x, y = locmax
     ax.scatter(x, y, marker="D", s=100, c="k")
     return ax
 
-def alphas_from_multiclass_prob(probs, method='entropy', alpha=1.):
+
+def alphas_from_multiclass_prob(probs, method="entropy", alpha=1.0):
     """
     Take an array of multiclass probabilities and map to an alpha variable.
 
@@ -163,12 +160,11 @@ def alphas_from_multiclass_prob(probs, method='entropy', alpha=1.):
         a *= alpha
     else:
         # alpha as sum of information gain
-        a = np.apply_along_axis(scipy.special.kl_div, 1, probs, netzero).sum(
-            axis=1
-        )
+        a = np.apply_along_axis(scipy.special.kl_div, 1, probs, netzero).sum(axis=1)
         a = a / np.max(a, axis=0)
         a *= alpha
     return a
+
 
 def plot_mapping(
     X,
@@ -183,7 +179,7 @@ def plot_mapping(
 ):
     """
     Parameters
-    ------------
+    ----------
     X : :class:`numpy.ndarray`
         Coordinates in multidimensional space.
     Y : :class:`numpy.ndarray` | :class:`sklearn.base.BaseEstimator`
@@ -207,7 +203,7 @@ def plot_mapping(
         null-scenario.
 
     Returns
-    --------
+    -------
     ax : :class:`~matplotlib.axes.Axes`
         Axes on which the mapping is plotted.
     tfm : :class:`~sklearn.base.BaseEstimator`
@@ -223,7 +219,7 @@ def plot_mapping(
             enabling a continuous (n-dimensional) colormap to be used
             to show similar classes, in addition to classification confidence.
     """
-    X_ = X.copy() # avoid modifying input array
+    X_ = X.copy()  # avoid modifying input array
     if mapping is None:
         tfm = sklearn.manifold.MDS
         tfm_kwargs = {k: v for k, v in kwargs.items() if inargs(k, tfm)}
