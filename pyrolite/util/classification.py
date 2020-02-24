@@ -48,7 +48,7 @@ class ClassifierModel(object):
         try:
             self.clsf = self.load_clsf(self.diskname.with_suffix(".clsf.gz"))
             # logger.info(f'Loaded {self.diskname}')
-        except FileNotFoundError:
+        except (FileNotFoundError, AssertionError):
             self.rebuild_clsf()
 
     def rebuild_clsf(self):
