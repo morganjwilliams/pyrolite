@@ -7,14 +7,11 @@ Todo
 * Incompatibility indexes for spider plot ordering.
 """
 import re
-import sys
 import functools
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import periodictable as pt
 from tinydb import TinyDB, Query
-from ..mineral import ions
 from ..util.text import titlecase, remove_suffix
 from ..util.meta import pyrolite_datafolder, sphinx_doi_link
 import logging
@@ -378,8 +375,8 @@ def by_incompatibility(els, reverse=False):
 
     Notes
     -----
-
     Some elements are missing from this list, as as such will be omitted.
+    
     """
     incomp = [
         ["Tl", "Cs", "I", "W", "Rb", "Ba", "Th", "Bi", "Pb", "K", "U", "B"],
