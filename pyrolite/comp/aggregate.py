@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import warnings
 from .codata import alr, inverse_alr
 
