@@ -31,9 +31,10 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
                 doi: {LeBas1992}
 
     """
-    xlim, ylim = (30, 90), (0, 20)
+
     if ax is None:
         fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+        xlim, ylim = (30, 90), (0, 20)
     else:
         # if the axes limits are not defaults, update to reflect the axes
         defaults = (0, 1)
