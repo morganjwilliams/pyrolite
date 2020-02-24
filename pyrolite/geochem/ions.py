@@ -67,12 +67,21 @@ __default_charges__.update(
 )
 
 # Monkey patching for default charges
+def set_default_ionic_charges(charges=None):
+    """
+    Set the default ionic charges for each element.
 
-Element.default_charge = 0
-Formula.default_charge = property(
-    lambda self: sum([m * a.default_charge for a, m in self.atoms.items()])
-)
+    Parameters
+    ----------
+    charges : :class:`dict`
+        Dictionary of elements : charges.
+    """
+    charges = charges or __default_charges__  # default to internal if None passed
+    Element.default_charge = 0
+    Formula.default_charge = property(
+        lambda self: sum([m * a.default_charge for a, m in self.atoms.items()])
+    )
 
-for el, c in __default_charges__.items():
-    getattr(pt, el).default_charge = c
-    assert isinstance(getattr(pt, el), Element)
+    for el, c in charges.items():
+        getattr(pt, el).default_charge = c
+        assert isinstance(getattr(pt, el), Element)

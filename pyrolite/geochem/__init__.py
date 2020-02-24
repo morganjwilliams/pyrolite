@@ -20,6 +20,9 @@ from .ind import (
     __common_oxides__,
     REE,
 )
+from .ions import set_default_ionic_charges
+
+set_default_ionic_charges()
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
