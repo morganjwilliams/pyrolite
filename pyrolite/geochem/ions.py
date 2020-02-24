@@ -75,6 +75,7 @@ def set_default_ionic_charges(charges=None):
     ----------
     charges : :class:`dict`
         Dictionary of elements : charges.
+    
     """
     charges = charges or __default_charges__  # default to internal if None passed
     Element.default_charge = 0
