@@ -60,7 +60,7 @@ setup(
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas
         "joblib",
-        "requests",  # used by alphaMELTS utilities, util.wfs, util.web
+        "requests",  # used by alphaMELTS utilities,  util.web
     ],
     extras_require={
         "impute": impute_require,
