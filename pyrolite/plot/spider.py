@@ -12,14 +12,12 @@ from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
 from ..util.plot import (
     DEFAULT_CONT_COLORMAP,
-    DEFAULT_DISC_COLORMAP,
     _mpl_sp_kw_split,
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
     get_twins,
     init_axes,
-    linekwargs,
     patchkwargs,
 )
 from ..util.meta import get_additional_params, subkwargs
@@ -80,12 +78,12 @@ def spider(
         Axes on which the spiderplot is plotted.
 
     Notes
-    ------
+    -----
         By using separate lines and scatterplots, values between two missing
         items are still presented.
 
     Todo
-    -----
+    ----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
         * Legend entries
 
@@ -154,7 +152,8 @@ def spider(
         ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
-            [l.set_color(ic) for l, ic in zip(ls, c)]
+            for l, ic in zip(ls, c):
+                l.set_color(ic)
 
         sctkw.update(dict(label=label))
         sc = ax.scatter(indexes.T, arr.T, **sctkw)
@@ -245,6 +244,7 @@ def REE_v_radii(
             :func:`matplotlib.pyplot.scatter`
             :func:`spider`
             :func:`pyrolite.geochem.transform.lambda_lnREE`
+
     """
     ax = init_axes(ax=ax, **kwargs)
 
