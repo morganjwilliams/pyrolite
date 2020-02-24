@@ -5,26 +5,21 @@ import periodictable as pt
 import pandas as pd
 import numpy as np
 import functools
-from ..util.pd import to_frame
 from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
 from ..util.math import OP_constants, lambdas, lambda_poly_func
-from ..util.units import scale
 
 from .ind import (
     REE,
     get_ionic_radii,
     simple_oxides,
-    common_elements,
-    common_oxides,
     __common_elements__,
     __common_oxides__,
     get_cations,
 )
 from .norm import Composition, get_reference_composition
-from .parse import tochem, check_multiple_cation_inclusion
 
 import logging
 
@@ -502,7 +497,7 @@ def add_MgNo(
     mg = elemental_sum(df, "Mg", molecular=molecular)
     if use_total_approx:
         speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
-        fe = aggregate_element(df, "Fe", to=speciation, molecular=molecular).FeO
+        fe = aggregate_element(df, to=speciation, molecular=molecular)["FeO"]
     else:
         filter = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
         fe = elemental_sum(df.loc[:, filter], "Fe", molecular=molecular)
