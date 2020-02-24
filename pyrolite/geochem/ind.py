@@ -376,7 +376,6 @@ def by_incompatibility(els, reverse=False):
     Notes
     -----
     Some elements are missing from this list, as as such will be omitted.
-    
     """
     incomp = [
         ["Tl", "Cs", "I", "W", "Rb", "Ba", "Th", "Bi", "Pb", "K", "U", "B"],

@@ -130,9 +130,7 @@ class Mineral(object):
             self.endmembers[name] = mineral
 
     def set_template(self, template, name=None):
-        """
-        Assign a mineral template to the mineral.
-        """
+        """Assign a mineral template to the mineral."""
         if template is not None:
             if name is None:
                 name = self.name
@@ -220,9 +218,7 @@ class Mineral(object):
             return self.cationic_composition
 
     def apfu(self):
-        """
-        Get the atoms per formula unit.
-        """
+        """Get the atoms per formula unit."""
         # recalculate_cations return apfu by default
         return self.recalculate_cations()
 
@@ -404,26 +400,26 @@ class Mineral(object):
             logger.warn("Template not yet set. Cannot calculate occupancy.")
 
     def get_site_occupancy(self):
-        """
-        Get the site occupancy for the mineral.
-        """
+        """Get the site occupancy for the mineral."""
         self.calculate_occupancy()
         return self.template.site_occupancy
 
     def __str__(self):
+        """Get a string representation of the Mineral."""
         D = {}
         for kwarg in ["name", "template"]:
             val = getattr(self, kwarg, None)
             if val is not None:
                 D[kwarg] = val
         callstrings = []
-        for k, v in D.items():
+        for v in D.values():
             callstrings.append("""{}""".format(v.__str__()))
 
         strstring = r"""{}: """.format(self.__class__.__name__) + ", ".join(callstrings)
         return strstring
 
     def __repr__(self):
+        """Get the call signature of the Mineral."""
         D = {}
         for kwarg in ["name", "template", "endmembers"]:
             val = getattr(self, kwarg, None)
@@ -440,77 +436,41 @@ class Mineral(object):
         return reprstring
 
     def __hash__(self):
+        """Get the hash for the call signature of the Mineral."""
         return hash(self.__repr__().encode("UTF-8"))
 
 
-OLIVINE = MineralTemplate(
-    "olivine",
-    MX(
-        "M1",
-        affinities={
-            "Mg{2+}": 0,
-            "Fe{2+}": 1,
-            "Mn{2+}": 2,
-            "Li{+}": 3,
-            "Ca{2+}": 4,
-            "Na{+}": 5,
-        },
-    ),
-    MX(
-        "M2",
-        affinities={
-            "Al{3+}": 0,
-            "Fe{3+}": 1,
-            "Ti{4+}": 2,
-            "Cr{3+}": 3,
-            "V{3+}": 4,
-            "Ti{3+}": 5,
-            "Zr{4+}": 6,
-            "Sc{3+}": 7,
-            "Zn{2+}": 8,
-            "Mg{2+}": 9,
-            "Fe{2+}": 10,
-            "Mn{2+}": 11,
-        },
-    ),
-    TX(),
-    *[OX()] * 2,
+M1 = MX(
+    "M1",
+    affinities={
+        "Mg{2+}": 0,
+        "Fe{2+}": 1,
+        "Mn{2+}": 2,
+        "Li{+}": 3,
+        "Ca{2+}": 4,
+        "Na{+}": 5,
+    },
 )
-
-PYROXENE = MineralTemplate(
-    "pyroxene",
-    MX(
-        "M1",
-        affinities={
-            "Mg{2+}": 0,
-            "Fe{2+}": 1,
-            "Mn{2+}": 2,
-            "Li{+}": 3,
-            "Ca{2+}": 4,
-            "Na{+}": 5,
-        },
-    ),
-    MX(
-        "M2",
-        affinities={
-            "Al{3+}": 0,
-            "Fe{3+}": 1,
-            "Ti{4+}": 2,
-            "Cr{3+}": 3,
-            "V{3+}": 4,
-            "Ti{3+}": 5,
-            "Zr{4+}": 6,
-            "Sc{3+}": 7,
-            "Zn{2+}": 8,
-            "Mg{2+}": 9,
-            "Fe{2+}": 10,
-            "Mn{2+}": 11,
-        },
-    ),
-    *[TX()] * 2,
-    *[OX()] * 6,
+M2 = MX(
+    "M2",
+    affinities={
+        "Al{3+}": 0,
+        "Fe{3+}": 1,
+        "Ti{4+}": 2,
+        "Cr{3+}": 3,
+        "V{3+}": 4,
+        "Ti{3+}": 5,
+        "Zr{4+}": 6,
+        "Sc{3+}": 7,
+        "Zn{2+}": 8,
+        "Mg{2+}": 9,
+        "Fe{2+}": 10,
+        "Mn{2+}": 11,
+    },
 )
+OLIVINE = MineralTemplate("olivine", M1, M2, TX(), *[OX()] * 2,)
 
+PYROXENE = MineralTemplate("pyroxene", M1, M2, *[TX()] * 2, *[OX()] * 6,)
 
 SPINEL = MineralTemplate(
     "spinel",
