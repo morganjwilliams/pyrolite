@@ -172,7 +172,8 @@ class Linear2D(object):
 
     @property
     def invfunc(self):
-        """Get the function corresponding to the line parameterised as
+        """
+        Get the function corresponding to the line parameterised as
         :math:`x = (y-c) /m`.
         """
 
@@ -302,7 +303,7 @@ class Linear2D(object):
             )
 
     def __add__(self, obj):
-        """Add this object to another and get a :class:`GeometryCollection`"""
+        """Add this object to another and get a :class:`GeometryCollection`."""
         return GeometryCollection(self, obj)
 
 
