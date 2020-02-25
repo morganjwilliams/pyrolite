@@ -12,7 +12,6 @@ dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
 stats_require = ["statsmodels", "scikit-learn"]
-impute_require = ["fancyimpute"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
 with open("README.md", "r") as src:
@@ -63,7 +62,6 @@ setup(
         "requests",  # used by alphaMELTS utilities,  util.web
     ],
     extras_require={
-        "impute": impute_require,
         "dev": dev_require,
         "docs": docs_require,
         "skl": skl_require,

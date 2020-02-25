@@ -22,16 +22,8 @@ except ImportError:
 if HAVE_SKLEARN:
     from pyrolite.util.skl import *
 
-try:
-    from fancyimpute import SoftImpute, IterativeImputer
-
-    HAVE_IMPUTE = True
-except ImportError:
-    HAVE_IMPUTE = False
-
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
-@unittest.skipUnless(HAVE_IMPUTE, "Requires fancyimpute")
 class TestImputers(unittest.TestCase):
     """Checks the default config for scikit-learn imputing transformer classes."""
 
@@ -42,14 +34,6 @@ class TestImputers(unittest.TestCase):
         """Test the MultipleImputer transfomer."""
         df = self.df
         tmr = MultipleImputer()
-        for input in [df]:
-            with self.subTest(input=input):
-                out = tmr.fit_transform(input)
-
-    def test_PdSoftImputer(self):
-        """Test the PdSoftImputer transfomer."""
-        df = self.df
-        tmr = PdSoftImputer()
         for input in [df]:
             with self.subTest(input=input):
                 out = tmr.fit_transform(input)
