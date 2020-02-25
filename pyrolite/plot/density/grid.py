@@ -1,6 +1,6 @@
 import numpy as np
 from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
-from ...util.plot import bin_centres_to_edges
+from ...util.plot.grid import bin_centres_to_edges
 from ...util.distributions import sample_kde
 import logging
 

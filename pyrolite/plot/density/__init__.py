@@ -1,5 +1,5 @@
 """
-
+Kernel desnity estimation plots for geochemical data.
 """
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -7,14 +7,13 @@ import numpy as np
 import logging
 
 from ...comp.codata import close
-from ...util.plot import (
-    add_colorbar,
+from ...util.plot.density import (
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    DEFAULT_CONT_COLORMAP,
-    init_axes,
     get_axis_density_methods,
 )
+from ...util.plot.style import DEFAULT_CONT_COLORMAP
+from ...util.plot.axes import init_axes, add_colorbar
 from ...util.meta import get_additional_params, subkwargs
 from .grid import DensityGrid
 from .ternary import ternary_heatmap

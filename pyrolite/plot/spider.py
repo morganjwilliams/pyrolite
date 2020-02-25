@@ -10,16 +10,14 @@ logger = logging.getLogger(__name__)
 
 from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
-from ..util.plot import (
-    DEFAULT_CONT_COLORMAP,
-    _mpl_sp_kw_split,
+from ..util.plot.style import DEFAULT_CONT_COLORMAP, _mpl_sp_kw_split, patchkwargs
+from ..util.plot.density import (
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    get_twins,
-    init_axes,
-    patchkwargs,
 )
+from ..util.plot.axes import get_twins, init_axes
+
 from ..util.meta import get_additional_params, subkwargs
 
 
@@ -208,7 +206,7 @@ def REE_v_radii(
     Creates an axis for a REE diagram with ionic radii along the x axis.
 
     Parameters
-    -----------
+    ----------
     arr : :class:`numpy.ndarray`
         Data array.
     ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -233,7 +231,7 @@ def REE_v_radii(
         Axes on which the REE_v_radii plot is added.
 
     Todo
-    -----
+    ----
         * Turn this into a plot template within pyrolite.plot.templates submodule
 
     .. seealso::

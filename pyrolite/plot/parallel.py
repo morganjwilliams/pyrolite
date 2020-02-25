@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 from pandas.plotting import parallel_coordinates
 from ..util.meta import subkwargs
-from ..util.plot import DEFAULT_CONT_COLORMAP, init_axes
+from ..util.plot.style import DEFAULT_CONT_COLORMAP
+from ..util.plot.axes import init_axes
 
 
 def parallel(

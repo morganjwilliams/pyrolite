@@ -4,7 +4,8 @@ import matplotlib.tri
 from ...comp.codata import close, inverse_ilr, ilr, alr, inverse_alr
 from ...util.math import flattengrid
 from ...util.distributions import sample_kde
-from ...util.plot import axes_to_ternary, bin_centres_to_edges
+from ...util.plot.axes import axes_to_ternary
+from ...util.plot.grid import bin_centres_to_edges
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
