@@ -20,11 +20,19 @@ except ImportError:
 
 
 class MultipleImputer(BaseEstimator, TransformerMixin):
-    """
-    Multiple Imputation via fancyimpute.IterativeImputer.
-    """
-
     def __init__(self, multiple=5, n_iter=10, groupby=None, *args, **kwargs):
+        """
+        Multiple Imputation via :class:`fancyimpute.IterativeImputer`.
+
+        Parameters
+        ----------
+        multiple : :class:`int`
+            How many imputers to bulid.
+        n_iter : :class:`int`
+            Iterations for each imputation.
+        groupby : :class:`str`
+            Column to group by to impute each group separately.
+        """
         self.multiple = multiple
         self.n_iter = n_iter
         self.args = args
@@ -35,7 +43,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
         assert isinstance(X, pd.DataFrame)
         df = pd.DataFrame(columns=X.columns, index=X.index)
         if isinstance(self.imputers, dict):
-            for c, d in self.imputers.items():
+            for d in self.imputers.values():
                 mask = d["mask"]
                 imputers = d["impute"]
                 imputed_data = np.array([imp.transform(X[mask, :]) for imp in imputers])
@@ -90,7 +98,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
             )
             logger.info(msg)
 
-            for c, d in self.imputers.items():
+            for d in self.imputers.values():
                 for imp in d["impute"]:
                     imp.fit(X[d["mask"], :])
 
@@ -113,11 +121,19 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
 
 
 class PdSoftImputer(BaseEstimator, TransformerMixin):
-    """
-    Multiple Imputation via fancyimpute.SoftImpute.
-    """
-
     def __init__(self, max_iters=100, groupby=None, donotimpute=[], *args, **kwargs):
+        """
+        Multiple Imputation via :class:`fancyimpute.SoftImpute`.
+
+        Parameters
+        ----------
+        max_iters : :class:`int`
+            Maximum number of iterations for each imputation.
+        groupby : :class:`str`
+            Column to group by to impute each group separately.
+        donotimpute : :class:`list`
+            Columns not to impute.
+        """
         self.args = args
         self.kwargs = kwargs
         self.max_iters = max_iters
@@ -128,8 +144,8 @@ class PdSoftImputer(BaseEstimator, TransformerMixin):
         """
         Impute Missing Values
 
-        Todo
-        ------
+        Todo:
+        -----
             * Need to use masks to avoid :class:`fancyimpute.SoftImpute` returning 0. where it cannot impute.
         """
         assert isinstance(X, pd.DataFrame)
@@ -138,7 +154,7 @@ class PdSoftImputer(BaseEstimator, TransformerMixin):
         to_impute = [i for i in X.columns if not i in self.donotimpute]
         imputable = ~pd.isnull(X.loc[:, to_impute]).all(axis=1)
         if isinstance(self.imputer, dict):
-            for c, d in self.imputer.items():
+            for d in self.imputer.values():
                 mask = d["mask"]
                 mask = mask & imputable
                 imputer = d["impute"]
@@ -162,7 +178,7 @@ class PdSoftImputer(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         assert isinstance(X, pd.DataFrame)
-        start = X
+        # start = X
         y_present = y is not None
         groupby_present = self.groupby is not None
         self.imputer = []
