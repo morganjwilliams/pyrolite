@@ -47,7 +47,6 @@ def modify_legend_handles(ax, **kwargs):
         Handles to be passed to a legend call.
     labels : :class:`list`
         Labels to be passed to a legend call.
-    
     """
     hndls, labls = ax.get_legend_handles_labels()
     _hndls = []

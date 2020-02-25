@@ -14,7 +14,7 @@ import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot.axes import init_axes, label_axes, init_axes
+from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.style import linekwargs, scatterkwargs
 from ..util.plot.helpers import plot_cooccurence
 
