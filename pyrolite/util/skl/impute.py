@@ -5,17 +5,17 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-
 try:
+    from sklearn.experimental import enable_iterative_imputer
     from sklearn.base import TransformerMixin, BaseEstimator
-    from sklearn.import import IterativeImputer
+    from sklearn.impute import IterativeImputer
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
 
 
 class MultipleImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, multiple=5, n_iter=10, groupby=None, *args, **kwargs):
+    def __init__(self, multiple=5, max_iter=10, groupby=None, *args, **kwargs):
         """
         Multiple Imputation via :class:`sklearn.IterativeImputer`.
 
@@ -23,13 +23,13 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
         ----------
         multiple : :class:`int`
             How many imputers to bulid.
-        n_iter : :class:`int`
-            Iterations for each imputation.
+        max_iter : :class:`int`
+            Maximum number of iterations for each imputation.
         groupby : :class:`str`
             Column to group by to impute each group separately.
         """
         self.multiple = multiple
-        self.n_iter = n_iter
+        self.max_iter = max_iter
         self.args = args
         self.kwargs = kwargs
         self.groupby = groupby
@@ -76,7 +76,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
                 c: {
                     "impute": [
                         IterativeImputer(
-                            n_iter=self.n_iter,
+                            max_iter=self.max_iter,
                             sample_posterior=True,
                             random_state=ix,
                             **self.kwargs
@@ -101,7 +101,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
             for ix in range(self.multiple):
                 self.imputers.append(
                     IterativeImputer(
-                        n_iter=self.n_iter,
+                        max_iter=self.max_iter,
                         sample_posterior=True,
                         random_state=ix,
                         **self.kwargs

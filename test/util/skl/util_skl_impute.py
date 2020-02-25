@@ -20,7 +20,7 @@ except ImportError:
     HAVE_SKLEARN = False
 
 if HAVE_SKLEARN:
-    from pyrolite.util.skl import *
+    from pyrolite.util.skl.impute import MultipleImputer
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
