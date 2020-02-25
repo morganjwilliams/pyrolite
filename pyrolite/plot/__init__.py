@@ -14,13 +14,10 @@ import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot import (
-    plot_cooccurence,
-    init_axes,
-    label_axes,
-    linekwargs,
-    scatterkwargs,
-)
+from ..util.plot.axes import init_axes, label_axes, init_axes
+from ..util.plot.style import linekwargs, scatterkwargs
+from ..util.plot.helpers import plot_cooccurence
+
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs
 from ..geochem import common_elements, REE
