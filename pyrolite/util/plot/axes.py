@@ -273,7 +273,7 @@ def add_colorbar(mappable, **kwargs):
         The Image, ContourSet, etc. to which the colorbar applies.
 
     Returns
-    ----------
+    -------
     :class:`matplotlib.colorbar.Colorbar`
 
     Todo:

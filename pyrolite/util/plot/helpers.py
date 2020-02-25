@@ -9,7 +9,7 @@ import logging
 from ..math import eigsorted, nancov
 from ..missing import cooccurence_pattern
 from .interpolation import interpolated_patch_path
-from .axes import add_colorbar
+from .axes import add_colorbar, subaxes
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -230,7 +230,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     missing. Additional keyword arguments are passed to matplotlib.
 
     Parameters
-    -----------
+    ----------
     xdata : :class:`numpy.ndarray`
         X data
     ydata: class:`numpy.ndarray` | pd.Series
@@ -244,6 +244,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the nan_scatter is plotted.
+
     """
     if ax is None:
         fig, ax = plt.subplots(1)
@@ -263,7 +264,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
     nanydata = ydata[(np.isnan(xdata) & np.isfinite(ydata))]
 
-    yminmax = np.nanmin(ydata), np.nanmax(ydata)
+    # yminmax = np.nanmin(ydata), np.nanmax(ydata)
     no_ybins = 50
     ybinwidth = (np.nanmax(ydata) - np.nanmin(ydata)) / no_ybins
     ybins = np.linspace(np.nanmin(ydata), np.nanmax(ydata) + ybinwidth, no_ybins)
@@ -276,7 +277,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         **kwargs
     )
 
-    xminmax = np.nanmin(xdata), np.nanmax(xdata)
+    # xminmax = np.nanmin(xdata), np.nanmax(xdata)
     no_xbins = 50
     xbinwidth = (np.nanmax(xdata) - np.nanmin(xdata)) / no_xbins
     xbins = np.linspace(np.nanmin(xdata), np.nanmax(xdata) + xbinwidth, no_xbins)

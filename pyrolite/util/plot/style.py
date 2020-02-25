@@ -8,7 +8,6 @@ DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default discrete colormap.
 """
-import os
 import itertools
 import matplotlib.pyplot as plt
 import matplotlib.lines
@@ -112,7 +111,7 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     Cycle through a set of markers.
 
     Parameters
-    -----------
+    ----------
     markers : :class:`list`
         List of markers to provide to matplotlib.
     """
@@ -124,7 +123,7 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     Create a scalar mappable object from an array of values.
 
     Returns
-    -----------
+    -------
     :class:`matplotlib.cm.ScalarMappable`
     """
     sm = plt.cm.ScalarMappable(cmap=cmap)

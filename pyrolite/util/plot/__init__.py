@@ -1,13 +1,12 @@
 """
 Utility functions for working with matplotlib.
 
-Todo
+Todo:
 ------
 
     * Functions for working with and modifying legend entries.
 
         ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
-
 
 Attributes
 ----------
@@ -18,8 +17,8 @@ DEFAULT_DICS_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
+
 """
-import matplotlib.pyplot as plt
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -30,4 +29,6 @@ from .density import USE_PCOLOR
 
 FONTSIZE = 12
 
-from .export import save_figure, save_axes, path_to_csv
+from .export import save_figure, save_axes
+
+__all__ = ["save_figure", "save_axes", "DEFAULT_CONT_COLORMAP", "DEFAULT_DISC_COLORMAP"]

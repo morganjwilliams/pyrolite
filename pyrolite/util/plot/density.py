@@ -195,10 +195,10 @@ def conditional_prob_density(
         zi = kde(flattengrid([xi, yi]).T).reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
-        for bin in range(x.shape[1]):
-            # if np.isfinite(y[:, bin]).any(): # bins can be empty
-            kde = gaussian_kde(y[np.isfinite(y[:, bin]), bin])
-            zi[:, bin] = kde(yi[:, bin])
+        for bin_index in range(x.shape[1]):
+            # if np.isfinite(y[:, bin_index]).any(): # bins can be empty
+            kde = gaussian_kde(y[np.isfinite(y[:, bin_index]), bin_index])
+            zi[:, bin_index] = kde(yi[:, bin_index])
             # else:
             # pass
     elif "hist" in mode.lower():  # simply compute the histogram
@@ -292,6 +292,7 @@ def plot_Z_percentiles(
     -------
     :class:`matplotlib.contour.QuadContourSet`
         Plotted and formatted contour set.
+
     """
     if ax is None:
         fig, ax = plt.subplots(1, figsize=(6, 6))
@@ -320,5 +321,6 @@ def plot_Z_percentiles(
             contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
             _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
 
-        [l.set_text(t) for l, t in zip(lbls, _labels)]
+        for l, t in zip(lbls, _labels):
+            l.set_text(t)
     return cs

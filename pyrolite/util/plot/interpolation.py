@@ -107,7 +107,6 @@ def get_contour_paths(ax, resolution=100):
 
     Notes
     ------
-
         This method assumes that contours are the only
         :code:`matplotlib.collections.LineCollection` objects within an axes;
         and when this is not the case, additional non-contour objects will be returned.

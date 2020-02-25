@@ -33,9 +33,8 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     extent. Uses the save_figure procedure to save at a specific location using
     a number of formats.
 
-    Todo
+    Todo:
     -----
-
         * Add legend to items
     """
     # Check if axes is a single axis or list of axes
@@ -60,11 +59,12 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
 
 
 def get_full_extent(ax, pad=0.0):
-    """Get the full extent of an axes, including axes labels, tick labels, and
+    """
+    Get the full extent of an axes, including axes labels, tick labels, and
     titles. Text objects are first drawn to define the extents.
 
     Parameters
-    -----------
+    ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes of which to check items to get full extent.
     pad : :class:`float` | :class:`tuple`
@@ -75,6 +75,7 @@ def get_full_extent(ax, pad=0.0):
     -------
     :class:`matplotlib.transforms.Bbox`
         Bbox of the axes with optional additional padding.
+
     """
     fig = ax.figure
     fig.canvas.draw()
@@ -123,7 +124,7 @@ def path_to_csv(path, xname="x", yname="y", delim=", ", linesep=os.linesep):
         Line separator character.
 
     Returns
-    --------
+    -------
     :class:`str`
         String-representation of csv file, ready to be written to disk.
     """
