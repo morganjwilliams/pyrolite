@@ -4,7 +4,7 @@ Utility functions for creating synthetic (geochemical) data.
 import numpy as np
 import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
-from ...geochem.norm import get_reference_composition
+from ..geochem.norm import get_reference_composition
 
 
 def example_spider_data(
