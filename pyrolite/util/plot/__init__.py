@@ -1,7 +1,7 @@
 """
 Utility functions for working with matplotlib.
 
-Todo:
+Todo
 ------
 
     * Functions for working with and modifying legend entries.

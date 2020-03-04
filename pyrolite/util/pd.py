@@ -320,8 +320,8 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     - Existing neighbours take priority (i.e. FeO won't be inserted bf Al2O3)
     - Earlier inputs take priority (where ordering is ambiguous, place the earlier first)
 
-    Todo:
-    -----
+    Todo
+    ----
     Attempt to preserve column ordering across column sets, assuming
     they are generally in the same order but preserving only some of the
     information.

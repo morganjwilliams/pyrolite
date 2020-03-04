@@ -276,8 +276,8 @@ def add_colorbar(mappable, **kwargs):
     -------
     :class:`matplotlib.colorbar.Colorbar`
 
-    Todo:
-    ------
+    Todo
+    ----
     *  Where no mappable specificed, get most recent axes, and check for collections etc
     """
     ax = kwargs.get("ax", None)

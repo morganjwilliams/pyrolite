@@ -33,7 +33,7 @@ def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
     extent. Uses the save_figure procedure to save at a specific location using
     a number of formats.
 
-    Todo:
+    Todo
     -----
         * Add legend to items
     """

@@ -1,7 +1,7 @@
 """
 Utilities for rock chemistry and mineral abundance classification.
 
-Todo:
+Todo
 -------
 
 * Petrological classifiers: QAPF (aphanitic/phaneritic),
