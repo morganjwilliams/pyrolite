@@ -16,7 +16,7 @@ from pyrolite.geochem.norm import get_reference_composition, all_reference_compo
 chondrite = get_reference_composition("Chondrite_PON")
 ########################################################################################
 # To use the compositions with a specific set of units, you can change them with
-# :func:`pyrolite.geochem.norm.Composition.set_units`:
+# :func:`~pyrolite.geochem.norm.Composition.set_units`:
 #
 CI = chondrite.set_units("ppm")
 #########################################################################################
