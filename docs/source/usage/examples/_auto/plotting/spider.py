@@ -6,36 +6,34 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# sphinx_gallery_thumbnail_number = 5
+# sphinx_gallery_thumbnail_number = 4
 
 ########################################################################################
-# Here we'll set up an example which uses EMORB as a starting point:
-#
-from pyrolite.geochem.norm import get_reference_composition
-
-ref = get_reference_composition("EMORB_SM89")  # EMORB composition as a starting point
-ref.set_units("ppm")
-df = ref.comp.pyrochem.compositional
-########################################################################################
-# Basic spider plots are straightforward to produce:
-import pyrolite.plot
-
-df.pyroplot.spider(color="k")
-plt.show()
-########################################################################################
-# Typically we'll normalise trace element compositions to a reference composition
+# Here we'll set up an example which uses EMORB as a starting point. Typically we'll
+# normalise trace element compositions to a reference composition
 # to be able to link the diagram to 'relative enrichement' occuring during geological
-# processes:
+# processes, so here we're normalising to a Primitive Mantle composition first.
+# We're here taking this normalised composition and adding some noise in log-space to
+# generate multiple compositions about this mean (i.e. a compositional distribution).
+# For simplicility, this is handlded by
+# :func:`~pyrolite.util.synthetic.example_spider_data`:
 #
-normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-ax = normdf.pyroplot.spider(color="k", unity_line=True)
-ax.set_ylabel('X / $X_{Primitive Mantle}$')
-plt.show()
+from pyrolite.util.synthetic import example_spider_data
+
+normdf = example_spider_data(start="EMORB_SM89", norm_to="PM_PON")
 
 ########################################################################################
 # .. seealso:: `Normalisation <../geochem/normalization.html>`__
 #
 
+########################################################################################
+# Basic spider plots are straightforward to produce:
+#
+import pyrolite.plot
+
+ax = normdf.pyroplot.spider(color="0.5", alpha=0.5, unity_line=True, figsize=(10, 4))
+ax.set_ylabel("X / $X_{Primitive Mantle}$")
+plt.show()
 ########################################################################################
 # The default ordering here follows that of the dataframe columns, but we typically
 # want to reorder these based on some physical ordering. A :code:`index_order` keyword
@@ -44,46 +42,37 @@ plt.show()
 # :func:`pyrolite.geochem.ind.order_incompatibility`:
 from pyrolite.geochem.ind import by_incompatibility
 
-ax = normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
-ax.set_ylabel('X / $X_{Primitive Mantle}$')
+ax = normdf.pyroplot.spider(
+    color="k",
+    alpha=0.1,
+    unity_line=True,
+    index_order=by_incompatibility,
+    figsize=(10, 4),
+)
+ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
-# various modes. First let's take this composition and add some noise in log-space to
-# generate multiple compositions about this mean (i.e. a compositional distribution):
+# various modes. We could now plot the range of compositions as a filled range:
 #
-start = normdf.applymap(np.log)
-nindex, nobs = normdf.columns.size, 120
-
-noise_level = 0.5  # sigma for noise
-x = np.arange(nindex)
-y = np.tile(start.values, nobs).reshape(nobs, nindex)
-y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
-y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
-
-distdf = pd.DataFrame(y, columns=normdf.columns)
-distdf["Eu"] += 1.0  # significant offset for Eu anomaly
-distdf = distdf.applymap(np.exp)
-########################################################################################
-# We could now plot the range of compositions as a filled range:
-#
-ax = distdf.pyroplot.spider(
+ax = normdf.pyroplot.spider(
     mode="fill",
     color="green",
     alpha=0.5,
     unity_line=True,
     index_order=by_incompatibility,
+    figsize=(10, 4),
 )
-ax.set_ylabel('X / $X_{Primitive Mantle}$')
+ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
 # Alternatively, we can plot a conditional density spider plot:
 #
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
-distdf.pyroplot.spider(
+normdf.pyroplot.spider(
     ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=by_incompatibility
 )
-distdf.pyroplot.spider(
+normdf.pyroplot.spider(
     ax=ax[1],
     mode="binkde",
     vmin=0.05,  # 95th percentile,
@@ -91,7 +80,7 @@ distdf.pyroplot.spider(
     unity_line=True,
     index_order=by_incompatibility,
 )
-[a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
+[a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
 ########################################################################################
 # We can now assemble a more complete comparison of some of the conditional density
@@ -114,7 +103,7 @@ down, across = len(modes), 1
 fig, ax = plt.subplots(
     down, across, sharey=True, sharex=True, figsize=(across * 8, 2 * down)
 )
-[a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
+[a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 for a, (m, name, args, kwargs) in zip(ax, modes):
     a.annotate(  # label the axes rows
         "Mode: {}".format(name),
@@ -126,7 +115,7 @@ for a, (m, name, args, kwargs) in zip(ax, modes):
     )
 ax = ax.flat
 for mix, (m, name, args, kwargs) in enumerate(modes):
-    distdf.pyroplot.spider(
+    normdf.pyroplot.spider(
         mode=m,
         ax=ax[mix],
         vmin=0.05,  # minimum percentile
