@@ -62,6 +62,8 @@ def spider(
         Size of individual markers.
     label : :class:`str`, :code:`None`
         Label for the individual series.
+    logy : :class:`bool`
+        Whether to use a log y-axis.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -198,6 +200,7 @@ def REE_v_radii(
     ree=REE(),
     index="elements",
     mode="plot",
+    logy=True,
     tl_rotation=60,
     unity_line=False,
     **kwargs
@@ -218,6 +221,8 @@ def REE_v_radii(
     mode : :class:`str`, :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
+    logy : :class:`bool`
+        Whether to use a log y-axis.
     tl_rotation : :class:`float`
         Rotation of the numerical index labels in degrees.
     unity_line : :class:`bool`
@@ -267,7 +272,7 @@ def REE_v_radii(
 
     if arr is not None:
         kwargs["indexes"] = kwargs.get("indexes", indexes)
-        ax = spider(arr, ax=ax, logy=True, mode=mode, unity_line=unity_line, **kwargs)
+        ax = spider(arr, ax=ax, logy=logy, mode=mode, unity_line=unity_line, **kwargs)
 
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)
