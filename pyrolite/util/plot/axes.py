@@ -134,14 +134,14 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
     --------
     ax : :class:`~matplotlib.axes.Axes`
     """
+    if "figsize" in kwargs.keys():
+        fs = kwargs["figsize"]
+        kwargs["figsize"] = (
+            max(fs[0], minsize),
+            max(fs[1], minsize),
+        )  # minimum figsize
     if projection is not None:  # e.g. ternary
         if ax is None:
-            if "figsize" in kwargs.keys():
-                fs = kwargs["figsize"]
-                kwargs["figsize"] = (
-                    max(fs[0], minsize),
-                    max(fs[1], minsize),
-                )  # minimum figsize
             fig, ax = plt.subplots(
                 1,
                 subplot_kw=dict(projection=projection),
