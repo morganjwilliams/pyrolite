@@ -117,7 +117,7 @@ def axes_to_ternary(ax):
     return fig.orderedaxes
 
 
-def init_axes(ax=None, projection=None, **kwargs):
+def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
     """
     Get or create an Axes from an optionally-specified starting Axes.
 
@@ -127,6 +127,8 @@ def init_axes(ax=None, projection=None, **kwargs):
         Specified starting axes, optional.
     projection : :class:`str`
         Whether to create a projected (e.g. ternary) axes.
+    minsize : :class:`float`
+        Minimum figure dimension (inches).
 
     Returns
     --------
@@ -134,6 +136,12 @@ def init_axes(ax=None, projection=None, **kwargs):
     """
     if projection is not None:  # e.g. ternary
         if ax is None:
+            if "figsize" in kwargs.keys():
+                fs = kwargs["figsize"]
+                kwargs["figsize"] = (
+                    max(fs[0], minsize),
+                    max(fs[1], minsize),
+                )  # minimum figsize
             fig, ax = plt.subplots(
                 1,
                 subplot_kw=dict(projection=projection),
