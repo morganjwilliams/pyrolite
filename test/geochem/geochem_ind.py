@@ -82,7 +82,7 @@ class TestREE(unittest.TestCase):
 
     def test_complete(self):
         """Check all REE are present."""
-        reels = REE(output="formula")
+        reels = REE(output="formula", dropPm=False)
         ns = [el.number for el in reels]
         for n in range(self.min_z, self.max_z + 1):
             with self.subTest(n=n):
@@ -106,10 +106,6 @@ class TestREE(unittest.TestCase):
         for el in REE(output="string"):
             with self.subTest(el=el):
                 self.assertIs(type(el), str)
-
-    def test_include_extras(self):
-        """Check the ability to add extra elements such as Y."""
-        pass
 
 
 class TestSimpleOxides(unittest.TestCase):

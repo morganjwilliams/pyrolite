@@ -75,7 +75,7 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
 
 
 @functools.lru_cache(maxsize=None)  # cache outputs for speed
-def REE(output="string", dropPm=False):
+def REE(output="string", dropPm=True):
     """
     Provides a list of Rare Earth Elements.
 

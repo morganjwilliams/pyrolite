@@ -306,7 +306,7 @@ class pyroplot(object):
         # ax.set_aspect("equal")
         return ax
 
-    def REE(self, index="elements", ax=None, mode="plot", **kwargs):
+    def REE(self, index="elements", ax=None, mode="plot", dropPm=True, **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -329,7 +329,7 @@ class pyroplot(object):
 
         """
         obj = to_frame(self._obj)
-        ree = REE()
+        ree = REE(dropPm=dropPm)
 
         ax = spider.REE_v_radii(
             obj.loc[:, ree].astype(np.float).values,
