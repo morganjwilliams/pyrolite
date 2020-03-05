@@ -329,7 +329,7 @@ class pyroplot(object):
 
         """
         obj = to_frame(self._obj)
-        ree = REE(dropPm=dropPm)
+        ree = [i for i in REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
             obj.loc[:, ree].astype(np.float).values,
