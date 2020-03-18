@@ -183,8 +183,6 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
-import numpy as np
-np.allclose(np.array([1, 2]), np.array([1, 2]))
 class TestSignificantFigures(unittest.TestCase):
     """
     Tests significant_figures function.
@@ -433,8 +431,32 @@ class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
 
     def setUp(self):
-        self.xs = np.array(get_ionic_radii(REE(), coordination=8, charge=3))
-        self.default_degree = 4
+        elements = [i for i in REE(dropPm=True) if i != "Eu"]  # drop Pm, Eu
+        self.xs = np.array(get_ionic_radii(elements, coordination=8, charge=3))
+        self.default_degree = 5
+        self.expect = [
+            (),
+            (1.05477,),
+            (1.00533, 1.12824),
+            (0.99141, 1.06055, 1.14552),
+            (0.98482, 1.03052, 1.10441, 1.15343),
+        ]
+
+    def test_against_original(self):
+        """Check that the constants line up with Hugh's paper."""
+        ret = OP_constants(self.xs, degree=self.default_degree)
+        print(ret, self.expect)
+        for out, expect in zip(ret, self.expect):
+            with self.subTest(out=out, expect=expect):
+                if out:
+                    self.assertTrue(
+                        np.allclose(
+                            np.array(out, dtype="float"),
+                            np.array(expect, dtype="float"),
+                        )
+                    )
+                else:
+                    self.assertEqual(out, ())  # first one should be empty tuple
 
     def test_xs(self):
         """Tests operation on different x arrays."""
