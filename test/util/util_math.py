@@ -183,6 +183,7 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
+
 class TestSignificantFigures(unittest.TestCase):
     """
     Tests significant_figures function.

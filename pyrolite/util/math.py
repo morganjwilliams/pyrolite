@@ -740,7 +740,8 @@ def lambdas(
     Parameters
     -----------
     arr : :class:`numpy.ndarray`
-        Target data to fit.
+        Target data to fit. For geochemical data, this is typically normalised
+        so we can fit a smooth function.
     xs : :class:`numpy.ndarray`
         Values of `x` to construct the polymomials over.
     params : :class:`list`, :code:`None`
@@ -801,7 +802,7 @@ def lambdas(
 def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     """
     Expansion of lambda parameters back to the original space. Returns a
-    function which evaluates the sum of the orthaogonal polynomials at given
+    function which evaluates the sum of the orthogonal polynomials at given
     `x` values.
 
     Parameters
