@@ -7,7 +7,7 @@ be used to create new plots, or add a template to an existing
 :class:`matplotlib.axes.Axes`.
 """
 import matplotlib.pyplot as plt
-from pyrolite.util.plot import share_axes
+from pyrolite.util.plot.axes import share_axes
 
 # sphinx_gallery_thumbnail_number = 2
 

@@ -30,7 +30,7 @@ df = test_df(
 # We can compare a minimal :func:`~pyrolite.plot.pyroplot.heatscatter` plot to other
 # visualisations for the same data:
 #
-from pyrolite.util.plot import share_axes
+from pyrolite.util.plot.axes import share_axes
 
 fig, ax = plt.subplots(3, 4, figsize=(12, 9))
 

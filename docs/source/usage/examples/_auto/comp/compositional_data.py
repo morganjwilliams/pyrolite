@@ -130,7 +130,7 @@ plt.tight_layout()
 # ratio is well approximated by a lognormal distribution (note this doesn't consider
 # inherent covariance):
 #
-from pyrolite.util.plot import share_axes, subaxes
+from pyrolite.util.plot.axes import share_axes, subaxes
 from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
 
 # starting from a normal distribution, then creating similar non-normal distributions
