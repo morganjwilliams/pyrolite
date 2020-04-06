@@ -8,13 +8,30 @@ Todo
 
 * FEATURE: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
-  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
 * BUG: Conditional density spider plots should have bins centred on the element indexes
   (currently this is an edge)
 * BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
+
+Feature: `convert_chemistry`_ Revamp
+------------------------------------
+
+* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
+  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
+
+This bug appears to have resulted from caching the function calls to
+:func:`pyrolite.geochem.ind.simple_oxides`, which is addressed with
+`18fede0 <https://github.com/morganjwilliams/pyrolite/commit/18fede01d54d06edd3fe1451409880d889e7ee62>`__.
+
+This branch will remain active to allow a few upgrades to be completed for
+:mod:`pyrolite.geochem.transform` before being merged into `develop`.
+
+Feature: `lambdas`_ Revamp
+---------------------------
+
+* BUG: pyrolite lambdas differ slightly from O'Neill (2016) paper
+  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39`__)
 
 `Development`_
 --------------
@@ -22,6 +39,10 @@ Todo
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
+
+* Added `codacy` for code quality checking.
+* `~pyrolite.util.plot` broken down into subcomponents. This will result in minimal
+  changes to API usage where functions are imported explicitly.
 
 `0.2.5`_
 --------------
@@ -815,6 +836,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
+.. _convert_chemistry: https://github.com/morganjwilliams/pyrolite/compare/develop...feature/convert_chemistry_revamp
+.. _lambdas: https://github.com/morganjwilliams/pyrolite/compare/develop...feature/lambdas_revamp
 .. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...develop
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
