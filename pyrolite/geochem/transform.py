@@ -9,7 +9,7 @@ from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
-from ..util.math import OP_constants, lambdas, lambda_poly_func
+from ..util.lambdas import OP_constants, lambdas, lambda_poly_func
 
 from .ind import (
     REE,
@@ -564,8 +564,8 @@ def lambda_lnREE(
     See Also
     ---------
     :func:`~pyrolite.geochem.ind.get_ionic_radii`
-    :func:`~pyrolite.util.math.lambdas`
-    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.util.lambdas.lambdas`
+    :func:`~pyrolite.util.lambdas.OP_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]

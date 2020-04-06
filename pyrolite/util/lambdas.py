@@ -187,7 +187,7 @@ def lambdas(
 
     See Also
     ---------
-    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.util.lambdas.OP_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     Todo
@@ -238,8 +238,8 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
 
     See Also
     ---------
-    :func:`~pyrolite.util.math.lambdas`
-    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.util.lambdas.lambdas`
+    :func:`~pyrolite.util.lambdas.OP_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     Notes

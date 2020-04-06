@@ -15,7 +15,7 @@ from ...comp.codata import (
     boxcox,
     inverse_boxcox,
 )
-from ..math import OP_constants
+from ..lambdas import OP_constants
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
