@@ -5,7 +5,7 @@ tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls
 docs_require = [
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
-    "sphinx_gallery",
+    "sphinx_gallery==0.5.0",
     "recommonmark",
 ]
 dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
