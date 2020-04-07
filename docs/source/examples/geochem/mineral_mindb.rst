@@ -48,7 +48,7 @@ functions:
  .. code-block:: none
 
 
-    ['pyroxene', 'feldspar', 'spinel', 'epidote', 'garnet', 'amphibole', 'olivine', 'mica']
+    ['amphibole', 'spinel', 'pyroxene', 'garnet', 'mica', 'epidote', 'olivine', 'feldspar']
 
 
 
@@ -67,7 +67,7 @@ functions:
  .. code-block:: none
 
 
-    ['taramite', 'piemontite', 'ferrorichterite', 'gedrite', 'phlogopite', 'enstatite', 'jadeite', 'eckermanite', 'celadonite', 'katophorite', 'magnetite', 'magnesiohastingsite', 'margarite', 'namansilite', 'glaucophane', 'spinel', 'epidote', 'johannsenite', 'microcline', 'magnesiohornblende', 'kosmochlor', 'annite', 'polylithionite', 'paragonite', 'ferroeckermanite', 'barroisite', 'aluminoceladonite', 'tschermakite', 'anorthite', 'phengite', 'eastonite', 'hastingsite', 'albite', 'clinozoisite', 'muscovite', 'pyrope', 'siderophyllite', 'andradite', 'hercynite', 'tephroite', 'ferropargasite', 'ferrokaersutite', 'ferrosilite', 'uvarovite', 'chromoceladonite', 'kaersutite', 'morimotoite', 'grossular', 'anthopyllite', 'magnesioarfvedsonite', 'ferrotschermakite', 'ferrokatophorite', 'diopside', 'riebeckite', 'almandine', 'magnesiochromite', 'tremolite', 'winchite', 'pargasite', 'chromite', 'richterite', 'trilithionite', 'magnesioreibeckite', 'clintonite', 'forsterite', 'allanite', 'aegirine', 'ferroaluminoceladonite', 'ferroceladonite', 'majorite', 'magnesioferrite', 'ferrohornblende', 'arvedsonite', 'chromphyllite', 'esseneite', 'spodumene', 'edenite', 'ferroedenite', 'manganiceladonite', 'spessartine', 'liebenbergite', 'hedenbergite', 'fayalite']
+    ['morimotoite', 'ferroaluminoceladonite', 'polylithionite', 'magnesioreibeckite', 'grossular', 'almandine', 'clintonite', 'chromphyllite', 'anorthite', 'magnesioarfvedsonite', 'ferrohornblende', 'chromoceladonite', 'arvedsonite', 'jadeite', 'annite', 'magnesiohastingsite', 'edenite', 'uvarovite', 'siderophyllite', 'ferropargasite', 'richterite', 'forsterite', 'tremolite', 'namansilite', 'andradite', 'eastonite', 'esseneite', 'phengite', 'piemontite', 'eckermanite', 'glaucophane', 'microcline', 'hedenbergite', 'margarite', 'fayalite', 'liebenbergite', 'tephroite', 'spessartine', 'tschermakite', 'ferroceladonite', 'ferrokatophorite', 'ferroeckermanite', 'ferrotschermakite', 'celadonite', 'ferroedenite', 'katophorite', 'riebeckite', 'anthopyllite', 'muscovite', 'phlogopite', 'ferrorichterite', 'enstatite', 'aluminoceladonite', 'ferrosilite', 'magnesiochromite', 'chromite', 'hercynite', 'spinel', 'pyrope', 'magnesioferrite', 'aegirine', 'magnetite', 'hastingsite', 'kosmochlor', 'albite', 'diopside', 'manganiceladonite', 'clinozoisite', 'paragonite', 'winchite', 'ferrokaersutite', 'barroisite', 'allanite', 'majorite', 'epidote', 'gedrite', 'kaersutite', 'pargasite', 'johannsenite', 'spodumene', 'trilithionite', 'taramite', 'magnesiohornblende']
 
 
 
@@ -86,7 +86,7 @@ functions:
  .. code-block:: none
 
 
-    ['Ni1.5Mg0.5SiO4', 'CaCe{3+}Al2Fe{2+}(Si2O7)(SiO4)O(OH)', 'NaFe{3+}Si2O6', 'Mn2SiO4', 'Fe{2+}Al2O4', 'K2(Fe{3+}2Fe{2+}2)(Si8)O20(OH)4', 'K2(Mn{3+}2Mg2)(Si8)O20(OH)4', 'NaAlSi2O6', 'Ca3(TiFe{2+})(SiO4)3', 'Na(NaCa)(Fe5)(Si8)O22(OH)2', 'Ca3Fe{3+}2(SiO4)3', 'LiAlSi2O6', 'NaCrSi2O6', 'Ca2Al3(Si2O7)(SiO4)O(OH)', 'Na(Ca2)(Mg4Al)(Si6Al2)O22(OH)2', '(Na2)(Fe3Fe{3+}2)(Si8)O22(OH)2', 'CaAlFe{3+}SiO6', 'Na(Na2)(Fe{2+}4Fe{3+})(Si8)O22(OH)2', 'Na(NaCa)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(Ca2)(Fe4Al)(Si6Al2)O22(OH)2', 'Na2(Al4)(Si6Al2)O20(OH)4', 'K2(Mg2Al2)(Si8)O20(OH)4', '(Ca2)(Mg4Al)(Si7Al)O22(OH)2', 'Na(NaCa)(Mg4Al)(Si7Al)O22(OH)2', 'Mg3Al2(SiO4)3', 'K2(Fe{2+}6)(Si6Al2)O20(OH)4', 'Na(Ca2)(Fe{2+}4Fe{3+})(Si6Al2)O22(OH)2', 'CaAl2Si2O8', 'Ca2(Al4)(Si4Al4)O20(OH)4', 'Na(Ca2)(Mg4Ti)(Si6Al2)O22(OH)2', 'Ca2Al2Mn{3+}(Si2O7)(SiO4)O(OH)', 'K2(Al4)(Si6Al2)O20(OH)4', 'Na(Na2)(Fe4Al)(Si8)O22(OH)2', 'Na(Ca2)(Fe4Ti)(Si6Al2)O22(OH)2', 'K2(Cr{3+}4)(Si6Al2)O20(OH)4', 'K2(Fe{3+}2Mg2)(Si8)O20(OH)4', 'Mg2SiO4', 'K2(Al3Mg)(Si7Al)O20(OH)4', '(NaCa)(Mg3Al2)(Si7Al)O22(OH)2', '(Mg2)(Mg5)(Si8)O22(OH)2', 'Na(NaCa)(Fe4Al)(Si7Al)O22(OH)2', 'Na(Ca2)(Mg4Fe{3+})(Si6Al2)O22(OH)2', 'Mg3(MgSi)(SiO4)3', 'K2(Al3Li3)(Si6Al2)O20(OH)4', 'K2(Fe{2+}2Al2)(Si8)O20(OH)4', 'K2(Mg6)(Si6Al2)O20(OH)4', 'K2(Fe{2+}4)(Si4Al6)O20(OH)4', 'MgFe{3+}2O4', 'Ca3Cr2(SiO4)3', '(Ca2)(Mg5)(Si8)O22(OH)2', 'Ca3Al2(SiO4)3', 'Na(Na2)(Mg4Fe{3+})(Si8)O22(OH)2', 'Mn3Al2(SiO4)3', 'K2(Mg4)(Si4Al6)O20(OH)4', 'Fe2Si2O6', 'Ca2Al2Fe{3+}(Si2O7)(SiO4)O(OH)', 'CaFeSi2O6', 'Fe{2+}3Al2(SiO4)3', 'Mg2Si2O6', 'K2(Mg2Cr{3+}2)(Si8)O20(OH)4', 'NaMn{3+}Si2O6', '(Ca2)(Fe3Al2)(Si6Al2)O22(OH)2', 'MgCr{3+}2O4', '(Na2)(Mg3Al2)(Si8)O22(OH)2', 'Fe2SiO4', '(Ca2)(Mg3Al2)(Si6Al2)O22(OH)2', 'Fe{2+}Fe{3+}2O4', 'MgAl2O4', 'Na(Ca2)(Mg5)(Si7Al)O22(OH)2', 'KAlSi3O8', '(Mg2)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(Na2)(Mg4Al)(Si8)O22(OH)2', 'Na(Ca2)(Fe5)(Si7Al)O22(OH)2', 'Fe{2+}Cr{3+}2O4', 'K2(Al2Li2)(Si8)O20(OH)4', 'Na(NaCa)(Mg5)(Si8)O22(OH)2', '(Ca2)(Fe4Al)(Si7Al)O22(OH)2', 'CaMnSi2O6', '(Na2)(Mg3Fe{3+}2)(Si8)O22(OH)2', 'Ca2(Mg4Al2)(Si2Al6)O20(OH)4', '(NaCa)(Mg4Al)(Si8)O22(OH)2', 'CaMgSi2O6', 'NaAlSi3O8']
+    ['K2(Fe{3+}2Mg2)(Si8)O20(OH)4', 'NaCrSi2O6', 'Na(Ca2)(Fe5)(Si7Al)O22(OH)2', 'K2(Mg6)(Si6Al2)O20(OH)4', 'Na(NaCa)(Fe4Al)(Si7Al)O22(OH)2', '(Ca2)(Fe4Al)(Si7Al)O22(OH)2', 'Fe2SiO4', 'Mn3Al2(SiO4)3', 'Ca3(TiFe{2+})(SiO4)3', 'MgCr{3+}2O4', 'CaFeSi2O6', 'Fe2Si2O6', 'CaMnSi2O6', 'K2(Fe{2+}6)(Si6Al2)O20(OH)4', 'Mg3Al2(SiO4)3', 'Mg3(MgSi)(SiO4)3', 'K2(Al2Li2)(Si8)O20(OH)4', 'CaAlFe{3+}SiO6', 'CaAl2Si2O8', 'Na(Na2)(Fe4Al)(Si8)O22(OH)2', 'Na2(Al4)(Si6Al2)O20(OH)4', '(Ca2)(Fe3Al2)(Si6Al2)O22(OH)2', 'Na(NaCa)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(NaCa)(Mg4Al)(Si7Al)O22(OH)2', '(Ca2)(Mg5)(Si8)O22(OH)2', 'NaAlSi2O6', 'Na(Ca2)(Fe4Al)(Si6Al2)O22(OH)2', 'Na(Na2)(Fe{2+}4Fe{3+})(Si8)O22(OH)2', 'Na(Ca2)(Fe{2+}4Fe{3+})(Si6Al2)O22(OH)2', 'Ca2(Mg4Al2)(Si2Al6)O20(OH)4', 'Na(Ca2)(Mg4Al)(Si6Al2)O22(OH)2', 'NaMn{3+}Si2O6', 'Ca2Al2Fe{3+}(Si2O7)(SiO4)O(OH)', 'Mn2SiO4', '(NaCa)(Mg3Al2)(Si7Al)O22(OH)2', 'KAlSi3O8', 'Na(Ca2)(Fe4Ti)(Si6Al2)O22(OH)2', 'Ca2Al3(Si2O7)(SiO4)O(OH)', 'Na(Ca2)(Mg5)(Si7Al)O22(OH)2', 'K2(Cr{3+}4)(Si6Al2)O20(OH)4', 'Na(Na2)(Mg4Fe{3+})(Si8)O22(OH)2', '(Mg2)(Mg5)(Si8)O22(OH)2', '(NaCa)(Mg4Al)(Si8)O22(OH)2', 'Na(NaCa)(Fe5)(Si8)O22(OH)2', 'Ca3Fe{3+}2(SiO4)3', 'MgFe{3+}2O4', 'Na(Ca2)(Mg4Fe{3+})(Si6Al2)O22(OH)2', 'K2(Al4)(Si6Al2)O20(OH)4', 'K2(Fe{2+}2Al2)(Si8)O20(OH)4', 'Mg2Si2O6', 'Na(Na2)(Mg4Al)(Si8)O22(OH)2', 'Ni1.5Mg0.5SiO4', 'Fe{2+}Fe{3+}2O4', '(Na2)(Mg3Al2)(Si8)O22(OH)2', 'K2(Fe{3+}2Fe{2+}2)(Si8)O20(OH)4', 'Fe{2+}Cr{3+}2O4', 'Ca2(Al4)(Si4Al4)O20(OH)4', '(Na2)(Mg3Fe{3+}2)(Si8)O22(OH)2', 'K2(Mg4)(Si4Al6)O20(OH)4', 'K2(Fe{2+}4)(Si4Al6)O20(OH)4', 'K2(Mg2Cr{3+}2)(Si8)O20(OH)4', 'Mg2SiO4', 'K2(Al3Li3)(Si6Al2)O20(OH)4', 'CaCe{3+}Al2Fe{2+}(Si2O7)(SiO4)O(OH)', 'LiAlSi2O6', 'CaMgSi2O6', 'MgAl2O4', 'NaAlSi3O8', 'Na(NaCa)(Mg5)(Si8)O22(OH)2', '(Na2)(Fe3Fe{3+}2)(Si8)O22(OH)2', 'Ca3Cr2(SiO4)3', 'Fe{2+}3Al2(SiO4)3', 'NaFe{3+}Si2O6', '(Mg2)(Mg3Al2)(Si6Al2)O22(OH)2', 'Na(Ca2)(Mg4Ti)(Si6Al2)O22(OH)2', 'K2(Mn{3+}2Mg2)(Si8)O20(OH)4', 'Fe{2+}Al2O4', 'K2(Mg2Al2)(Si8)O20(OH)4', 'Ca3Al2(SiO4)3', '(Ca2)(Mg3Al2)(Si6Al2)O22(OH)2', '(Ca2)(Mg4Al)(Si7Al)O22(OH)2', 'K2(Al3Mg)(Si7Al)O20(OH)4', 'Ca2Al2Mn{3+}(Si2O7)(SiO4)O(OH)']
 
 
 
@@ -148,9 +148,9 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -232,7 +232,7 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.047 seconds)
+   **Total running time of the script:** ( 0 minutes  0.060 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_mindb.py:
@@ -251,13 +251,13 @@ use :func:`~pyrolite.mineral.mindb.get_mineral_group`:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: mineral_mindb.py <mineral_mindb.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: mineral_mindb.ipynb <mineral_mindb.ipynb>`
 

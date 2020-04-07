@@ -107,7 +107,7 @@ visualisations for the same data:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  8.577 seconds)
+   **Total running time of the script:** ( 0 minutes  8.461 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_heatscatter.py:
@@ -126,13 +126,13 @@ visualisations for the same data:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: heatscatter.py <heatscatter.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: heatscatter.ipynb <heatscatter.ipynb>`
 

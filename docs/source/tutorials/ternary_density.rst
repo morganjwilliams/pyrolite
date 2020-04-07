@@ -204,7 +204,7 @@ We can see how this works almost exactly the same for the histograms:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  9.140 seconds)
+   **Total running time of the script:** ( 0 minutes  7.991 seconds)
 
 
 .. _sphx_glr_download_tutorials_ternary_density.py:
@@ -223,13 +223,13 @@ We can see how this works almost exactly the same for the histograms:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: ternary_density.py <ternary_density.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: ternary_density.ipynb <ternary_density.ipynb>`
 

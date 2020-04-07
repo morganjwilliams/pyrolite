@@ -46,9 +46,9 @@ Geochemical Indexes and Selectors
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -106,9 +106,9 @@ Geochemical Indexes and Selectors
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -166,9 +166,9 @@ Geochemical Indexes and Selectors
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -220,9 +220,9 @@ Geochemical Indexes and Selectors
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -430,7 +430,7 @@ Oxides for elements with positive charges (up to U):
  .. code-block:: none
 
 
-    ['CeO', 'Ce2O3', 'CeO2', 'Ru2O', 'RuO', 'Ru2O3', 'RuO2', 'Ru2O5', 'RuO3', 'Ru2O7', 'RuO4', 'Hf2O', 'HfO', 'Hf2O3', 'HfO2', 'Co2O', 'CoO', 'Co2O3', 'CoO2', 'Co2O5', 'C2O', 'CO', 'C2O3', 'CO2', 'RaO', 'Bi2O', 'BiO', 'Bi2O3', 'BiO2', 'Bi2O5', 'Nb2O', 'NbO', 'Nb2O3', 'NbO2', 'Nb2O5', 'Th2O', 'ThO', 'Th2O3', 'ThO2', 'Fe2O', 'FeO', 'Fe2O3', 'FeO2', 'Fe2O5', 'FeO3', 'Fe2O7', 'Hg2O', 'HgO', 'HgO2', 'Te2O', 'TeO', 'Te2O3', 'TeO2', 'Te2O5', 'TeO3', 'K2O', 'N2O', 'NO', 'N2O3', 'NO2', 'N2O5', 'Mo2O', 'MoO', 'Mo2O3', 'MoO2', 'Mo2O5', 'MoO3', 'ErO', 'Er2O3', 'Cs2O', 'Na2O', 'Os2O', 'OsO', 'Os2O3', 'OsO2', 'Os2O5', 'OsO3', 'Os2O7', 'OsO4', 'Br2O', 'Br2O3', 'BrO2', 'Br2O5', 'Br2O7', 'Pa2O3', 'PaO2', 'Pa2O5', 'Ir2O', 'IrO', 'Ir2O3', 'IrO2', 'Ir2O5', 'IrO3', 'Ir2O7', 'IrO4', 'Ir2O9', 'Ca2O', 'CaO', 'Sb2O', 'SbO', 'Sb2O3', 'SbO2', 'Sb2O5', 'Li2O', 'Tc2O', 'TcO', 'Tc2O3', 'TcO2', 'Tc2O5', 'TcO3', 'Tc2O7', 'P2O', 'PO', 'P2O3', 'PO2', 'P2O5', 'La2O', 'LaO', 'La2O3', 'Zr2O', 'ZrO', 'Zr2O3', 'ZrO2', 'Tb2O', 'TbO', 'Tb2O3', 'TbO2', 'EuO', 'Eu2O3', 'Ag2O', 'AgO', 'Ag2O3', 'AgO2', 'Cl2O', 'ClO', 'Cl2O3', 'ClO2', 'Cl2O5', 'ClO3', 'Cl2O7', 'HoO', 'Ho2O3', 'PrO', 'Pr2O3', 'PrO2', 'Pr2O5', 'Mg2O', 'MgO', 'Cr2O', 'CrO', 'Cr2O3', 'CrO2', 'Cr2O5', 'CrO3', 'Tl2O', 'TlO', 'Tl2O3', 'Ba2O', 'BaO', 'B2O', 'BO', 'B2O3', 'Gd2O', 'GdO', 'Gd2O3', 'Ga2O', 'GaO', 'Ga2O3', 'Zn2O', 'ZnO', 'Au2O', 'AuO', 'Au2O3', 'Au2O5', 'RnO', 'RnO3', 'Rb2O', 'PmO', 'Pm2O3', 'NdO', 'Nd2O3', 'NdO2', 'V2O', 'VO', 'V2O3', 'VO2', 'V2O5', 'Cu2O', 'CuO', 'Cu2O3', 'CuO2', 'TmO', 'Tm2O3', 'Ni2O', 'NiO', 'Ni2O3', 'NiO2', 'Be2O', 'BeO', 'DyO', 'Dy2O3', 'DyO2', 'At2O', 'At2O3', 'At2O5', 'At2O7', 'LuO', 'Lu2O3', 'In2O', 'InO', 'In2O3', 'Ta2O', 'TaO', 'Ta2O3', 'TaO2', 'Ta2O5', 'Sn2O', 'SnO', 'Sn2O3', 'SnO2', 'Sc2O', 'ScO', 'Sc2O3', 'Si2O', 'SiO', 'Si2O3', 'SiO2', 'Sr2O', 'SrO', 'SmO', 'Sm2O3', 'W2O', 'WO', 'W2O3', 'WO2', 'W2O5', 'WO3', 'Pt2O', 'PtO', 'Pt2O3', 'PtO2', 'Pt2O5', 'PtO3', 'YbO', 'Yb2O3', 'Pb2O', 'PbO', 'Pb2O3', 'PbO2', 'Mn2O', 'MnO', 'Mn2O3', 'MnO2', 'Mn2O5', 'MnO3', 'Mn2O7', 'I2O', 'I2O3', 'IO2', 'I2O5', 'IO3', 'I2O7', 'Se2O', 'SeO', 'Se2O3', 'SeO2', 'Se2O5', 'SeO3', 'Y2O', 'YO', 'Y2O3', 'Al2O', 'AlO', 'Al2O3', 'S2O', 'SO', 'S2O3', 'SO2', 'S2O5', 'SO3', 'Ti2O', 'TiO', 'Ti2O3', 'TiO2', 'H2O', 'Ac2O3', 'Cd2O', 'CdO', 'Pd2O', 'PdO', 'Pd2O3', 'PdO2', 'Pd2O5', 'PdO3', 'As2O', 'AsO', 'As2O3', 'AsO2', 'As2O5', 'PoO', 'PoO2', 'Po2O5', 'PoO3', 'Ge2O', 'GeO', 'Ge2O3', 'GeO2', 'Re2O', 'ReO', 'Re2O3', 'ReO2', 'Re2O5', 'ReO3', 'Re2O7', 'Rh2O', 'RhO', 'Rh2O3', 'RhO2', 'Rh2O5', 'RhO3', 'Fr2O', 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3', 'FeOT', 'Fe2O3T', 'LOI']
+    ['Zr2O', 'ZrO', 'Zr2O3', 'ZrO2', 'CeO', 'Ce2O3', 'CeO2', 'Ca2O', 'CaO', 'Na2O', 'Zn2O', 'ZnO', 'Hg2O', 'HgO', 'HgO2', 'Ru2O', 'RuO', 'Ru2O3', 'RuO2', 'Ru2O5', 'RuO3', 'Ru2O7', 'RuO4', 'Tl2O', 'TlO', 'Tl2O3', 'K2O', 'HoO', 'Ho2O3', 'Fe2O', 'FeO', 'Fe2O3', 'FeO2', 'Fe2O5', 'FeO3', 'Fe2O7', 'Cl2O', 'ClO', 'Cl2O3', 'ClO2', 'Cl2O5', 'ClO3', 'Cl2O7', 'Cs2O', 'NdO', 'Nd2O3', 'NdO2', 'Th2O', 'ThO', 'Th2O3', 'ThO2', 'Sr2O', 'SrO', 'Au2O', 'AuO', 'Au2O3', 'Au2O5', 'H2O', 'YbO', 'Yb2O3', 'DyO', 'Dy2O3', 'DyO2', 'Mo2O', 'MoO', 'Mo2O3', 'MoO2', 'Mo2O5', 'MoO3', 'Li2O', 'ErO', 'Er2O3', 'At2O', 'At2O3', 'At2O5', 'At2O7', 'Se2O', 'SeO', 'Se2O3', 'SeO2', 'Se2O5', 'SeO3', 'Nb2O', 'NbO', 'Nb2O3', 'NbO2', 'Nb2O5', 'Os2O', 'OsO', 'Os2O3', 'OsO2', 'Os2O5', 'OsO3', 'Os2O7', 'OsO4', 'Si2O', 'SiO', 'Si2O3', 'SiO2', 'Bi2O', 'BiO', 'Bi2O3', 'BiO2', 'Bi2O5', 'Hf2O', 'HfO', 'Hf2O3', 'HfO2', 'Y2O', 'YO', 'Y2O3', 'LuO', 'Lu2O3', 'Mn2O', 'MnO', 'Mn2O3', 'MnO2', 'Mn2O5', 'MnO3', 'Mn2O7', 'Pb2O', 'PbO', 'Pb2O3', 'PbO2', 'S2O', 'SO', 'S2O3', 'SO2', 'S2O5', 'SO3', 'Tc2O', 'TcO', 'Tc2O3', 'TcO2', 'Tc2O5', 'TcO3', 'Tc2O7', 'TmO', 'Tm2O3', 'Sn2O', 'SnO', 'Sn2O3', 'SnO2', 'Rh2O', 'RhO', 'Rh2O3', 'RhO2', 'Rh2O5', 'RhO3', 'Re2O', 'ReO', 'Re2O3', 'ReO2', 'Re2O5', 'ReO3', 'Re2O7', 'Al2O', 'AlO', 'Al2O3', 'Ga2O', 'GaO', 'Ga2O3', 'Rb2O', 'Tb2O', 'TbO', 'Tb2O3', 'TbO2', 'PoO', 'PoO2', 'Po2O5', 'PoO3', 'P2O', 'PO', 'P2O3', 'PO2', 'P2O5', 'N2O', 'NO', 'N2O3', 'NO2', 'N2O5', 'EuO', 'Eu2O3', 'Ir2O', 'IrO', 'Ir2O3', 'IrO2', 'Ir2O5', 'IrO3', 'Ir2O7', 'IrO4', 'Ir2O9', 'Mg2O', 'MgO', 'Gd2O', 'GdO', 'Gd2O3', 'RaO', 'Ta2O', 'TaO', 'Ta2O3', 'TaO2', 'Ta2O5', 'Cr2O', 'CrO', 'Cr2O3', 'CrO2', 'Cr2O5', 'CrO3', 'C2O', 'CO', 'C2O3', 'CO2', 'Te2O', 'TeO', 'Te2O3', 'TeO2', 'Te2O5', 'TeO3', 'Pd2O', 'PdO', 'Pd2O3', 'PdO2', 'Pd2O5', 'PdO3', 'Ag2O', 'AgO', 'Ag2O3', 'AgO2', 'La2O', 'LaO', 'La2O3', 'W2O', 'WO', 'W2O3', 'WO2', 'W2O5', 'WO3', 'Ac2O3', 'Fr2O', 'I2O', 'I2O3', 'IO2', 'I2O5', 'IO3', 'I2O7', 'SmO', 'Sm2O3', 'B2O', 'BO', 'B2O3', 'V2O', 'VO', 'V2O3', 'VO2', 'V2O5', 'Ni2O', 'NiO', 'Ni2O3', 'NiO2', 'Ba2O', 'BaO', 'As2O', 'AsO', 'As2O3', 'AsO2', 'As2O5', 'Ti2O', 'TiO', 'Ti2O3', 'TiO2', 'Br2O', 'Br2O3', 'BrO2', 'Br2O5', 'Br2O7', 'In2O', 'InO', 'In2O3', 'Sc2O', 'ScO', 'Sc2O3', 'Be2O', 'BeO', 'Sb2O', 'SbO', 'Sb2O3', 'SbO2', 'Sb2O5', 'Cu2O', 'CuO', 'Cu2O3', 'CuO2', 'PmO', 'Pm2O3', 'Pt2O', 'PtO', 'Pt2O3', 'PtO2', 'Pt2O5', 'PtO3', 'Pa2O3', 'PaO2', 'Pa2O5', 'PrO', 'Pr2O3', 'PrO2', 'Pr2O5', 'Ge2O', 'GeO', 'Ge2O3', 'GeO2', 'U2O', 'UO', 'U2O3', 'UO2', 'U2O5', 'UO3', 'RnO', 'RnO3', 'Cd2O', 'CdO', 'Co2O', 'CoO', 'Co2O3', 'CoO2', 'Co2O5', 'FeOT', 'Fe2O3T', 'LOI']
 
 
 
@@ -457,7 +457,7 @@ Oxides for elements with positive charges (up to U):
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.017 seconds)
+   **Total running time of the script:** ( 0 minutes  0.467 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_indexes_selectors.py:
@@ -476,13 +476,13 @@ Oxides for elements with positive charges (up to U):
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: indexes_selectors.py <indexes_selectors.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: indexes_selectors.ipynb <indexes_selectors.ipynb>`
 

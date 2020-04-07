@@ -95,7 +95,7 @@ discrete observations down a drill hole:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.400 seconds)
+   **Total running time of the script:** ( 0 minutes  1.466 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_stem.py:
@@ -114,13 +114,13 @@ discrete observations down a drill hole:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: stem.py <stem.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: stem.ipynb <stem.ipynb>`
 

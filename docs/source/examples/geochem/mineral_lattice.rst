@@ -257,7 +257,7 @@ coefficient can be calculated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.914 seconds)
+   **Total running time of the script:** ( 0 minutes  4.319 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_lattice.py:
@@ -276,13 +276,13 @@ coefficient can be calculated:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: mineral_lattice.py <mineral_lattice.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: mineral_lattice.ipynb <mineral_lattice.ipynb>`
 

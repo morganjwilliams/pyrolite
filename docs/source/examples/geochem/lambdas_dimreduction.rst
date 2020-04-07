@@ -168,7 +168,7 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  19.621 seconds)
+   **Total running time of the script:** ( 0 minutes  19.953 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas_dimreduction.py:
@@ -187,13 +187,13 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: lambdas_dimreduction.py <lambdas_dimreduction.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: lambdas_dimreduction.ipynb <lambdas_dimreduction.ipynb>`
 

@@ -54,9 +54,9 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -147,9 +147,9 @@ Note that you can also use this function to calculate mass ratios:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -221,9 +221,9 @@ species within the single dataframe:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -265,7 +265,7 @@ species within the single dataframe:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.171 seconds)
+   **Total running time of the script:** ( 0 minutes  0.486 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_convert_chemistry.py:
@@ -284,13 +284,13 @@ species within the single dataframe:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: convert_chemistry.py <convert_chemistry.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: convert_chemistry.ipynb <convert_chemistry.ipynb>`
 

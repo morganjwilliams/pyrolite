@@ -412,7 +412,7 @@ you:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  18.245 seconds)
+   **Total running time of the script:** ( 0 minutes  17.274 seconds)
 
 
 .. _sphx_glr_download_examples_comp_compositional_data.py:
@@ -431,13 +431,13 @@ you:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: compositional_data.py <compositional_data.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: compositional_data.ipynb <compositional_data.ipynb>`
 

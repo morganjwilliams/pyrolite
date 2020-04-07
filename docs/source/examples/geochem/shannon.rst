@@ -45,7 +45,7 @@ Shannon Radii
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.098 seconds)
+   **Total running time of the script:** ( 0 minutes  1.586 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_shannon.py:
@@ -64,13 +64,13 @@ Shannon Radii
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: shannon.py <shannon.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: shannon.ipynb <shannon.ipynb>`
 

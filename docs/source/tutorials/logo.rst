@@ -244,7 +244,7 @@ We can also do this for individual samples, and estimate percentile contours:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  25.557 seconds)
+   **Total running time of the script:** ( 0 minutes  26.927 seconds)
 
 
 .. _sphx_glr_download_tutorials_logo.py:
@@ -263,13 +263,13 @@ We can also do this for individual samples, and estimate percentile contours:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: logo.py <logo.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: logo.ipynb <logo.ipynb>`
 
