@@ -40,9 +40,43 @@ Feature: `lambdas`_ Revamp
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-* Added `codacy` for code quality checking.
-* `~pyrolite.util.plot` broken down into subcomponents. This will result in minimal
-  changes to API usage where functions are imported explicitly.
+* Added `codacy` for code quality checking, and implemented numerous clean-ups
+  and a few new tests across the package.
+* Performance upgrades, largely for the documentation page.
+  The docs page should build and load faster, and have less memory hang-ups -
+  due to smaller default image sizes/DPI.
+* Removed dependency on :mod:`fancyimpute`, instead using functions from
+  :mod:`scikit-learn`
+* Added the mineral database to `MANIFEST.in` to allow this to be installed with
+  :mod:`pyrolite` (fixing a bug where this isn't present).
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :func:`~pyrolite.geochem.ind.REE` to default to :code:`dropPm=True`
+* Moved :mod:`pyrolite.mineral.ions` to :mod:`pyrolite.geochem.ions`
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :func:`~pyrolite.plot.spider.spider` to accept :code:`logy` keyword argument,
+  defaulting to :code:`True`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Broke down :mod:`pyrolite.util.plot` into submodules, and updated relevant imports.
+  This will result in minimal changes to API usage where functions are
+  imported explicitly.
+* Added a minimum figure dimension to :func:`~pyrolite.util.plot.axes.init_axes`
+  to avoid having null-dimensions during automatic figure generation from empty
+  datasets.
+* Added :func:`~pyrolite.util.synthetic.example_spider_data` to generate
+  an example dataset for demonstrating spider diagrams and associated functions.
+  This allowed detailed synthetic data generation for
+  :func:`~pyrolite.plot.pyroplot.spider` and :func:`pyrolite.plot.pyroplot.REE`
+  plotting examples to be cut down significantly.
+* Removed unused submodule :mod:`pyrolite.util.wfs`
 
 `0.2.5`_
 --------------
