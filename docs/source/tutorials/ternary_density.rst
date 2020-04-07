@@ -204,7 +204,7 @@ We can see how this works almost exactly the same for the histograms:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.991 seconds)
+   **Total running time of the script:** ( 0 minutes  3.597 seconds)
 
 
 .. _sphx_glr_download_tutorials_ternary_density.py:

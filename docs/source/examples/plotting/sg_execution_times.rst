@@ -5,24 +5,24 @@
 
 Computation times
 =================
-**01:24.143** total execution time for **examples_plotting** files:
+**00:28.344** total execution time for **examples_plotting** files:
 
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_spider.py` (``spider.py``)             | 00:24.205 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_spider.py` (``spider.py``)             | 00:07.640 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_density.py` (``density.py``)           | 00:21.377 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_density.py` (``density.py``)           | 00:05.971 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_REE_v_radii.py` (``REE_v_radii.py``)   | 00:08.680 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_heatscatter.py` (``heatscatter.py``)   | 00:03.503 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_heatscatter.py` (``heatscatter.py``)   | 00:08.461 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_REE_v_radii.py` (``REE_v_radii.py``)   | 00:03.319 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_ternary.py` (``ternary.py``)           | 00:06.425 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_manifold_vis.py` (``manifold_vis.py``) | 00:02.508 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_parallel.py` (``parallel.py``)         | 00:05.955 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_ternary.py` (``ternary.py``)           | 00:02.353 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_templates.py` (``templates.py``)       | 00:03.912 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_templates.py` (``templates.py``)       | 00:01.472 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_manifold_vis.py` (``manifold_vis.py``) | 00:03.662 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_parallel.py` (``parallel.py``)         | 00:01.124 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_plotting_stem.py` (``stem.py``)                 | 00:01.466 | 0.0 MB |
+| :ref:`sphx_glr_examples_plotting_stem.py` (``stem.py``)                 | 00:00.454 | 0.0 MB |
 +-------------------------------------------------------------------------+-----------+--------+

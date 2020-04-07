@@ -265,7 +265,7 @@ species within the single dataframe:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.486 seconds)
+   **Total running time of the script:** ( 0 minutes  0.259 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_convert_chemistry.py:

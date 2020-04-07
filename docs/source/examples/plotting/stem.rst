@@ -95,7 +95,7 @@ discrete observations down a drill hole:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.466 seconds)
+   **Total running time of the script:** ( 0 minutes  0.454 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_stem.py:

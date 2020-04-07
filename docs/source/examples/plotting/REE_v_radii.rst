@@ -130,7 +130,7 @@ for subsequent plotting:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  8.680 seconds)
+   **Total running time of the script:** ( 0 minutes  3.319 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:

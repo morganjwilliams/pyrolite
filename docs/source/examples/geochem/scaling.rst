@@ -95,7 +95,7 @@ Unit Scaling
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.134 seconds)
+   **Total running time of the script:** ( 0 minutes  0.084 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_scaling.py:

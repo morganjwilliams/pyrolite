@@ -5,26 +5,26 @@
 
 Computation times
 =================
-**00:33.515** total execution time for **examples_geochem** files:
+**00:22.712** total execution time for **examples_geochem** files:
 
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_lambdas_dimreduction.py` (``lambdas_dimreduction.py``)                     | 00:19.953 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_lambdas_dimreduction.py` (``lambdas_dimreduction.py``)                     | 00:16.739 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_mineral_lattice.py` (``mineral_lattice.py``)                               | 00:04.319 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_normalization.py` (``normalization.py``)                                   | 00:01.943 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_normalization.py` (``normalization.py``)                                   | 00:03.754 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_mineral_lattice.py` (``mineral_lattice.py``)                               | 00:01.516 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_lambdas_orthogonal_polynomials.py` (``lambdas_orthogonal_polynomials.py``) | 00:02.392 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_lambdas_orthogonal_polynomials.py` (``lambdas_orthogonal_polynomials.py``) | 00:01.259 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_shannon.py` (``shannon.py``)                                               | 00:01.586 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_indexes_selectors.py` (``indexes_selectors.py``)                           | 00:00.361 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_convert_chemistry.py` (``convert_chemistry.py``)                           | 00:00.486 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_mineral_endmembers.py` (``mineral_endmembers.py``)                         | 00:00.294 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_indexes_selectors.py` (``indexes_selectors.py``)                           | 00:00.467 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_convert_chemistry.py` (``convert_chemistry.py``)                           | 00:00.259 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_mineral_endmembers.py` (``mineral_endmembers.py``)                         | 00:00.365 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_shannon.py` (``shannon.py``)                                               | 00:00.206 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_scaling.py` (``scaling.py``)                                               | 00:00.134 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_scaling.py` (``scaling.py``)                                               | 00:00.084 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_geochem_mineral_mindb.py` (``mineral_mindb.py``)                                   | 00:00.060 | 0.0 MB |
+| :ref:`sphx_glr_examples_geochem_mineral_mindb.py` (``mineral_mindb.py``)                                   | 00:00.051 | 0.0 MB |
 +------------------------------------------------------------------------------------------------------------+-----------+--------+

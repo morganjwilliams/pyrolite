@@ -257,7 +257,7 @@ coefficient can be calculated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.319 seconds)
+   **Total running time of the script:** ( 0 minutes  1.516 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_lattice.py:
