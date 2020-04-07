@@ -31,7 +31,7 @@ Feature: `lambdas`_ Revamp
 ---------------------------
 
 * BUG: pyrolite lambdas differ slightly from O'Neill (2016) paper
-  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39`__)
+  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__)
 
 `Development`_
 --------------
