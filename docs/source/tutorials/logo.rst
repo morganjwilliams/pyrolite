@@ -23,11 +23,11 @@ analysis.
     import matplotlib.colors
     import matplotlib.cm
     from pyrolite.comp.codata import *
-    from pyrolite.util.skl import ILRTransform, ALRTransform
+    from pyrolite.util.skl.transform import ILRTransform, ALRTransform
     from pyrolite.util.synthetic import random_composition
 
     import pyrolite.plot
-    from pyrolite.util.plot import plot_pca_vectors, plot_stdev_ellipses
+    from pyrolite.util.plot.helpers import plot_pca_vectors, plot_stdev_ellipses
 
     np.random.seed(82)
 
@@ -244,7 +244,7 @@ We can also do this for individual samples, and estimate percentile contours:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  28.632 seconds)
+   **Total running time of the script:** ( 0 minutes  25.557 seconds)
 
 
 .. _sphx_glr_download_tutorials_logo.py:

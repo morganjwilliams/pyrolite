@@ -76,7 +76,7 @@ and interpoalted for the ternary heatmap:
     import matplotlib.pyplot as plt
     import pyrolite.plot
     from pyrolite.util.math import flattengrid
-    from pyrolite.util.plot import axes_to_ternary, share_axes
+    from pyrolite.util.plot.axes import axes_to_ternary, share_axes
 
     fig, ax = plt.subplots(3, 2, figsize=(6, 9))
     ax = ax.flat
@@ -204,7 +204,7 @@ We can see how this works almost exactly the same for the histograms:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  8.762 seconds)
+   **Total running time of the script:** ( 0 minutes  9.140 seconds)
 
 
 .. _sphx_glr_download_tutorials_ternary_density.py:
