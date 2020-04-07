@@ -130,7 +130,7 @@ for subsequent plotting:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  9.044 seconds)
+   **Total running time of the script:** ( 0 minutes  3.319 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:
@@ -149,13 +149,13 @@ for subsequent plotting:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: REE_v_radii.py <REE_v_radii.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: REE_v_radii.ipynb <REE_v_radii.ipynb>`
 

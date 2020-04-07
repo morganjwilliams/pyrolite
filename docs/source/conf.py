@@ -282,7 +282,7 @@ warnings.filterwarnings(
     " non-GUI backend, so cannot show the figure.",
 )
 
-from docpatch import *  # patch for sphinx_gallery pages
+from patch._sphinx_gallery_patch import *  # patch for sphinx_gallery pages
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
 

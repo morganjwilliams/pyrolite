@@ -229,7 +229,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  23.926 seconds)
+   **Total running time of the script:** ( 0 minutes  7.640 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:
@@ -248,13 +248,13 @@ modes for spider plots:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: spider.py <spider.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: spider.ipynb <spider.ipynb>`
 

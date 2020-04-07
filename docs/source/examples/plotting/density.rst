@@ -322,7 +322,7 @@ are specified:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  21.776 seconds)
+   **Total running time of the script:** ( 0 minutes  5.971 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_density.py:
@@ -341,13 +341,13 @@ are specified:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: density.py <density.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: density.ipynb <density.ipynb>`
 

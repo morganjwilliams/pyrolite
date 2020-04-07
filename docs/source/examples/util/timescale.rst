@@ -242,7 +242,7 @@ be integrated as a :class:`~pyrolite.util.time.Timescale` method, if there's int
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.674 seconds)
+   **Total running time of the script:** ( 0 minutes  2.824 seconds)
 
 
 .. _sphx_glr_download_examples_util_timescale.py:
@@ -261,13 +261,13 @@ be integrated as a :class:`~pyrolite.util.time.Timescale` method, if there's int
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: timescale.py <timescale.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: timescale.ipynb <timescale.ipynb>`
 

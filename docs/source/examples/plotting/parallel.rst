@@ -128,7 +128,7 @@ of spurious correlation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.479 seconds)
+   **Total running time of the script:** ( 0 minutes  1.124 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_parallel.py:
@@ -147,13 +147,13 @@ of spurious correlation:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: parallel.py <parallel.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: parallel.ipynb <parallel.ipynb>`
 

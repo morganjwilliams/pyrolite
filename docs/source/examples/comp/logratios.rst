@@ -141,7 +141,7 @@ Finally, we can also see where the logratio mean would fall:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  7.640 seconds)
+   **Total running time of the script:** ( 0 minutes  5.171 seconds)
 
 
 .. _sphx_glr_download_examples_comp_logratios.py:
@@ -160,13 +160,13 @@ Finally, we can also see where the logratio mean would fall:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: logratios.py <logratios.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: logratios.ipynb <logratios.ipynb>`
 

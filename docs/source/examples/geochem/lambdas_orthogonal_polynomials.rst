@@ -135,7 +135,7 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  2.268 seconds)
+   **Total running time of the script:** ( 0 minutes  1.259 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas_orthogonal_polynomials.py:
@@ -154,13 +154,13 @@ Element Patterns in Basalts. J Petrology 57, 1463–1508.
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: lambdas_orthogonal_polynomials.py <lambdas_orthogonal_polynomials.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: lambdas_orthogonal_polynomials.ipynb <lambdas_orthogonal_polynomials.ipynb>`
 

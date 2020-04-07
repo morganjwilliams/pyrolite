@@ -59,9 +59,9 @@ We can break this down into olivine endmebmers using the
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -113,9 +113,9 @@ endmembers:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -165,9 +165,9 @@ lookup the compositions for our endmembers:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -243,9 +243,9 @@ First we have to convert these element-based compositions to oxide-based composi
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -302,9 +302,9 @@ These can now be used with our endmember proportions to regenerate a composition
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -357,7 +357,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.232 seconds)
+   **Total running time of the script:** ( 0 minutes  0.294 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:
@@ -376,13 +376,13 @@ To make sure these compositions are within 0.01 percent:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: mineral_endmembers.py <mineral_endmembers.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: mineral_endmembers.ipynb <mineral_endmembers.ipynb>`
 

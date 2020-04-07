@@ -89,12 +89,12 @@ plt.show()
 modes = [
     ("plot", "plot", [], dict(color="k", alpha=0.01)),
     ("fill", "fill", [], dict(color="k", alpha=0.5)),
-    ("binkde", "binkde", [], dict(resolution=10)),
+    ("binkde", "binkde", [], dict(resolution=5)),
     (
         "binkde",
         "binkde contours specified",
         [],
-        dict(contours=[0.95], resolution=10),  # 95th percentile contour
+        dict(contours=[0.95], resolution=5),  # 95th percentile contour
     ),
     ("histogram", "histogram", [], dict(resolution=5, ybins=30)),
 ]

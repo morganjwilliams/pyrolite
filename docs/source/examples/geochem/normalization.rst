@@ -94,7 +94,7 @@ Currently available models include:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.263 seconds)
+   **Total running time of the script:** ( 0 minutes  1.943 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_normalization.py:
@@ -113,13 +113,13 @@ Currently available models include:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: normalization.py <normalization.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: normalization.ipynb <normalization.ipynb>`
 

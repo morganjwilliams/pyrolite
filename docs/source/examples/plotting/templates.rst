@@ -125,7 +125,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.931 seconds)
+   **Total running time of the script:** ( 0 minutes  1.472 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:
@@ -144,13 +144,13 @@ and within the pyrolite documentation:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: templates.py <templates.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: templates.ipynb <templates.ipynb>`
 

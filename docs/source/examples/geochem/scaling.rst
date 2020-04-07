@@ -45,9 +45,9 @@ Unit Scaling
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -95,7 +95,7 @@ Unit Scaling
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.075 seconds)
+   **Total running time of the script:** ( 0 minutes  0.084 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_scaling.py:
@@ -114,13 +114,13 @@ Unit Scaling
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: scaling.py <scaling.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: scaling.ipynb <scaling.ipynb>`
 
