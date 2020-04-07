@@ -9,7 +9,3 @@ This page will list packages which have been developed as extensions to pyrolite
 
 `pyrolite-meltsutil <https://pyrolite-meltsutil.readthedocs.io>`__
 -------------------------------------------------------------------
-
-  .. automodule:: pyrolite_meltsutil
-      :members:
-      :undoc-members:
