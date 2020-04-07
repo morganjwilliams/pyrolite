@@ -17,7 +17,7 @@ def save_figure(
     """
     Save a figure at a specified location in a number of formats.
     """
-    default_config = dict(dpi=600, bbox_inches="tight", transparent=True)
+    default_config = dict(bbox_inches="tight", transparent=True)
     config = default_config.copy()
     config.update(kwargs)
     for fmt in save_fmts:
