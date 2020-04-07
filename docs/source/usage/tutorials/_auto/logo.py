@@ -16,11 +16,11 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import matplotlib.cm
 from pyrolite.comp.codata import *
-from pyrolite.util.skl import ILRTransform, ALRTransform
+from pyrolite.util.skl.transform import ILRTransform, ALRTransform
 from pyrolite.util.synthetic import random_composition
 
 import pyrolite.plot
-from pyrolite.util.plot import plot_pca_vectors, plot_stdev_ellipses
+from pyrolite.util.plot.helpers import plot_pca_vectors, plot_stdev_ellipses
 
 # sphinx_gallery_thumbnail_number = 6
 np.random.seed(82)
