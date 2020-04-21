@@ -25,7 +25,7 @@ __shannon__ = pd.read_csv(_shannonradiifile).set_index("index", drop=True)
 assert hasattr(__shannon__, "element")
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+@functools.lru_cache(maxsize=4)  # cache outputs for speed
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
     Provides a list of elements up to a particular cutoff (by default including U).
@@ -74,7 +74,7 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
         return elements
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+@functools.lru_cache(maxsize=2)  # cache outputs for speed
 def REE(output="string", dropPm=True):
     """
     Provides a list of Rare Earth Elements.
@@ -168,7 +168,7 @@ def common_oxides(
         return oxides
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+#@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def simple_oxides(cation, output="string"):
     """
     Creates a list of oxides for a cationic element (oxide of ions with c=1+ and above).
