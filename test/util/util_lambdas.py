@@ -1,9 +1,14 @@
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.util.lambdas import *
+from pyrolite.util.lambdas import (
+    orthogonal_polynomial_constants,
+    evaluate_lambda_poly,
+    get_lambda_poly_func,
+)
 from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
+
 
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthagonal polynomial parameters."""
@@ -22,7 +27,7 @@ class TestOPConstants(unittest.TestCase):
 
     def test_against_original(self):
         """Check that the constants line up with Hugh's paper."""
-        ret = OP_constants(self.xs, degree=self.default_degree)
+        ret = orthogonal_polynomial_constants(self.xs, degree=self.default_degree)
         print(ret, self.expect)
         for out, expect in zip(ret, self.expect):
             with self.subTest(out=out, expect=expect):
@@ -40,7 +45,7 @@ class TestOPConstants(unittest.TestCase):
         """Tests operation on different x arrays."""
         for xs in [self.xs, self.xs[1:], self.xs[2:-2]]:
             with self.subTest(xs=xs):
-                ret = OP_constants(xs, degree=self.default_degree)
+                ret = orthogonal_polynomial_constants(xs, degree=self.default_degree)
                 self.assertTrue(not len(ret[0]))  # first item is empty
                 self.assertTrue(len(ret) == self.default_degree)
 
@@ -48,10 +53,10 @@ class TestOPConstants(unittest.TestCase):
         """Tests generation of different degree polynomial parameters."""
 
         max_degree = 4
-        expected = OP_constants(self.xs, degree=max_degree)
+        expected = orthogonal_polynomial_constants(self.xs, degree=max_degree)
         for degree in range(1, max_degree):
             with self.subTest(degree=degree):
-                ret = OP_constants(self.xs, degree=degree)
+                ret = orthogonal_polynomial_constants(self.xs, degree=degree)
                 self.assertTrue(not len(ret[0]))  # first item is empty
                 self.assertTrue(len(ret) == degree)
                 # the parameter values should be independent of the degree.
@@ -74,13 +79,15 @@ class TestOPConstants(unittest.TestCase):
         the test (by a factor prop. to e**(len(ps)+1)).
         """
         eps = np.finfo(float).eps
-        hightol_result = OP_constants(
+        hightol_result = orthogonal_polynomial_constants(
             self.xs, degree=self.default_degree, tol=10 ** -16
         )
         for pow in np.linspace(np.log(eps * 1000.0), -5, 3):
             tol = np.exp(pow)
             with self.subTest(tol=tol):
-                ret = OP_constants(self.xs, degree=self.default_degree, tol=tol)
+                ret = orthogonal_polynomial_constants(
+                    self.xs, degree=self.default_degree, tol=tol
+                )
                 self.assertTrue(not len(ret[0]))  # first item is empty
                 self.assertTrue(len(ret) == self.default_degree)
                 for ix, ps in enumerate(ret):
@@ -92,7 +99,7 @@ class TestOPConstants(unittest.TestCase):
                         self.assertTrue(np.allclose(a, b, atol=test_tol))
 
 
-class TestLambdaPolyFunc(unittest.TestCase):
+class TestGetLambdaPolyFunc(unittest.TestCase):
     """Checks the generation of lambda polynomial functions."""
 
     def setUp(self):
@@ -100,17 +107,17 @@ class TestLambdaPolyFunc(unittest.TestCase):
         self.xs = np.linspace(0.9, 1.1, 5)
 
     def test_noparams(self):
-        ret = lambda_poly_func(self.lambdas, pxs=self.xs)
+        ret = get_lambda_poly_func(self.lambdas, pxs=self.xs)
         self.assertTrue(callable(ret))
 
     def test_noparams_noxs(self):
         with self.assertRaises(AssertionError):
-            ret = lambda_poly_func(self.lambdas)
+            ret = get_lambda_poly_func(self.lambdas)
             self.assertTrue(callable(ret))
 
     def test_function_params(self):
-        params = OP_constants(self.xs, degree=len(self.lambdas))
-        ret = lambda_poly_func(self.lambdas, params=params)
+        params = orthogonal_polynomial_constants(self.xs, degree=len(self.lambdas))
+        ret = get_lambda_poly_func(self.lambdas, params=params)
         self.assertTrue(callable(ret))
 
 

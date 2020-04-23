@@ -488,7 +488,7 @@ class pyrochem(object):
         ---------
         :func:`~pyrolite.geochem.ind.get_ionic_radii`
         :func:`~pyrolite.util.lambdas.lambdas`
-        :func:`~pyrolite.util.lambdas.OP_constants`
+        :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
         """
         return transform.lambda_lnREE(

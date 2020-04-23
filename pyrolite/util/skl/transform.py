@@ -15,7 +15,7 @@ from ...comp.codata import (
     boxcox,
     inverse_boxcox,
 )
-from ..lambdas import OP_constants
+from ..lambdas import orthogonal_polynomial_constants
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -352,7 +352,9 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
         self.exclude = exclude
         if params is None:
             self.degree = degree
-            self.params = OP_constants(self.radii, degree=self.degree)
+            self.params = orthogonal_polynomial_constants(
+                self.radii, degree=self.degree
+            )
         else:
             self.params = params
             self.degree = len(params)
@@ -366,7 +368,9 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
         if not all(ree_present):
             self.ree = [i for i in self.ree if i in X.columns]
             self.radii = self.radii[ree_present]
-            self.params = OP_constants(self.radii, degree=self.degree)
+            self.params = orthogonal_polynomial_constants(
+                self.radii, degree=self.degree
+            )
 
         return transform.lambda_lnREE(
             X,

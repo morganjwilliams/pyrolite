@@ -9,7 +9,11 @@ from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
-from ..util.lambdas import OP_constants, lambdas, lambda_poly_func
+from ..util.lambdas import (
+    orthogonal_polynomial_constants,
+    lambdas,
+    get_lambda_poly_func,
+)
 
 from .ind import (
     REE,
@@ -565,7 +569,7 @@ def lambda_lnREE(
     ---------
     :func:`~pyrolite.geochem.ind.get_ionic_radii`
     :func:`~pyrolite.util.lambdas.lambdas`
-    :func:`~pyrolite.util.lambdas.OP_constants`
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     non_null_cols = df.columns[~df.isnull().all(axis=0)]
@@ -579,14 +583,12 @@ def lambda_lnREE(
     radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
     if params is None:
-        params = OP_constants(radii, degree=degree)
+        params = orthogonal_polynomial_constants(radii, degree=degree)
     else:
         degree = len(params)
 
     null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
     norm_df = df.loc[~null_in_row, ree].copy()  # initialize normdf
-
-    labels = [chr(955) + str(d) for d in range(degree)]
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
@@ -604,29 +606,23 @@ def lambda_lnREE(
         norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
 
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
-    norm_df.loc[:, ree] = norm_df.loc[:, ree].applymap(np.log)
+    norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    lambdadf = pd.DataFrame(index=df.index, columns=labels)
-    lambda_partial = functools.partial(
-        lambdas, xs=radii, params=params, degree=degree, **kwargs
-    )  # pass kwargs to lambdas
-    # apply along rows
-    logger.debug("lambda-fitting")
-    lambdadf.loc[~null_in_row, labels] = np.apply_along_axis(
-        lambda_partial, 1, norm_df.values
-    )
-    lambdadf.loc[(lambdadf == 0.0).all(axis=1), :] = np.nan
+    try:
+        lambdadf = lambdas(norm_df, params=params, degree=degree, **kwargs)
+    except np.linalg.LinAlgError:  # singular matrix
+        kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
+        lambdadf = lambdas(norm_df, params=params, degree=degree, **kwargs)
+
     if append is not None:
         if "function" in append:
             # append the smooth f(radii) function to the dataframe
             func_partial = functools.partial(
-                lambda_poly_func, pxs=radii, params=params, degree=degree
+                get_lambda_poly_func, pxs=radii, params=params, degree=degree
             )
             lambdadf["lambda_poly_func"] = np.apply_along_axis(
-                func_partial, 1, lambdadf.values
+                func_partial, 1, lambdadf
             )
-
-    lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

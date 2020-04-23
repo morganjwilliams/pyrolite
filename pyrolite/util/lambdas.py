@@ -1,16 +1,19 @@
 import numpy as np
+import pandas as pd
 from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
 from functools import partial
 import scipy
+from ..geochem.ind import REE, get_ionic_radii
 from .meta import update_docstring_references
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+
 @update_docstring_references
-def OP_constants(xs, degree=3, rounding=None, tol=10 ** -14):
+def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
     r"""
     Finds the parameters
     :math:`(\beta_0), (\gamma_0, \gamma_1), (\delta_0, \delta_1, \delta_2)` etc.
@@ -91,9 +94,13 @@ def OP_constants(xs, degree=3, rounding=None, tol=10 ** -14):
     return params
 
 
-def lambda_poly(x, ps):
+########################################################################################
+
+
+def evaluate_lambda_poly(x, ps):
     """
-    Polynomial lambda_n(x) given parameters ps with len(ps) = n.
+    Evaluate polynomial `lambda_n(x)` given a tuple of parameters `ps` with length
+    equal to the polynomial degree.
 
     Parameters
     -----------
@@ -114,112 +121,7 @@ def lambda_poly(x, ps):
     return result.astype(np.float)
 
 
-def lambda_min_func(ls, ys, arrs, power=2.0):
-    """
-    Cost function for lambda optitmization.
-
-    Parameters
-    ------------
-    ls : :class:`numpy.ndarray`
-        Lambda values, effectively weights for the polynomial components.
-    ys : :class:`numpy.ndarray`
-        Target y values.
-    arrs : :class:`numpy.ndarray`
-        Arrays representing the individual unweighted orthaogonal polynomial components.
-        E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
-    power : :class:`float`
-        Power for the cost function. 1 for MAE/L1 norm, 2 for MSD/L2 norm.
-
-    Returns
-    -------
-    :class:`numpy.ndarray`
-        Cost at the given set of `ls`.
-
-    Todo
-    -----
-        * Rewrite cost function for readability with :func:`lambdas`.
-    """
-    cost = np.abs(np.dot(ls, arrs) - ys) ** power
-    cost[np.isnan(cost)] = 0.0  # can't change nans - don't penalise them
-    return cost
-
-
-@update_docstring_references
-def lambdas(
-    arr: np.ndarray,
-    xs=np.array([]),
-    params=None,
-    guess=None,
-    degree=5,
-    costf_power=2.0,
-    residuals=False,
-    min_func=lambda_min_func,
-):
-    """
-    Parameterises values based on linear combination of orthogonal polynomials
-    over a given set of values for independent variable `x`. [#ref_1]_
-
-    Parameters
-    -----------
-    arr : :class:`numpy.ndarray`
-        Target data to fit. For geochemical data, this is typically normalised
-        so we can fit a smooth function.
-    xs : :class:`numpy.ndarray`
-        Values of `x` to construct the polymomials over.
-    params : :class:`list`, :code:`None`
-        Orthogonal polynomial coefficients (see :func:`OP_constants`). Defaults to
-        `None`, in which case these coefficinets are generated automatically.
-    guess : :class:`numpy.ndarray`
-        Starting for values of lambdas. Used as starting point for optimization.
-    degree : :class:`int`
-        Maximum degree polymomial component to include.
-    costf_power : :class:`float`
-        Power of the optimization cost function.
-    residuals : :class:`bool`
-        Whether to return residuals with the optimized results.
-    min_func : :class:`Callable`
-        Cost function to use for optimization of lambdas.
-
-    Returns
-    --------
-    :class:`numpy.ndarray` | (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
-        Optimial results for weights of orthogonal polymomial regression (`lambdas`).
-
-    See Also
-    ---------
-    :func:`~pyrolite.util.lambdas.OP_constants`
-    :func:`~pyrolite.geochem.transform.lambda_lnREE`
-
-    Todo
-    -----
-        * Change the cost function such that the power is controlled externally
-
-    References
-    -----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
-           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
-    """
-    if np.isnan(arr).any():  # With missing data, the method can't be used.
-        x = np.nan * np.ones(degree)
-        res = np.nan * np.ones(degree)
-    else:
-        guess = guess or np.exp(np.arange(degree) + 2)
-        params = params or OP_constants(xs, degree=degree)
-        # arrays representing the unweighted individual polynomial components
-        fs = np.array([lambda_poly(xs, pset) for pset in params])
-        result = scipy.optimize.least_squares(
-            min_func, guess, args=(arr, fs, costf_power)
-        )
-        x = result.x
-        res = result.fun
-    if residuals:
-        return x, res
-    else:
-        return x
-
-
-def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
+def get_lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     """
     Expansion of lambda parameters back to the original space. Returns a
     function which evaluates the sum of the orthogonal polynomials at given
@@ -239,7 +141,7 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     See Also
     ---------
     :func:`~pyrolite.util.lambdas.lambdas`
-    :func:`~pyrolite.util.lambdas.OP_constants`
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     Notes
@@ -247,13 +149,13 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
         .. [#note_1] Only needed if parameters are not supplied
     """
     if params is None and pxs is not None:
-        params = OP_constants(pxs, degree=degree)
+        params = orthogonal_polynomial_constants(pxs, degree=degree)
     elif params is None and pxs is None:
         msg = """Must provide either x values to construct parameters,
                  or the parameters themselves."""
         raise AssertionError(msg)
 
-    def lambda_poly_f(xarr):
+    def _lambda_evaluator(xarr):
         """
         Calculates the sum of decomposed polynomial components
         at given x values.
@@ -263,7 +165,242 @@ def lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
         xarr: :class:`numpy.ndarray`
             X values at which to evaluate the function.
         """
-        arrs = np.array([lambda_poly(xarr, pset) for pset in params])
+        arrs = np.array([evaluate_lambda_poly(xarr, pset) for pset in params])
         return np.dot(lambdas, arrs)
 
-    return lambda_poly_f
+    return _lambda_evaluator
+
+
+########################################################################################
+
+
+def get_polynomial_matrix(radii, params=None):
+    """
+    Create the matrix `A` with polynomial components across the columns,
+    and increasing order down the rows.
+
+    Parameters
+    -----------
+    radii : :class:`list`, :class:`numpy.ndarray`
+        Radii at which to evaluate the orthogonal polynomial.
+    params : :class:`tuple`
+        Tuple of constants for the orthogonal polynomial.
+
+    Returns
+    --------
+    :class:`numpy.ndarray`
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    """
+    radii = np.array(radii)
+    degree = len(params)
+    pwrs = np.arange(degree).reshape(degree, 1)
+    a = np.vander(radii, degree, increasing=True).T
+    b = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
+    A_radii = a[:, np.newaxis, :] * b[np.newaxis, :, :]
+    A = A_radii.sum(axis=-1)  # `A` as in O'Neill (2016)
+    return A
+
+
+@update_docstring_references
+def _lambdas_ONeill2016(df, radii, params=None):
+    """
+    Implementation of the original algorithm. [#ref_1]_
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe of REE data, with sample analyses organised by row.
+    radii : :class:`list`, :class:`numpy.ndarray`
+        Radii at which to evaluate the orthogonal polynomial.
+    params : :class:`tuple`
+        Tuple of constants for the orthogonal polynomial.
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+    """
+    assert params is not None
+    degree = len(params)
+    # initialise the dataframe
+    lambdas = pd.DataFrame(
+        index=df.index,
+        columns=[chr(955) + str(d) for d in range(degree)],
+        dtype="float32",
+    )
+    A = get_polynomial_matrix(radii, params=params)
+    invA = np.linalg.inv(A)
+    V = np.vander(radii, degree, increasing=True).T
+    for row in range(df.index.size):
+        Z = (df.iloc[row, :].fillna(0).values * V).sum(axis=-1)
+        lambdas.iloc[row, :] = invA @ Z
+    return lambdas
+
+
+########################################################################################
+
+
+def _lambda_min_func(ls, ys, poly_components, shape, power=1.0):
+    """
+    Cost function for lambda optitmization.
+
+    Parameters
+    ------------
+    ls : :class:`numpy.ndarray`
+        Lambda values, effectively weights for the polynomial components.
+    ys : :class:`numpy.ndarray`
+        Target y values.
+    poly_components : :class:`numpy.ndarray`
+        Arrays representing the individual unweighted orthaogonal polynomial components.
+        E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
+    power : :class:`float`
+        Power for the cost function. 1 for MAE/L1 norm, 2 for MSD/L2 norm.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Cost at the given set of `ls`.
+    """
+    cost = np.abs(ls @ poly_components - ys) ** power
+    cost[np.isnan(cost)] = 0.0  # can't change nans - don't penalise them
+    return cost
+
+
+@update_docstring_references
+def _lambdas_optimize(
+    df: pd.DataFrame,
+    radii,
+    params=None,
+    guess=None,
+    degree=5,
+    cost_function=_lambda_min_func,
+    cost_function_power=1.0,
+    residuals=False,
+):
+    """
+    Parameterises values based on linear combination of orthogonal polynomials
+    over a given set of values for independent variable `x`. [#ref_1]_
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Target data to fit. For geochemical data, this is typically normalised
+        so we can fit a smooth function.
+    radii : :class:`list`, :class:`numpy.ndarray`
+        Radii at which to evaluate the orthogonal polynomial.
+    params : :class:`list`, :code:`None`
+        Orthogonal polynomial coefficients (see
+        :func:`orthogonal_polynomial_constants`).
+    cost_function : :class:`Callable`
+        Cost function to use for optimization of lambdas.
+    cost_function_power : :class:`float`
+        Power of the optimization cost function.
+    residuals : :class:`bool`
+        Whether to return residuals with the optimized results.
+
+    Returns
+    --------
+    :class:`numpy.ndarray` | (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+        Optimial results for weights of orthogonal polymomial regression (`lambdas`).
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    Todo
+    -----
+        * Change the cost function such that the power is controlled externally
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+    """
+    assert params is not None
+    degree = len(params)
+    lambdas = pd.DataFrame(
+        index=df.index,
+        columns=[chr(955) + str(d) for d in range(degree)],
+        dtype="float32",
+    )
+    starting_guess = np.exp(np.arange(degree) + 2) / 2
+    # arrays representing the unweighted individual polynomial components
+    poly_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
+
+    for row in range(df.index.size):
+        if np.isnan(
+            df.iloc[row, :].values
+        ).any():  # With missing data, the method can't be used.
+            x = np.nan * np.ones(degree)
+            res = np.nan * np.ones(degree)
+        else:
+            result = scipy.optimize.least_squares(
+                cost_function,
+                starting_guess,
+                args=(
+                    df.iloc[row, :].fillna(0).values,
+                    poly_components,
+                    cost_function_power,
+                ),
+            )
+            x = result.x
+            # redisuals res = result.fun
+        lambdas.iloc[row, :] = x
+    return lambdas
+
+
+########################################################################################
+
+
+@update_docstring_references
+def lambdas(df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwargs):
+    """
+    Parameterises values based on linear combination of orthogonal polynomials
+    over a given set of values for independent variable `x`. [#ref_1]_
+
+    Parameters
+    ----------
+
+    Returns
+    --------
+
+    See Also
+    ---------
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+
+    References
+    -----------
+    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+    """
+    # parameters should be set here, and only once
+    if params is None:  # use standard parameters as used in O'Neill 2016 paper
+        default_REE = [i for i in REE() if i not in ["Eu"]]
+        default_radii = get_ionic_radii(default_REE, charge=3, coordination=8)
+        params = orthogonal_polynomial_constants(default_radii, degree=degree)
+    # exclude completely empty columns
+    columns = [c for c in df.columns if c not in exclude and np.nansum(df[c])]
+    df[~np.isfinite(df)] = 0  # deal with np.nan, np.inf
+    df = df[columns]
+    radii = get_ionic_radii(df.columns.tolist(), charge=3, coordination=8)
+    if "oneill" in algorithm.lower():
+        return _lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
+    else:
+        return _lambdas_optimize(df, radii=radii, params=params, **kwargs)
