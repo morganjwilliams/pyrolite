@@ -253,7 +253,7 @@ def _lambdas_ONeill2016(df, radii, params=None):
 ########################################################################################
 
 
-def _lambda_min_func(ls, ys, poly_components, shape, power=1.0):
+def _lambda_min_func(ls, ys, poly_components, power=1.0):
     """
     Cost function for lambda optitmization.
 
@@ -267,7 +267,7 @@ def _lambda_min_func(ls, ys, poly_components, shape, power=1.0):
         Arrays representing the individual unweighted orthaogonal polynomial components.
         E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
     power : :class:`float`
-        Power for the cost function. 1 for MAE/L1 norm, 2 for MSD/L2 norm.
+        Power for the cost function.
 
     Returns
     -------
@@ -378,7 +378,7 @@ def lambdas(df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwa
     Returns
     --------
     :class:`pd.DataFrame`
-    
+
     See Also
     ---------
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
