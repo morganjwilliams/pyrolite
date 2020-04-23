@@ -306,8 +306,6 @@ def _lambdas_optimize(
         :func:`orthogonal_polynomial_constants`).
     cost_function : :class:`Callable`
         Cost function to use for optimization of lambdas.
-    cost_function_power : :class:`float`
-        Power of the optimization cost function.
     residuals : :class:`bool`
         Whether to return residuals with the optimized results.
 
@@ -320,10 +318,6 @@ def _lambdas_optimize(
     ---------
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
-
-    Todo
-    -----
-        * Change the cost function such that the power is controlled externally
 
     References
     -----------
@@ -352,11 +346,7 @@ def _lambdas_optimize(
             result = scipy.optimize.least_squares(
                 cost_function,
                 starting_guess,
-                args=(
-                    df.iloc[row, :].fillna(0).values,
-                    poly_components,
-                    cost_function_power,
-                ),
+                args=(df.iloc[row, :].fillna(0).values, poly_components,),
             )
             x = result.x
             # redisuals res = result.fun
