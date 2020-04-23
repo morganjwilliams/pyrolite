@@ -365,10 +365,20 @@ def lambdas(df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwa
 
     Parameters
     ----------
+    df : :class:`pd.DataFrame`
+        Dataframe containing REE Data.
+    params : :class:`tuple`
+        Pre-computed parameters for the orthogonal polynomials. Optionally specified,
+        otherwise defaults the parameterisation as in O'Neill (2016). [#ref_1]_
+    degree : :class:`int`
+        Degree of orthogonal polynomial fit.
+    algorithm : :class:`str`
+        Algorithm to use for fitting the orthogonal polynomials.
 
     Returns
     --------
-
+    :class:`pd.DataFrame`
+    
     See Also
     ---------
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
