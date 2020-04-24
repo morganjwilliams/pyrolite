@@ -366,7 +366,7 @@ class TestGetRatio(unittest.TestCase):
         """Check the ratio addition copes with no records."""
         df = self.df.head(0).copy()
         ratio = "CaO/Si"
-        r =  get_ratio(df, ratio=ratio)
+        r = get_ratio(df, ratio=ratio)
         self.assertTrue(r.name == ratio)
 
     def test_one(self):
@@ -497,13 +497,6 @@ class TestLambdaLnREE(unittest.TestCase):
             with self.subTest(norm_to=norm_to):
                 ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
-
-    def test_append(self):
-        """
-        Tests the ability to append a function to the dataframe returned.
-        """
-        ret = lambda_lnREE(self.df, degree=self.default_degree, append=["function"])
-        self.assertTrue("lambda_poly_func" in ret.columns)
 
 
 class TestConvertChemistry(unittest.TestCase):
