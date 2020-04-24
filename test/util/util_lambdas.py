@@ -107,7 +107,7 @@ class TestGetLambdaPolyFunc(unittest.TestCase):
         self.xs = np.linspace(0.9, 1.1, 5)
 
     def test_noparams(self):
-        ret = get_lambda_poly_func(self.lambdas, pxs=self.xs)
+        ret = get_lambda_poly_func(self.lambdas, radii=self.xs)
         self.assertTrue(callable(ret))
 
     def test_noparams_noxs(self):
