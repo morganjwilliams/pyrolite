@@ -121,7 +121,7 @@ def evaluate_lambda_poly(x, ps):
     return result.astype(np.float)
 
 
-def get_lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
+def get_lambda_poly_func(lambdas: np.ndarray, params=None, radii=None, degree=5):
     """
     Expansion of lambda parameters back to the original space. Returns a
     function which evaluates the sum of the orthogonal polynomials at given
@@ -133,8 +133,8 @@ def get_lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
         Lambda values to weight combination of polynomials.
     params: :class:`list`(:class:`tuple`)
         Parameters for the orthogonal polynomial decomposition.
-    pxs: :class:`numpy.ndarray`
-        x values used to construct the lambda values. [#note_1]_
+    radii: :class:`numpy.ndarray`
+        Radii values used to construct the lambda values. [#note_1]_
     degree: :class:`int`
         Degree of the orthogonal polynomial decomposition. [#note_1]_
 
@@ -148,9 +148,9 @@ def get_lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
     -----
         .. [#note_1] Only needed if parameters are not supplied
     """
-    if params is None and pxs is not None:
-        params = orthogonal_polynomial_constants(pxs, degree=degree)
-    elif params is None and pxs is None:
+    if params is None and radii is not None:
+        params = orthogonal_polynomial_constants(radii, degree=degree)
+    elif params is None and radii is None:
         msg = """Must provide either x values to construct parameters,
                  or the parameters themselves."""
         raise AssertionError(msg)
@@ -165,8 +165,10 @@ def get_lambda_poly_func(lambdas: np.ndarray, params=None, pxs=None, degree=5):
         xarr: :class:`numpy.ndarray`
             X values at which to evaluate the function.
         """
-        arrs = np.array([evaluate_lambda_poly(xarr, pset) for pset in params])
-        return np.dot(lambdas, arrs)
+        poly_components = np.array(
+            [evaluate_lambda_poly(xarr, pset) for pset in params]
+        )
+        return np.dot(lambdas, poly_components)
 
     return _lambda_evaluator
 
@@ -265,7 +267,7 @@ def _lambda_min_func(ls, ys, poly_components, power=1.0):
         Target y values.
     poly_components : :class:`numpy.ndarray`
         Arrays representing the individual unweighted orthaogonal polynomial components.
-        E.g. arrs[0] = `[a, a, a]`, arrs[1] = `[(x-b), (x-b), (x-b)]` etc.
+        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]`
     power : :class:`float`
         Power for the cost function.
 
