@@ -105,7 +105,6 @@ plt.tight_layout()
 # We've used a synthetic dataset here which is by design approximately normally
 # distrtibuted, so the values themeselves here are not particularly revealing,
 # but they do illustrate the expected mangitudes of values for each of the parameters.
-
 #
 # For more on using orthogonal polynomials to describe geochemical pattern data, dig
 # into the paper which introduced the method to geochemists:
