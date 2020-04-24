@@ -366,29 +366,9 @@ Geochemistry Examples
 
 .. only:: html
 
- .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_dimreduction_thumb.png
+ .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_thumb.png
 
-     :ref:`sphx_glr_examples_geochem_lambdas_dimreduction.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/geochem/lambdas_dimreduction
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="lambdas: Visualising Orthogonal Polynomials">
-
-.. only:: html
-
- .. figure:: /examples/geochem/images/thumb/sphx_glr_lambdas_orthogonal_polynomials_thumb.png
-
-     :ref:`sphx_glr_examples_geochem_lambdas_orthogonal_polynomials.py`
+     :ref:`sphx_glr_examples_geochem_lambdas.py`
 
 .. raw:: html
 
@@ -398,7 +378,7 @@ Geochemistry Examples
 .. toctree::
    :hidden:
 
-   /examples/geochem/lambdas_orthogonal_polynomials
+   /examples/geochem/lambdas
 
 .. raw:: html
 
