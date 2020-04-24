@@ -9,12 +9,7 @@ from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
-from ..util.lambdas import (
-    orthogonal_polynomial_constants,
-    lambdas,
-    get_lambda_poly_func,
-)
-
+from ..util import lambdas
 from .ind import (
     REE,
     get_ionic_radii,
@@ -525,7 +520,6 @@ def lambda_lnREE(
     exclude=["Pm", "Eu"],
     params=None,
     degree=4,
-    append=[],
     scale="ppm",
     **kwargs
 ):
@@ -547,15 +541,13 @@ def lambda_lnREE(
         Set of predetermined orthagonal polynomial parameters.
     degree : :class:`int`, 5
         Maximum degree polynomial fit component to include.
-    append : :class:`list`, :code:`None`
-        Whether to append lambda function (i.e. :code:`["function"]`).
     scale : :class:`str`
         Current units for the REE data, used to scale the reference dataset.
 
     Todo
     -----
         * Operate only on valid rows.
-        * Add residuals, Eu, Ce anomalies as options to `append`.
+        * Add residuals, Eu, Ce anomalies as options.
         * Pre-build orthagonal parameters for REE combinations for calculation speed?
 
     References
@@ -572,18 +564,16 @@ def lambda_lnREE(
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
-    non_null_cols = df.columns[~df.isnull().all(axis=0)]
-    ree = [
-        i
-        for i in REE()
-        if i in df.columns
-        and (not str(i) in exclude)
-        and (str(i) in non_null_cols or i in non_null_cols)
-    ]  # no promethium
+    # check if there are columns which are empty
+    exclude += list(df.columns[df.isnull().all(axis=0)])
+    # Check which REE we're dealing with
+    ree = [el for el in REE() if el in df.columns and el not in exclude]
+    # get the ionic radii for these REE
     radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
+    # if there are no supplied params, we need to create them here
     if params is None:
-        params = orthogonal_polynomial_constants(radii, degree=degree)
+        params = lambdas.orthogonal_polynomial_constants(radii, degree=degree)
     else:
         degree = len(params)
 
@@ -609,20 +599,11 @@ def lambda_lnREE(
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
     try:
-        lambdadf = lambdas(norm_df, params=params, degree=degree, **kwargs)
+        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
     except np.linalg.LinAlgError:  # singular matrix
         kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
-        lambdadf = lambdas(norm_df, params=params, degree=degree, **kwargs)
+        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
 
-    if append is not None:
-        if "function" in append:
-            # append the smooth f(radii) function to the dataframe
-            func_partial = functools.partial(
-                get_lambda_poly_func, pxs=radii, params=params, degree=degree
-            )
-            lambdadf["lambda_poly_func"] = np.apply_along_axis(
-                func_partial, 1, lambdadf
-            )
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

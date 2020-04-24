@@ -5,6 +5,8 @@ from sympy import symbols, var
 from functools import partial
 import scipy
 from ..geochem.ind import REE, get_ionic_radii
+from .plot import axes as axesutil
+from .. import plot
 from .meta import update_docstring_references
 import logging
 
@@ -360,7 +362,9 @@ def _lambdas_optimize(
 
 
 @update_docstring_references
-def lambdas(df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwargs):
+def calc_lambdas(
+    df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwargs
+):
     """
     Parameterises values based on linear combination of orthogonal polynomials
     over a given set of values for independent variable `x`. [#ref_1]_
@@ -406,3 +410,44 @@ def lambdas(df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwa
         return _lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
     else:
         return _lambdas_optimize(df, radii=radii, params=params, **kwargs)
+
+
+def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
+    """
+    Plot a decomposed orthogonal polynomial using the lambda coefficients.
+
+    Parameters
+    ----------
+    lambdas
+        1D array of lambdas.
+    ax : :class:`matplotlib.axes.Axes`
+        Axis to plot on.
+
+    Returns
+    --------
+    :class:`matplotlib.axes.Axes`
+    """
+    radii = np.array(get_ionic_radii(REE(), charge=3, coordination=8))
+    xs = np.linspace(np.max(radii), np.min(radii), 100)
+    if params is None:
+        if params is None:  # use standard parameters as used in O'Neill 2016 paper
+            default_REE = [i for i in REE() if i not in ["Eu"]]
+            default_radii = get_ionic_radii(default_REE, charge=3, coordination=8)
+            params = orthogonal_polynomial_constants(default_radii, degree=degree)
+    else:
+        params = params[: degree - 1]  # limit the degree for the vis
+    ax = plot.spider.REE_v_radii(ax=ax)
+    # plot the overall function
+    overall_func = get_lambda_poly_func(lambdas, params)
+    ax.plot(  # plot the polynomials
+        xs, overall_func(xs), label="Regression", color="k", **kwargs
+    )
+    for w, p in zip(lambdas, params):  # plot the components
+        l_func = get_lambda_poly_func([w], [p])  # pasing singluar vaules and one tuple
+        label = (
+            "$r^{}: \lambda_{}".format(len(p), len(p))
+            + ["\cdot f_{}".format(len(p)), ""][int(len(p) == 0)]
+            + "$"
+        )
+        ax.plot(xs, l_func(xs), label=label, ls="--", **kwargs)  # plot the polynomials
+    return ax

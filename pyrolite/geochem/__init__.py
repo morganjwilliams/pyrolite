@@ -452,7 +452,6 @@ class pyrochem(object):
         exclude=["Pm", "Eu"],
         params=None,
         degree=4,
-        append=[],
         scale="ppm",
         **kwargs
     ):
@@ -472,8 +471,6 @@ class pyrochem(object):
             Set of predetermined orthagonal polynomial parameters.
         degree : :class:`int`, 5
             Maximum degree polynomial fit component to include.
-        append : :class:`list`, :code:`None`
-            Whether to append lambda function (i.e. :code:`["function"]`).
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.
 
@@ -497,7 +494,6 @@ class pyrochem(object):
             exclude=exclude,
             params=params,
             degree=degree,
-            append=append,
             scale=scale,
             **kwargs
         )

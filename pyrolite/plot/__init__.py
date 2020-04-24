@@ -20,7 +20,7 @@ from ..util.plot.helpers import plot_cooccurence
 
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs
-from ..geochem import common_elements, REE
+from .. import geochem
 from . import density
 from . import spider
 from . import stem
@@ -329,7 +329,7 @@ class pyroplot(object):
 
         """
         obj = to_frame(self._obj)
-        ree = [i for i in REE(dropPm=dropPm) if i in obj.columns]
+        ree = [i for i in geochem.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
             obj.loc[:, ree].astype(np.float).values,
@@ -434,7 +434,7 @@ class pyroplot(object):
         obj = to_frame(self._obj)
 
         if components is None:  # default to plotting elemental data
-            components = [el for el in obj.columns if el in common_elements()]
+            components = [el for el in obj.columns if el in geochem.common_elements()]
 
         assert len(components) != 0
 
@@ -483,7 +483,6 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the stem diagram is plotted.
-        
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components, valid_sizes=[2])
