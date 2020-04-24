@@ -342,26 +342,6 @@ Geochemistry Examples
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="A common task when working with mineral chemistry data is to take measured compositions and dec...">
-
-.. only:: html
-
- .. figure:: /examples/geochem/images/thumb/sphx_glr_mineral_endmembers_thumb.png
-
-     :ref:`sphx_glr_examples_geochem_mineral_endmembers.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/geochem/mineral_endmembers
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Orthogonal polynomial decomposition can be used for dimensional reduction of smooth function ov...">
 
 .. only:: html
@@ -379,6 +359,26 @@ Geochemistry Examples
    :hidden:
 
    /examples/geochem/lambdas
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A common task when working with mineral chemistry data is to take measured compositions and dec...">
+
+.. only:: html
+
+ .. figure:: /examples/geochem/images/thumb/sphx_glr_mineral_endmembers_thumb.png
+
+     :ref:`sphx_glr_examples_geochem_mineral_endmembers.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/mineral_endmembers
 
 .. raw:: html
 

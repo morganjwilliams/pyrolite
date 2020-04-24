@@ -66,7 +66,7 @@ Let's have a quick look at what this REE data looks like:
 
 .. code-block:: default
 
-    df.pyroplot.REE(index="radii", alpha=0.05, c="k", unity_line=True)
+    df.pyroplot.REE(alpha=0.05, c="k", unity_line=True)
     plt.show()
 
 
@@ -177,28 +177,17 @@ We've used a synthetic dataset here which is by design approximately normally
 distrtibuted, so the values themeselves here are not particularly revealing,
 but they do illustrate the expected mangitudes of values for each of the parameters.
 
-
-.. code-block:: default
-
-
-    #
-    # For more on using orthogonal polynomials to describe geochemical pattern data, dig
-    # into the paper which introduced the method to geochemists:
-    # O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
-    # Element Patterns in Basalts. J Petrology 57, 1463–1508.
-    # `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
-    #
-
-
-
-
-
+For more on using orthogonal polynomials to describe geochemical pattern data, dig
+into the paper which introduced the method to geochemists:
+O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+Element Patterns in Basalts. J Petrology 57, 1463–1508.
+`doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.671 seconds)
+   **Total running time of the script:** ( 0 minutes  4.015 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas.py:

@@ -1,5 +1,5 @@
 """
-lambdas: Parameterising REE Patterns
+lambdas: Parameterising REE Profiles
 =====================================
 
 Orthogonal polynomial decomposition can be used for dimensional reduction of smooth
@@ -40,7 +40,7 @@ df = example_spider_data(
 ########################################################################################
 # Let's have a quick look at what this REE data looks like:
 #
-df.pyroplot.REE(index="radii", alpha=0.05, c="k", unity_line=True)
+df.pyroplot.REE(alpha=0.05, c="k", unity_line=True)
 plt.show()
 ########################################################################################
 # From this REE data we can fit a series of orthogonal polynomials, and subsequently used

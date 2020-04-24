@@ -40,7 +40,7 @@ df = example_spider_data(
 ########################################################################################
 # Let's have a quick look at what this REE data looks like:
 #
-df.pyroplot.REE(index="radii", alpha=0.05, c="k", unity_line=True)
+df.pyroplot.REE(alpha=0.05, c="k", unity_line=True)
 plt.show()
 ########################################################################################
 # From this REE data we can fit a series of orthogonal polynomials, and subsequently used
@@ -105,7 +105,6 @@ plt.tight_layout()
 # We've used a synthetic dataset here which is by design approximately normally
 # distrtibuted, so the values themeselves here are not particularly revealing,
 # but they do illustrate the expected mangitudes of values for each of the parameters.
-
 #
 # For more on using orthogonal polynomials to describe geochemical pattern data, dig
 # into the paper which introduced the method to geochemists:
