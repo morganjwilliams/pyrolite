@@ -27,9 +27,6 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-`0.2.6`_ (Next Release)
-------------------------
-
 * **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and Laura Miller
 * Added `codacy` for code quality checking, and implemented numerous clean-ups
   and a few new tests across the package.
@@ -888,8 +885,7 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...develop
-.. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...develop
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
