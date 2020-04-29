@@ -367,7 +367,8 @@ def calc_lambdas(
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
-    over a given set of values for independent variable `x`. [#ref_1]_
+    over a given set of values for independent variable `x` [#ref_1]_ .
+    This function expects to recieve data already normalised and log-transformed.
 
     Parameters
     ----------
@@ -388,7 +389,8 @@ def calc_lambdas(
     See Also
     ---------
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
-    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+    :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`
+    :func:`~pyrolite.geochem.pyrochem.normalize_to`
 
     References
     -----------

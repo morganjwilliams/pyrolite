@@ -448,7 +448,7 @@ class pyrochem(object):
 
     def lambda_lnREE(
         self,
-        norm_to="Chondrite_PON",
+        norm_to="ChondriteREE_ON",
         exclude=["Pm", "Eu"],
         params=None,
         degree=4,
@@ -463,7 +463,7 @@ class pyrochem(object):
         Parameters
         ------------
         norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
-            Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
+            Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
         exclude : :class:`list`, :code:`["Pm", "Eu"]`
             Which REE elements to exclude from the fit. May wish to include Ce for minerals
             in which Ce anomalies are common.
@@ -480,11 +480,10 @@ class pyrochem(object):
                Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
                doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
 
-
         See Also
         ---------
         :func:`~pyrolite.geochem.ind.get_ionic_radii`
-        :func:`~pyrolite.util.lambdas.lambdas`
+        :func:`~pyrolite.util.lambdas.calc_lambdas`
         :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
         """

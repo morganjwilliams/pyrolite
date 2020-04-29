@@ -516,7 +516,7 @@ def add_MgNo(
 
 def lambda_lnREE(
     df,
-    norm_to="Chondrite_PON",
+    norm_to="ChondriteREE_ON",
     exclude=["Pm", "Eu"],
     params=None,
     degree=4,
@@ -525,15 +525,15 @@ def lambda_lnREE(
 ):
     """
     Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
-    normalised to a specific composition [#localref_1]_. Lambda factors are given for the
-    radii vs. ln(REE/NORM) polynomical combination.
+    normalised to a specific composition [#localref_1]_. Lambda coefficeints are given
+    for the polynomial regression of ln(REE/NORM) vs radii.
 
     Parameters
     ------------
     df : :class:`pandas.DataFrame`
         Dataframe to calculate lambda coefficients for.
     norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
-        Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
+        Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
     exclude : :class:`list`, :code:`["Pm", "Eu"]`
         Which REE elements to exclude from the fit. May wish to include Ce for minerals
         in which Ce anomalies are common.
@@ -548,7 +548,6 @@ def lambda_lnREE(
     -----
         * Operate only on valid rows.
         * Add residuals, Eu, Ce anomalies as options.
-        * Pre-build orthagonal parameters for REE combinations for calculation speed?
 
     References
     -----------
