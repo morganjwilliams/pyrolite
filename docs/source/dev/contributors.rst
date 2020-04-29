@@ -11,3 +11,4 @@ comments, testing, bug reports, feature requests.
 * Yajing Mao
 * `Justin Gosses <https://github.com/JustinGOSSES>`__
 * `Kaarel Mand <https://github.com/kaarelmand>`__
+* Laura Miller
