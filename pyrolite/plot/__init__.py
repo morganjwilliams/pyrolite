@@ -157,7 +157,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
 
         ax = density.density(
-            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
+            obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
         )
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
@@ -203,7 +203,10 @@ class pyroplot(object):
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
-        data, samples = obj.loc[:, components].values, obj.loc[:, components].values
+        data, samples = (
+            obj.reindex(columns=components).values,
+            obj.reindex(columns=components).values
+        )
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
             lambda x: ilr(close(x)),
@@ -212,11 +215,11 @@ class pyroplot(object):
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
         )
         kwargs.update({"c": zi})
-        ax = obj.loc[:, components].pyroplot.scatter(
+        ax = obj.reindex(columns=components).pyroplot.scatter(
             ax=ax,
             axlabels=axlabels,
             fontsize=fontsize,
-            **scatterkwargs(process_color(**kwargs)),
+            **scatterkwargs(process_color(**kwargs))
         )
         return ax
 
@@ -296,7 +299,7 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         kw = linekwargs(kwargs)
-        lines = ax.plot(*obj.loc[:, components].values.T, **kw)
+        lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
@@ -332,7 +335,7 @@ class pyroplot(object):
         ree = [i for i in geochem.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
-            obj.loc[:, ree].astype(np.float).values,
+            obj.reindex(columns=ree).astype(np.float).values,
             index=index,
             ree=ree,
             mode=mode,
@@ -378,7 +381,8 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         sc = ax.scatter(
-            *obj.loc[:, components].values.T, **scatterkwargs(process_color(**kwargs))
+            *obj.reindex(columns=components).values.T,
+            **scatterkwargs(process_color(**kwargs))
         )
 
         if axlabels:
@@ -442,7 +446,7 @@ class pyroplot(object):
             components = index_order(components)
 
         ax = spider.spider(
-            obj.loc[:, components].astype(np.float).values,
+            obj.reindex(columns=components).astype(np.float).values,
             indexes=indexes,
             ax=ax,
             mode=mode,
@@ -488,7 +492,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components, valid_sizes=[2])
 
         ax = stem.stem(
-            *obj.loc[:, components].values.T,
+            *obj.reindex(columns=components).values.T,
             ax=ax,
             orientation=orientation,
             **process_color(**kwargs),
