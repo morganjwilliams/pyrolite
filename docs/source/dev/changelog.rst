@@ -27,7 +27,8 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
-* **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and Laura Miller
+* **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and
+  `Laura Miller <https://github.com/Lauraanme>`__
 * Added `codacy` for code quality checking, and implemented numerous clean-ups
   and a few new tests across the package.
 * Performance upgrades, largely for the documentation page.
@@ -40,10 +41,12 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Bugfix**: pyrolite lambdas differ slightly from [ONeill2016]_
-  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__). Laura Miller
-  identified inconsistencies between the pyrolite implementation of the lambdas
-  calculation (since investigating this, it's likely the cost function passed to
-  :func:`scipy.optimize.least_squares` contained an error).
+  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__).
+  Differences between the lambda coefficients of the original and pyrolite
+  implementations of the lambdas calculation were identified (thanks to
+  `Laura Miller <https://github.com/Lauraanme>`__ for this one).
+  With further investigation, it's likely the cost function passed to
+  :func:`scipy.optimize.least_squares` contained an error.
   This has been remedied, and the relevant pyrolite functions now
   by default should give values comparable to [ONeill2016]_. As part of this,
   the reference composition `ChondriteREE_ON` was added to the reference database
