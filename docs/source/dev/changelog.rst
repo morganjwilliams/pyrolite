@@ -6,32 +6,19 @@ All notable changes to this project will be documented here.
 Todo
 ------
 
-* FEATURE: Updates to include more lithogeochemical plot templates
+* **Feature**: Docs page for reference compositions
+  (`#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
+  Work in progress on a
+  `feature branch <https://github.com/morganjwilliams/pyrolite/tree/feature/docs-pyrolite.data>`__.
+* **Feature**: REY function
+  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__).
+* **Feature**: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* BUG: Conditional density spider plots should have bins centred on the element indexes
+* **Bug**: Conditional density spider plots should have bins centred on the element indexes
   (currently this is an edge)
-* BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
+* **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
-
-Feature: `convert_chemistry`_ Revamp
-------------------------------------
-
-* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
-  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
-
-This bug appears to have resulted from caching the function calls to
-:func:`pyrolite.geochem.ind.simple_oxides`, which is addressed with
-`18fede0 <https://github.com/morganjwilliams/pyrolite/commit/18fede01d54d06edd3fe1451409880d889e7ee62>`__.
-
-This branch will remain active to allow a few upgrades to be completed for
-:mod:`pyrolite.geochem.transform` before being merged into `develop`.
-
-Feature: `lambdas`_ Revamp
----------------------------
-
-* BUG: pyrolite lambdas differ slightly from O'Neill (2016) paper
-  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__)
 
 `Development`_
 --------------
@@ -40,6 +27,10 @@ Feature: `lambdas`_ Revamp
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+`0.2.6`_ (Next Release)
+------------------------
+
+* **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and Laura Miller
 * Added `codacy` for code quality checking, and implemented numerous clean-ups
   and a few new tests across the package.
 * Performance upgrades, largely for the documentation page.
@@ -47,18 +38,44 @@ Feature: `lambdas`_ Revamp
   due to smaller default image sizes/DPI.
 * Removed dependency on :mod:`fancyimpute`, instead using functions from
   :mod:`scikit-learn`
-* Added the mineral database to `MANIFEST.in` to allow this to be installed with
-  :mod:`pyrolite` (fixing a bug where this isn't present).
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Bugfix**: pyrolite lambdas differ slightly from [ONeill2016]_
+  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__). Laura Miller
+  identified inconsistencies between the pyrolite implementation of the lambdas
+  calculation (since investigating this, it's likely the cost function passed to
+  :func:`scipy.optimize.least_squares` contained an error).
+  This has been remedied, and the relevant pyrolite functions now
+  by default should give values comparable to [ONeill2016]_. As part of this,
+  the reference composition `ChondriteREE_ON` was added to the reference database
+  with the REE abundances presented in [ONeill2016]_.
+* **Bugfix**: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+  to improve performance
+  (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__).
+  This bug appears to have resulted from caching the function calls to
+  :func:`pyrolite.geochem.ind.simple_oxides`, which is addressed with
+  `18fede0 <https://github.com/morganjwilliams/pyrolite/commit/18fede01d54d06edd3fe1451409880d889e7ee62>`__.
 * Updated :func:`~pyrolite.geochem.ind.REE` to default to :code:`dropPm=True`
 * Moved :mod:`pyrolite.mineral.ions` to :mod:`pyrolite.geochem.ions`
+
+.. [ONeill2016] O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+    Element Patterns in Basalts. J Petrology 57, 1463–1508.
+    `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Added the mineral database to `MANIFEST.in` to allow this to be installed
+  with :mod:`pyrolite` (fixing a bug where this isn't present).
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Bugfix**: Updated :mod:`pyrolite.plot` to use :func:`pandas.DataFrame.reindex` over
+  :func:`pandas.DataFrame.loc` where indexes could include missing values to deal with
+  `#31 <https://github.com/morganjwilliams/pyrolite/issues/31>`__.
 * Updated :func:`~pyrolite.plot.spider.spider` to accept :code:`logy` keyword argument,
   defaulting to :code:`True`
 
@@ -68,6 +85,7 @@ Feature: `lambdas`_ Revamp
 * Broke down :mod:`pyrolite.util.plot` into submodules, and updated relevant imports.
   This will result in minimal changes to API usage where functions are
   imported explicitly.
+* Split out :mod:`pyrolite.util.lambdas` from :mod:`pyrolite.util.math`
 * Added a minimum figure dimension to :func:`~pyrolite.util.plot.axes.init_axes`
   to avoid having null-dimensions during automatic figure generation from empty
   datasets.
@@ -870,9 +888,8 @@ Feature: `lambdas`_ Revamp
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _convert_chemistry: https://github.com/morganjwilliams/pyrolite/compare/develop...feature/convert_chemistry_revamp
-.. _lambdas: https://github.com/morganjwilliams/pyrolite/compare/develop...feature/lambdas_revamp
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...develop
+.. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
