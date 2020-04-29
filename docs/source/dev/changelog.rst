@@ -65,7 +65,8 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Bugfix**: Added the mineral database to `MANIFEST.in` to allow this to be installed
-  with :mod:`pyrolite` (fixing a bug where this isn't present).
+  with :mod:`pyrolite` (fixing a bug where this isn't present, identified by
+  `Kaarel Mand <https://github.com/kaarelmand>`__).
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
