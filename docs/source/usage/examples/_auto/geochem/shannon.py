@@ -14,6 +14,5 @@ ax.set_xticklabels(REE())
 ax.set_ylabel('Ionic Radius ($\AA$)')
 ax.set_title('Rare Earth Element Shannon Ionic Radii')
 ########################################################################################
-# .. seealso:: `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
-#              `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+# .. seealso:: `lambdas: Parameterising REE Profiles <lambdas.html>`__,
 #              `REE Radii Plot <../plotting/REE_radii_plot.html>`__

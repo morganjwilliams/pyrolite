@@ -38,8 +38,7 @@ plt.show()
 # .. seealso::
 #
 #   Examples:
-#     `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
-#     `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+#     `lambdas: Parameterising REE Profiles <lambdas.html>`__,
 #     `REE Radii Plot <../plotting/REE_radii_plot.html>`__
 #
 # Currently available models include:
