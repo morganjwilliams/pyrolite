@@ -332,7 +332,7 @@ class pyroplot(object):
 
         """
         obj = to_frame(self._obj)
-        ree = [i for i in geochem.REE(dropPm=dropPm) if i in obj.columns]
+        ree = [i for i in geochem.ind.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
             obj.reindex(columns=ree).astype(np.float).values,
@@ -438,7 +438,9 @@ class pyroplot(object):
         obj = to_frame(self._obj)
 
         if components is None:  # default to plotting elemental data
-            components = [el for el in obj.columns if el in geochem.common_elements()]
+            components = [
+                el for el in obj.columns if el in geochem.ind.common_elements()
+            ]
 
         assert len(components) != 0
 
