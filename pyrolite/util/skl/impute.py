@@ -51,16 +51,15 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
             df.loc[:, ~pd.isnull(X).all(axis=0)] = mean
             return df
 
-    """
-    def inverse_transform(self, Y, *args, **kwargs):
-        # For non-compositional data, take the mask and reverting to nan
-        # for compositional data, renormalisation would be needed
-        pass
-    """
+
+    #def inverse_transform(self, Y, *args, **kwargs):
+    #    # For non-compositional data, take the mask and reverting to nan
+    #    # for compositional data, renormalisation would be needed
+    #    pass
 
     def fit(self, X, y=None):
         assert isinstance(X, pd.DataFrame)
-        start = X
+        # start = X
         y_present = y is not None
         groupby_present = self.groupby is not None
         self.imputers = []
