@@ -2,10 +2,8 @@ import numpy as np
 import pandas as pd
 from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
-from functools import partial
 import scipy
 from ..geochem.ind import REE, get_ionic_radii
-from .plot import axes as axesutil
 from .. import plot
 from .meta import update_docstring_references
 import logging
@@ -36,7 +34,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
         Precision for the orthogonal polynomial coefficents.
 
     Returns
-    ---------
+    -------
     :class:`list`
         List of tuples corresponding to coefficients for each of the polynomial
         components. I.e the first tuple will be empty, the second will contain a single
@@ -54,12 +52,12 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
             &+ a_3 * (x - \delta_0) * (x - \delta_1) * (x - \delta_2) \\
 
     See Also
-    ---------
+    --------
     :func:`~pyrolite.util.math.lambdas`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     References
-    -----------
+    ----------
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
@@ -200,7 +198,6 @@ def get_polynomial_matrix(radii, params=None):
     """
     radii = np.array(radii)
     degree = len(params)
-    pwrs = np.arange(degree).reshape(degree, 1)
     a = np.vander(radii, degree, increasing=True).T
     b = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
     A_radii = a[:, np.newaxis, :] * b[np.newaxis, :, :]
@@ -291,8 +288,6 @@ def _lambdas_optimize(
     guess=None,
     degree=5,
     cost_function=_lambda_min_func,
-    cost_function_power=1.0,
-    residuals=False,
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -310,8 +305,6 @@ def _lambdas_optimize(
         :func:`orthogonal_polynomial_constants`).
     cost_function : :class:`Callable`
         Cost function to use for optimization of lambdas.
-    residuals : :class:`bool`
-        Whether to return residuals with the optimized results.
 
     Returns
     --------
@@ -324,7 +317,7 @@ def _lambdas_optimize(
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     References
-    -----------
+    ----------
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
@@ -345,7 +338,6 @@ def _lambdas_optimize(
             df.iloc[row, :].values
         ).any():  # With missing data, the method can't be used.
             x = np.nan * np.ones(degree)
-            res = np.nan * np.ones(degree)
         else:
             result = scipy.optimize.least_squares(
                 cost_function,
@@ -393,7 +385,7 @@ def calc_lambdas(
     :func:`~pyrolite.geochem.pyrochem.normalize_to`
 
     References
-    -----------
+    ----------
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
