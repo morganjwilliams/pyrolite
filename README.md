@@ -7,13 +7,18 @@
 [![Chat on Gitter](https://img.shields.io/gitter/room/pyrolite/community.svg)](https://gitter.im/pyrolite/community/)
 [![License: CSIRO Modified BSD/MIT License](https://img.shields.io/badge/License-CSIRO_BSD/MIT_License-blue.svg?style=flat)](https://github.com/morganjwilliams/pyrolite/blob/master/LICENSE)
 
-
 pyrolite is a set of tools for making the most of your geochemical data.
 
 The python package includes functions to work with compositional data, to transform
 geochemical variables (e.g. elements to oxides), functions for common plotting
 tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagrams),
 and numerous auxiliary utilities.
+
+pyrolite's is principally developed for use use in geochemical research, but is also
+well suited to being incorporated into university-level geochemistry and petrology
+classes which wish to include a little Python. The documentation is continually
+evolving, and more examples and tutorials will gradually be added (feel free to
+request features or examples; see [Contributing](#contributing) below).
 
 ## Install
 
