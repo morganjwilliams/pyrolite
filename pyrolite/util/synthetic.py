@@ -12,7 +12,7 @@ def example_spider_data(
     norm_to="PM_PON",
     nobs=120,
     noise_level=0.5,
-    offsets={"Eu": 0.5},
+    offsets=None,
     units="ppm",
 ):
     """
@@ -32,8 +32,7 @@ def example_spider_data(
     noise_level : :class:`float`
         Log-units of noise (1sigma).
     offsets : :class:`dict`
-        Dictionary of offsets in log-units (e.g. here by default offsets Eu by 0.8 log
-        units).
+        Dictionary of offsets in log-units (in log units).
     units : :class:`str`
         Units to use before conversion. Should have no effect other than reducing
         calculation times if `norm_to` is :code:`None`.
@@ -52,14 +51,14 @@ def example_spider_data(
     start = df.applymap(np.log)
     nindex = df.columns.size
 
-    x = np.arange(nindex)
     y = np.tile(start.values, nobs).reshape(nobs, nindex)
     y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
     y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
 
     syn_df = pd.DataFrame(y, columns=df.columns)
-    for element, offset in offsets.items():
-        syn_df[element] += offset  # significant offset for Eu anomaly
+    if offsets is not None:
+        for element, offset in offsets.items():
+            syn_df[element] += offset  # significant offset for e.g. Eu anomaly
     syn_df = syn_df.applymap(np.exp)
     return syn_df
 
@@ -110,7 +109,7 @@ def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
             # eig = np.linalg.eigvalsh(cov)
             for i in range(dim):
                 assert np.linalg.det(cov[0:i, 0:i]) > 0.0  # sylvesters criterion
-        except:
+        except AssertionError:  # not symmetrical covariance matrix
             cov = random_cov_matrix(dim, validate=validate)
     return cov
 
@@ -267,9 +266,7 @@ def random_composition(
 def test_df(
     cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, mean=None, **kwargs
 ):
-    """
-    Creates a pandas.DataFrame with random data.
-    """
+    """Creates a pandas.DataFrame with random data."""
     return pd.DataFrame(
         columns=cols,
         data=random_composition(size=index_length, D=len(cols), mean=mean, **kwargs),
@@ -277,9 +274,7 @@ def test_df(
 
 
 def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
-    """
-    Creates a pandas.Series with random data.
-    """
+    """Creates a pandas.Series with random data."""
     return pd.Series(
         random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,
