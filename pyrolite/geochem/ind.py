@@ -19,10 +19,22 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-_shannonradiifile = (pyrolite_datafolder(subfolder="shannon") / "radii.csv").resolve()
-assert _shannonradiifile.exists() and _shannonradiifile.is_file()
-__shannon__ = pd.read_csv(_shannonradiifile).set_index("index", drop=True)
-assert hasattr(__shannon__, "element")
+__radii__ = {}
+
+
+def _load_radii():
+    """Import radii tables to a module-level dictionary indexed by reference."""
+    global __radii__
+    for name in ["shannon", "whittaker_muntus"]:
+        pth = (pyrolite_datafolder(subfolder="radii") / "{}.csv".format(name)).resolve()
+        assert pth.exists() and pth.is_file()
+        df = pd.read_csv(pth).set_index("index", drop=True)
+        assert hasattr(df, "element")
+        __radii__[name] = df
+
+
+_load_radii()
+########################################################################################
 
 
 @functools.lru_cache(maxsize=4)  # cache outputs for speed
@@ -168,7 +180,6 @@ def common_oxides(
         return oxides
 
 
-#@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def simple_oxides(cation, output="string"):
     """
     Creates a list of oxides for a cationic element (oxide of ions with c=1+ and above).
@@ -263,98 +274,6 @@ def get_isotopes(ratio_text):
         return bw
 
 
-def get_ionic_radii(element, charge=None, coordination=None, variant=[], pauling=True):
-    """
-    Function to obtain Shannon's radii for a given ion [1]_. Shannon published two sets of
-    radii. The first ('Crystal Radii') were using Shannon's value for :math:`r(O^{2-}_{VI})`
-    of 1.26 Å, while the second ('Ionic Radii') is consistent with the
-    Pauling (1960) value of :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
-
-    Parameters
-    -----------
-    element : :class:`str` | :class:`list`
-        Element to obtain a radii for. If a list is passed, the function will be applied
-        over each of the items.
-    charge : :class:`int`
-        Charge of the ion to obtain a radii for. If unspecified will use the default
-        charge from :mod:`pyrolite.mineral.ions`.
-    coordination : :class:`int`
-        Coordination of the ion to obtain a radii for.
-    variant : :class:`list`
-        List of strings specifying particular variants (here 'squareplanar' or
-        'pyramidal', 'highspin' or 'lowspin').
-    pauling : :class:`bool`
-        Whether to use the radii consistent with Pauling (1960).
-
-    Returns
-    --------
-    :class:`pandas.Series`
-        Dataframe with viable ion charge and coordination, with associated radii in
-        angstroms. If the ion charge and coordiation are specified and found in the
-        table, a single value will be returned instead.
-
-    References
-    ----------
-    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
-            studies of interatomic distances in halides and chalcogenides.
-            Acta Crystallographica Section A 32:751–767.
-            doi: shannon1976
-    .. [2] Pauling, L., 1960. The Nature of the Chemical Bond.
-            Cornell University Press, Ithaca, NY.
-
-    Todo
-    -----
-    * Implement interpolation for coordination +/- charge.
-    * Finish Shannon Radii tests
-    """
-    if isinstance(element, list):
-        return [
-            get_ionic_radii(
-                e,
-                charge=charge,
-                coordination=coordination,
-                variant=variant,
-                pauling=pauling,
-            )
-            for e in element
-        ]
-
-    target = ["crystalradius", "ionicradius"][pauling]
-
-    elfltr = __shannon__.element == element
-    fltrs = elfltr.copy().astype(int)
-    if charge is not None:
-        if charge in __shannon__.loc[elfltr, "charge"].unique():
-            fltrs *= __shannon__.charge == charge
-        else:
-            logging.warn("Charge {:d} not in table.".format(int(charge)))
-            # try to interpolate over charge?..
-            # interpolate_charge=True
-    else:
-        charge = getattr(pt, element).default_charge
-        fltrs *= __shannon__.charge == charge
-
-    if coordination is not None:
-        if coordination in __shannon__.loc[elfltr, "coordination"].unique():
-            fltrs *= __shannon__.coordination == coordination
-        else:
-            logging.warn("Coordination {:d} not in table.".format(int(coordination)))
-            # try to interpolate over coordination
-            # interpolate_coordination=True
-
-    # assert not interpolate_coordination and interpolate_charge
-
-    if variant:  # todo warning for missing variants
-        for v in variant:
-            fltrs *= __shannon__.variant.apply(lambda x: v in x)
-
-    result = __shannon__.loc[fltrs.astype(bool), target]
-    if result.index.size == 1:
-        return result.values[0]  # return the specific number
-    else:
-        return result  # return the series
-
-
 def by_incompatibility(els, reverse=False):
     """
     Order a list of elements by their relative 'incompatibility' given by
@@ -400,9 +319,195 @@ def by_incompatibility(els, reverse=False):
         return [i for i in incomp if i in els]
 
 
-get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
-    "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
-)
+# RADII ################################################################################
+def get_shannon_radii(
+    element, charge=None, coordination=None, variant=[], pauling=True
+):
+    """
+    Function to obtain Shannon's radii for a given ion [1]_. Shannon published two sets of
+    radii. The first ('Crystal Radii') were using Shannon's value for :math:`r(O^{2-}_{VI})`
+    of 1.26 Å, while the second ('Ionic Radii') is consistent with the
+    Pauling (1960) value of :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
+
+    Parameters
+    -----------
+    element : :class:`str` | :class:`list`
+        Element to obtain a radii for. If a list is passed, the function will be applied
+        over each of the items.
+    charge : :class:`int`
+        Charge of the ion to obtain a radii for. If unspecified will use the default
+        charge from :mod:`pyrolite.mineral.ions`.
+    coordination : :class:`int`
+        Coordination of the ion to obtain a radii for.
+    variant : :class:`list`
+        List of strings specifying particular variants (here 'squareplanar' or
+        'pyramidal', 'highspin' or 'lowspin').
+    pauling : :class:`bool`
+        Whether to use the radii consistent with Pauling (1960).
+
+    Returns
+    --------
+    :class:`pandas.Series`
+        Dataframe with viable ion charge and coordination, with associated radii in
+        angstroms. If the ion charge and coordiation are specified and found in the
+        table, a single value will be returned instead.
+
+    References
+    ----------
+    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
+            studies of interatomic distances in halides and chalcogenides.
+            Acta Crystallographica Section A 32:751–767.
+            doi: shannon1976
+    .. [2] Pauling, L., 1960. The Nature of the Chemical Bond.
+            Cornell University Press, Ithaca, NY.
+
+    Todo
+    -----
+    * Implement interpolation for coordination +/- charge.
+    * Finish Shannon Radii tests
+    """
+    df = __radii__["shannon"]
+    target = ["crystalradius", "ionicradius"][pauling]
+
+    elfltr = df.element == element
+    fltrs = elfltr.copy().astype(int)
+    if charge is not None:
+        if charge in df.loc[elfltr, "charge"].unique():
+            fltrs *= df.charge == charge
+        else:
+            logging.warn("Charge {:d} not in table.".format(int(charge)))
+            # try to interpolate over charge?..
+            # interpolate_charge=True
+    else:
+        charge = getattr(pt, element).default_charge
+        fltrs *= df.charge == charge
+
+    if coordination is not None:
+        if coordination in df.loc[elfltr, "coordination"].unique():
+            fltrs *= df.coordination == coordination
+        else:
+            logging.warn("Coordination {:d} not in table.".format(int(coordination)))
+            # try to interpolate over coordination
+            # interpolate_coordination=True
+
+    # assert not interpolate_coordination and interpolate_charge
+
+    if variant:  # todo warning for missing variants
+        for v in variant:
+            fltrs *= table.variant.apply(lambda x: v in x)
+
+    return df.loc[fltrs.astype(bool), target]
+
+
+def get_whittaker_muntus_radii(
+    element, charge=None, coordination=None, variant=[], pauling=True
+):
+    """
+    Function to obtain Whittaker and Muntus' radii for a given ion [1]_.
+
+    Parameters
+    -----------
+    element : :class:`str` | :class:`list`
+        Element to obtain a radii for. If a list is passed, the function will be applied
+        over each of the items.
+    charge : :class:`int`
+        Charge of the ion to obtain a radii for. If unspecified will use the default
+        charge from :mod:`pyrolite.mineral.ions`.
+    coordination : :class:`int`
+        Coordination of the ion to obtain a radii for.
+
+    Returns
+    --------
+    :class:`pandas.Series`
+        Dataframe with viable ion charge and coordination, with associated radii in
+        angstroms. If the ion charge and coordiation are specified and found in the
+        table, a single value will be returned instead.
+
+    References
+    ----------
+    .. [1] Whittaker, E.J.W., Muntus, R., 1970.
+            Ionic radii for use in geochemistry.
+            Geochimica et Cosmochimica Acta 34, 945–956.
+            doi: whittaker_muntus1970
+    """
+
+
+def get_ionic_radii(
+    element, charge=None, coordination=None, source="shannon", **kwargs
+):
+    """
+    Function to obtain ionic radii for a given ion and coordination [1]_ [2]_.
+
+    Parameters
+    -----------
+    element : :class:`str` | :class:`list`
+        Element to obtain a radii for. If a list is passed, the function will be applied
+        over each of the items.
+    charge : :class:`int`
+        Charge of the ion to obtain a radii for. If unspecified will use the default
+        charge from :mod:`pyrolite.mineral.ions`.
+    coordination : :class:`int`
+        Coordination of the ion to obtain a radii for.
+    source : :class:`str`
+        Name of the data source for ionic radii ('shannon' [1]_ or 'whittaker' [2]_ ).
+
+    Returns
+    --------
+    :class:`pandas.Series`
+        Dataframe with viable ion charge and coordination, with associated radii in
+        angstroms. If the ion charge and coordiation are specified and found in the
+        table, a single value will be returned instead.
+
+    References
+    ----------
+    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
+            studies of interatomic distances in halides and chalcogenides.
+            Acta Crystallographica Section A 32:751–767.
+            doi: shannon1976
+    .. [2] Whittaker, E.J.W., Muntus, R., 1970.
+           Ionic radii for use in geochemistry.
+           Geochimica et Cosmochimica Acta 34, 945–956.
+           doi: whittaker_muntus1970
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.ind.get_shannon_radii`
+    :func:`~pyrolite.geochem.ind.get_whittaker_muntus_radii`
+    """
+    if isinstance(element, list):
+        return [
+            get_ionic_radii(e, charge=charge, coordination=coordination, **kwargs)
+            for e in element
+        ]
+
+    if "shannon" in source.lower():
+        result = get_shannon_radii(
+            element, charge=charge, coordination=coordination, **kwargs
+        )
+    elif "whittaker" in source.lower():
+        result = get_whittaker_muntus_radii(
+            element, charge=charge, coordination=coordination, **kwargs
+        )
+    else:
+        raise AssertionError(
+            "Invalid `source` argument. Options: {}".format(
+                " ,".join("'{}'".format(src) for src in __radii__.keys())
+            )
+        )
+    if result.index.size == 1:
+        return result.values[0]  # return the specific number
+    else:
+        return result  # return the series
+
+
+# update doi links for radii
+for f in [_get_shannon_radii, _get_whittaker_muntus_radii, get_ionic_radii]:
+    f.__doc__ = f.__doc__.replace(
+        "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
+    )
+    f.__doc__ = f.__doc__.replace(
+        "whittaker_muntus1970", sphinx_doi_link("10.1016/0016-7037(70)90077-3")
+    )
 # generate sets
 __db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
 __common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
