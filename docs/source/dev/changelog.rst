@@ -57,12 +57,23 @@ Todo
   This bug appears to have resulted from caching the function calls to
   :func:`pyrolite.geochem.ind.simple_oxides`, which is addressed with
   `18fede0 <https://github.com/morganjwilliams/pyrolite/commit/18fede01d54d06edd3fe1451409880d889e7ee62>`__.
+* **Feature**: Added the [WhittakerMuntus1970]_ ionic radii for use in silicate
+  geochemistry (
+  `#41 <https://github.com/morganjwilliams/pyrolite/issues/41>`__),
+  which can optionally be used with :func:`pyrolite.geochem.ind.get_ionic_radii`
+  using the `source` keyword argument (:code:`source='Whittaker'`). Thanks to
+  `Charles Le Losq <https://github.com/charlesll>`__ for the suggestion!
 * Updated :func:`~pyrolite.geochem.ind.REE` to default to :code:`dropPm=True`
 * Moved :mod:`pyrolite.mineral.ions` to :mod:`pyrolite.geochem.ions`
 
 .. [ONeill2016] O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
     Element Patterns in Basalts. J Petrology 57, 1463–1508.
     `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+
+.. [WhittakerMuntus1970] Whittaker, E.J.W., Muntus, R., 1970.
+    Ionic radii for use in geochemistry.
+    Geochimica et Cosmochimica Acta 34, 945–956.
+    `doi: 10.1016/0016-7037(70)90077-3 <https://doi.org/10.1016/0016-7037(70)90077-3>`__.
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~~
