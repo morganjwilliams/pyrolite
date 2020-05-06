@@ -97,7 +97,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     if path is None:
         path = __dbfile__
     with TinyDB(str(path)) as db:
-        db.purge()
+        db.truncate()
 
         for f in get_reference_files():
             C = Composition(f, encoding=encoding, **kwargs)
