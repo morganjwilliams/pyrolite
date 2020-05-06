@@ -320,14 +320,17 @@ def by_incompatibility(els, reverse=False):
 
 
 # RADII ################################################################################
-def get_shannon_radii(
-    element, charge=None, coordination=None, variant=[], pauling=True
+def get_ionic_radii(
+    element,
+    charge=None,
+    coordination=None,
+    variant=[],
+    source="shannon",
+    pauling=True,
+    **kwargs
 ):
     """
-    Function to obtain Shannon's radii for a given ion [1]_. Shannon published two sets of
-    radii. The first ('Crystal Radii') were using Shannon's value for :math:`r(O^{2-}_{VI})`
-    of 1.26 Å, while the second ('Ionic Radii') is consistent with the
-    Pauling (1960) value of :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
+    Function to obtain ionic radii for a given ion and coordination [1]_ [2]_.
 
     Parameters
     -----------
@@ -342,8 +345,11 @@ def get_shannon_radii(
     variant : :class:`list`
         List of strings specifying particular variants (here 'squareplanar' or
         'pyramidal', 'highspin' or 'lowspin').
+    source : :class:`str`
+        Name of the data source for ionic radii ('shannon' [1]_ or 'whittaker' [2]_ ).
     pauling : :class:`bool`
-        Whether to use the radii consistent with Pauling (1960).
+        Whether to use the radii consistent with Pauling (1960) from the Shannon (1976)
+        radii dataset.
 
     Returns
     --------
@@ -352,22 +358,53 @@ def get_shannon_radii(
         angstroms. If the ion charge and coordiation are specified and found in the
         table, a single value will be returned instead.
 
+    Notes
+    ------
+    Shannon published two sets of radii. The first ('Crystal Radii') were using
+    Shannon's value for :math:`r(O^{2-}_{VI})` of 1.26 Å, while the second
+    ('Ionic Radii') is consistent with the Pauling (1960) value of
+    :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
+
     References
     ----------
     .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
             studies of interatomic distances in halides and chalcogenides.
             Acta Crystallographica Section A 32:751–767.
             doi: shannon1976
-    .. [2] Pauling, L., 1960. The Nature of the Chemical Bond.
+    .. [2] Whittaker, E.J.W., Muntus, R., 1970.
+           Ionic radii for use in geochemistry.
+           Geochimica et Cosmochimica Acta 34, 945–956.
+           doi: whittaker_muntus1970
+    .. [3] Pauling, L., 1960. The Nature of the Chemical Bond.
             Cornell University Press, Ithaca, NY.
 
     Todo
     -----
     * Implement interpolation for coordination +/- charge.
-    * Finish Shannon Radii tests
+
+    See Also
+    --------
+    :func:`~pyrolite.geochem.ind.get_shannon_radii`
+    :func:`~pyrolite.geochem.ind.get_whittaker_muntus_radii`
     """
-    df = __radii__["shannon"]
-    target = ["crystalradius", "ionicradius"][pauling]
+    if isinstance(element, list):
+        return [
+            get_ionic_radii(e, charge=charge, coordination=coordination, **kwargs)
+            for e in element
+        ]
+
+    if "shannon" in source.lower():
+        df = __radii__["shannon"]
+        target = ["crystalradius", "ionicradius"][pauling]
+    elif "whittaker" in source.lower():
+        df = __radii__["whittaker_muntus"]
+        target = "ionicradius"
+    else:
+        raise AssertionError(
+            "Invalid `source` argument. Options: {}".format(
+                " ,".join("'{}'".format(src) for src in __radii__.keys())
+            )
+        )
 
     elfltr = df.element == element
     fltrs = elfltr.copy().astype(int)
@@ -396,104 +433,8 @@ def get_shannon_radii(
         for v in variant:
             fltrs *= table.variant.apply(lambda x: v in x)
 
-    return df.loc[fltrs.astype(bool), target]
+    result = df.loc[fltrs.astype(bool), target]
 
-
-def get_whittaker_muntus_radii(
-    element, charge=None, coordination=None, variant=[], pauling=True
-):
-    """
-    Function to obtain Whittaker and Muntus' radii for a given ion [1]_.
-
-    Parameters
-    -----------
-    element : :class:`str` | :class:`list`
-        Element to obtain a radii for. If a list is passed, the function will be applied
-        over each of the items.
-    charge : :class:`int`
-        Charge of the ion to obtain a radii for. If unspecified will use the default
-        charge from :mod:`pyrolite.mineral.ions`.
-    coordination : :class:`int`
-        Coordination of the ion to obtain a radii for.
-
-    Returns
-    --------
-    :class:`pandas.Series`
-        Dataframe with viable ion charge and coordination, with associated radii in
-        angstroms. If the ion charge and coordiation are specified and found in the
-        table, a single value will be returned instead.
-
-    References
-    ----------
-    .. [1] Whittaker, E.J.W., Muntus, R., 1970.
-            Ionic radii for use in geochemistry.
-            Geochimica et Cosmochimica Acta 34, 945–956.
-            doi: whittaker_muntus1970
-    """
-
-
-def get_ionic_radii(
-    element, charge=None, coordination=None, source="shannon", **kwargs
-):
-    """
-    Function to obtain ionic radii for a given ion and coordination [1]_ [2]_.
-
-    Parameters
-    -----------
-    element : :class:`str` | :class:`list`
-        Element to obtain a radii for. If a list is passed, the function will be applied
-        over each of the items.
-    charge : :class:`int`
-        Charge of the ion to obtain a radii for. If unspecified will use the default
-        charge from :mod:`pyrolite.mineral.ions`.
-    coordination : :class:`int`
-        Coordination of the ion to obtain a radii for.
-    source : :class:`str`
-        Name of the data source for ionic radii ('shannon' [1]_ or 'whittaker' [2]_ ).
-
-    Returns
-    --------
-    :class:`pandas.Series`
-        Dataframe with viable ion charge and coordination, with associated radii in
-        angstroms. If the ion charge and coordiation are specified and found in the
-        table, a single value will be returned instead.
-
-    References
-    ----------
-    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
-            studies of interatomic distances in halides and chalcogenides.
-            Acta Crystallographica Section A 32:751–767.
-            doi: shannon1976
-    .. [2] Whittaker, E.J.W., Muntus, R., 1970.
-           Ionic radii for use in geochemistry.
-           Geochimica et Cosmochimica Acta 34, 945–956.
-           doi: whittaker_muntus1970
-
-    See Also
-    --------
-    :func:`~pyrolite.geochem.ind.get_shannon_radii`
-    :func:`~pyrolite.geochem.ind.get_whittaker_muntus_radii`
-    """
-    if isinstance(element, list):
-        return [
-            get_ionic_radii(e, charge=charge, coordination=coordination, **kwargs)
-            for e in element
-        ]
-
-    if "shannon" in source.lower():
-        result = get_shannon_radii(
-            element, charge=charge, coordination=coordination, **kwargs
-        )
-    elif "whittaker" in source.lower():
-        result = get_whittaker_muntus_radii(
-            element, charge=charge, coordination=coordination, **kwargs
-        )
-    else:
-        raise AssertionError(
-            "Invalid `source` argument. Options: {}".format(
-                " ,".join("'{}'".format(src) for src in __radii__.keys())
-            )
-        )
     if result.index.size == 1:
         return result.values[0]  # return the specific number
     else:
@@ -501,7 +442,7 @@ def get_ionic_radii(
 
 
 # update doi links for radii
-for f in [get_shannon_radii, get_whittaker_muntus_radii, get_ionic_radii]:
+for f in [get_ionic_radii]:
     f.__doc__ = f.__doc__.replace(
         "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
     )
