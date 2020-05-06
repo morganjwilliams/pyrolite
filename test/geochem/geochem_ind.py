@@ -211,6 +211,10 @@ class TestGetIonicRadii(unittest.TestCase):
         radii = get_ionic_radii(self.ree, charge=3, coordination=8)
         self.assertTrue(isinstance(radii, list))
 
+    def test_ree_radii_list_whittaker_muntus(self):
+        radii = get_ionic_radii(self.ree, charge=3, coordination=8, source="whittaker")
+        self.assertTrue(isinstance(radii, list))
+
 
 # todo: get_cations
 
