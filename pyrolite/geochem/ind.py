@@ -353,10 +353,10 @@ def get_ionic_radii(
 
     Returns
     --------
-    :class:`pandas.Series`
-        Dataframe with viable ion charge and coordination, with associated radii in
-        angstroms. If the ion charge and coordiation are specified and found in the
-        table, a single value will be returned instead.
+    :class:`pandas.Series` | :class:`float`
+        Series with viable ion charge and coordination, with associated radii in
+        angstroms. If the ion charge and coordiation are completely specified and
+        found in the table, a single value will be returned instead.
 
     Notes
     ------
@@ -381,11 +381,6 @@ def get_ionic_radii(
     Todo
     -----
     * Implement interpolation for coordination +/- charge.
-
-    See Also
-    --------
-    :func:`~pyrolite.geochem.ind.get_shannon_radii`
-    :func:`~pyrolite.geochem.ind.get_whittaker_muntus_radii`
     """
     if isinstance(element, list):
         return [
