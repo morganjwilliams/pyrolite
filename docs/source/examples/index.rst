@@ -262,26 +262,6 @@ Geochemistry Examples
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Shannon Radii">
-
-.. only:: html
-
- .. figure:: /examples/geochem/images/thumb/sphx_glr_shannon_thumb.png
-
-     :ref:`sphx_glr_examples_geochem_shannon.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /examples/geochem/shannon
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="One of pyrolite&#x27;s strengths is converting mixed elemental and oxide data to a new form. The sim...">
 
 .. only:: html
@@ -379,6 +359,26 @@ Geochemistry Examples
    :hidden:
 
    /examples/geochem/mineral_endmembers
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite incldues a few sets of reference tables for ionic radii in aangstroms (Å) from [Shanno...">
+
+.. only:: html
+
+ .. figure:: /examples/geochem/images/thumb/sphx_glr_ionic_radii_thumb.png
+
+     :ref:`sphx_glr_examples_geochem_ionic_radii.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/geochem/ionic_radii
 
 .. raw:: html
 
