@@ -40,7 +40,7 @@ class TestPyroliteDataFolder(unittest.TestCase):
 
     def test_subfolders(self):
 
-        for subf in ["Aitchison", "geochem", "models", "shannon", "timescale"]:
+        for subf in ["Aitchison", "geochem", "models", "radii", "timescale"]:
             with self.subTest(subf=subf):
                 folder = pyrolite_datafolder(subfolder=subf)
                 self.assertIsInstance(folder, Path)
