@@ -13,7 +13,11 @@ import pandas as pd
 import periodictable as pt
 from tinydb import TinyDB, Query
 from ..util.text import titlecase, remove_suffix
-from ..util.meta import pyrolite_datafolder, sphinx_doi_link
+from ..util.meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    update_docstring_references,
+)
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -320,6 +324,7 @@ def by_incompatibility(els, reverse=False):
 
 
 # RADII ################################################################################
+@update_docstring_references
 def get_ionic_radii(
     element,
     charge=None,
@@ -330,7 +335,8 @@ def get_ionic_radii(
     **kwargs
 ):
     """
-    Function to obtain ionic radii for a given ion and coordination [1]_ [2]_.
+    Function to obtain ionic radii for a given ion and coordination [#ref_1]_
+    [#ref_2]_.
 
     Parameters
     -----------
@@ -346,10 +352,11 @@ def get_ionic_radii(
         List of strings specifying particular variants (here 'squareplanar' or
         'pyramidal', 'highspin' or 'lowspin').
     source : :class:`str`
-        Name of the data source for ionic radii ('shannon' [1]_ or 'whittaker' [2]_ ).
+        Name of the data source for ionic radii ('shannon' [#ref_1]_ or
+        'whittaker' [#ref_2]_).
     pauling : :class:`bool`
-        Whether to use the radii consistent with Pauling (1960) from the Shannon (1976)
-        radii dataset.
+        Whether to use the radii consistent with Pauling (1960) [#ref_3]_ from the
+        Shannon (1976) radii dataset [#ref_1]_.
 
     Returns
     --------
@@ -363,19 +370,19 @@ def get_ionic_radii(
     Shannon published two sets of radii. The first ('Crystal Radii') were using
     Shannon's value for :math:`r(O^{2-}_{VI})` of 1.26 Å, while the second
     ('Ionic Radii') is consistent with the Pauling (1960) value of
-    :math:`r(O^{2-}_{VI})` of 1.40 Å [2]_.
+    :math:`r(O^{2-}_{VI})` of 1.40 Å [#ref_3]_.
 
     References
     ----------
-    .. [1] Shannon RD (1976). Revised effective ionic radii and systematic
+    .. [#ref_1] Shannon RD (1976). Revised effective ionic radii and systematic
             studies of interatomic distances in halides and chalcogenides.
             Acta Crystallographica Section A 32:751–767.
             doi: shannon1976
-    .. [2] Whittaker, E.J.W., Muntus, R., 1970.
+    .. [#ref_2] Whittaker, E.J.W., Muntus, R., 1970.
            Ionic radii for use in geochemistry.
            Geochimica et Cosmochimica Acta 34, 945–956.
            doi: whittaker_muntus1970
-    .. [3] Pauling, L., 1960. The Nature of the Chemical Bond.
+    .. [#ref_3] Pauling, L., 1960. The Nature of the Chemical Bond.
             Cornell University Press, Ithaca, NY.
 
     Todo
@@ -437,13 +444,13 @@ def get_ionic_radii(
 
 
 # update doi links for radii
-for f in [get_ionic_radii]:
-    f.__doc__ = f.__doc__.replace(
-        "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
-    )
-    f.__doc__ = f.__doc__.replace(
-        "whittaker_muntus1970", sphinx_doi_link("10.1016/0016-7037(70)90077-3")
-    )
+
+get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
+    "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
+)
+get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
+    "whittaker_muntus1970", sphinx_doi_link("10.1016/0016-7037(70)90077-3")
+)
 # generate sets
 __db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
 __common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
