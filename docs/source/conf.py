@@ -235,21 +235,15 @@ intersphinx_mapping = {
 from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
-    "examples_dirs": [
-        "usage/examples/_auto/",
-        "usage/tutorials/_auto/",
-    ],  # path to your example scripts
-    "gallery_dirs": [
-        "examples",
-        "tutorials",
-    ],  # path to where to save gallery generated output
+    "examples_dirs": ["gallery/examples/", "gallery/tutorials/",],  # path to sources
+    "gallery_dirs": ["examples", "tutorials",],  # output paths
     "subsection_order": ExplicitOrder(
         [
-            "usage/examples/_auto/plotting",
-            "usage/examples/_auto/geochem",
-            "usage/examples/_auto/comp",
-            "usage/examples/_auto/util",
-            "usage/tutorials/_auto",
+            "gallery/examples/plotting",
+            "gallery/examples/geochem",
+            "gallery/examples/comp",
+            "gallery/examples/util",
+            "gallery/tutorials/",
         ]
     ),
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
