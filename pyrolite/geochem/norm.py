@@ -33,7 +33,7 @@ def all_reference_compositions(path=None):
         path = __dbfile__
     with TinyDB(str(path)) as db:
         refs = {}
-        for r in db.table().all():
+        for r in db.all(): # there should be only one "_default" table
             n, c = r["name"], r["composition"]
             refs[n] = Composition(json.loads(c), name=n)
         db.close()
