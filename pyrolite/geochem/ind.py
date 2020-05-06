@@ -501,7 +501,7 @@ def get_ionic_radii(
 
 
 # update doi links for radii
-for f in [_get_shannon_radii, _get_whittaker_muntus_radii, get_ionic_radii]:
+for f in [get_shannon_radii, get_whittaker_muntus_radii, get_ionic_radii]:
     f.__doc__ = f.__doc__.replace(
         "shannon1976", sphinx_doi_link("10.1107/S0567739476001551")
     )
