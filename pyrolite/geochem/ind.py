@@ -391,7 +391,15 @@ def get_ionic_radii(
     """
     if isinstance(element, list):
         return [
-            get_ionic_radii(e, charge=charge, coordination=coordination, **kwargs)
+            get_ionic_radii(
+                e,
+                charge=charge,
+                coordination=coordination,
+                variant=variant,
+                source=source,
+                pauling=pauling,
+                **kwargs
+            )
             for e in element
         ]
 
