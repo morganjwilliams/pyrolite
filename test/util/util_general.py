@@ -1,6 +1,13 @@
 import unittest
 from pathlib import Path
-from pyrolite.util.general import *
+from pyrolite.util.general import (
+    temp_path,
+    flatten_dict,
+    copy_file,
+    remove_tempdir,
+    swap_item,
+    Timewith,
+)
 
 
 class TestTempPath(unittest.TestCase):
@@ -36,6 +43,13 @@ class TestFlattenDict(unittest.TestCase):
                 result = flatten_dict(D, climb=climb)
                 self.assertTrue(result["key1"] == expected[ix])
 
+    def test_safemode(self):
+        D = dict(key0=dict(key2="b", key3=dict(key4="c")), key1="a")
+        result = flatten_dict(D, safemode=True)
+        # Check the dictionary contains no dictionaries
+        self.assertFalse(any([isinstance(v, dict) for v in result.values()]))
+        self.assertTrue(result[("key0", "key3", "key4")] == "c")
+
 
 class TestSwapItem(unittest.TestCase):
     """Tests swap_item utility function."""
@@ -49,7 +63,6 @@ class TestSwapItem(unittest.TestCase):
                 result = swap_item(L, pull, push)
                 self.assertTrue(len(result) == len(L))
                 self.assertTrue(result[L.index(pull)] == push)
-
 
 
 class TestCopyFile(unittest.TestCase):
@@ -72,14 +85,18 @@ class TestRemoveTempdir(unittest.TestCase):
         pass
 
 
-class TestExtractZip(unittest.TestCase):
-    """Tests extract_zip utility function."""
+class TestTimewith(unittest.TestCase):
+    """Tests TimeWith utility class."""
 
     def setUp(self):
         pass
 
-    def test_simple(self):
-        pass
+    def test_default(self):
+
+        with Timewith(name="test_timer") as t:
+            for i in range(2):
+                print(t.elapsed)
+        self.assertIn("Finished", t.checkpoints[-1])
 
 
 if __name__ == "__main__":
