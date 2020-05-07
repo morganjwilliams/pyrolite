@@ -39,10 +39,10 @@ def bin_edges_to_centres(edges):
 
 
 def ternary_grid(
-    data, nbins=10, margin=0.001, force_margin=False, yscale=1.0, tfm=lambda x: x
+    data=None, nbins=10, margin=0.001, force_margin=False, yscale=1.0, tfm=lambda x: x
 ):
     """
-    Construct a grid within a ternary space.
+    Construct a graphical linearly-spaced grid within a ternary space.
 
     Parameters
     ------------
@@ -62,7 +62,7 @@ def ternary_grid(
     Returns
     --------
     bins : :class:`numpy.ndarray`
-        (:code:`(samples, 3)`)
+        Bin centres along each of the ternary axes (:code:`(samples, 3)`)
     binedges : :class:`numpy.ndarray`
         Position of bin edges.
     centregrid : :class:`list` of :class:`numpy.ndarray`
@@ -70,10 +70,11 @@ def ternary_grid(
     edgegrid : :class:`list` of :class:`numpy.ndarray`
         Meshgrid of bin edges.
     """
-    data = close(data)
+    if data is not None:
+        data = close(data)
 
-    if not force_margin:
-        margin = min([margin, np.nanmin(data[data > 0])])
+        if not force_margin:
+            margin = min([margin, np.nanmin(data[data > 0])])
 
     # let's construct a bounding triangle
     bounds = np.array(  # three points defining the edges of what will be rendered
@@ -83,10 +84,11 @@ def ternary_grid(
             [1.0 - 2 * margin, margin, margin],
         ]
     )
-    xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T
+    xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T # in the cartesian xy space
     xbounds = np.hstack((xbounds, [xbounds[0]]))
     ybounds = np.hstack((ybounds, [ybounds[0]]))
     tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    # interpolated outer boundary
     xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
 
     A, B, C = xy_to_ABC(np.vstack([xi, yi]).T, yscale=yscale).T

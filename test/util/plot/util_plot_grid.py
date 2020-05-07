@@ -5,6 +5,7 @@ from pyrolite.util.plot.grid import (
     bin_edges_to_centres,
     ternary_grid,
 )
+from pyrolite.util.synthetic import test_df
 
 
 class TestBinConversions(unittest.TestCase):
@@ -35,6 +36,27 @@ class TestBinConversions(unittest.TestCase):
         """
         edgs = bin_centres_to_edges(self.asymbincentres)
         self.assertTrue(np.allclose(self.asymbinedges, edgs))
+
+
+class TestTernaryGrid(unittest.TestCase):
+
+    def setUp(self):
+        self.data = test_df(cols=["SiO2", "CaO", "MgO"], index_length=20).values
+
+    def test_default(self):
+        # no data supplied, grid will cover ternary space up until some margin
+        bins, binedges, centregrid, edgegrid = ternary_grid()
+
+    def test_data_unforced_margin(self):
+        # where you supply data and you want to build a grid covering it.
+        bins, binedges, centregrid, edgegrid = ternary_grid(data=self.data)
+
+    def test_data_forced_margin(self):
+        # where you supply data and you want to build a grid covering it,
+        # but enforce the margin (such that some data might fall outside the grid)
+        bins, binedges, centregrid, edgegrid = ternary_grid(
+            data=self.data, force_margin=True
+        )
 
 
 if __name__ == "__main__":
