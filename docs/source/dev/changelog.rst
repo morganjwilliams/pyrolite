@@ -63,6 +63,8 @@ Todo
   which can optionally be used with :func:`pyrolite.geochem.ind.get_ionic_radii`
   using the `source` keyword argument (:code:`source='Whittaker'`). Thanks to
   `Charles Le Losq <https://github.com/charlesll>`__ for the suggestion!
+* **Bugfix**: Removed an erroneous zero from the GLOSS reference composition
+  (`GLOSS_P2014` value for Pr).
 * Updated :func:`~pyrolite.geochem.ind.REE` to default to :code:`dropPm=True`
 * Moved :mod:`pyrolite.mineral.ions` to :mod:`pyrolite.geochem.ions`
 
