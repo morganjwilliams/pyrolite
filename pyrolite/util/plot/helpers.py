@@ -260,6 +260,8 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanaxx.invert_yaxis()
         nanaxy = subaxes(ax, side="left", width=axes_width)
         nanaxy.invert_xaxis()
+        ax.divider.nanaxx = nanaxx # assign for later use
+        ax.divider.nanaxy = nanaxy
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
     nanydata = ydata[(np.isnan(xdata) & np.isfinite(ydata))]

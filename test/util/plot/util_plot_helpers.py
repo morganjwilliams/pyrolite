@@ -1,8 +1,10 @@
 import unittest
 import numpy as np
 import pandas as pd
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import matplotlib.lines
+import matplotlib.patches
 from pyrolite.comp.codata import close
 from pyrolite.util.synthetic import random_composition
 from pyrolite.util.skl.transform import ILRTransform, ALRTransform
@@ -13,10 +15,13 @@ from pyrolite.util.plot.helpers import (
     plot_stdev_ellipses,
     draw_vector,
     vector_to_line,
+    nan_scatter,
+    rect_from_centre
 )
 
 try:
     from sklearn.decomposition import PCA
+
     HAVE_SKLEARN = True
 except ImportError:
     HAVE_SKLEARN = False
@@ -187,6 +192,33 @@ class Test2DHull(unittest.TestCase):
 
     def tearDown(self):
         plt.close("all")
+
+
+class TestRectFromCentre(unittest.TestCase):
+    def setUp(self):
+        self.xy = (0.5, 1)
+
+    def test_default(self):
+        rect = rect_from_centre(*self.xy, dx=0.5, dy=1.0)
+        self.assertIsInstance(rect, matplotlib.patches.Rectangle)
+
+
+class TestNaNScatter(unittest.TestCase):
+    def setUp(self):
+        # some x-y data with nans
+        self.xs, self.ys = np.random.randn(20), np.random.randn(20)
+        self.xs[self.xs < -0.5] = np.nan
+        self.ys[self.ys < -0.8] = np.nan
+
+    def test_default(self):
+        ax = nan_scatter(self.xs, self.ys)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+    def test_secondary_plotting(self):
+        """Test re-plotting on exsiting axes with a divider"""
+        ax = nan_scatter(self.xs[:10], self.ys[:10])
+        ax = nan_scatter(self.xs[10:], self.ys[10:], ax=ax)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
 
 
 if __name__ == "__main__":
