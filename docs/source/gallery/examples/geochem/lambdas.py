@@ -112,3 +112,14 @@ plt.tight_layout()
 # Element Patterns in Basalts. J Petrology 57, 1463–1508.
 # `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
 #
+# .. seealso::
+#
+#   Examples:
+#    `Ionic Radii <ionic_radii.html>`__,
+#    `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+#
+#   Functions:
+#     :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`,
+#     :func:`~pyrolite.geochem.ind.get_ionic_radii`,
+#     :func:`pyrolite.plot.pyroplot.REE`
+#

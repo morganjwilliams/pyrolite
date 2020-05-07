@@ -54,8 +54,18 @@ ax.set_title("Rare Earth Element Ionic Radii")
 ax.legend(facecolor=None, frameon=False, bbox_to_anchor=(1, 1))
 
 ########################################################################################
-# .. seealso:: `lambdas: Parameterising REE Profiles <lambdas.html>`__,
-#              `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+# .. seealso::
+#
+#   Examples:
+#    `lambdas: Parameterising REE Profiles <lambdas.html>`__,
+#    `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+#
+#   Functions:
+#     :func:`~pyrolite.geochem.ind.get_ionic_radii`,
+#     :func:`pyrolite.geochem.ind.REE`,
+#     :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`,
+#
+#
 # References
 # ----------
 # .. [Shannon1976] Shannon RD (1976). Revised effective ionic radii and systematic
@@ -68,3 +78,4 @@ ax.legend(facecolor=None, frameon=False, bbox_to_anchor=(1, 1))
 #        `doi: 10.1016/0016-7037(70)90077-3 <https://doi.org/10.1016/0016-7037(70)90077-3>`__.
 # .. [Pauling1960] Pauling, L., 1960. The Nature of the Chemical Bond.
 #         Cornell University Press, Ithaca, NY.
+#
