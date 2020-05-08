@@ -8,8 +8,7 @@ responsibilities.
 Also, be sure to add your name or GitHub username to the
 [contributors list](https://pyrolite.readthedocs.io/en/develop/dev/contributors.html).
 
-.. note:: This project is currently in `beta`, and as such there's much work to be
-          done.
+**Note**: This project is currently in `beta`, and as such there's much work to be done.
 
 Feature Requests
 -------------------------
