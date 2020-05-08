@@ -2,7 +2,10 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
-from pyrolite.util.plot.density import percentile_contour_values_from_meshz, plot_Z_percentiles
+from pyrolite.util.plot.density import (
+    percentile_contour_values_from_meshz,
+    plot_Z_percentiles,
+)
 
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
@@ -19,12 +22,20 @@ class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
     def test_percentiles(self):
         for ps in [[1.0], [0.001], np.linspace(0.001, 1, 10), [0.95, 0.10]]:
             with self.subTest(ps=ps):
-                percentile_contour_values_from_meshz(self.z, percentiles=ps)
+                pc, cs = percentile_contour_values_from_meshz(self.z, percentiles=ps)
 
     def test_resolution(self):
         for res in [10, 100, 1000, 10000]:
             with self.subTest(res=res):
-                percentile_contour_values_from_meshz(self.z, resolution=res)
+                pc, cs = percentile_contour_values_from_meshz(self.z, resolution=res)
+
+    def test_ask_below_minimum(self):
+        for ps in [[0.0001], [0.000001]]:
+            with self.subTest(ps=ps):
+                pc, cs = percentile_contour_values_from_meshz(
+                    self.z, percentiles=ps, resolution=5
+                )
+                self.assertIn("min", pc)
 
 
 class TestPlotZPercentiles(unittest.TestCase):

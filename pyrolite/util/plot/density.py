@@ -49,9 +49,15 @@ def percentile_contour_values_from_meshz(
     -------
     labels : :class:`list`
         Labels for contours (percentiles, if above minimum z value).
-
     contours : :class:`list`
         Contour height values.
+
+    Todo
+    -----
+    This may error for a list of percentiles where one or more requested
+    values are below the miniumum threshold. The exception handling should
+    be updated to cater for arrays - where some of the values may be above
+    the minimum.
     """
     percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
@@ -62,6 +68,9 @@ def percentile_contour_values_from_meshz(
         t_contours = f(np.array(percentiles) * z.sum())
         return percentiles, t_contours
     except ValueError:
+        # occurrs on the low-end of percentiles (high parts of distribution)
+        # maximum positions of distributions are limited by the resolution
+        # at some point there's a step down to zero
         logger.debug(
             "Percentile contour below minimum for given resolution"
             "Returning Minimium."
