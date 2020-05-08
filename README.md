@@ -46,9 +46,12 @@ If you'd rather flip through notebooks here on GitHub, have a look at the folder
 
 ## Contributing
 
-The long-term aim of this project is to be designed, built and supported by (and for)
-the geochemistry community. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
-Contributing page](https://pyrolite.readthedocs.io/en/develop/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/develop/conduct.html). For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/develop/dev/contributors.html).
+The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
+Contributing page](https://pyrolite.readthedocs.io/en/develop/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/develop/conduct.html).
+
+For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/develop/dev/contributors.html).
+
+If you'd like an idea of where the project might be heading in the near future, have a look at [the current roadmap](https://pyrolite.readthedocs.io/en/develop/dev/future.html).
 
 ## Citation
 
