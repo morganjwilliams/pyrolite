@@ -9,7 +9,8 @@ significantly further away (or in some cases may not make it to release).
 Under Development
 -------------------
 
-These features are under development and should be released in the near future.
+These features are either under development or planned to be implemented
+and should be released in the near future.
 
 :mod:`pyrolite.mineral`
 
@@ -48,25 +49,11 @@ These features are under development and should be released in the near future.
             geospatial or geostatistical functionality here.
 
 
-:mod:`pyrolite.util.alphamelts`
-
-  * Wrapper for the :code:`alphaMELTS` executable
-  * Working with :code:`alphaMELTS` tables
-  * Links to *under-development* python-MELTS.
-
-  .. note:: There are some great things happening on the MELTS-for-scripting front;
-            these utilities will be intended to link your data to these tools.
-
 On the Horizon, Potential Future Updates
 ----------------------------------------
 
 These are a number of features which are in various stages of development, which are
 planned be integrated over the longer term.
-
-:mod:`pyrolite.plot`
-
-  A few improvements to plotting functionality are on the horizon, including native
-  integration of a ternary projection for :mod:`matplotlib`.
 
 :mod:`pyrolite.geochem.magma`
 
@@ -78,3 +65,29 @@ planned be integrated over the longer term.
     * assessing data quality
     * identifying potential analytical artefacts
     * assessing uncertainties
+
+* **Interactive Plotting Backend Options**: :mod:`pyrolite` visualisation is currently
+  based entirely on static plot generation via :mod:`matplotlib`. While this works
+  well for publication-style figures, it may be possible to leverage :mod:`pandas`-based
+  frameworks to provide options for alternative backends, some of which are more
+  interactive and amendable to data exploration (e.g. :mod:`hvplot`). We'll look into
+  the feasibility of this in the near future.
+
+
+Governance and Documentation
+------------------------------
+
+* Depending on how the community grows, and whether :mod:`pyrolite` brings with it
+  a series of related tools, the project and related tools may be migrated to an
+  umbrella organization on GitHub (e.g. pyrolite/pyrolite) so they can be
+  collectively managed by a community.
+
+* **Internationalization**: While the pyrolite source is documented in English,
+  it would be good to be able to provide translated versions of the documentation
+  to minimise hurdles to getting started.
+
+* **Teaching Resources**: :mod:`pyrolite` is well placed to provide solutions
+  and resources for use in under/post-graduate education. While we have documentation
+  sections dedicated to examples and tutorials, perhaps we could develop explicit
+  sections for educational resources and exercises.
+
