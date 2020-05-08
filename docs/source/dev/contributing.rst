@@ -44,13 +44,7 @@ Contributing to Documentation
 The `documentation and examples <https://pyrolite.readthedocs.io>`__ for :code:`pyrolite`
 are gradually being developed, and any contributions or corrections would be greatly
 appreciated. Currently the examples are patchy, and a 'getting started' guide would be
-a helpful addition. If you'd like to edit an existing page, the easiest way to
-get started is via the 'Edit on GitHub' links:
-
-.. image:: https://raw.githubusercontent.com/morganjwilliams/pyrolite/develop/docs/source/_static/editongithub.png
-  :width: 100%
-  :align: center
-  :alt: Header found on each documentation page highlighting the "Edit on GitHub" link.
+a helpful addition.
 
 These pages serve multiple purposes:
   * A human-readable reference of the source code (compiled from docstrings).
