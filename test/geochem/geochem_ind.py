@@ -216,6 +216,19 @@ class TestGetIonicRadii(unittest.TestCase):
         self.assertTrue(isinstance(radii, list))
 
 
+class TestByIncompatibility(unittest.TestCase):
+    def setUp(self):
+        self.els = ["Ni", "Mg", "Cs", "Sr"]
+
+    def test_default(self):
+        reordered_REE = by_incompatibility(self.els)
+        self.assertEqual(reordered_REE[0], "Cs")
+
+    def test_reverse(self):
+        reordered_REE = by_incompatibility(self.els, reverse=True)
+        self.assertEqual(reordered_REE[0], "Ni")
+
+
 # todo: get_cations
 
 

@@ -1,10 +1,13 @@
 import unittest
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.axes
 from pyrolite.util.lambdas import (
     orthogonal_polynomial_constants,
     evaluate_lambda_poly,
     get_lambda_poly_func,
+    plot_lambdas_components
 )
 from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
@@ -119,6 +122,19 @@ class TestGetLambdaPolyFunc(unittest.TestCase):
         params = orthogonal_polynomial_constants(self.xs, degree=len(self.lambdas))
         ret = get_lambda_poly_func(self.lambdas, params=params)
         self.assertTrue(callable(ret))
+
+class TestPlotLambdasComponents(unittest.TestCase):
+
+    def setUp(self):
+        self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
+
+    def test_default(self):
+        ax = plot_lambdas_components(self.lambdas)
+        self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+
+    def tearDown(self):
+        plt.close('all')
 
 
 if __name__ == "__main__":
