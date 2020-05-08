@@ -30,7 +30,7 @@ request features or examples; see [Contributing](#contributing) below).
 pip install pyrolite
 ```
 
-If you want the most up to date development version, you can instead install directly from the GitHub repo:
+If you want the most up to date *development* version, you can instead install directly from the GitHub repo. Note that breaking changes occur on this branch, and is not guaranteed to remain stable (check the [Development and Build Status](#development--build-status) below). If you still want to try out the most recent bugfixes and yet-to-be-released features, you can install this version with:
 
 ```bash
 pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
@@ -40,9 +40,7 @@ For more information, see the documentation's [installation page](https://pyroli
 
 ## Examples
 
-Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/master/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/master/tutorials/index.html).
-
-If you'd rather flip through notebooks here on GitHub, have a look at the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
+Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/master/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/master/tutorials/index.html). If you'd rather flip through notebooks here on GitHub, these same examples can be found in the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
 
 ## Contributing
 
