@@ -43,8 +43,8 @@ Contributing to Documentation
 
 The `documentation and examples <https://pyrolite.readthedocs.io>`__ for :code:`pyrolite`
 are gradually being developed, and any contributions or corrections would be greatly
-appreciated. Currently the examples are patchy, and a 'getting started' guide would be
-a helpful addition.
+appreciated. Currently the examples are patchy, and any 'getting started' guides would
+be a helpful addition.
 
 These pages serve multiple purposes:
   * A human-readable reference of the source code (compiled from docstrings).
@@ -67,7 +67,8 @@ clone a local copy and from the repository directory you can install a developme
 (editable) copy via :code:`python setup.py develop`. To incorporate suggested
 changes back to into the project, push your changes to your
 remote fork, and then submit a pull request onto
-`pyrolite/develop <https://github.com/morganjwilliams/pyrolite/tree/develop>`__ .
+`pyrolite/develop <https://github.com/morganjwilliams/pyrolite/tree/develop>`__
+or a relevant feature branch.
 
 .. note::
 
