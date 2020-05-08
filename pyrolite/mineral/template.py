@@ -3,9 +3,9 @@ import numpy as np
 import periodictable as pt
 from collections import OrderedDict
 import scipy.optimize
-from .sites import *
-from .transform import *
-from .mindb import get_mineral
+from .sites import Site, MX, TX, OX
+from .transform import recalc_cations
+from .mindb import get_mineral, parse_composition
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -13,11 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class MineralTemplate(object):
-    """
-    Generic mineral stucture template. Formatted collection of crystallographic sites.
-    """
-
     def __init__(self, name, *components):
+        """
+        Generic mineral stucture template. Formatted collection of crystallographic sites.
+        """
         self.name = name
         self.structure = {}
         self.site_occupancy = None
@@ -71,8 +70,6 @@ class MineralTemplate(object):
         if self.structure != {}:
             structure = self.structure
             c_list = []
-            names = [c.name for c in list(structure)]
-            counts = [structure[c] for c in list(structure)]
             for site in list(structure):
                 n, c = site.name, structure[site]
                 if c > 1:
@@ -90,9 +87,8 @@ class MineralTemplate(object):
 
 
 class Mineral(object):
-    """Mineral, with structure and composition."""
-
     def __init__(self, name=None, template=None, composition=None, endmembers=None):
+        """Mineral, with structure and composition."""
         self.name = name
         self.template = None
         self.composition = None
@@ -116,27 +112,25 @@ class Mineral(object):
 
     def add_endmember(self, em, name=None):
         """Add a single endmember to the database."""
-        min = em
-        if isinstance(min, tuple):
-            name, min = min
-        if min is not None:
+        mineral = em
+        if isinstance(mineral, tuple):
+            name, mineral = mineral
+        if mineral is not None:
             # process different options for getting a mineral output
-            if isinstance(min, str):
-                name = name or str(min)
-                min = Mineral(name, None, pt.formula(get_mineral(em)["formula"]))
-            elif isinstance(min, pt.formulas.Formula):
-                name = name or str(min)
-                min = Mineral(name, None, min)
+            if isinstance(mineral, str):
+                name = name or str(mineral)
+                mineral = Mineral(name, None, pt.formula(get_mineral(em)["formula"]))
+            elif isinstance(mineral, pt.formulas.Formula):
+                name = name or str(mineral)
+                mineral = Mineral(name, None, mineral)
             else:
                 pass
 
-            name = name or min.name
-            self.endmembers[name] = min
+            name = name or mineral.name
+            self.endmembers[name] = mineral
 
     def set_template(self, template, name=None):
-        """
-        Assign a mineral template to the mineral.
-        """
+        """Assign a mineral template to the mineral."""
         if template is not None:
             if name is None:
                 name = self.name
@@ -224,9 +218,7 @@ class Mineral(object):
             return self.cationic_composition
 
     def apfu(self):
-        """
-        Get the atoms per formula unit.
-        """
+        """Get the atoms per formula unit."""
         # recalculate_cations return apfu by default
         return self.recalculate_cations()
 
@@ -408,26 +400,26 @@ class Mineral(object):
             logger.warn("Template not yet set. Cannot calculate occupancy.")
 
     def get_site_occupancy(self):
-        """
-        Get the site occupancy for the mineral.
-        """
+        """Get the site occupancy for the mineral."""
         self.calculate_occupancy()
         return self.template.site_occupancy
 
     def __str__(self):
+        """Get a string representation of the Mineral."""
         D = {}
         for kwarg in ["name", "template"]:
             val = getattr(self, kwarg, None)
             if val is not None:
                 D[kwarg] = val
         callstrings = []
-        for k, v in D.items():
+        for v in D.values():
             callstrings.append("""{}""".format(v.__str__()))
 
         strstring = r"""{}: """.format(self.__class__.__name__) + ", ".join(callstrings)
         return strstring
 
     def __repr__(self):
+        """Get the call signature of the Mineral."""
         D = {}
         for kwarg in ["name", "template", "endmembers"]:
             val = getattr(self, kwarg, None)
@@ -444,77 +436,41 @@ class Mineral(object):
         return reprstring
 
     def __hash__(self):
+        """Get the hash for the call signature of the Mineral."""
         return hash(self.__repr__().encode("UTF-8"))
 
 
-OLIVINE = MineralTemplate(
-    "olivine",
-    MX(
-        "M1",
-        affinities={
-            "Mg{2+}": 0,
-            "Fe{2+}": 1,
-            "Mn{2+}": 2,
-            "Li{+}": 3,
-            "Ca{2+}": 4,
-            "Na{+}": 5,
-        },
-    ),
-    MX(
-        "M2",
-        affinities={
-            "Al{3+}": 0,
-            "Fe{3+}": 1,
-            "Ti{4+}": 2,
-            "Cr{3+}": 3,
-            "V{3+}": 4,
-            "Ti{3+}": 5,
-            "Zr{4+}": 6,
-            "Sc{3+}": 7,
-            "Zn{2+}": 8,
-            "Mg{2+}": 9,
-            "Fe{2+}": 10,
-            "Mn{2+}": 11,
-        },
-    ),
-    TX(),
-    *[OX()] * 2,
+M1 = MX(
+    "M1",
+    affinities={
+        "Mg{2+}": 0,
+        "Fe{2+}": 1,
+        "Mn{2+}": 2,
+        "Li{+}": 3,
+        "Ca{2+}": 4,
+        "Na{+}": 5,
+    },
 )
-
-PYROXENE = MineralTemplate(
-    "pyroxene",
-    MX(
-        "M1",
-        affinities={
-            "Mg{2+}": 0,
-            "Fe{2+}": 1,
-            "Mn{2+}": 2,
-            "Li{+}": 3,
-            "Ca{2+}": 4,
-            "Na{+}": 5,
-        },
-    ),
-    MX(
-        "M2",
-        affinities={
-            "Al{3+}": 0,
-            "Fe{3+}": 1,
-            "Ti{4+}": 2,
-            "Cr{3+}": 3,
-            "V{3+}": 4,
-            "Ti{3+}": 5,
-            "Zr{4+}": 6,
-            "Sc{3+}": 7,
-            "Zn{2+}": 8,
-            "Mg{2+}": 9,
-            "Fe{2+}": 10,
-            "Mn{2+}": 11,
-        },
-    ),
-    *[TX()] * 2,
-    *[OX()] * 6,
+M2 = MX(
+    "M2",
+    affinities={
+        "Al{3+}": 0,
+        "Fe{3+}": 1,
+        "Ti{4+}": 2,
+        "Cr{3+}": 3,
+        "V{3+}": 4,
+        "Ti{3+}": 5,
+        "Zr{4+}": 6,
+        "Sc{3+}": 7,
+        "Zn{2+}": 8,
+        "Mg{2+}": 9,
+        "Fe{2+}": 10,
+        "Mn{2+}": 11,
+    },
 )
+OLIVINE = MineralTemplate("olivine", M1, M2, TX(), *[OX()] * 2,)
 
+PYROXENE = MineralTemplate("pyroxene", M1, M2, *[TX()] * 2, *[OX()] * 6,)
 
 SPINEL = MineralTemplate(
     "spinel",

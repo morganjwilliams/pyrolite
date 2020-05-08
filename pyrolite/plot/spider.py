@@ -10,18 +10,14 @@ logger = logging.getLogger(__name__)
 
 from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
-from ..util.plot import (
-    DEFAULT_CONT_COLORMAP,
-    DEFAULT_DISC_COLORMAP,
-    _mpl_sp_kw_split,
+from ..util.plot.style import DEFAULT_CONT_COLORMAP, _mpl_sp_kw_split, patchkwargs
+from ..util.plot.density import (
     conditional_prob_density,
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    get_twins,
-    init_axes,
-    linekwargs,
-    patchkwargs,
 )
+from ..util.plot.axes import get_twins, init_axes
+
 from ..util.meta import get_additional_params, subkwargs
 
 
@@ -66,6 +62,8 @@ def spider(
         Size of individual markers.
     label : :class:`str`, :code:`None`
         Label for the individual series.
+    logy : :class:`bool`
+        Whether to use a log y-axis.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -80,12 +78,12 @@ def spider(
         Axes on which the spiderplot is plotted.
 
     Notes
-    ------
+    -----
         By using separate lines and scatterplots, values between two missing
         items are still presented.
 
     Todo
-    -----
+    ----
         * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
         * Legend entries
 
@@ -154,7 +152,8 @@ def spider(
         ls = ax.plot(indexes.T, arr.T, **lnkw)
         if variable_colors:
             # perhaps check shape of color arg here
-            [l.set_color(ic) for l, ic in zip(ls, c)]
+            for l, ic in zip(ls, c):
+                l.set_color(ic)
 
         sctkw.update(dict(label=label))
         sc = ax.scatter(indexes.T, arr.T, **sctkw)
@@ -201,6 +200,7 @@ def REE_v_radii(
     ree=REE(),
     index="elements",
     mode="plot",
+    logy=True,
     tl_rotation=60,
     unity_line=False,
     **kwargs
@@ -209,7 +209,7 @@ def REE_v_radii(
     Creates an axis for a REE diagram with ionic radii along the x axis.
 
     Parameters
-    -----------
+    ----------
     arr : :class:`numpy.ndarray`
         Data array.
     ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -221,6 +221,8 @@ def REE_v_radii(
     mode : :class:`str`, :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
+    logy : :class:`bool`
+        Whether to use a log y-axis.
     tl_rotation : :class:`float`
         Rotation of the numerical index labels in degrees.
     unity_line : :class:`bool`
@@ -234,7 +236,7 @@ def REE_v_radii(
         Axes on which the REE_v_radii plot is added.
 
     Todo
-    -----
+    ----
         * Turn this into a plot template within pyrolite.plot.templates submodule
 
     .. seealso::
@@ -245,6 +247,7 @@ def REE_v_radii(
             :func:`matplotlib.pyplot.scatter`
             :func:`spider`
             :func:`pyrolite.geochem.transform.lambda_lnREE`
+
     """
     ax = init_axes(ax=ax, **kwargs)
 
@@ -269,7 +272,7 @@ def REE_v_radii(
 
     if arr is not None:
         kwargs["indexes"] = kwargs.get("indexes", indexes)
-        ax = spider(arr, ax=ax, logy=True, mode=mode, unity_line=unity_line, **kwargs)
+        ax = spider(arr, ax=ax, logy=logy, mode=mode, unity_line=unity_line, **kwargs)
 
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)

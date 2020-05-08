@@ -5,8 +5,10 @@
 
 Computation times
 =================
-**00:08.296** total execution time for **examples_comp** files:
+**00:13.586** total execution time for **examples_comp** files:
 
-- **00:08.296**: :ref:`sphx_glr_examples_comp_logratios.py` (``logratios.py``)
-- **00:00.000**: :ref:`sphx_glr_examples_comp_EMCOMP.py` (``EMCOMP.py``)
-- **00:00.000**: :ref:`sphx_glr_examples_comp_compositional_data.py` (``compositional_data.py``)
++---------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_comp_compositional_data.py` (``compositional_data.py``) | 00:08.415 | 0.0 MB |
++---------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_examples_comp_logratios.py` (``logratios.py``)                   | 00:05.171 | 0.0 MB |
++---------------------------------------------------------------------------------+-----------+--------+

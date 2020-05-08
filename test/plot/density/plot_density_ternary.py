@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.plot.density.ternary import ternary_heatmap
-from pyrolite.util.skl import ILRTransform, ALRTransform
+from pyrolite.util.skl.transform import ILRTransform, ALRTransform
 from pyrolite.comp.codata import ilr, alr, inverse_ilr, inverse_alr
 
 

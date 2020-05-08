@@ -37,9 +37,9 @@ Let's first create some example data:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -64,31 +64,31 @@ Let's first create some example data:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>1.316828</td>
               <td>1.895023</td>
               <td>1.866191</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>2.177206</td>
               <td>1.613029</td>
               <td>2.609435</td>
             </tr>
             <tr>
-              <th>2</th>
+              <td>2</td>
               <td>2.711316</td>
               <td>2.299090</td>
               <td>1.226108</td>
             </tr>
             <tr>
-              <th>3</th>
+              <td>3</td>
               <td>1.143450</td>
               <td>1.849684</td>
               <td>1.809385</td>
             </tr>
             <tr>
-              <th>4</th>
+              <td>4</td>
               <td>1.905569</td>
               <td>2.687793</td>
               <td>1.398168</td>
@@ -165,7 +165,7 @@ The plotting axis can be specified to use exisiting axes:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  6.837 seconds)
+   **Total running time of the script:** ( 0 minutes  2.353 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_ternary.py:
@@ -184,13 +184,13 @@ The plotting axis can be specified to use exisiting axes:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: ternary.py <ternary.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: ternary.ipynb <ternary.ipynb>`
 

@@ -1,6 +1,6 @@
 language: python
 os: linux
-dist: xenial
+dist: bionic
 
 jobs:
   include:
@@ -11,14 +11,18 @@ jobs:
     - python: 3.8
       env: PYVERSION=38
 
+before_install:
+  - sudo apt-get install jq curl
+
 install:
-  - pip install -q pytest pytest-runner pytest-cov coverage
+  - pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
   - pip install coveralls
-  - pip install -e .[skl] # install skl dependencies
+  - pip install -e .[skl,stats] # install skl, statsmodels
 
 script:
   - xvfb-run python setup.py test
 
 after_success:
   - "ls -lr htmlcov"
-  - coveralls
+  - coveralls # coverage to coveralls.io
+  - python-codacy-coverage -r coverage.xml

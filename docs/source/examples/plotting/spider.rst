@@ -21,59 +21,48 @@ Spiderplots & Density Spiderplots
 
 
 
-Here we'll set up an example which uses EMORB as a starting point:
+Here we'll set up an example which uses EMORB as a starting point. Typically we'll
+normalise trace element compositions to a reference composition
+to be able to link the diagram to 'relative enrichement' occuring during geological
+processes, so here we're normalising to a Primitive Mantle composition first.
+We're here taking this normalised composition and adding some noise in log-space to
+generate multiple compositions about this mean (i.e. a compositional distribution).
+For simplicility, this is handlded by
+:func:`~pyrolite.util.synthetic.example_spider_data`:
 
 
 
 .. code-block:: default
 
-    from pyrolite.geochem.norm import get_reference_composition
+    from pyrolite.util.synthetic import example_spider_data
 
-    ref = get_reference_composition("EMORB_SM89")  # EMORB composition as a starting point
-    ref.set_units("ppm")
-    df = ref.comp.pyrochem.compositional
+    normdf = example_spider_data(start="EMORB_SM89", norm_to="PM_PON")
 
 
 
 
 
+
+
+
+.. seealso:: `Normalisation <../geochem/normalization.html>`__
 
 
 Basic spider plots are straightforward to produce:
+
 
 
 .. code-block:: default
 
     import pyrolite.plot
 
-    df.pyroplot.spider(color="k")
+    ax = normdf.pyroplot.spider(color="0.5", alpha=0.5, unity_line=True, figsize=(10, 4))
+    ax.set_ylabel("X / $X_{Primitive Mantle}$")
     plt.show()
 
 
 
 .. image:: /examples/plotting/images/sphx_glr_spider_001.png
-    :class: sphx-glr-single-img
-
-
-
-
-
-Typically we'll normalise trace element compositions to a reference composition
-to be able to link the diagram to 'relative enrichement' occuring during geological
-processes:
-
-
-
-.. code-block:: default
-
-    normdf = df.pyrochem.normalize_to("PM_PON", units="ppm")
-    ax = normdf.pyroplot.spider(color="k", unity_line=True)
-    ax.set_ylabel('X / $X_{Primitive Mantle}$')
-    plt.show()
-
-
-
-.. image:: /examples/plotting/images/sphx_glr_spider_002.png
     :class: sphx-glr-single-img
 
 
@@ -91,13 +80,19 @@ plotting. Here we order the elements by relative incompatiblity using
 
     from pyrolite.geochem.ind import by_incompatibility
 
-    ax = normdf.pyroplot.spider(color="k", unity_line=True, index_order=by_incompatibility)
-    ax.set_ylabel('X / $X_{Primitive Mantle}$')
+    ax = normdf.pyroplot.spider(
+        color="k",
+        alpha=0.1,
+        unity_line=True,
+        index_order=by_incompatibility,
+        figsize=(10, 4),
+    )
+    ax.set_ylabel("X / $X_{Primitive Mantle}$")
     plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_003.png
+.. image:: /examples/plotting/images/sphx_glr_spider_002.png
     :class: sphx-glr-single-img
 
 
@@ -105,51 +100,26 @@ plotting. Here we order the elements by relative incompatiblity using
 
 
 The spiderplot can be extended to provide visualisations of ranges and density via the
-various modes. First let's take this composition and add some noise in log-space to
-generate multiple compositions about this mean (i.e. a compositional distribution):
+various modes. We could now plot the range of compositions as a filled range:
 
 
 
 .. code-block:: default
 
-    start = normdf.applymap(np.log)
-    nindex, nobs = normdf.columns.size, 120
-
-    noise_level = 0.5  # sigma for noise
-    x = np.arange(nindex)
-    y = np.tile(start.values, nobs).reshape(nobs, nindex)
-    y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
-    y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
-
-    distdf = pd.DataFrame(y, columns=normdf.columns)
-    distdf["Eu"] += 1.0  # significant offset for Eu anomaly
-    distdf = distdf.applymap(np.exp)
-
-
-
-
-
-
-
-We could now plot the range of compositions as a filled range:
-
-
-
-.. code-block:: default
-
-    ax = distdf.pyroplot.spider(
+    ax = normdf.pyroplot.spider(
         mode="fill",
         color="green",
         alpha=0.5,
         unity_line=True,
         index_order=by_incompatibility,
+        figsize=(10, 4),
     )
-    ax.set_ylabel('X / $X_{Primitive Mantle}$')
+    ax.set_ylabel("X / $X_{Primitive Mantle}$")
     plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_004.png
+.. image:: /examples/plotting/images/sphx_glr_spider_003.png
     :class: sphx-glr-single-img
 
 
@@ -163,10 +133,10 @@ Alternatively, we can plot a conditional density spider plot:
 .. code-block:: default
 
     fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
-    distdf.pyroplot.spider(
+    normdf.pyroplot.spider(
         ax=ax[0], color="k", alpha=0.05, unity_line=True, index_order=by_incompatibility
     )
-    distdf.pyroplot.spider(
+    normdf.pyroplot.spider(
         ax=ax[1],
         mode="binkde",
         vmin=0.05,  # 95th percentile,
@@ -174,12 +144,12 @@ Alternatively, we can plot a conditional density spider plot:
         unity_line=True,
         index_order=by_incompatibility,
     )
-    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
+    [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
     plt.show()
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_005.png
+.. image:: /examples/plotting/images/sphx_glr_spider_004.png
     :class: sphx-glr-single-img
 
 
@@ -196,12 +166,12 @@ modes for spider plots:
     modes = [
         ("plot", "plot", [], dict(color="k", alpha=0.01)),
         ("fill", "fill", [], dict(color="k", alpha=0.5)),
-        ("binkde", "binkde", [], dict(resolution=10)),
+        ("binkde", "binkde", [], dict(resolution=5)),
         (
             "binkde",
             "binkde contours specified",
             [],
-            dict(contours=[0.95], resolution=10),  # 95th percentile contour
+            dict(contours=[0.95], resolution=5),  # 95th percentile contour
         ),
         ("histogram", "histogram", [], dict(resolution=5, ybins=30)),
     ]
@@ -219,7 +189,7 @@ modes for spider plots:
     fig, ax = plt.subplots(
         down, across, sharey=True, sharex=True, figsize=(across * 8, 2 * down)
     )
-    [a.set_ylabel('X / $X_{Primitive Mantle}$') for a in ax]
+    [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
     for a, (m, name, args, kwargs) in zip(ax, modes):
         a.annotate(  # label the axes rows
             "Mode: {}".format(name),
@@ -231,7 +201,7 @@ modes for spider plots:
         )
     ax = ax.flat
     for mix, (m, name, args, kwargs) in enumerate(modes):
-        distdf.pyroplot.spider(
+        normdf.pyroplot.spider(
             mode=m,
             ax=ax[mix],
             vmin=0.05,  # minimum percentile
@@ -246,7 +216,7 @@ modes for spider plots:
 
 
 
-.. image:: /examples/plotting/images/sphx_glr_spider_006.png
+.. image:: /examples/plotting/images/sphx_glr_spider_005.png
     :class: sphx-glr-single-img
 
 
@@ -259,7 +229,7 @@ modes for spider plots:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  31.210 seconds)
+   **Total running time of the script:** ( 0 minutes  7.640 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_spider.py:
@@ -278,13 +248,13 @@ modes for spider plots:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: spider.py <spider.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: spider.ipynb <spider.ipynb>`
 

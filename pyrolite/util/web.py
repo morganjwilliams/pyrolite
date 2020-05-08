@@ -16,7 +16,7 @@ def urlify(url):
     return url.strip().replace(" ", "_")
 
 
-def internet_connection(target="www.google.com"):
+def internet_connection(target="pypi.org", secure=True):
     """
     Tests for an active internet connection, based on an optionally specified
     target.
@@ -32,7 +32,8 @@ def internet_connection(target="www.google.com"):
         Boolean indication of whether a HTTP connection can be established at the given
         url.
     """
-    conn = httplib.HTTPConnection(target, timeout=5)
+    mode = [httplib.HTTPConnection, httplib.HTTPSConnection][secure]
+    conn = mode(target, timeout=5)
     try:
         conn.request("HEAD", "/")
         conn.close()

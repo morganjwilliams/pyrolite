@@ -5,14 +5,13 @@ tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls
 docs_require = [
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
-    "sphinx_gallery",
+    "sphinx_gallery>=0.6.0",
     "recommonmark",
 ]
 dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
 stats_require = ["statsmodels", "scikit-learn"]
-impute_require = ["fancyimpute"]
 spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
 
 with open("README.md", "r") as src:
@@ -35,11 +34,13 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
+        "Intended Audience :: Education",
         "Natural Language :: English",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Framework :: Matplotlib",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
@@ -60,10 +61,9 @@ setup(
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas
         "joblib",
-        "requests",  # used by alphaMELTS utilities, util.wfs, util.web
+        "requests",  # used by alphaMELTS utilities,  util.web
     ],
     extras_require={
-        "impute": impute_require,
         "dev": dev_require,
         "docs": docs_require,
         "skl": skl_require,

@@ -50,9 +50,9 @@ We'll first generate some synthetic data to play with:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -81,7 +81,7 @@ We'll first generate some synthetic data to play with:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>50.949</td>
               <td>10.522</td>
               <td>14.147</td>
@@ -91,7 +91,7 @@ We'll first generate some synthetic data to play with:
               <td>1.342</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>47.525</td>
               <td>11.133</td>
               <td>15.962</td>
@@ -101,7 +101,7 @@ We'll first generate some synthetic data to play with:
               <td>1.462</td>
             </tr>
             <tr>
-              <th>2</th>
+              <td>2</td>
               <td>48.273</td>
               <td>11.044</td>
               <td>16.082</td>
@@ -200,7 +200,7 @@ TAS diagram is illustrated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.106 seconds)
+   **Total running time of the script:** ( 0 minutes  0.585 seconds)
 
 
 .. _sphx_glr_download_examples_util_TAS.py:
@@ -219,13 +219,13 @@ TAS diagram is illustrated:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: TAS.py <TAS.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: TAS.ipynb <TAS.ipynb>`
 

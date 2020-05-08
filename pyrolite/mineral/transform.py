@@ -38,33 +38,6 @@ def merge_formulae(formulas):
         molecule += pt.formula(f)
     return molecule
 
-
-def parse_composition(composition):
-    """
-    Parse a composition to provide an ionic elemental version in the form of a
-    pandas.Series. Currently accepts pandas.Series, periodictable.formulas.Formula
-    and structures which will directly convert to pandas.Series (list of tuples, dict).
-
-    Parameters
-    -----------
-    composition : :class:`pandas.Series` | :class:`periodictable.formulas.Formula`
-        Formulation of composition to parse.
-    """
-    if composition is not None:
-        if isinstance(composition, pd.Series):
-            # convert to molecular oxides, then to formula, then to wt% elemental
-            components = [pt.formula(c) for c in composition.index]
-            values = composition.values
-            formula = merge_formulae(
-                [v / c.mass * c for v, c in zip(values, components)]
-            )
-            return pd.Series(formula_to_elemental(formula))
-        elif isinstance(composition, pt.formulas.Formula):
-            return pd.Series(formula_to_elemental(composition))
-        else:
-            return parse_composition(pd.Series(composition))
-
-
 def recalc_cations(
     df,
     ideal_cations=4,
@@ -82,7 +55,7 @@ def recalc_cations(
     moles = moles.where(~np.isclose(moles, 0.0), np.nan)
 
     # determine whether oxygen is an open or closed system
-    Fe_species = [i for i in moles if i in Fe_species] # keep dataframe ordering
+    Fe_species = [i for i in moles if i in Fe_species]  # keep dataframe ordering
     count_iron_species = len(Fe_species)
     oxygen_constrained = oxygen_constrained
     if not oxygen_constrained:

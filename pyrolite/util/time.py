@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 from .meta import pyrolite_datafolder
-from .pd import to_frame
-from .text import titlecase, string_variations
-from .types import iscollection
+from .text import titlecase
 from collections import ChainMap, defaultdict
 import logging
 
@@ -160,11 +158,22 @@ def timescale_reference_frame(
 
 
 class Timescale(object):
-    """
-    Geological Timescale class to provide time-focused utility functions.
-    """
-
     def __init__(self, filename=None):
+        """
+        Geological Timescale class to provide time-focused utility functions.
+
+        Parameters
+        -----------
+        filename : :class:`str` | :class:`pathlib.Path`
+            Path to the timescale data file.
+
+        Attributes
+        ----------
+        data : :class:`pandas.DataFrame`
+            Timescale dataframe.
+        levels : :class:`list`
+            Hierarchial levels within the timescale.
+        """
         if filename is None:
             self.data = timescale_reference_frame()
         else:
@@ -179,6 +188,9 @@ class Timescale(object):
         self.build()
 
     def build(self):
+        """
+        Build the timescale from data within file.
+        """
         for ix, g in enumerate(self.levels):
             others = self.levels[ix + 1 :]
             fltr = (
@@ -206,11 +218,15 @@ class Timescale(object):
         entry : :class:`str`
             String name, or series of string names, for geological age range.
 
+        Returns
+        -------
+        :class:`tuple` | :class:`list` (:class:`tuple`)
+            Tuple or list of tuples.
         """
         try:
             entry = np.float(entry)
             return (entry, entry)
-        except:
+        except ValueError:
             return self.locate[entry.lower().strip()]
 
     def named_age(self, age, level="Specific"):
@@ -218,14 +234,14 @@ class Timescale(object):
         Converts a numeric age (in Ma) to named age at a specific level.
 
         Parameters
-        ------------
+        ----------
         age : :class:`float`
             Numeric age in Ma.
         level : :class:`str`, :code:`{'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
             Level of specificity.
 
         Returns
-        ------------
+        -------
         :class:`str`
             String representation for the entry.
         """

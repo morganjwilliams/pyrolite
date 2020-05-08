@@ -8,19 +8,27 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
-from .codata import *
-from .aggregate import *
-from .impute import *
+from .codata import (
+    renormalise,
+    alr,
+    clr,
+    ilr,
+    boxcox,
+    inverse_alr,
+    inverse_clr,
+    inverse_ilr,
+    inverse_boxcox,
+    logratiomean
+)
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrocomp")
 @pd.api.extensions.register_dataframe_accessor("pyrocomp")
 class pyrocomp(object):
-    """
-    Custom dataframe accessor for pyrolite compositional transforms.
-    """
-
     def __init__(self, obj):
+        """
+        Custom dataframe accessor for pyrolite compositional transforms.
+        """
         self._validate(obj)
         self._obj = obj
 
@@ -33,7 +41,7 @@ class pyrocomp(object):
         Renormalises compositional data to ensure closure.
 
         Parameters
-        ------------
+        ----------
         components : :class:`list`
             Option subcompositon to renormalise to 100. Useful for the use case
             where compostional data and non-compositional data are stored in the
@@ -42,7 +50,7 @@ class pyrocomp(object):
             Closure parameter. Typically either 100 or 1.
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Renormalized dataframe.
 
@@ -60,14 +68,14 @@ class pyrocomp(object):
         Additive Log Ratio transformation.
 
         Parameters
-        ---------------
+        ----------
         ind: :class:`int`, :class:`str`
             Index or name of column used as denominator.
         null_col : :class:`bool`
             Whether to keep the redundant column.
 
         Returns
-        ---------
+        -------
         :class:`pandas.DataFrame`
             ALR-transformed array, of shape :code:`(N, D-1)`.
         """
@@ -99,7 +107,7 @@ class pyrocomp(object):
         Inverse Additive Log Ratio transformation.
 
         Parameters
-        ---------------
+        ----------
         ind: :class:`int`, :class:`str`
             Index or name of column used as denominator.
         null_col : :class:`bool`, :code:`False`
@@ -107,7 +115,7 @@ class pyrocomp(object):
             (i.e. shape is :code:`(N, D)`).
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Inverse-ALR transformed array, of shape :code:`(N, D)`.
         """
@@ -130,10 +138,10 @@ class pyrocomp(object):
         Centred Log Ratio transformation.
 
         Parameters
-        ---------------
+        ----------
 
         Returns
-        ---------
+        -------
         :class:`pandas.DataFrame`
             CLR-transformed array, of shape :code:`(N, D)`.
         """
@@ -151,10 +159,10 @@ class pyrocomp(object):
         Inverse Centred Log Ratio transformation.
 
         Parameters
-        --------------
+        ----------
 
         Returns
-        ---------
+        -------
         :class:`pandas.DataFrame`
             Inverse-CLR transformed array, of shape :code:`(N, D)`.
         """
@@ -171,10 +179,10 @@ class pyrocomp(object):
         Isometric Log Ratio transformation.
 
         Parameters
-        ---------------
+        ----------
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             ILR-transformed array, of shape :code:`(N, D-1)`.
         """
@@ -192,7 +200,7 @@ class pyrocomp(object):
         Inverse Isometric Log Ratio transformation.
 
         Parameters
-        ---------------
+        ----------
         X : :class:`numpy.ndarray`, :code:`None`
             Optional specification for an array from which to derive the orthonormal basis,
             with shape :code:`(N, D)`.
@@ -277,14 +285,14 @@ class pyrocomp(object):
         Take a mean of log-ratios along the index of a dataframe.
 
         Parameters
-        -----------
+        ----------
         transform : :class:`callable`
             Log transform to use.
         inverse_transform : :class:`callable`
             Inverse of log transform.
 
         Returns
-        ---------
+        -------
         :class:`pandas.Series`
             Mean values as a pandas series.
         """

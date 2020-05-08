@@ -31,11 +31,13 @@ class TestGetReferenceFiles(unittest.TestCase):
         self.assertTrue(len(out) > 5)
         self.assertIn("CH_PalmeONeill2014", [i.stem for i in out])
 
+
 class TestGetAllReferenceCompositions(unittest.TestCase):
     def test_default(self):
         refs = all_reference_compositions()
         self.assertIsInstance(refs, dict)
-        self.assertIn('Chondrite_PON', refs)
+        self.assertIn("Chondrite_PON", refs)
+
 
 class TestGetReferenceComposition(unittest.TestCase):
     def test_default(self):

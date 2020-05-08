@@ -1,28 +1,13 @@
-import re
-import os, sys
-import shlex
+import sys
 import struct
-import getpass
-import subprocess
-from pathlib import Path
-from subprocess import Popen, PIPE
 from contextlib import contextmanager
-from tinydb import TinyDB, Query
+from tinydb import TinyDB
 
 __backend__ = None
 try:
     import psycopg2
-    from psycopg2 import ProgrammingError as PGProgrammingError
-    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
     __backend__ = psycopg2
-except:
-    pass
-
-try:
-    import sqlite3
-    from sqlite3 import Error as SQLiteError
-    from sqlite3 import OperationalError as SQLOperationalError
 except:
     pass
 
@@ -36,7 +21,6 @@ except:
     pass
 
 import logging
-from .text import *
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -85,7 +69,7 @@ def open_db_connection(
     https://github.com/mkleehammer/pyodbc/wiki/Unicode
 
     Todo
-    ------
+    ----
         Implement pooled connections.
         http://initd.org/psycopg/docs/pool.html
     """

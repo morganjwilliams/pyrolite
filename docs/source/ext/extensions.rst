@@ -10,6 +10,9 @@ This page will list packages which have been developed as extensions to pyrolite
 `pyrolite-meltsutil <https://pyrolite-meltsutil.readthedocs.io>`__
 -------------------------------------------------------------------
 
-  .. automodule:: pyrolite_meltsutil
-      :members:
-      :undoc-members:
+* :mod:`pyrolite` extension which wraps the :code:`alphaMELTS` executable
+* Functions for working with :code:`alphaMELTS` tables
+* Eventually, this will likely instead link to *under-development* python-MELTS.
+
+.. note:: There are some great things happening on the MELTS-for-scripting front;
+          these utilities will be intended to link your data to these tools.

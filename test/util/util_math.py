@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
-from pyrolite.geochem.ind import REE, get_ionic_radii
-
 
 class TestAugmentedCovarianceMatrix(unittest.TestCase):
     def setUp(self):
@@ -183,8 +181,7 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
-import numpy as np
-np.allclose(np.array([1, 2]), np.array([1, 2]))
+
 class TestSignificantFigures(unittest.TestCase):
     """
     Tests significant_figures function.
@@ -427,91 +424,6 @@ class TestOrthogonalBasis(unittest.TestCase):
 
     def test_orthogonal_basis_default(self):
         basis = orthogonal_basis_default(self.X.shape[0])
-
-
-class TestOPConstants(unittest.TestCase):
-    """Checks the generation of orthagonal polynomial parameters."""
-
-    def setUp(self):
-        self.xs = np.array(get_ionic_radii(REE(), coordination=8, charge=3))
-        self.default_degree = 4
-
-    def test_xs(self):
-        """Tests operation on different x arrays."""
-        for xs in [self.xs, self.xs[1:], self.xs[2:-2]]:
-            with self.subTest(xs=xs):
-                ret = OP_constants(xs, degree=self.default_degree)
-                self.assertTrue(not len(ret[0]))  # first item is empty
-                self.assertTrue(len(ret) == self.default_degree)
-
-    def test_degree(self):
-        """Tests generation of different degree polynomial parameters."""
-
-        max_degree = 4
-        expected = OP_constants(self.xs, degree=max_degree)
-        for degree in range(1, max_degree):
-            with self.subTest(degree=degree):
-                ret = OP_constants(self.xs, degree=degree)
-                self.assertTrue(not len(ret[0]))  # first item is empty
-                self.assertTrue(len(ret) == degree)
-                # the parameter values should be independent of the degree.
-                allclose = all(
-                    [
-                        np.allclose(
-                            np.array(expected[idx], dtype=float),
-                            np.array(tpl, dtype=float),
-                        )
-                        for idx, tpl in enumerate(ret)
-                    ]
-                )
-                self.assertTrue(allclose)
-
-    def test_tol(self):
-        """
-        Tests that the optimization of OP parameters can be achieved
-        to different tolerancesself.
-        Tolerances don't directly translate, so we expand it slightly for
-        the test (by a factor prop. to e**(len(ps)+1)).
-        """
-        eps = np.finfo(float).eps
-        hightol_result = OP_constants(
-            self.xs, degree=self.default_degree, tol=10 ** -16
-        )
-        for pow in np.linspace(np.log(eps * 1000.0), -5, 3):
-            tol = np.exp(pow)
-            with self.subTest(tol=tol):
-                ret = OP_constants(self.xs, degree=self.default_degree, tol=tol)
-                self.assertTrue(not len(ret[0]))  # first item is empty
-                self.assertTrue(len(ret) == self.default_degree)
-                for ix, ps in enumerate(ret):
-                    if ps:
-                        test_tol = tol * np.exp(len(ps) + 1)
-                        a = np.array(list(ps), dtype=float)
-                        b = np.array(list(hightol_result[ix]), dtype=float)
-                        # print( (abs(a)-abs(b)) / ((abs(a)+abs(b))/2)  - test_tol)
-                        self.assertTrue(np.allclose(a, b, atol=test_tol))
-
-
-class TestLambdaPolyFunc(unittest.TestCase):
-    """Checks the generation of lambda polynomial functions."""
-
-    def setUp(self):
-        self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
-        self.xs = np.linspace(0.9, 1.1, 5)
-
-    def test_noparams(self):
-        ret = lambda_poly_func(self.lambdas, pxs=self.xs)
-        self.assertTrue(callable(ret))
-
-    def test_noparams_noxs(self):
-        with self.assertRaises(AssertionError):
-            ret = lambda_poly_func(self.lambdas)
-            self.assertTrue(callable(ret))
-
-    def test_function_params(self):
-        params = OP_constants(self.xs, degree=len(self.lambdas))
-        ret = lambda_poly_func(self.lambdas, params=params)
-        self.assertTrue(callable(ret))
 
 
 if __name__ == "__main__":

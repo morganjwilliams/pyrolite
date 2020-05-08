@@ -1,5 +1,5 @@
 import unittest
-from pyrolite.util.web import *
+from pyrolite.util.web import urlify, download_file, internet_connection
 
 
 class TestUrlify(unittest.TestCase):
@@ -14,8 +14,7 @@ class TestUrlify(unittest.TestCase):
 
 
 class TestDownloadFile(unittest.TestCase):
-
-    def test_non_existant(self):
+    def test_no_connection(self):
         url = "http://www.notquitegoogle.com/"
         out = download_file(url, encoding=None)
         self.assertTrue(out is None)
@@ -24,6 +23,14 @@ class TestDownloadFile(unittest.TestCase):
         url = "https://pyrolite.readthedocs.io/en/develop/_static/icon_small.png"
         out = download_file(url, encoding=None)
         self.assertTrue(out is not None)
+
+
+class TestInternetConnection(unittest.TestCase):
+    def test_default(self):
+        internet_connection()
+
+    def test_insecure(self):
+        internet_connection(secure=False)
 
 
 if __name__ == "__main__":

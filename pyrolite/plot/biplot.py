@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from ..comp.codata import clr
-from ..util.plot import init_axes
+from ..util.plot.axes import init_axes
 
 
 def compositional_SVD(X: np.ndarray):

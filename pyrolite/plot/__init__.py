@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import mpltern
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -13,16 +14,13 @@ import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot import (
-    plot_cooccurence,
-    init_axes,
-    label_axes,
-    linekwargs,
-    scatterkwargs,
-)
+from ..util.plot.axes import init_axes, label_axes
+from ..util.plot.style import linekwargs, scatterkwargs
+from ..util.plot.helpers import plot_cooccurence
+
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs
-from ..geochem import common_elements, REE
+from .. import geochem
 from . import density
 from . import spider
 from . import stem
@@ -33,9 +31,8 @@ from ..comp.codata import close, ilr
 from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
-__all__ = ["density", "spider", "tern", "pyroplot"]
+__all__ = ["density", "spider", "pyroplot"]
 
-import pandas as pd
 
 # todo: global style variables
 FONTSIZE = 12
@@ -76,16 +73,15 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
 @pd.api.extensions.register_series_accessor("pyroplot")
 @pd.api.extensions.register_dataframe_accessor("pyroplot")
 class pyroplot(object):
-    """
-    Custom dataframe accessor for pyrolite plotting.
-
-    Notes
-    -----
-        This accessor enables the coexistence of array-based plotting functions and
-        methods for pandas objects. This enables some separation of concerns.
-    """
-
     def __init__(self, obj):
+        """
+        Custom dataframe accessor for pyrolite plotting.
+
+        Notes
+        -----
+            This accessor enables the coexistence of array-based plotting functions and
+            methods for pandas objects. This enables some separation of concerns.
+        """
         self._validate(obj)
         self._obj = obj
 
@@ -112,6 +108,7 @@ class pyroplot(object):
         --------
         :class:`matplotlib.axes.Axes`
             Axes on which the cooccurence plot is added.
+
         """
         obj = to_frame(self._obj)
         ax = plot_cooccurence(
@@ -154,12 +151,13 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the density diagram is plotted.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
 
         ax = density.density(
-            obj.loc[:, components].astype(np.float).values, ax=ax, **kwargs
+            obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
         )
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
@@ -201,10 +199,14 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the heatmapped scatterplot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
-        data, samples = obj.loc[:, components].values, obj.loc[:, components].values
+        data, samples = (
+            obj.reindex(columns=components).values,
+            obj.reindex(columns=components).values
+        )
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
             lambda x: ilr(close(x)),
@@ -213,11 +215,11 @@ class pyroplot(object):
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
         )
         kwargs.update({"c": zi})
-        ax = obj.loc[:, components].pyroplot.scatter(
+        ax = obj.reindex(columns=components).pyroplot.scatter(
             ax=ax,
             axlabels=axlabels,
             fontsize=fontsize,
-            **scatterkwargs(process_color(**kwargs)),
+            **scatterkwargs(process_color(**kwargs))
         )
         return ax
 
@@ -244,8 +246,9 @@ class pyroplot(object):
             Axes on which the parallel coordinates plot is added.
 
         Todo
-        ------
+        ----
         * Adapt figure size based on number of columns.
+
         """
 
         obj = to_frame(self._obj)
@@ -289,13 +292,14 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the plot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         kw = linekwargs(kwargs)
-        lines = ax.plot(*obj.loc[:, components].values.T, **kw)
+        lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
             label_axes(ax, labels=components, fontsize=fontsize)
@@ -305,7 +309,7 @@ class pyroplot(object):
         # ax.set_aspect("equal")
         return ax
 
-    def REE(self, index="elements", ax=None, mode="plot", **kwargs):
+    def REE(self, index="elements", ax=None, mode="plot", dropPm=True, **kwargs):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -325,12 +329,13 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the REE plot is added.
+
         """
         obj = to_frame(self._obj)
-        ree = REE()
+        ree = [i for i in geochem.ind.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
-            obj.loc[:, ree].astype(np.float).values,
+            obj.reindex(columns=ree).astype(np.float).values,
             index=index,
             ree=ree,
             mode=mode,
@@ -368,6 +373,7 @@ class pyroplot(object):
         -------
         :class:`matplotlib.axes.Axes`
             Axes on which the scatterplot is added.
+
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -375,7 +381,8 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         sc = ax.scatter(
-            *obj.loc[:, components].values.T, **scatterkwargs(process_color(**kwargs))
+            *obj.reindex(columns=components).values.T,
+            **scatterkwargs(process_color(**kwargs))
         )
 
         if axlabels:
@@ -426,11 +433,14 @@ class pyroplot(object):
         Todo
         -----
             * Add 'compositional data' filter for default components if None is given
+
         """
         obj = to_frame(self._obj)
 
         if components is None:  # default to plotting elemental data
-            components = [el for el in obj.columns if el in common_elements()]
+            components = [
+                el for el in obj.columns if el in geochem.ind.common_elements()
+            ]
 
         assert len(components) != 0
 
@@ -438,7 +448,7 @@ class pyroplot(object):
             components = index_order(components)
 
         ax = spider.spider(
-            obj.loc[:, components].astype(np.float).values,
+            obj.reindex(columns=components).astype(np.float).values,
             indexes=indexes,
             ax=ax,
             mode=mode,
@@ -484,7 +494,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components, valid_sizes=[2])
 
         ax = stem.stem(
-            *obj.loc[:, components].values.T,
+            *obj.reindex(columns=components).values.T,
             ax=ax,
             orientation=orientation,
             **process_color(**kwargs),

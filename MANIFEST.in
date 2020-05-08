@@ -7,5 +7,6 @@ recursive-include pyrolite/data/geochem *
 recursive-include pyrolite/data/models *
 recursive-include pyrolite/data/shannon *
 recursive-include pyrolite/data/timescale *
+recursive-include pyrolite/data/mineral *
 # recursive-exclude pyrolite/data/alphamelts/localinstall *
 # global-exclude __pycache__

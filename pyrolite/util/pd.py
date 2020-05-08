@@ -1,10 +1,8 @@
 import pandas as pd
 import hashlib
-from functools import partial
 from pathlib import Path
 import numpy as np
 import logging
-import inspect
 
 from .meta import subkwargs
 
@@ -323,14 +321,14 @@ def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
     - Earlier inputs take priority (where ordering is ambiguous, place the earlier first)
 
     Todo
-    -----
+    ----
     Attempt to preserve column ordering across column sets, assuming
     they are generally in the same order but preserving only some of the
     information.
     """
     cols = []
     dfs = []
-    for ix, t in enumerate(csvs):
+    for t in csvs:
         dfs.append(pd.read_csv(t, **kwargs))
         cols = cols + [i for i in dfs[-1].columns if i not in cols]
 

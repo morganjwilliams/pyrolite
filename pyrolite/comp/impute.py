@@ -1,10 +1,8 @@
 import numpy as np
-import pandas as pd
 import scipy.stats as stats
 from pyrolite.util.math import nancov, augmented_covariance_matrix
 from pyrolite.util.missing import md_pattern
-from pyrolite.comp.codata import alr, inverse_alr, ilr, inverse_ilr, close
-import warnings
+from pyrolite.comp.codata import alr, inverse_alr, close
 import logging
 
 
@@ -134,7 +132,7 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)  #
     A = augmented_covariance_matrix(M, C)
     A = A[reor, :][:, reor]
-    Astart = A.copy()
+    # Astart = A.copy(deep=True)
     assert (np.diag(A) != 0).all()  # Not introducing extra zeroes
     A = _multisweep(A, range(nvarobs + 1))
     """
@@ -207,17 +205,22 @@ def EMCOMP(
             A modified EM alr-algorithm for replacing rounded zeros in compositional data sets.
             Computers & Geosciences 34, 902–917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
+
     """
     X = X.copy()
     n_obs, D = X.shape
     X = close(X, sumf=np.nansum)
-    """Convert zeros into missing values"""
+    # ---------------------------------
+    # Convert zeros into missing values
+    # ---------------------------------
     X = np.where(np.isclose(X, 0.0), np.nan, X)
-    """Use a divisor free of missing values"""
+    # Use a divisor free of missing values
     assert np.isfinite(X).all(axis=0).any()
     pos = np.argmax(np.isfinite(X).all(axis=0))
     Yden = X[:, pos]
-    """Compute the matrix of censure points Ψ"""
+    # --------------------------------------
+    # Compute the matrix of censure points Ψ
+    # --------------------------------------
     # need an equivalent concept for ilr
     cpoints = (
         np.ones((n_obs, 1)) @ np.log(threshold[np.newaxis, :])
@@ -233,17 +236,14 @@ def EMCOMP(
     M = np.nanmean(Y, axis=0)  # μ0
     C = nancov(Y)  # Σ0
     assert np.isfinite(M).all() and np.isfinite(C).all()
-    """
-    --------------------------------------------------
-    Stage 2: Find and enumerate missing data patterns
-    --------------------------------------------------
-    """
+
+    # --------------------------------------------------
+    # Stage 2: Find and enumerate missing data patterns
+    # --------------------------------------------------
     pID, pD = md_pattern(Y)
-    """
-    -------------------------------------------
-    Stage 3: Regression against other variables
-    -------------------------------------------
-    """
+    # -------------------------------------------
+    # Stage 3: Regression against other variables
+    # -------------------------------------------
     logger.debug(
         "Starting Iterative Regression for Matrix : ({}, {})".format(n_obs, LD)
     )
@@ -294,7 +294,9 @@ def EMCOMP(
                 )
                 x /= sigmas[varmiss][np.newaxis, :]  # as standard deviations
                 assert np.isfinite(x).all()
+                # -----------------------------
                 # Calculate inverse Mills Ratio
+                # -----------------------------
                 ϕ = stats.norm.pdf(x, loc=0, scale=1)  # pdf
                 Φ = stats.norm.cdf(x, loc=0, scale=1)  # cdf
                 Φ[np.isclose(Φ, 0)] = np.finfo(np.float).eps * 2
@@ -305,7 +307,9 @@ def EMCOMP(
                 )
                 V[np.ix_(varmiss, varmiss)] += σ2_res * rows.size
         assert np.isfinite(V).all()
-        """Update and store parameter vector (μ(t), Σ(t))."""
+        # -----------------------------------------------
+        # Update and store parameter vector (μ(t), Σ(t)).
+        # -----------------------------------------------
         logger.debug("Regression finished.")
         M = np.nanmean(Ystar, axis=0)
         Ydevs = Ystar - np.ones((n_obs, 1)) * M
@@ -316,14 +320,18 @@ def EMCOMP(
 
         logger.debug("Average diff: {}".format(np.mean(Ydevs, axis=0)))
         assert np.isfinite(C).all()
+        # --------------------
         # Convergence checking
+        # --------------------
         if convergence_metric(M, Mnew, tol) & convergence_metric(C, Cnew, tol):
             another_iter = False
             logger.debug("Convergence achieved.")
 
         another_iter = another_iter & (niters < max_iter)
         logger.debug("Iterations Continuing: {}".format(another_iter))
+    #----------------------------
     # Back to compositional space
+    # ---------------------------
     logger.debug("Finished. Inverting to compositional space.")
     Xstar = inverse_alr(Ystar, pos)
     return Xstar, prop_zeroes, niters

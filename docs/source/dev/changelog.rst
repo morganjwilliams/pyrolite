@@ -6,15 +6,18 @@ All notable changes to this project will be documented here.
 Todo
 ------
 
-* FEATURE: Updates to include more lithogeochemical plot templates
+* **Feature**: Docs page for reference compositions
+  (`#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
+  Work in progress on a
+  `feature branch <https://github.com/morganjwilliams/pyrolite/tree/feature/docs-pyrolite.data>`__.
+* **Feature**: REY function
+  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__).
+* **Feature**: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* BUG: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry` for performance,
-  reducing data duplication (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__)
-* BUG: Conditional density spider plots should have bins centred on the element indexes
+* **Bug**: Conditional density spider plots should have bins centred on the element indexes
   (currently this is an edge)
-* BUG: Index memory for :func:`~pyrolite.plot.spider.spider`
+* **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-
 
 `Development`_
 --------------
@@ -23,10 +26,102 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+
+`0.2.6`_
+--------------
+
+* **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and
+  `Laura Miller <https://github.com/Lauraanme>`__
+* **PR Merged**: `Louise Schoneveld <https://github.com/lavender22>`__ submitted
+  a pull request to fill out the newly-added
+  `Formatting and Cleaning Up Plots tutorial <https://pyrolite.readthedocs.io/en/develop/tutorials/plot_formatting.html>`__.
+  This tutorial aims to provide some basic guidance for common figure and axis
+  formatting tasks as relevant to :mod:`pyrolite`.
+* Added `codacy` for code quality checking, and implemented numerous clean-ups
+  and a few new tests across the package.
+* Performance upgrades, largely for the documentation page.
+  The docs page should build and load faster, and have less memory hang-ups -
+  due to smaller default image sizes/DPI.
+* Removed dependency on :mod:`fancyimpute`, instead using functions from
+  :mod:`scikit-learn`
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: pyrolite lambdas differ slightly from [ONeill2016]_
+  (`#39 <https://github.com/morganjwilliams/pyrolite/issues/39>`__).
+  Differences between the lambda coefficients of the original and pyrolite
+  implementations of the lambdas calculation were identified (thanks to
+  `Laura Miller <https://github.com/Lauraanme>`__ for this one).
+  With further investigation, it's likely the cost function passed to
+  :func:`scipy.optimize.least_squares` contained an error.
+  This has been remedied, and the relevant pyrolite functions now
+  by default should give values comparable to [ONeill2016]_. As part of this,
+  the reference composition `ChondriteREE_ON` was added to the reference database
+  with the REE abundances presented in [ONeill2016]_.
+* **Bugfix**: Upgrades for :func:`~pyrolite.geochem.transform.convert_chemistry`
+  to improve performance
+  (`#29 <https://github.com/morganjwilliams/pyrolite/issues/29>`__).
+  This bug appears to have resulted from caching the function calls to
+  :func:`pyrolite.geochem.ind.simple_oxides`, which is addressed with
+  `18fede0 <https://github.com/morganjwilliams/pyrolite/commit/18fede01d54d06edd3fe1451409880d889e7ee62>`__.
+* **Feature**: Added the [WhittakerMuntus1970]_ ionic radii for use in silicate
+  geochemistry (
+  `#41 <https://github.com/morganjwilliams/pyrolite/issues/41>`__),
+  which can optionally be used with :func:`pyrolite.geochem.ind.get_ionic_radii`
+  using the `source` keyword argument (:code:`source='Whittaker'`). Thanks to
+  `Charles Le Losq <https://github.com/charlesll>`__ for the suggestion!
+* **Bugfix**: Removed an erroneous zero from the GLOSS reference composition
+  (`GLOSS_P2014` value for Pr).
+* Updated :func:`~pyrolite.geochem.ind.REE` to default to :code:`dropPm=True`
+* Moved :mod:`pyrolite.mineral.ions` to :mod:`pyrolite.geochem.ions`
+
+.. [ONeill2016] O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+    Element Patterns in Basalts. J Petrology 57, 1463–1508.
+    `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+
+.. [WhittakerMuntus1970] Whittaker, E.J.W., Muntus, R., 1970.
+    Ionic radii for use in geochemistry.
+    Geochimica et Cosmochimica Acta 34, 945–956.
+    `doi: 10.1016/0016-7037(70)90077-3 <https://doi.org/10.1016/0016-7037(70)90077-3>`__.
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Added the mineral database to `MANIFEST.in` to allow this to be installed
+  with :mod:`pyrolite` (fixing a bug where this isn't present, identified by
+  `Kaarel Mand <https://github.com/kaarelmand>`__).
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Updated :mod:`pyrolite.plot` to use :func:`pandas.DataFrame.reindex` over
+  :func:`pandas.DataFrame.loc` where indexes could include missing values to deal with
+  `#31 <https://github.com/morganjwilliams/pyrolite/issues/31>`__.
+* Updated :func:`~pyrolite.plot.spider.spider` to accept :code:`logy` keyword argument,
+  defaulting to :code:`True`
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Broke down :mod:`pyrolite.util.plot` into submodules, and updated relevant imports.
+  This will result in minimal changes to API usage where functions are
+  imported explicitly.
+* Split out :mod:`pyrolite.util.lambdas` from :mod:`pyrolite.util.math`
+* Added a minimum figure dimension to :func:`~pyrolite.util.plot.axes.init_axes`
+  to avoid having null-dimensions during automatic figure generation from empty
+  datasets.
+* Added :func:`~pyrolite.util.synthetic.example_spider_data` to generate
+  an example dataset for demonstrating spider diagrams and associated functions.
+  This allowed detailed synthetic data generation for
+  :func:`~pyrolite.plot.pyroplot.spider` and :func:`pyrolite.plot.pyroplot.REE`
+  plotting examples to be cut down significantly.
+* Removed unused submodule :mod:`pyrolite.util.wfs`
+
 `0.2.5`_
 --------------
 
-* PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
+* **PR Merged**: `@lavender22 <https://github.com/lavender22>`__ updated the spider
   diagram example to add a link to the normalisation example (which lists
   different reservoirs you can normalise to).
 * Added an 'Importing Data' section to the docs
@@ -68,7 +163,7 @@ Todo
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-* Added sorting function :code:`~pyrolite.geochem.ind.by_imcompatibility`
+* Added sorting function :code:`~pyrolite.geochem.ind.by_incompatibility`
   for incompatible element sorting (based on BCC/PM relative abundances).
 
 :mod:`pyrolite.mineral`
@@ -815,7 +910,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...develop
+.. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3

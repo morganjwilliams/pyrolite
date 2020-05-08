@@ -37,6 +37,7 @@ pyrolite\.geochem
     geochem/parse
     geochem/magma
     geochem/alteration
+    geochem/ions
     geochem/isotope
 
 

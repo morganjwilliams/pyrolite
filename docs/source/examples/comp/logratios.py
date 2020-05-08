@@ -50,7 +50,7 @@ trend = pd.DataFrame(
 ########################################################################################
 # We can visualise this compositional trend with a density plot.
 #
-ax = trend.pyroplot.density(mode="density", vmin=0.1, bins=100)
+ax = trend.pyroplot.density(mode="density", bins=100)
 plt.show()
 ########################################################################################
 # First we can see where the geometric mean would fall:

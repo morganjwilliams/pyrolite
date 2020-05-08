@@ -40,6 +40,12 @@ pyrolite\.util\.math
       :members:
       :undoc-members:
 
+pyrolite\.util\.lambdas
+-------------------------------
+  .. automodule:: pyrolite.util.lambdas
+      :members:
+      :undoc-members:
+
 pyrolite\.util\.distributions
 -------------------------------
   .. automodule:: pyrolite.util.distributions

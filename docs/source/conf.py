@@ -224,7 +224,7 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pytest": ("https://docs.pytest.org/en/latest/", None),
     "sphinx_gallery": ("https://sphinx-gallery.github.io/stable/", None),
-    "mpltern": ("https://yuzie007.github.io/mpltern/", None),
+    "mpltern": ("https://mpltern.readthedocs.io/en/latest/", None),
     "pyrolite_meltsutil": (
         "https://pyrolite-meltsutil.readthedocs.io/en/develop/",
         None,
@@ -235,21 +235,15 @@ intersphinx_mapping = {
 from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
-    "examples_dirs": [
-        "usage/examples/_auto/",
-        "usage/tutorials/_auto/",
-    ],  # path to your example scripts
-    "gallery_dirs": [
-        "examples",
-        "tutorials",
-    ],  # path to where to save gallery generated output
+    "examples_dirs": ["gallery/examples/", "gallery/tutorials/",],  # path to sources
+    "gallery_dirs": ["examples", "tutorials",],  # output paths
     "subsection_order": ExplicitOrder(
         [
-            "usage/examples/_auto/plotting",
-            "usage/examples/_auto/geochem",
-            "usage/examples/_auto/comp",
-            "usage/examples/_auto/util",
-            "usage/tutorials/_auto",
+            "gallery/examples/plotting",
+            "gallery/examples/geochem",
+            "gallery/examples/comp",
+            "gallery/examples/util",
+            "gallery/tutorials/",
         ]
     ),
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
@@ -282,7 +276,7 @@ warnings.filterwarnings(
     " non-GUI backend, so cannot show the figure.",
 )
 
-from docpatch import *  # patch for sphinx_gallery pages
+from _patch._sphinx_gallery_patch import *  # patch for sphinx_gallery pages
 
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
 

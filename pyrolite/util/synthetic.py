@@ -4,6 +4,63 @@ Utility functions for creating synthetic (geochemical) data.
 import numpy as np
 import pandas as pd
 from ..comp.codata import ilr, inverse_ilr
+from ..geochem.norm import get_reference_composition
+
+
+def example_spider_data(
+    start="EMORB_SM89",
+    norm_to="PM_PON",
+    nobs=120,
+    noise_level=0.5,
+    offsets=None,
+    units="ppm",
+):
+    """
+    Generate some random data for demonstrating spider plots.
+
+    By default, this generates a composition based around EMORB, normalised
+    to Primitive Mantle.
+
+    Parameters
+    -----------
+    start : :class:`str`
+        Composition to start with.
+    norm_to : :class:`str`
+        Composition to normalise to. Can optionally specify :code:`None`.
+    nobs : :class:`int`
+        Number of observations to include (index length).
+    noise_level : :class:`float`
+        Log-units of noise (1sigma).
+    offsets : :class:`dict`
+        Dictionary of offsets in log-units (in log units).
+    units : :class:`str`
+        Units to use before conversion. Should have no effect other than reducing
+        calculation times if `norm_to` is :code:`None`.
+
+    Returns
+    --------
+    df : :class:`pandas.DataFrame`
+        Dataframe of example synthetic data.
+    """
+
+    ref = get_reference_composition(start)
+    ref.set_units(units)
+    df = ref.comp.pyrochem.compositional
+    if norm_to is not None:
+        df = df.pyrochem.normalize_to(norm_to, units=units)
+    start = df.applymap(np.log)
+    nindex = df.columns.size
+
+    y = np.tile(start.values, nobs).reshape(nobs, nindex)
+    y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
+    y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
+
+    syn_df = pd.DataFrame(y, columns=df.columns)
+    if offsets is not None:
+        for element, offset in offsets.items():
+            syn_df[element] += offset  # significant offset for e.g. Eu anomaly
+    syn_df = syn_df.applymap(np.exp)
+    return syn_df
 
 
 def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
@@ -52,7 +109,7 @@ def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
             # eig = np.linalg.eigvalsh(cov)
             for i in range(dim):
                 assert np.linalg.det(cov[0:i, 0:i]) > 0.0  # sylvesters criterion
-        except:
+        except AssertionError:  # not symmetrical covariance matrix
             cov = random_cov_matrix(dim, validate=validate)
     return cov
 
@@ -139,7 +196,9 @@ def random_composition(
     # covariance
     if cov is None:
         if D != 1:
-            cov = random_cov_matrix(D - 1, sigmas=np.abs(mean) * 0.1, seed=seed)  # 10% sigmas
+            cov = random_cov_matrix(
+                D - 1, sigmas=np.abs(mean) * 0.1, seed=seed
+            )  # 10% sigmas
         else:
             cov = np.array([[1]])
 
@@ -207,9 +266,7 @@ def random_composition(
 def test_df(
     cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, mean=None, **kwargs
 ):
-    """
-    Creates a pandas.DataFrame with random data.
-    """
+    """Creates a pandas.DataFrame with random data."""
     return pd.DataFrame(
         columns=cols,
         data=random_composition(size=index_length, D=len(cols), mean=mean, **kwargs),
@@ -217,9 +274,7 @@ def test_df(
 
 
 def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
-    """
-    Creates a pandas.Series with random data.
-    """
+    """Creates a pandas.Series with random data."""
     return pd.Series(
         random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,

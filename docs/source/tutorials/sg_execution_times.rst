@@ -5,7 +5,12 @@
 
 Computation times
 =================
-**00:28.632** total execution time for **tutorials** files:
+**00:04.250** total execution time for **tutorials** files:
 
-- **00:28.632**: :ref:`sphx_glr_tutorials_logo.py` (``logo.py``)
-- **00:00.000**: :ref:`sphx_glr_tutorials_ternary_density.py` (``ternary_density.py``)
++-----------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_tutorials_plot_formatting.py` (``plot_formatting.py``) | 00:04.250 | 0.0 MB |
++-----------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_tutorials_logo.py` (``logo.py``)                       | 00:00.000 | 0.0 MB |
++-----------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_tutorials_ternary_density.py` (``ternary_density.py``) | 00:00.000 | 0.0 MB |
++-----------------------------------------------------------------------+-----------+--------+

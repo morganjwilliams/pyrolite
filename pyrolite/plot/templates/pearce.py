@@ -1,9 +1,8 @@
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from pyrolite.util.meta import sphinx_doi_link
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
-from .components import *
+from .components import Linear2D, LogLinear2D, GeometryCollection, Point
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -34,6 +33,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     Returns
     -------
     ax : :class:`matplotlib.axes.Axes`
+
     """
     xlim, ylim = (0.1, 100), (0.01, 10)
     if ax is None:
@@ -78,17 +78,18 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
         Whether to relimit axes to fit the built in ranges for this diagram.
     color : :class:`str`
         Line color for the diagram.
-        
+
     References
     -----------
     .. [#ref_1] Pearce J. A. (2008) Geochemical fingerprinting of oceanic basalts
-                with applications to ophiolite classification and the search for
-                Archean oceanic crust. Lithos 100, 14–48.
-                doi: {pearce2008}
+        with applications to ophiolite classification and the search for
+        Archean oceanic crust. Lithos 100, 14–48.
+        doi: {pearce2008}
 
     Returns
     -------
     ax : :class:`matplotlib.axes.Axes`
+
     """
 
     # Nb/Yb < 1.45 (CI Chondrite) = NMORB, Nb/Yb > 1.45 (CI Chondrite) EMORB

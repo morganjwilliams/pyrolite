@@ -1,5 +1,4 @@
-import os, sys
-from contextlib import contextmanager
+import os
 from .types import iscollection
 import logging
 
@@ -9,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 def validate_value(value, validator):
     """Validates a value based on one or a series of validator functions."""
-
     if iscollection(validator):
         return all([f(value) for f in validator if callable(f)])
     else:
@@ -17,29 +15,41 @@ def validate_value(value, validator):
 
 
 def validate_update_envvar(
-    key, value=None, prefix="", force_active=False, variable_model={}, formatter=str
+    key, value=None, prefix="", force_active=False, variable_model=None, formatter=str
 ):
     """
     Updates an environment variable after validation.
 
     Parameters
+    -----------
+    key : :class:`str`
+        Environment variable name.
+    value : :class:`str`
+        Value for the environemnt variable.
+    force_active : :class:`bool`
+        Enforce the schema overriding parameters.
+    variable_model : :class:`dict`
+        Model of variables indexed by name.
+    formatter
+        Function for formatting environment variable values.
 
     """
+    variable_model = variable_model or {}  # default value
     schema = variable_model.get(key, None)
     if schema is not None:  # some potential validation
         if value is not None:
             if schema.get("validator", None) is not None:
                 valid = validate_value(value, schema["validator"])
-                assert valid, "Invalid value for parameter {}: {}".format(var, value)
+                assert valid, "Invalid value for parameter {}: {}".format(key, value)
 
             if schema.get("overridden_by", None) is not None:
                 # check for overriders
                 overriders = [prefix + k for k in schema.get("overridden_by")]
 
                 if any([over in os.environ for over in overriders]):
-                    if force_active:
-                        for k in [key for key in overriders if key in os.environ]:
-                            del os.environ[key]
+                    # if there are over-riding parameters, remove this one
+                    if force_active and any([key in os.environ for key in overriders]):
+                        del os.environ[key]
         else:
             # try to set to default
             if schema.get("default", None) is not None:

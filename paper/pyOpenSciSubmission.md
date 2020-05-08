@@ -2,13 +2,12 @@ Submitting Author: Name (@morganjwilliams)
 Package Name: pyrolite
 One-Line Description of Package: A set of tools for getting the most from your geochemical data.
 Repository Link:  https://github.com/morganjwilliams/pyrolite
-Version submitted:  0.2.4
+Version submitted:  0.2.5
 Editor: TBD  
 Reviewer 1: TBD  
 Reviewer 2: TBD  
 Archive: TBD  
-Version accepted: TBD   
-
+Version accepted: TBD
 ---
 
 ## Description
@@ -59,7 +58,7 @@ There is at least one other Python package which has some minor overlap for visu
 
 For details about the pyOpenSci packaging requirements, see our [packaging guide](https://www.pyopensci.org/dev_guide/packaging/packaging_guide.html). Confirm each of the following by checking the box.  This package:
 
-- [ ] does not violate the Terms of Service of any service it interacts with.
+- [x] does not violate the Terms of Service of any service it interacts with.
 - [x] has an [OSI approved license](https://opensource.org/licenses)
 - [ ] contains a README with instructions for installing the development version.
 - [ ] includes documentation with examples for all functions.

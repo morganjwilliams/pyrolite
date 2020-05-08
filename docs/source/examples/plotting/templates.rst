@@ -14,7 +14,7 @@ be used to create new plots, or add a template to an existing
 .. code-block:: default
 
     import matplotlib.pyplot as plt
-    from pyrolite.util.plot import share_axes
+    from pyrolite.util.plot.axes import share_axes
 
 
 
@@ -106,6 +106,10 @@ and within the pyrolite documentation:
         color : :class:`str`
             Line color for the diagram.
     
+        Returns
+        -------
+        ax : :class:`matplotlib.axes.Axes`
+    
         References
         -----------
         .. [#pyrolite.plot.templates.TAS.TAS_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
@@ -113,11 +117,6 @@ and within the pyrolite documentation:
                     classification of volcanic rocks.
                     Mineralogy and Petrology 46, 1–22.
                     doi: `10.1007/BF01160698 <https://dx.doi.org/10.1007/BF01160698>`__
-    
-    
-        Returns
-        -------
-        ax : :class:`matplotlib.axes.Axes`
 
 
 
@@ -126,7 +125,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.789 seconds)
+   **Total running time of the script:** ( 0 minutes  1.472 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:
@@ -145,13 +144,13 @@ and within the pyrolite documentation:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: templates.py <templates.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: templates.ipynb <templates.ipynb>`
 
