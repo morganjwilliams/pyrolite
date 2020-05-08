@@ -17,6 +17,26 @@ This page is home to longer examples which incorporate multiple components of
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="In this tutorial we will illustrate some straightfoward formatting for your plots which will al...">
+
+.. only:: html
+
+ .. figure:: /tutorials/images/thumb/sphx_glr_plot_formatting_thumb.png
+
+     :ref:`sphx_glr_tutorials_plot_formatting.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /tutorials/plot_formatting
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Making the Logo">
 
 .. only:: html
