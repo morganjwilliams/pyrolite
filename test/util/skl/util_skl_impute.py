@@ -29,6 +29,7 @@ class TestImputers(unittest.TestCase):
 
     def setUp(self):
         self.df = test_df().apply(close, axis=1)
+        self.group = (self.df["MgO"] > 0.21).apply(np.int)
 
     def test_MultipleImputer(self):
         """Test the MultipleImputer transfomer."""
@@ -37,6 +38,30 @@ class TestImputers(unittest.TestCase):
         for input in [df]:
             with self.subTest(input=input):
                 out = tmr.fit_transform(input)
+
+    def test_groupby(self):
+        df = self.df
+        df["group"] = self.group
+        tmr = MultipleImputer(groupby="group")
+        for input in [df]:
+            with self.subTest(input=input):
+                out = tmr.fit_transform(input)
+
+    def test_y_specified(self):
+        df = self.df
+        tmr = MultipleImputer()
+        for input in [df]:
+            with self.subTest(input=input):
+                out = tmr.fit_transform(input, y=self.group)
+
+    @unittest.expectedFailure
+    def test_groupby_with_y_specified(self):
+        df = self.df
+        df["group"] = self.group
+        tmr = MultipleImputer(groupby="group")
+        for input in [df]:
+            with self.subTest(input=input):
+                out = tmr.fit_transform(input, y=self.group)
 
 
 if __name__ == "__main__":
