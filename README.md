@@ -32,6 +32,12 @@ pip install pyrolite
 
 For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/master/gettingstarted.html).
 
+## Examples
+
+Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/master/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/master/tutorials/index.html).
+
+If you'd rather flip through notebooks here on GitHub, have a look at the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
+
 ## Contributing
 
 The long-term aim of this project is to be designed, built and supported by (and for)
