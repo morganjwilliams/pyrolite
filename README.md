@@ -30,6 +30,12 @@ request features or examples; see [Contributing](#contributing) below).
 pip install pyrolite
 ```
 
+If you want the most up to date development version, you can instead install directly from the GitHub repo:
+
+```bash
+pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
+```
+
 For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/master/gettingstarted.html).
 
 ## Examples
