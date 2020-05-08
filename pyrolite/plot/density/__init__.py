@@ -68,7 +68,7 @@ def density(
         Predetermined extent of the grid for which to from the histogram/KDE. In the
         general form (xmin, xmax, ymin, ymax).
     contours : :class:`list`
-        Contours to add to the plot.
+        Contours to add to the plot, where :code:`mode='density'` is used.
     percentiles :  :class:`bool`, `True`
         Whether contours specified are to be converted to percentiles.
     relim : :class:`bool`, :code:`True`
@@ -190,18 +190,18 @@ def density(
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
                     mappable.set_lw(0.0)
-            if contours:
-                mappable = _add_contours(
-                    grid.grid_xei,
-                    grid.grid_yei,
-                    zi=zei.reshape(grid.grid_xei.shape),
-                    ax=ax,
-                    contours=contours,
-                    percentiles=percentiles,
-                    cmap=cmap,
-                    vmin=vmin,
-                    **kwargs
-                )
+                else:
+                    mappable = _add_contours(
+                        grid.grid_xei,
+                        grid.grid_yei,
+                        zi=zei.reshape(grid.grid_xei.shape),
+                        ax=ax,
+                        contours=contours,
+                        percentiles=percentiles,
+                        cmap=cmap,
+                        vmin=vmin,
+                        **kwargs
+                    )
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
