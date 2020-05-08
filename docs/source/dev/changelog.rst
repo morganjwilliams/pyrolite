@@ -19,7 +19,6 @@ Todo
 * **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
-
 `Development`_
 --------------
 
@@ -27,8 +26,17 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+
+`0.2.6`_
+--------------
+
 * **New Contributors**: `Kaarel Mand <https://github.com/kaarelmand>`__ and
   `Laura Miller <https://github.com/Lauraanme>`__
+* **PR Merged**: `Louise Schoneveld <https://github.com/lavender22>`__ submitted
+  a pull request to fill out the newly-added
+  `Formatting and Cleaning Up Plots tutorial <https://pyrolite.readthedocs.io/en/develop/tutorials/plot_formatting.html>`__.
+  This tutorial aims to provide some basic guidance for common figure and axis
+  formatting tasks as relevant to :mod:`pyrolite`.
 * Added `codacy` for code quality checking, and implemented numerous clean-ups
   and a few new tests across the package.
 * Performance upgrades, largely for the documentation page.
@@ -113,7 +121,7 @@ Todo
 `0.2.5`_
 --------------
 
-* PR Merged: `@lavender22 <https://github.com/lavender22>`__ updated the spider
+* **PR Merged**: `@lavender22 <https://github.com/lavender22>`__ updated the spider
   diagram example to add a link to the normalisation example (which lists
   different reservoirs you can normalise to).
 * Added an 'Importing Data' section to the docs
@@ -902,7 +910,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...develop
+.. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
 .. _0.2.3: https://github.com/morganjwilliams/pyrolite/compare/0.2.2...0.2.3
