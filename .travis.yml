@@ -17,7 +17,7 @@ before_install:
 install:
   - pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
   - pip install coveralls
-  - pip install -e .[skl] # install skl dependencies
+  - pip install -e .[skl,stats] # install skl, statsmodels
 
 script:
   - xvfb-run python setup.py test
