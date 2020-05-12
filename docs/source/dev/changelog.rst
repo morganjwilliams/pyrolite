@@ -26,6 +26,10 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+`0.2.7`_
+--------------
+
+* Bugfix to include radii data in MANIFEST.in
 
 `0.2.6`_
 --------------
@@ -910,7 +914,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...develop
+.. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
 .. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
 .. _0.2.4: https://github.com/morganjwilliams/pyrolite/compare/0.2.3...0.2.4
