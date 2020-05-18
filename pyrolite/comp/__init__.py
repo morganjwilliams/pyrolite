@@ -99,8 +99,8 @@ class pyrocomp(object):
             index=self._obj.index,
             columns=colnames,
         )
-        tfm_df.alr_index = index_col_no  # save parameter for inverse_transform
-        tfm_df.inverts_to = self._obj.columns.to_list()
+        tfm_df.attrs["alr_index"] = index_col_no  # save parameter for inverse_transform
+        tfm_df.attrs["inverts_to"] = self._obj.columns.to_list()
         return tfm_df
 
     def inverse_ALR(self, ind=None, null_col=False):
@@ -121,11 +121,10 @@ class pyrocomp(object):
             Inverse-ALR transformed array, of shape :code:`(N, D)`.
         """
 
-        if hasattr(self._obj, "inverts_to"):
-            colnames = self._obj.inverts_to
+        colnames = self._obj.attrs.get("inverts_to")
 
         if ind is None:
-            ind = self._obj.alr_index or -1
+            ind = self._obj.attrs.get("alr_index", -1)
 
         itfm_df = pd.DataFrame(
             inverse_alr(self._obj.values, ind=ind, null_col=null_col),
@@ -150,9 +149,9 @@ class pyrocomp(object):
         tfm_df = pd.DataFrame(
             clr(self._obj.values), index=self._obj.index, columns=colnames,
         )
-        tfm_df.inverts_to = (
-            self._obj.columns.to_list()
-        )  # save parameter for inverse_transform
+        tfm_df.attrs[
+            "inverts_to"
+        ] = self._obj.columns.to_list()  # save parameter for inverse_transform
         return tfm_df
 
     def inverse_CLR(self):
@@ -167,9 +166,7 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             Inverse-CLR transformed array, of shape :code:`(N, D)`.
         """
-        if hasattr(self._obj, "inverts_to"):
-            colnames = self._obj.inverts_to
-
+        colnames = self._obj.attrs.get("inverts_to")
         itfm_df = pd.DataFrame(
             inverse_clr(self._obj.values), index=self._obj.index, columns=colnames,
         )
@@ -191,9 +188,9 @@ class pyrocomp(object):
         tfm_df = pd.DataFrame(
             ilr(self._obj.values), index=self._obj.index, columns=colnames,
         )
-        tfm_df.inverts_to = (
-            self._obj.columns.to_list()
-        )  # save parameter for inverse_transform
+        tfm_df.attrs[
+            "inverts_to"
+        ] = self._obj.columns.to_list()  # save parameter for inverse_transform
         return tfm_df
 
     def inverse_ILR(self, X=None):
@@ -211,8 +208,7 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             Inverse-ILR transformed array, of shape :code:`(N, D)`.
         """
-        if hasattr(self._obj, "inverts_to"):
-            colnames = self._obj.inverts_to
+        colnames = self._obj.attrs.get("inverts_to")
 
         itfm_df = pd.DataFrame(
             inverse_ilr(self._obj.values), index=self._obj.index, columns=colnames,
@@ -252,7 +248,7 @@ class pyrocomp(object):
             return_lmbda=True,
         )
         tfm_df = pd.DataFrame(arr, index=self._obj.index, columns=self._obj.columns)
-        tfm_df.boxcox_lmbda = lmbda  # save parameter for inverse_transform
+        tfm_df.attrs["boxcox_lmbda"] = lmbda  # save parameter for inverse_transform
         return tfm_df
 
     def inverse_boxcox(self, lmbda=None):
@@ -270,10 +266,11 @@ class pyrocomp(object):
             Inverse Box-Cox transformed array.
         """
         if lmbda is None:
-            assert hasattr(
-                self._obj, "boxcox_lmbda"
+            lmbda = self._obj.attrs.get("boxcox_lmbda")
+            assert (
+                lmbda is not None
             ), "Can't invert a box-cox transform without a lambda parameter."
-            lmbda = self._obj.boxcox_lmbda
+
         itfm_df = pd.DataFrame(
             inverse_boxcox(self._obj.values, lmbda=lmbda),
             index=self._obj.index,

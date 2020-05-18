@@ -34,18 +34,18 @@ class TestPyroComp(unittest.TestCase):
     def test_ALR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.ALR()
-        self.assertTrue(hasattr(out, "alr_index"))
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("alr_index" in out.attrs)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_ALR_name_index(self):
         df = self.tridf.copy(deep=True)  # copy df
         ind = "SiO2"
         out = df.pyrocomp.ALR(ind=ind)
-        self.assertTrue(hasattr(out, "alr_index"))
-        self.assertTrue(hasattr(out, "inverts_to"))
+        self.assertTrue("alr_index" in out.attrs)
+        self.assertTrue("inverts_to" in out.attrs)
         self.assertTrue(all([ind in colname for colname in out.columns]))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_ALR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -57,8 +57,8 @@ class TestPyroComp(unittest.TestCase):
     def test_CLR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.CLR()
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_CLR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -70,8 +70,8 @@ class TestPyroComp(unittest.TestCase):
     def test_ILR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.ILR()
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_ILR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -83,7 +83,7 @@ class TestPyroComp(unittest.TestCase):
     def test_boxcox_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.boxcox()
-        self.assertTrue(hasattr(out, "boxcox_lmbda"))
+        self.assertTrue("boxcox_lmbda" in out.attrs)
 
     def test_inverse_boxcox_default(self):
         df = self.tridf.copy(deep=True)  # copy df

@@ -57,7 +57,7 @@ setup(
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
-        "pandas>=0.23",  # dataframe acccessors
+        "pandas>=1.0",  # dataframe acccessors, attrs attribute
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas
         "joblib",
