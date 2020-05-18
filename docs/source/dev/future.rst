@@ -71,7 +71,9 @@ planned be integrated over the longer term.
   well for publication-style figures, it may be possible to leverage :mod:`pandas`-based
   frameworks to provide options for alternative backends, some of which are more
   interactive and amendable to data exploration (e.g. :mod:`hvplot`). We'll look into
-  the feasibility of this in the near future.
+  the feasibility of this in the near future. See the :mod:`pandas` extension docs for
+  one option for implementing this
+  (`plotting-backends <https://pandas.pydata.org/pandas-docs/stable/development/extending.html#plotting-backends>`__).
 
 
 Governance and Documentation
@@ -90,4 +92,3 @@ Governance and Documentation
   and resources for use in under/post-graduate education. While we have documentation
   sections dedicated to examples and tutorials, perhaps we could develop explicit
   sections for educational resources and exercises.
-
