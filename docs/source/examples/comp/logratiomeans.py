@@ -1,9 +1,10 @@
 """
-Logratios for Average Compositions
-----------------------------------------
+Log Ratio Means
+-----------------
 """
 import numpy as np
 import pandas as pd
+import pyrolite.comp
 from pyrolite.comp.codata import ilr, inverse_ilr, close
 from pyrolite.util.synthetic import random_cov_matrix
 import matplotlib.pyplot as plt
@@ -62,8 +63,6 @@ plt.show()
 # Finally, we can also see where the logratio mean would fall:
 #
 
-ilrmean = pd.DataFrame(
-    inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :])
-)
+ilrmean = trend.pyrocomp.logratiomean(transform='ilr')
 ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
 plt.show()

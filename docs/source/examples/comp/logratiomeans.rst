@@ -1,16 +1,17 @@
 .. rst-class:: sphx-glr-example-title
 
-.. _sphx_glr_examples_comp_logratios.py:
+.. _sphx_glr_examples_comp_logratiomeans.py:
 
 
-Logratios for Average Compositions
-----------------------------------------
+Log Ratio Means
+-----------------
 
 
 .. code-block:: default
 
     import numpy as np
     import pandas as pd
+    import pyrolite.comp
     from pyrolite.comp.codata import ilr, inverse_ilr, close
     from pyrolite.util.synthetic import random_cov_matrix
     import matplotlib.pyplot as plt
@@ -90,7 +91,7 @@ We can visualise this compositional trend with a density plot.
 
 
 
-.. image:: /examples/comp/images/sphx_glr_logratios_001.png
+.. image:: /examples/comp/images/sphx_glr_logratiomeans_001.png
     :class: sphx-glr-single-img
 
 
@@ -109,7 +110,7 @@ First we can see where the geometric mean would fall:
 
 
 
-.. image:: /examples/comp/images/sphx_glr_logratios_002.png
+.. image:: /examples/comp/images/sphx_glr_logratiomeans_002.png
     :class: sphx-glr-single-img
 
 
@@ -123,15 +124,13 @@ Finally, we can also see where the logratio mean would fall:
 .. code-block:: default
 
 
-    ilrmean = pd.DataFrame(
-        inverse_ilr(np.nanmean(ilr(trend.values), axis=0)[np.newaxis, :])
-    )
+    ilrmean = trend.pyrocomp.logratiomean(transform='ilr')
     ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
     plt.show()
 
 
 
-.. image:: /examples/comp/images/sphx_glr_logratios_003.png
+.. image:: /examples/comp/images/sphx_glr_logratiomeans_003.png
     :class: sphx-glr-single-img
 
 
@@ -141,10 +140,10 @@ Finally, we can also see where the logratio mean would fall:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  5.171 seconds)
+   **Total running time of the script:** ( 0 minutes  4.285 seconds)
 
 
-.. _sphx_glr_download_examples_comp_logratios.py:
+.. _sphx_glr_download_examples_comp_logratiomeans.py:
 
 
 .. only :: html
@@ -156,19 +155,19 @@ Finally, we can also see where the logratio mean would fall:
   .. container:: binder-badge
 
     .. image:: https://mybinder.org/badge_logo.svg
-      :target: https://mybinder.org/v2/gh/morganjwilliams/pyrolite/develop?filepath=docs/source/examples/comp/logratios.ipynb
+      :target: https://mybinder.org/v2/gh/morganjwilliams/pyrolite/develop?filepath=docs/source/examples/comp/logratiomeans.ipynb
       :width: 150 px
 
 
   .. container:: sphx-glr-download sphx-glr-download-python
 
-     :download:`Download Python source code: logratios.py <logratios.py>`
+     :download:`Download Python source code: logratiomeans.py <logratiomeans.py>`
 
 
 
   .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-     :download:`Download Jupyter notebook: logratios.ipynb <logratios.ipynb>`
+     :download:`Download Jupyter notebook: logratiomeans.ipynb <logratiomeans.ipynb>`
 
 
 .. only:: html
