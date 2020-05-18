@@ -18,7 +18,8 @@ from .codata import (
     inverse_clr,
     inverse_ilr,
     inverse_boxcox,
-    logratiomean
+    logratiomean,
+    get_transforms,
 )
 
 # note that only some of these methods will be valid for series
@@ -286,16 +287,12 @@ class pyrocomp(object):
 
         Parameters
         ----------
-        transform : :class:`callable`
+        transform : :class:`callable` : :class:`str`
             Log transform to use.
-        inverse_transform : :class:`callable`
-            Inverse of log transform.
 
         Returns
         -------
         :class:`pandas.Series`
             Mean values as a pandas series.
         """
-        return logratiomean(
-            self._obj, transform=transform, inverse_transform=inverse_transform
-        )
+        return logratiomean(self._obj, transform=transform)

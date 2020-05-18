@@ -10,6 +10,8 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+__TRANSFORMS__ = {}
+
 
 def close(X: np.ndarray, sumf=np.sum):
     """
@@ -320,7 +322,29 @@ def inverse_boxcox(Y: np.ndarray, lmbda):
     return scipy.special.inv_boxcox(Y, lmbda)
 
 
-def logratiomean(df, transform=clr, inverse_transform=inverse_clr):
+def get_transforms(name):
+    """
+    Lookup a transform-inverse transform pair by name.
+
+    Parameters
+    ----------
+    name : :class:`str`
+        Name of of the transform pairs (e.g. :code:``'clr'``).
+
+    Returns
+    -------
+    tfm, inv_tfm : :class:`callable`
+        Transform and inverse transform functions.
+    """
+
+    if callable(name):  #  callable
+        name = name.__name__
+
+    tfm, inv_tfm = __TRANSFORMS__.get(name.lower())
+    return tfm, inv_tfm
+
+
+def logratiomean(df, transform=clr):
     """
     Take a mean of log-ratios along the index of a dataframe.
 
@@ -338,7 +362,25 @@ def logratiomean(df, transform=clr, inverse_transform=inverse_clr):
     :class:`pandas.Series`
         Mean values as a pandas series.
     """
+    tfm, inv_tfm = get_transforms(transform)
     return pd.Series(
-        inverse_transform(np.mean(transform(df.values), axis=0)[np.newaxis, :])[0],
-        index=df.columns,
+        inv_tfm(np.mean(tfm(df.values), axis=0)[np.newaxis, :])[0], index=df.columns,
     )
+
+
+def _load_transforms():
+    """
+    Load the transform pairs into the module level variable for later lookup.
+
+    Returns
+    -------
+    :class:`dict`
+    """
+    return {
+        f: (globals().get(f), globals().get("inverse_{}".format(f)))
+        for f in globals().keys()
+        if "inverse_{}".format(f) in globals().keys()
+    }
+
+
+__TRANSFORMS__.update(_load_transforms())
