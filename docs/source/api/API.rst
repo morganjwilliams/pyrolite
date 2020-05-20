@@ -73,7 +73,22 @@ pyrolite\.util
   .. toctree::
     :maxdepth: 2
 
-    util
+    util/general
+    util/pd
+    util/plot
+    util/text
+    util/web
+    util/time
+    util/math
+    util/lambdas
+    util/distributions
+    util/synthetic
+    util/missing
+    util/units
+    util/types
+    util/meta
+    util/skl
+    util/classification
 
 
 .. seealso:: `Extensions <../ext/extensions.html>`__
