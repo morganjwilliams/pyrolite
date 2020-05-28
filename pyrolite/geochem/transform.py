@@ -521,6 +521,7 @@ def lambda_lnREE(
     params=None,
     degree=4,
     scale="ppm",
+    allow_missing=True,
     **kwargs
 ):
     """
@@ -543,6 +544,8 @@ def lambda_lnREE(
         Maximum degree polynomial fit component to include.
     scale : :class:`str`
         Current units for the REE data, used to scale the reference dataset.
+    allow_missing : :class:`True`
+        Whether to calculate lambdas for rows which might be missing values.
 
     Todo
     -----
@@ -576,8 +579,11 @@ def lambda_lnREE(
     else:
         degree = len(params)
 
-    null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
-    norm_df = df.loc[~null_in_row, ree].copy()  # initialize normdf
+    # initialize normdf
+    norm_df = df.loc[:, ree].copy()
+    if not allow_missing:
+        # nullify rows with missing data
+        norm_df.loc[pd.isnull(df.loc[:, ree]).any(axis=1), :] = np.nan
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
@@ -602,7 +608,6 @@ def lambda_lnREE(
     except np.linalg.LinAlgError:  # singular matrix
         kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
         lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
-
     assert lambdadf.index.size == df.index.size
     return lambdadf
 
