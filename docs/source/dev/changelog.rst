@@ -26,6 +26,20 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where lambdas would only be calculated for rows without
+  missing data. Where missing data was present, this would result in an assertion
+  error and hence no returned values.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where arguments processing by :mod:`pyrolite.plot.color`
+  would consume the 'alpha' parameter if no color was specified (and as such it would
+  have no effect on the default colors used by :mod:`~matplotlib.pyplot`)
+
 `0.2.7`_
 --------------
 
