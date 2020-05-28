@@ -122,11 +122,17 @@ def process_color(
         C = c
     elif color is not None:
         C = color
-    else:
+    else: # neither color is specified
         return {
             **{
                 k: v
-                for k, v in {"c": c, "color": color, "cmap": cmap, "norm": norm}.items()
+                for k, v in {
+                    "c": c,
+                    "color": color,
+                    "cmap": cmap,
+                    "norm": norm,
+                    "alpha": alpha,
+                }.items()
                 if v is not None
             },
             **otherkwargs,
