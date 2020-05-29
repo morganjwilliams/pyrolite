@@ -168,6 +168,7 @@ def density(
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
                     mode="edges",
+                    **subkwargs(kwargs, grid.kdefrom)
                 )
 
                 if percentiles:  # 98th percentile

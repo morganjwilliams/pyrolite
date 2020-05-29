@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from scipy.stats.kde import gaussian_kde
+import scipy.stats
 from ..util.math import flattengrid
 from ..comp.codata import ilr, close
 
@@ -32,7 +32,7 @@ def get_scaler(*fs):
     return partial(scaler, fs=fs)
 
 
-def sample_kde(data, samples, renorm=False, transform=lambda x: x):
+def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=None):
     """
     Sample a Kernel Density Estimate at points or a grid defined.
 
@@ -44,6 +44,9 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x):
         Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`).
     transform
         Transformation used prior to kernel density estimate.
+    bw_method : :class:`str`, :class:`float`, callable
+        Method used to calculate the estimator bandwidth.
+        See :func:`scipy.stats.kde.gaussian_kde`.
 
     Returns
     ----------
@@ -52,7 +55,7 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x):
     data = data[np.isfinite(data).all(axis=1), :]
     tdata = transform(data)
 
-    K = gaussian_kde(tdata.T)
+    K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
 
     if isinstance(samples, list) and isinstance(samples[0], np.ndarray):  # meshgrid
         zshape = samples[0].shape
