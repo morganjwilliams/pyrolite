@@ -34,7 +34,8 @@ Todo
   error and hence no returned values.
 * **Bugfix**: Fixed a bug where missing data wasn't handled correctly for calculating
   lambdas. The functions now correctly ignore the potential contribution of elements
-  which are missing when parameterising REE patterns.
+  which are missing when parameterising REE patterns. Thanks to Steve Barnes for
+  the tip off which led to identifying this issue!
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~

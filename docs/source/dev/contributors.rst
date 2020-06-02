@@ -12,3 +12,4 @@ comments, testing, bug reports, or feature requests.
 * `Justin Gosses <https://github.com/JustinGOSSES>`__
 * `Kaarel Mand <https://github.com/kaarelmand>`__
 * `Laura Miller <https://github.com/Lauraanme>`__
+* Steve Barnes
