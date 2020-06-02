@@ -147,7 +147,7 @@ def density(
                     extent=grid.get_hex_extent(),
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hexbin)
                 )
 
             elif mode == "hist2d":
@@ -158,7 +158,7 @@ def density(
                     range=grid.get_range(),
                     cmap=cmap,
                     cmin=[0, 1][vmin > 0],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hist2d)
                 )
                 mappable = im
 
