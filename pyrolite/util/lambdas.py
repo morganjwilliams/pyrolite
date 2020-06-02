@@ -242,11 +242,13 @@ def _lambdas_ONeill2016(df, radii, params=None):
         columns=[chr(955) + str(d) for d in range(degree)],
         dtype="float32",
     )
-    A = get_polynomial_matrix(radii, params=params)
-    invA = np.linalg.inv(A)
-    V = np.vander(radii, degree, increasing=True).T
+    rad = np.array(radii) # so we can use a boolean index
     for row in range(df.index.size):
-        Z = (df.iloc[row, :].fillna(0).values * V).sum(axis=-1)
+        fltr = np.isfinite(df.iloc[row, :].values)  # filter missing
+        A = get_polynomial_matrix(rad[fltr], params=params)
+        invA = np.linalg.inv(A)
+        V = np.vander(rad, degree, increasing=True).T
+        Z = (df.iloc[row, :].values[fltr] * V[:, fltr]).sum(axis=-1)
         lambdas.iloc[row, :] = invA @ Z
     return lambdas
 
@@ -334,18 +336,13 @@ def _lambdas_optimize(
     poly_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
 
     for row in range(df.index.size):
-        if np.isnan(
-            df.iloc[row, :].values
-        ).any():  # With missing data, the method can't be used.
-            x = np.nan * np.ones(degree)
-        else:
-            result = scipy.optimize.least_squares(
-                cost_function,
-                starting_guess,
-                args=(df.iloc[row, :].fillna(0).values, poly_components,),
-            )
-            x = result.x
-            # redisuals res = result.fun
+        result = scipy.optimize.least_squares(
+            cost_function,
+            starting_guess,
+            args=(df.iloc[row, :].values, poly_components,),
+        )
+        x = result.x
+        # redisuals res = result.fun
         lambdas.iloc[row, :] = x
     return lambdas
 
@@ -397,7 +394,7 @@ def calc_lambdas(
         params = orthogonal_polynomial_constants(default_radii, degree=degree)
     # exclude completely empty columns
     columns = [c for c in df.columns if c not in exclude and np.nansum(df[c])]
-    df[~np.isfinite(df)] = 0  # deal with np.nan, np.inf
+    df[~np.isfinite(df)] = np.nan  # deal with np.nan, np.inf
     df = df[columns]
     radii = get_ionic_radii(df.columns.tolist(), charge=3, coordination=8)
     if "oneill" in algorithm.lower():
