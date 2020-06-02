@@ -32,6 +32,9 @@ Todo
 * **Bugfix**: Fixed a bug where lambdas would only be calculated for rows without
   missing data. Where missing data was present, this would result in an assertion
   error and hence no returned values.
+* **Bugfix**: Fixed a bug where missing data wasn't handled correctly for calculating
+  lambdas. The functions now correctly ignore the potential contribution of elements
+  which are missing when parameterising REE patterns.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +42,12 @@ Todo
 * **Bugfix**: Fixed a bug where arguments processing by :mod:`pyrolite.plot.color`
   would consume the 'alpha' parameter if no color was specified (and as such it would
   have no effect on the default colors used by :mod:`~matplotlib.pyplot`)
+* The `bw_method` argument for :func:`scipy.stats.gaussian_kde` can now be parsed
+  by :mod:`pyrolite` density-plot functions (e.g.
+  :func:`~pyrolite.plot.pyroplot.density`, :func:`~pyrolite.plot.pyroplot.heatscatter`).
+  This means you can modify the default bandwidth of the gaussian kernel density plots.
+  Future updates may allow non-guassian kernels to also be used for these purposes -
+  keep an eye out!
 
 `0.2.7`_
 --------------
