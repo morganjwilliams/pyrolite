@@ -32,7 +32,7 @@ Or, if you wish to cite a specific version of the archive:
 
 If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
 
-.. code: latex
+.. code-block:: latex
 
   @article{Williams2020,
     doi = {10.21105/joss.02314},
@@ -42,7 +42,14 @@ If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
     volume = {5},
     number = {50},
     pages = {2314},
-    author = {Morgan J. Williams and Louise Schoneveld and Yajing Mao and Jens Klump and Justin Gosses and Hayden Dalton and Adam Bath and Steve Barnes},
+    author = {Morgan J. Williams and
+              Louise Schoneveld and
+              Yajing Mao and
+              Jens Klump and
+              Justin Gosses and
+              Hayden Dalton and
+              Adam Bath and
+              Steve Barnes},
     title = {pyrolite: Python for geochemistry},
     journal = {Journal of Open Source Software}
   }
