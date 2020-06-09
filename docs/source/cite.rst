@@ -1,7 +1,7 @@
 Citation
 ==========
 
-|doibadage|
+|doibadages|
 
 .. note:: :mod:`pyrolite` began as a personal project, but as the project develops
           there are likely to be other contributors. Check the
@@ -13,28 +13,43 @@ would be particularly appreciated. It helps quantify the impact of the project
 (assisting those contributing through paid and volunteer work), and is one way to get
 the message out and help build the pyrolite community.
 
-As no overview papers have yet been published,
-the best option is to reference the `Zenodo <https://zenodo.org>`__ archive DOI. Ideally
-reference a specific version if you know which one you used
-(:code:`import pyrolite; pyrolite.__version__`) to make your work more replicable.
+:mod:`pyrolite` has been published in the Journal of Open Source Software (JOSS),
+and generally this paper is what you should cite. This paper was published in reference
+to :mod:`pyrolite` v0.2.7; if you're using a different version please note that in the
+citation.
 
 While the exact format of your citation will vary
 with wherever you're publishing, it should take the general form:
 
-  Williams, M. J. (|year|). pyrolite, Zenodo, `doi:10.5281/zenodo.2545106 <https://dx.doi.org/doi:10.5281/zenodo.2545106>`__
+  Williams et al., (2020). pyrolite: Python for geochemistry.
+  Journal of Open Source Software, 5(50), 2314,
+  doi: `10.21105/joss.02314 <https://doi.org/10.21105/joss.02314>`__
 
-Or, if you wish to cite a specific version:
+Or, if you wish to cite a specific version of the archive:
 
-  Williams, M. J. (|year|). pyrolite v |version|, Zenodo, `doi:10.5281/zenodo.2545106 <https://dx.doi.org/doi:10.5281/zenodo.2545106>`__
+  Williams et al. (|year|). pyrolite v |version|, Zenodo,
+  `doi:10.5281/zenodo.2545106 <https://dx.doi.org/doi:10.5281/zenodo.2545106>`__
 
 If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
 
-.. parsed-literal::
+.. code-block:: latex
 
-    @misc{pyrolite,
-      author       = {Morgan Williams},
-      title        = {pyrolite |version|},
-      year         = |year|,
-      doi          = {10.5281/zenodo.2545106},
-      url          = {https://doi.org/10.5281/zenodo.2545106}
-    }
+  @article{Williams2020,
+    doi = {10.21105/joss.02314},
+    url = {https://doi.org/10.21105/joss.02314},
+    year = {2020},
+    publisher = {The Open Journal},
+    volume = {5},
+    number = {50},
+    pages = {2314},
+    author = {Morgan J. Williams and
+              Louise Schoneveld and
+              Yajing Mao and
+              Jens Klump and
+              Justin Gosses and
+              Hayden Dalton and
+              Adam Bath and
+              Steve Barnes},
+    title = {pyrolite: Python for geochemistry},
+    journal = {Journal of Open Source Software}
+  }
