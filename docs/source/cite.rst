@@ -32,7 +32,7 @@ Or, if you wish to cite a specific version of the archive:
 
 If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
 
-.. parsed-literal::
+.. code: latex
 
   @article{Williams2020,
     doi = {10.21105/joss.02314},
