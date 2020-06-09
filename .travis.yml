@@ -1,5 +1,8 @@
 language: python
 jobs:
+  allow_failures:
+    - os: osx
+    
   include:
     - os: linux
       dist: bionic
