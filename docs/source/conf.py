@@ -315,8 +315,11 @@ rst_prolog = """
 
 .. |doibadage| raw:: html
 
+    <a style="border-width:0" href="https://doi.org/10.21105/joss.02314">
+    <img src="https://joss.theoj.org/papers/10.21105/joss.02314/status.svg" alt="DOI" >
+    </a>
     <a href="https://zenodo.org/badge/latestdoi/137172322">
-     <img src="https://zenodo.org/badge/137172322.svg" alt="DOI">
+     <img src="https://zenodo.org/badge/137172322.svg" alt="Archive">
     </a>
 
 """.format(
