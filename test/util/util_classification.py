@@ -13,6 +13,9 @@ class TestTAS(unittest.TestCase):
         )
         self.df.loc[:, "TotalAlkali"] = self.df.Na2O + self.df.K2O
 
+    def test_classifer_norebuild(self):
+        cm = Geochemistry.TAS(rebuild=False)
+
     def test_classifer_rebuild(self):
         cm = Geochemistry.TAS(rebuild=True)
 
@@ -26,6 +29,9 @@ class TestTAS(unittest.TestCase):
         df = renormalise(df)
         cm = Geochemistry.TAS(rebuild=True)
         df.loc[:, "TAS"] = cm.classify(df)
+        df["Rocknames"] = df.TAS.apply(
+            lambda x: cm.clsf.fields.get(x, {"names": None})["names"]
+        )
 
 
 class TestPeralkalinity(unittest.TestCase):
