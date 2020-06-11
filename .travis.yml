@@ -1,20 +1,17 @@
 language: python
+dist: bionic
+os: linux
+
 jobs:
   allow_failures:
     - os: osx
     
   include:
-    - os: linux
-      dist: bionic
-      python: 3.6
+    - python: 3.6
       env: PYVERSION=36
-    - os: linux
-      dist: bionic
-      python: 3.7
+    - python: 3.7
       env: PYVERSION=37
-    - os: linux
-      dist: bionic
-      python: 3.8
+    - python: 3.8
       env: PYVERSION=38
     - os: osx
       language: sh
