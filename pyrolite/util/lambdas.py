@@ -233,6 +233,11 @@ def _lambdas_ONeill2016(df, radii, params=None):
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+
+    Todo
+    -----
+    Use a missing-data-pattern approach to speed up the algorithm slightly (i.e.
+    generate an :code:`A` matrix for each pattern).
     """
     assert params is not None
     degree = len(params)
