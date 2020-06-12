@@ -127,5 +127,5 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     :class:`matplotlib.cm.ScalarMappable`
     """
     sm = plt.cm.ScalarMappable(cmap=cmap)
-    sm.set_array(values)
+    sm.set_array(values[np.isfinite(values)])
     return sm
