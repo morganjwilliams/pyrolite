@@ -9,6 +9,7 @@ DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default discrete colormap.
 """
 import itertools
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines
 import matplotlib.axes

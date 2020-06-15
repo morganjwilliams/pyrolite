@@ -12,7 +12,7 @@ pyrolite\.util\.skl\.vis
 
 pyrolite\.util\.skl\.pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  .. automodule:: pyrolite.util.skl.select
+  .. automodule:: pyrolite.util.skl.pipeline
       :members:
       :undoc-members:
 
