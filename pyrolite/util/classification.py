@@ -326,7 +326,7 @@ class PeralkalinityClassifier(object):
         peraluminous_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & (
             TotalAlkali < df.Al2O3
         )
-        out = pd.Series(index=df.index)
+        out = pd.Series(index=df.index, dtype='object')
         out.loc[peraluminous_where] = "Peraluminous"
         out.loc[metaluminous_where] = "Metaluminous"
         out.loc[perkalkaline_where] = "Peralkaline"
