@@ -17,7 +17,7 @@ from pyrolite.util.plot.axes import share_axes
 #
 from pyrolite.plot.templates import TAS
 
-ax = TAS()
+ax = TAS(linewidth=0.5, labels='ID')
 plt.show()
 ########################################################################################
 # The other templates currently included in :mod:`pyrolite` are the

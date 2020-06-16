@@ -16,6 +16,8 @@ import pandas as pd
 import matplotlib.text
 import matplotlib.pyplot as plt
 import matplotlib.patches
+import matplotlib.lines
+from .plot.style import patchkwargs
 from .plot.axes import init_axes
 from .meta import (
     pyrolite_datafolder,
@@ -185,12 +187,7 @@ class PolygonClassifier(object):
                     kwargs["facecolor"] = "none"
                 verts = np.array(cfg["poly"]) * rescale_by
                 pg = matplotlib.patches.Polygon(
-                    verts,
-                    closed=True,
-                    edgecolor="k",
-                    **subkwargs(
-                        kwargs, matplotlib.patches.Patch, matplotlib.patches.Polygon
-                    )
+                    verts, closed=True, edgecolor="k", **patchkwargs(kwargs)
                 )
                 pgns.append(pg)
                 ax.add_patch(pg)
@@ -231,7 +228,7 @@ class PolygonClassifier(object):
 
 class TAS(PolygonClassifier):
     @update_docstring_references
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
 
@@ -264,7 +261,9 @@ class TAS(PolygonClassifier):
 
         with open(src, "r") as f:
             config = json.load(f)
-        super().__init__(**config, scale=100.0, xlim=[35, 85], ylim=[0, 20])
+        kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
+        kw.update(kwargs)
+        super().__init__(**config, **kw)
 
     def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
         """
@@ -287,7 +286,9 @@ class TAS(PolygonClassifier):
         ax : :class:`matplotlib.axes.Axes`
         """
         # use and override the default add_to_axes
-        ax = self._add_polygons_to_axes(ax=ax, fill=fill, axes_scale=axes_scale)
+        ax = self._add_polygons_to_axes(
+            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+        )
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
