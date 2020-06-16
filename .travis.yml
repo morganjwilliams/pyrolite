@@ -1,11 +1,12 @@
 language: python
 dist: bionic
 os: linux
+cache: pip
 
 jobs:
   allow_failures:
     - os: osx
-    
+
   include:
     - python: 3.6
       env: PYVERSION=36
