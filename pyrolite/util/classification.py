@@ -61,28 +61,29 @@ def get_centroid(poly):
 
 
 class PolygonClassifier(object):
+    """
+    A classifier model built form a series of polygons defining specific classes.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    scale : :class:`float`
+        Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
+    xlim : :class:`tuple`
+        Default x-limits for this classifier for plotting.
+    ylim : :class:`tuple`
+        Default y-limits for this classifier for plotting.
+    """
+
     def __init__(
         self, name=None, axes=None, fields=None, scale=1.0, xlim=None, ylim=None,
     ):
-        """
-        A classifier model built form a series of polygons defining specific classes.
-
-        Parameters
-        -----------
-        name : :class:`str`
-            A name for the classifier model.
-        axes : :class:`list` | :class:`tuple`
-            Names of the axes corresponding to the polygon coordinates.
-        fields : :class:`dict`
-            Dictionary describing indiviudal polygons, with identifiers as keys and
-            dictionaries containing 'name' and 'fields' items.
-        scale : :class:`float`
-            Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
-        xlim : :class:`tuple`
-            Default x-limits for this classifier for plotting.
-        ylim : :class:`tuple`
-            Default y-limits for this classifier for plotting.
-        """
         self.default_scale = scale
         self._scale = self.default_scale
         self.xlim = xlim
@@ -227,36 +228,36 @@ class PolygonClassifier(object):
 
 
 class TAS(PolygonClassifier):
+    """
+    Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    scale : :class:`float`
+        Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
+    xlim : :class:`tuple`
+        Default x-limits for this classifier for plotting.
+    ylim : :class:`tuple`
+        Default y-limits for this classifier for plotting.
+
+    References
+    -----------
+    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+                The construction of the Total Alkali-Silica chemical
+                classification of volcanic rocks.
+                Mineralogy and Petrology 46, 1–22.
+                doi: {LeBas1992}
+    """
+
     @update_docstring_references
     def __init__(self, **kwargs):
-        """
-        Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
-
-        Parameters
-        -----------
-        name : :class:`str`
-            A name for the classifier model.
-        axes : :class:`list` | :class:`tuple`
-            Names of the axes corresponding to the polygon coordinates.
-        fields : :class:`dict`
-            Dictionary describing indiviudal polygons, with identifiers as keys and
-            dictionaries containing 'name' and 'fields' items.
-        scale : :class:`float`
-            Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
-        xlim : :class:`tuple`
-            Default x-limits for this classifier for plotting.
-        ylim : :class:`tuple`
-            Default y-limits for this classifier for plotting.
-
-        References
-        -----------
-        .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
-                    The construction of the Total Alkali-Silica chemical
-                    classification of volcanic rocks.
-                    Mineralogy and Petrology 46, 1–22.
-                    doi: {LeBas1992}
-        """
-
         src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
 
         with open(src, "r") as f:
@@ -339,4 +340,6 @@ class PeralkalinityClassifier(object):
         return out
 
 
-TAS.__init__.__doc__ = TAS.__init__.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__init__.__doc__ = TAS.__init__.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698")
+)
