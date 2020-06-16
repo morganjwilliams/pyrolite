@@ -48,7 +48,7 @@ df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
 #
 df["TAS"] = cm.predict(df)
 df["Rocknames"] = df.TAS.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
-df["TAS"].unique()
+df["Rocknames"].sample(10) # randomly check 10 sample rocknames
 ########################################################################################
 # We could now take the TAS classes and use them to colorize our points for plotting
 # on the TAS diagram, or more likely, on another plot. Here the relationship to the
