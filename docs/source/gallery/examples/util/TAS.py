@@ -29,15 +29,17 @@ df.head(3)
 ########################################################################################
 # We can visualise how this chemistry corresponds to the TAS diagram:
 #
+import pyrolite.plot
+
 df["Na2O + K2O"] = df["Na2O"] + df["K2O"]
 cm = TAS()
 
 fig, ax = plt.subplots(1)
-
-ax.scatter(df["SiO2"], df["Na2O + K2O"], c="k", alpha=0.2)
 cm.add_to_axes(
     ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID",
 )
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
+
 
 ########################################################################################
 # We can now classify this data according to the fields of the TAS diagram, and
@@ -52,12 +54,8 @@ df["TAS"].unique()
 # on the TAS diagram, or more likely, on another plot. Here the relationship to the
 # TAS diagram is illustrated:
 #
-colorize = {field: plt.cm.tab10(ix) for ix, field in enumerate(df["TAS"].unique())}
 
 fig, ax = plt.subplots(1)
 
-ax.scatter(
-    df["SiO2"], df["Na2O + K2O"], c=df["TAS"].apply(lambda x: colorize[x]), alpha=0.7
-)
-
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID")
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df['TAS'], alpha=0.7)
