@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from ...util.plot.axes import init_axes
-from ...util.classification import TAS
+from ...util.classification import TAS as TASclassifier
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 
 
@@ -45,7 +45,7 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
         )
     ax = init_axes(ax=ax, **kwargs)
 
-    tas = TAS()
+    tas = TASclassifier()
     tas.add_to_axes(ax=ax, **kwargs)
     if relim:
         ax.set_xlim(xlim)

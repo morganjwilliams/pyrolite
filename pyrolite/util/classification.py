@@ -225,6 +225,7 @@ class PolygonClassifier(object):
 
 
 class TAS(PolygonClassifier):
+    @update_docstring_references
     def __init__(self):
         """
         Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
