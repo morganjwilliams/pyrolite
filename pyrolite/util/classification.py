@@ -17,7 +17,12 @@ import matplotlib.text
 import matplotlib.pyplot as plt
 import matplotlib.patches
 from .plot.axes import init_axes
-from .meta import pyrolite_datafolder, subkwargs, sphinx_doi_link
+from .meta import (
+    pyrolite_datafolder,
+    subkwargs,
+    sphinx_doi_link,
+    update_docstring_references,
+)
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -326,7 +331,7 @@ class PeralkalinityClassifier(object):
         peraluminous_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & (
             TotalAlkali < df.Al2O3
         )
-        out = pd.Series(index=df.index, dtype='object')
+        out = pd.Series(index=df.index, dtype="object")
         out.loc[peraluminous_where] = "Peraluminous"
         out.loc[metaluminous_where] = "Metaluminous"
         out.loc[perkalkaline_where] = "Peralkaline"
