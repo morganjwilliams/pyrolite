@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from ...util.classification import Geochemistry
+from ...util.plot.axes import init_axes
+from ...util.classification import TAS
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 
 
@@ -33,7 +34,6 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
     """
     TAS_xlim, TAS_ylim = (30, 90), (0, 20)
     if ax is None:
-        fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
         xlim, ylim = TAS_xlim, TAS_ylim
     else:
         # if the axes limits are not defaults, update to reflect the axes
@@ -43,7 +43,9 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
             [ax_xlim, TAS_xlim][np.allclose(ax_xlim, ax_defaults)],
             [ax_ylim, TAS_ylim][np.allclose(ax_ylim, ax_defaults)],
         )
-    tas = Geochemistry.TAS()
+    ax = init_axes(ax=ax, **kwargs)
+
+    tas = TAS()
     tas.add_to_axes(ax=ax, **kwargs)
     if relim:
         ax.set_xlim(xlim)

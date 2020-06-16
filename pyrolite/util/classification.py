@@ -16,8 +16,8 @@ import pandas as pd
 import matplotlib.text
 import matplotlib.pyplot as plt
 import matplotlib.patches
-from pyrolite.util.plot.axes import init_axes
-from pyrolite.util.meta import pyrolite_datafolder, subkwargs
+from .plot.axes import init_axes
+from .meta import pyrolite_datafolder, subkwargs, sphinx_doi_link
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -227,8 +227,8 @@ class PolygonClassifier(object):
 class TAS(PolygonClassifier):
     def __init__(self):
         """
-        Total-alkali Silica Diagram classifier.
-        
+        Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+
         Parameters
         -----------
         name : :class:`str`
@@ -244,6 +244,14 @@ class TAS(PolygonClassifier):
             Default x-limits for this classifier for plotting.
         ylim : :class:`tuple`
             Default y-limits for this classifier for plotting.
+
+        References
+        -----------
+        .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+                    The construction of the Total Alkali-Silica chemical
+                    classification of volcanic rocks.
+                    Mineralogy and Petrology 46, 1–22.
+                    doi: {LeBas1992}
         """
 
         src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
@@ -322,3 +330,7 @@ class PeralkalinityClassifier(object):
         out.loc[metaluminous_where] = "Metaluminous"
         out.loc[perkalkaline_where] = "Peralkaline"
         return out
+
+
+for f in [TAS.__init__]:
+    f.__doc__ = f.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
