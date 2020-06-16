@@ -339,5 +339,4 @@ class PeralkalinityClassifier(object):
         return out
 
 
-for f in [TAS.__init__]:
-    f.__doc__ = f.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__init__.__doc__ = TAS.__init__.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
