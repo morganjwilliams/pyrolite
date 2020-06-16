@@ -335,7 +335,7 @@ class Mineral(object):
             occupancy.loc[:, :] = 0.0
 
             for site in self.sites:
-                site.occupancy = pd.Series(index=occupancy.index).fillna(0)
+                site.occupancy = pd.Series(index=occupancy.index, dtype='float').fillna(0)
 
             inventory = composition.copy()
             for site in self.sites[::-1]:
