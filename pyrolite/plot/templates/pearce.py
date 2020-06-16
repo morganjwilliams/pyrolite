@@ -138,7 +138,9 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     return ax
 
 
-for f in [pearceThNbYb, pearceTiNbYb]:
-    f.__doc__ = f.__doc__.format(
-        pearce2008=sphinx_doi_link("10.1016/j.lithos.2007.06.016")
-    )
+pearceThNbYb.__doc__ = pearceThNbYb.__doc__.format(
+    pearce2008=sphinx_doi_link("10.1016/j.lithos.2007.06.016")
+)
+pearceTiNbYb__doc__ = pearceTiNbYb.__doc__.format(
+    pearce2008=sphinx_doi_link("10.1016/j.lithos.2007.06.016")
+)

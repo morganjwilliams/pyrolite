@@ -53,5 +53,4 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
     return ax
 
 
-for f in [TAS]:
-    f.__doc__ = f.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
