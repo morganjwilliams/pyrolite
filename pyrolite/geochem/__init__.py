@@ -54,6 +54,22 @@ class pyrochem(object):
         return self._obj.columns[fltr].tolist()
 
     @property
+    def list_isotope_ratios(self):
+        """
+        Get the subset of columns which are isotoe ratios.
+
+        Returns
+        --------
+        :class:`list`
+
+        Notes
+        -------
+        The list will have the same ordering as the source DataFrame.
+        """
+        fltr = [parse.is_isotoperatio(c) for c in self._obj.columns]
+        return self._obj.columns[fltr].tolist()
+
+    @property
     def list_REE(self):
         """
         Get the subset of columns which are Rare Earth Element names.
@@ -134,6 +150,21 @@ class pyrochem(object):
         self._obj.loc[:, self.list_oxides] = df
 
     @property
+    def isotope_ratios(self):
+        """
+        Get an isotope ratio subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj[self.list_isotope_ratios]
+
+    @elements.setter
+    def isotope_ratios(self, df):
+        self._obj.loc[:, self.list_isotope_ratios] = df
+
+    @property
     def compositional(self):
         """
         Get an oxide & elemental subset of a DataFrame.
@@ -141,6 +172,10 @@ class pyrochem(object):
         Returns
         --------
         :class:`pandas.Dataframe`
+
+        Notes
+        ------
+        This wil not include isotope ratios.
         """
         return self._obj.loc[:, self.list_compositional]
 
