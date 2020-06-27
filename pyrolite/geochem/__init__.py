@@ -185,6 +185,15 @@ class pyrochem(object):
 
     # pyrolite.geochem.parse functions
 
+    def parse_chem(self, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+        """
+        Convert column names to pyrolite-recognised elemental, oxide and isotope
+        ratio column names where valid names are found.
+        """
+        self._obj.columns = parse.tochem(
+            self._obj.columns, abbrv=abbrv, split_on=split_on
+        )
+
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
         """
         Returns cations which are present in both oxide and elemental form.
