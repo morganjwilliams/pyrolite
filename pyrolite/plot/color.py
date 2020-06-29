@@ -48,7 +48,8 @@ def get_cmode(c=None):
                         pass
                 elif all([isinstance(_c, str) for _c in c]):
                     try:
-                        _ = matplotlib.colors.to_rgba(c)
+                        # could test all of them, or just a few
+                        _ = [matplotlib.colors.to_rgba(_c) for _c in [c[0], c[-1]]]
                         if all([_c.startswith("#") for _c in c]):
                             cmode = "hex_array"
                         elif not any([_c.startswith("#") for _c in c]):
