@@ -92,9 +92,14 @@ class TestProcessColor(unittest.TestCase):
         c = 1.0
         out = process_color(c=c)
 
-    @unittest.expectedFailure
     def test_mixed_input(self):
-        c = [1.0, (1, 0, 0), "black"]
+        c = ["0.5", (1, 0, 0), "black"]
+        out = process_color(c=c)
+
+    @unittest.expectedFailure
+    def test_invalid_mixed_input(self):
+        """Non-scaled floats etc."""
+        c = [1.0, 10.1, "0.5", (1, 0, 0), "black"]
         out = process_color(c=c)
 
     def test_singular_with_alpha(self):
@@ -172,10 +177,17 @@ class TestGetCmode(unittest.TestCase):
         c = 1.0
         cmode = get_cmode(c)
 
-    @unittest.expectedFailure
     def test_mixed_input(self):
-        c = [1.0, (1, 0, 0), "black"]
+        c = ["0.5", (1, 0, 0), "black"]
         cmode = get_cmode(c)
+        self.assertEqual(cmode, 'mixed_fmt_color_array')
+
+    @unittest.expectedFailure
+    def test_invalid_mixed_input(self):
+        """Non-scaled floats etc."""
+        c = [1.0, 10.1, "0.5", (1, 0, 0), "black"]
+        cmode = get_cmode(c)
+        self.assertEqual(cmode, 'mixed_fmt_color_array')
 
 
 if __name__ == "__main__":
