@@ -1,10 +1,12 @@
 """
 Baisc spatial utility functions.
 """
+
 import numpy as np
 import pandas as pd
 import functools
 import itertools
+from psutil import virtual_memory  # memory check
 from .math import on_finite
 import logging
 
@@ -12,13 +14,13 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def _get_sqare_grid_segment_indicies(max_size, segments):
+def _get_sqare_grid_segment_indicies(size, segments):
     """
     Get the indexes for segment boundaries for iterating over a grid within an array.
 
     Parameters
     ----------
-    max_size : :class:`int`
+    size : :class:`int`
         Shape of the square array.
     segments : :class:`int`
         Number of segments for the grid.
@@ -27,9 +29,9 @@ def _get_sqare_grid_segment_indicies(max_size, segments):
     --------
     :class:`numpy.ndarray`
     """
-    seg_size = max_size // segments
+    seg_size = size // segments
     segx = [(seg_size * ix, seg_size * (ix + 1)) for ix in range(segments)]
-    segx[-1] = (seg_size * (segments - 1), max_size - 1)
+    segx[-1] = (seg_size * (segments - 1), size - 1)
     return [[*a, *b] for a, b in itertools.product(segx, segx)]
 
 
@@ -98,9 +100,9 @@ def _haversine_GC_distance(φ1, φ2, λ1, λ2):
 def _segmented_spatial_distance_matrix(
     φ1, φ2, λ1, λ2, metric, dtype="float32", segs=10
 ):
-    max_size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
-    angle = np.zeros((max_size, max_size), dtype=dtype)  # full matrix
-    for ix_s, ix_e, iy_s, iy_e in _get_sqare_grid_segment_indicies(max_size, segs):
+    size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
+    angle = np.zeros((size, size), dtype=dtype)  # full matrix
+    for ix_s, ix_e, iy_s, iy_e in _get_sqare_grid_segment_indicies(size, segs):
         angle[ix_s:ix_e, iy_s:iy_e] = metric(
             φ1[ix_s:ix_e][:, np.newaxis],
             φ2[iy_s:iy_e][np.newaxis, :],
@@ -111,7 +113,14 @@ def _segmented_spatial_distance_matrix(
 
 
 def great_circle_distance(
-    a, b=None, absolute=False, degrees=True, r=6371.0088, method=None, dtype="float32"
+    a,
+    b=None,
+    absolute=False,
+    degrees=True,
+    r=6371.0088,
+    method=None,
+    dtype="float32",
+    max_memory_fraction=0.25,
 ):
     """
     Calculate the great circle distance between two lat, long points.
@@ -134,6 +143,10 @@ def great_circle_distance(
         Vicenty formula.
     dtype : :class:`numpy.dtype`
         Data type for distance arrays, to constrain memory management.
+    max_memory_fraction : :class:`float`
+        Constraint to switch to calculating mean distances where :code:`matrix=True`
+        and the distance matrix requires greater than a specified fraction of total
+        avaialbe physical memory.
     """
     a = np.atleast_2d(np.array(a).astype(dtype))
     matrix = False
@@ -165,30 +178,42 @@ def great_circle_distance(
         # if matrix mode we need to turn these 1d arrays into 2d
         # but, with large arrays it'll spit out a memory error
         # so instead we can try to build it numerically
-        max_size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
-        try:
-            angle = np.atleast_1d(
-                f(
-                    φ1[:, np.newaxis],
-                    φ2[np.newaxis, :],
-                    λ1[:, np.newaxis],
-                    λ2[np.newaxis, :],
-                )
+        size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
+        mem = virtual_memory()
+        mem.total  # total physical memory available
+        estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size ** 2
+        logger.debug(
+            "Attempting to build {}x{} array of size {:.2f} Gb.".format(
+                size, size, estimated_matrix_size / 1024 ** 3
             )
-        except (MemoryError, ValueError):
+        )
+        if estimated_matrix_size > (mem.total * max_memory_fraction):
             logger.warn(
-                "Cannot directly compute distance matrix, attempting segmented distance"
-                " matrix instead."
+                "Angle array for segmented distance matrix larger than maximum memory "
+                "fraction, computing mean global distances instead."
             )
+            angle = np.zeros((size, 1))
+            # compute sum-distances for each lat-long pair
+            for ix, (_φ1, _λ1) in enumerate(np.vstack([φ1, λ1])):
+                print(pair)
+                angle[ix, 0] = f(_φ1, φ2, _λ1, λ2,)
+        else:
             try:
+                angle = np.atleast_1d(
+                    f(
+                        φ1[:, np.newaxis],
+                        φ2[np.newaxis, :],
+                        λ1[:, np.newaxis],
+                        λ2[np.newaxis, :],
+                    )
+                )
+            except (MemoryError, ValueError):
+                logger.warn(
+                    "Cannot directly compute distance matrix, attempting segmented distance"
+                    " matrix instead."
+                )
                 # could set segs such that there is a maximum amount of memory per seg
                 angle = _segmented_spatial_distance_matrix(φ1, φ2, λ1, λ2, f)
-            except MemoryError:
-                logger.warn(
-                    "Angle array for segmented distance matrix still too big for memory,"
-                    " computing mean global distnaces instead."
-                )
-                angle = np.zeros((max_size, 1))
     else:
         angle = np.atleast_1d(f(φ1, φ2, λ1, λ2))
 

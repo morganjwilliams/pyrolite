@@ -1,9 +1,14 @@
 """
+Utilities for (weighted) bootstrap resampling applied to geoscientific point-data.
 """
 import numpy as np
 import pandas as pd
 from .meta import subkwargs
 from .spatial import great_circle_distance, _get_sqare_grid_segment_indicies
+import logging
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 def _segmented_univariate_distance_matrix(A, B, metric, dtype="float32", segs=10):
@@ -51,8 +56,10 @@ def get_spatiotemporal_resampling_weights(
     df,
     spatial_norm=1.8,
     temporal_norm=38,
-    latlong_names=["Lat", "Long"],
+    latlong_names=["Latitude", "Longitude"],
     age_name="Age",
+    max_memory_fraction=0.25,
+    **kwargs
 ):
     """
     Takes a dataframe with lat, long and age and returns a sampling weight for each
@@ -70,6 +77,11 @@ def get_spatiotemporal_resampling_weights(
         List of column names referring to latitude and longitude.
     age_name : :class:`str`
         Column name corresponding to geological age or time.
+    max_memory_fraction : :class:`float`
+        Constraint to switch to calculating mean distances where :code:`matrix=True`
+        and the distance matrix requires greater than a specified fraction of total
+        avaialbe physical memory. This is passed on to
+        :func:`~pyrolite.util.spatial.great_circle_distance`.
 
     Returns
     -------
@@ -85,7 +97,12 @@ def get_spatiotemporal_resampling_weights(
     """
 
     weights = pd.Series(index=df.index, dtype="float")
-    z = great_circle_distance(df[[*latlong_names]], absolute=False)  # angular distances
+    z = great_circle_distance(
+        df[[*latlong_names]],
+        absolute=False,
+        max_memory_fraction=max_memory_fraction,
+        **subkwargs(kwargs, great_circle_distance)
+    )  # angular distances
     t = get_distance_matrix(df[age_name])
     # where the distances are zero, these weights will go to inf
     # instead we replace with the smallest non-zero distance/largest non-inf
@@ -104,15 +121,15 @@ def add_age_noise(
     min_sigma=50,
     noise_level=1.0,
     age_name="Age",
-    min_age_name="Min Age",
-    max_age_name="Max Age",
+    min_age_name="MinAge",
+    max_age_name="MaxAge",
 ):
     # try and get age uncertainty
 
     # otherwise get age min age max
     # get age uncertainties
     age_certainty = np.abs(df[max_age_name] - df[min_age_name]) / 2  # half bin width
-    age_certainty[~np.isfinite(age_certa) | age_certainty < min_sigma] = min_sigma
+    age_certainty[~np.isfinite(age_certainty) | age_certainty < min_sigma] = min_sigma
     # add noise to ages
     age_noise = np.random.randn(df.index.size) * noise_level * age_certainty.values
     df[age_name] += age_noise
@@ -129,8 +146,8 @@ def bootstrap_resample(
     add_gaussian_age_noise=True,
     metrics=["mean", "var"],
     noise_level=0.5,
-    age_name="New age",
-    latlong_names=["Lat", "Long"],
+    age_name="Age",
+    latlong_names=["Latitude", "Longitude"],
     **kwargs
 ):
     """
@@ -169,9 +186,10 @@ def bootstrap_resample(
 
     Returns
     --------
-    :class:`pandas.DataFrame`
-        Dataframe of aggregated statistical metrics. If categories are specified, the
-        dataframe will have a hierarchical index of :code:`categories, iteration`.
+    :class:`dict`
+        Dictionary of aggregated Dataframe(s) indexed by statistical metrics. If
+        categories are specified, the dataframe(s) will have a hierarchical index of
+        :code:`categories, iteration`.
     """
     if weights is None:
         weights = get_spatiotemporal_resampling_weights(
@@ -181,10 +199,19 @@ def bootstrap_resample(
             **subkwargs(kwargs, get_spatiotemporal_resampling_weights)
         )
 
-    # get the subset of parameters to be resampled
-    subset = [i for i in df.columns if i not in [age_name, *latlong_names]]
+    # get the subset of parameters to be resampled, removing spatial and age names
+    # and only taking numeric data
+    subset = [
+        c
+        for c in df.columns
+        if c not in [[i for i in df.columns if age_name in i], *latlong_names]
+        and np.issubdtype(df.dtypes[c], np.number)
+    ]
 
-    metric_data = {repr(metric): [] for metric in metrics}
+    def _metric_name(metric):
+        return repr(metric).replace("'", "")
+
+    metric_data = {_metric_name(metric): [] for metric in metrics}
     for repeat in range(niter):
         smpl = df.sample(weights=weights, frac=1, replace=True)
 
@@ -213,19 +240,17 @@ def bootstrap_resample(
 
         if categories is not None:
             for metric in metrics:
-                metric_data[repr(metric)].append(
+                metric_data[_metric_name(metric)].append(
                     smpl[subset].groupby(categories).agg(metric)
                 )
 
         else:
             for metric in metrics:
-                metric_data[repr(metric)].append(smpl[subset].agg(metric))
+                metric_data[_metric_name(metric)].append(smpl[subset].agg(metric))
 
     if categories is not None:
         return {
-            metric: pd.concat(
-                data, keys=[ix for ix in range(len(means))], names=["Iteration"]
-            )
+            metric: pd.concat(data, keys=range(niter), names=["Iteration"])
             .swaplevel(0, 1)
             .sort_index()
             for metric, data in metric_data.items()
