@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.colors
 import matplotlib.pyplot as plt
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 
 def get_cmode(c=None):
@@ -17,6 +20,7 @@ def get_cmode(c=None):
     """
     cmode = None
     if c is not None:  # named | hex | rgb | rgba
+        logger.debug("Checking singular color modes.")
         if isinstance(c, str):
             if c.startswith("#"):
                 cmode = "hex"
@@ -31,6 +35,7 @@ def get_cmode(c=None):
             pass
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
+            logger.debug("Checking array-based color modes.")
             if isinstance(c, (np.ndarray, list, pd.Series)):
                 c = np.array(c)
                 if all([isinstance(_c, (np.ndarray, list, tuple)) for _c in c]):
@@ -43,7 +48,7 @@ def get_cmode(c=None):
                         pass
                 elif all([isinstance(_c, str) for _c in c]):
                     try:
-                        _ = matplotlib.colors.to_rgba(c[0])
+                        _ = matplotlib.colors.to_rgba(c)
                         if all([_c.startswith("#") for _c in c]):
                             cmode = "hex_array"
                         elif not any([_c.startswith("#") for _c in c]):
@@ -52,13 +57,16 @@ def get_cmode(c=None):
                             cmode = "mixed_str_array"
                     except ValueError:  # string cannot be converted to color
                         cmode = "categories"
-                elif all([isinstance(_c, (np.float, np.int)) for _c in c]):
+                elif all([isinstance(_c, np.number) for _c in np.array(c).flatten()]):
                     cmode = "value_array"
                 else:
                     pass
     if cmode is None:
+        logger.debug("Color mode not found for {}".format(c))
         raise NotImplementedError  # single value, mixed numbers, strings etc
-    return cmode
+    else:
+        logger.debug("Color mode recognized: {}".format(cmode))
+        return cmode
 
 
 def process_color(
@@ -122,7 +130,7 @@ def process_color(
         C = c
     elif color is not None:
         C = color
-    else: # neither color is specified
+    else:  # neither color is specified
         return {
             **{
                 k: v
