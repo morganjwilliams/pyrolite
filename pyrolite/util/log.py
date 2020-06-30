@@ -5,7 +5,7 @@ def Handle(
     logger,
     handler=logging.NullHandler(),
     formatter="%(asctime)s %(name)s - %(levelname)s: %(message)s",
-    level="WARNING",
+    level=None,
 ):
     """
     Handle a logger with a standardised formatting.
@@ -37,5 +37,6 @@ def Handle(
         formatter = logging.Formatter(formatter)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(getattr(logging, level))
+    if level is not None:
+        logger.setLevel(getattr(logging, level))
     return logger
