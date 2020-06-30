@@ -67,11 +67,11 @@ def get_cmode(c=None):
                 else:
                     if convertible:
                         cmode = "mixed_fmt_color_array"
-                    else:
-                        # default cmode to fall back on - e.g. list of tuples/intervals etc
-                        cmode = "categories"
+                if cmode is None:
+                    # default cmode to fall back on - e.g. list of tuples/intervals etc
+                    cmode = "categories"
     if cmode is None:
-        logger.debug("Color mode not found for {}".format(c))
+        logger.debug("Color mode not found for item of type {}".format(type(c)))
         raise NotImplementedError  # single value, mixed numbers, strings etc
     else:
         logger.debug("Color mode recognized: {}".format(cmode))
