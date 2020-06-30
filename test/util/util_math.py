@@ -4,6 +4,7 @@ import numpy as np
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
 
+
 class TestAugmentedCovarianceMatrix(unittest.TestCase):
     def setUp(self):
         self.mean = np.random.randn(5)
@@ -93,7 +94,11 @@ class TestIsNumeric(unittest.TestCase):
     """
 
     def test_numeric_collection_instances(self):
-        for obj in [np.array([]), pd.Series([]), pd.DataFrame([])]:
+        for obj in [
+            np.array([]),
+            pd.Series([], dtype="float32"),
+            pd.DataFrame([], dtype="float32"),
+        ]:
             with self.subTest(obj=obj):
                 self.assertTrue(is_numeric(obj))
 
@@ -164,7 +169,7 @@ class TestRoundSig(unittest.TestCase):
         )
 
     def test_series(self):
-        vals = pd.Series(self.values)
+        vals = pd.Series(self.values, dtype="float64")
         rounded = round_sig(vals, sig=2)
         self.assertTrue(
             np.isclose(
@@ -173,7 +178,7 @@ class TestRoundSig(unittest.TestCase):
         )
 
     def test_dataframe(self):
-        vals = pd.DataFrame(self.values)
+        vals = pd.DataFrame(self.values, dtype="float64")
         rounded = round_sig(vals, sig=2)
         self.assertTrue(
             np.isclose(
