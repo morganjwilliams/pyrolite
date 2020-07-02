@@ -160,7 +160,7 @@ class pyrochem(object):
         """
         return self._obj[self.list_isotope_ratios]
 
-    @elements.setter
+    @isotope_ratios.setter
     def isotope_ratios(self, df):
         self._obj.loc[:, self.list_isotope_ratios] = df
 
