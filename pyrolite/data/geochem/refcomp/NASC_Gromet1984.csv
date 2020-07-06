@@ -2,7 +2,7 @@ var,value,units,unc_2sigma,constraint_var,constraint_value,constraint_comment
 ModelName,NASC_Gromet1984,,,,,
 Reservoir,NorthAmericanShaleComposite,,,,,
 ModelType,Average,,,,,
-Reference,"Gromet et al., 1984; Taylor and McLennan, 1985; Condie, 1993; McLennan, 2001",,,,,
+Reference,Gromet et al. 1984; Taylor and McLennan 1985; Condie 1993; McLennan 2001,,,,,
 SiO2,64.8,%,,,,
 Al2O3,16.9,%,,,,
 FeO,5.66,%,,,,
