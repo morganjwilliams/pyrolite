@@ -333,7 +333,6 @@ def get_transforms(name):
     tfm, inv_tfm : :class:`callable`
         Transform and inverse transform functions.
     """
-    print(name)
     if callable(name):  #  callable
         name = name.__name__
 

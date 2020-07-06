@@ -96,6 +96,14 @@ class TestPyroComp(unittest.TestCase):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.logratiomean()
 
+    def test_invert_transform(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        for tfm in [df.pyrocomp.ALR, df.pyrocomp.CLR, df.pyrocomp.ILR]:
+            with self.subTest(tfm=tfm):
+                out = tfm()
+                out_inv = out.pyrocomp.invert_transform()
+                self.assertTrue(np.allclose(out_inv.values, df.values))
+
 
 if __name__ == "__main__":
     unittest.main(argv=[""], exit=False)

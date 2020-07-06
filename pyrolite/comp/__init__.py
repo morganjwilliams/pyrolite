@@ -344,4 +344,4 @@ class pyrocomp(object):
             raise ValueError("DataFrame has no transform history.")
 
         _invert_method = getattr(self, inv_tfm.__name__)
-        return geattr(self._obj, _invert_method)(**kwargs)
+        return _invert_method(**kwargs)
