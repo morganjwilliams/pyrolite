@@ -558,7 +558,7 @@ def symbolic_helmert_basis(D, full=False, reverse=False):
 
     # could check summations here
 
-    return sympy.simplify(sympy.Matrix(rows))
+    return sympy.Matrix(rows)
 
 
 def on_finite(X, f):
