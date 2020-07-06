@@ -177,5 +177,17 @@ class TestBoxCox(unittest.TestCase):
         self.assertTrue(np.allclose(inv, df.values))
 
 
+class TestGetILRLabel(unittest.TestCase):
+    def setUp(self):
+        self.df = test_df().apply(close, axis=1)
+
+    def test_labels_default(self):
+        """Checks whether the function works on multiple records."""
+        df = self.df
+        out = ilr(df)
+        labels = get_ILR_labels(df)
+        self.assertTrue(out.shape[1] == len(labels))
+
+
 if __name__ == "__main__":
     unittest.main()

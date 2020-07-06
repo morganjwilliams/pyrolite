@@ -504,45 +504,6 @@ def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
         return equal
 
 
-def get_sympy_helmert(D, full=False, reverse=False):
-    """
-    Get a symbolic representation of a Helmert Matrix.
-
-    Parameters
-    ----------
-    D : :class:`int`
-        Order of the matrix. Equivalent to dimensionality for compositional data
-        analysis.
-    full : :class:`bool`
-        Whether to return the full matrix, or alternatively exclude the first row.
-        Analogous to the option for :func:`scipy.linalg.helmert`.
-    reverse : :class:`bool`
-        Whether to return the reverse ordering of matrix rows.
-
-    Returns
-    --------
-    :class:`sympy.Matrix`
-    """
-
-    rows = []
-    if full:
-        rows += [[1 / sympy.sqrt(D)] * D]
-
-    for r in np.arange(1, D):
-        rows += [
-            [1 / sympy.sqrt((r + 1) * r)] * r  # 1/sqrt(n(*n+1))
-            + [-r / sympy.sqrt((r + 1) * r)]  # -n/sqrt(n(*n+1))
-            + [0] * (D - r - 1)
-        ]
-
-    if reverse:
-        rows = rows[::-1]
-
-    # could check summations here
-
-    return sympy.simplify(sympy.Matrix(rows))
-
-
 def helmert_basis(D: int, full=False, **kwargs):
     """
     Generate a set of orthogonal basis vectors in the form of a helmert matrix.

@@ -20,6 +20,7 @@ from .codata import (
     inverse_boxcox,
     logratiomean,
     get_transforms,
+    get_ILR_labels
 )
 
 # note that only some of these methods will be valid for series

@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
+from sympy import tensorcontraction
 
 
 class TestAugmentedCovarianceMatrix(unittest.TestCase):
@@ -426,6 +427,22 @@ class TestHelmertBasis(unittest.TestCase):
 
     def test_helmert_basis_default(self):
         basis = helmert_basis(D=self.X.shape[0])
+
+
+class TestSymbolicHelmert(unittest.TestCase):
+    def test_default(self):
+        for ix in np.arange(2, 10):
+            with self.subTest(ix=ix):
+                basis = symbolic_helmert_basis(ix)
+                sums = tensorcontraction(basis, (1,))
+                self.assertTrue(all([i == 0 for i in sums]))
+
+    def test_full(self):
+        for ix in np.arange(2, 10):
+            with self.subTest(ix=ix):
+                basis = symbolic_helmert_basis(ix, full=True)
+                sums = tensorcontraction(basis, (1,))  # first row won't be 0
+                self.assertTrue(all([i == 0 for i in sums[1:]]))
 
 
 if __name__ == "__main__":

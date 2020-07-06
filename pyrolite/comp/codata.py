@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 import scipy.special
+import sympy
 
 # from .renorm import renormalise, close
-from ..util.math import helmert_basis, get_sympy_helmert
+from ..util.math import helmert_basis, symbolic_helmert_basis
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
