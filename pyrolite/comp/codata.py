@@ -4,7 +4,7 @@ import scipy.stats
 import scipy.special
 
 # from .renorm import renormalise, close
-from ..util.math import orthogonal_basis_default, orthogonal_basis_from_array
+from ..util.math import helmert_basis, get_sympy_helmert
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -209,7 +209,7 @@ def ilr(X: np.ndarray):
     """
     d = X.shape[1]
     Y = clr(X)
-    psi = orthogonal_basis_from_array(X)  # Get a basis
+    psi = helmert_basis(D=d)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
@@ -231,11 +231,7 @@ def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     :class:`numpy.ndarray`
         Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
-
-    if X is None:
-        psi = orthogonal_basis_default(D=Y.shape[1] + 1)
-    else:
-        psi = orthogonal_basis_from_array(X)
+    psi = helmert_basis(D=Y.shape[1] + 1)
     C = Y @ psi
     X = inverse_clr(C)  # Inverse log operation
     return X
@@ -366,6 +362,43 @@ def logratiomean(df, transform=clr):
     return pd.Series(
         inv_tfm(np.mean(tfm(df.values), axis=0)[np.newaxis, :])[0], index=df.columns,
     )
+
+
+def get_ILR_labels(df, reverse=False):
+    """
+    Get symbolic labels for ILR coordiantes based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate ILR labels for.
+    reverse : :class:`bool`
+        Whether to return the reverse ordering of matrix rows.
+
+    Returns
+    -------
+    :class:`list`
+        List of ILR coordinates corresponding to dataframe columns.
+    """
+    D = df.columns.size
+    # encode symbolic variables
+    vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+    arr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+
+    # this is the CLR --> ILR transform
+    helmert = symbolic_helmert_basis(D, reverse=reverse)
+    expr = sympy.simplify(
+        sympy.logcombine(sympy.simplify(arr @ helmert.transpose()), force=True)
+    )
+    # sub in Phi (the CLR normalisation variable)
+    names = [r"{} / Phi".format(c) for c in df.columns]
+    named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
+    # format latex labels
+    labels = [
+        r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+        for l in named_expr
+    ]
+    return labels
 
 
 def _load_transforms():

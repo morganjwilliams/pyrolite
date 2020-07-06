@@ -172,19 +172,24 @@ class pyrocomp(object):
         )
         return itfm_df
 
-    def ILR(self):
+    def ILR(self, latex_labels=False):
         """
         Isometric Log Ratio transformation.
 
         Parameters
         ----------
+        latex_labels : :class:`bool`
+            Whether to generate :math:`LaTeX` labels for column names.
 
         Returns
         -------
         :class:`pandas.DataFrame`
             ILR-transformed array, of shape :code:`(N, D-1)`.
         """
-        colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
+        if latex_labels:
+            colnames = get_ILR_labels(self._obj)
+        else:
+            colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
         tfm_df = pd.DataFrame(
             ilr(self._obj.values), index=self._obj.index, columns=colnames,
         )

@@ -418,17 +418,14 @@ class TestNaNCov(unittest.TestCase):
         self.assertTrue(np.allclose(out / out[0][0], self.target))
 
 
-class TestOrthogonalBasis(unittest.TestCase):
+class TestHelmertBasis(unittest.TestCase):
     """Test the orthogonal basis generator for ILR transformation."""
 
     def setUp(self):
         self.X = np.ones((10, 3))
 
-    def test_orthogonal_basis_from_array(self):
-        basis = orthogonal_basis_from_array(self.X)
-
-    def test_orthogonal_basis_default(self):
-        basis = orthogonal_basis_default(self.X.shape[0])
+    def test_helmert_basis_default(self):
+        basis = helmert_basis(D=self.X.shape[0])
 
 
 if __name__ == "__main__":
