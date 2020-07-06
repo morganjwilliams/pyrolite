@@ -34,7 +34,7 @@ class TestPyroComp(unittest.TestCase):
     def test_ALR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.ALR()
-        self.assertTrue("alr_index" in out.attrs)
+        self.assertTrue("ALR_index" in out.attrs)
         self.assertTrue("inverts_to" in out.attrs)
         self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
@@ -42,7 +42,7 @@ class TestPyroComp(unittest.TestCase):
         df = self.tridf.copy(deep=True)  # copy df
         ind = "SiO2"
         out = df.pyrocomp.ALR(ind=ind)
-        self.assertTrue("alr_index" in out.attrs)
+        self.assertTrue("ALR_index" in out.attrs)
         self.assertTrue("inverts_to" in out.attrs)
         self.assertTrue(all([ind in colname for colname in out.columns]))
         self.assertTrue(out.attrs["inverts_to"] == self.cols)

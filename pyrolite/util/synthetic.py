@@ -3,7 +3,7 @@ Utility functions for creating synthetic (geochemical) data.
 """
 import numpy as np
 import pandas as pd
-from ..comp.codata import ilr, inverse_ilr
+from ..comp.codata import ILR, inverse_ILR
 from ..geochem.norm import get_reference_composition
 
 
@@ -189,9 +189,9 @@ def random_composition(
             data /= np.nanmax(data)
             return data
     else:
-        mean = ilr(mean.reshape(1, D)).reshape(
+        mean = ILR(mean.reshape(1, D)).reshape(
             1, -1
-        )  # ilr of a (1, D) mean to (1, D-1)
+        )  # ILR of a (1, D) mean to (1, D-1)
 
     # covariance
     if cov is None:
@@ -205,11 +205,11 @@ def random_composition(
     assert cov.shape in [(D - 1, D - 1), (1, 1)]
 
     if size == 1:  # single sample
-        data = inverse_ilr(mean).reshape(size, D)
+        data = inverse_ILR(mean).reshape(size, D)
 
     # if the covariance matrix isn't for the logspace data, we'd have to convert it
     if data is None:
-        data = inverse_ilr(
+        data = inverse_ILR(
             np.random.multivariate_normal(mean.reshape(D - 1), cov, size=size)
         ).reshape(size, D)
 

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats as stats
 from pyrolite.util.math import nancov, augmented_covariance_matrix
 from pyrolite.util.missing import md_pattern
-from pyrolite.comp.codata import alr, inverse_alr, close
+from pyrolite.comp.codata import ALR, inverse_ALR, close
 import logging
 
 
@@ -116,7 +116,7 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
     References
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
-            A modified EM alr-algorithm for replacing rounded zeros in compositional data sets.
+            A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
             Computers & Geosciences 34, 902–917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
 
@@ -202,7 +202,7 @@ def EMCOMP(
     References
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
-            A modified EM alr-algorithm for replacing rounded zeros in compositional data sets.
+            A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
             Computers & Geosciences 34, 902–917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
 
@@ -230,7 +230,7 @@ def EMCOMP(
     assert np.isfinite(cpoints).all()
     cpoints = cpoints[:, [i for i in range(D) if not i == pos]]  # censure points
     prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
-    Y = alr(X, pos)
+    Y = ALR(X, pos)
     # ---------------Log Space--------------------------------
     LD = Y.shape[1]
     M = np.nanmean(Y, axis=0)  # μ0
@@ -333,5 +333,5 @@ def EMCOMP(
     # Back to compositional space
     # ---------------------------
     logger.debug("Finished. Inverting to compositional space.")
-    Xstar = inverse_alr(Ystar, pos)
+    Xstar = inverse_ALR(Ystar, pos)
     return Xstar, prop_zeroes, niters

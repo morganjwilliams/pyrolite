@@ -1,7 +1,7 @@
 import inspect
 import numpy as np
 import matplotlib.tri
-from ...comp.codata import close, inverse_ilr, ilr, alr, inverse_alr
+from ...comp.codata import close, inverse_ILR, ILR, ALR, inverse_ALR
 from ...util.math import flattengrid
 from ...util.distributions import sample_kde
 from ...util.plot.grid import bin_centres_to_edges
@@ -15,8 +15,8 @@ def ternary_heatmap(
     data,
     bins=20,
     mode="density",
-    transform=ilr,
-    inverse_transform=inverse_ilr,
+    transform=ILR,
+    inverse_transform=inverse_ILR,
     ternary_min_value=0.0001,  # 0.01%
     grid_border_frac=0.1,  # 110% range for grid
     grid=None,

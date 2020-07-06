@@ -73,7 +73,7 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
         return dfc
 
 
-def alr(X: np.ndarray, ind: int = -1, null_col=False):
+def ALR(X: np.ndarray, ind: int = -1, null_col=False):
     """
     Additive Log Ratio transformation.
 
@@ -110,7 +110,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     return np.log(Y)
 
 
-def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
+def inverse_ALR(Y: np.ndarray, ind=-1, null_col=False):
     """
     Inverse Centred Log Ratio transformation.
 
@@ -153,7 +153,7 @@ def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
     return X
 
 
-def clr(X: np.ndarray):
+def CLR(X: np.ndarray):
     """
     Centred Log Ratio transformation.
 
@@ -173,7 +173,7 @@ def clr(X: np.ndarray):
     return Y
 
 
-def inverse_clr(Y: np.ndarray):
+def inverse_CLR(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
@@ -194,7 +194,7 @@ def inverse_clr(Y: np.ndarray):
     return X
 
 
-def ilr(X: np.ndarray):
+def ILR(X: np.ndarray):
     """
     Isometric Log Ratio transformation.
 
@@ -209,13 +209,13 @@ def ilr(X: np.ndarray):
         ILR-transformed array, of shape :code:`(N, D-1)`.
     """
     d = X.shape[1]
-    Y = clr(X)
+    Y = CLR(X)
     psi = helmert_basis(D=d)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
+def inverse_ILR(Y: np.ndarray, X: np.ndarray = None):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -234,7 +234,7 @@ def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     """
     psi = helmert_basis(D=Y.shape[1] + 1)
     C = Y @ psi
-    X = inverse_clr(C)  # Inverse log operation
+    X = inverse_CLR(C)  # Inverse log operation
     return X
 
 
@@ -326,22 +326,22 @@ def get_transforms(name):
     Parameters
     ----------
     name : :class:`str`
-        Name of of the transform pairs (e.g. :code:``'clr'``).
+        Name of of the transform pairs (e.g. :code:``'CLR'``).
 
     Returns
     -------
     tfm, inv_tfm : :class:`callable`
         Transform and inverse transform functions.
     """
-
+    print(name)
     if callable(name):  #  callable
         name = name.__name__
 
-    tfm, inv_tfm = __TRANSFORMS__.get(name.lower())
+    tfm, inv_tfm = __TRANSFORMS__.get(name)
     return tfm, inv_tfm
 
 
-def logratiomean(df, transform=clr):
+def logratiomean(df, transform=CLR):
     """
     Take a mean of log-ratios along the index of a dataframe.
 
@@ -384,7 +384,7 @@ def _aggregate_sympy_constants(expr):
     return sympy.UnevaluatedExpr(const) * sympy.UnevaluatedExpr(vars)
 
 
-def get_ILR_labels(df, reverse=False):
+def get_ILR_labels(df, reverse=False, mode="latex"):
     """
     Get symbolic labels for ILR coordinates based on dataframe columns.
 
@@ -394,6 +394,8 @@ def get_ILR_labels(df, reverse=False):
         Dataframe to generate ILR labels for.
     reverse : :class:`bool`
         Whether to return the reverse ordering of matrix rows.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
 
     Returns
     -------
@@ -415,10 +417,15 @@ def get_ILR_labels(df, reverse=False):
     names = [r"{} / Phi".format(c) for c in df.columns]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
     # format latex labels
-    labels = [
-        r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
-        for l in named_expr
-    ]
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in named_expr
+        ]
+    elif mode.lower() == "simple":
+        labels = [str(l) for l in named_expr]
+    else:
+        raise NotImplementedError
     return labels
 
 

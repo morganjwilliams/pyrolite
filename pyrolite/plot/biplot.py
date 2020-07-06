@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from ..comp.codata import clr
+from ..comp import codata
 from ..util.plot.axes import init_axes
 
 
@@ -19,7 +19,7 @@ def compositional_SVD(X: np.ndarray):
     ---------
     vertexes, cases : :class:`numpy.ndarray`, :class:`numpy.ndarray`
     """
-    U, K, V = np.linalg.svd(clr(X))
+    U, K, V = np.linalg.svd(codata.CLR(X))
     N = X.shape[1]  # dimensionality
     vertexes = K * V.T / (N - 1) ** 0.5
     cases = (N - 1) ** 0.5 * U.T

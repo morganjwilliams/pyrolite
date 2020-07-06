@@ -27,7 +27,7 @@ from . import stem
 from . import parallel
 from .color import process_color
 
-from ..comp.codata import close, ilr
+from ..comp.codata import close, ILR
 from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
@@ -124,7 +124,7 @@ class pyroplot(object):
         ax=None,
         axlabels=True,
         fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
@@ -172,7 +172,7 @@ class pyroplot(object):
         logx=False,
         logy=False,
         fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Heatmapped scatter plots using the pyroplot API. See further parameters
@@ -209,7 +209,7 @@ class pyroplot(object):
         )
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
-            lambda x: ilr(close(x)),
+            lambda x: ILR(close(x)),
         ][len(components) == 3]
         zi = sample_kde(
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
@@ -231,7 +231,7 @@ class pyroplot(object):
         legend=False,
         cmap=plt.cm.viridis,
         ax=None,
-        **kwargs
+        **kwargs,
     ):
 
         """
@@ -260,7 +260,7 @@ class pyroplot(object):
             legend=legend,
             cmap=cmap,
             ax=ax,
-            **kwargs
+            **kwargs,
         )
         return ax
 
@@ -351,7 +351,7 @@ class pyroplot(object):
         ax=None,
         axlabels=True,
         fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
@@ -447,6 +447,11 @@ class pyroplot(object):
         if index_order is not None:
             components = index_order(components)
 
+        ax = init_axes(ax=ax, **kwargs)
+
+        if hasattr(ax, "_pyrolite_components"):
+            pass
+
         ax = spider.spider(
             obj.reindex(columns=components).astype(np.float).values,
             indexes=indexes,
@@ -454,6 +459,7 @@ class pyroplot(object):
             mode=mode,
             **process_color(**kwargs),
         )
+        ax._pyrolite_components = components
         ax.set_xticklabels(components, rotation=60)
         return ax
 
@@ -464,7 +470,7 @@ class pyroplot(object):
         orientation="horizontal",
         axlabels=True,
         fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Method for creating stem plots. Convenience access function to

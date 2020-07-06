@@ -4,17 +4,7 @@ import pandas as pd
 from ...geochem import transform
 from ...geochem import ind
 from ...geochem import parse
-
-from ...comp.codata import (
-    alr,
-    inverse_alr,
-    clr,
-    inverse_clr,
-    ilr,
-    inverse_ilr,
-    boxcox,
-    inverse_boxcox,
-)
+from ...comp import codata
 from ..lambdas import orthogonal_polynomial_constants
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -147,8 +137,8 @@ class ALRTransform(BaseEstimator, TransformerMixin):
         """Additive Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "ALR"
-        self.forward = alr
-        self.inverse = inverse_alr
+        self.forward = codata.ALR
+        self.inverse = codata.inverse_ALR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
@@ -181,8 +171,8 @@ class CLRTransform(BaseEstimator, TransformerMixin):
         """Centred Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "CLR"
-        self.forward = clr
-        self.inverse = inverse_clr
+        self.forward = codata.CLR
+        self.inverse = codata.inverse_CLR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
@@ -215,8 +205,8 @@ class ILRTransform(BaseEstimator, TransformerMixin):
         """Isometric Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "ILR"
-        self.forward = ilr
-        self.inverse = inverse_ilr
+        self.forward = codata.ILR
+        self.inverse = codata.inverse_ILR
         self.X = None
 
     def transform(self, X, *args, **kwargs):
@@ -255,8 +245,8 @@ class BoxCoxTransform(BaseEstimator, TransformerMixin):
         """BoxCox Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "BoxCox"
-        self.forward = boxcox
-        self.inverse = inverse_boxcox
+        self.forward = codata.boxcox
+        self.inverse = codata.inverse_boxcox
         self.lmbda = None
 
     def transform(self, X, *args, **kwargs):

@@ -60,16 +60,16 @@ df.pyrocomp.logratiomean()
 # While this function defaults to using :func:`~pyrolite.comp.codata.clr`,
 # you can specify other log-transforms to use:
 #
-df.pyrocomp.logratiomean(transform="clr")
+df.pyrocomp.logratiomean(transform="CLR")
 ########################################################################################
 # Notably, however, the logratio means should all give you the same result:
 #
 np.allclose(
-    df.pyrocomp.logratiomean(transform="clr"),
-    df.pyrocomp.logratiomean(transform="alr"),
+    df.pyrocomp.logratiomean(transform="CLR"),
+    df.pyrocomp.logratiomean(transform="ALR"),
 ) & np.allclose(
-    df.pyrocomp.logratiomean(transform="clr"),
-    df.pyrocomp.logratiomean(transform="ilr"),
+    df.pyrocomp.logratiomean(transform="CLR"),
+    df.pyrocomp.logratiomean(transform="ILR"),
 )
 
 ########################################################################################

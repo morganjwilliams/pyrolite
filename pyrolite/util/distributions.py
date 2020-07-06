@@ -2,7 +2,7 @@ import numpy as np
 import logging
 import scipy.stats
 from ..util.math import flattengrid
-from ..comp.codata import ilr, close
+from ..comp.codata import ILR, close
 
 from functools import partial
 
@@ -71,7 +71,7 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     return zi
 
 
-def sample_ternary_kde(data, samples, transform=ilr):
+def sample_ternary_kde(data, samples, transform=ILR):
     """
     Sample a Kernel Density Estimate in ternary space points or a grid defined by
     samples.

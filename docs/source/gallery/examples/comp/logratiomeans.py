@@ -5,7 +5,7 @@ Log Ratio Means
 import numpy as np
 import pandas as pd
 import pyrolite.comp
-from pyrolite.comp.codata import ilr, inverse_ilr, close
+from pyrolite.comp.codata import ILR, inverse_ILR, close
 from pyrolite.util.synthetic import random_cov_matrix
 import matplotlib.pyplot as plt
 from pyrolite.plot import pyroplot
@@ -20,7 +20,7 @@ def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
     variances.
     """
     # generate means intermediate between m1 and m2
-    mv = np.vstack([ilr(close(m1)).reshape(1, -1), ilr(close(m2)).reshape(1, -1)])
+    mv = np.vstack([ILR(close(m1)).reshape(1, -1), ILR(close(m2)).reshape(1, -1)])
     ms = np.apply_along_axis(lambda x: np.linspace(*x, resolution), 0, mv)
     # generate covariance matricies intermediate between c1 and c2
     cv = np.vstack([c1.reshape(1, -1), c2.reshape(1, -1)])
@@ -34,7 +34,7 @@ def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
         ]
     )
     # combine together.
-    return inverse_ilr(samples)
+    return inverse_ILR(samples)
 ########################################################################################
 # First we create an array of compositions which represent a trend.
 #
@@ -63,6 +63,6 @@ plt.show()
 # Finally, we can also see where the logratio mean would fall:
 #
 
-ilrmean = trend.pyrocomp.logratiomean(transform='ilr')
-ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
+ILRmean = trend.pyrocomp.logratiomean(transform='ILR')
+ax = ILRmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
 plt.show()
