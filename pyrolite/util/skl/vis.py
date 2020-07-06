@@ -265,8 +265,10 @@ def plot_mapping(
             ps = Y.predict_proba(X_)
             a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)
             c[:, -1] = a
+            cmap=None
         else:
             c = Y.predict(X)
+            cmap = cmap or DEFAULT_DISC_COLORMAP
 
-    ax.scatter(*mapped.T, c=c, s=s, edgecolors="none")
+    ax.scatter(*mapped.T, c=c, s=s, edgecolors="none", cmap=cmap)
     return ax, tfm, mapped
