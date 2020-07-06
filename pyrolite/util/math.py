@@ -539,7 +539,7 @@ def symbolic_helmert_basis(D, full=False, reverse=False):
 
     Returns
     --------
-    :class:`sympy.Matrix`
+    :class:`sympy.matrices.dense.DenseMatrix`
     """
 
     rows = []

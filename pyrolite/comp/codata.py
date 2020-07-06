@@ -365,7 +365,7 @@ def logratiomean(df, transform=clr):
     )
 
 
-def _aggregate_constants(expr):
+def _aggregate_sympy_constants(expr):
     """
     Aggregate constants and symbolic components within a sympy expression to separate
     sub-expressions.
@@ -374,6 +374,10 @@ def _aggregate_constants(expr):
     -----------
     expr : :class:`sympy.core.expr.Expr`
         Expression to aggregate. For matricies, use :func:`~sympy.Matrix.applyfunc`.
+
+    Returns
+    -------
+    :class:`sympy.core.expr.Expr`
     """
     const = expr.func(*[term for term in expr.args if not term.free_symbols])
     vars = expr.func(*[term for term in expr.args if term.free_symbols])
@@ -406,7 +410,7 @@ def get_ILR_labels(df, reverse=False):
     expr = sympy.simplify(
         sympy.logcombine(sympy.simplify(arr @ helmert.transpose()), force=True)
     )
-    expr = expr.applyfunc(_aggregate_constants)
+    expr = expr.applyfunc(_aggregate_sympy_constants)
     # sub in Phi (the CLR normalisation variable)
     names = [r"{} / Phi".format(c) for c in df.columns]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
