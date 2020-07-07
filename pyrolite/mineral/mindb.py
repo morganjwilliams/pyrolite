@@ -187,7 +187,7 @@ def update_database(path=None, **kwargs):
 
     # name group formula composition
     with TinyDB(str(path)) as db:
-        db.purge()
+        db.truncate()
         for k, v in mindf.T.to_dict().items():
             db.insert(v)
         db.close()

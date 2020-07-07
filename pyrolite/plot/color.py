@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.colors
 import matplotlib.pyplot as plt
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 
 def get_cmode(c=None):
@@ -17,6 +20,7 @@ def get_cmode(c=None):
     """
     cmode = None
     if c is not None:  # named | hex | rgb | rgba
+        logger.debug("Checking singular color modes.")
         if isinstance(c, str):
             if c.startswith("#"):
                 cmode = "hex"
@@ -31,8 +35,15 @@ def get_cmode(c=None):
             pass
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
-            if isinstance(c, (np.ndarray, list, pd.Series)):
+            logger.debug("Checking array-based color modes.")
+            if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
                 c = np.array(c)
+                convertible = False
+                try:  # could test all of them, or just a few
+                    _ = [matplotlib.colors.to_rgba(_c) for _c in [c[0], c[-1]]]
+                    convertible = True
+                except (ValueError, TypeError):  # string cannot be converted to color
+                    pass
                 if all([isinstance(_c, (np.ndarray, list, tuple)) for _c in c]):
                     # could have an error if you put in mixed rgb/rgba
                     if len(c[0]) == 3:
@@ -42,23 +53,29 @@ def get_cmode(c=None):
                     else:
                         pass
                 elif all([isinstance(_c, str) for _c in c]):
-                    try:
-                        _ = matplotlib.colors.to_rgba(c[0])
+                    if convertible:
                         if all([_c.startswith("#") for _c in c]):
                             cmode = "hex_array"
                         elif not any([_c.startswith("#") for _c in c]):
                             cmode = "named_array"
                         else:
                             cmode = "mixed_str_array"
-                    except ValueError:  # string cannot be converted to color
+                    else:
                         cmode = "categories"
-                elif all([isinstance(_c, (np.float, np.int)) for _c in c]):
+                elif all([isinstance(_c, np.number) for _c in np.array(c).flatten()]):
                     cmode = "value_array"
                 else:
-                    pass
+                    if convertible:
+                        cmode = "mixed_fmt_color_array"
+                if cmode is None:
+                    # default cmode to fall back on - e.g. list of tuples/intervals etc
+                    cmode = "categories"
     if cmode is None:
+        logger.debug("Color mode not found for item of type {}".format(type(c)))
         raise NotImplementedError  # single value, mixed numbers, strings etc
-    return cmode
+    else:
+        logger.debug("Color mode recognized: {}".format(cmode))
+        return cmode
 
 
 def process_color(
@@ -122,11 +139,17 @@ def process_color(
         C = c
     elif color is not None:
         C = color
-    else:
+    else:  # neither color is specified
         return {
             **{
                 k: v
-                for k, v in {"c": c, "color": color, "cmap": cmap, "norm": norm}.items()
+                for k, v in {
+                    "c": c,
+                    "color": color,
+                    "cmap": cmap,
+                    "norm": norm,
+                    "alpha": alpha,
+                }.items()
                 if v is not None
             },
             **otherkwargs,
@@ -141,9 +164,15 @@ def process_color(
         _c, _color = np.array([C]), C  # Convert to standardised form
     else:
         C = np.array(C)
-        if cmode in ["hex_array", "named_array", "mixed_str_array"]:
+        if cmode in [
+            "hex_array",
+            "named_array",
+            "mixed_str_array",
+        ]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["rgb_array", "rgba_array"]:
+            C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
+        elif cmode in ["mixed_fmt_color_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["value_array"]:
             cmap = cmap or DEFAULT_CONT_COLORMAP

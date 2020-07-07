@@ -10,7 +10,6 @@ from .ind import (
     __common_elements__,
     get_cations,
     common_elements,
-    common_oxides,
     get_isotopes,
 )
 import logging
@@ -20,7 +19,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
 def is_isotoperatio(s):
     """
     Check if text is plausibly an isotope ratio.
@@ -57,6 +55,11 @@ def repr_isotope_ratio(isotope_ratio):
     Returns
     --------
     :class:`str`
+
+    Todo
+    -----
+    Consider returning additional text outside of the match (e.g. 87Sr/86Sri should
+    include the 'i').
     """
     if not is_isotoperatio(isotope_ratio):
         return isotope_ratio
@@ -68,7 +71,7 @@ def repr_isotope_ratio(isotope_ratio):
         elmatch = r"([a-zA-Z][a-zA-Z]?)"
         num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
         den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
-    return "{}{}{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
+    return "{}{}/{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
 
 
 def ischem(s):
@@ -82,12 +85,13 @@ def ischem(s):
         String to validate.
 
     Returns
-    --------
+    -------
     :class:`bool`
 
     Todo
     -----
         * Implement checking for other compounds, e.g. carbonates.
+
     """
     chems = set(map(str.upper, (__common_elements__ | __common_oxides__)))
     if isinstance(s, list):
@@ -111,12 +115,13 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
         Regex for character or phrases to split the strings on.
 
     Returns
-    --------
+    -------
     :class:`list` | :class:`str`
+
     """
     # listify single string passed
     listified = False
-    if not type(strings) in [list, pd.core.indexes.base.Index]:
+    if not isinstance(strings, (list, pd.core.indexes.base.Index)):
         strings = [strings]
         listified = True
 
@@ -138,20 +143,21 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
     Returns cations which are present in both oxide and elemental form.
 
     Parameters
-    -----------
+    ----------
     df : :class:`pandas.DataFrame`
         Dataframe to check duplication within.
     exclude : :class:`list`, :code:`["LOI", "FeOT", "Fe2O3T"]`
         List of components to exclude from the duplication check.
 
     Returns
-    --------
+    -------
     :class:`set`
         Set of elements for which multiple components exist in the dataframe.
 
     Todo
     -----
         * Options for output (string/formula).
+
     """
     major_components = [i for i in __common_oxides__ if i in df.columns]
     elements_as_majors = [

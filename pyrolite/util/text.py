@@ -5,7 +5,7 @@ import logging
 
 try:
     from sortedcollections import SortedSet as set
-except:
+except ImportError:
     pass
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -242,14 +242,15 @@ def int_to_alpha(num):
     axes/figures.
 
     Parameters
-    -----------
+    ----------
     int : :class:`int`
         Integer to encode.
 
     Returns
-    ---------
+    -------
     :class:`str`
         Alpha-encoding of a small integer.
+
     """
     alphas = [chr(i).lower() for i in range(65, 65 + 26)]
     return alphas[num]

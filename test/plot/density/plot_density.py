@@ -20,7 +20,7 @@ class TestDensityplot(unittest.TestCase):
         cov = np.array([[2, -1, -0.5], [-1, 2, -1], [-0.5, -1, 2]])
 
         self.biarr = multivariate_normal(data[:2], cov[:2, :2], 100)
-        self.triarr = np.abs(multivariate_normal(data, cov, 100)) # needs to be >0
+        self.triarr = np.abs(multivariate_normal(data, cov, 100))  # needs to be >0
 
         self.biarr[0, 1] = np.nan
         self.triarr[0, 1] = np.nan
@@ -75,7 +75,33 @@ class TestDensityplot(unittest.TestCase):
                     with self.subTest(mode=mode):
                         out = density(arr, mode=mode, logx=lx, logy=ly)
                         self.assertTrue(isinstance(out, matplotlib.axes.Axes))
-                        plt.close("all")
+                    plt.close("all")
+
+    def test_colorbar(self):
+        arr = self.biarr
+        for mode in ["density", "hist2d", "hexbin"]:
+            with self.subTest(mode=mode):
+                out = density(arr, mode=mode, colorbar=True)
+                self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+            plt.close("all")
+
+    def test_contours(self):
+        arr = self.biarr
+        contours = [0.9, 0.5]
+        for mode in ["density"]:
+            with self.subTest(mode=mode):
+                out = density(arr, mode=mode, contours=contours)
+                self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+            plt.close("all")
+
+    def test_cmap(self):
+        arr = self.biarr
+        cmap = "viridis"
+        for mode in ["density", "hist2d", "hexbin"]:
+            with self.subTest(mode=mode):
+                out = density(arr, mode=mode, cmap=cmap)
+                self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+            plt.close("all")
 
     def tearDown(self):
         plt.close("all")

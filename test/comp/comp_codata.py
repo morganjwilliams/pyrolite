@@ -62,25 +62,25 @@ class TestALR(unittest.TestCase):
     def test_single(self):
         """Checks whether the function works on a single record."""
         df = self.df.head(1)
-        out = alr(df.values)
+        out = ALR(df.values)
 
     def test_multiple(self):
         """Checks whether the function works on multiple records."""
         df = self.df
-        out = alr(df.values)
+        out = ALR(df.values)
 
     def test_isomorphism_single(self):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
-        out = alr(df.values)
-        inv = inverse_alr(out)
+        out = ALR(df.values)
+        inv = inverse_ALR(out)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
-        out = alr(df.values)
-        inv = inverse_alr(out)
+        out = ALR(df.values)
+        inv = inverse_ALR(out)
         self.assertTrue(np.allclose(inv, df.values))
 
 
@@ -93,25 +93,25 @@ class TestCLR(unittest.TestCase):
     def test_single(self):
         """Checks whether the function works on a single record."""
         df = self.df.head(1)
-        out = clr(df.values)
+        out = CLR(df.values)
 
     def test_multiple(self):
         """Checks whether the function works on multiple records."""
         df = self.df
-        out = clr(df.values)
+        out = CLR(df.values)
 
     def test_isomorphism_single(self):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
-        out = clr(df.values)
-        inv = inverse_clr(out)
+        out = CLR(df.values)
+        inv = inverse_CLR(out)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
-        out = clr(df.values)
-        inv = inverse_clr(out)
+        out = CLR(df.values)
+        inv = inverse_CLR(out)
         self.assertTrue(np.allclose(inv, df.values))
 
 
@@ -124,25 +124,25 @@ class TestILR(unittest.TestCase):
     def test_single(self):
         """Checks whether the function works on a single record."""
         df = self.df.head(1)
-        out = ilr(df.values)
+        out = ILR(df.values)
 
     def test_multiple(self):
         """Checks whether the function works on multiple records."""
         df = self.df
-        out = ilr(df.values)
+        out = ILR(df.values)
 
     def test_isomorphism_single(self):
         """Checks that the function is reversible for a record."""
         df = self.df.head(1)
-        out = ilr(df.values)
-        inv = inverse_ilr(out, X=df.values)
+        out = ILR(df.values)
+        inv = inverse_ILR(out, X=df.values)
         self.assertTrue(np.allclose(inv, df.values))
 
     def test_isomorphism_multiple(self):
         """Checks that the function is reversible for multiple records."""
         df = self.df
-        out = ilr(df.values)
-        inv = inverse_ilr(out, X=df.values)
+        out = ILR(df.values)
+        inv = inverse_ILR(out, X=df.values)
         self.assertTrue(np.allclose(inv, df.values))
 
 
@@ -175,6 +175,18 @@ class TestBoxCox(unittest.TestCase):
         out, lmbda = boxcox(df.values, return_lmbda=True)
         inv = inverse_boxcox(out, lmbda)
         self.assertTrue(np.allclose(inv, df.values))
+
+
+class TestGetILRLabel(unittest.TestCase):
+    def setUp(self):
+        self.df = test_df().apply(close, axis=1)
+
+    def test_labels_default(self):
+        """Checks whether the function works on multiple records."""
+        df = self.df
+        out = ILR(df)
+        labels = get_ILR_labels(df)
+        self.assertTrue(out.shape[1] == len(labels))
 
 
 if __name__ == "__main__":

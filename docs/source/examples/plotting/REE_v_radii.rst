@@ -13,8 +13,6 @@ REE Radii Plots
     import numpy as np
     import matplotlib.pyplot as plt
     from pyrolite.plot import pyroplot
-    from pyrolite.plot.spider import REE_v_radii
-    from pyrolite.geochem.ind import REE, get_ionic_radii
 
 
 
@@ -23,66 +21,19 @@ REE Radii Plots
 
 
 
-Where data is not specified, it will return a formatted axis which can be used for
-subsequent plotting:
 
-
-.. code-block:: default
-
-    ax = REE_v_radii(index='radii') # radii mode will put ionic radii on the x axis
-
-    # create some example data
-    ree = REE()
-    xs = get_ionic_radii(ree, coordination=8, charge=3)
-    ys = np.linspace(1, 20, len(xs))
-    ax.plot(xs, ys, marker='D', color='k')
-    plt.show()
-
-
-
-.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_001.png
-    :class: sphx-glr-single-img
-
-
-
-
-
-Here we generate some example data:
+Here we generate some example data, using the
+:func:`~pyrolite.util.synthetic.example_spider_data` function (based on EMORB,
+here normalised to Primitive Mantle);
 
 
 
 .. code-block:: default
 
-    no_analyses = 10
+    from pyrolite.util.synthetic import example_spider_data
 
-    data_ree = REE(dropPm=True)
-    data_radii = np.array(get_ionic_radii(data_ree, coordination=8, charge=3))
-    data_radii = np.tile(data_radii, (1, no_analyses)).reshape(
-        no_analyses, data_radii.shape[0]
-    )
+    df = example_spider_data(noise_level=0.1, nobs=20)
 
-    dataframes = []
-
-    for i in range(2):
-        noise = np.random.randn(*data_radii.shape) * 0.1
-        constant = -0.1
-        lin = np.tile(np.linspace(3.0, 0.0, data_radii.shape[1]), (no_analyses, 1))
-        lin = (lin.T * (1.1 + i/2 * np.random.rand(data_radii.shape[0]))).T
-        quad = -1.2 * (data_radii - 1.11) ** 2.0
-
-        lnY = noise + constant + lin + quad
-
-        for ix, el in enumerate(data_ree):
-            if el in ["Ce", "Eu"]:
-                lnY[:, ix] += np.random.rand(no_analyses) * 0.6
-
-        Y = np.exp(lnY)
-
-        df = pd.DataFrame(Y, columns=data_ree)
-        dataframes.append(df)
-
-    df1 = dataframes[0]
-    df2 = dataframes[1]
 
 
 
@@ -95,10 +46,25 @@ Where data is specified, the default plot is a line-based spiderplot:
 
 .. code-block:: default
 
-    ax = REE_v_radii(df1.values, ree=data_ree)
+    ax = df.pyroplot.REE(color="0.5", figsize=(8, 4))
+    plt.show()
 
-    # or, alternatively directly from the dataframe:
-    ax = df1.pyroplot.REE()
+
+
+.. image:: /examples/plotting/images/sphx_glr_REE_v_radii_001.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+This behaviour can be modified (see spiderplot docs) to provide e.g. filled ranges:
+
+
+
+.. code-block:: default
+
+    df.pyroplot.REE(mode="fill", color="0.5", alpha=0.5, figsize=(8, 4))
     plt.show()
 
 
@@ -107,32 +73,23 @@ Where data is specified, the default plot is a line-based spiderplot:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    C:\ProgramData\Anaconda3_64\lib\site-packages\pandas\core\indexing.py:1494: FutureWarning: 
-    Passing list-likes to .loc or [] with any missing label will raise
-    KeyError in the future, you can use .reindex() as an alternative.
-
-    See the documentation here:
-    https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex-listlike
-      return self._getitem_tuple(key)
 
 
 
-
-This behaviour can be modified (see spiderplot docs) to provide filled ranges:
+The plotting axis can be specified to use exisiting axes:
 
 
 
 .. code-block:: default
 
-    ax = REE_v_radii(df1.values, ree=data_ree, mode='fill')
-    # or, alternatively directly from the dataframe:
-    ax = df1.pyroplot.REE(mode='fill')
+    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
+
+    df.pyroplot.REE(ax=ax[0])
+    # we can also change the index of the second axes
+    another_df = example_spider_data(noise_level=0.2, nobs=20)  # some 'nosier' data
+    another_df.pyroplot.REE(ax=ax[1], color="k", index="radii")
+
+    plt.tight_layout()
     plt.show()
 
 
@@ -141,31 +98,20 @@ This behaviour can be modified (see spiderplot docs) to provide filled ranges:
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    C:\GitHub\pyrolite\pyrolite\plot\spider.py:151: RuntimeWarning: All-NaN slice encountered
-      mins = np.nanmin(arr, axis=0)
-    C:\GitHub\pyrolite\pyrolite\plot\spider.py:152: RuntimeWarning: All-NaN slice encountered
-      maxs = np.nanmax(arr, axis=0)
 
 
 
+If you're just after a plotting template, you can use
+:func:`~pyrolite.plot.spider.REE_v_radii` to get a formatted axis which can be used
+for subsequent plotting:
 
-The plotting axis can be specified to use exisiting axes:
 
 
 .. code-block:: default
 
-    fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
+    from pyrolite.plot.spider import REE_v_radii
 
-    df1.pyroplot.REE(ax=ax[0])
-    # we can also change the index of the second figure
-    ax1 = df2.pyroplot.REE(ax=ax[1], color='k', index='radii')
-    plt.tight_layout()
+    ax = REE_v_radii(index="radii")  # radii mode will put ionic radii on the x axis
     plt.show()
 
 
@@ -184,7 +130,7 @@ The plotting axis can be specified to use exisiting axes:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  8.171 seconds)
+   **Total running time of the script:** ( 0 minutes  3.319 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:
@@ -203,13 +149,13 @@ The plotting axis can be specified to use exisiting axes:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: REE_v_radii.py <REE_v_radii.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: REE_v_radii.ipynb <REE_v_radii.ipynb>`
 

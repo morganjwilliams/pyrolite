@@ -61,7 +61,28 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
 
     svc = SVC_pipeline(probability=True)
     gs = svc.fit(data, target)
-    # %% Plot
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    Fitting 10 folds for each of 1 candidates, totalling 10 fits
+    [Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
+    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    1.7s remaining:    1.7s
+    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    1.7s remaining:    0.7s
+    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    1.7s finished
+
+
+
+
+
+.. code-block:: default
+
     fig, ax = plt.subplots(1, 2, figsize=(8, 4))
 
     a, tfm, mapped = plot_mapping(
@@ -82,27 +103,13 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
     :class: sphx-glr-single-img
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    Fitting 10 folds for each of 1 candidates, totalling 10 fits
-    [Parallel(n_jobs=4)]: Using backend LokyBackend with 4 concurrent workers.
-    [Parallel(n_jobs=4)]: Done   5 out of  10 | elapsed:    2.0s remaining:    2.0s
-    [Parallel(n_jobs=4)]: Done   7 out of  10 | elapsed:    2.0s remaining:    0.8s
-    [Parallel(n_jobs=4)]: Done  10 out of  10 | elapsed:    2.0s finished
-    C:\ProgramData\Anaconda3_64\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
-
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.145 seconds)
+   **Total running time of the script:** ( 0 minutes  2.508 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_manifold_vis.py:
@@ -121,13 +128,13 @@ probability for each individual class) for a toy :mod:`sklearn` dataset.
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: manifold_vis.py <manifold_vis.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: manifold_vis.ipynb <manifold_vis.ipynb>`
 

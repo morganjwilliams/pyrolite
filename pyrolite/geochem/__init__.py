@@ -14,22 +14,20 @@ from . import parse
 from . import transform
 from . import norm
 from .ind import (
-    common_elements,
-    common_oxides,
     __common_elements__,
     __common_oxides__,
     REE,
 )
+from .ions import set_default_ionic_charges
+
+set_default_ionic_charges()
 
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
 @pd.api.extensions.register_dataframe_accessor("pyrochem")
 class pyrochem(object):
-    """
-    Custom dataframe accessor for pyrolite geochemistry.
-    """
-
     def __init__(self, obj):
+        """Custom dataframe accessor for pyrolite geochemistry."""
         self._validate(obj)
         self._obj = obj
 
@@ -53,6 +51,22 @@ class pyrochem(object):
         The list will have the same ordering as the source DataFrame.
         """
         fltr = self._obj.columns.isin(__common_elements__)
+        return self._obj.columns[fltr].tolist()
+
+    @property
+    def list_isotope_ratios(self):
+        """
+        Get the subset of columns which are isotoe ratios.
+
+        Returns
+        --------
+        :class:`list`
+
+        Notes
+        -------
+        The list will have the same ordering as the source DataFrame.
+        """
+        fltr = [parse.is_isotoperatio(c) for c in self._obj.columns]
         return self._obj.columns[fltr].tolist()
 
     @property
@@ -136,6 +150,21 @@ class pyrochem(object):
         self._obj.loc[:, self.list_oxides] = df
 
     @property
+    def isotope_ratios(self):
+        """
+        Get an isotope ratio subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj[self.list_isotope_ratios]
+
+    @isotope_ratios.setter
+    def isotope_ratios(self, df):
+        self._obj.loc[:, self.list_isotope_ratios] = df
+
+    @property
     def compositional(self):
         """
         Get an oxide & elemental subset of a DataFrame.
@@ -143,6 +172,10 @@ class pyrochem(object):
         Returns
         --------
         :class:`pandas.Dataframe`
+
+        Notes
+        ------
+        This wil not include isotope ratios.
         """
         return self._obj.loc[:, self.list_compositional]
 
@@ -151,6 +184,15 @@ class pyrochem(object):
         self._obj.loc[:, self.list_compositional] = df
 
     # pyrolite.geochem.parse functions
+
+    def parse_chem(self, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+        """
+        Convert column names to pyrolite-recognised elemental, oxide and isotope
+        ratio column names where valid names are found.
+        """
+        self._obj.columns = parse.tochem(
+            self._obj.columns, abbrv=abbrv, split_on=split_on
+        )
 
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
         """
@@ -445,11 +487,10 @@ class pyrochem(object):
 
     def lambda_lnREE(
         self,
-        norm_to="Chondrite_PON",
+        norm_to="ChondriteREE_ON",
         exclude=["Pm", "Eu"],
         params=None,
         degree=4,
-        append=[],
         scale="ppm",
         **kwargs
     ):
@@ -459,9 +500,9 @@ class pyrochem(object):
         radii vs. ln(REE/NORM) polynomial combination.
 
         Parameters
-        ------------
+        ----------
         norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
-            Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
+            Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
         exclude : :class:`list`, :code:`["Pm", "Eu"]`
             Which REE elements to exclude from the fit. May wish to include Ce for minerals
             in which Ce anomalies are common.
@@ -469,23 +510,20 @@ class pyrochem(object):
             Set of predetermined orthagonal polynomial parameters.
         degree : :class:`int`, 5
             Maximum degree polynomial fit component to include.
-        append : :class:`list`, :code:`None`
-            Whether to append lambda function (i.e. :code:`["function"]`).
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.
 
         References
-        -----------
+        ----------
         .. [#localref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
                Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
                doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
 
-
         See Also
-        ---------
+        --------
         :func:`~pyrolite.geochem.ind.get_ionic_radii`
-        :func:`~pyrolite.util.math.lambdas`
-        :func:`~pyrolite.util.math.OP_constants`
+        :func:`~pyrolite.util.lambdas.calc_lambdas`
+        :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
         """
         return transform.lambda_lnREE(
@@ -494,7 +532,6 @@ class pyrochem(object):
             exclude=exclude,
             params=params,
             degree=degree,
-            append=append,
             scale=scale,
             **kwargs
         )
@@ -504,7 +541,7 @@ class pyrochem(object):
         Attempts to convert a dataframe with one set of components to another.
 
         Parameters
-        -----------
+        ----------
         to : :class:`list`
             Set of columns to try to extract from the dataframe.
 
@@ -519,12 +556,12 @@ class pyrochem(object):
             Flag that data is in molecular units, rather than weight units.
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Dataframe with converted chemistry.
 
         Todo
-        ------
+        ----
             * Check for conflicts between oxides and elements
             * Aggregator for ratios
             * Implement generalised redox transformation.
@@ -541,7 +578,7 @@ class pyrochem(object):
         Normalise a dataframe to a given reference composition.
 
         Parameters
-        -----------
+        ----------
         reference : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition to normalise to.
         units : :class:`str`
@@ -552,12 +589,12 @@ class pyrochem(object):
             Ti, TiO2).
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Dataframe with normalised chemistry.
 
         Notes
-        ------
+        -----
         This assumes that dataframes have a single set of units.
         """
 
@@ -583,19 +620,19 @@ class pyrochem(object):
         De-normalise a dataframe from a given reference composition.
 
         Parameters
-        -----------
+        ----------
         reference : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Reference composition which the composition is normalised to.
         units : :class:`str`
             Units of the input dataframe, to convert the reference composition.
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Dataframe with normalised chemistry.
 
         Notes
-        ------
+        -----
         This assumes that dataframes have a single set of units.
         """
 
@@ -619,14 +656,14 @@ class pyrochem(object):
         Scale a dataframe from one set of units to another.
 
         Parameters
-        -----------
+        ----------
         in_unit : :class:`str`
             Units to be converted from
         target_unit : :class:`str`, :code:`"ppm"`
             Units to scale to.
 
         Returns
-        --------
+        -------
         :class:`pandas.DataFrame`
             Dataframe with new scale.
         """

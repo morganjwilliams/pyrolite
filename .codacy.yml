@@ -7,3 +7,6 @@ exclude_paths:
   - 'pyrolite/_version.py'
   - 'test/**'
   - '.github/**'
+  - 'CODE_OF_CONDUCT.md'
+  - 'CHANGELOG.md'
+  - 'CONTRIBUTING.md'

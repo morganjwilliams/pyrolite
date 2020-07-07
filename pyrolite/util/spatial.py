@@ -2,10 +2,8 @@
 Baisc spatial utility functions.
 """
 import numpy as np
-from numpy import cos, sin, deg2rad, arctan, arctan2, arcsin, arccos, sqrt, abs
 import itertools
 import logging
-from pyrolite.util.math import isclose
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -23,9 +21,9 @@ def _spherical_law_cosinse_GC_distance(ps):
     """
     φ1, φ2 = ps[2:]  # latitude
     λ1, λ2 = ps[:2]  # longitude
-    Δλ = abs(λ1 - λ2)
-    Δφ = abs(φ1 - φ2)
-    return arccos(sin(φ1) * sin(φ2) + cos(φ1) * cos(φ2) * cos(Δλ))
+    Δλ = np.abs(λ1 - λ2)
+    # Δφ = np.abs(φ1 - φ2)
+    return np.arccos(np.sin(φ1) * np.sin(φ2) + np.cos(φ1) * np.cos(φ2) * np.cos(Δλ))
 
 
 def _vicenty_GC_distance(ps):
@@ -43,15 +41,15 @@ def _vicenty_GC_distance(ps):
     """
     φ1, φ2 = ps[2:]  # latitude
     λ1, λ2 = ps[:2]  # longitude
-    Δλ = abs(λ1 - λ2)
-    Δφ = abs(φ1 - φ2)
+    Δλ = np.abs(λ1 - λ2)
+    # Δφ = np.abs(φ1 - φ2)
 
-    _S = sqrt(
-        (cos(φ2) * sin(Δλ)) ** 2
-        + (cos(φ1) * sin(φ2) - sin(φ1) * cos(φ2) * cos(Δλ)) ** 2
+    _S = np.sqrt(
+        (np.cos(φ2) * np.sin(Δλ)) ** 2
+        + (np.cos(φ1) * np.sin(φ2) - np.sin(φ1) * np.cos(φ2) * np.cos(Δλ)) ** 2
     )
-    _C = sin(φ1) * sin(φ2) + cos(φ1) * cos(φ2) * cos(Δλ)
-    return np.abs(arctan2(_S, _C))
+    _C = np.sin(φ1) * np.sin(φ2) + np.cos(φ1) * np.cos(φ2) * np.cos(Δλ)
+    return np.abs(np.arctan2(_S, _C))
 
 
 def _haversine_GC_distance(ps):
@@ -62,13 +60,16 @@ def _haversine_GC_distance(ps):
     Parameters
     ----------
     ps : :class:`numpy.ndarray`
-        Numpy array wih latitudes and longitudes [x1, x2, y1, y2]
+        Numpy array wih latitudes and longitudes [x1, x2, y1, y2].
+
     """
     φ1, φ2 = ps[2:]  # latitude
     λ1, λ2 = ps[:2]  # longitude
-    Δλ = abs(λ1 - λ2)
-    Δφ = abs(φ1 - φ2)
-    return 2 * arcsin(sqrt(sin(Δφ / 2) ** 2 + cos(φ1) * cos(φ2) * sin(Δλ / 2) ** 2))
+    Δλ = np.abs(λ1 - λ2)
+    Δφ = np.abs(φ1 - φ2)
+    return 2 * np.arcsin(
+        np.sqrt(np.sin(Δφ / 2) ** 2 + np.cos(φ1) * np.cos(φ2) * np.sin(Δλ / 2) ** 2)
+    )
 
 
 def great_circle_distance(
@@ -91,13 +92,14 @@ def great_circle_distance(
     method : :class:`str`, :code:`{'vicenty', 'cosines', 'haversine'}`
         Which method to use for great circle distance calculation. Defaults to the
         Vicenty formula.
+
     """
     x1, y1 = p1
     x2, y2 = p2
     ps = np.array([x1, x2, y1, y2]).astype(np.float)
 
     if degrees:
-        ps = deg2rad(ps)
+        ps = np.deg2rad(ps)
 
     if method is None:
         f = _vicenty_GC_distance
@@ -124,9 +126,18 @@ def piecewise(segment_ranges: list, segments=2, output_fmt=np.float):
     """
     Generator to provide values of quantizable paramaters which define a grid,
     here used to split up queries from databases to reduce load.
+
+    Parameters
+    ----------
+    segment_ranges : :class:`list`
+        List of segment ranges to create a grid from.
+    segments : :class:`int`
+        Number of segments.
+    output_fmt
+        Function to call on the output.
     """
     outf = np.vectorize(output_fmt)
-    if type(segments) == np.int:
+    if isinstance(segments, np.int):
         segments = list(np.ones(len(segment_ranges), dtype=np.int) * segments)
     else:
         pass
@@ -139,10 +150,9 @@ def piecewise(segment_ranges: list, segments=2, output_fmt=np.float):
         for ix, (x1, x2) in enumerate(segment_ranges)
     ]
     pieces = list(itertools.product(*separators))
-    for ix, i in enumerate(pieces):
-        i = np.array(i)
-        out = np.vstack((i, i + np.array(seg_width)))
-
+    for piece in pieces:
+        piece = np.array(piece)
+        out = np.vstack((piece, piece + np.array(seg_width)))
         yield outf(out)
 
 
@@ -157,6 +167,18 @@ def spatiotemporal_split(
     Creates spatiotemporal grid using piecewise function and arbitrary
     ranges for individial kw-parameters (e.g. age=(0., 450.)), and
     sequentially returns individial grid cell attributes.
+
+    Parameters
+    ----------
+    segments : :class:`int`
+        Number of segments.
+    nan_lims : :class:`list` | :class:`tuple`
+        Specificaiton of NaN indexes for missing boundaries.
+
+    Yields
+    -------
+    :class:`dict`
+        Iteration through parameter sets for each cell of the grid.
     """
     part = 0
     for item in piecewise(kwargs.values(), segments=segments):
@@ -194,6 +216,19 @@ def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
     Translates cardinal points to xy points in the form of bounds.
     Useful for converting to the format required for WFS from REST
     style queries.
+
+    Parameters
+    ----------
+    cardinal : :class:`dict`
+        Cardinally-indexed point bounds.
+    order : :class:`list`
+        List indicating order of returned x-y bound coordinates.
+
+    Returns
+    -------
+    :class:`list`
+        x-y indexed extent values in the specified order.
+
     """
     tnsltr = {
         xy: c

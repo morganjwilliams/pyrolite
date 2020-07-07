@@ -17,13 +17,33 @@ This page is home to longer examples which incorporate multiple components of
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="In this tutorial we will illustrate some straightfoward formatting for your plots which will al...">
+
+.. only:: html
+
+ .. figure:: /tutorials/images/thumb/sphx_glr_plot_formatting_thumb.png
+
+     :ref:`sphx_glr_tutorials_plot_formatting.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /tutorials/plot_formatting
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Making the Logo">
 
 .. only:: html
 
-    .. figure:: /tutorials/images/thumb/sphx_glr_logo_thumb.png
+ .. figure:: /tutorials/images/thumb/sphx_glr_logo_thumb.png
 
-        :ref:`sphx_glr_tutorials_logo.py`
+     :ref:`sphx_glr_tutorials_logo.py`
 
 .. raw:: html
 
@@ -41,9 +61,9 @@ This page is home to longer examples which incorporate multiple components of
 
 .. only:: html
 
-    .. figure:: /tutorials/images/thumb/sphx_glr_ternary_density_thumb.png
+ .. figure:: /tutorials/images/thumb/sphx_glr_ternary_density_thumb.png
 
-        :ref:`sphx_glr_tutorials_ternary_density.py`
+     :ref:`sphx_glr_tutorials_ternary_density.py`
 
 .. raw:: html
 
@@ -56,7 +76,7 @@ This page is home to longer examples which incorporate multiple components of
    /tutorials/ternary_density
 .. raw:: html
 
-    <div style='clear:both'></div>
+    <div class="sphx-glr-clear"></div>
 
 
 

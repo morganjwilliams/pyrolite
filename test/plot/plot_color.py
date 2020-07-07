@@ -75,17 +75,45 @@ class TestProcessColor(unittest.TestCase):
         value_array = np.array([0.1, 0.9])
         for c in [value_array]:
             out = process_color(c=c)
-            #
+
+    def test_categories(self):
+        categories = ["Bird", "Fish", "Cat"]
+        for c in [categories]:
+            out = process_color(c=c)
+
+    def test_categories_color_mappings(self):
+        categories = ["Bird", "Fish", "Cat"]
+        mappings = {"Bird": "green", "Fish": "blue", "Cat": "orange"}
+        for c, m in zip([categories], [mappings]):
+            out = process_color(c=c, color_mappings=m)
 
     @unittest.expectedFailure
     def test_singular_value(self):
         c = 1.0
         out = process_color(c=c)
 
-    @unittest.expectedFailure
     def test_mixed_input(self):
-        c = [1.0, (1, 0, 0), "black"]
+        c = ["0.5", (1, 0, 0), "black"]
         out = process_color(c=c)
+
+    @unittest.expectedFailure
+    def test_invalid_mixed_input(self):
+        """Non-scaled floats etc."""
+        c = [1.0, 10.1, "0.5", (1, 0, 0), "black"]
+        out = process_color(c=c)
+
+    def test_singular_with_alpha(self):
+        alpha = 0.5
+        for c in ["green"]:
+            out = process_color(c=c, alpha=alpha)
+            print(out["c"])
+            self.assertTrue(np.allclose(out["c"][:, -1], alpha))
+
+    def test_array_with_alpha(self):
+        alpha = 0.5
+        for c in [np.array([0.1, 0.9])]:
+            out = process_color(c=c, alpha=alpha)
+            self.assertTrue(np.allclose(out["c"][:, -1], alpha))
 
 
 class TestGetCmode(unittest.TestCase):
@@ -149,10 +177,17 @@ class TestGetCmode(unittest.TestCase):
         c = 1.0
         cmode = get_cmode(c)
 
-    @unittest.expectedFailure
     def test_mixed_input(self):
-        c = [1.0, (1, 0, 0), "black"]
+        c = ["0.5", (1, 0, 0), "black"]
         cmode = get_cmode(c)
+        self.assertEqual(cmode, 'mixed_fmt_color_array')
+
+    @unittest.expectedFailure
+    def test_invalid_mixed_input(self):
+        """Non-scaled floats etc."""
+        c = [1.0, 10.1, "0.5", (1, 0, 0), "black"]
+        cmode = get_cmode(c)
+        self.assertEqual(cmode, 'mixed_fmt_color_array')
 
 
 if __name__ == "__main__":

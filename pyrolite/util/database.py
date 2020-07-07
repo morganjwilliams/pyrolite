@@ -68,8 +68,8 @@ def open_db_connection(
     """
     https://github.com/mkleehammer/pyodbc/wiki/Unicode
 
-    Todo:
-    ------
+    Todo
+    ----
         Implement pooled connections.
         http://initd.org/psycopg/docs/pool.html
     """

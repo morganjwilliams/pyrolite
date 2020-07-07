@@ -4,18 +4,8 @@ import pandas as pd
 from ...geochem import transform
 from ...geochem import ind
 from ...geochem import parse
-
-from ...comp.codata import (
-    alr,
-    inverse_alr,
-    clr,
-    inverse_clr,
-    ilr,
-    inverse_ilr,
-    boxcox,
-    inverse_boxcox,
-)
-from ..math import OP_constants
+from ...comp import codata
+from ..lambdas import orthogonal_polynomial_constants
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -28,11 +18,8 @@ except ImportError:
 
 
 class DropBelowZero(BaseEstimator, TransformerMixin):
-    """
-    Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "Feedthrough"
 
@@ -48,11 +35,8 @@ class DropBelowZero(BaseEstimator, TransformerMixin):
 
 
 class LinearTransform(BaseEstimator, TransformerMixin):
-    """
-    Linear Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Linear Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "Feedthrough"
         self.forward = lambda x: x
@@ -85,11 +69,8 @@ class LinearTransform(BaseEstimator, TransformerMixin):
 
 
 class ExpTransform(BaseEstimator, TransformerMixin):
-    """
-    Exponential Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Exponential Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "Feedthrough"
         self.forward = np.exp
@@ -118,11 +99,8 @@ class ExpTransform(BaseEstimator, TransformerMixin):
 
 
 class LogTransform(BaseEstimator, TransformerMixin):
-    """
-    Log Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Log Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "Feedthrough"
         self.forward = np.log
@@ -155,15 +133,12 @@ class LogTransform(BaseEstimator, TransformerMixin):
 
 
 class ALRTransform(BaseEstimator, TransformerMixin):
-    """
-    Additive Log Ratio Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Additive Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "ALR"
-        self.forward = alr
-        self.inverse = inverse_alr
+        self.forward = codata.ALR
+        self.inverse = codata.inverse_ALR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
@@ -192,15 +167,12 @@ class ALRTransform(BaseEstimator, TransformerMixin):
 
 
 class CLRTransform(BaseEstimator, TransformerMixin):
-    """
-    Centred Log Ratio Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Centred Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "CLR"
-        self.forward = clr
-        self.inverse = inverse_clr
+        self.forward = codata.CLR
+        self.inverse = codata.inverse_CLR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
@@ -229,15 +201,12 @@ class CLRTransform(BaseEstimator, TransformerMixin):
 
 
 class ILRTransform(BaseEstimator, TransformerMixin):
-    """
-    Isometric Log Ratio Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """Isometric Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "ILR"
-        self.forward = ilr
-        self.inverse = inverse_ilr
+        self.forward = codata.ILR
+        self.inverse = codata.inverse_ILR
         self.X = None
 
     def transform(self, X, *args, **kwargs):
@@ -255,7 +224,7 @@ class ILRTransform(BaseEstimator, TransformerMixin):
 
     def inverse_transform(self, Y, *args, **kwargs):
         if "X" not in kwargs:
-            if not self.X is not None:
+            if self.X is not None:
                 kwargs.update(dict(X=self.X))
         if isinstance(Y, pd.DataFrame):
             out = pd.DataFrame(
@@ -272,15 +241,12 @@ class ILRTransform(BaseEstimator, TransformerMixin):
 
 
 class BoxCoxTransform(BaseEstimator, TransformerMixin):
-    """
-    BoxCox Transformer for scikit-learn like use.
-    """
-
     def __init__(self, **kwargs):
+        """BoxCox Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "BoxCox"
-        self.forward = boxcox
-        self.inverse = inverse_boxcox
+        self.forward = codata.boxcox
+        self.inverse = codata.inverse_boxcox
         self.lmbda = None
 
     def transform(self, X, *args, **kwargs):
@@ -309,6 +275,7 @@ class Devolatilizer(BaseEstimator, TransformerMixin):
     def __init__(
         self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
     ):
+        """Devolatilization transformer for scikit-learn like use."""
         self.exclude = [i.upper() for i in exclude]
         self.renorm = renorm
 
@@ -323,6 +290,7 @@ class Devolatilizer(BaseEstimator, TransformerMixin):
 
 class ElementAggregator(BaseEstimator, TransformerMixin):
     def __init__(self, renorm=True, form="oxide"):
+        """Element-based aggregation transformer for scikit-learn like use."""
         self.renorm = renorm
         self.form = form
 
@@ -346,13 +314,16 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
     def __init__(
         self, norm_to="Chondrite_PON", exclude=["Pm", "Eu", "Ce"], params=None, degree=5
     ):
+        """Lambda coefficient transformer for scikit-learn like use."""
         self.norm_to = norm_to
-        self.ree = [i for i in ind.REE() if not i in exclude]
+        self.ree = [i for i in ind.REE() if i not in exclude]
         self.radii = np.array(ind.get_ionic_radii(self.ree, charge=3, coordination=8))
         self.exclude = exclude
         if params is None:
             self.degree = degree
-            self.params = OP_constants(self.radii, degree=self.degree)
+            self.params = orthogonal_polynomial_constants(
+                self.radii, degree=self.degree
+            )
         else:
             self.params = params
             self.degree = len(params)
@@ -366,7 +337,9 @@ class LambdaTransformer(BaseEstimator, TransformerMixin):
         if not all(ree_present):
             self.ree = [i for i in self.ree if i in X.columns]
             self.radii = self.radii[ree_present]
-            self.params = OP_constants(self.radii, degree=self.degree)
+            self.params = orthogonal_polynomial_constants(
+                self.radii, degree=self.degree
+            )
 
         return transform.lambda_lnREE(
             X,

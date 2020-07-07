@@ -2,8 +2,8 @@ import unittest
 import pandas as pd
 import numpy as np
 from pyrolite.plot.density.ternary import ternary_heatmap
-from pyrolite.util.skl import ILRTransform, ALRTransform
-from pyrolite.comp.codata import ilr, alr, inverse_ilr, inverse_alr
+from pyrolite.util.skl.transform import ILRTransform, ALRTransform
+from pyrolite.comp.codata import ILR, ALR, inverse_ILR, inverse_ALR
 
 
 class TestTernaryHeatmap(unittest.TestCase):
@@ -30,8 +30,8 @@ class TestTernaryHeatmap(unittest.TestCase):
 
     def test_transform(self):
         for tfm, itfm in [
-            (alr, inverse_alr),
-            (ilr, inverse_ilr),
+            (ALR, inverse_ALR),
+            (ILR, inverse_ILR),
             (ILRTransform, None),
             (ALRTransform, None),
         ]:
@@ -41,7 +41,7 @@ class TestTernaryHeatmap(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_need_inverse_transform(self):
-        for tfm, itfm in [(alr, None), (ilr, None)]:
+        for tfm, itfm in [(ALR, None), (ILR, None)]:
             with self.subTest(tfm=tfm, itfm=itfm):
                 out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 

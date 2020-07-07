@@ -5,26 +5,20 @@ import periodictable as pt
 import pandas as pd
 import numpy as np
 import functools
-from ..util.pd import to_frame
 from ..comp.codata import renormalise, close
 from ..util.text import titlecase, remove_suffix
 from ..util.types import iscollection
 from ..util.meta import update_docstring_references
-from ..util.math import OP_constants, lambdas, lambda_poly_func
-from ..util.units import scale
-
+from ..util import lambdas
 from .ind import (
     REE,
     get_ionic_radii,
     simple_oxides,
-    common_elements,
-    common_oxides,
     __common_elements__,
     __common_oxides__,
     get_cations,
 )
 from .norm import Composition, get_reference_composition
-from .parse import tochem, check_multiple_cation_inclusion
 
 import logging
 
@@ -502,7 +496,7 @@ def add_MgNo(
     mg = elemental_sum(df, "Mg", molecular=molecular)
     if use_total_approx:
         speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
-        fe = aggregate_element(df, "Fe", to=speciation, molecular=molecular).FeO
+        fe = aggregate_element(df, to=speciation, molecular=molecular)["FeO"]
     else:
         filter = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
         fe = elemental_sum(df.loc[:, filter], "Fe", molecular=molecular)
@@ -522,25 +516,25 @@ def add_MgNo(
 
 def lambda_lnREE(
     df,
-    norm_to="Chondrite_PON",
+    norm_to="ChondriteREE_ON",
     exclude=["Pm", "Eu"],
     params=None,
     degree=4,
-    append=[],
     scale="ppm",
+    allow_missing=True,
     **kwargs
 ):
     """
     Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
-    normalised to a specific composition [#localref_1]_. Lambda factors are given for the
-    radii vs. ln(REE/NORM) polynomical combination.
+    normalised to a specific composition [#localref_1]_. Lambda coefficeints are given
+    for the polynomial regression of ln(REE/NORM) vs radii.
 
     Parameters
     ------------
     df : :class:`pandas.DataFrame`
         Dataframe to calculate lambda coefficients for.
     norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
-        Which reservoir to normalise REE data to (defaults to :code:`"Chondrite_PON"`).
+        Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
     exclude : :class:`list`, :code:`["Pm", "Eu"]`
         Which REE elements to exclude from the fit. May wish to include Ce for minerals
         in which Ce anomalies are common.
@@ -548,16 +542,15 @@ def lambda_lnREE(
         Set of predetermined orthagonal polynomial parameters.
     degree : :class:`int`, 5
         Maximum degree polynomial fit component to include.
-    append : :class:`list`, :code:`None`
-        Whether to append lambda function (i.e. :code:`["function"]`).
     scale : :class:`str`
         Current units for the REE data, used to scale the reference dataset.
+    allow_missing : :class:`True`
+        Whether to calculate lambdas for rows which might be missing values.
 
     Todo
     -----
         * Operate only on valid rows.
-        * Add residuals, Eu, Ce anomalies as options to `append`.
-        * Pre-build orthagonal parameters for REE combinations for calculation speed?
+        * Add residuals, Eu, Ce anomalies as options.
 
     References
     -----------
@@ -569,29 +562,28 @@ def lambda_lnREE(
     See Also
     ---------
     :func:`~pyrolite.geochem.ind.get_ionic_radii`
-    :func:`~pyrolite.util.math.lambdas`
-    :func:`~pyrolite.util.math.OP_constants`
+    :func:`~pyrolite.util.lambdas.lambdas`
+    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
-    non_null_cols = df.columns[~df.isnull().all(axis=0)]
-    ree = [
-        i
-        for i in REE()
-        if i in df.columns
-        and (not str(i) in exclude)
-        and (str(i) in non_null_cols or i in non_null_cols)
-    ]  # no promethium
+    # check if there are columns which are empty
+    exclude += list(df.columns[df.isnull().all(axis=0)])
+    # Check which REE we're dealing with
+    ree = [el for el in REE() if el in df.columns and el not in exclude]
+    # get the ionic radii for these REE
     radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
+    # if there are no supplied params, we need to create them here
     if params is None:
-        params = OP_constants(radii, degree=degree)
+        params = lambdas.orthogonal_polynomial_constants(radii, degree=degree)
     else:
         degree = len(params)
 
-    null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
-    norm_df = df.loc[~null_in_row, ree].copy()  # initialize normdf
-
-    labels = [chr(955) + str(d) for d in range(degree)]
+    # initialize normdf
+    norm_df = df.loc[:, ree].copy()
+    if not allow_missing:
+        # nullify rows with missing data
+        norm_df.loc[pd.isnull(df.loc[:, ree]).any(axis=1), :] = np.nan
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
@@ -609,29 +601,13 @@ def lambda_lnREE(
         norm_df.loc[:, ree] = np.divide(norm_df.loc[:, ree].values, norm_abund)
 
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
-    norm_df.loc[:, ree] = norm_df.loc[:, ree].applymap(np.log)
+    norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    lambdadf = pd.DataFrame(index=df.index, columns=labels)
-    lambda_partial = functools.partial(
-        lambdas, xs=radii, params=params, degree=degree, **kwargs
-    )  # pass kwargs to lambdas
-    # apply along rows
-    logger.debug("lambda-fitting")
-    lambdadf.loc[~null_in_row, labels] = np.apply_along_axis(
-        lambda_partial, 1, norm_df.values
-    )
-    lambdadf.loc[(lambdadf == 0.0).all(axis=1), :] = np.nan
-    if append is not None:
-        if "function" in append:
-            # append the smooth f(radii) function to the dataframe
-            func_partial = functools.partial(
-                lambda_poly_func, pxs=radii, params=params, degree=degree
-            )
-            lambdadf["lambda_poly_func"] = np.apply_along_axis(
-                func_partial, 1, lambdadf.values
-            )
-
-    lambdadf = lambdadf.apply(pd.to_numeric, errors="coerce")
+    try:
+        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
+    except np.linalg.LinAlgError:  # singular matrix
+        kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
+        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

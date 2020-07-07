@@ -59,9 +59,9 @@ We can break this down into olivine endmebmers using the
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -85,7 +85,7 @@ We can break this down into olivine endmebmers using the
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>79.994</td>
               <td>20.006</td>
             </tr>
@@ -113,9 +113,9 @@ endmembers:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -139,7 +139,7 @@ endmembers:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>79.994</td>
               <td>20.006</td>
             </tr>
@@ -165,9 +165,9 @@ lookup the compositions for our endmembers:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -196,7 +196,7 @@ lookup the compositions for our endmembers:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>forsterite</td>
               <td>olivine</td>
               <td>Mg2SiO4</td>
@@ -206,7 +206,7 @@ lookup the compositions for our endmembers:
               <td>0.000</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>fayalite</td>
               <td>olivine</td>
               <td>Fe2SiO4</td>
@@ -243,9 +243,9 @@ First we have to convert these element-based compositions to oxide-based composi
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -270,13 +270,13 @@ First we have to convert these element-based compositions to oxide-based composi
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>0.667</td>
               <td>0.333</td>
               <td>0.000</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>0.000</td>
               <td>0.333</td>
               <td>0.667</td>
@@ -302,9 +302,9 @@ These can now be used with our endmember proportions to regenerate a composition
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -329,7 +329,7 @@ These can now be used with our endmember proportions to regenerate a composition
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>42.059</td>
               <td>39.191</td>
               <td>18.75</td>
@@ -357,7 +357,7 @@ To make sure these compositions are within 0.01 percent:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.337 seconds)
+   **Total running time of the script:** ( 0 minutes  0.294 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_endmembers.py:
@@ -376,13 +376,13 @@ To make sure these compositions are within 0.01 percent:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: mineral_endmembers.py <mineral_endmembers.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: mineral_endmembers.ipynb <mineral_endmembers.ipynb>`
 

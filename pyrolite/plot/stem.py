@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
-from ..util.plot import init_axes, linekwargs, scatterkwargs
+from ..util.plot.axes import init_axes
+from ..util.plot.style import linekwargs, scatterkwargs
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)

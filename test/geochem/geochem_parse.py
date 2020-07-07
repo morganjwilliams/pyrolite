@@ -110,7 +110,29 @@ class TestMultipleCationInclusion(unittest.TestCase):
         pass
 
 
-repr_isotope_ratio
+class TestReprIsotopeRatio(unittest.TestCase):
+    def setUp(self):
+        self.expect = "87Sr/86Sr"
+        self.expect_succeed = [
+            "87Sr/86Sr",
+            "87Sr_86Sr",
+            "Sr87/Sr86",
+            "Sr87_Sr86",
+            "87Sr 86Sr",
+        ]
+        self.expect_fail = ["87Sr/Sr86", "87Sr_Sr86", "87Sr Sr86"]
+
+    def test_default(self):
+        for ratio in self.expect_succeed:
+            with self.subTest(ratio=ratio):
+                out = repr_isotope_ratio(ratio)
+                self.assertEqual(out, self.expect)
+
+        for ratio in self.expect_fail:
+            with self.subTest(ratio=ratio):
+                out = repr_isotope_ratio(ratio)
+                self.assertEqual(out, ratio)  # hasn't changed the string
+
 
 if __name__ == "__main__":
     unittest.main()

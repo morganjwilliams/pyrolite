@@ -1,15 +1,12 @@
 """
 Reference compostitions and compositional normalisation.
 """
-import os, sys
-from pathlib import Path
-import platform
+import sys
 import pandas as pd
 import numpy as np
-from tinydb import TinyDB, Query
 import json
-from ..comp import *
-from ..util.pd import to_frame
+from tinydb import TinyDB, Query
+from pathlib import Path
 from ..util.units import scale
 from ..util.meta import pyrolite_datafolder
 import logging
@@ -36,7 +33,7 @@ def all_reference_compositions(path=None):
         path = __dbfile__
     with TinyDB(str(path)) as db:
         refs = {}
-        for r in db.table().all():
+        for r in db.all(): # there should be only one "_default" table
             n, c = r["name"], r["composition"]
             refs[n] = Composition(json.loads(c), name=n)
         db.close()
@@ -100,7 +97,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     if path is None:
         path = __dbfile__
     with TinyDB(str(path)) as db:
-        db.purge()
+        db.truncate()
 
         for f in get_reference_files():
             C = Composition(f, encoding=encoding, **kwargs)
@@ -114,6 +111,30 @@ class Composition(object):
     def __init__(
         self, src, name=None, reference=None, reservoir=None, source=None, **kwargs
     ):
+        """A composition with units and uncertainties for each compositional
+        variable.
+
+        Attributes
+        -----------
+        name : :class:`str`
+            Name of the composition.
+        reference : :class:`str`
+            Reference for the composition.
+        reservoir : :class:`str`
+            Optionally-specified reservoir for the specific compositoin (e.g. Primitive
+            Mantle).
+        source : :class:`str
+            Source of the composition (typically method of derivation,
+            e.g. 'calculated').
+        filename : :class:`str` | :class:`pathlib.Path`
+            File which the composition is derived from.
+        comp : :class:`pandas.DataFrame`
+            A 1-row dataframe
+        units : :class:`pandas.Series`
+            Units of the compositional variables.
+        unc_2sigma : :class:`pandas.Series`
+            Uncertainties for the compositional variables.
+        """
         self.comp = None
         self.units = None
         self.unc_2sigma = None
@@ -189,25 +210,26 @@ class Composition(object):
         self.units[:] = to
         return self
 
-    def __getitem__(self, vars):
+    def __getitem__(self, variables):
         """
         Allow access to model values via [] indexing e.g. Composition['Si', 'Cr'].
 
         Parameters
-        -----------
-        vars : :class:`str` | :class:`list`
+        ----------
+        variables : :class:`str` | :class:`list`
             Variable(s) to get.
         """
-        if isinstance(vars, (list, np.ndarray, pd.Index)):  # if iterable
-            vars = [v if isinstance(v, str) else str(v) for v in vars]
+        if isinstance(variables, (list, np.ndarray, pd.Index)):  # if iterable
+            variables = [v if isinstance(v, str) else str(v) for v in variables]
         else:
-            vars = [str(vars)]
-        qry = self.comp.reindex(columns=vars).values.flatten()
+            variables = [str(variables)]
+        qry = self.comp.reindex(columns=variables).values.flatten()
         if len(qry) == 1:
             qry = qry[0]
         return qry
 
     def __str__(self):
+        """Get a string representation of the composition."""
         s = ""
         if self.name is not None:
             s += self.name + " "
@@ -218,6 +240,7 @@ class Composition(object):
         return s
 
     def __repr__(self):
+        """Get a string signature of the composition."""
         r = self.__class__.__name__ + "("
         if self.filename is not None:
             r += "'{}'".format(Path(self.filename).name)

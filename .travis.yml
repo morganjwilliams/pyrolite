@@ -1,8 +1,12 @@
 language: python
+dist: bionic
 os: linux
-dist: xenial
+cache: pip
 
 jobs:
+  allow_failures:
+    - os: osx
+
   include:
     - python: 3.6
       env: PYVERSION=36
@@ -10,6 +14,37 @@ jobs:
       env: PYVERSION=37
     - python: 3.8
       env: PYVERSION=38
+    - os: osx
+      language: sh
+      env:
+        - HOMEBREW_NO_INSTALL_CLEANUP=1
+        - HOMEBREW_NO_ANALYTICS=1
+        - PYVERSION=36
+      before_cache:
+        # - brew cleanup
+        - rm -f "$HOME/Library/Caches/pip/log/debug.log"
+      cache:
+        directories:
+          # - "$HOME/Library/Caches/Homebrew"
+          - "$HOME/Library/Caches/pip"
+      addons:
+        homebrew:
+          # update: true
+          packages: python3
+      before_install:
+        - python3 -m pip install --upgrade virtualenv
+        - virtualenv -p python3 --system-site-packages "$HOME/venv"
+        - source "$HOME/venv/bin/activate"
+      install:
+        - pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
+        - pip install coveralls
+        - pip install -e .[skl,stats] # install skl, statsmodels
+      script:
+        - python3 setup.py test
+      after_success:
+        - "ls -lr htmlcov"
+        - coveralls # coverage to coveralls.io
+        - python-codacy-coverage -r coverage.xml
 
 before_install:
   - sudo apt-get install jq curl
@@ -17,7 +52,7 @@ before_install:
 install:
   - pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
   - pip install coveralls
-  - pip install -e .[skl] # install skl dependencies
+  - pip install -e .[skl,stats] # install skl, statsmodels
 
 script:
   - xvfb-run python setup.py test

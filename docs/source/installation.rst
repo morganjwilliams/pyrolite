@@ -27,11 +27,11 @@ on `PyPi <https://pypi.org/project/pyrolite/>`_ using the :code:`--upgrade` flag
 Optional Dependencies
 -----------------------
 
-Optional dependencies (`dev`, `skl`, `spatial`, `db`) can be specified during pip
-installation. For example:
+Optional dependencies (`dev`, `skl`, `spatial`, `db`, `stats`, `docs`) can be specified
+during `pip` installation. For example:
 
 .. code-block:: bash
 
-   pip install pyrolite[dev]
+   pip install pyrolite[stats]
 
-   pip install pyrolite[dev,skl,spatial,db]
+   pip install pyrolite[dev,docs]

@@ -28,13 +28,6 @@ pyrolite\.mineral\.sites
       :undoc-members:
 
 
-pyrolite\.mineral\.ions
--------------------------------
-  .. automodule:: pyrolite.mineral.ions
-      :members:
-      :undoc-members:
-
-
 pyrolite\.mineral\.lattice
 -------------------------------
   .. automodule:: pyrolite.mineral.lattice

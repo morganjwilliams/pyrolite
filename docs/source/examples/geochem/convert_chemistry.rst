@@ -54,9 +54,9 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -86,7 +86,7 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>3.902</td>
               <td>5.044</td>
               <td>6.060</td>
@@ -97,7 +97,7 @@ some in ppm. Notably some elements are present in more than one column (Ca, Na):
               <td>985.441</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>4.294</td>
               <td>5.076</td>
               <td>6.225</td>
@@ -147,9 +147,9 @@ Note that you can also use this function to calculate mass ratios:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -179,7 +179,7 @@ Note that you can also use this function to calculate mass ratios:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>3.902</td>
               <td>5.044</td>
               <td>6.060</td>
@@ -190,7 +190,7 @@ Note that you can also use this function to calculate mass ratios:
               <td>0.774</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>4.294</td>
               <td>5.076</td>
               <td>6.225</td>
@@ -221,9 +221,9 @@ species within the single dataframe:
 
 .. only:: builder_html
 
-.. raw:: html
+    .. raw:: html
 
-            <div>
+        <div>
         <style scoped>
             .dataframe tbody tr th:only-of-type {
                 vertical-align: middle;
@@ -247,12 +247,12 @@ species within the single dataframe:
           </thead>
           <tbody>
             <tr>
-              <th>0</th>
+              <td>0</td>
               <td>5.454</td>
               <td>0.673</td>
             </tr>
             <tr>
-              <th>1</th>
+              <td>1</td>
               <td>5.603</td>
               <td>0.692</td>
             </tr>
@@ -265,7 +265,7 @@ species within the single dataframe:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.268 seconds)
+   **Total running time of the script:** ( 0 minutes  0.259 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_convert_chemistry.py:
@@ -284,13 +284,13 @@ species within the single dataframe:
       :width: 150 px
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-python
 
      :download:`Download Python source code: convert_chemistry.py <convert_chemistry.py>`
 
 
 
-  .. container:: sphx-glr-download
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
 
      :download:`Download Jupyter notebook: convert_chemistry.ipynb <convert_chemistry.ipynb>`
 

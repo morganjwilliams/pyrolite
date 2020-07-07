@@ -1,5 +1,5 @@
 """
-
+Kernel desnity estimation plots for geochemical data.
 """
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -7,14 +7,13 @@ import numpy as np
 import logging
 
 from ...comp.codata import close
-from ...util.plot import (
-    add_colorbar,
+from ...util.plot.density import (
     plot_Z_percentiles,
     percentile_contour_values_from_meshz,
-    DEFAULT_CONT_COLORMAP,
-    init_axes,
     get_axis_density_methods,
 )
+from ...util.plot.style import DEFAULT_CONT_COLORMAP
+from ...util.plot.axes import init_axes, add_colorbar
 from ...util.meta import get_additional_params, subkwargs
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
@@ -69,7 +68,7 @@ def density(
         Predetermined extent of the grid for which to from the histogram/KDE. In the
         general form (xmin, xmax, ymin, ymax).
     contours : :class:`list`
-        Contours to add to the plot.
+        Contours to add to the plot, where :code:`mode='density'` is used.
     percentiles :  :class:`bool`, `True`
         Whether contours specified are to be converted to percentiles.
     relim : :class:`bool`, :code:`True`
@@ -148,7 +147,7 @@ def density(
                     extent=grid.get_hex_extent(),
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hexbin)
                 )
 
             elif mode == "hist2d":
@@ -159,7 +158,7 @@ def density(
                     range=grid.get_range(),
                     cmap=cmap,
                     cmin=[0, 1][vmin > 0],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hist2d)
                 )
                 mappable = im
 
@@ -169,6 +168,7 @@ def density(
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
                     mode="edges",
+                    **subkwargs(kwargs, grid.kdefrom)
                 )
 
                 if percentiles:  # 98th percentile
@@ -191,18 +191,18 @@ def density(
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
                     mappable.set_lw(0.0)
-            if contours:
-                mappable = _add_contours(
-                    grid.grid_xei,
-                    grid.grid_yei,
-                    zi=zei.reshape(grid.grid_xei.shape),
-                    ax=ax,
-                    contours=contours,
-                    percentiles=percentiles,
-                    cmap=cmap,
-                    vmin=vmin,
-                    **kwargs
-                )
+                else:
+                    mappable = _add_contours(
+                        grid.grid_xei,
+                        grid.grid_yei,
+                        zi=zei.reshape(grid.grid_xei.shape),
+                        ax=ax,
+                        contours=contours,
+                        percentiles=percentiles,
+                        cmap=cmap,
+                        vmin=vmin,
+                        **kwargs
+                    )
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary

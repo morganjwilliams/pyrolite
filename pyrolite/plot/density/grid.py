@@ -1,6 +1,6 @@
 import numpy as np
 from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
-from ...util.plot import bin_centres_to_edges
+from ...util.plot.grid import bin_centres_to_edges
 from ...util.distributions import sample_kde
 import logging
 
@@ -139,7 +139,12 @@ class DensityGrid(object):
         return xex + yex
 
     def kdefrom(
-        self, xy, xtransform=lambda x: x, ytransform=lambda x: x, mode="centres"
+        self,
+        xy,
+        xtransform=lambda x: x,
+        ytransform=lambda x: x,
+        mode="centres",
+        bw_method=None,
     ):
         """
         Take an x-y array and sample a KDE on the grid.
@@ -156,6 +161,7 @@ class DensityGrid(object):
                 flattengrid(
                     np.meshgrid(xtransform(self.grid_xc), ytransform(self.grid_yc))
                 ),
+                bw_method=bw_method,
             )
             zi = zi.reshape(self.grid_xci.shape)
         elif mode == "edges":
@@ -165,6 +171,7 @@ class DensityGrid(object):
                 flattengrid(
                     np.meshgrid(xtransform(self.grid_xe), ytransform(self.grid_ye))
                 ),
+                bw_method=bw_method,
             )
             zi = zi.reshape(self.grid_xei.shape)
         else:
