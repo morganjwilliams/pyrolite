@@ -3,7 +3,7 @@
 .. _sphx_glr_examples_geochem_lambdas.py:
 
 
-lambdas: Parameterising REE Patterns
+lambdas: Parameterising REE Profiles
 =====================================
 
 Orthogonal polynomial decomposition can be used for dimensional reduction of smooth
@@ -183,11 +183,22 @@ O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare 
 Element Patterns in Basalts. J Petrology 57, 1463–1508.
 `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
 
+.. seealso::
+
+  Examples:
+   `Ionic Radii <ionic_radii.html>`__,
+   `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+
+  Functions:
+    :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`,
+    :func:`~pyrolite.geochem.ind.get_ionic_radii`,
+    :func:`pyrolite.plot.pyroplot.REE`
+
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.015 seconds)
+   **Total running time of the script:** ( 0 minutes  4.599 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_lambdas.py:

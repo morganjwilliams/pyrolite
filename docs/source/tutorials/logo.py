@@ -35,8 +35,7 @@ warnings.filterwarnings("ignore", "Matplotlib is currently using agg")
 # log-space centre and with varying covariance. This should illustrate the spatial
 # warping of the simplex nicely. Additionally, I chose a log-transform here to go
 # from and to compositional space (:class:`~pyrolite.util.skl.ILRTransform`, which uses
-# the isometric log-ratio functions
-# :func:`~pyrolite.comp.codata.ilr` and :func:`~pyrolite.comp.codata.ilr`). Choosing
+# the isometric log-ratio function :func:`~pyrolite.comp.codata.ilr`). Choosing
 # another transform will change the distortion observed in the simplex slightly.
 # This synthetic dataset is added into a :class:`~pandas.DataFrame` for convenient access
 # to plotting functions via the pandas API defined in :class:`pyrolite.plot.pyroplot`.

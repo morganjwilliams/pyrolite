@@ -123,14 +123,23 @@ for subsequent plotting:
 
 
 
-.. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
-             `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
-             `Spider Diagrams <spider.html>`__,
+.. seealso::
+
+  Examples:
+   `Ionic Radii <ionic_radii.html>`__,
+   `Spider Diagrams <spider.html>`__,
+   `lambdas: Parameterising REE Profiles <lambdas.html>`__
+
+  Functions:
+    :func:`~pyrolite.geochem.ind.get_ionic_radii`,
+    :func:`pyrolite.plot.pyroplot.REE`,
+    :func:`pyrolite.plot.pyroplot.spider`,
+    :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.319 seconds)
+   **Total running time of the script:** ( 0 minutes  3.606 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_REE_v_radii.py:

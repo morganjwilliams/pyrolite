@@ -83,8 +83,7 @@ normalise DataFrames to a given reference (e.g. for spiderplots):
 .. seealso::
 
   Examples:
-    `Pandas Lambda Ln(REE) Function <../lambdas/pandaslambdas.html>`__,
-    `Lambdas for Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
+    `lambdas: Parameterising REE Profiles <lambdas.html>`__,
     `REE Radii Plot <../plotting/REE_radii_plot.html>`__
 
 Currently available models include:
@@ -94,7 +93,7 @@ Currently available models include:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.943 seconds)
+   **Total running time of the script:** ( 0 minutes  3.141 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_normalization.py:

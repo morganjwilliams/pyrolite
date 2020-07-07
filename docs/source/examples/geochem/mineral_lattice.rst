@@ -43,6 +43,7 @@ europium oxidation state on bulk europium partitioning.
 
 
 
+
 First, we need to define some of the necessary parameters including temperature, the Young's
 moduli for the :math:`X^{2+}` and :math:`X^{3+}` sites in plagioclase (:math:`E_2`,
 :math:`E_3`), and some reference partition coefficients and radii for calcium and
@@ -237,11 +238,13 @@ coefficient can be calculated:
 
 
 .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
-             from elastic moduli. Nature 372, 452. https://doi.org/10.1038/372452A0
+            from elastic moduli. Nature 372, 452.
+            doi: `10.1038/372452A0 <https://doi.org/10.1038/372452A0>`__
 
 .. [#ref_2] Dohmen, R., Blundy, J., 2014. A predictive thermodynamic model for element partitioning
             between plagioclase and melt as a function of pressure, temperature and composition.
-            American Journal of Science 314, 1319–1372. https://doi.org/10.2475/09.2014.04
+            American Journal of Science 314, 1319–1372.
+            doi: `10.2475/09.2014.04 <https://doi.org/10.2475/09.2014.04>`__
 
 .. seealso::
 
@@ -257,7 +260,7 @@ coefficient can be calculated:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.516 seconds)
+   **Total running time of the script:** ( 0 minutes  1.104 seconds)
 
 
 .. _sphx_glr_download_examples_geochem_mineral_lattice.py:

@@ -12,7 +12,7 @@ Log Ratio Means
     import numpy as np
     import pandas as pd
     import pyrolite.comp
-    from pyrolite.comp.codata import ilr, inverse_ilr, close
+    from pyrolite.comp.codata import ILR, inverse_ILR, close
     from pyrolite.util.synthetic import random_cov_matrix
     import matplotlib.pyplot as plt
     from pyrolite.plot import pyroplot
@@ -35,7 +35,7 @@ Log Ratio Means
         variances.
         """
         # generate means intermediate between m1 and m2
-        mv = np.vstack([ilr(close(m1)).reshape(1, -1), ilr(close(m2)).reshape(1, -1)])
+        mv = np.vstack([ILR(close(m1)).reshape(1, -1), ILR(close(m2)).reshape(1, -1)])
         ms = np.apply_along_axis(lambda x: np.linspace(*x, resolution), 0, mv)
         # generate covariance matricies intermediate between c1 and c2
         cv = np.vstack([c1.reshape(1, -1), c2.reshape(1, -1)])
@@ -49,7 +49,7 @@ Log Ratio Means
             ]
         )
         # combine together.
-        return inverse_ilr(samples)
+        return inverse_ILR(samples)
 
 
 
@@ -124,8 +124,8 @@ Finally, we can also see where the logratio mean would fall:
 .. code-block:: default
 
 
-    ilrmean = trend.pyrocomp.logratiomean(transform='ilr')
-    ax = ilrmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
+    ILRmean = trend.pyrocomp.logratiomean(transform='ILR')
+    ax = ILRmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
     plt.show()
 
 
@@ -140,7 +140,7 @@ Finally, we can also see where the logratio mean would fall:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.285 seconds)
+   **Total running time of the script:** ( 0 minutes  3.873 seconds)
 
 
 .. _sphx_glr_download_examples_comp_logratiomeans.py:
