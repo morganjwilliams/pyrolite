@@ -121,14 +121,19 @@ def add_age_noise(
     min_sigma=50,
     noise_level=1.0,
     age_name="Age",
+    age_uncertainty_name="AgeUncertainty",
     min_age_name="MinAge",
     max_age_name="MaxAge",
 ):
     # try and get age uncertainty
-
-    # otherwise get age min age max
-    # get age uncertainties
-    age_certainty = np.abs(df[max_age_name] - df[min_age_name]) / 2  # half bin width
+    try:
+        age_certainty = df[age_uncertainty_name]
+    except KeyError:
+        # otherwise get age min age max
+        # get age uncertainties
+        age_certainty = (
+            np.abs(df[max_age_name] - df[min_age_name]) / 2
+        )  # half bin width
     age_certainty[~np.isfinite(age_certainty) | age_certainty < min_sigma] = min_sigma
     # add noise to ages
     age_noise = np.random.randn(df.index.size) * noise_level * age_certainty.values
@@ -138,14 +143,16 @@ def add_age_noise(
 
 def bootstrap_resample(
     df,
+    uncert=None,
     weights=None,
     niter=10000,
     categories=None,
-    transform=np.log,
+    transform=None,
     add_gaussian_parameter_noise=True,
     add_gaussian_age_noise=True,
     metrics=["mean", "var"],
-    noise_level=0.5,
+    default_uncertainty=0.02,
+    noise_level=1,
     age_name="Age",
     latlong_names=["Latitude", "Longitude"],
     **kwargs
@@ -159,6 +166,8 @@ def bootstrap_resample(
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe to resample.
+    uncert : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series` | :class:`pandas.DataFrame`
+        Fractional uncertainties for the dataset.
     weights : :class:`numpy.ndarray` | :class:`pandas.Series`
         Array of weights for resampling, if precomputed.
     niter : :class:`int`
@@ -176,6 +185,8 @@ def bootstrap_resample(
         Whether to add gassian noise to the input dataset ages, where present.
     metrics : :class:`list`
         List of metrics to use for dataframe aggregation.
+    default_uncertainty : :class:`float`
+        Default (fractional) uncertainty where uncertainties are not given.
     noise_level : :class:`float`
         Multiplier for the random gaussian noise added to the dataset and ages.
     age_name : :class:`str`
@@ -191,6 +202,25 @@ def bootstrap_resample(
         categories are specified, the dataframe(s) will have a hierarchical index of
         :code:`categories, iteration`.
     """
+
+    # uncertainty managment ############################################################
+    uncertainty_type = None
+    if uncert is not None:
+        if isinstance(uncert, float):
+            uncertainty_type = "0D"
+        elif isinstance(uncert, (list, pd.Series)) or (
+            isinstance(uncert, np.ndarray) and np.array(uncert).ndim < 2
+        ):
+            uncertainty_type = "1D"
+            # shape should be equal to parameter column number
+        elif isinstance(uncert, (pd.DataFrame)) or (
+            isinstance(uncert, np.ndarray) and np.array(uncert).ndim >= 2
+        ):
+            uncertainty_type = "2D"
+            # shape should be equal to parameter column number by rows
+        else:
+            raise NotImplementedError("Unknown format for uncertainties.")
+    # weighting ########################################################################
     if weights is None:
         weights = get_spatiotemporal_resampling_weights(
             df,
@@ -199,6 +229,7 @@ def bootstrap_resample(
             **subkwargs(kwargs, get_spatiotemporal_resampling_weights)
         )
 
+    # column selection #################################################################
     # get the subset of parameters to be resampled, removing spatial and age names
     # and only taking numeric data
     subset = [
@@ -208,6 +239,7 @@ def bootstrap_resample(
         and np.issubdtype(df.dtypes[c], np.number)
     ]
 
+    # resampling #######################################################################
     def _metric_name(metric):
         return repr(metric).replace("'", "")
 
@@ -231,11 +263,31 @@ def bootstrap_resample(
 
         # try to get uncertainties for the data, otherwise use standard deviations?
         if add_gaussian_parameter_noise:
-            smpl[subset] += (
-                smpl[subset].std().values[np.newaxis, :]
-                * np.random.randn(*smpl[subset].shape)
-                * noise_level
-            )
+            if uncert is None:
+                noise = (
+                    smpl[subset].values
+                    * default_uncertainty
+                    * np.random.randn(*smpl[subset].shape)
+                ) * noise_level
+            else:
+
+                if uncertainty_type in ["0D", "1D"]:
+                    # this should work if a float or series is passed
+                    noise = (
+                        smpl[subset].values
+                        * uncert
+                        * np.random.randn(*smpl[subset].shape)
+                    ) * noise_level
+                else:
+                    # need to get indexes of
+                    idxs = smpl.index.values
+                    noise = (
+                        smpl[subset].values
+                        * uncert[idxs, :]
+                        * np.random.randn(*smpl[subset].shape)
+                    ) * noise_level
+
+            smpl[subset] += noise
             # smpl[subset] = smpl[subset].pyrocomp.renormalise()
 
         if categories is not None:
