@@ -10,6 +10,15 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+try:
+    import sklearn
+
+    HAVE_SKLEARN = True
+except ImportError:
+    msg = "scikit-learn not installed"
+    logger.warning(msg)
+    HAVE_SKLEARN = False
+
 
 def _segmented_univariate_distance_matrix(A, B, metric, dtype="float32", segs=10):
     max_size = np.max([a.shape[0] for a in [A, B]])
@@ -148,7 +157,7 @@ def bootstrap_resample(
     niter=10000,
     categories=None,
     transform=None,
-    add_gaussian_parameter_noise=True,
+    boostrap_method="smooth",
     add_gaussian_age_noise=True,
     metrics=["mean", "var"],
     default_uncertainty=0.02,
@@ -179,8 +188,8 @@ def bootstrap_resample(
     transform
         Callable function to transform input data prior to aggregation functions. Note
         that the outputs will need to be inverse-transformed.
-    add_gaussian_parameter_noise : :class:`bool`
-        Whether to add gaussian noise to the input dataset parameters.
+    boostrap_method : :class:`str`
+        Which bootstrap method to use ('') to add gaussian noise to the input dataset parameters.
     add_gaussian_age_noise : :class:`bool`
         Whether to add gassian noise to the input dataset ages, where present.
     metrics : :class:`list`
@@ -259,35 +268,47 @@ def bootstrap_resample(
         if transform is not None:
             smpl[subset] = smpl[subset].apply(transform, axis="index")
 
-        # add random noise within uncertainty bounds - this is essentially smoothing
-
-        # try to get uncertainties for the data, otherwise use standard deviations?
-        if add_gaussian_parameter_noise:
-            if uncert is None:
-                noise = (
-                    smpl[subset].values
-                    * default_uncertainty
-                    * np.random.randn(*smpl[subset].shape)
-                ) * noise_level
-            else:
-
-                if uncertainty_type in ["0D", "1D"]:
-                    # this should work if a float or series is passed
+        if boostrap_method is not None:
+            # try to get uncertainties for the data, otherwise use standard deviations?
+            if boostrap_method.lower() == "smooth":
+                # add random noise within uncertainty bounds
+                # this is essentially smoothing
+                # consider modulating the noise model using the covariance structure?
+                # this could be done by individual group to preserve varying covariances
+                # between groups?
+                if uncert is None:
                     noise = (
                         smpl[subset].values
-                        * uncert
+                        * default_uncertainty
                         * np.random.randn(*smpl[subset].shape)
                     ) * noise_level
                 else:
-                    # need to get indexes of
-                    idxs = smpl.index.values
-                    noise = (
-                        smpl[subset].values
-                        * uncert[idxs, :]
-                        * np.random.randn(*smpl[subset].shape)
-                    ) * noise_level
+                    if uncertainty_type in ["0D", "1D"]:
+                        # this should work if a float or series is passed
+                        noise = (
+                            smpl[subset].values
+                            * uncert
+                            * np.random.randn(*smpl[subset].shape)
+                        ) * noise_level
+                    else:
+                        # need to get indexes of
+                        idxs = smpl.index.values
+                        noise = (
+                            smpl[subset].values
+                            * uncert[idxs, :]
+                            * np.random.randn(*smpl[subset].shape)
+                        ) * noise_level
 
-            smpl[subset] += noise
+                smpl[subset] += noise
+            elif (boostrap_method.upper() == "GP") or (
+                "process" in bootstrap_method.lower()
+            ):
+                # gaussian process regression to adapt to covariance matrix
+                msg = "Gaussian Process boostrapping not yet implemented."
+                raise NotImplementedError(msg)
+            else:
+                msg = "Bootstrap method {} not recognised.".format(boostrap_method)
+                raise NotImplementedError(msg)
             # smpl[subset] = smpl[subset].pyrocomp.renormalise()
 
         if categories is not None:
