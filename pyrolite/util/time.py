@@ -139,7 +139,7 @@ def timescale_reference_frame(
     _df["Name"] = condensed.apply(age_name)
     _df["Ident"] = condensed.apply("-".join)
     _df["MeanAge"] = _df.apply(lambda x: (x.Start + x.End) / 2, axis=1)
-    _df["Unc"] = _df.apply(lambda x: (x.Start - x.End) / 2, axis=1)
+    _df["Unc"] = _df.apply(lambda x: np.abs((x.Start - x.End)) / 2, axis=1)
 
     # Aliases
     _df.Aliases = _df.Aliases.apply(lambda x: [] if pd.isnull(x) else x.split(";"))
