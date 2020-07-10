@@ -37,9 +37,9 @@ ax.legend(bbox_to_anchor=(1, 1))
 # .. seealso::
 #
 #   Examples:
-#     `Log Ratio Means <../examples/logratiomeans.html>`__,
-#     `Log Transforms <../examples/logtransforms.html>`__,
-#     `Compositional Data <../examples/compositional_data.html>`__,
+#     `Log Ratio Means <../examples/comp/logratiomeans.html>`__,
+#     `Log Transforms <../examples/comp/logtransforms.html>`__,
+#     `Compositional Data <../examples/comp/compositional_data.html>`__,
 #     `Ternary Plots <../examples/plotting/ternary.html>`__
 #
 #   Tutorials:
