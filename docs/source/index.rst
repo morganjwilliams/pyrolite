@@ -82,7 +82,7 @@ make use of your geochemical data to build and test geological models.
    :caption: Reference
 
    api/API
-   data/data
+   data/index
    ext/extensions
 
 .. note:: This documentation is a work in progress and is updated regularly. Contact
