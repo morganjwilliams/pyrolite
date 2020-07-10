@@ -229,7 +229,7 @@ class Timescale(object):
         except ValueError:
             return self.locate[entry.lower().strip()]
 
-    def named_age(self, age, level="Specific"):
+    def named_age(self, age, level="Specific", **kwargs):
         """
         Converts a numeric age (in Ma) to named age at a specific level.
 
@@ -251,10 +251,15 @@ class Timescale(object):
         relevant = self.data.loc[self.data.apply(wthn_rng, axis=1).values, :]
         if level == "Specific":  # take the rightmost grouping
             relevant = relevant.loc[:, self.levels]
-            idx_rel_row = (~pd.isnull(relevant)).count(axis=1).idxmax()
+            counts = (~pd.isnull(relevant)).count(axis=1)
+            if sum(counts == counts.max()) > 1:
+                idx_rel_row = counts.index[
+                    max([ix for (ix, r) in enumerate(counts) if r == counts[0]])
+                ]
+            else:
+                idx_rel_row = counts.idxmax()
             rel_row = relevant.loc[idx_rel_row, :]
-            spec = rel_row[~pd.isnull(rel_row)].values[-1]
-            return spec
+            return age_name(rel_row[~pd.isnull(rel_row)], **kwargs)
         else:
-            relevant = relevant.loc[:, level]
-            return relevant.unique()[~pd.isnull(relevant.unique())][0]
+            unique_values = relevant.loc[:, level].unique()
+            return unique_values[~pd.isnull(unique_values)][0]
