@@ -42,7 +42,7 @@ pyrolite\.geochem
 
 
 pyrolite\.comp
----------------------
+-----------------
 
   .. automodule:: pyrolite.comp
 
@@ -56,7 +56,7 @@ pyrolite\.comp
     comp/impute
 
 pyrolite\.mineral
----------------------
+-------------------
 
   .. automodule:: pyrolite.mineral
 
@@ -66,7 +66,7 @@ pyrolite\.mineral
      mineral
 
 pyrolite\.util
--------------------------------
+----------------
 
   .. automodule:: pyrolite.util
 

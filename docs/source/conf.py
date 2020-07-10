@@ -235,8 +235,12 @@ intersphinx_mapping = {
 from sphinx_gallery.sorting import ExplicitOrder
 
 sphinx_gallery_conf = {
-    "examples_dirs": ["gallery/examples/", "gallery/tutorials/",],  # path to sources
-    "gallery_dirs": ["examples", "tutorials",],  # output paths
+    "examples_dirs": [
+        "gallery/examples/",
+        "gallery/tutorials/",
+        "gallery/data/",
+    ],  # path to sources
+    "gallery_dirs": ["examples", "tutorials", "data"],  # output paths
     "subsection_order": ExplicitOrder(
         [
             "gallery/examples/plotting",
@@ -244,6 +248,7 @@ sphinx_gallery_conf = {
             "gallery/examples/comp",
             "gallery/examples/util",
             "gallery/tutorials/",
+            "gallery/data",
         ]
     ),
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
@@ -318,7 +323,7 @@ rst_prolog = """
     <a style="border-width:0" href="https://doi.org/10.21105/joss.02314">
     <img src="https://joss.theoj.org/papers/10.21105/joss.02314/status.svg" alt="DOI" >
     </a>
-    
+
     <a href="https://zenodo.org/badge/latestdoi/137172322">
     <img src="https://zenodo.org/badge/137172322.svg" alt="Archive">
     </a>

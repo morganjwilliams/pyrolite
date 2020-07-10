@@ -205,7 +205,7 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     columns = list(columns)
 
     df.loc[:, columns].pyroplot.scatter(
-        ax=a, color="k", marker=".", label=df.name, no_ticks=True
+        ax=a, color="k", marker=".", label=df.attrs["name"], no_ticks=True
     )
 
     df.mean().loc[columns].pyroplot.scatter(
@@ -229,3 +229,18 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
         no_ticks=True,
     )
     a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
+########################################################################################
+# .. seealso::
+#
+#   Examples:
+#     `Log Transforms <logtransforms.html>`__,
+#     `Logratio Means <logratiomeans.html>`__,
+#     `Ternary Plots <../plotting/ternary.html>`__
+#
+#   Tutorials:
+#     `Ternary Density Plots <../../tutorials/ternary_density.html>`__,
+#     `Making the Logo <../../tutorials/logo.html>`__
+#
+#   Modules and Functions:
+#     :mod:`pyrolite.comp.codata`,
+#     :func:`~pyrolite.comp.pyrocomp.renormalise`

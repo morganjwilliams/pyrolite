@@ -88,7 +88,7 @@ np.allclose(
 #   Examples:
 #     `Log Ratio Means <logratiomeans.html>`__,
 #     `Compositional Data <compositional_data.html>`__,
-#     `Ternary Plots <../ternary.html>`__
+#     `Ternary Plots <../plotting/ternary.html>`__
 #
 #   Tutorials:
 #     `Ternary Density Plots <../../tutorials/ternary_density.html>`__,
