@@ -10,6 +10,7 @@ to get radii for individual elements, using a :code:`source` keyword argument to
 between the datasets:
 """
 import pandas as pd
+import matplotlib.pyplot as plt
 from pyrolite.geochem.ind import get_ionic_radii, REE
 
 REE_radii = pd.Series(
@@ -18,6 +19,7 @@ REE_radii = pd.Series(
 REE_radii
 ########################################################################################
 REE_radii.pyroplot.spider(color="k", logy=False)
+plt.show()
 ########################################################################################
 # References
 # ----------

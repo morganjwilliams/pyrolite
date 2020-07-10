@@ -24,7 +24,7 @@ for loader in [load_boxite, load_coxite, load_hongite, load_kongite]:
     df = loader()
     ax = df[["A", "B", "C"]].pyroplot.scatter(ax=ax, label=df.attrs["name"])
 
-ax.legend()
+ax.legend();
 ########################################################################################
 # References
 # ~~~~~~~~~~~
