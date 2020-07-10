@@ -33,7 +33,7 @@ def all_reference_compositions(path=None):
         path = __dbfile__
     with TinyDB(str(path)) as db:
         refs = {}
-        for r in db.all(): # there should be only one "_default" table
+        for r in db.all():  # there should be only one "_default" table
             n, c = r["name"], r["composition"]
             refs[n] = Composition(json.loads(c), name=n)
         db.close()
@@ -176,14 +176,39 @@ class Composition(object):
     def _process_imported_frame(self):
         assert self._df is not None
         metadata = self._df.loc[
-            "value", ["ModelName", "Reference", "Reservoir", "ModelType"]
-        ].replace(np.nan, None)
-
+            "value",
+            [
+                "ModelName",
+                "Reservoir",
+                "ModelType",
+                "Reference",
+                "Citation",
+                "DOI",
+                "Description",
+            ],
+        ]
+        metadata[pd.isnull(metadata)] = None
         for src, dest in zip(
-            ["ModelName", "Reference", "Reservoir", "ModelType"],
-            ["name", "reference", "reservoir", "source"],
+            [
+                "ModelName",
+                "Reservoir",
+                "ModelType",
+                "Reference",
+                "Citation",
+                "DOI",
+                "Description",
+            ],
+            [
+                "name",
+                "reservoir",
+                "source",
+                "reference",
+                "citation",
+                "doi",
+                "description",
+            ],
         ):
-            setattr(self, dest, metadata[src])
+            setattr(self, dest, metadata.get(src, None))
 
         self.comp = self._df.loc[
             ["value"], self._df.pyrochem.list_compositional
@@ -236,7 +261,8 @@ class Composition(object):
         if self.reservoir is not None:
             s += "Model of " + self.reservoir + " "
         if self.reference is not None:
-            s += "(" + self.reference + ")"
+            s += "from " + self.reference
+        s += "."
         return s
 
     def __repr__(self):
@@ -244,7 +270,7 @@ class Composition(object):
         r = self.__class__.__name__ + "("
         if self.filename is not None:
             r += "'{}'".format(Path(self.filename).name)
-        for par in ["name", "reference", "reservoir", "source"]:
+        for par in ["name", "reference", "reservoir"]:
             if getattr(self, par) is not None:
                 r += (
                     ",\n"
