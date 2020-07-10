@@ -22,7 +22,6 @@ font.size          : 12.0
 # Legend ############################################
 legend.frameon        : False
 legend.facecolor      : None
-legend.bbox_to_anchor : (1,1)
 legend.loc            : upper left
 legend.fontsize       : 12.0
 

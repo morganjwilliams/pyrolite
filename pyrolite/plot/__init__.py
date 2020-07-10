@@ -4,6 +4,7 @@ Submodule with various plotting and visualisation functions.
 import logging
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import mpltern
 
@@ -35,6 +36,29 @@ __all__ = ["density", "spider", "pyroplot"]
 
 
 plt.style.use(str((pyrolite_datafolder("_config") / "pyrolite.mplstyle").absolute()))
+
+
+def _restyle(f, **style):
+    """
+    A decorator to set the default keyword arguments for :mod:`matplotlib`
+    functions and classes which are not contained in the `matplotlibrc` file.
+    """
+
+    def wrapped(*args, **kwargs):
+        style.update(kwargs)
+        return f(*args, **style)
+
+    wrapped.__name__ = f.__name__
+    wrapped.__doc__ = f.__doc__
+    return wrapped
+
+
+matplotlib.axes.Axes.legend = _restyle(
+    matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
+)
+matplotlib.figure.Figure.legend = _restyle(
+    matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
+)
 
 
 def _check_components(obj, components=None, valid_sizes=[2, 3]):
