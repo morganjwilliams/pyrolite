@@ -14,6 +14,7 @@ documentation pages for more in-depth guides, examples and API documentation.
 # First let's pull in a simple dataset to use throughout these examples:
 #
 from pyrolite.util.synthetic import test_df
+
 # sphinx_gallery_thumbnail_number = 7
 
 df = test_df(cols=["SiO2", "CaO", "MgO", "Al2O3", "TiO2", "27Al", "d11B"])
@@ -76,7 +77,7 @@ df[["27Al", "d11B"]].pyroplot.scatter(ax=ax[1])
 ax[1].set_xlabel("$^{27}$Al")
 ax[1].set_ylabel("$\delta^{11}$B")
 
-plt.tight_layout() # rearrange the plots to fit nicely together
+plt.tight_layout()  # rearrange the plots to fit nicely together
 plt.show()
 #######################################################################################
 # Sharing Axes
@@ -101,9 +102,9 @@ import matplotlib.pyplot as plt
 from pyrolite.util.plot.axes import share_axes
 
 fig, ax = plt.subplots(2, 2)
-ax = ax.flat # turn the (2,2) array of axes into one flat axes with shape (4,)
-share_axes([ax[0], ax[2]], which="x") # share x-axes for 0, 2
-share_axes(ax[0:3], which="y") # share y-axes for 0, 1, 2
+ax = ax.flat  # turn the (2,2) array of axes into one flat axes with shape (4,)
+share_axes([ax[0], ax[2]], which="x")  # share x-axes for 0, 2
+share_axes(ax[0:3], which="y")  # share y-axes for 0, 1, 2
 
 ax[0].set_xlim((0, 10))
 ax[1].set_ylim((-5, 5))
@@ -127,13 +128,13 @@ ax.legend()
 plt.show()
 #######################################################################################
 # On many of the :mod:`pyrolite` examples, you'll find legends formatted along the
-# lines of the following to clean them up a little:
+# lines of the following to clean them up a little (these are the default styles):
 #
 ax.legend(
     facecolor=None,  # have a transparent legend background
     frameon=False,  # remove the legend frame
     bbox_to_anchor=(1, 1),  # anchor legend's corner to the axes' top-right
-    loc='upper left' # use the upper left corner for the anchor
+    loc="upper left",  # use the upper left corner for the anchor
 )
 plt.show()
 #######################################################################################
@@ -208,11 +209,6 @@ import matplotlib.pyplot as plt
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_ternary_lim(
-    0.1, # tmin
-    0.5, # tmax
-    0.2, # lmin
-    0.6, # lmax
-    0.3, # rmin
-    0.7  # rmax
+    0.1, 0.5, 0.2, 0.6, 0.3, 0.7  # tmin  # tmax  # lmin  # lmax  # rmin  # rmax
 )
 plt.show()

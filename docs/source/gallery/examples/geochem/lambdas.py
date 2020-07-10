@@ -72,7 +72,7 @@ ax = df.iloc[-1, :].apply(np.log).pyroplot.REE(color="k", label="Data", logy=Fal
 
 plot_lambdas_components(ls.iloc[-1, :], ax=ax)
 
-ax.legend(frameon=False, facecolor=None, bbox_to_anchor=(1, 1))
+ax.legend()
 plt.show()
 ########################################################################################
 # Note that we've not used Eu in this regression - Eu anomalies are a deviation from

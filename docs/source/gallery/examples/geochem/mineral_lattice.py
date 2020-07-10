@@ -131,7 +131,7 @@ radii, ds = (
 ax.plot(
     radii, ds, ls="--", color="0.9", marker="D", label="Effective $D_{Eu}$", zorder=-1
 )
-ax.legend(loc="upper left", bbox_to_anchor=(1.05, 1), frameon=False, facecolor=None)
+ax.legend(bbox_to_anchor=(1.05, 1))
 fig
 ########################################################################################
 # .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
