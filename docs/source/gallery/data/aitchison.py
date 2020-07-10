@@ -29,9 +29,10 @@ ax.legend(bbox_to_anchor=(1, 1))
 # References
 # ~~~~~~~~~~~
 #
-# .. [Aitchison1984] Box, G.E.P. (1976). Science and Statistics.
-#     Journal of the American Statistical Association 71, 791–799.
-#     `doi: 10.1080/01621459.1976.10480949 <https://doi.org/10.1080/01621459.1976.10480949>`__
+# .. [Aitchison1984] Aitchison, J., 1984.
+#    The statistical analysis of geochemical compositions.
+#    Journal of the International Association for Mathematical Geology 16, 531–564.
+#    `doi: 10.1007/BF01029316 <https://doi.org/10.1007/BF01029316>`__
 #
 # .. seealso::
 #
