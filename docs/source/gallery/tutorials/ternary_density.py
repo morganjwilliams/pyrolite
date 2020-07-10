@@ -26,7 +26,7 @@ df = df.loc[(df > 0.1).all(axis=1), :]
 # :func:`~pyrolite.plot.density.ternary.ternary_heatmap`, which is the basis
 # for ternary density diagrams via :func:`~pyrolite.plot.pyrochem.density`:
 #
-from pyrolite.comp.codata import ilr, inverse_ilr
+from pyrolite.comp.codata import ILR, inverse_ILR
 from pyrolite.plot.density.ternary import ternary_heatmap
 
 coords, H, data = ternary_heatmap(
@@ -34,8 +34,8 @@ coords, H, data = ternary_heatmap(
     bins=10,
     mode="density",
     remove_background=True,
-    transform=ilr,
-    inverse_transform=inverse_ilr,
+    transform=ILR,
+    inverse_transform=inverse_ILR,
     grid_border_frac=0.2,
 )
 #######################################################################################
@@ -95,8 +95,8 @@ coords, H, data = ternary_heatmap(
     bins=10,
     mode="histogram",
     remove_background=True,
-    transform=ilr,
-    inverse_transform=inverse_ilr,
+    transform=ILR,
+    inverse_transform=inverse_ILR,
     grid_border_frac=0.2,
 )
 #######################################################################################
