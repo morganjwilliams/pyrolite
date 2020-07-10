@@ -19,7 +19,7 @@ from ..util.plot.style import linekwargs, scatterkwargs
 from ..util.plot.helpers import plot_cooccurence
 
 from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs
+from ..util.meta import get_additional_params, subkwargs, pyrolite_datafolder
 from .. import geochem
 from . import density
 from . import spider
@@ -34,8 +34,7 @@ from ..util.distributions import sample_kde, get_scaler
 __all__ = ["density", "spider", "pyroplot"]
 
 
-# todo: global style variables
-FONTSIZE = 12
+plt.style.use(str((pyrolite_datafolder("_config") / "pyrolite.mplstyle").absolute()))
 
 
 def _check_components(obj, components=None, valid_sizes=[2, 3]):
@@ -119,12 +118,7 @@ class pyroplot(object):
         return ax
 
     def density(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
@@ -140,9 +134,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
-
         Other Parameters
         ------------------
         {otherparams}
@@ -160,7 +151,7 @@ class pyroplot(object):
             obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
         )
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
         return ax
 
@@ -171,7 +162,6 @@ class pyroplot(object):
         axlabels=True,
         logx=False,
         logy=False,
-        fontsize=FONTSIZE,
         **kwargs,
     ):
         r"""
@@ -190,8 +180,6 @@ class pyroplot(object):
             Whether to log-transform x values before the KDE for bivariate plots.
         logy : :class:`bool`, `False`
             Whether to log-transform y values before the KDE for bivariate plots.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
 
         {otherparams}
 
@@ -205,7 +193,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
         data, samples = (
             obj.reindex(columns=components).values,
-            obj.reindex(columns=components).values
+            obj.reindex(columns=components).values,
         )
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
@@ -216,10 +204,7 @@ class pyroplot(object):
         )
         kwargs.update({"c": zi})
         ax = obj.reindex(columns=components).pyroplot.scatter(
-            ax=ax,
-            axlabels=axlabels,
-            fontsize=fontsize,
-            **scatterkwargs(process_color(**kwargs))
+            ax=ax, axlabels=axlabels, **scatterkwargs(process_color(**kwargs)),
         )
         return ax
 
@@ -265,12 +250,7 @@ class pyroplot(object):
         return ax
 
     def plot(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for line plots using the pyroplot API. See
@@ -284,8 +264,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -302,9 +280,9 @@ class pyroplot(object):
         lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
-        ax.tick_params("both", labelsize=fontsize * 0.9)
+        ax.tick_params("both")
         # ax.grid()
         # ax.set_aspect("equal")
         return ax
@@ -346,12 +324,7 @@ class pyroplot(object):
         return ax
 
     def scatter(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
@@ -365,8 +338,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -382,13 +353,13 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         sc = ax.scatter(
             *obj.reindex(columns=components).values.T,
-            **scatterkwargs(process_color(**kwargs))
+            **scatterkwargs(process_color(**kwargs)),
         )
 
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
-        ax.tick_params("both", labelsize=fontsize * 0.9)
+        ax.tick_params("both")
         # ax.grid()
         # ax.set_aspect("equal")
         return ax
@@ -400,7 +371,6 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
-        fontsize=FONTSIZE,
         **kwargs,
     ):
         r"""
@@ -421,8 +391,6 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -469,7 +437,6 @@ class pyroplot(object):
         ax=None,
         orientation="horizontal",
         axlabels=True,
-        fontsize=FONTSIZE,
         **kwargs,
     ):
         r"""
@@ -487,8 +454,6 @@ class pyroplot(object):
             Orientation of the plot (horizontal or vertical).
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -509,7 +474,7 @@ class pyroplot(object):
         if axlabels:
             if "h" not in orientation.lower():
                 components = components[::-1]
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
         return ax
 

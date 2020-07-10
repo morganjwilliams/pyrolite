@@ -1,0 +1,37 @@
+#####################################################
+# pyrolite matplotlib style sheet
+#
+# For more parameters see the template on GitHub
+# (matplotlibrc.template)
+#####################################################
+
+# Figure ############################################
+figure.titlesize   : 24
+
+# Axes ##############################################
+axes.titlesize     : 20
+axes.labelsize     : 14
+
+# Ticks #############################################
+xtick.labelsize    : 10
+ytick.labelsize    : 10
+
+# Font ##############################################
+font.size          : 12.0
+
+# Legend ############################################
+legend.frameon        : False
+legend.facecolor      : None
+legend.bbox_to_anchor : (1,1)
+legend.loc            : upper left
+legend.fontsize       : 12.0
+
+# Scatter ###########################################
+scatter.marker     : D # scatter s determined by lines.markersize **2
+
+# Lines #############################################
+lines.linewidth    : 1
+lines.markersize   : 4
+
+# Images ############################################
+image.cmap         : viridis
