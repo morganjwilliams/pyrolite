@@ -1,2 +1,0 @@
-Geological Timescale
---------------------------
