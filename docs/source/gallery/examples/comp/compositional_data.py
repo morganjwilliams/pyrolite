@@ -205,7 +205,7 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
     columns = list(columns)
 
     df.loc[:, columns].pyroplot.scatter(
-        ax=a, color="k", marker=".", label=df.name, no_ticks=True
+        ax=a, color="k", marker=".", label=df.attrs["name"], no_ticks=True
     )
 
     df.mean().loc[columns].pyroplot.scatter(

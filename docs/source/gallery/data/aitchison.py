@@ -3,12 +3,28 @@ Aitchison Examples
 ==================
 
 :mod:`pyrolite` includes four synthetic datasets which are used in [Aitchison1984]_
-with each of the respective functions :func:`~pyrolite.data.Aitchison.load_boxite`,
+which can be accessed using each of the respective functions
+:func:`~pyrolite.data.Aitchison.load_boxite`,
 :func:`~pyrolite.data.Aitchison.load_coxite`,
 :func:`~pyrolite.data.Aitchison.load_hongite` and
-:func:`~pyrolite.data.Aitchison.load_Kongite`.
+:func:`~pyrolite.data.Aitchison.load_kongite`
+(all returning a :class:`~pandas.DataFrame`).
 
 """
+from pyrolite.data.Aitchison import load_boxite, load_coxite, load_hongite, load_kongite
+
+df = load_boxite()
+df.head()
+########################################################################################
+import matplotlib.pyplot as plt
+import pyrolite.plot
+
+fig, ax = plt.subplots(1)
+for loader in [load_boxite, load_coxite, load_hongite, load_kongite]:
+    df = loader()
+    ax = df[["A", "B", "C"]].pyroplot.scatter(ax=ax, label=df.attrs["name"])
+
+ax.legend(bbox_to_anchor=(1, 1))
 ########################################################################################
 # References
 # ~~~~~~~~~~~
