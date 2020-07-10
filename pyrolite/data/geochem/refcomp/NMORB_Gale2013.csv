@@ -3,7 +3,7 @@ ModelName,NMORB_Gale2013,,
 Reservoir,NMORB,,
 ModelType,Average,,
 Reference,Gale et al. (2013),,
-Citation,"Gale, A., Dalton, C.A., Langmuir, C.H., Su, Y., Schilling, J. (2013). The mean composition of ocean ridge basalts. Geochemistry, Geophysics, Geosystems 14, 489–518.",,
+Citation,"Gale, A., Dalton, C.A., Langmuir, C.H., Su, Y., Schilling, J. (2013). The mean composition of ocean ridge basalts. Geochemistry, Geophysics, Geosystems 14, 489-518.",,
 DOI,10.1029/2012GC004334,,
 Description,,,
 SiO2,50.42,%,0.08
