@@ -66,3 +66,19 @@ plt.show()
 ILRmean = trend.pyrocomp.logratiomean(transform='ILR')
 ax = ILRmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
 plt.show()
+
+########################################################################################
+# .. seealso::
+#
+#   Examples:
+#     `Log Transforms <logtransforms.html>`__,
+#     `Compositional Data <compositional_data.html>`__,
+#     `Ternary Plots <../plotting/ternary.html>`__
+#
+#   Tutorials:
+#     `Ternary Density Plots <../../tutorials/ternary_density.html>`__,
+#     `Making the Logo <../../tutorials/logo.html>`__
+#
+#   Modules and Functions:
+#     :mod:`pyrolite.comp.codata`,
+#     :func:`~pyrolite.comp.pyrocomp.renormalise`
