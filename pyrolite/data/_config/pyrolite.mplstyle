@@ -9,7 +9,7 @@
 figure.titlesize   : 24
 
 # Axes ##############################################
-axes.titlesize     : 20
+axes.titlesize     : 16
 axes.labelsize     : 14
 
 # Ticks #############################################

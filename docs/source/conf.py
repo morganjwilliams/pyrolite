@@ -35,6 +35,7 @@ import recommonmark
 from recommonmark.transform import AutoStructify
 import pyrolite
 
+
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
 release = version
 """
@@ -234,6 +235,13 @@ intersphinx_mapping = {
 # sphinx_gallery config
 from sphinx_gallery.sorting import ExplicitOrder
 
+
+def reset_mpl(gallery_conf, fname):
+    import matplotlib.style
+    # this should already be exported, so can be used
+    matplotlib.style.use("pyrolite")
+
+
 sphinx_gallery_conf = {
     "examples_dirs": [
         "gallery/examples/",
@@ -272,6 +280,7 @@ sphinx_gallery_conf = {
         "notebooks_dir": "docs/source/",
     },
     "first_notebook_cell": "%matplotlib inline\n",
+    "reset_modules": (reset_mpl),
 }
 # Remove matplotlib agg warnings from generated doc when using plt.show
 warnings.filterwarnings(

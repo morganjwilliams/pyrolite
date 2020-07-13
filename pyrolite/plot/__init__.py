@@ -4,8 +4,10 @@ Submodule with various plotting and visualisation functions.
 import logging
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.style
 import mpltern
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -18,7 +20,7 @@ warnings.filterwarnings("ignore", "Unknown section")
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.style import linekwargs, scatterkwargs
 from ..util.plot.helpers import plot_cooccurence
-
+from ..util.general import copy_file
 from ..util.pd import to_frame
 from ..util.meta import get_additional_params, subkwargs, pyrolite_datafolder
 from .. import geochem
@@ -34,31 +36,33 @@ from ..util.distributions import sample_kde, get_scaler
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]
 
+matplotlib.style.use("pyrolite")  # use the
 
-plt.style.use(str((pyrolite_datafolder("_config") / "pyrolite.mplstyle").absolute()))
+
+def _export_pyrolite_mplstyle():
+    dest = Path(matplotlib.get_configdir()) / "stylelib"
+
+    if not (dest / "pyrolite.mplstyle").exists():
+        if not dest.exists():
+            dest.mkdir(parents=True)
+        copy_file(
+            pyrolite_datafolder("_config") / "pyrolite.mplstyle",
+            dest / "pyrolite.mplstyle",
+        )
 
 
-def _restyle(f, **style):
+def _restyle(f, **_style):
     """
     A decorator to set the default keyword arguments for :mod:`matplotlib`
     functions and classes which are not contained in the `matplotlibrc` file.
     """
 
     def wrapped(*args, **kwargs):
-        style.update(kwargs)
-        return f(*args, **style)
+        return f(*args, **{**_style, **kwargs})
 
     wrapped.__name__ = f.__name__
     wrapped.__doc__ = f.__doc__
     return wrapped
-
-
-matplotlib.axes.Axes.legend = _restyle(
-    matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
-)
-matplotlib.figure.Figure.legend = _restyle(
-    matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
-)
 
 
 def _check_components(obj, components=None, valid_sizes=[2, 3]):
@@ -107,6 +111,14 @@ class pyroplot(object):
         """
         self._validate(obj)
         self._obj = obj
+
+        # refresh custom styling on creation?
+        matplotlib.axes.Axes.legend = _restyle(
+            matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
+        )
+        matplotlib.figure.Figure.legend = _restyle(
+            matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
+        )
 
     @staticmethod
     def _validate(obj):
