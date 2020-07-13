@@ -48,11 +48,7 @@ def _export_pyrolite_mplstyle():
             dest / "pyrolite.mplstyle",
         )
 
-        matplotlib.style.reload_library() # needed to load in pyrolite style NOW
-
-
-_export_pyrolite_mplstyle()
-matplotlib.style.use("pyrolite")
+        matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 
 def _restyle(f, **_style):
@@ -67,6 +63,23 @@ def _restyle(f, **_style):
     wrapped.__name__ = f.__name__
     wrapped.__doc__ = f.__doc__
     return wrapped
+
+
+def _export_nonRCstyles():
+    """
+    Export default options for parameters not in rcParams using :func:`_restyle`.
+    """
+    matplotlib.axes.Axes.legend = _restyle(
+        matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
+    )
+    matplotlib.figure.Figure.legend = _restyle(
+        matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
+    )
+
+
+_export_pyrolite_mplstyle()
+_export_nonRCstyles()
+matplotlib.style.use("pyrolite")
 
 
 def _check_components(obj, components=None, valid_sizes=[2, 3]):
@@ -117,12 +130,7 @@ class pyroplot(object):
         self._obj = obj
 
         # refresh custom styling on creation?
-        matplotlib.axes.Axes.legend = _restyle(
-            matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
-        )
-        matplotlib.figure.Figure.legend = _restyle(
-            matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
-        )
+        _export_nonRCstyles()
 
     @staticmethod
     def _validate(obj):
