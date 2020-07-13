@@ -128,9 +128,7 @@ radii, ds = (
     [get_ionic_radii("Eu", charge=c, coordination=8) for c in [3, 3, 2, 2]],
     [D_Eu3, D_Eu, D_Eu, D_Eu2],
 )
-ax.plot(
-    radii, ds, ls="--", color="0.9", marker="D", label="Effective $D_{Eu}$", zorder=-1
-)
+ax.plot(radii, ds, ls="--", color="0.9", label="Effective $D_{Eu}$", zorder=-1)
 ax.legend(bbox_to_anchor=(1.05, 1))
 fig
 ########################################################################################

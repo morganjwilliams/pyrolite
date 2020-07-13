@@ -228,7 +228,7 @@ for columns, a in zip(itertools.combinations(["A", "B", "C", "D"], 3), ax):
         axlabels=True,
         no_ticks=True,
     )
-    a.legend(frameon=False, facecolor=None, loc=(0.8, 0.5))
+    a.legend(loc=(0.8, 0.5))
 ########################################################################################
 # .. seealso::
 #

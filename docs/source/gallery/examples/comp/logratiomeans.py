@@ -35,6 +35,8 @@ def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
     )
     # combine together.
     return inverse_ILR(samples)
+
+
 ########################################################################################
 # First we create an array of compositions which represent a trend.
 #
@@ -63,8 +65,8 @@ plt.show()
 # Finally, we can also see where the logratio mean would fall:
 #
 
-ILRmean = trend.pyrocomp.logratiomean(transform='ILR')
-ax = ILRmean.pyroplot.scatter(ax=ax, marker="D", color="k", label="LogMean")
+ILRmean = trend.pyrocomp.logratiomean(transform="ILR")
+ax = ILRmean.pyroplot.scatter(ax=ax, color="k", label="LogMean")
 plt.show()
 
 ########################################################################################

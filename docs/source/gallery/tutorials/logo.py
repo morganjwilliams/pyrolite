@@ -88,7 +88,7 @@ _ = [[x.set_ticks([]) for x in [a.taxis, a.laxis, a.raxis]] for a in ax]
 #######################################################################################
 # First, let's look at the synthetic data itself in the ternary space:
 #
-kwargs = dict(marker="D", alpha=0.2, s=3, no_ticks=True, axlabels=False)
+kwargs = dict(alpha=0.2, s=3, no_ticks=True, axlabels=False)
 for ix, sample in enumerate(df.Sample.unique()):
     comp = df.query("Sample == {}".format(sample))
     comp.loc[:, chem].pyroplot.scatter(ax=ax[0], c=t10b3[ix], **kwargs)
