@@ -48,6 +48,8 @@ def _export_pyrolite_mplstyle():
             dest / "pyrolite.mplstyle",
         )
 
+        matplotlib.style.reload_library() # needed to load in pyrolite style NOW
+
 
 _export_pyrolite_mplstyle()
 matplotlib.style.use("pyrolite")
