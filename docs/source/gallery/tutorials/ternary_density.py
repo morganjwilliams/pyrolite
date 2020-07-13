@@ -120,7 +120,7 @@ ax[2].scatter(*flattengrid(data["tfm_edges"]).T, c="k", marker=".", s=2)
 ax[2].scatter(*data["tfm_tern_bound_points"].T, c="k")
 
 ax[3].set_title("log-grid heatmap", y=1.2)
-ax[3].pcolormesh(*data["tfm_centres"], H)
+ax[3].pcolormesh(*data["tfm_edges"], H)
 ax[3].scatter(*data["grid_transform"](df.values).T, c="white", alpha=0.8, s=1)
 
 ax[4].set_title("ternary log-grid", y=1.2)
