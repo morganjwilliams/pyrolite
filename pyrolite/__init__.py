@@ -43,5 +43,5 @@ def load_extensions(base="pyrolite_", replace=["util"]):
         setattr(extensions, n, m)
 
 
-_export_pyrolite_mplstyle()
+# _export_pyrolite_mplstyle() should be called in plot
 matplotlib.style.use("pyrolite")

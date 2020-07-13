@@ -36,8 +36,6 @@ from ..util.distributions import sample_kde, get_scaler
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]
 
-matplotlib.style.use("pyrolite")  # use the
-
 
 def _export_pyrolite_mplstyle():
     dest = Path(matplotlib.get_configdir()) / "stylelib"
@@ -49,6 +47,10 @@ def _export_pyrolite_mplstyle():
             pyrolite_datafolder("_config") / "pyrolite.mplstyle",
             dest / "pyrolite.mplstyle",
         )
+
+
+_export_pyrolite_mplstyle()
+matplotlib.style.use("pyrolite")
 
 
 def _restyle(f, **_style):
