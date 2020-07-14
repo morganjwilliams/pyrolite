@@ -47,10 +47,12 @@ Todo
   :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE` and
   :func:`~pyrolite.util.lambdas.calc_lambdas` to determine the basis over which the
   individual orthogonal polynomials are defined (i.e. which REE are included to define
-  the orthonormality of these functions). You can either pass a list of tuples defining
-  the polynomials, or (newly added) you can pass the strings :code:`"ONeill2016"` to
-  explicitly specify the original parameterisation or :code:`"full"` to use all REE
-  (including Eu) to define the orthonormality of the component functions.
+  the orthonormality of these functions). For the keyword argument :code:`params`,
+  (as before) you can pass a list of tuples defining the constants representing the
+  polynomials, but you can now alternatively pass the string :code:`"ONeill2016"` to
+  explicitly specify the original parameterisation, or :code:`"full"` to use all REE
+  (including Eu) to define the orthonormality of the component functions (i.e. using
+  :code:`params="full"`).
   To determine which elements are used to perform the *fit*, you can either filter the
   columns passed to these functions or specifically exclude columns using the `exclude`
   keyword argument (e.g. the default remains :code:`exclude=["Eu"]` which excludes Eu
