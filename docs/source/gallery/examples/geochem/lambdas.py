@@ -106,6 +106,80 @@ plt.tight_layout()
 # distrtibuted, so the values themeselves here are not particularly revealing,
 # but they do illustrate the expected mangitudes of values for each of the parameters.
 #
+# More Advanced Customisation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Above we've used default parameterisations for calculating `lambdas`, but
+# :mod:`pyrolite` allows you to customise the parameterisation of both the orthogonal
+# polynomial components used in the fitting process as well as what data and algorithm
+# is used in the fit itself.
+#
+# To exclude some elements from the *fit* (e.g. Eu which is excluded by default, and
+# and potentially Ce), you can either i) filter the dataframe such that the columns
+# aren't passed, or ii) explicitly exclude them:
+#
+
+# filtering the dataframe first
+target_columns = [i for i in df.columns if i not in ["Eu", "Ce"]]
+ls_noEuCe_filtered = df[target_columns].pyrochem.lambda_lnREE(norm_to=None)
+# excluding some elements
+ls_noEuCe_excl = df.pyrochem.lambda_lnREE(norm_to=None, exclude=["Eu", "Ce"])
+
+# quickly checking equivalence
+np.allclose(ls_noEuCe_excl, ls_noEuCe_filtered)
+########################################################################################
+# While the results should be numerically equivalent, :mod:`pyrolite` does provide
+# two algorithms for fitting lambdas. The first follows almost exactly the original
+# formulation (:code:`algorithm="ONeill"`; this was translated from VBA), while the
+# second simply uses a numerical optimization routine from :mod:`scipy` to achieve the
+# same thing (:code:`algorithm="opt"`; this is a fallback for where singular matricies
+# pop up):
+#
+
+# use the original version
+ls_linear = df.pyrochem.lambda_lnREE(norm_to=None, algorithm="ONeill")
+
+# use the optimization algorithm
+ls_opt = df.pyrochem.lambda_lnREE(norm_to=None, algorithm="opt")
+########################################################################################
+# To quickly demonstrate the equivalance, we can check numerically (to within
+# 0.001%):
+#
+np.allclose(ls_linear, ls_opt, rtol=10e-5)
+########################################################################################
+# Or simply plot the results from both:
+#
+fig, ax = plt.subplots(1, figsize=(5, 5))
+ls_linear.iloc[:, 1:3].pyroplot.scatter(
+    ax=ax, marker="s", c="k", facecolors="none", s=50
+)
+ls_opt.iloc[:, 1:3].pyroplot.scatter(ax=ax, c="purple", marker="x", s=50)
+plt.show()
+########################################################################################
+# You can also use orthogonal polynomials defined over a different set of REE,
+# by specifying the parameters using the keyword argument `params`:
+#
+
+# this is the original formulation from the paper, where Eu is excluded
+ls_original = df.pyrochem.lambda_lnREE(params="ONeill2016", norm_to=None)
+
+# this uses a full set of REE
+ls_fullREE_polynomials = df.pyrochem.lambda_lnREE(params="full", norm_to=None)
+########################################################################################
+# While the results are simlar, there are small differences. They're typically less
+# than 1%:
+np.abs((ls_original / ls_fullREE_polynomials) - 1).max() * 100
+########################################################################################
+# This can also be visualised:
+#
+fig, ax = plt.subplots(1, figsize=(5, 5))
+ls_original.iloc[:, 1:3].pyroplot.scatter(
+    ax=ax, marker="s", c="k", facecolors="none", s=50
+)
+ls_fullREE_polynomials.iloc[:, 1:3].pyroplot.scatter(
+    ax=ax, c="purple", marker="x", s=50
+)
+plt.show()
+########################################################################################
 # For more on using orthogonal polynomials to describe geochemical pattern data, dig
 # into the paper which introduced the method to geochemists:
 # O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
