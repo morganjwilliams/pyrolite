@@ -56,7 +56,7 @@ class pyrochem(object):
     @property
     def list_isotope_ratios(self):
         """
-        Get the subset of columns which are isotoe ratios.
+        Get the subset of columns which are isotope ratios.
 
         Returns
         --------
