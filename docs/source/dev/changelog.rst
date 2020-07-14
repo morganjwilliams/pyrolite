@@ -53,13 +53,13 @@ Todo
 * **Bugfix**: Fixed a bug where arguments processing by :mod:`pyrolite.plot.color`
   would consume the 'alpha' parameter if no colour was specified (and as such it would
   have no effect on the default colors used by :mod:`~matplotlib.pyplot`)
+* **Bugfix**: :mod:`pyrolite.plot.color` now better handles colour and value arrays.
 * **Bugfix**: Keyword arguments passed to :mod:`pyrolite.plot.density` will now correctly be
   forwarded to respective functions for histogram and hexbin methods.
-* **Bugfix**: :mod:`pyrolite.plot.color` now better handles colour and value arrays.
 * Customised :mod:`matplotlib` styling has been added for :mod:`pyrolite` plotting
   functions, including legends. This is currently relatively minimal, but could be
   expanded slightly in the future.
-* The `bw_method` argument for :func:`scipy.stats.gaussian_kde` can now be parsed
+* The `bw_method` argument for :func:`scipy.stats.kde.gaussian_kde` can now be parsed
   by :mod:`pyrolite` density-plot functions (e.g.
   :meth:`~pyrolite.plot.pyroplot.density`, :meth:`~pyrolite.plot.pyroplot.heatscatter`).
   This means you can modify the default bandwidth of the gaussian kernel density plots.
