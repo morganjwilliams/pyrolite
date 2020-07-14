@@ -104,6 +104,14 @@ class TestPyroComp(unittest.TestCase):
                 out_inv = out.pyrocomp.invert_transform()
                 self.assertTrue(np.allclose(out_inv.values, df.values))
 
+    def test_labelling(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        # test that the label modes can be called
+        for mode in ["numeric", "simple", "latex"]:
+            for m in [df.pyrocomp.ALR, df.pyrocomp.CLR, df.pyrocomp.ILR]:
+                with self.subTest(mode=mode, m=m):
+                    out = m(label_mode=mode)
+
 
 if __name__ == "__main__":
     unittest.main(argv=[""], exit=False)

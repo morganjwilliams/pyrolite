@@ -78,7 +78,7 @@ class pyrocomp(object):
         return codata.renormalise(obj, components=components, scale=scale)
 
     @attribute_transform
-    def ALR(self, components=[], ind=-1, null_col=False):
+    def ALR(self, components=[], ind=-1, null_col=False, label_mode="simple"):
         """
         Additive Log Ratio transformation.
 
@@ -104,7 +104,11 @@ class pyrocomp(object):
         if index_col_no == -1:
             index_col_no += len(components)
         index_col = components[index_col_no]
-        colnames = ["ALR({}/{})".format(c, index_col) for c in components]
+
+        if label_mode == "numeric":
+            colnames = ["ALR_{}".format(ix) for ix in range(self._obj.columns.size)]
+        else:
+            colnames = codata.get_ALR_labels(self._obj, mode=label_mode, ind=index_col_no)
 
         if not null_col:
             colnames = [n for ix, n in enumerate(colnames) if ix != index_col_no]
@@ -150,7 +154,7 @@ class pyrocomp(object):
         return itfm_df
 
     @attribute_transform
-    def CLR(self, label_mode="numeric"):
+    def CLR(self, label_mode="simple"):
         """
         Centred Log Ratio transformation.
 
@@ -167,7 +171,11 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             CLR-transformed array, of shape :code:`(N, D)`.
         """
-        colnames = ["CLR({}/g)".format(c) for c in self._obj.columns]
+        if label_mode == "numeric":
+            colnames = ["CLR_{}".format(ix) for ix in range(self._obj.columns.size)]
+        else:
+            colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
+
         tfm_df = pd.DataFrame(
             codata.CLR(self._obj.values), index=self._obj.index, columns=colnames,
         )
@@ -197,7 +205,7 @@ class pyrocomp(object):
         return itfm_df
 
     @attribute_transform
-    def ILR(self, label_mode="numeric"):
+    def ILR(self, label_mode="simple"):
         """
         Isometric Log Ratio transformation.
 
@@ -217,7 +225,7 @@ class pyrocomp(object):
         if label_mode == "numeric":
             colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
         else:
-            colnames = get_ILR_labels(self._obj, mode=label_mode)
+            colnames = codata.get_ILR_labels(self._obj, mode=label_mode)
 
         tfm_df = pd.DataFrame(
             codata.ILR(self._obj.values), index=self._obj.index, columns=colnames,

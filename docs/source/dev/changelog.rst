@@ -91,9 +91,10 @@ Todo
   :code:`ILR` instead of :code:`ilr`).
 * Added for transform metadata storage within DataFrames for
   :class:`~pyrolite.comp.pyrocomp`, and functions to access transforms by name.
-* Added labelling functions for use with :meth:`pyrolite.comp.pyrocomp.ILR` and
-  :func:`~pyrolite.comp.codata.ILR` to illustrate the precise relationships depicted
-  by the logratio metrics.
+* Added labelling functions for use with :class:`pyrolite.comp.pyrocomp` and
+  :mod:`~pyrolite.comp.codata` to illustrate the precise relationships depicted
+  by the logratio metrics (specified using the `label_mode` parameter supplied to
+  each of the resepective :class:`~pyrolite.comp.pyrocomp` logratio transforms).
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~

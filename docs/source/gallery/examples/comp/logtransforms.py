@@ -71,7 +71,17 @@ np.allclose(
     df.pyrocomp.logratiomean(transform="CLR"),
     df.pyrocomp.logratiomean(transform="ILR"),
 )
-
+########################################################################################
+# To change the default labelling outputs for column names, you can use the
+# `label_mode` parameter, for example to get nice labels for plotting:
+#
+import matplotlib.pyplot as plt
+df.pyrocomp.ILR(label_mode="latex").iloc[:, 0:2].pyroplot.scatter()
+plt.show()
+########################################################################################
+# Alternatively if you simply want nuermic indexes which you can use in e.g. a ML
+# pipeline, you can use :code:`label_mode="numeric"`:
+df.pyrocomp.ILR(label_mode="numeric").columns
 ########################################################################################
 # .. [#ref_1] Aitchison, J., 1984. The statistical analysis of geochemical compositions.
 #       Journal of the International Association for Mathematical Geology 16, 531–564.

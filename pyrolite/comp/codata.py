@@ -194,7 +194,7 @@ def inverse_CLR(Y: np.ndarray):
     return X
 
 
-def ILR(X: np.ndarray):
+def ILR(X: np.ndarray, **kwargs):
     """
     Isometric Log Ratio transformation.
 
@@ -210,12 +210,12 @@ def ILR(X: np.ndarray):
     """
     d = X.shape[1]
     Y = CLR(X)
-    psi = helmert_basis(D=d)  # Get a basis
+    psi = helmert_basis(D=d, **kwargs)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inverse_ILR(Y: np.ndarray, X: np.ndarray = None):
+def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -232,7 +232,7 @@ def inverse_ILR(Y: np.ndarray, X: np.ndarray = None):
     :class:`numpy.ndarray`
         Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
-    psi = helmert_basis(D=Y.shape[1] + 1)
+    psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
     C = Y @ psi
     X = inverse_CLR(C)  # Inverse log operation
     return X
@@ -380,10 +380,79 @@ def _aggregate_sympy_constants(expr):
     """
     const = expr.func(*[term for term in expr.args if not term.free_symbols])
     vars = expr.func(*[term for term in expr.args if term.free_symbols])
-    return sympy.UnevaluatedExpr(const) * sympy.UnevaluatedExpr(vars)
+    if const:
+        return sympy.UnevaluatedExpr(const) * sympy.UnevaluatedExpr(vars)
+    else:
+        return sympy.UnevaluatedExpr(vars)
 
 
-def get_ILR_labels(df, reverse=False, mode="latex"):
+def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
+    """
+    Get symbolic labels for CLR coordinates based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate CLR labels for.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+
+    Returns
+    -------
+    :class:`list`
+        List of CLR coordinates corresponding to dataframe columns.
+    """
+
+    names = [r"{} / {}".format(c, df.columns[ind]) for c in df.columns]
+    arr = sympy.Matrix([sympy.ln(n) for n in names])
+
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in arr
+        ]
+    elif mode.lower() == "simple":
+        labels = ["ALR({})".format(n) for n in names]
+    else:
+        msg = "Label mode {} not recognised.".format(mode)
+        raise NotImplementedError
+    return labels
+
+
+def get_CLR_labels(df, mode="simple", **kwargs):
+    """
+    Get symbolic labels for CLR coordinates based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate CLR labels for.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+
+    Returns
+    -------
+    :class:`list`
+        List of CLR coordinates corresponding to dataframe columns.
+    """
+    D = df.columns.size
+    names = [r"{} / γ".format(c) for c in df.columns]
+
+    arr = sympy.Matrix([sympy.ln(n) for n in names])
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in arr
+        ]
+    elif mode.lower() == "simple":
+        labels = ["CLR({}/G)".format(c) for c in df.columns]
+    else:
+        msg = "Label mode {} not recognised.".format(mode)
+        raise NotImplementedError
+    return labels
+
+
+def get_ILR_labels(df, mode="latex", **kwargs):
     """
     Get symbolic labels for ILR coordinates based on dataframe columns.
 
@@ -391,8 +460,6 @@ def get_ILR_labels(df, reverse=False, mode="latex"):
     ----------
     df : :class:`pandas.DataFrame`
         Dataframe to generate ILR labels for.
-    reverse : :class:`bool`
-        Whether to return the reverse ordering of matrix rows.
     mode : :class:`str`
         Mode of label to return (:code:`LaTeX`, :code:`simple`).
 
@@ -407,13 +474,13 @@ def get_ILR_labels(df, reverse=False, mode="latex"):
     arr = sympy.Matrix([[sympy.ln(v) for v in vars]])
 
     # this is the CLR --> ILR transform
-    helmert = symbolic_helmert_basis(D, reverse=reverse)
+    helmert = symbolic_helmert_basis(D, **kwargs)
     expr = sympy.simplify(
         sympy.logcombine(sympy.simplify(arr @ helmert.transpose()), force=True)
     )
     expr = expr.applyfunc(_aggregate_sympy_constants)
     # sub in Phi (the CLR normalisation variable)
-    names = [r"{} / Phi".format(c) for c in df.columns]
+    names = [r"{} / γ".format(c) for c in df.columns]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
     # format latex labels
     if mode.lower() == "latex":
@@ -424,6 +491,7 @@ def get_ILR_labels(df, reverse=False, mode="latex"):
     elif mode.lower() == "simple":
         labels = [str(l) for l in named_expr]
     else:
+        msg = "Label mode {} not recognised.".format(mode)
         raise NotImplementedError
     return labels
 
