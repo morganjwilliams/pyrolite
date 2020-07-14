@@ -7,6 +7,12 @@ from ..util.log import Handle
 
 logger = Handle(__name__)
 
+_face_edge_equivalents = {
+    "facecolors": "edgecolors",
+    "markerfacecolor": "markeredgecolor",
+    "mfc": "mec",
+}
+
 
 def get_cmode(c=None):
     """
@@ -117,30 +123,43 @@ def process_color(
     --------
     C : :class:`tuple` | :class:`numpy.ndarray`
         Color returned in standardised RGBA format.
+
+    Notes
+    ------
+    As formulated here, the addition of unused styling parameters may cause some
+    properties (associated with 'c') to be set to None - and hence revert to defaults.
+    This might be mitigated if the context could be checked - e.g. via checking
+    keyword argument membership of :func:`~pyrolite.util.plot.style.scatterkwargs` etc.
     """
     assert not ((c is not None) and (color is not None))
     for kw in [  # extra color kwargs
+        "facecolors",
         "markerfacecolor",
+        "mfc",
         "markeredgecolor",
+        "mec",
         "edgecolors",
+        "ec",
         "linecolor",
-        "ecolor",
+        "lc",
+        "ecolor",  # for errobar
         "facecolor",
     ]:
         if kw in otherkwargs:  # this allows processing of alpha with a given color
-            otherkwargs[kw] = process_color(
+            _pc = process_color(
                 c=otherkwargs[kw],
                 alpha=alpha,
                 cmap=cmap,
                 norm=norm,
                 color_mappings={"color": color_mappings.get(kw)},
-            )["color"]
+            )
+            otherkwargs[kw] = _pc.get("color", None)
     if c is not None:
         C = c
     elif color is not None:
         C = color
     else:  # neither color is specified
-        return {
+        d = {
             **{
                 k: v
                 for k, v in {
@@ -154,8 +173,13 @@ def process_color(
             },
             **otherkwargs,
         }
+        # the parameter 'c' will override 'facecolor' and related
+        if any([k in d for k in _face_edge_equivalents.keys()]):
+            d.pop("c")
+        return d
 
     cmode = get_cmode(C)
+
     _c, _color = None, None
     if cmode in ["hex", "named", "rgb", "rgba"]:  # single color
         C = matplotlib.colors.to_rgba(C)
@@ -208,7 +232,17 @@ def process_color(
             C[:, -1] = alpha
         _c, _color = C, C
 
-    return {"c": _c, "color": _color, **otherkwargs}
+    d = {"color": _color, **otherkwargs}
+    # the parameter 'c' will override 'facecolors' and related
+    if not any([k in d for k in _face_edge_equivalents.keys()]):
+        d["c"] = _c
+    else:
+        # for each of the facecolor modes specified return an edge variant
+        for k in _face_edge_equivalents:
+            if k in d:
+                e_name = _face_edge_equivalents[k]
+                d[e_name] = _color
+    return d
 
 
 """
