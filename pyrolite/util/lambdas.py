@@ -392,11 +392,9 @@ def _get_params(params=None, degree=4):
         else:
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
-        print(name, _ree, degree, params)
         params = orthogonal_polynomial_constants(
             get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
         )
-        print(len(params))
     else:
         # check that params is a tuple or list
         if not isinstance(params, (list, tuple)):
