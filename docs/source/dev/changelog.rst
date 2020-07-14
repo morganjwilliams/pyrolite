@@ -6,10 +6,6 @@ All notable changes to this project will be documented here.
 Todo
 ------
 
-* **Feature**: Docs page for reference compositions
-  (`#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
-  Work in progress on a
-  `feature branch <https://github.com/morganjwilliams/pyrolite/tree/feature/docs-pyrolite.data>`__.
 * **Feature**: REY function
   (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__).
 * **Feature**: Updates to include more lithogeochemical plot templates
@@ -26,9 +22,19 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* Updated citation information.
+* Added specific testing for OSX for Travis.
+* **Feature**: Added a gallery with documentation pages for each of the datasets included with
+  :mod:`pyrolite`. This will soon be expanded, especially for the reference
+  compositions
+  (to address `#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
+
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **PR Merged**: `Kaarel Mand <https://github.com/kaarelmand>`__ submitted
+  `a pull request <https://github.com/morganjwilliams/pyrolite/pull/37>`__ to add a
+  number of shale and crustal compositions to the reference database.
 * **Bugfix**: Fixed a bug where lambdas would only be calculated for rows without
   missing data. Where missing data was present, this would result in an assertion
   error and hence no returned values.
@@ -36,19 +42,50 @@ Todo
   lambdas. The functions now correctly ignore the potential contribution of elements
   which are missing when parameterising REE patterns. Thanks to Steve Barnes for
   the tip off which led to identifying this issue!
+* Added :meth:`~pyrolite.geochem.pyrochem.list_isotope_ratios` and corresponding
+  selector :meth:`~pyrolite.geochem.pyrochem.isotope_ratios` to subset isotope ratios.
+* Added :meth:`~pyrolite.geochem.pyrochem.parse_chem` to translate geochemical columns
+  to a standardised (and pyrolite-recognised) column name format.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Bugfix**: Fixed a bug where arguments processing by :mod:`pyrolite.plot.color`
-  would consume the 'alpha' parameter if no color was specified (and as such it would
+  would consume the 'alpha' parameter if no colour was specified (and as such it would
   have no effect on the default colors used by :mod:`~matplotlib.pyplot`)
+* **Bugfix**: Keyword arguments passed to :mod:`pyrolite.plot.density` will now correctly be
+  forwarded to respective functions for histogram and hexbin methods.
+* **Bugfix**: :mod:`pyrolite.plot.color` now better handles colour and value arrays.
+* Customised :mod:`matplotlib` styling has been added for :mod:`pyrolite` plotting
+  functions, including legends. This is currently relatively minimal, but could be
+  expanded slightly in the future.
 * The `bw_method` argument for :func:`scipy.stats.gaussian_kde` can now be parsed
   by :mod:`pyrolite` density-plot functions (e.g.
-  :func:`~pyrolite.plot.pyroplot.density`, :func:`~pyrolite.plot.pyroplot.heatscatter`).
+  :meth:`~pyrolite.plot.pyroplot.density`, :meth:`~pyrolite.plot.pyroplot.heatscatter`).
   This means you can modify the default bandwidth of the gaussian kernel density plots.
-  Future updates may allow non-guassian kernels to also be used for these purposes -
+  Future updates may allow non-Gaussian kernels to also be used for these purposes -
   keep an eye out!
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated transform naming to be consistent between functions and class methods. From
+  this version use capitalised versions for the transform name acronyms (e.g.
+  :code:`ILR` instead of :code:`ilr`).
+* Added for transform metadata storage within DataFrames for
+  :class:`~pyrolite.comp.pyrocomp`, and functions to access transforms by name.
+* Added labelling functions for use with :meth:`pyrolite.comp.pyrocomp.ILR` and
+  :func:`~pyrolite.comp.codata.ILR` to illustrate the precise relationships depicted
+  by the logratio metrics.
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Revamped :mod:`pyrolite.util.classification` to remove cross-compatibility bugs
+  with OSX/other systems. This is now much simpler and uses JSON for serialization.
+* Small fix for :func:`~pyrolite.util.plot.style.mappable_from_values` to deal with
+  NaN values.
+* Added :mod:`pyrolite.util.log` for more streamlined logging (from :mod:`pyrolite-meltsutil`)
 
 `0.2.7`_
 --------------

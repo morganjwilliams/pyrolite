@@ -89,6 +89,7 @@ pyrolite\.util
     util/meta
     util/skl
     util/classification
+    util/log
 
 
 .. seealso:: `Extensions <../ext/extensions.html>`__
