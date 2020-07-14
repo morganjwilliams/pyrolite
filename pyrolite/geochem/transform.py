@@ -599,11 +599,7 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    try:
-        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
-    except np.linalg.LinAlgError:  # singular matrix
-        kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
-        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
+    lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

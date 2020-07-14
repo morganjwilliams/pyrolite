@@ -457,7 +457,10 @@ def calc_lambdas(
     df[~np.isfinite(df)] = np.nan  # deal with np.nan, np.inf
 
     if "oneill" in algorithm.lower():
-        return lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
+        try:
+            return lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
+        except np.linalg.LinAlgError:  # singular matrix, use optimize
+            return lambdas_optimize(df, radii=radii, params=params, **kwargs)
     else:
         return lambdas_optimize(df, radii=radii, params=params, **kwargs)
 
