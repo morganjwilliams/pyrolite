@@ -536,11 +536,15 @@ def lambda_lnREE(
     norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
         Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
     exclude : :class:`list`, :code:`["Pm", "Eu"]`
-        Which REE elements to exclude from the fit. May wish to include Ce for minerals
+        Which REE elements to exclude from the *fit*. May wish to include Ce for minerals
         in which Ce anomalies are common.
-    params : :class:`list`, :code:`None`
-        Set of predetermined orthagonal polynomial parameters.
-    degree : :class:`int`, 5
+    params : :class:`list` | :class:`str`, :code:`None`
+        Pre-computed parameters for the orthogonal polynomials (a list of tuples).
+        Optionally specified, otherwise defaults the parameterisation as in
+        O'Neill (2016). If a string is supplied, :code:`"O'Neill (2016)"` or
+        similar will give the original defaults, while :code:`"full"` will use all
+        of the REE (including Eu) as a basis for the orthogonal polynomials.
+    degree : :class:`int`, 4
         Maximum degree polynomial fit component to include.
     scale : :class:`str`
         Current units for the REE data, used to scale the reference dataset.
@@ -566,19 +570,11 @@ def lambda_lnREE(
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
+    # if there are no supplied params, they will be calculated in calc_lambdas
     # check if there are columns which are empty
     exclude += list(df.columns[df.isnull().all(axis=0)])
     # Check which REE we're dealing with
     ree = [el for el in REE() if el in df.columns and el not in exclude]
-    # get the ionic radii for these REE
-    radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
-
-    # if there are no supplied params, we need to create them here
-    if params is None:
-        params = lambdas.orthogonal_polynomial_constants(radii, degree=degree)
-    else:
-        degree = len(params)
-
     # initialize normdf
     norm_df = df.loc[:, ree].copy()
     if not allow_missing:

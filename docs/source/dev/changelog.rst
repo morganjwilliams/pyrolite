@@ -42,6 +42,21 @@ Todo
   lambdas. The functions now correctly ignore the potential contribution of elements
   which are missing when parameterising REE patterns. Thanks to Steve Barnes for
   the tip off which led to identifying this issue!
+* As a lead-in to a potential change in default parameterisation, you can now provide
+  additional specifications for the calculation of `lambdas` to
+  :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE` and
+  :func:`~pyrolite.util.lambdas.calc_lambdas` to determine the basis over which the
+  individual orthogonal polynomials are defined (i.e. which REE are included to define
+  the orthonormality of these functions). You can either pass a list of tuples defining
+  the polynomials, or (newly added) you can pass the strings :code:`"ONeill2016"` to
+  explicitly specify the original parameterisation or :code:`"full"` to use all REE
+  (including Eu) to define the orthonormality of the component functions.
+  To determine which elements are used to perform the *fit*, you can either filter the
+  columns passed to these functions or specifically exclude columns using the `exclude`
+  keyword argument (e.g. the default remains :code:`exclude=["Eu"]` which excludes Eu
+  from the fitting process). Note that the default for fitting will remain, but going
+  forward the default for the definition of the polynomial functions will change to
+  use all the REE by default (i.e. change to :code:`params="full"`).
 * Added :meth:`~pyrolite.geochem.pyrochem.list_isotope_ratios` and corresponding
   selector :meth:`~pyrolite.geochem.pyrochem.isotope_ratios` to subset isotope ratios.
 * Added :meth:`~pyrolite.geochem.pyrochem.parse_chem` to translate geochemical columns
