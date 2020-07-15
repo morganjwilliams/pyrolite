@@ -415,7 +415,7 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
         labels = ["ALR({})".format(n) for n in names]
     else:
         msg = "Label mode {} not recognised.".format(mode)
-        raise NotImplementedError
+        raise NotImplementedError(msg)
     return labels
 
 
@@ -448,7 +448,7 @@ def get_CLR_labels(df, mode="simple", **kwargs):
         labels = ["CLR({}/G)".format(c) for c in df.columns]
     else:
         msg = "Label mode {} not recognised.".format(mode)
-        raise NotImplementedError
+        raise NotImplementedError(msg)
     return labels
 
 
@@ -496,7 +496,7 @@ def get_ILR_labels(df, mode="latex", **kwargs):
         labels = [str(l).replace("log", "ILR") for l in unscaled_components]
     else:
         msg = "Label mode {} not recognised.".format(mode)
-        raise NotImplementedError
+        raise NotImplementedError(msg)
     return labels
 
 
