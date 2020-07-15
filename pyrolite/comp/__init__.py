@@ -106,9 +106,11 @@ class pyrocomp(object):
         index_col = components[index_col_no]
 
         if label_mode == "numeric":
-            colnames = ["ALR_{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = ["ALR{}".format(ix) for ix in range(self._obj.columns.size)]
         else:
-            colnames = codata.get_ALR_labels(self._obj, mode=label_mode, ind=index_col_no)
+            colnames = codata.get_ALR_labels(
+                self._obj, mode=label_mode, ind=index_col_no
+            )
 
         if not null_col:
             colnames = [n for ix, n in enumerate(colnames) if ix != index_col_no]
@@ -172,7 +174,7 @@ class pyrocomp(object):
             CLR-transformed array, of shape :code:`(N, D)`.
         """
         if label_mode == "numeric":
-            colnames = ["CLR_{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = ["CLR{}".format(ix) for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
 

@@ -489,7 +489,11 @@ def get_ILR_labels(df, mode="latex", **kwargs):
             for l in named_expr
         ]
     elif mode.lower() == "simple":
-        labels = [str(l) for l in named_expr]
+        # here we could exclude scaling terms and just use ILR(A/B)
+        unscaled_components = named_expr.applyfunc(
+            lambda x: x.func(*[term for term in x.args if term.free_symbols])
+        )
+        labels = [str(l).replace("log", "ILR") for l in unscaled_components]
     else:
         msg = "Label mode {} not recognised.".format(mode)
         raise NotImplementedError

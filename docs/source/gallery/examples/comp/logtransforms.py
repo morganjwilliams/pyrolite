@@ -34,7 +34,8 @@ import pyrolite.comp
 lr_df = df.pyrocomp.CLR()  # using a centred log-ratio transformation
 ########################################################################################
 # The transformations are implemented such that the column names generally make it
-# evident which transformations have been applied:
+# evident which transformations have been applied (here using default simple labelling;
+# see below for other examples):
 #
 lr_df.columns
 ########################################################################################
@@ -79,7 +80,7 @@ import matplotlib.pyplot as plt
 df.pyrocomp.ILR(label_mode="latex").iloc[:, 0:2].pyroplot.scatter()
 plt.show()
 ########################################################################################
-# Alternatively if you simply want nuermic indexes which you can use in e.g. a ML
+# Alternatively if you simply want numeric indexes which you can use in e.g. a ML
 # pipeline, you can use :code:`label_mode="numeric"`:
 df.pyrocomp.ILR(label_mode="numeric").columns
 ########################################################################################
