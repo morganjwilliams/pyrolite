@@ -6,6 +6,7 @@ import scipy
 from ..geochem.ind import REE, get_ionic_radii
 from .. import plot
 from .meta import update_docstring_references
+from .missing import md_pattern
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -248,13 +249,22 @@ def lambdas_ONeill2016(df, radii, params=None):
         dtype="float32",
     )
     rad = np.array(radii)  # so we can use a boolean index
-    for row in range(df.index.size):
-        fltr = np.isfinite(df.iloc[row, :].values)  # filter missing
-        A = get_polynomial_matrix(rad[fltr], params=params)
+
+    md_inds, patterns = md_pattern(df)
+    # for each missing data pattern, we create the matrix A - rather than each row
+    for ind in np.unique(md_inds):
+        row_fltr = md_inds == ind  # rows with this pattern
+        missing_fltr = ~patterns[ind]["pattern"]  # filter missing
+        A = get_polynomial_matrix(rad[missing_fltr], params=params)
         invA = np.linalg.inv(A)
+
         V = np.vander(rad, degree, increasing=True).T
-        Z = (df.iloc[row, :].values[fltr] * V[:, fltr]).sum(axis=-1)
-        lambdas.iloc[row, :] = invA @ Z
+
+        Z = (
+            df.loc[row_fltr, missing_fltr].values[:, np.newaxis]
+            * V[np.newaxis, :, missing_fltr]
+        ).sum(axis=-1)
+        lambdas.loc[row_fltr, :] = (invA @ Z.T).T
     return lambdas
 
 

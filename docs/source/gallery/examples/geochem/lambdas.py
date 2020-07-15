@@ -32,7 +32,7 @@ from pyrolite.util.synthetic import example_spider_data
 
 df = example_spider_data(
     noise_level=0.05,
-    nobs=100,
+    size=100,
     start="DMM_WH2005",
     norm_to="Chondrite_PON",
     offsets={"Eu": 0.2},

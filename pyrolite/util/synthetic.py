@@ -265,7 +265,7 @@ def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwar
 def example_spider_data(
     start="EMORB_SM89",
     norm_to="PM_PON",
-    nobs=120,
+    size=120,
     noise_level=0.5,
     offsets=None,
     units="ppm",
@@ -282,7 +282,7 @@ def example_spider_data(
         Composition to start with.
     norm_to : :class:`str`
         Composition to normalise to. Can optionally specify :code:`None`.
-    nobs : :class:`int`
+    size : :class:`int`
         Number of observations to include (index length).
     noise_level : :class:`float`
         Log-units of noise (1sigma).
@@ -306,9 +306,9 @@ def example_spider_data(
     start = df.applymap(np.log)
     nindex = df.columns.size
 
-    y = np.tile(start.values, nobs).reshape(nobs, nindex)
-    y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
-    y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
+    y = np.tile(start.values, size).reshape(size, nindex)
+    y += np.random.normal(0, noise_level / 2.0, size=(size, nindex))  # noise
+    y += np.random.normal(0, noise_level, size=(1, size)).T  # random pattern offset
 
     syn_df = pd.DataFrame(y, columns=df.columns)
     if offsets is not None:
