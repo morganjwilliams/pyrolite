@@ -48,14 +48,14 @@ class TestPyrochem(unittest.TestCase):
 
     def test_pyrochem_subsetters(self):
         obj = self.df
-        for subset in ["REE", "elements", "oxides", "isotope_ratios"]:
+        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
             with self.subTest(subset=subset):
                 out = getattr(obj.pyrochem, subset)
                 self.assertIsInstance(out, obj.__class__)  # in this case a dataframe
 
     def test_pyrochem_subsetter_assignment(self):
         obj = self.df
-        for subset in ["REE", "elements", "oxides", "isotope_ratios"]:
+        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
             with self.subTest(subset=subset):
                 setattr(obj.pyrochem, subset, getattr(obj.pyrochem, subset) * 1.0)
 

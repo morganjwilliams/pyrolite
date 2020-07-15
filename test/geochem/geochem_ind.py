@@ -108,6 +108,42 @@ class TestREE(unittest.TestCase):
                 self.assertIs(type(el), str)
 
 
+class TestREY(unittest.TestCase):
+    """Tests the Rare Earth Element + Yttrium generator."""
+
+    def setUp(self):
+        self.min_z = 57
+        self.max_z = 71
+
+    def test_complete(self):
+        """Check all REE and Yttrium are present."""
+        reels = REY(output="formula", dropPm=False)
+        ns = [el.number for el in reels]
+        print(ns)
+        for n in [39] + [*range(self.min_z, self.max_z + 1)]:
+            with self.subTest(n=n):
+                self.assertTrue(n in ns)
+
+    def test_precise(self):
+        """Check that only the REY are returned."""
+        reels = REY(output="formula")
+        ns = [el.number for el in reels]
+        self.assertTrue(min(ns) == 39)
+        self.assertTrue(max(ns) == self.max_z)
+
+    def test_formula_output(self):
+        """Check the function produces formula output."""
+        for el in REY(output="formula"):
+            with self.subTest(el=el):
+                self.assertIs(type(el), type(pt.elements[0]))
+
+    def test_string_output(self):
+        """Check the function produces string output."""
+        for el in REY(output="string"):
+            with self.subTest(el=el):
+                self.assertIs(type(el), str)
+
+
 class TestSimpleOxides(unittest.TestCase):
     """Tests the simple oxide generator."""
 

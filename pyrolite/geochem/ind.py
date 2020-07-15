@@ -7,7 +7,6 @@ Todo
 * Incompatibility indexes for spider plot ordering.
 """
 import re
-import functools
 import numpy as np
 import pandas as pd
 import periodictable as pt
@@ -41,7 +40,6 @@ _load_radii()
 ########################################################################################
 
 
-@functools.lru_cache(maxsize=4)  # cache outputs for speed
 def common_elements(cutoff=92, output="string", order=None, as_set=False):
     """
     Provides a list of elements up to a particular cutoff (by default including U).
@@ -90,7 +88,88 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
         return elements
 
 
-@functools.lru_cache(maxsize=2)  # cache outputs for speed
+def REE(output="string", dropPm=True):
+    """
+    Provides a list of Rare Earth Elements.
+
+    Parameters
+    -----------
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of REE.
+    """
+    elements = [
+        "La",
+        "Ce",
+        "Pr",
+        "Nd",
+        "Pm",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Tb",
+        "Dy",
+        "Ho",
+        "Er",
+        "Tm",
+        "Yb",
+        "Lu",
+    ]
+    if dropPm:
+        elements = [i for i in elements if not i == "Pm"]
+    if output == "formula":
+        elements = [getattr(pt, el) for el in elements]
+    return elements
+
+
+def REY(output="string", dropPm=True):
+    """
+    Provides a list of Rare Earth Elements, with the addition of Yttrium.
+
+    Parameters
+    -----------
+    output : :class:`str`
+        Whether to return output list as formulae ('formula') or strings (anthing else).
+
+    Returns
+    -------
+    :class:`list` | :class:`set`
+        List of REE+Y.
+
+    Notes
+    ------
+    This currently modifies the hardcoded list of :func:`REE`, but could be adapated
+    for different element ordering.
+    """
+    elements = [
+        "La",
+        "Ce",
+        "Pr",
+        "Nd",
+        "Pm",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Tb",
+        "Dy",
+        "Y",
+        "Ho",
+        "Er",
+        "Tm",
+        "Yb",
+        "Lu",
+    ]
+    if dropPm:
+        elements = [i for i in elements if not i == "Pm"]
+    if output == "formula":
+        elements = [getattr(pt, el) for el in elements]
+    return elements
+
+
 def REE(output="string", dropPm=True):
     """
     Provides a list of Rare Earth Elements.

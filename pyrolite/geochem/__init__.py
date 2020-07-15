@@ -13,11 +13,7 @@ from ..util import units
 from . import parse
 from . import transform
 from . import norm
-from .ind import (
-    __common_elements__,
-    __common_oxides__,
-    REE,
-)
+from .ind import __common_elements__, __common_oxides__, REE, REY
 from .ions import set_default_ionic_charges
 
 set_default_ionic_charges()
@@ -85,6 +81,21 @@ class pyrochem(object):
         return [i for i in REE() if i in self._obj.columns]
 
     @property
+    def list_REY(self):
+        """
+        Get the subset of columns which are Rare Earth Element names.
+
+        Returns
+        --------
+        :class:`list`
+
+        Notes
+        -------
+        The returned list will reorder REE based on atomic number.
+        """
+        return [i for i in REY() if i in self._obj.columns]
+
+    @property
     def list_oxides(self):
         """
         Get the subset of columns which are oxide names.
@@ -133,6 +144,21 @@ class pyrochem(object):
     @REE.setter
     def REE(self, df):
         self._obj.loc[:, self.list_REE] = df
+
+    @property
+    def REY(self):
+        """
+        Get a Rare Earth Element + Yttrium subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj[self.list_REY]
+
+    @REE.setter
+    def REY(self, df):
+        self._obj.loc[:, self.list_REY] = df
 
     @property
     def oxides(self):
