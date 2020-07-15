@@ -6,8 +6,6 @@ All notable changes to this project will be documented here.
 Todo
 ------
 
-* **Feature**: REY function
-  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__).
 * **Feature**: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
 * **Bug**: Conditional density spider plots should have bins centred on the element indexes
@@ -42,6 +40,11 @@ Todo
   lambdas. The functions now correctly ignore the potential contribution of elements
   which are missing when parameterising REE patterns. Thanks to Steve Barnes for
   the tip off which led to identifying this issue!
+* **Feature**: Added :func:`pyrolite.geochem.ind.REY`,
+  :meth:`~pyrolite.geochem.pyrochem.list_REY`, and
+  :meth:`~pyrolite.geochem.pyrochem.REY` to address
+  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__). This issue was
+  also opened by `Kaarel Mand <https://github.com/kaarelmand>`__!
 * As a lead-in to a potential change in default parameterisation, you can now provide
   additional specifications for the calculation of `lambdas` to
   :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE` and
@@ -59,6 +62,8 @@ Todo
   from the fitting process). Note that the default for fitting will remain, but going
   forward the default for the definition of the polynomial functions will change to
   use all the REE by default (i.e. change to :code:`params="full"`).
+* Significant performance upgrades for :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE`
+  and associated functions (up to 3000x for larger datasets).
 * Added :meth:`~pyrolite.geochem.pyrochem.list_isotope_ratios` and corresponding
   selector :meth:`~pyrolite.geochem.pyrochem.isotope_ratios` to subset isotope ratios.
 * Added :meth:`~pyrolite.geochem.pyrochem.parse_chem` to translate geochemical columns
