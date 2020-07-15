@@ -5,7 +5,7 @@ from pyrolite.util.plot.grid import (
     bin_edges_to_centres,
     ternary_grid,
 )
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestBinConversions(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestBinConversions(unittest.TestCase):
 class TestTernaryGrid(unittest.TestCase):
 
     def setUp(self):
-        self.data = test_df(cols=["SiO2", "CaO", "MgO"], index_length=20).values
+        self.data = normal_frame(columns=["SiO2", "CaO", "MgO"], size=20).values
 
     def test_default(self):
         # no data supplied, grid will cover ternary space up until some margin

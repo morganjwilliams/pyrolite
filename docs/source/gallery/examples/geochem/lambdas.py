@@ -210,4 +210,3 @@ plt.show()
 #     :func:`~pyrolite.geochem.ind.get_ionic_radii`,
 #     :func:`pyrolite.plot.pyroplot.REE`
 #
-s

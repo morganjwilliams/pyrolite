@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pyrolite.comp.codata import *
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestClose(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestALR(unittest.TestCase):
     """Test the numpy additive log ratio transformation."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -88,7 +88,7 @@ class TestCLR(unittest.TestCase):
     """Test the centred log ratio transformation."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -119,7 +119,7 @@ class TestILR(unittest.TestCase):
     """Test the isometric log ratio transformation."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -150,7 +150,7 @@ class TestBoxCox(unittest.TestCase):
     """Test the isometric log ratio transformation."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_single(self):
         """Checks whether the function works on a single record."""
@@ -179,7 +179,7 @@ class TestBoxCox(unittest.TestCase):
 
 class TestGetILRLabel(unittest.TestCase):
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_labels_default(self):
         """Checks whether the function works on multiple records."""

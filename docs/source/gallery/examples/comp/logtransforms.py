@@ -15,10 +15,10 @@ This example will show you how to access and use some of these functions in pyro
 ########################################################################################
 # First let's create some example data:
 #
-from pyrolite.util.synthetic import test_df, random_cov_matrix
+from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
-df = test_df(
-    index_length=100,
+df = normal_frame(
+    size=100,
     cov=random_cov_matrix(sigmas=[0.1, 0.05, 0.3, 0.6], dim=4, seed=32),
     seed=32,
 )

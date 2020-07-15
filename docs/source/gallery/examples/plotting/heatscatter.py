@@ -18,10 +18,10 @@ from pyrolite.plot import pyroplot
 np.random.seed(12)
 ########################################################################################
 # First we'll create some example data
-from pyrolite.util.synthetic import test_df, random_cov_matrix
+from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
-df = test_df(
-    index_length=1000,
+df = normal_frame(
+    size=1000,
     cov=random_cov_matrix(sigmas=np.random.rand(4) * 2, dim=4, seed=12),
     seed=12,
 )

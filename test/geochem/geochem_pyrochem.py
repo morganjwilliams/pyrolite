@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pyrolite.geochem
 from pyrolite.comp.codata import renormalise
-from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.synthetic import normal_frame, normal_series
 from pyrolite.geochem.norm import get_reference_composition
 
 # [print("# " + i) for i in dir(df.pyrochem) if "__" not in i and not i.startswith("_")]
@@ -29,7 +29,7 @@ class TestPyrochem(unittest.TestCase):
             "87Sr/87Sr",
             "87Sr/87Sri",
         ] + pyrolite.geochem.REE()
-        self.df = test_df(index_length=4, cols=cols)
+        self.df = normal_frame(size=4, columns=cols)
         self.df = renormalise(self.df)
 
     # pyrolite.geochem.ind functions

@@ -1,7 +1,7 @@
 import unittest
 import pyrolite
 import numpy as np
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.geochem.norm import (
     get_reference_files,
     update_database,

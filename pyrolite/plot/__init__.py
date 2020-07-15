@@ -182,8 +182,7 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-        Other Parameters
-        ------------------
+
         {otherparams}
 
         Returns
@@ -348,7 +347,6 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-
         {otherparams}
 
         Returns

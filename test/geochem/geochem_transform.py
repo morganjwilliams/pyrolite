@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.synthetic import normal_frame, normal_series
 from pyrolite.geochem.transform import *
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.util.lambdas import orthogonal_polynomial_constants
@@ -10,7 +10,7 @@ class TestToMolecular(unittest.TestCase):
     """Tests pandas molecular conversion operator."""
 
     def setUp(self):
-        self.df = test_df()
+        self.df = normal_frame()
 
     def test_single(self):
         """Checks results on single records."""
@@ -27,7 +27,7 @@ class TestToWeight(unittest.TestCase):
     """Tests pandas weight conversion operator."""
 
     def setUp(self):
-        self.df = test_df()
+        self.df = normal_frame()
 
     def test_single(self):
         """Checks results on single records."""
@@ -361,7 +361,7 @@ class TestGetRatio(unittest.TestCase):
     """Tests the ratio addition."""
 
     def setUp(self):
-        self.df = test_df(cols=["Si", "Mg", "MgO", "CaO", "Li", "B"])
+        self.df = normal_frame(columns=["Si", "Mg", "MgO", "CaO", "Li", "B"])
 
     def test_none(self):
         """Check the ratio addition copes with no records."""

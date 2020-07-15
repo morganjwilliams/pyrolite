@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.comp.codata import close
 
 try:
@@ -28,7 +28,7 @@ class TestPlotConfusionMatrix(unittest.TestCase):
     """Checks the plot_confusion_matrix matrix function."""
 
     def setUp(self):
-        self.X = test_df(index_length=20).apply(close, axis=1)
+        self.X = normal_frame(size=20).apply(close, axis=1)
         self.gs = test_classifier()
         self.y = np.ones(self.X.index.size)
         self.y[4:] += 1
@@ -47,7 +47,7 @@ class TestPlotGSResults(unittest.TestCase):
     """Checks the plot_gs_results matrix function."""
 
     def setUp(self):
-        self.X = test_df(index_length=20).apply(close, axis=1)
+        self.X = normal_frame(size=20).apply(close, axis=1)
         self.gs = test_classifier()
         self.y = np.ones(self.X.index.size)
         self.y[4:] += 1
@@ -66,7 +66,7 @@ class TestPlotMapping(unittest.TestCase):
     """Checks the plot_mapping function."""
 
     def setUp(self):
-        self.X = test_df(index_length=20).apply(close, axis=1)
+        self.X = normal_frame(size=20).apply(close, axis=1)
         iris = sklearn.datasets.load_iris()
         self.data, self.target = iris["data"], iris["target"]
         svc = SVC_pipeline(probability=True)

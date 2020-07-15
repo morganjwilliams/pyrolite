@@ -169,7 +169,7 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
-    def test_series(self):
+    def normal_seriesies(self):
         vals = pd.Series(self.values, dtype="float64")
         rounded = round_sig(vals, sig=2)
         self.assertTrue(
@@ -242,7 +242,7 @@ class TestSignificantFigures(unittest.TestCase):
             np.isclose(sfigs, self.expect.reshape(sfigs.shape), equal_nan=True).all()
         )
 
-    def test_series(self):
+    def normal_seriesies(self):
         vals = pd.Series(self.values)
         sfigs = significant_figures(vals)
         self.assertTrue(
@@ -277,7 +277,7 @@ class TestMostPrecise(unittest.TestCase):
         mp = most_precise(vals)
         self.assertEqual(mp, self.expect)
 
-    def test_series(self):
+    def normal_seriesies(self):
         vals = pd.Series(self.values)
         mp = most_precise(vals)
         self.assertEqual(mp, self.expect)
@@ -312,7 +312,7 @@ class TestEqualWithinSignificance(unittest.TestCase):
         self.assertTrue(equal_within_significance(eq))
         self.assertFalse(equal_within_significance(neq))
 
-    def test_series(self):
+    def normal_seriesies(self):
         eq = pd.Series(self.equal_values)
         neq = pd.Series(self.unequal_values)
         self.assertTrue(equal_within_significance(eq))

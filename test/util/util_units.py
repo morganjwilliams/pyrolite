@@ -1,6 +1,6 @@
 import unittest
 import pyrolite
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.util.units import *
 from pyrolite.util.units import scale, __UNITS__
 

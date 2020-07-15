@@ -13,11 +13,11 @@ documentation pages for more in-depth guides, examples and API documentation.
 #######################################################################################
 # First let's pull in a simple dataset to use throughout these examples:
 #
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
 # sphinx_gallery_thumbnail_number = 7
 
-df = test_df(cols=["SiO2", "CaO", "MgO", "Al2O3", "TiO2", "27Al", "d11B"])
+df = normal_frame(columns=["SiO2", "CaO", "MgO", "Al2O3", "TiO2", "27Al", "d11B"])
 #######################################################################################
 # Basic Figure and Axes Settings
 # ------------------------------
@@ -122,7 +122,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(1)
 for i in range(3):
-    sample_data = test_df(cols=["CaO", "MgO", "FeO"])  # a new random sample
+    sample_data = normal_frame(columns=["CaO", "MgO", "FeO"])  # a new random sample
     sample_data[["CaO", "MgO"]].pyroplot.scatter(ax=ax, label="Sample {:d}".format(i))
 ax.legend()
 plt.show()

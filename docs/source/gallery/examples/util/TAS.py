@@ -9,17 +9,17 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pyrolite.util.classification import TAS
-from pyrolite.util.synthetic import test_df, random_cov_matrix
+from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
 # sphinx_gallery_thumbnail_number = 2
 ########################################################################################
 # We'll first generate some synthetic data to play with:
 #
 df = (
-    test_df(
-        cols=["SiO2", "Na2O", "K2O", "Al2O3"],
+    normal_frame(
+        columns=["SiO2", "Na2O", "K2O", "Al2O3"],
         mean=[0.5, 0.04, 0.05, 0.4],
-        index_length=100,
+        size=100,
         seed=49,
     )
     * 100

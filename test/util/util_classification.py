@@ -1,17 +1,17 @@
 import unittest
 from pyrolite.util.classification import *
 from pyrolite.comp.codata import renormalise
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestTAS(unittest.TestCase):
     """Test the TAS classifier."""
 
     def setUp(self):
-        self.df = test_df(
-            cols=["SiO2", "Na2O", "K2O", "Al2O3"],
+        self.df = normal_frame(
+            columns=["SiO2", "Na2O", "K2O", "Al2O3"],
             mean=[0.5, 0.04, 0.05, 0.4],
-            index_length=100,
+            size=100,
         )
         self.df.loc[:, "Na2O + K2O"] = self.df.Na2O + self.df.K2O
 
@@ -51,10 +51,10 @@ class TestPeralkalinity(unittest.TestCase):
     """Test the peralkalinity classifier."""
 
     def setUp(self):
-        self.df = df = test_df(
-            cols=["SiO2", "Na2O", "K2O", "Al2O3", "CaO"],
+        self.df = df = normal_frame(
+            columns=["SiO2", "Na2O", "K2O", "Al2O3", "CaO"],
             mean=[0.5, 0.04, 0.05, 0.2, 0.3],
-            index_length=100,
+            size=100,
         )
 
     def test_classifer_predict(self):

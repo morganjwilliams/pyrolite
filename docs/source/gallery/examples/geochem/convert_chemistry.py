@@ -15,9 +15,9 @@ pd.set_option("precision", 3)  # smaller outputs
 # Here we create some synthetic data to work with, which has some variables in Wt% and
 # some in ppm. Notably some elements are present in more than one column (Ca, Na):
 #
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
-df = test_df(cols=["MgO", "SiO2", "FeO", "CaO", "Na2O", "Te", "K", "Na"]) * 100
+df = normal_frame(columns=["MgO", "SiO2", "FeO", "CaO", "Na2O", "Te", "K", "Na"]) * 100
 df.pyrochem.elements *= 100 # elements in ppm
 ########################################################################################
 df.head(2)

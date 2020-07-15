@@ -980,9 +980,9 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Added :mod:`pyrolite.util.synthetic`
-* Moved `pyrolite.util.pd.test_df` and `pyrolite.util.pd.test_ser`
-  to :func:`pyrolite.util.synthetic.test_df` and
-  :func:`pyrolite.util.synthetic.test_ser`
+* Moved `pyrolite.util.pd.normal_frame` and `pyrolite.util.pd.normal_series`
+  to :func:`pyrolite.util.synthetic.normal_frame` and
+  :func:`pyrolite.util.synthetic.normal_series`
 * Added :mod:`pyrolite.util.missing` and :func:`pyrolite.util.missing.md_pattern`
 * Added :func:`pyrolite.util.math.eigsorted`,
   :func:`pyrolite.util.math.augmented_covariance_matrix`,

@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.synthetic import normal_frame, normal_series
 from pyrolite.util.general import temp_path, remove_tempdir
 from pyrolite.util.meta import subkwargs
 from pyrolite.util.pd import *
@@ -55,8 +55,8 @@ class TestReadTable(unittest.TestCase):
 
 class TestAccumulate(unittest.TestCase):
     def setUp(self):
-        self.df0 = test_df()
-        self.others = [test_df()] * 4
+        self.df0 = normal_frame()
+        self.others = [normal_frame()] * 4
 
     def test_column_order(self):
         result = accumulate([self.df0] + self.others)
@@ -82,22 +82,22 @@ class TestToFrame(unittest.TestCase):
     """Test the 'to_frame' utility dataframe conversion function."""
 
     def setUp(self):
-        self.ser = test_ser()
-        self.df = test_df()
+        self.ser = normal_series()
+        self.df = normal_frame()
 
-    def test_df_column_order(self):
+    def normal_frame_column_order(self):
         result = to_frame(self.df)
         self.assertTrue((result.columns == self.df.columns).all())
 
-    def test_ser_column_order(self):
+    def normal_series_column_order(self):
         result = to_frame(self.ser)
         self.assertTrue((result.columns == self.ser.index).all())
 
-    def test_df_index_preservation(self):
+    def normal_frame_index_preservation(self):
         result = to_frame(self.df)
         self.assertTrue((result.index == self.df.index).all())
 
-    def test_series_conversion(self):
+    def normal_seriesies_conversion(self):
         result = to_frame(self.ser)
         self.assertTrue(isinstance(result, pd.DataFrame))
 
@@ -110,8 +110,8 @@ class TestToFrame(unittest.TestCase):
 
 class TestToSer(unittest.TestCase):
     def setUp(self):
-        self.ser = test_ser()
-        self.df = test_df()
+        self.ser = normal_series()
+        self.df = normal_frame()
 
     def test_single_column(self):
         result = to_ser(self.df.iloc[:, 0])
@@ -134,7 +134,7 @@ class TestToSer(unittest.TestCase):
 
 class TestToNumeric(unittest.TestCase):
     def setUp(self):
-        self.df = test_df().applymap(str)
+        self.df = normal_frame().applymap(str)
 
     def test_numeric(self):
         df = self.df
@@ -159,7 +159,7 @@ class TestToNumeric(unittest.TestCase):
 
 class TestOutliers(unittest.TestCase):
     def setUp(self):
-        self.df = test_df()
+        self.df = normal_frame()
 
     def test_exclude(self):
         for exclude in [True, False]:
@@ -229,7 +229,7 @@ class TestDFFromCSVs(unittest.TestCase):
             with open(str(fn), "w") as f:
                 f.write("C1,C{}\n{},{}\n{},{}".format(n, n, n, n, n))
 
-    def test_df_generation(self):
+    def normal_frame_generation(self):
         df = df_from_csvs(self.files)
         expect_cols = ["C1", "Ca", "Cb", "Cc"]
         self.assertIn("C1", df.columns)

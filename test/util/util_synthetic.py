@@ -86,10 +86,10 @@ class TestRandomComposition(unittest.TestCase):
             rc = random_composition(size=self.size, D=self.D, missing=missing)
 
     def test_missing_columns(self):
-        for missingcols in [1, 2, (0, 1), [1, 2]]:
-            with self.subTest(missingcols=missingcols):
+        for missing_columns in [1, 2, (0, 1), [1, 2]]:
+            with self.subTest(missing_columns=missing_columns):
                 rc = random_composition(
-                    size=self.size, D=self.D, missingcols=missingcols
+                    size=self.size, D=self.D, missing_columns=missing_columns
                 )
 
     def test_missing_mechanism_invalid(self):

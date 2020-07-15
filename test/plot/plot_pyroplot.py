@@ -5,7 +5,7 @@ import numpy as np
 from numpy.random import multivariate_normal
 from pyrolite.plot import spider, density, pyroplot
 from pyrolite.geochem import REE
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 import matplotlib.colors
 import mpltern.ternary
 
@@ -21,9 +21,9 @@ class TestPyroPlot(unittest.TestCase):
         self.cols = ["MgO", "SiO2", "CaO"]
 
         # can run into interesting singular matrix errors with bivariate random data
-        self.tridf = test_df(cols=self.cols, index_length=100)
+        self.tridf = normal_frame(columns=self.cols, size=100)
         self.bidf = self.tridf.loc[:, self.cols[:2]]
-        self.multidf = test_df(cols=REE(), index_length=100)
+        self.multidf = normal_frame(columns=REE(), size=100)
 
         # add a small number of nans
         self.bidf.iloc[0, 1] = np.nan
@@ -130,7 +130,7 @@ class TestPyroTernary(unittest.TestCase):
         self.cols = ["MgO", "SiO2", "CaO"]
 
         # can run into interesting singular matrix errors with bivariate random data
-        self.tridf = test_df(cols=self.cols, index_length=100)
+        self.tridf = normal_frame(columns=self.cols, size=100)
 
     def test_default(self):
         """Test generation of plot with one record."""

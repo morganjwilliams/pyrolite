@@ -1,5 +1,5 @@
 import unittest
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.comp.codata import close
 from pyrolite.geochem.ind import REE
 
@@ -26,7 +26,7 @@ class TestLogTransformers(unittest.TestCase):
     """Checks the scikit-learn invertible transformer classes."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_linear_transformer(self):
         """Test the linear transfomer."""
@@ -104,7 +104,7 @@ class TestAgumentors(unittest.TestCase):
     """Checks the default config for scikit-learn augmenting transformer classes."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
 
     def test_DropBelowZero(self):
         """Test the DropBelowZero transfomer."""
@@ -132,7 +132,7 @@ class TestAgumentors(unittest.TestCase):
 
     def test_LambdaTransformer(self):
         """Test the LambdaTransformer transfomer."""
-        df = test_df(cols=REE()).apply(close, axis=1)
+        df = normal_frame(columns=REE()).apply(close, axis=1)
         tmr = LambdaTransformer()
         for input in [df]:
             with self.subTest(input=input):
