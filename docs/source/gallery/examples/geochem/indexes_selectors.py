@@ -10,7 +10,21 @@ pd.set_option("precision", 3)  # smaller outputs
 ########################################################################################
 from pyrolite.util.synthetic import normal_frame
 
-df = normal_frame(columns=["CaO", "MgO", "SiO2", "FeO", "Mn", "Ti", "La", "Lu", "Mg/Fe"])
+df = normal_frame(
+    columns=[
+        "CaO",
+        "MgO",
+        "SiO2",
+        "FeO",
+        "Mn",
+        "Ti",
+        "La",
+        "Lu",
+        "Y" "Mg/Fe",
+        "87Sr/86Sr",
+        "Ar40/Ar36",
+    ]
+)
 ########################################################################################
 
 df.head(2).pyrochem.oxides
@@ -25,7 +39,15 @@ df.head(2).pyrochem.REE
 
 ########################################################################################
 
+df.head(2).pyrochem.REY
+
+########################################################################################
+
 df.head(2).pyrochem.compositional
+
+########################################################################################
+
+df.head(2).pyrochem.isotope_ratios
 
 ########################################################################################
 
@@ -44,9 +66,13 @@ df.pyrochem.list_REE
 df.pyrochem.list_compositional
 
 ########################################################################################
+
+df.pyrochem.list_isotope_ratios
+
+########################################################################################
 # All elements (up to U):
 #
-from pyrolite.geochem.ind import common_elements, common_oxides, REE
+from pyrolite.geochem.ind import common_elements, common_oxides, REE, REY
 
 common_elements()  # string return
 
@@ -63,3 +89,6 @@ common_oxides()
 ########################################################################################
 
 REE()
+
+########################################################################################
+REY()
