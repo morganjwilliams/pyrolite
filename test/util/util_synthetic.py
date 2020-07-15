@@ -6,15 +6,15 @@ from pyrolite.util.synthetic import *
 
 class TestExampleSpiderData(unittest.TestCase):
     def test_default(self):
-        nobs = 20
-        df = example_spider_data(nobs=nobs)
+        size = 20
+        df = example_spider_data(size=size)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertIn("Eu", df.columns)
 
     def test_norm_None(self):
-        nobs = 20
-        df = example_spider_data(nobs=nobs, norm_to=None)
-        df2 = example_spider_data(nobs=nobs)
+        size = 20
+        df = example_spider_data(size=size, norm_to=None)
+        df2 = example_spider_data(size=size)
         self.assertIsInstance(df, pd.DataFrame)
         self.assertIn("Eu", df.columns)
         self.assertTrue(((df2["Cs"] / df["Cs"]) > 1).all())
