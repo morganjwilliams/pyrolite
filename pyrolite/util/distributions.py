@@ -52,8 +52,9 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     ----------
     :class:`numpy.ndarray`
     """
-    data = data[np.isfinite(data).all(axis=1), :]
+
     tdata = transform(data)
+    tdata = tdata[np.isfinite(tdata).all(axis=1), :]
 
     K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
 
@@ -63,6 +64,9 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     else:
         zshape = samples.shape[0]
         ksamples = transform(samples)
+
+    # samples shouldnt typically contain nans
+    # ksamples = ksamples[np.isfinite(ksamples).all(axis=1), :]
 
     zi = K(ksamples.T)
     zi = zi.reshape(zshape)
