@@ -111,10 +111,11 @@ def density(
     pcolor, contour, contourf = get_axis_density_methods(ax)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
 
-    if isinstance(cmap, str):
-        cmap = plt.get_cmap(cmap)
+    if cmap is not None:
+        if isinstance(cmap, str):
+            cmap = plt.get_cmap(cmap)
 
-    cmap.set_under((1, 1, 1, 0))
+        cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
@@ -267,6 +268,9 @@ def _add_contours(
     extent=None,
     **kwargs
 ):
+    """
+    Add density-based contours to a plot.
+    """
     # get the contour levels
     percentiles = kwargs.pop("percentiles", True)
     levels = contours or kwargs.get("levels", None)

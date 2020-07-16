@@ -29,6 +29,34 @@ except ImportError:
 USE_PCOLOR = False
 
 
+def get_axis_density_methods(ax):
+    """
+    Get the relevant density and contouring methods for a given axis.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes` | :class:`mpltern.ternary.TernaryAxes`
+        Axis to check.
+
+    Returns
+    --------
+    pcolor, contour, contourf
+        Relevant functions for this axis.
+    """
+    if ax.name == "ternary":
+        pcolor = ax.tripcolor
+        contour = ax.tricontour
+        contourf = ax.tricontourf
+    else:
+        if USE_PCOLOR:
+            pcolor = ax.pcolor
+        else:
+            pcolor = ax.pcolormesh
+        contour = ax.contour
+        contourf = ax.contourf
+    return pcolor, contour, contourf
+
+
 def percentile_contour_values_from_meshz(
     z, percentiles=[0.95, 0.66, 0.33], resolution=1000
 ):
@@ -77,6 +105,106 @@ def percentile_contour_values_from_meshz(
         )
         non_one = integral[~np.isclose(integral, np.ones_like(integral))]
         return ["min"], f(np.array([np.nanmax(non_one)]))
+
+
+def plot_Z_percentiles(
+    *coords,
+    zi=None,
+    percentiles=[0.95, 0.66, 0.33],
+    ax=None,
+    extent=None,
+    fontsize=8,
+    cmap=None,
+    colors=None,
+    linestyles="-",
+    contour_labels=None,
+    label_contours=True,
+    **kwargs
+):
+    """
+    Plot percentile contours onto a 2D  (scaled or unscaled) probability density
+    distribution Z over X,Y.
+
+    Parameters
+    ------------
+    coords : :class:`numpy.ndarray`
+        Arrays of (x, y) or (a, b, c) coordinates.
+    z : :class:`numpy.ndarray`
+        Probability density function over x, y.
+    percentiles : :class:`list`
+        Percentile values for which to create contours.
+    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        Axes on which to plot. If none given, will create a new Axes instance.
+    extent : :class:`list`, :code:`None`
+        List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
+    fontsize : :class:`float`
+        Fontsize for the contour labels.
+    cmap : :class:`matplotlib.colors.ListedColormap`
+        Color map for the contours and contour labels.
+    colors : :class:`str` | :class:`list`
+        Colors for the contours, can optionally be specified *in place of* `cmap.`
+    linestyles : :class:`str` | :class:`list`
+        Style of the contour lines.
+    contour_labels : :class:`dict`
+        Labels to assign to contours, organised by level.
+    label_contours :class:`bool`
+        Whether to add text labels to individual contours.
+
+    Returns
+    -------
+    :class:`matplotlib.contour.QuadContourSet`
+        Plotted and formatted contour set.
+
+    Notes
+    -----
+    When the contours are percentile based, high percentile contours tend to get
+    washed our with colormapping - consider adding different controls on coloring,
+    especially where there are only one or two contours specified. One way to do
+    this would be via the string based keyword argument `colors` for plt.contour, with
+    an adaption for non-string colours which post-hoc modifies the contour lines
+    based on the specified colours?
+    """
+    if ax is None:
+        fig, ax = plt.subplots(1, figsize=(6, 6))
+
+    if extent is None:
+        # if len(coords) == 2:  # currently won't work for ternary
+        extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
+
+    clabels, contours = percentile_contour_values_from_meshz(
+        zi, percentiles=percentiles
+    )
+
+    pcolor, contour, contourf = get_axis_density_methods(ax)
+    if colors is not None:  # colors are explicitly specified
+        cmap = None
+
+    cs = contour(
+        *coords,
+        zi,
+        levels=contours,
+        cmap=cmap,
+        colors=colors,
+        linestyles=linestyles,
+        **kwargs
+    )
+    if label_contours:
+        fs = kwargs.pop("fontsize", None) or 8
+        lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
+        z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
+        trans = {
+            float(t): str(p)
+            for t, p in zip(z_contours, sorted(percentiles, reverse=True))
+        }
+        if contour_labels is None:
+            _labels = [trans[float(l.get_text())] for l in lbls]
+        else:  # get the labels from the dictionary provided
+            contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
+            _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+
+        for l, t in zip(lbls, _labels):
+            l.set_text(t)
+    return cs
 
 
 def conditional_prob_density(
@@ -230,106 +358,3 @@ def conditional_prob_density(
     if ret_centres:
         return xe, ye, zi, xi, yi
     return xe, ye, zi
-
-
-def get_axis_density_methods(ax):
-    """
-    Get the relevant density and contouring methods for a given axis.
-
-    Parameters
-    -----------
-    ax : :class:`matplotlib.axes.Axes` | :class:`mpltern.ternary.TernaryAxes`
-        Axis to check.
-
-    Returns
-    --------
-    pcolor, contour, contourf
-        Relevant functions for this axis.
-    """
-    if ax.name == "ternary":
-        pcolor = ax.tripcolor
-        contour = ax.tricontour
-        contourf = ax.tricontourf
-    else:
-        if USE_PCOLOR:
-            pcolor = ax.pcolor
-        else:
-            pcolor = ax.pcolormesh
-        contour = ax.contour
-        contourf = ax.contourf
-    return pcolor, contour, contourf
-
-
-def plot_Z_percentiles(
-    *coords,
-    zi=None,
-    percentiles=[0.95, 0.66, 0.33],
-    ax=None,
-    extent=None,
-    fontsize=8,
-    cmap=None,
-    contour_labels=None,
-    label_contours=True,
-    **kwargs
-):
-    """
-    Plot percentile contours onto a 2D  (scaled or unscaled) probability density
-    distribution Z over X,Y.
-
-    Parameters
-    ------------
-    coords : :class:`numpy.ndarray`
-        Arrays of (x, y) or (a, b, c) coordinates.
-    z : :class:`numpy.ndarray`
-        Probability density function over x, y.
-    percentiles : :class:`list`
-        Percentile values for which to create contours.
-    ax : :class:`matplotlib.axes.Axes`, :code:`None`
-        Axes on which to plot. If none given, will create a new Axes instance.
-    extent : :class:`list`, :code:`None`
-        List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    fontsize : :class:`float`
-        Fontsize for the contour labels.
-    cmap : :class:`matplotlib.colors.ListedColormap`
-        Color map for the contours, contour labels and imshow.
-    contour_labels : :class:`dict`
-        Labels to assign to contours, organised by level.
-    label_contours :class:`bool`
-        Whether to add text labels to individual contours.
-
-    Returns
-    -------
-    :class:`matplotlib.contour.QuadContourSet`
-        Plotted and formatted contour set.
-
-    """
-    if ax is None:
-        fig, ax = plt.subplots(1, figsize=(6, 6))
-
-    if extent is None:
-        # if len(coords) == 2:  # currently won't work for ternary
-        extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
-
-    clabels, contours = percentile_contour_values_from_meshz(
-        zi, percentiles=percentiles
-    )
-
-    pcolor, contour, contourf = get_axis_density_methods(ax)
-    cs = contour(*coords, zi, levels=contours, cmap=cmap, **kwargs)
-    if label_contours:
-        fs = kwargs.pop("fontsize", None) or 8
-        lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
-        z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
-        trans = {
-            float(t): str(p)
-            for t, p in zip(z_contours, sorted(percentiles, reverse=True))
-        }
-        if contour_labels is None:
-            _labels = [trans[float(l.get_text())] for l in lbls]
-        else:  # get the labels from the dictionary provided
-            contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
-            _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
-
-        for l, t in zip(lbls, _labels):
-            l.set_text(t)
-    return cs
