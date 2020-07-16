@@ -456,11 +456,15 @@ def calc_lambdas(
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
+
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
     params = _get_params(params=params, degree=degree)
     # these are the REE which the lambdas will be EVALUATED at; exclude empty columns
     columns = [c for c in df.columns if c not in exclude and np.nansum(df[c])]
+    if not columns:
+        msg = "No columns specified (after exclusion), nothing to calculate."
+        raise IndexError(msg)
     radii = get_ionic_radii(columns, charge=3, coordination=8)
 
     df = df[columns]
