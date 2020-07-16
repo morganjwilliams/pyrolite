@@ -522,6 +522,8 @@ def lambda_lnREE(
     degree=4,
     scale="ppm",
     allow_missing=True,
+    min_elements=7,
+    algorithm="ONeill",
     **kwargs
 ):
     """
@@ -550,6 +552,10 @@ def lambda_lnREE(
         Current units for the REE data, used to scale the reference dataset.
     allow_missing : :class:`True`
         Whether to calculate lambdas for rows which might be missing values.
+    min_elements : :class:`int`
+        Minimum columns present to return lambda values.
+    algorithm : :class:`str`
+        Algorithm to use for fitting the orthogonal polynomials.
 
     Todo
     -----
@@ -571,15 +577,23 @@ def lambda_lnREE(
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     # if there are no supplied params, they will be calculated in calc_lambdas
-    # check if there are columns which are empty
-    exclude += list(df.columns[df.isnull().all(axis=0)])
+
     # Check which REE we're dealing with
     ree = [el for el in REE() if el in df.columns and el not in exclude]
+
     # initialize normdf
     norm_df = df.loc[:, ree].copy()
-    if not allow_missing:
-        # nullify rows with missing data
-        norm_df.loc[pd.isnull(df.loc[:, ree]).any(axis=1), :] = np.nan
+    # check if there are columns which are empty
+    empty = list(norm_df.columns[norm_df.isnull().all(axis=0)])
+    if empty:
+        logger.debug("Empty columns found: {}".format(", ".join(empty)))
+        exclude += empty
+
+    if norm_df.columns.size < min_elements:
+        msg = (
+            "Dataframe size below minimum number of elements required to conduct a fit."
+        )
+        logger.warning(msg)
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
@@ -599,7 +613,28 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
+    if not allow_missing:
+        # nullify rows with missing data
+        missing = pd.isnull(df.loc[:, ree]).any(axis=1)
+        if missing.any():
+            logger.debug("Ignoring {} rows with missing data.".format(missing.sum()))
+            norm_df.loc[missing, :] = np.nan
+
+    row_filter = norm_df.count(axis=1) >= min_elements
+
+    lambdadf = pd.DataFrame(
+        index=norm_df.index,
+        columns=[chr(955) + str(d) for d in range(degree)],
+        dtype="float32",
+    )
+    # we've already excluded columns, so dont' need to here
+    lambdadf.loc[row_filter, :] = lambdas.calc_lambdas(
+        norm_df.loc[row_filter, :],
+        params=params,
+        degree=degree,
+        algorithm=algorithm,
+        **kwargs
+    )
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

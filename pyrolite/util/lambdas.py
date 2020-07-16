@@ -461,7 +461,7 @@ def calc_lambdas(
     # orthogonal polynomial functions which are combined to compose the REE pattern
     params = _get_params(params=params, degree=degree)
     # these are the REE which the lambdas will be EVALUATED at; exclude empty columns
-    columns = [c for c in df.columns if c not in exclude and np.nansum(df[c])]
+    columns = [c for c in df.columns if c not in exclude and np.isfinite(df[c]).sum()]
     if not columns:
         msg = "No columns specified (after exclusion), nothing to calculate."
         raise IndexError(msg)
