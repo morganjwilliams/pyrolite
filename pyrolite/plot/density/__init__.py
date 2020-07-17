@@ -97,6 +97,10 @@ def density(
             :func:`matplotlib.pyplot.hist2d`
             :func:`matplotlib.pyplot.contourf`
 
+    Notes
+    -----
+    Could implement an option and filter to 'scatter' points below the minimum threshold
+    or maximum percentile contours.
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
