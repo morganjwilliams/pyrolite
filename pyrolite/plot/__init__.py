@@ -37,17 +37,18 @@ from ..util.distributions import sample_kde, get_scaler
 __all__ = ["density", "spider", "pyroplot"]
 
 
-def _export_pyrolite_mplstyle():
+def _export_pyrolite_mplstyle(refresh=False):
     dest = Path(matplotlib.get_configdir()) / "stylelib"
 
-    if not (dest / "pyrolite.mplstyle").exists():
+    if (not (dest / "pyrolite.mplstyle").exists()) or refresh:
+        logger.debug('Exporting pyrolite.mplstyle to matplotlib config folder.')
         if not dest.exists():
             dest.mkdir(parents=True)
         copy_file(
             pyrolite_datafolder("_config") / "pyrolite.mplstyle",
             dest / "pyrolite.mplstyle",
         )
-
+        logger.debug('Reloading matplotlib')
         matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 

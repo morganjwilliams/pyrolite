@@ -522,7 +522,7 @@ def helmert_basis(D: int, full=False, **kwargs):
     return H
 
 
-def symbolic_helmert_basis(D, full=False, reverse=False):
+def symbolic_helmert_basis(D, full=False):
     """
     Get a symbolic representation of a Helmert Matrix.
 
@@ -534,8 +534,6 @@ def symbolic_helmert_basis(D, full=False, reverse=False):
     full : :class:`bool`
         Whether to return the full matrix, or alternatively exclude the first row.
         Analogous to the option for :func:`scipy.linalg.helmert`.
-    reverse : :class:`bool`
-        Whether to return the reverse ordering of matrix rows.
 
     Returns
     --------
@@ -552,10 +550,6 @@ def symbolic_helmert_basis(D, full=False, reverse=False):
             + [-r / sympy.sqrt((r + 1) * r)]  # -n/sqrt(n(*n+1))
             + [0] * (D - r - 1)
         ]
-
-    if reverse:
-        rows = rows[::-1]
-
     # could check summations here
 
     return sympy.Matrix(rows)
