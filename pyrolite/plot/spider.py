@@ -33,6 +33,7 @@ def spider(
     markersize=5.0,
     label=None,
     logy=True,
+    yextent=None,
     mode="plot",
     unity_line=False,
     **kwargs
@@ -64,6 +65,8 @@ def spider(
         Label for the individual series.
     logy : :class:`bool`
         Whether to use a log y-axis.
+    yextent : :class:`tuple`
+        Extent in the y direction for conditional probability plots.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -165,6 +168,7 @@ def spider(
             arr,
             x=indexes0,
             logy=logy,
+            yextent=yextent,
             mode=mode,
             ret_centres=True,
             **subkwargs(local_kw, conditional_prob_density)

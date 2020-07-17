@@ -13,6 +13,7 @@ import scipy.interpolate
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
 from ..math import flattengrid, linspc_, logspc_, interpolate_line
+from ..distributions import sample_kde
 from .grid import bin_centres_to_edges
 import logging
 
@@ -213,6 +214,7 @@ def conditional_prob_density(
     logy=False,
     resolution=5,
     ybins=100,
+    yextent=None,
     rescale=True,
     mode="binkde",
     ret_centres=False,
@@ -232,6 +234,8 @@ def conditional_prob_density(
         Points added per segment via interpolation along the x axis.
     ybins : :class:`int`
         Bins for histograms and grids along the independent axis.
+    yextent : :class:`tuple`
+        Extent in the y direction.
     rescale : :class:`bool`
         Whether to rescale bins to give the same max Z across x.
     mode : :class:`str`
