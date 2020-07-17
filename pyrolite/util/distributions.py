@@ -39,9 +39,10 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     Parameters
     ------------
     data : :class:`numpy.ndarray`
-        Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
+        Source data to estimate the kernel density estimate; observations should be
+        in rows (:code:`npoints, ndim`).
     samples : :class:`numpy.ndarray`
-        Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`).
+        Coordinates to sample the KDE estimate at (:code:`npoints, ndim`).
     transform
         Transformation used prior to kernel density estimate.
     bw_method : :class:`str`, :class:`float`, callable
@@ -52,25 +53,37 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     ----------
     :class:`numpy.ndarray`
     """
+    # check shape info first
+    data = np.atleast_2d(data)
+    if data.shape[0] == 1:  # single row which should be a column
+        logger.debug("Transposing data row to column format for KDE.")
+        data = data.T
 
     tdata = transform(data)
-    tdata = tdata[np.isfinite(tdata).all(axis=1), :]
+    tdata = tdata[np.isfinite(tdata).all(axis=1), :]  # filter rows with nans
 
     K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
 
     if isinstance(samples, list) and isinstance(samples[0], np.ndarray):  # meshgrid
+        logger.debug("Sampling with meshgrid.")
         zshape = samples[0].shape
-        ksamples = transform(flatten_grid(ks).T)
+        ksamples = transform(flattengrid(samples))
     else:
         zshape = samples.shape[0]
         ksamples = transform(samples)
 
+     # ensures shape is fine even if row is passed
+    ksamples = ksamples.reshape(-1, tdata.shape[1])
+
     # samples shouldnt typically contain nans
     # ksamples = ksamples[np.isfinite(ksamples).all(axis=1), :]
+    if not tdata.shape[1] == ksamples.shape[1]:
+        logger.warn("Dimensions of data and samples do not match.")
 
     zi = K(ksamples.T)
     zi = zi.reshape(zshape)
     if renorm:
+        logger.debug("Normalising KDE sample.")
         zi = zi / np.nanmax(zi)
     return zi
 

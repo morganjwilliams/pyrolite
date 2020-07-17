@@ -164,6 +164,9 @@ def spider(
 
         # could modify legend here.
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
+        if "contours" in kwargs and "vmin" in kwargs:
+            msg = "Combining `contours` and `vmin` arugments for density plots should be avoided."
+            logger.warn(msg)
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,
             x=indexes0,
@@ -171,7 +174,7 @@ def spider(
             yextent=yextent,
             mode=mode,
             ret_centres=True,
-            **subkwargs(local_kw, conditional_prob_density)
+            **local_kw
         )
         # can have issues with nans here?
         vmin = kwargs.pop("vmin", 0)

@@ -12,6 +12,7 @@ from numpy.linalg import LinAlgError
 import scipy.interpolate
 from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
+from ..meta import subkwargs
 from ..math import flattengrid, linspc_, logspc_, interpolate_line
 from ..distributions import sample_kde
 from .grid import bin_centres_to_edges
@@ -218,6 +219,7 @@ def conditional_prob_density(
     rescale=True,
     mode="binkde",
     ret_centres=False,
+    **kwargs
 ):
     """
     Estimate the conditional probability density of one dependent variable.
@@ -300,7 +302,10 @@ def conditional_prob_density(
         x, y = np.swapaxes(xy, 0, 1)
 
     xx = np.sort(x[0])
-    ymin, ymax = np.nanmin(y), np.nanmax(y)
+    if yextent is None:
+        ymin, ymax = np.nanmin(y), np.nanmax(y)
+    else:
+        ymin, ymax = np.nanmin(yextent), np.nanmax(yextent)
 
     # remove non finite values for kde functions
     ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
@@ -310,6 +315,8 @@ def conditional_prob_density(
     # yy is backwards?
     xi, yi = np.meshgrid(xx, yy)
     xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
+
+    kde_kw = subkwargs(kwargs, sample_kde)
 
     if mode == "ckde":
         fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
@@ -322,33 +329,32 @@ def conditional_prob_density(
             raise ImportError("Requires statsmodels.")
         # statsmodels pdf takes values in reverse order
         zi = dens_c.pdf(yi.flatten(), xi.flatten()).reshape(xi.shape)
-    elif mode == "kde":  # kde of dataset
-        xkde = gaussian_kde(x[0])(x[0])  # marginal density along x
-        fltr = np.isfinite(y.flatten()) & np.isfinite(x.flatten())
-        x, y = x.flatten()[fltr], y.flatten()[fltr]
-        try:
-            kde = gaussian_kde(np.vstack([x, y]))
-        except LinAlgError:  # singular matrix, need to add miniscule noise on x?
-            logger.warn("Singular Matrix")
-            logger.x = x + np.random.randn(*x.shape) * np.finfo(np.float).eps
-            kde = gaussian_kde(np.vstack(([x, y])).T)
-
-        zi = kde(flattengrid([xi, yi]).T).reshape(xi.shape) / xkde[np.newaxis, :]
     elif mode == "binkde":  # calclate a kde per bin
         zi = np.zeros(xi.shape)
-        for bin_index in range(x.shape[1]):
+        for bin_index in range(x.shape[1]):  # bins along the x-axis
             # if np.isfinite(y[:, bin_index]).any(): # bins can be empty
-            kde = gaussian_kde(y[np.isfinite(y[:, bin_index]), bin_index])
-            zi[:, bin_index] = kde(yi[:, bin_index])
+            src = y[:, bin_index]
+            sample_at = yi[:, bin_index]
+            zi[:, bin_index] = sample_kde(src, sample_at, **kde_kw)
             # else:
             # pass
+    elif mode == "kde":  # eqivalent to 2D KDE for scatter x,y * resolution
+        xkde = sample_kde(x[0], x[0])  # marginal density along x
+        src = np.vstack([x.flatten(), y.flatten()]).T
+        sample_at = [xi, yi]  # meshgrid logistics dealt with by sample_kde
+        try:
+            zi = sample_kde(src, sample_at, **kde_kw)
+        except LinAlgError:  # singular matrix, try adding miniscule noise on x?
+            logger.warn("Singular Matrix")
+            src[:, 0] += np.random.randn(*x.shape) * np.finfo(np.float).eps
+        zi = sample_kde(src, sample_at, **kde_kw)
+        zi.reshape(xi.shape)
+        zi /= xkde[np.newaxis, :]
     elif "hist" in mode.lower():  # simply compute the histogram
         # histogram monotonically increasing bins, requires logbins be transformed
         # calculate histogram in logy if needed
-
         bins = [bin_centres_to_edges(xx), bin_centres_to_edges(yy)]
         H, xe, ye = np.histogram2d(x.flatten(), y.flatten(), bins=bins)
-
         zi = H.T.reshape(xi.shape)
     else:
         raise NotImplementedError
