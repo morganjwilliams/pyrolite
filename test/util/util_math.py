@@ -17,20 +17,20 @@ class TestAugmentedCovarianceMatrix(unittest.TestCase):
 
 class TestInterpolateLine(unittest.TestCase):
     def setUp(self):
-        self.xy = np.vstack([np.linspace(0.0, 10.0, 10), np.random.randn(10)])
+        self.x, self.y = np.linspace(0.0, 10.0, 10), np.random.randn(10)
 
     def test_default(self):
         # should do no interpoltion
-        interpxy = interpolate_line(self.xy)
-        self.assertTrue(isinstance(interpxy, np.ndarray))
-        self.assertTrue(interpxy.shape == self.xy.shape)
+        ix, iy = interpolate_line(self.x, self.y)
+        self.assertTrue(isinstance(ix, np.ndarray))
+        self.assertTrue(ix.shape == self.x.shape)
 
     def test_n(self):
         for n in [2, 5]:
-            interpxy = interpolate_line(self.xy, n=n)
-            self.assertTrue(isinstance(interpxy, np.ndarray))
+            ix, iy = interpolate_line(self.x, self.y, n=n)
+            self.assertTrue(isinstance(ix, np.ndarray))
             self.assertTrue(
-                interpxy.shape == (2, self.xy.shape[1] + (self.xy.shape[1] - 1) * n)
+                iy.shape[-1] == self.y.shape[-1] + (self.y.shape[-1] - 1) * n
             )
 
 

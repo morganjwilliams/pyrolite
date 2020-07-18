@@ -24,8 +24,8 @@ def bin_centres_to_edges(centres, sort=True):
         centres = np.sort(centres.flatten())
     internal_means = (centres[1:] + centres[:-1]) / 2.0
     before, after = (
-        centres[0] - (internal_means[0] - centres[0]) / 2,
-        centres[-1] + (centres[-1] - internal_means[-1]) / 2,
+        centres[0] - (internal_means[0] - centres[0]),
+        centres[-1] + (centres[-1] - internal_means[-1]),
     )
     return np.hstack([before, internal_means, after])
 
