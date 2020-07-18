@@ -67,33 +67,40 @@ def augmented_covariance_matrix(M, C):
     return A
 
 
-def interpolate_line(xy, n=0, logy=False):
+def interpolate_line(x, y, n=0, logy=False):
     """
-    Add intermediate evenly spaced points interpolated between given x-y coordinates.
+    Add intermediate evenly spaced points interpolated between given x-y coordinates,
+    assuming the x points are the same.
+
+    Parameters
+    -----------
+    x : :class:`numpy.ndarray`
+        1D array of x values.
+
+    y : :class:`numpy.ndarray`
+        ND array of y values.
     """
-    xy = np.squeeze(xy)
-    if xy.ndim > 2:
-        return np.array(
-            list(map(lambda line: interpolate_line(line, n=n, logy=logy), xy))
-        )
-    x, y = xy
     if logy:  # perform interpolation against logy, then revert with exp
         y = np.log(y)
-    intervals = x[1:] - x[:-1]
-    current = x[:-1].copy()
+
+    current = x[:-1].copy() # the first part of the x array
+    intervals = x[1:] - x[:-1] # right-wise intervals (could be negative for REE)
     _x = current.copy().astype(np.float)
-    if n:
+
+    if n:  # should be able to tile this instead
         dx = intervals / (n + 1.0)
         for ix in range(n):
             current = current + dx
-            _x = np.append(_x, current)
-    _x = np.append(_x, np.array([x[-1]]))
-    _x = np.sort(_x)
-    _y = np.interp(_x, x, y)
-    assert all([i in _x for i in x])
+            _x = np.hstack([_x, current])
+
+    _x = np.append(_x, x[-1])  # add one final value to x series
+    _x = np.sort(_x, axis=-1)
+    f = scipy.interpolate.interp1d(x, y, axis=-1)
+    _y = f(_x)
+    # assert all([i in _x for i in x])
     if logy:
         _y = np.exp(_y)
-    return np.vstack([_x, _y])
+    return _x, _y
 
 
 def grid_from_ranges(X, bins=100, **kwargs):

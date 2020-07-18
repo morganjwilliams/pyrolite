@@ -259,20 +259,6 @@ def conditional_prob_density(
         :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density
         estimates :code:`Z`. If :code:`ret_centres` is :code:`True`, the last two return
         values will contain the bin centres :code:`xi`, :code:`yi`.
-
-
-    Notes
-    ------
-
-        * Bins along the x axis are defined such that the x points (including
-          interpolated points) are the centres.
-
-    Todo
-    -----
-
-        * Tests
-        * Implement log grids (for y)
-        * Add approach for interpolation? (need resolution etc) - this will resolve lines, not points!
     """
     # check for shapes
     assert not ((x is None) and (y is None))
@@ -283,6 +269,9 @@ def conditional_prob_density(
     nvar = y.shape[1]
     if x is None:  # Create a simple arange-based index
         x = np.arange(nvar)
+
+    if resolution:  # this is where REE previously broke down
+        x, y = interpolate_line(x, y, n=resolution, logy=logy)
 
     if not x.shape == y.shape:
         try:  # x is an index to be tiled
@@ -295,13 +284,7 @@ def conditional_prob_density(
             )
             raise AssertionError(msg)
 
-    if resolution:
-        xy = np.array([x, y])
-        xy = np.swapaxes(xy, 1, 0)
-        xy = interpolate_line(xy, n=resolution, logy=logy)
-        x, y = np.swapaxes(xy, 0, 1)
-
-    xx = np.sort(x[0])
+    xx = x[0]
     if yextent is None:
         ymin, ymax = np.nanmin(y), np.nanmax(y)
     else:
@@ -312,9 +295,10 @@ def conditional_prob_density(
     yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=bins)
     if logy:  # make grid equally spaced, evaluate in log then transform back
         y, yy = np.log(y), np.log(yy)
-    # yy is backwards?
+
     xi, yi = np.meshgrid(xx, yy)
-    xe, ye = np.meshgrid(bin_centres_to_edges(xx), bin_centres_to_edges(yy))
+    # bin centres may be off centre, but will be in the bins.
+    xe, ye = np.meshgrid(bin_centres_to_edges(xx, sort=False), bin_centres_to_edges(yy))
 
     kde_kw = subkwargs(kwargs, sample_kde)
 
