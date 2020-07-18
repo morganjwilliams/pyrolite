@@ -214,7 +214,7 @@ def conditional_prob_density(
     x=None,
     logy=False,
     resolution=5,
-    ybins=100,
+    bins=50,
     yextent=None,
     rescale=True,
     mode="binkde",
@@ -234,7 +234,7 @@ def conditional_prob_density(
         Whether to use a logarithmic bin spacing on the y axis.
     resolution : :class:`int`
         Points added per segment via interpolation along the x axis.
-    ybins : :class:`int`
+    bins : :class:`int`
         Bins for histograms and grids along the independent axis.
     yextent : :class:`tuple`
         Extent in the y direction.
@@ -308,8 +308,8 @@ def conditional_prob_density(
         ymin, ymax = np.nanmin(yextent), np.nanmax(yextent)
 
     # remove non finite values for kde functions
-    ystep = [(ymax - ymin) / ybins, (ymax / ymin) / ybins][logy]
-    yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=ybins)
+    ystep = [(ymax - ymin) / bins, (ymax / ymin) / bins][logy]
+    yy = [linspc_, logspc_][logy](ymin, ymax, step=ystep, bins=bins)
     if logy:  # make grid equally spaced, evaluate in log then transform back
         y, yy = np.log(y), np.log(yy)
     # yy is backwards?

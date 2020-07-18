@@ -96,7 +96,7 @@ modes = [
         [],
         dict(contours=[0.95], resolution=5),  # 95th percentile contour
     ),
-    ("histogram", "histogram", [], dict(resolution=5, ybins=30)),
+    ("histogram", "histogram", [], dict(resolution=5, bins=30)),
 ]
 ########################################################################################
 down, across = len(modes), 1

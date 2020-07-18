@@ -278,8 +278,15 @@ def REE_v_radii(
         _xlabelrotation, xlabelrotation = xlabelrotation, _xlabelrotation
 
     if arr is not None:
-        kwargs["indexes"] = kwargs.get("indexes", indexes)
-        ax = spider(arr, ax=ax, logy=logy, mode=mode, unity_line=unity_line, **kwargs)
+        ax = spider(
+            arr,
+            ax=ax,
+            logy=logy,
+            mode=mode,
+            unity_line=unity_line,
+            indexes=indexes,
+            **kwargs
+        )
 
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)
