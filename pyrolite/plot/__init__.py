@@ -41,14 +41,14 @@ def _export_pyrolite_mplstyle(refresh=False):
     dest = Path(matplotlib.get_configdir()) / "stylelib"
 
     if (not (dest / "pyrolite.mplstyle").exists()) or refresh:
-        logger.debug('Exporting pyrolite.mplstyle to matplotlib config folder.')
+        logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
         if not dest.exists():
             dest.mkdir(parents=True)
         copy_file(
             pyrolite_datafolder("_config") / "pyrolite.mplstyle",
             dest / "pyrolite.mplstyle",
         )
-        logger.debug('Reloading matplotlib')
+        logger.debug("Reloading matplotlib")
         matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 
@@ -83,7 +83,7 @@ _export_nonRCstyles()
 matplotlib.style.use("pyrolite")
 
 
-def _check_components(obj, components=None, valid_sizes=[2, 3]):
+def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
     """
     Check that the components provided within a dataframe are consistent with the
     form of plot being used.
@@ -94,6 +94,8 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
         Object to check.
     components : :class:`list`
         List of components, optionally specified.
+    check_size : :class:`bool`
+        Whether to verify the size of the column index.
     valid_sizes : :class:`list`
         Component list lengths which are valid for the plot type.
 
@@ -103,7 +105,7 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
         Components for the plot.
     """
     try:
-        if obj.columns.size not in valid_sizes:
+        if check_size and (obj.columns.size not in valid_sizes):
             assert len(components) in valid_sizes
 
         if components is None:
