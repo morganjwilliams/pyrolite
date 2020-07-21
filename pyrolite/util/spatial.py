@@ -238,3 +238,40 @@ def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
     }
     bnds = [cardinal.get(tnsltr[o]) for o in order]
     return bnds
+
+
+def levenshtein_distance(seq_one, seq_two):
+    """
+    Compute the Levenshtein Distance between two sequences with comparable items.
+    Adapted from Wiki pseudocode.
+
+    Parameters
+    ----------
+    seq_one, seq_two : :class:`str` | :class:`list`
+        Sequences to compare.
+
+    Returns
+    --------
+    :class:`int`
+    """
+    m, n = len(seq_one), len(seq_two)
+    D = np.zeros((m + 1, n + 1), dtype=int)
+
+    for i in range(m + 1):
+        D[i, 0] = i
+
+    for j in range(n + 1):
+        D[0, j] = j
+
+    for j in np.arange(1, n + 1):  # n along columns
+        for i in np.arange(1, m + 1):  # m along rows
+
+            if seq_one[i - 1] == seq_two[j - 1]:
+                substitutionCost = 0
+            else:
+                substitutionCost = 1
+
+            D[i, j] = min(
+                D[i - 1, j] + 1, D[i, j - 1] + 1, D[i - 1, j - 1] + substitutionCost
+            )
+    return D[-1, -1]
