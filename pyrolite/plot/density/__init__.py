@@ -211,7 +211,8 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
-            assert (arr > 0).all()
+            # zeros make nans in this case, due to the heatmap calculations
+            arr[~(arr > 0).all(axis=1), :] = np.nan
             arr = close(arr)
             if mode == "hexbin":
                 raise NotImplementedError
