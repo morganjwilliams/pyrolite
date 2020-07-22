@@ -178,7 +178,7 @@ def process_color(
         }
         # the parameter 'c' will override 'facecolor' and related
         if any([k in d for k in _face_edge_equivalents.keys()]):
-            d.pop("c")
+            d.pop("c", None)
         return d
 
     cmode = get_cmode(C)
@@ -187,10 +187,13 @@ def process_color(
     if cmode in ["hex", "named", "rgb", "rgba"]:  # single color
         C = matplotlib.colors.to_rgba(C)
         if alpha is not None:
-            C = (*C[:-1], alpha)  # can't assign to tuple, create new one instead
+            C = (
+                *C[:-1],
+                alpha * C[-1],
+            )  # can't assign to tuple, create new one instead
         _c, _color = np.array([C]), C  # Convert to standardised form
         if size is not None:
-            _c = np.ones((size, 1)) * _c # turn this into a full array as a fallback
+            _c = np.ones((size, 1)) * _c  # turn this into a full array as a fallback
     else:
         C = np.array(C)
         if cmode in [
@@ -238,13 +241,19 @@ def process_color(
         _c, _color = C, C
 
     d = {"color": _color, **otherkwargs}
-    # the parameter 'c' will override 'facecolors' and related
-    if not any([k in d for k in _face_edge_equivalents.keys()]):
+    # the parameter 'c' will override 'facecolors' and related for markers
+    if not any(
+        [
+            k in d
+            for k in [item for args in _face_edge_equivalents.items() for item in args]
+        ]
+    ):
         d["c"] = _c
     else:
         # for each of the facecolor modes specified return an edge variant
-        for k in _face_edge_equivalents:
-            if k in d:
-                e_name = _face_edge_equivalents[k]
-                d[e_name] = _color
+        for face, edge in _face_edge_equivalents.items():
+            if (face in d) and not (edge in d):
+                d[edge] = _c
+            if (edge in d) and not (face in d):
+                d[face] = _c
     return d
