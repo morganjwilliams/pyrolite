@@ -93,6 +93,7 @@ def process_color(
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
     color_mappings={},
+    size=None,
     **otherkwargs,
 ):
     """
@@ -118,6 +119,8 @@ def process_color(
         Dictionary containing category-color mappings for individual color variables,
         with the default color mapping having the key 'color'. For use where
         categorical values are specified for a color variable.
+    size : :class:`int`
+        Size of the data array along the first axis.
 
     Returns
     --------
@@ -186,6 +189,8 @@ def process_color(
         if alpha is not None:
             C = (*C[:-1], alpha)  # can't assign to tuple, create new one instead
         _c, _color = np.array([C]), C  # Convert to standardised form
+        if size is not None:
+            _c = np.ones((size, 1)) * _c # turn this into a full array as a fallback
     else:
         C = np.array(C)
         if cmode in [
@@ -243,14 +248,3 @@ def process_color(
                 e_name = _face_edge_equivalents[k]
                 d[e_name] = _color
     return d
-
-
-"""
-from pyrolite.util.plot import scatterkwargs, linekwargs
-
-plt.plot(
-    np.random.randn(2),
-    np.random.randn(2),
-    lc=linekwargs(process_color(c=np.array([0, 1]), alpha=0.5))["color"],
-)
-"""

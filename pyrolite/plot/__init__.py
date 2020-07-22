@@ -254,7 +254,7 @@ class pyroplot(object):
         )
         kwargs.update({"c": zi})
         ax = obj.reindex(columns=components).pyroplot.scatter(
-            ax=ax, axlabels=axlabels, **scatterkwargs(process_color(**kwargs)),
+            ax=ax, axlabels=axlabels, **kwargs
         )
         return ax
 
@@ -400,9 +400,10 @@ class pyroplot(object):
 
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
+        size = obj.index.size
         sc = ax.scatter(
             *obj.reindex(columns=components).values.T,
-            **scatterkwargs(process_color(**kwargs)),
+            **scatterkwargs(process_color(size=size, **kwargs)),
         )
 
         if axlabels:
