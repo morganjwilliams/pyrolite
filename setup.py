@@ -52,8 +52,8 @@ setup(
         "pathlib",
         "tinydb",
         "periodictable",
-        "matplotlib<=3.2.2",
-        "mpltern",
+        "matplotlib",
+        "mpltern>=0.3.1",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy",
