@@ -128,5 +128,17 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
 
 plt.tight_layout()
 ########################################################################################
+# Note that this can also be used for REE-indexed plots, in both configurations. Here
+# we first specify a set of common keyword-argument configurations and use them for
+# both plots:
+#
+REE_config = dict(unity_line=True, mode="binkde", vmin=0.05, resolution=10)
+
+fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
+normdf.pyroplot.REE(ax=ax[0], **REE_config)
+normdf.pyroplot.REE(ax=ax[1], index="radii", **REE_config)
+[a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
+plt.show()
+########################################################################################
 # .. seealso:: `Heatscatter Plots <heatscatter.html>`__,
 #              `Density Diagrams <density.html>`__
