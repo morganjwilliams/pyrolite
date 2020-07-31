@@ -21,11 +21,12 @@ Todo
         `development install <development.html#development-installation>`__.
 
 * Updated citation information.
-* Added specific testing for OSX for Travis.
-* **Feature**: Added a gallery with documentation pages for each of the datasets included with
-  :mod:`pyrolite`. This will soon be expanded, especially for the reference
-  compositions
-  (to address `#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
+* Added specific testing for OSX for Travis, and updated install method to better
+  pick up issues with pip installations.
+* **Feature**: Added a gallery with documentation pages for each of the datasets
+  included with :mod:`pyrolite`. This will soon be expanded, especially for the
+  reference compositions (to address
+  `#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,6 +65,11 @@ Todo
   use all the REE by default (i.e. change to :code:`params="full"`).
 * Significant performance upgrades for :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE`
   and associated functions (up to 3000x for larger datasets).
+* Added a minimum number of elements, configurable for
+  :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE`. This is currently set to seven
+  elements (about half of the REE), and probably lower than it should be ideally. If
+  for some reason you want to test what lambdas (maybe just one or two) look like with
+  less elements, you can use the `min_elements` keyword argument.
 * Added :meth:`~pyrolite.geochem.pyrochem.list_isotope_ratios` and corresponding
   selector :meth:`~pyrolite.geochem.pyrochem.isotope_ratios` to subset isotope ratios.
 * Added :meth:`~pyrolite.geochem.pyrochem.parse_chem` to translate geochemical columns
@@ -87,6 +93,15 @@ Todo
   This means you can modify the default bandwidth of the gaussian kernel density plots.
   Future updates may allow non-Gaussian kernels to also be used for these purposes -
   keep an eye out!
+* You can now specify the y-extent for conditional spider plots to restrict the range
+  over which the plot is generated (and focus the plot to where your data actually is).
+  For this, feed in a :code:`(min, max)` tuple for the `yextent` keyword argument.
+* The `ybins` argument for :meth:`~pyrolite.plot.pyroplot.spider` and related functions
+  has been updated to `bins` to be in line with other functions.
+* Conditional density :meth:`~pyrolite.plot.pyroplot.REE` plots now work as expected,
+  after some fixes for generating reverse-ordered indexes and bins
+* Added a filter for ternary density plots to ignore true zeroes.
+* Some updates for :mod:`pyrolite.plot.color` for alpha handling and colour arrays .
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,7 +123,10 @@ Todo
   with OSX/other systems. This is now much simpler and uses JSON for serialization.
 * Small fix for :func:`~pyrolite.util.plot.style.mappable_from_values` to deal with
   NaN values.
-* Added :mod:`pyrolite.util.log` for more streamlined logging (from :mod:`pyrolite-meltsutil`)
+* Added :mod:`pyrolite.util.log` for more streamlined logging (from
+  :mod:`pyrolite-meltsutil`)
+* Added :func:`pyrolite.util.spatial.levenshtein_distance` for comparing sequence
+  differences/distances between 1D iterables (e.g. strings, lists).
 
 `0.2.7`_
 --------------
