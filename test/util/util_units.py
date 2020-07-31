@@ -10,7 +10,7 @@ class TestScaleFunction(unittest.TestCase):
 
     def setUp(self):
         self.df = pd.DataFrame()
-        self.df["units"] = pd.Series(__UNITS__.keys())
+        self.df["units"] = pd.Series(list(__UNITS__.keys()))
         self.df["values"] = pd.Series(np.random.rand(self.df.index.size))
 
     def test_same_units(self):
