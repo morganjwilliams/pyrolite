@@ -21,7 +21,7 @@ Todo
         `development install <development.html#development-installation>`__.
 
 * Updated citation information.
-* Added specific testing for OSX for Travis, and updated install method to better
+* Added specific testing for OSX for Travis, and updated the install method to better
   pick up issues with pip installations.
 * **Feature**: Added a gallery with documentation pages for each of the datasets
   included with :mod:`pyrolite`. This will soon be expanded, especially for the
