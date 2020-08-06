@@ -3,11 +3,105 @@ Reference Compositions
 =======================
 
 """
+import matplotlib.pyplot as plt
+from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
+# sphinx_gallery_thumbnail_number = 11
+
+refcomps = all_reference_compositions()
+norm = "Chondrite_PON"  # a constant composition to normalise to
 ########################################################################################
 # Chondrites
 # -----------
 #
+fltr = lambda c: c.reservoir == "Chondrite"
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
+########################################################################################
+# Mantle
+# -------
+#
+# Primitive Mantle & Pyrolite
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+fltr = lambda c: c.reservoir in ["PrimitiveMantle", "BSE"]
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
+
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
+########################################################################################
+# Depleted Mantle
+# ~~~~~~~~~~~~~~~~
+#
+fltr = lambda c: ("Depleted" in c.reservoir) & ("Mantle" in c.reservoir)
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
+
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
+########################################################################################
+# Mid-Ocean Ridge Basalts (MORB)
+# -------------------------------
+#
+#
+# Average MORB, NMORB
+# ~~~~~~~~~~~~~~~~~~~~~
+#
+fltr = lambda c: c.reservoir in ["MORB", "NMORB"]
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
+
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
+########################################################################################
+#
+# Enriched MORB
+# ~~~~~~~~~~~~~
+#
+fltr = lambda c: "EMORB" in c.reservoir
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
+
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
+
+########################################################################################
+# Ocean Island Basalts
+# --------------------
+#
+fltr = lambda c: "OIB" in c.reservoir
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
+
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # Continental Crust
 # -----------------
@@ -15,78 +109,77 @@ Reference Compositions
 # Bulk Continental Crust
 # ~~~~~~~~~~~~~~~~~~~~~~~
 #
+fltr = lambda c: c.reservoir == "BulkContinentalCrust"
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # Upper Continental Crust
 # ~~~~~~~~~~~~~~~~~~~~~~~
 #
+fltr = lambda c: c.reservoir == "UpperContinentalCrust"
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # Mid-Continental Crust
 # ~~~~~~~~~~~~~~~~~~~~~
 #
+fltr = lambda c: c.reservoir == "MidContinentalCrust"
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # Lower Continental Crust
 # ~~~~~~~~~~~~~~~~~~~~~~~
 #
+fltr = lambda c: c.reservoir == "LowerContinentalCrust"
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
-########################################################################################
-# Mantle
-# -------
-#
-# Primitive Mantle
-# ~~~~~~~~~~~~~~~~~
-#
-
-########################################################################################
-# Depleted Mantle
-# ~~~~~~~~~~~~~~~~
-#
-
-########################################################################################
-# Pyrolite
-# ~~~~~~~~
-#
-
-########################################################################################
-# Mid-Ocean Ridge Basalts (MORB)
-# -------------------------------
-#
-#
-# Normal MORB
-# ~~~~~~~~~~~
-#
-
-########################################################################################
-#
-# Enriched MORB
-# ~~~~~~~~~~~~~
-#
-
-
-########################################################################################
-# Ocean Island Basalts
-# --------------------
-
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # Shales
 # ------
 #
+fltr = lambda c: "Shale" in c.reservoir
+compositions = [x for (name, x) in refcomps.items() if fltr(x)]
 
+fig, ax = plt.subplots(1)
+for composition in compositions:
+    composition.set_units("ppm")
+    df = composition.comp.pyrochem.normalize_to(norm, units="ppm")
+    df.pyroplot.REE(unity_line=True, ax=ax, label=composition.name)
+ax.legend()
+plt.show()
 ########################################################################################
 # References
 # -----------
 #
-# .. [RudnickGao2003] Rudnick, R.L., Gao, S. (2003).
-#           Composition of the Continental Crust.
-#           Treatise on Geochemistry 3, 1–64.
-#           doi: `10.1016/B0-08-043751-6/03016-4 <https://doi.org/10.1016/B0-08-043751-6/03016-4>`__
-#
-# .. [RudnickGao2014] Rudnick, R.L., Gao, S. (2014).
-#           Composition of the Continental Crust.
-#           Treatise on Geochemistry (Second Edition) 3, pp. 1–51.
-#           doi: `10.1016/B978-0-08-095975-7.00301-6 <https://doi.org/10.1016/B978-0-08-095975-7.00301-6>`__
+# |refcomps|
 #
 # .. seealso::
 #
