@@ -12,7 +12,7 @@ from pyrolite.util.time import Timescale, age_name
 
 ts = Timescale()
 
-ts.data.head()
+ts.data.iloc[:8, :5] # get the first eight rows and five columns of this table
 ########################################################################################
 # References
 # ~~~~~~~~~~~
