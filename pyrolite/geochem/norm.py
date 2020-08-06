@@ -7,6 +7,7 @@ import numpy as np
 import json
 from tinydb import TinyDB, Query
 from pathlib import Path
+from ..util.text import to_width
 from ..util.units import scale
 from ..util.meta import pyrolite_datafolder
 import logging
@@ -234,6 +235,37 @@ class Composition(object):
         self.comp *= scales
         self.units[:] = to
         return self
+
+    def describe(self, verbose=True, **kwargs):
+        """
+
+        """
+        metadata = self._df.loc[
+            "value",
+            [
+                "ModelName",
+                "Reservoir",
+                "ModelType",
+                "Reference",
+                "Citation",
+                "DOI",
+                "Description",
+            ],
+        ]
+        metadata[pd.isnull(metadata)] = None
+        desc = ""
+        if verbose:
+            desc += str(self)
+            desc += "\n"
+
+        if metadata["Description"] is not None:
+            desc += metadata["Description"]
+            desc += "\n"
+        if metadata["Citation"] is not None:
+            desc += metadata["Citation"]
+        if metadata["DOI"] is not None:
+            desc += "doi: {}".format(metadata["DOI"])
+        return to_width(desc, **kwargs)
 
     def __getitem__(self, variables):
         """
