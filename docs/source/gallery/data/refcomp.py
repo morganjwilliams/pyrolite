@@ -2,6 +2,10 @@
 Reference Compositions
 =======================
 
+This page presents the range of compositions within the reference compositon database
+accessible within :mod:`pyrolite`. It's currently a work in progress, but will soon
+contain extended descriptions and notes for some of the compositions and associated
+references.
 """
 import matplotlib.pyplot as plt
 from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
