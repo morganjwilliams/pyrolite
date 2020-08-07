@@ -170,44 +170,6 @@ def REY(output="string", dropPm=True):
     return elements
 
 
-def REE(output="string", dropPm=True):
-    """
-    Provides a list of Rare Earth Elements.
-
-    Parameters
-    -----------
-    output : :class:`str`
-        Whether to return output list as formulae ('formula') or strings (anthing else).
-
-    Returns
-    -------
-    :class:`list` | :class:`set`
-        List of REE.
-    """
-    elements = [
-        "La",
-        "Ce",
-        "Pr",
-        "Nd",
-        "Pm",
-        "Sm",
-        "Eu",
-        "Gd",
-        "Tb",
-        "Dy",
-        "Ho",
-        "Er",
-        "Tm",
-        "Yb",
-        "Lu",
-    ]
-    if dropPm:
-        elements = [i for i in elements if not i == "Pm"]
-    if output == "formula":
-        elements = [getattr(pt, el) for el in elements]
-    return elements
-
-
 # this uses unhashable objects in the call, cannot be optimised using LRU cache
 def common_oxides(
     elements: list = [],
