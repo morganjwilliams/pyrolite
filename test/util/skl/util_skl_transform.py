@@ -42,7 +42,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the linear transfomer."""
         df = self.df
         tmr = ExpTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -52,7 +52,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the linear transfomer."""
         df = self.df
         tmr = LogTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -62,7 +62,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the isometric log ratio transfomer."""
         df = self.df
         tmr = ALRTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -72,7 +72,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the isometric log ratio transfomer."""
         df = self.df
         tmr = CLRTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -82,7 +82,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the isometric log ratio transfomer."""
         df = self.df
         tmr = ILRTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -92,7 +92,7 @@ class TestLogTransformers(unittest.TestCase):
         """Test the isometric log ratio transfomer."""
         df = self.df
         tmr = BoxCoxTransform()
-        for input in [df, df.values]:
+        for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
                 inv = tmr.inverse_transform(out)
@@ -125,7 +125,7 @@ class TestAgumentors(unittest.TestCase):
     def test_ElementAggregator(self):
         """Test the ElementAggregator transfomer."""
         df = self.df
-        tmr = Devolatilizer()
+        tmr = ElementAggregator()
         for input in [df]:
             with self.subTest(input=input):
                 out = tmr.transform(input)
@@ -134,9 +134,9 @@ class TestAgumentors(unittest.TestCase):
         """Test the LambdaTransformer transfomer."""
         df = normal_frame(columns=REE()).apply(close, axis=1)
         tmr = LambdaTransformer()
-        for input in [df]:
-            with self.subTest(input=input):
-                out = tmr.transform(input)
+        for ree in [REE(), [i for i in REE() if i not in ["Eu"]]]:
+            with self.subTest(ree=ree):
+                out = tmr.transform(df.loc[:, ree])
 
 
 if __name__ == "__main__":

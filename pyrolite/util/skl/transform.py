@@ -142,22 +142,18 @@ class ALRTransform(BaseEstimator, TransformerMixin):
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
-            out = pd.DataFrame(
-                index=X.index, data=self.forward(X.values, *args, **kwargs)
-            )
+            out = X.pyrocomp.ALR(**kwargs)
         elif isinstance(X, pd.Series):
-            out = pd.Series(index=X.index, data=self.forward(X.values, *args, **kwargs))
+            out = X.to_frame().T.pyrocomp.ALR(**kwargs)
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
 
     def inverse_transform(self, Y, *args, **kwargs):
         if isinstance(Y, pd.DataFrame):
-            out = pd.DataFrame(
-                index=Y.index, data=self.inverse(Y.values, *args, **kwargs)
-            )
+            out = Y.pyrocomp.inverse_ALR(**kwargs)
         elif isinstance(Y, pd.Series):
-            out = pd.Series(index=Y.index, data=self.inverse(Y.values, *args, **kwargs))
+            out = Y.to_frame().T.pyrocomp.inverse_ALR(**kwargs)
         else:
             out = self.inverse(np.array(Y), *args, **kwargs)
         return out
@@ -176,22 +172,18 @@ class CLRTransform(BaseEstimator, TransformerMixin):
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
-            out = X.copy(deep=True)
-            out.loc[:, :] = self.forward(X.values, *args, **kwargs)
+            out = X.pyrocomp.CLR(**kwargs)
         elif isinstance(X, pd.Series):
-            out = X.copy(deep=True)
-            out.loc[:] = self.forward(X.values, *args, **kwargs)
+            out = X.to_frame().T.pyrocomp.CLR(**kwargs)
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
 
     def inverse_transform(self, Y, *args, **kwargs):
         if isinstance(Y, pd.DataFrame):
-            out = Y.copy(deep=True)
-            out.loc[:, :] = self.inverse(Y.values, *args, **kwargs)
+            out = Y.pyrocomp.inverse_CLR(**kwargs)
         elif isinstance(Y, pd.Series):
-            out = Y.copy(deep=True)
-            out.loc[:] = self.inverse(Y.values, *args, **kwargs)
+            out = Y.to_frame().T.pyrocomp.inverse_CLR(**kwargs)
         else:
             out = self.inverse(np.array(Y), *args, **kwargs)
         return out
@@ -212,12 +204,9 @@ class ILRTransform(BaseEstimator, TransformerMixin):
     def transform(self, X, *args, **kwargs):
         self.X = np.array(X)
         if isinstance(X, pd.DataFrame):
-            out = pd.DataFrame(
-                index=X.index, data=self.forward(X.values, *args, **kwargs)
-            )
+            out = X.pyrocomp.ILR(**kwargs)
         elif isinstance(X, pd.Series):
-            out = X.copy(deep=True)
-            out.loc[:] = self.forward(X.values, *args, **kwargs)
+            out = X.to_frame().T.pyrocomp.ILR(**kwargs)
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
@@ -227,11 +216,9 @@ class ILRTransform(BaseEstimator, TransformerMixin):
             if self.X is not None:
                 kwargs.update(dict(X=self.X))
         if isinstance(Y, pd.DataFrame):
-            out = pd.DataFrame(
-                index=Y.index, data=self.inverse(Y.values, *args, **kwargs)
-            )
+            out = Y.pyrocomp.inverse_ILR(**kwargs)
         elif isinstance(Y, pd.Series):
-            out = pd.Series(index=Y.index, data=self.inverse(Y.values, *args, **kwargs))
+            out = Y.to_frame().T.pyrocomp.inverse_ILR(**kwargs)
         else:
             out = self.inverse(np.array(Y), *args, **kwargs)
         return out
