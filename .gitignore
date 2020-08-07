@@ -108,8 +108,5 @@ venv.bak/
 
 doc/examples/scratch\.py
 
-# GEOROC Contents - this is automatically updated
-pyrolite/data/georoc/contents\.json
-
 # local alphamelts install folder
 pyrolite/data/alphamelts/localinstall/*

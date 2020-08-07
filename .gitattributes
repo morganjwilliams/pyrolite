@@ -1,6 +1,5 @@
 pyrolite/_version.py export-subst
 
-*.ipynb filter=nbstripout
 *.ipynb diff=jupyternotebook
 
 *.svg binary
