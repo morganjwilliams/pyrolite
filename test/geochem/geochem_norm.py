@@ -23,6 +23,24 @@ class TestComposition(unittest.TestCase):
         self.assertTrue(hasattr(C, "units"))
         self.assertTrue(hasattr(C, "units"))
 
+    def test_describe(self):
+        C = Composition(self.filename)
+        desc = C.describe()
+        self.assertIsInstance(desc, str)
+        self.assertIn(C.name, desc)
+        self.assertIn('doi', desc)
+
+    def test_str(self):
+        C = Composition(self.filename)
+        s = str(C)
+        self.assertIsInstance(s, str)
+        self.assertIn("Model of", s)
+
+    def test_repr(self):
+        C = Composition(self.filename)
+        s = repr(C)
+        self.assertIn("Composition(", s)
+
 
 class TestGetReferenceFiles(unittest.TestCase):
     def test_default(self):

@@ -195,7 +195,7 @@ class TestLevenshteinDistance(unittest.TestCase):
             (["A", "B", "C"], ["A", "B"]),
             (["A", "B", "C", "D"], ["A", "E", "C"]),
         ]
-        expect = [1, 1,  2]
+        expect = [1, 1, 2]
         for pair, exp in zip(pairs, expect):
             with self.subTest(pair=pair, exp=exp):
                 dist = levenshtein_distance(*pair)

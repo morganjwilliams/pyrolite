@@ -263,8 +263,9 @@ class Composition(object):
             desc += "\n"
         if metadata["Citation"] is not None:
             desc += metadata["Citation"]
-        if metadata["DOI"] is not None:
-            desc += "doi: {}".format(metadata["DOI"])
+            if metadata["DOI"] is not None:
+                desc += " "
+                desc += "doi: {}".format(metadata["DOI"])
         return to_width(desc, **kwargs)
 
     def __getitem__(self, variables):
