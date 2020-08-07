@@ -32,7 +32,7 @@ for name, ref in list(all_reference_compositions().items())[::2]:
         df.pyroplot.REE(unity_line=True, ax=ax, label=name)
 
 ax.set_ylabel("X/X$_{Chondrite}$")
-ax.legend(frameon=False, facecolor=None, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+ax.legend()
 plt.show()
 ########################################################################################
 # .. seealso::

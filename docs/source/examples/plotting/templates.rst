@@ -33,7 +33,7 @@ First let's build a simple total-alkali vs silica (
 
     from pyrolite.plot.templates import TAS
 
-    ax = TAS()
+    ax = TAS(linewidth=0.5, labels='ID')
     plt.show()
 
 
@@ -125,7 +125,7 @@ and within the pyrolite documentation:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  1.472 seconds)
+   **Total running time of the script:** ( 0 minutes  1.965 seconds)
 
 
 .. _sphx_glr_download_examples_plotting_templates.py:

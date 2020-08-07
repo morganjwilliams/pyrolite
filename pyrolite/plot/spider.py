@@ -33,6 +33,7 @@ def spider(
     markersize=5.0,
     label=None,
     logy=True,
+    yextent=None,
     mode="plot",
     unity_line=False,
     **kwargs
@@ -64,6 +65,8 @@ def spider(
         Label for the individual series.
     logy : :class:`bool`
         Whether to use a log y-axis.
+    yextent : :class:`tuple`
+        Extent in the y direction for conditional probability plots.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -161,13 +164,17 @@ def spider(
 
         # could modify legend here.
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
+        if "contours" in kwargs and "vmin" in kwargs:
+            msg = "Combining `contours` and `vmin` arugments for density plots should be avoided."
+            logger.warn(msg)
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,
             x=indexes0,
             logy=logy,
+            yextent=yextent,
             mode=mode,
             ret_centres=True,
-            **subkwargs(local_kw, conditional_prob_density)
+            **local_kw
         )
         # can have issues with nans here?
         vmin = kwargs.pop("vmin", 0)
@@ -271,8 +278,15 @@ def REE_v_radii(
         _xlabelrotation, xlabelrotation = xlabelrotation, _xlabelrotation
 
     if arr is not None:
-        kwargs["indexes"] = kwargs.get("indexes", indexes)
-        ax = spider(arr, ax=ax, logy=logy, mode=mode, unity_line=unity_line, **kwargs)
+        ax = spider(
+            arr,
+            ax=ax,
+            logy=logy,
+            mode=mode,
+            unity_line=unity_line,
+            indexes=indexes,
+            **kwargs
+        )
 
     ax.set_xlabel(xtitle)
     ax.set_xticks(xticks)

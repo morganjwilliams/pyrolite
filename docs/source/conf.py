@@ -35,6 +35,7 @@ import recommonmark
 from recommonmark.transform import AutoStructify
 import pyrolite
 
+
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
 release = version
 """
@@ -234,9 +235,21 @@ intersphinx_mapping = {
 # sphinx_gallery config
 from sphinx_gallery.sorting import ExplicitOrder
 
+
+def reset_mpl(gallery_conf, fname):
+    import matplotlib.style
+
+    # this should already be exported, so can be used
+    matplotlib.style.use("pyrolite")
+
+
 sphinx_gallery_conf = {
-    "examples_dirs": ["gallery/examples/", "gallery/tutorials/",],  # path to sources
-    "gallery_dirs": ["examples", "tutorials",],  # output paths
+    "examples_dirs": [
+        "gallery/examples/",
+        "gallery/tutorials/",
+        "gallery/data/",
+    ],  # path to sources
+    "gallery_dirs": ["examples", "tutorials", "data"],  # output paths
     "subsection_order": ExplicitOrder(
         [
             "gallery/examples/plotting",
@@ -244,6 +257,7 @@ sphinx_gallery_conf = {
             "gallery/examples/comp",
             "gallery/examples/util",
             "gallery/tutorials/",
+            "gallery/data",
         ]
     ),
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
@@ -267,6 +281,7 @@ sphinx_gallery_conf = {
         "notebooks_dir": "docs/source/",
     },
     "first_notebook_cell": "%matplotlib inline\n",
+    "reset_modules": (reset_mpl),
 }
 # Remove matplotlib agg warnings from generated doc when using plt.show
 warnings.filterwarnings(
@@ -318,7 +333,7 @@ rst_prolog = """
     <a style="border-width:0" href="https://doi.org/10.21105/joss.02314">
     <img src="https://joss.theoj.org/papers/10.21105/joss.02314/status.svg" alt="DOI" >
     </a>
-    
+
     <a href="https://zenodo.org/badge/latestdoi/137172322">
     <img src="https://zenodo.org/badge/137172322.svg" alt="Archive">
     </a>

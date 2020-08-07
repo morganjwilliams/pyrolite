@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.special import comb
 from collections import defaultdict
 
@@ -9,7 +10,7 @@ def md_pattern(Y):
 
     Parameters
     ------------
-    Y : :class:`numpy.ndarray`
+    Y : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
         Input dataset.
 
     Returns
@@ -20,12 +21,14 @@ def md_pattern(Y):
         Dictionary of patterns indexed by pattern IDs. Contains a pattern and count
         for each pattern ID.
     """
+    if isinstance(Y, pd.DataFrame):
+        Y = Y.values
     N, D = Y.shape
     pID = np.zeros(N).astype(int)
     Ymiss = ~np.isfinite(Y)
     rows = np.arange(N)[~np.isfinite(np.sum(Y, axis=1))]
-    max_pats = comb((D - 1) * np.ones(D - 2), np.arange(D - 2) + 1).sum().astype(int)
-    pID[rows] = max_pats * 10  # initialise to high value
+    max_pats = comb(D, np.arange(0, D + 1)).sum().astype(int)
+    pID[rows] = max_pats * 5  # initialise to high value
     pD = defaultdict(dict)
 
     pindex = 0  # 0 = no missing data
@@ -54,7 +57,7 @@ def cooccurence_pattern(Y, normalize=False, log=False):
 
     Parameters
     ------------
-    Y : :class:`numpy.ndarray`
+    Y : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
         Input dataset.
     normalize : :class:`bool`
         Whether to normalize the cooccurence to compare disparate variables.
@@ -66,6 +69,8 @@ def cooccurence_pattern(Y, normalize=False, log=False):
     co_occur : :class:`numpy.ndarray`
         Cooccurence frequency array.
     """
+    if isinstance(Y, pd.DataFrame):
+        Y = Y.values
     _Y = Y.copy()
     _Y[~np.isfinite(_Y)] = 0
     _Y[_Y > 0] = 1

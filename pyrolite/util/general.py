@@ -4,7 +4,7 @@ import time
 import shutil
 from tempfile import mkdtemp
 import operator
-from collections import Mapping
+from collections.abc import Mapping
 from pathlib import Path
 import datetime
 import logging

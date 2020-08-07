@@ -43,15 +43,15 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(1)
 
-ax.plot(shannon_ionic_radii, marker="D", label="Shannon Ionic Radii")
-ax.plot(shannon_crystal_radii, marker="D", label="Shannon Crystal Radii")
-ax.plot(whittaker_ionic_radii, marker="D", label="Whittaker & Muntus\nIonic Radii")
+ax.plot(shannon_ionic_radii, label="Shannon Ionic Radii")
+ax.plot(shannon_crystal_radii, label="Shannon Crystal Radii")
+ax.plot(whittaker_ionic_radii, label="Whittaker & Muntus\nIonic Radii")
 {a: b for (a, b) in zip(REE(), whittaker_ionic_radii)}
 ax.set_xticks(range(len(REE())))
 ax.set_xticklabels(REE())
 ax.set_ylabel("Ionic Radius ($\AA$)")
 ax.set_title("Rare Earth Element Ionic Radii")
-ax.legend(facecolor=None, frameon=False, bbox_to_anchor=(1, 1))
+ax.legend()
 
 ########################################################################################
 # .. seealso::

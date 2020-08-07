@@ -3,64 +3,9 @@ Utility functions for creating synthetic (geochemical) data.
 """
 import numpy as np
 import pandas as pd
-from ..comp.codata import ilr, inverse_ilr
+from ..comp.codata import ILR, inverse_ILR
 from ..geochem.norm import get_reference_composition
-
-
-def example_spider_data(
-    start="EMORB_SM89",
-    norm_to="PM_PON",
-    nobs=120,
-    noise_level=0.5,
-    offsets=None,
-    units="ppm",
-):
-    """
-    Generate some random data for demonstrating spider plots.
-
-    By default, this generates a composition based around EMORB, normalised
-    to Primitive Mantle.
-
-    Parameters
-    -----------
-    start : :class:`str`
-        Composition to start with.
-    norm_to : :class:`str`
-        Composition to normalise to. Can optionally specify :code:`None`.
-    nobs : :class:`int`
-        Number of observations to include (index length).
-    noise_level : :class:`float`
-        Log-units of noise (1sigma).
-    offsets : :class:`dict`
-        Dictionary of offsets in log-units (in log units).
-    units : :class:`str`
-        Units to use before conversion. Should have no effect other than reducing
-        calculation times if `norm_to` is :code:`None`.
-
-    Returns
-    --------
-    df : :class:`pandas.DataFrame`
-        Dataframe of example synthetic data.
-    """
-
-    ref = get_reference_composition(start)
-    ref.set_units(units)
-    df = ref.comp.pyrochem.compositional
-    if norm_to is not None:
-        df = df.pyrochem.normalize_to(norm_to, units=units)
-    start = df.applymap(np.log)
-    nindex = df.columns.size
-
-    y = np.tile(start.values, nobs).reshape(nobs, nindex)
-    y += np.random.normal(0, noise_level / 2.0, size=(nobs, nindex))  # noise
-    y += np.random.normal(0, noise_level, size=(1, nobs)).T  # random pattern offset
-
-    syn_df = pd.DataFrame(y, columns=df.columns)
-    if offsets is not None:
-        for element, offset in offsets.items():
-            syn_df[element] += offset  # significant offset for e.g. Eu anomaly
-    syn_df = syn_df.applymap(np.exp)
-    return syn_df
+from .meta import get_additional_params
 
 
 def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
@@ -120,7 +65,7 @@ def random_composition(
     mean=None,
     cov=None,
     propnan=0.1,
-    missingcols=None,
+    missing_columns=None,
     missing=None,
     seed=None,
 ):
@@ -140,18 +85,18 @@ def random_composition(
         Optional specification of covariance matrix (in log space).
     propnan : :class:`float`, [0, 1)
         Proportion of missing values in the output dataset.
-    missingcols : :class:`int` | :class:`tuple`
+    missing_columns : :class:`int` | :class:`tuple`
         Specification of columns to be missing. If an integer is specified,
         interpreted to be the number of columns containin missing data (at a proportion
         defined by `propnan`). If a tuple or list, the specific columns to contain
         missing data.
     missing : :class:`str`, :code:`None`
         Missingness pattern.
-        If not :code:`None`, a string in :code:`{"MCAR", "MAR", "MNAR"}`.
+        If not :code:`None`, one of :code:`"MCAR", "MAR", "MNAR"`.
 
-            * If :code:`missing = "MCAR"``, data will be missing at random.
-            * If :code:`missing = "MAR"``, data will be missing with some relationship to other parameters.
-            * If :code:`missing = "MNAR"``, data will be thresholded at some lower bound.
+            * If :code:`missing = "MCAR"`, data will be missing at random.
+            * If :code:`missing = "MAR"`, data will be missing with some relationship to other parameters.
+            * If :code:`missing = "MNAR"`, data will be thresholded at some lower bound.
 
     Returns
     --------
@@ -189,9 +134,9 @@ def random_composition(
             data /= np.nanmax(data)
             return data
     else:
-        mean = ilr(mean.reshape(1, D)).reshape(
+        mean = ILR(mean.reshape(1, D)).reshape(
             1, -1
-        )  # ilr of a (1, D) mean to (1, D-1)
+        )  # ILR of a (1, D) mean to (1, D-1)
 
     # covariance
     if cov is None:
@@ -205,28 +150,30 @@ def random_composition(
     assert cov.shape in [(D - 1, D - 1), (1, 1)]
 
     if size == 1:  # single sample
-        data = inverse_ilr(mean).reshape(size, D)
+        data = inverse_ILR(mean).reshape(size, D)
 
     # if the covariance matrix isn't for the logspace data, we'd have to convert it
     if data is None:
-        data = inverse_ilr(
+        data = inverse_ILR(
             np.random.multivariate_normal(mean.reshape(D - 1), cov, size=size)
         ).reshape(size, D)
 
-    if missingcols is None:
+    if missing_columns is None:
         nancols = (
             np.random.choice(
                 range(data.shape[1] - 1), size=int(data.shape[1] - 1), replace=False
             )
             + 1
         )
-    elif isinstance(missingcols, int):  # number of columns specified
+    elif isinstance(missing_columns, int):  # number of columns specified
         nancols = (
-            np.random.choice(range(data.shape[1] - 1), size=missingcols, replace=False)
+            np.random.choice(
+                range(data.shape[1] - 1), size=missing_columns, replace=False
+            )
             + 1
         )
     else:  # tuples, list etc
-        nancols = missingcols
+        nancols = missing_columns
 
     if missing is not None:
         if missing == "MCAR":
@@ -263,19 +210,130 @@ def random_composition(
     return data
 
 
-def test_df(
-    cols=["SiO2", "CaO", "MgO", "FeO", "TiO2"], index_length=10, mean=None, **kwargs
+def normal_frame(
+    columns=["SiO2", "CaO", "MgO", "FeO", "TiO2"], size=10, mean=None, **kwargs
 ):
-    """Creates a pandas.DataFrame with random data."""
+    r"""
+    Creates a :class:`pandas.DataFrame` with samples from a single multivariate-normal
+    distributed composition.
+
+    Parameters
+    ----------
+    columns : :class:`list`
+        List of columns to use for the dataframe. These won't have any direct impact
+        on the data returned, and are only for labelling.
+    size : :class:`int`
+        Index length for the dataframe.
+    mean : :class:`numpy.ndarray`, :code:`None`
+        Optional specification of mean composition.
+    {otherparams}
+
+    Returns
+    --------
+    :class:`pandas.DataFrame`
+    """
     return pd.DataFrame(
-        columns=cols,
-        data=random_composition(size=index_length, D=len(cols), mean=mean, **kwargs),
+        columns=columns,
+        data=random_composition(size=size, D=len(columns), mean=mean, **kwargs),
     )
 
 
-def test_ser(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
-    """Creates a pandas.Series with random data."""
+def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
+    """
+    Creates a :class:`pandas.Series` with a single sample from a single multivariate-normal
+    distributed composition.
+
+    Parameters
+    ------------
+    index : :class:`list`
+        List of indexes for the series. These won't have any direct impact
+        on the data returned, and are only for labelling.
+    mean : :class:`numpy.ndarray`, :code:`None`
+        Optional specification of mean composition.
+    {otherparams}
+
+    Returns
+    --------
+    :class:`pandas.Series`
+    """
     return pd.Series(
         random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,
     )
+
+
+def example_spider_data(
+    start="EMORB_SM89",
+    norm_to="PM_PON",
+    size=120,
+    noise_level=0.5,
+    offsets=None,
+    units="ppm",
+):
+    """
+    Generate some random data for demonstrating spider plots.
+
+    By default, this generates a composition based around EMORB, normalised
+    to Primitive Mantle.
+
+    Parameters
+    -----------
+    start : :class:`str`
+        Composition to start with.
+    norm_to : :class:`str`
+        Composition to normalise to. Can optionally specify :code:`None`.
+    size : :class:`int`
+        Number of observations to include (index length).
+    noise_level : :class:`float`
+        Log-units of noise (1sigma).
+    offsets : :class:`dict`
+        Dictionary of offsets in log-units (in log units).
+    units : :class:`str`
+        Units to use before conversion. Should have no effect other than reducing
+        calculation times if `norm_to` is :code:`None`.
+
+    Returns
+    --------
+    df : :class:`pandas.DataFrame`
+        Dataframe of example synthetic data.
+    """
+
+    ref = get_reference_composition(start)
+    ref.set_units(units)
+    df = ref.comp.pyrochem.compositional
+    if norm_to is not None:
+        df = df.pyrochem.normalize_to(norm_to, units=units)
+    start = df.applymap(np.log)
+    nindex = df.columns.size
+
+    y = np.tile(start.values, size).reshape(size, nindex)
+    y += np.random.normal(0, noise_level / 2.0, size=(size, nindex))  # noise
+    y += np.random.normal(0, noise_level, size=(1, size)).T  # random pattern offset
+
+    syn_df = pd.DataFrame(y, columns=df.columns)
+    if offsets is not None:
+        for element, offset in offsets.items():
+            syn_df[element] += offset  # significant offset for e.g. Eu anomaly
+    syn_df = syn_df.applymap(np.exp)
+    return syn_df
+
+
+_add_additional_parameters = True
+
+normal_frame.__doc__ = normal_frame.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            random_composition, header="Other Parameters", indent=8, subsections=True
+        ),
+    ][_add_additional_parameters]
+)
+
+normal_series.__doc__ = normal_series.__doc__.format(
+    otherparams=[
+        "",
+        get_additional_params(
+            random_composition, header="Other Parameters", indent=8, subsections=True
+        ),
+    ][_add_additional_parameters]
+)

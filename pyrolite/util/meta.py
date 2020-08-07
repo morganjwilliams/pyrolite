@@ -184,7 +184,7 @@ def inargs(name, *funcs):
     """
     args = []
     for f in funcs:
-        args += inspect.getfullargspec(f).args
+        args += inspect.getfullargspec(f).args + inspect.getfullargspec(f).kwonlyargs
     return name in set(args)
 
 

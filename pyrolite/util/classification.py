@@ -9,137 +9,317 @@ Todo
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
 import os
+import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import matplotlib.text
 import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
+import matplotlib.patches
+import matplotlib.lines
+from .plot.style import patchkwargs
+from .plot.axes import init_axes
+from .meta import (
+    pyrolite_datafolder,
+    subkwargs,
+    sphinx_doi_link,
+    update_docstring_references,
+)
 import logging
-import joblib
-from pyrolite.util.meta import pyrolite_datafolder
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-class ClassifierModel(object):
-    def __init__(self, rebuild=False, deterministic=False):
+def get_centroid(poly):
+    """
+    Centroid of a closed polygon using the Shoelace formula.
+
+    Parameters
+    ----------
+    poly : :class:`matplotlib.patches.Polygon`
+        Polygon to obtain the centroid of.
+
+    Returns
+    -------
+    cx, cy : :class:`tuple`
+        Centroid coordinates.
+    """
+    # get signed area
+    verts = poly.get_xy()
+    A = 0
+    cx, cy = 0, 0
+    x, y = verts.T
+    for i in range(len(verts) - 1):
+        A += x[i] * y[i + 1] - x[i + 1] * y[i]
+        cx += (x[i] + x[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+        cy += (y[i] + y[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+    A /= 2
+    cx /= 6 * A
+    cy /= 6 * A
+    return cx, cy
+
+
+class PolygonClassifier(object):
+    """
+    A classifier model built form a series of polygons defining specific classes.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    scale : :class:`float`
+        Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
+    xlim : :class:`tuple`
+        Default x-limits for this classifier for plotting.
+    ylim : :class:`tuple`
+        Default y-limits for this classifier for plotting.
+    """
+
+    def __init__(
+        self, name=None, axes=None, fields=None, scale=1.0, xlim=None, ylim=None,
+    ):
+        self.default_scale = scale
+        self._scale = self.default_scale
+        self.xlim = xlim
+        self.ylim = ylim
+
+        self.name = name
+        self.axes = axes or []
+        # check axes for ratios, adition/subtraction etc
+        self.fields = fields or []
+        self.classes = list(self.fields.keys())
+
+    def predict(self, X, data_scale=None):
         """
-        Build a ClassifierModel
+        Predict the classification of samples using the polygon-based classifier.
 
         Parameters
         -----------
-        rebuild : :class:`bool`
-            Whether to rebuild a classifer which already exists from source files.
-        deterministic : :class:`bool`
-            Whether the classifier is deterministic.
+        X : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+            Data to classify.
+        data_scale : :class:`float`
+            Maximum scale for the data. Typically 100 (wt%) or 1 (fractional).
+
+        Returns
+        -------
+        :class:`pandas.Series`
+            Series containing classifer predictions. If a dataframe was input,
+            it inherit the index.
         """
-        self.clsf_modelname = str(type(self).__name__)
-        if __name__ == "__main__":
-            modeldir = Path(os.getcwd()) / "models"
-        else:
-            modeldir = pyrolite_datafolder(subfolder="models")
-        self.diskname = modeldir / str(self.clsf_modelname)
-        self.deterministic = deterministic
-        self.clsf = None
-        # Try load classifer
-        if rebuild:
-            self.rebuild_clsf()
-        try:
-            self.clsf = self.load_clsf(self.diskname.with_suffix(".clsf.gz"))
-            # logger.info(f'Loaded {self.diskname}')
-        except (FileNotFoundError, AssertionError):
-            self.rebuild_clsf()
-
-    def rebuild_clsf(self):
-        self.clsf = self.build_clsf()
-        self.dump_clsf(self.diskname.with_suffix(".clsf.gz"))
-        # logger.info(f'Built {self.clsf_modelname}')
-
-    def load_clsf(self, file):
-        assert file.exists() and file.is_file()
-        # logger.info(f'Loading {self.diskname}')
-        return joblib.load(file)
-
-    def build_clsf(self):
-        # logger.info(f'Building {self.clsf_modelname}')
-        clsf = None
-        return clsf
-
-    def dump_clsf(self, filename):
-        joblib.dump(self.clsf, filename, compress=("gzip", 3))
-        # logger.info(f'Dumped {filename}')
-        assert filename.exists() and filename.is_file()
-
-    def classify(self, df: pd.DataFrame):
-        return self.clsf.predict(df)
-
-    def __str__(self):
-        pass
-
-    def __repr__(self):
-        pass
-
-
-class SimpleDeterministicClassifer(object):
-    def __init__(self, parent: ClassifierModel):
-        self.parent = parent
-        self.fields = None
-        self.load_fields()
-
-    def load_fields(self):
-        if self.parent:
-            self.clsf_modelname = str(self.parent.clsf_modelname)
-            self.modeldir = self.parent.diskname.resolve()
-            af = self.modeldir / str(self.clsf_modelname + ".modelfields")
-            if af.exists() and af.is_file():
-                # logger.info(f'''Loading {self.clsf_modelname} classifer fields from "allfile".''')
-                loadup = joblib.load(af)
-                self.fclasses = [k for (k, v) in loadup.items()]
-                self.fields = {c: loadup[c] for ix, c in enumerate(self.fclasses)}
-            else:
-                # logger.info(f'Loading {self.clsf_modelname} classifer fields from files.')
-                fieldfiles = self.modeldir.glob(self.clsf_modelname + ".*.modelfield")
-                loadup = [joblib.load(f) for f in fieldfiles]
-                self.fclasses = [f.suffix.replace(".", "") for f in loadup]
-                self.fields = {c: loadup[ix] for ix, c in enumerate(self.fclasses)}
-            # logger.info(f'''Loaded {self.clsf_modelname} classifer fields.''')
-        else:
-            pass
-
-    def add_to_axes(self, ax=None, fill=False, **kwargs):
-        polys = [(c, self.fields[c]) for c in self.fclasses if self.fields[c]["poly"]]
-        if ax is None:
-            fig, ax = plt.subplots(1)
-        pgns = []
-        for c, f in polys:
-            label = f["names"]
-            if not fill:
-                kwargs["facecolor"] = "none"
-            pg = Polygon(f["poly"], closed=True, edgecolor="k", **kwargs)
-            pgns.append(pg)
-            x, y = pg.get_xy().T
-            ax.annotate(c, xy=(np.nanmean(x), np.nanmean(y)))
-            ax.add_patch(pg)
-        # ax.add_collection(PatchCollection(pgns), autolim=True)
-
-    def predict(self, df: pd.DataFrame, cols: list = ["x", "y"]):
-        points = df.loc[:, cols].values
+        classes = [k for (k, cfg) in self.fields.items() if cfg["poly"]]
         polys = [
-            Polygon(self.fields[c]["poly"], closed=True) for c in self.fclasses
-        ]  # if self.fields[c]['poly']
-        indexes = np.array([p.contains_points(points) for p in polys]).T
+            matplotlib.patches.Polygon(self.fields[k]["poly"], closed=True)
+            for k in classes
+        ]
+        if isinstance(X, pd.DataFrame):
+            # check whether the axes names are in the columns
+            axes = self.axis_components
+            idx = X.index
+            X = X.loc[:, axes].values
+        else:
+            idx = np.arange(X.shape[0])
+        out = pd.Series(index=idx, dtype="object")
+
+        rescale_by = 1.0  # rescaling the data to fit the classifier scale
+        if data_scale is not None:
+            if not np.isclose(self.default_scale, data_scale):
+                rescale_by = self.default_scale / data_scale
+        X = X * rescale_by
+
+        indexes = np.array([p.contains_points(X) for p in polys]).T
         notfound = np.logical_not(indexes.sum(axis=-1))
-        out = pd.Series(index=df.index)
-        outlist = list(map(lambda ix: self.fclasses[ix], np.argmax(indexes, axis=-1)))
+
+        outlist = list(map(lambda ix: classes[ix], np.argmax(indexes, axis=-1)))
         out.loc[:] = outlist
         out.loc[(notfound)] = "none"
         return out
 
+    @property
+    def axis_components(self):
+        """
+        Get the axis components used by the classifier.
+
+        Returns
+        -------
+        :class:`tuple`
+            Names of the x and y axes for the classifier.
+        """
+        return self.axes.get("x"), self.axes.get("y")
+
+    def _add_polygons_to_axes(
+        self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs
+    ):
+        """
+        Add the polygonal fields from the classifier to an axis.
+
+        Parameters
+        ----------
+        ax : :class:`matplotlib.axes.Axes`
+            Axis to add the polygons to.
+        fill : :class:`bool`
+            Whether to fill the polygons.
+        axes_scale : :class:`float`
+            Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        labels : :class:`str`
+            Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
+            or the field 'ID').
+
+        Returns
+        --------
+        ax : :class:`matplotlib.axes.Axes`
+        """
+        if ax is None:
+            ax = init_axes(**kwargs)
+
+        rescale_by = 1.0
+        if axes_scale is not None:  # rescale polygons to fit ax
+            if not np.isclose(self.default_scale, axes_scale):
+                rescale_by = axes_scale / self.default_scale
+        pgns = []
+        for k, cfg in self.fields.items():
+            if cfg["poly"]:
+                if not fill:
+                    kwargs["facecolor"] = "none"
+                verts = np.array(cfg["poly"]) * rescale_by
+                pg = matplotlib.patches.Polygon(
+                    verts, closed=True, edgecolor="k", **patchkwargs(kwargs)
+                )
+                pgns.append(pg)
+                ax.add_patch(pg)
+
+        # if the axis has the default scaling, there's a good chance that it hasn't
+        # been rescaled/rendered. We need to rescale to show the polygons.
+        if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
+            ax.set_xlim(np.array(self.xlim) * rescale_by)
+            ax.set_ylim(np.array(self.ylim) * rescale_by)
+
+        return ax
+
+    def add_to_axes(self, ax=None, fill=False, axes_scale=1, **kwargs):
+        """
+        Add the polygonal fields from the classifier to an axis.
+
+        Parameters
+        ----------
+        ax : :class:`matplotlib.axes.Axes`
+            Axis to add the polygons to.
+        fill : :class:`bool`
+            Whether to fill the polygons.
+        axes_scale : :class:`float`
+            Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+
+        Returns
+        --------
+        ax : :class:`matplotlib.axes.Axes`
+        """
+        ax = self._add_polygons_to_axes(
+            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+        )
+        if self.axes:  # may be none?
+            ax.set_ylabel(self.axes[0])
+            ax.set_xlabel(self.axes[1])
+        return ax
+
+
+class TAS(PolygonClassifier):
+    """
+    Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    scale : :class:`float`
+        Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
+    xlim : :class:`tuple`
+        Default x-limits for this classifier for plotting.
+    ylim : :class:`tuple`
+        Default y-limits for this classifier for plotting.
+
+    References
+    -----------
+    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+                The construction of the Total Alkali-Silica chemical
+                classification of volcanic rocks.
+                Mineralogy and Petrology 46, 1–22.
+                doi: {LeBas1992}
+    """
+
+    @update_docstring_references
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+        kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
+        kw.update(kwargs)
+        super().__init__(**config, **kw)
+
+    def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
+        """
+        Add the TAS fields from the classifier to an axis.
+
+        Parameters
+        ----------
+        ax : :class:`matplotlib.axes.Axes`
+            Axis to add the polygons to.
+        fill : :class:`bool`
+            Whether to fill the polygons.
+        axes_scale : :class:`float`
+            Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        labels : :class:`str`
+            Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
+            or the field 'ID').
+
+        Returns
+        --------
+        ax : :class:`matplotlib.axes.Axes`
+        """
+        # use and override the default add_to_axes
+        ax = self._add_polygons_to_axes(
+            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+        )
+        rescale_by = 1.0
+        if axes_scale is not None:  # rescale polygons to fit ax
+            if not np.isclose(self.default_scale, axes_scale):
+                rescale_by = axes_scale / self.default_scale
+        if labels is not None:
+            for k, cfg in self.fields.items():
+                if cfg["poly"]:
+                    verts = np.array(cfg["poly"]) * rescale_by
+                    x, y = get_centroid(matplotlib.patches.Polygon(verts))
+                    if "volc" in labels:  # use the volcanic name
+                        label = cfg["name"][0]
+                    elif "intr" in labels:  # use the intrusive name
+                        label = cfg["name"][-1]
+                    else:  # use the field identifier
+                        label = k
+                    ax.annotate(
+                        "\n".join(label.split()),
+                        xy=(x, y),
+                        ha="center",
+                        va="center",
+                        **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
+                    )
+
+        ax.set_ylabel("$Na_2O + K_2O$")
+        ax.set_xlabel("$SiO_2$")
+        return ax
+
 
 class PeralkalinityClassifier(object):
-    def __init__(self, parent: ClassifierModel):
-        self.parent = parent
+    def __init__(self):
         self.fields = None
 
     def predict(self, df: pd.DataFrame):
@@ -153,36 +333,13 @@ class PeralkalinityClassifier(object):
         peraluminous_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & (
             TotalAlkali < df.Al2O3
         )
-        out = pd.Series(index=df.index)
+        out = pd.Series(index=df.index, dtype="object")
         out.loc[peraluminous_where] = "Peraluminous"
         out.loc[metaluminous_where] = "Metaluminous"
         out.loc[perkalkaline_where] = "Peralkaline"
         return out
 
 
-class Geochemistry(object):
-    class peralkalinity(ClassifierModel):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            return PeralkalinityClassifier(self)
-
-    class TAS(ClassifierModel):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, deterministic=True, **kwargs)
-
-        def build_clsf(self):
-            return SimpleDeterministicClassifer(self)
-
-        def add_to_axes(self, ax=None, **kwargs):
-            if ax is None:
-                fig, ax = plt.subplots(1)
-            self.clsf.add_to_axes(ax=ax, **kwargs)
-            ax.set_xlim((35, 85))
-            ax.set_ylim((0, 20))
-            ax.set_ylabel("$Na_2O + K_2O$")
-            ax.set_xlabel("$SiO_2$")
-
-        def classify(self, df: pd.DataFrame):
-            return self.clsf.predict(df, cols=["SiO2", "TotalAlkali"])
+TAS.__init__.__doc__ = TAS.__init__.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698")
+)

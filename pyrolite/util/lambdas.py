@@ -6,6 +6,7 @@ import scipy
 from ..geochem.ind import REE, get_ionic_radii
 from .. import plot
 from .meta import update_docstring_references
+from .missing import md_pattern
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -206,7 +207,7 @@ def get_polynomial_matrix(radii, params=None):
 
 
 @update_docstring_references
-def _lambdas_ONeill2016(df, radii, params=None):
+def lambdas_ONeill2016(df, radii, params=None):
     """
     Implementation of the original algorithm. [#ref_1]_
 
@@ -233,6 +234,11 @@ def _lambdas_ONeill2016(df, radii, params=None):
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
+
+    Todo
+    -----
+    Use a missing-data-pattern approach to speed up the algorithm slightly (i.e.
+    generate an :code:`A` matrix for each pattern).
     """
     assert params is not None
     degree = len(params)
@@ -242,12 +248,23 @@ def _lambdas_ONeill2016(df, radii, params=None):
         columns=[chr(955) + str(d) for d in range(degree)],
         dtype="float32",
     )
-    A = get_polynomial_matrix(radii, params=params)
-    invA = np.linalg.inv(A)
-    V = np.vander(radii, degree, increasing=True).T
-    for row in range(df.index.size):
-        Z = (df.iloc[row, :].fillna(0).values * V).sum(axis=-1)
-        lambdas.iloc[row, :] = invA @ Z
+    rad = np.array(radii)  # so we can use a boolean index
+
+    md_inds, patterns = md_pattern(df)
+    # for each missing data pattern, we create the matrix A - rather than each row
+    for ind in np.unique(md_inds):
+        row_fltr = md_inds == ind  # rows with this pattern
+        missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
+        if missing_fltr.sum(): # ignore completely empty rows
+            A = get_polynomial_matrix(rad[missing_fltr], params=params)
+            invA = np.linalg.inv(A)
+
+            V = np.vander(rad, degree, increasing=True).T
+            Z = (
+                df.loc[row_fltr, missing_fltr].values[:, np.newaxis]
+                * V[np.newaxis, :, missing_fltr]
+            ).sum(axis=-1)
+            lambdas.loc[row_fltr, :] = (invA @ Z.T).T
     return lambdas
 
 
@@ -281,7 +298,7 @@ def _lambda_min_func(ls, ys, poly_components, power=1.0):
 
 
 @update_docstring_references
-def _lambdas_optimize(
+def lambdas_optimize(
     df: pd.DataFrame,
     radii,
     params=None,
@@ -334,23 +351,69 @@ def _lambdas_optimize(
     poly_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
 
     for row in range(df.index.size):
-        if np.isnan(
-            df.iloc[row, :].values
-        ).any():  # With missing data, the method can't be used.
-            x = np.nan * np.ones(degree)
-        else:
-            result = scipy.optimize.least_squares(
-                cost_function,
-                starting_guess,
-                args=(df.iloc[row, :].fillna(0).values, poly_components,),
-            )
-            x = result.x
-            # redisuals res = result.fun
+        result = scipy.optimize.least_squares(
+            cost_function,
+            starting_guess,
+            args=(df.iloc[row, :].values, poly_components,),
+        )
+        x = result.x
+        # redisuals res = result.fun
         lambdas.iloc[row, :] = x
     return lambdas
 
 
 ########################################################################################
+def _get_params(params=None, degree=4):
+    """
+    Disambiguate parameter specification for orthogonal polynomials.
+
+    Parameters
+    ----------
+    params : :class:`list` | :class:`str`
+        Pre-computed parameters for the orthogonal polynomials (a list of tuples).
+        Optionally specified, otherwise defaults the parameterisation as in
+        O'Neill (2016). [#ref_1]_ If a string is supplied, :code:`"O'Neill (2016)"` or
+        similar will give the original defaults, while :code:`"full"` will use all
+        of the REE (including Eu) as a basis for the orthogonal polynomials.
+    degree : :class:`int`
+        Degree of orthogonal polynomial fit.
+
+    Returns
+    --------
+    params : :class:`list`
+        List of tuples containing a parameterisation of the orthogonal polynomial
+        functions.
+    """
+    if params is None:
+        # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
+        _ree = [i for i in REE() if i not in ["Eu"]]
+        params = orthogonal_polynomial_constants(
+            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+        )
+    elif isinstance(params, str):
+        name = params.replace("'", "").lower()
+        if "full" in name:
+            # use ALL the REE for defininng the orthogonal polynomial functions
+            # (include Eu)
+            _ree = REE()
+        elif ("oneill" in name) and ("2016" in name):
+            # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
+            _ree = [i for i in REE() if i not in ["Eu"]]
+        else:
+            msg = "Parameter specification {} not recognised.".format(params)
+            raise NotImplementedError(msg)
+        params = orthogonal_polynomial_constants(
+            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+        )
+    else:
+        # check that params is a tuple or list
+        if not isinstance(params, (list, tuple)):
+            msg = "Type {} parameter specification {} not recognised.".format(
+                type(params), params
+            )
+            raise NotImplementedError(msg)
+
+    return params
 
 
 @update_docstring_references
@@ -366,9 +429,12 @@ def calc_lambdas(
     ----------
     df : :class:`pd.DataFrame`
         Dataframe containing REE Data.
-    params : :class:`tuple`
-        Pre-computed parameters for the orthogonal polynomials. Optionally specified,
-        otherwise defaults the parameterisation as in O'Neill (2016). [#ref_1]_
+    params : :class:`list` | :class:`str`
+        Pre-computed parameters for the orthogonal polynomials (a list of tuples).
+        Optionally specified, otherwise defaults the parameterisation as in
+        O'Neill (2016). [#ref_1]_ If a string is supplied, :code:`"O'Neill (2016)"` or
+        similar will give the original defaults, while :code:`"full"` will use all
+        of the REE (including Eu) as a basis for the orthogonal polynomials.
     degree : :class:`int`
         Degree of orthogonal polynomial fit.
     algorithm : :class:`str`
@@ -390,20 +456,27 @@ def calc_lambdas(
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
-    # parameters should be set here, and only once
-    if params is None:  # use standard parameters as used in O'Neill 2016 paper
-        default_REE = [i for i in REE() if i not in ["Eu"]]
-        default_radii = get_ionic_radii(default_REE, charge=3, coordination=8)
-        params = orthogonal_polynomial_constants(default_radii, degree=degree)
-    # exclude completely empty columns
-    columns = [c for c in df.columns if c not in exclude and np.nansum(df[c])]
-    df[~np.isfinite(df)] = 0  # deal with np.nan, np.inf
+
+    # parameters should be set here, and only once; these define the inividual
+    # orthogonal polynomial functions which are combined to compose the REE pattern
+    params = _get_params(params=params, degree=degree)
+    # these are the REE which the lambdas will be EVALUATED at; exclude empty columns
+    columns = [c for c in df.columns if c not in exclude and np.isfinite(df[c]).sum()]
+    if not columns:
+        msg = "No columns specified (after exclusion), nothing to calculate."
+        raise IndexError(msg)
+    radii = get_ionic_radii(columns, charge=3, coordination=8)
+
     df = df[columns]
-    radii = get_ionic_radii(df.columns.tolist(), charge=3, coordination=8)
+    df[~np.isfinite(df)] = np.nan  # deal with np.nan, np.inf
+
     if "oneill" in algorithm.lower():
-        return _lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
+        try:
+            return lambdas_ONeill2016(df, radii=radii, params=params, **kwargs)
+        except np.linalg.LinAlgError:  # singular matrix, use optimize
+            return lambdas_optimize(df, radii=radii, params=params, **kwargs)
     else:
-        return _lambdas_optimize(df, radii=radii, params=params, **kwargs)
+        return lambdas_optimize(df, radii=radii, params=params, **kwargs)
 
 
 def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):

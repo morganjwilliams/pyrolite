@@ -1,3 +1,7 @@
+.. raw:: latex
+
+   \chapter{Introduction}
+
 pyrolite
 ==========
 
@@ -37,23 +41,49 @@ make use of your geochemical data to build and test geological models.
     `doi: 10.1080/01621459.1976.10480949 <https://doi.org/10.1080/01621459.1976.10480949>`__
 
 
+.. raw:: latex
+
+   \chapter{Getting Started}
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :caption: Getting Started
+
+    installation
+    gettingstarted
+    examples/index
+    tutorials/index
+    cite
+
+.. raw:: latex
+
+    \chapter{Development}
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :caption: Development
+
+    dev/development
+    dev/changelog
+    dev/future
+    dev/conduct
+    dev/contributing
+    dev/contributors
+
+.. raw:: latex
+
+    \chapter{Reference}
+
 .. toctree::
    :maxdepth: 1
    :hidden:
+   :caption: Reference
 
-   installation
-   gettingstarted
-   examples/index
-   tutorials/index
    api/API
+   data/index
    ext/extensions
-   dev/development
-   dev/changelog
-   dev/future
-   dev/conduct
-   dev/contributing
-   dev/contributors
-   cite
 
 .. note:: This documentation is a work in progress and is updated regularly. Contact
           the maintainer with any specific questions/requests.

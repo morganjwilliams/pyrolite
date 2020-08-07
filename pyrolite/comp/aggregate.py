@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import warnings
-from .codata import alr, inverse_alr
+from .codata import ALR, inverse_ALR
 
 import logging
 
@@ -102,9 +102,9 @@ def compositional_mean(df, weights=[], **kwargs):
         weights = np.ones(len(df.index.values))
     weights = np.array(weights) / np.nansum(weights)
 
-    logmean = alr(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
+    logmean = ALR(df.loc[:, non_nan_cols].values).T @ weights[:, np.newaxis]
     # this renormalises by default
-    mean.loc[non_nan_cols] = inverse_alr(logmean.T.squeeze())
+    mean.loc[non_nan_cols] = inverse_ALR(logmean.T.squeeze())
     return mean
 
 
@@ -113,7 +113,7 @@ def nan_weighted_compositional_mean(
 ):
     """
     Implements an aggregation using a weighted mean, but accounts
-    for nans. Requires at least one non-nan column for alr mean.
+    for nans. Requires at least one non-nan column for ALR mean.
 
     When used for internal standardisation, there should be only a single
     common element - this would be used by default as the divisor here. When
@@ -127,7 +127,7 @@ def nan_weighted_compositional_mean(
     weights : :class:`numpy.ndarray`
         Array of weights.
     ind : :class:`int`
-        Index of the column to use as the alr divisor.
+        Index of the column to use as the ALR divisor.
     renorm : :class:`bool`, :code:`True`
         Whether to renormalise the output compositional mean to unity.
 

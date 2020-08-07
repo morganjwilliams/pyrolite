@@ -4,7 +4,10 @@ Submodule with various plotting and visualisation functions.
 import logging
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.style
 import mpltern
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -17,9 +20,9 @@ warnings.filterwarnings("ignore", "Unknown section")
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.style import linekwargs, scatterkwargs
 from ..util.plot.helpers import plot_cooccurence
-
+from ..util.general import copy_file
 from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs
+from ..util.meta import get_additional_params, subkwargs, pyrolite_datafolder
 from .. import geochem
 from . import density
 from . import spider
@@ -27,18 +30,60 @@ from . import stem
 from . import parallel
 from .color import process_color
 
-from ..comp.codata import close, ilr
+from ..comp.codata import close, ILR
 from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]
 
 
-# todo: global style variables
-FONTSIZE = 12
+def _export_pyrolite_mplstyle(refresh=False):
+    dest = Path(matplotlib.get_configdir()) / "stylelib"
+
+    if (not (dest / "pyrolite.mplstyle").exists()) or refresh:
+        logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
+        if not dest.exists():
+            dest.mkdir(parents=True)
+        copy_file(
+            pyrolite_datafolder("_config") / "pyrolite.mplstyle",
+            dest / "pyrolite.mplstyle",
+        )
+        logger.debug("Reloading matplotlib")
+        matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 
-def _check_components(obj, components=None, valid_sizes=[2, 3]):
+def _restyle(f, **_style):
+    """
+    A decorator to set the default keyword arguments for :mod:`matplotlib`
+    functions and classes which are not contained in the `matplotlibrc` file.
+    """
+
+    def wrapped(*args, **kwargs):
+        return f(*args, **{**_style, **kwargs})
+
+    wrapped.__name__ = f.__name__
+    wrapped.__doc__ = f.__doc__
+    return wrapped
+
+
+def _export_nonRCstyles():
+    """
+    Export default options for parameters not in rcParams using :func:`_restyle`.
+    """
+    matplotlib.axes.Axes.legend = _restyle(
+        matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
+    )
+    matplotlib.figure.Figure.legend = _restyle(
+        matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
+    )
+
+
+_export_pyrolite_mplstyle()
+_export_nonRCstyles()
+matplotlib.style.use("pyrolite")
+
+
+def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
     """
     Check that the components provided within a dataframe are consistent with the
     form of plot being used.
@@ -49,6 +94,8 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
         Object to check.
     components : :class:`list`
         List of components, optionally specified.
+    check_size : :class:`bool`
+        Whether to verify the size of the column index.
     valid_sizes : :class:`list`
         Component list lengths which are valid for the plot type.
 
@@ -58,7 +105,7 @@ def _check_components(obj, components=None, valid_sizes=[2, 3]):
         Components for the plot.
     """
     try:
-        if obj.columns.size not in valid_sizes:
+        if check_size and (obj.columns.size not in valid_sizes):
             assert len(components) in valid_sizes
 
         if components is None:
@@ -84,6 +131,9 @@ class pyroplot(object):
         """
         self._validate(obj)
         self._obj = obj
+
+        # refresh custom styling on creation?
+        _export_nonRCstyles()
 
     @staticmethod
     def _validate(obj):
@@ -119,12 +169,7 @@ class pyroplot(object):
         return ax
 
     def density(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
@@ -140,11 +185,7 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
 
-        Other Parameters
-        ------------------
         {otherparams}
 
         Returns
@@ -160,7 +201,7 @@ class pyroplot(object):
             obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
         )
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
         return ax
 
@@ -171,8 +212,7 @@ class pyroplot(object):
         axlabels=True,
         logx=False,
         logy=False,
-        fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Heatmapped scatter plots using the pyroplot API. See further parameters
@@ -190,8 +230,6 @@ class pyroplot(object):
             Whether to log-transform x values before the KDE for bivariate plots.
         logy : :class:`bool`, `False`
             Whether to log-transform y values before the KDE for bivariate plots.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
 
         {otherparams}
 
@@ -205,21 +243,18 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
         data, samples = (
             obj.reindex(columns=components).values,
-            obj.reindex(columns=components).values
+            obj.reindex(columns=components).values,
         )
         kdetfm = [  # log transforms
             get_scaler([None, np.log][logx], [None, np.log][logy]),
-            lambda x: ilr(close(x)),
+            lambda x: ILR(close(x)),
         ][len(components) == 3]
         zi = sample_kde(
             data, samples, transform=kdetfm, **subkwargs(kwargs, sample_kde)
         )
         kwargs.update({"c": zi})
         ax = obj.reindex(columns=components).pyroplot.scatter(
-            ax=ax,
-            axlabels=axlabels,
-            fontsize=fontsize,
-            **scatterkwargs(process_color(**kwargs))
+            ax=ax, axlabels=axlabels, **kwargs
         )
         return ax
 
@@ -231,7 +266,7 @@ class pyroplot(object):
         legend=False,
         cmap=plt.cm.viridis,
         ax=None,
-        **kwargs
+        **kwargs,
     ):
 
         """
@@ -260,17 +295,12 @@ class pyroplot(object):
             legend=legend,
             cmap=cmap,
             ax=ax,
-            **kwargs
+            **kwargs,
         )
         return ax
 
     def plot(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for line plots using the pyroplot API. See
@@ -284,8 +314,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -302,9 +330,9 @@ class pyroplot(object):
         lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
-        ax.tick_params("both", labelsize=fontsize * 0.9)
+        ax.tick_params("both")
         # ax.grid()
         # ax.set_aspect("equal")
         return ax
@@ -322,7 +350,6 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-
         {otherparams}
 
         Returns
@@ -346,12 +373,7 @@ class pyroplot(object):
         return ax
 
     def scatter(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
@@ -365,8 +387,6 @@ class pyroplot(object):
             The subplot to draw on.
         axlabels : :class:`bool`, :code:`True`
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -380,15 +400,16 @@ class pyroplot(object):
 
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
+        size = obj.index.size
         sc = ax.scatter(
             *obj.reindex(columns=components).values.T,
-            **scatterkwargs(process_color(**kwargs))
+            **scatterkwargs(process_color(size=size, **kwargs)),
         )
 
         if axlabels:
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
-        ax.tick_params("both", labelsize=fontsize * 0.9)
+        ax.tick_params("both")
         # ax.grid()
         # ax.set_aspect("equal")
         return ax
@@ -400,7 +421,6 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
-        fontsize=FONTSIZE,
         **kwargs,
     ):
         r"""
@@ -421,8 +441,6 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -447,6 +465,11 @@ class pyroplot(object):
         if index_order is not None:
             components = index_order(components)
 
+        ax = init_axes(ax=ax, **kwargs)
+
+        if hasattr(ax, "_pyrolite_components"):
+            pass
+
         ax = spider.spider(
             obj.reindex(columns=components).astype(np.float).values,
             indexes=indexes,
@@ -454,6 +477,7 @@ class pyroplot(object):
             mode=mode,
             **process_color(**kwargs),
         )
+        ax._pyrolite_components = components
         ax.set_xticklabels(components, rotation=60)
         return ax
 
@@ -463,8 +487,7 @@ class pyroplot(object):
         ax=None,
         orientation="horizontal",
         axlabels=True,
-        fontsize=FONTSIZE,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Method for creating stem plots. Convenience access function to
@@ -481,8 +504,6 @@ class pyroplot(object):
             Orientation of the plot (horizontal or vertical).
         axlabels : :class:`bool`, True
             Whether to add x-y axis labels.
-        fontsize : :class:`int`
-            Fontsize for axis labels.
         {otherparams}
 
         Returns
@@ -503,7 +524,7 @@ class pyroplot(object):
         if axlabels:
             if "h" not in orientation.lower():
                 components = components[::-1]
-            label_axes(ax, labels=components, fontsize=fontsize)
+            label_axes(ax, labels=components)
 
         return ax
 

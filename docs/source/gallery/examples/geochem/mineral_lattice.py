@@ -29,6 +29,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.mineral.lattice import strain_coefficient
+
 # sphinx_gallery_thumbnail_number = 3
 ########################################################################################
 # First, we need to define some of the necessary parameters including temperature, the Young's
@@ -127,18 +128,18 @@ radii, ds = (
     [get_ionic_radii("Eu", charge=c, coordination=8) for c in [3, 3, 2, 2]],
     [D_Eu3, D_Eu, D_Eu, D_Eu2],
 )
-ax.plot(
-    radii, ds, ls="--", color="0.9", marker="D", label="Effective $D_{Eu}$", zorder=-1
-)
-ax.legend(loc="upper left", bbox_to_anchor=(1.05, 1), frameon=False, facecolor=None)
+ax.plot(radii, ds, ls="--", color="0.9", label="Effective $D_{Eu}$", zorder=-1)
+ax.legend(bbox_to_anchor=(1.05, 1))
 fig
 ########################################################################################
 # .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
-#              from elastic moduli. Nature 372, 452. https://doi.org/10.1038/372452A0
+#             from elastic moduli. Nature 372, 452.
+#             doi: `10.1038/372452A0 <https://doi.org/10.1038/372452A0>`__
 #
 # .. [#ref_2] Dohmen, R., Blundy, J., 2014. A predictive thermodynamic model for element partitioning
 #             between plagioclase and melt as a function of pressure, temperature and composition.
-#             American Journal of Science 314, 1319–1372. https://doi.org/10.2475/09.2014.04
+#             American Journal of Science 314, 1319–1372.
+#             doi: `10.2475/09.2014.04 <https://doi.org/10.2475/09.2014.04>`__
 #
 # .. seealso::
 #

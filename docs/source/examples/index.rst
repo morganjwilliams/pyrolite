@@ -414,13 +414,13 @@ Compositional Data Examples
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Logratios for Average Compositions">
+    <div class="sphx-glr-thumbcontainer" tooltip="pyrolite includes a few functions for dealing with compositional data, at the heart of which ar...">
 
 .. only:: html
 
- .. figure:: /examples/comp/images/thumb/sphx_glr_logratios_thumb.png
+ .. figure:: /examples/comp/images/thumb/sphx_glr_logtransforms_thumb.png
 
-     :ref:`sphx_glr_examples_comp_logratios.py`
+     :ref:`sphx_glr_examples_comp_logtransforms.py`
 
 .. raw:: html
 
@@ -430,7 +430,27 @@ Compositional Data Examples
 .. toctree::
    :hidden:
 
-   /examples/comp/logratios
+   /examples/comp/logtransforms
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Log Ratio Means">
+
+.. only:: html
+
+ .. figure:: /examples/comp/images/thumb/sphx_glr_logratiomeans_thumb.png
+
+     :ref:`sphx_glr_examples_comp_logratiomeans.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/comp/logratiomeans
 
 .. raw:: html
 

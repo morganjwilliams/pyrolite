@@ -16,7 +16,7 @@ from pyrolite.plot import pyroplot
 #
 from pyrolite.util.synthetic import example_spider_data
 
-df = example_spider_data(noise_level=0.1, nobs=20)
+df = example_spider_data(noise_level=0.1, size=20)
 
 ########################################################################################
 # Where data is specified, the default plot is a line-based spiderplot:
@@ -34,7 +34,7 @@ fig, ax = plt.subplots(1, 2, sharey=True, figsize=(12, 4))
 
 df.pyroplot.REE(ax=ax[0])
 # we can also change the index of the second axes
-another_df = example_spider_data(noise_level=0.2, nobs=20)  # some 'nosier' data
+another_df = example_spider_data(noise_level=0.2, size=20)  # some 'nosier' data
 another_df.pyroplot.REE(ax=ax[1], color="k", index="radii")
 
 plt.tight_layout()

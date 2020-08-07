@@ -1,8 +1,8 @@
 import numpy as np
 import logging
-from scipy.stats.kde import gaussian_kde
+import scipy.stats
 from ..util.math import flattengrid
-from ..comp.codata import ilr, close
+from ..comp.codata import ILR, close
 
 from functools import partial
 
@@ -32,43 +32,63 @@ def get_scaler(*fs):
     return partial(scaler, fs=fs)
 
 
-def sample_kde(data, samples, renorm=False, transform=lambda x: x):
+def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=None):
     """
     Sample a Kernel Density Estimate at points or a grid defined.
 
     Parameters
     ------------
     data : :class:`numpy.ndarray`
-        Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
+        Source data to estimate the kernel density estimate; observations should be
+        in rows (:code:`npoints, ndim`).
     samples : :class:`numpy.ndarray`
-        Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`).
+        Coordinates to sample the KDE estimate at (:code:`npoints, ndim`).
     transform
         Transformation used prior to kernel density estimate.
+    bw_method : :class:`str`, :class:`float`, callable
+        Method used to calculate the estimator bandwidth.
+        See :func:`scipy.stats.kde.gaussian_kde`.
 
     Returns
     ----------
     :class:`numpy.ndarray`
     """
-    data = data[np.isfinite(data).all(axis=1), :]
-    tdata = transform(data)
+    # check shape info first
+    data = np.atleast_2d(data)
+    if data.shape[0] == 1:  # single row which should be a column
+        logger.debug("Transposing data row to column format for KDE.")
+        data = data.T
 
-    K = gaussian_kde(tdata.T)
+    tdata = transform(data)
+    tdata = tdata[np.isfinite(tdata).all(axis=1), :]  # filter rows with nans
+
+    K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
 
     if isinstance(samples, list) and isinstance(samples[0], np.ndarray):  # meshgrid
+        logger.debug("Sampling with meshgrid.")
         zshape = samples[0].shape
-        ksamples = transform(flatten_grid(ks).T)
+        ksamples = transform(flattengrid(samples))
     else:
         zshape = samples.shape[0]
         ksamples = transform(samples)
 
+     # ensures shape is fine even if row is passed
+    ksamples = ksamples.reshape(-1, tdata.shape[1])
+
+    # samples shouldnt typically contain nans
+    # ksamples = ksamples[np.isfinite(ksamples).all(axis=1), :]
+    if not tdata.shape[1] == ksamples.shape[1]:
+        logger.warn("Dimensions of data and samples do not match.")
+
     zi = K(ksamples.T)
     zi = zi.reshape(zshape)
     if renorm:
+        logger.debug("Normalising KDE sample.")
         zi = zi / np.nanmax(zi)
     return zi
 
 
-def sample_ternary_kde(data, samples, transform=ilr):
+def sample_ternary_kde(data, samples, transform=ILR):
     """
     Sample a Kernel Density Estimate in ternary space points or a grid defined by
     samples.

@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
+from sympy import tensorcontraction
+
 
 class TestAugmentedCovarianceMatrix(unittest.TestCase):
     def setUp(self):
@@ -15,20 +17,20 @@ class TestAugmentedCovarianceMatrix(unittest.TestCase):
 
 class TestInterpolateLine(unittest.TestCase):
     def setUp(self):
-        self.xy = np.vstack([np.linspace(0.0, 10.0, 10), np.random.randn(10)])
+        self.x, self.y = np.linspace(0.0, 10.0, 10), np.random.randn(10)
 
     def test_default(self):
         # should do no interpoltion
-        interpxy = interpolate_line(self.xy)
-        self.assertTrue(isinstance(interpxy, np.ndarray))
-        self.assertTrue(interpxy.shape == self.xy.shape)
+        ix, iy = interpolate_line(self.x, self.y)
+        self.assertTrue(isinstance(ix, np.ndarray))
+        self.assertTrue(ix.shape == self.x.shape)
 
     def test_n(self):
         for n in [2, 5]:
-            interpxy = interpolate_line(self.xy, n=n)
-            self.assertTrue(isinstance(interpxy, np.ndarray))
+            ix, iy = interpolate_line(self.x, self.y, n=n)
+            self.assertTrue(isinstance(ix, np.ndarray))
             self.assertTrue(
-                interpxy.shape == (2, self.xy.shape[1] + (self.xy.shape[1] - 1) * n)
+                iy.shape[-1] == self.y.shape[-1] + (self.y.shape[-1] - 1) * n
             )
 
 
@@ -93,7 +95,11 @@ class TestIsNumeric(unittest.TestCase):
     """
 
     def test_numeric_collection_instances(self):
-        for obj in [np.array([]), pd.Series([]), pd.DataFrame([])]:
+        for obj in [
+            np.array([]),
+            pd.Series([], dtype="float32"),
+            pd.DataFrame([], dtype="float32"),
+        ]:
             with self.subTest(obj=obj):
                 self.assertTrue(is_numeric(obj))
 
@@ -163,8 +169,8 @@ class TestRoundSig(unittest.TestCase):
             ).all()
         )
 
-    def test_series(self):
-        vals = pd.Series(self.values)
+    def normal_seriesies(self):
+        vals = pd.Series(self.values, dtype="float64")
         rounded = round_sig(vals, sig=2)
         self.assertTrue(
             np.isclose(
@@ -173,7 +179,7 @@ class TestRoundSig(unittest.TestCase):
         )
 
     def test_dataframe(self):
-        vals = pd.DataFrame(self.values)
+        vals = pd.DataFrame(self.values, dtype="float64")
         rounded = round_sig(vals, sig=2)
         self.assertTrue(
             np.isclose(
@@ -236,7 +242,7 @@ class TestSignificantFigures(unittest.TestCase):
             np.isclose(sfigs, self.expect.reshape(sfigs.shape), equal_nan=True).all()
         )
 
-    def test_series(self):
+    def normal_seriesies(self):
         vals = pd.Series(self.values)
         sfigs = significant_figures(vals)
         self.assertTrue(
@@ -271,7 +277,7 @@ class TestMostPrecise(unittest.TestCase):
         mp = most_precise(vals)
         self.assertEqual(mp, self.expect)
 
-    def test_series(self):
+    def normal_seriesies(self):
         vals = pd.Series(self.values)
         mp = most_precise(vals)
         self.assertEqual(mp, self.expect)
@@ -306,7 +312,7 @@ class TestEqualWithinSignificance(unittest.TestCase):
         self.assertTrue(equal_within_significance(eq))
         self.assertFalse(equal_within_significance(neq))
 
-    def test_series(self):
+    def normal_seriesies(self):
         eq = pd.Series(self.equal_values)
         neq = pd.Series(self.unequal_values)
         self.assertTrue(equal_within_significance(eq))
@@ -413,17 +419,30 @@ class TestNaNCov(unittest.TestCase):
         self.assertTrue(np.allclose(out / out[0][0], self.target))
 
 
-class TestOrthogonalBasis(unittest.TestCase):
+class TestHelmertBasis(unittest.TestCase):
     """Test the orthogonal basis generator for ILR transformation."""
 
     def setUp(self):
         self.X = np.ones((10, 3))
 
-    def test_orthogonal_basis_from_array(self):
-        basis = orthogonal_basis_from_array(self.X)
+    def test_helmert_basis_default(self):
+        basis = helmert_basis(D=self.X.shape[0])
 
-    def test_orthogonal_basis_default(self):
-        basis = orthogonal_basis_default(self.X.shape[0])
+
+class TestSymbolicHelmert(unittest.TestCase):
+    def test_default(self):
+        for ix in np.arange(2, 10):
+            with self.subTest(ix=ix):
+                basis = symbolic_helmert_basis(ix)
+                sums = tensorcontraction(basis, (1,))
+                self.assertTrue(all([i == 0 for i in sums]))
+
+    def test_full(self):
+        for ix in np.arange(2, 10):
+            with self.subTest(ix=ix):
+                basis = symbolic_helmert_basis(ix, full=True)
+                sums = tensorcontraction(basis, (1,))  # first row won't be 0
+                self.assertTrue(all([i == 0 for i in sums[1:]]))
 
 
 if __name__ == "__main__":

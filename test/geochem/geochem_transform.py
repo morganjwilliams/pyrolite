@@ -1,15 +1,16 @@
 import unittest
 import numpy as np
-from pyrolite.util.synthetic import test_df, test_ser
+from pyrolite.util.synthetic import normal_frame, normal_series
 from pyrolite.geochem.transform import *
 from pyrolite.geochem.norm import get_reference_composition
+from pyrolite.util.lambdas import orthogonal_polynomial_constants
 
 
 class TestToMolecular(unittest.TestCase):
     """Tests pandas molecular conversion operator."""
 
     def setUp(self):
-        self.df = test_df()
+        self.df = normal_frame()
 
     def test_single(self):
         """Checks results on single records."""
@@ -26,7 +27,7 @@ class TestToWeight(unittest.TestCase):
     """Tests pandas weight conversion operator."""
 
     def setUp(self):
-        self.df = test_df()
+        self.df = normal_frame()
 
     def test_single(self):
         """Checks results on single records."""
@@ -360,7 +361,7 @@ class TestGetRatio(unittest.TestCase):
     """Tests the ratio addition."""
 
     def setUp(self):
-        self.df = test_df(cols=["Si", "Mg", "MgO", "CaO", "Li", "B"])
+        self.df = normal_frame(columns=["Si", "Mg", "MgO", "CaO", "Li", "B"])
 
     def test_none(self):
         """Check the ratio addition copes with no records."""
@@ -487,9 +488,30 @@ class TestLambdaLnREE(unittest.TestCase):
                 ret = lambda_lnREE(self.df, degree=degree)
                 self.assertTrue(ret.columns.size == degree)
 
+    def test_params(self):
+        # the first three all have the same result - defaulting to ONeill 2016
+        # the two following use a full REE set for the OP basis function definition
+        # the last illustrates that custom parameters could be used
+        degree = self.default_degree
+        for params in [
+            None,
+            "ONeill2016",
+            "O'Neill (2016)",
+            "full",
+            "Full",
+            orthogonal_polynomial_constants(
+                get_ionic_radii(REE(), charge=3, coordination=8),  # xs
+                degree=self.default_degree,
+            ),
+        ]:
+            with self.subTest(params=params):
+                ret = lambda_lnREE(self.df, params=params, degree=degree)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
     def test_norm_to(self):
         """
-        Tests the ability to generate lambdas using different normalisations."""
+        Tests the ability to generate lambdas using different normalisations.
+        """
         for norm_to in [
             self.C,
             np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
@@ -497,6 +519,18 @@ class TestLambdaLnREE(unittest.TestCase):
             with self.subTest(norm_to=norm_to):
                 ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_allow_missing(self):
+        """
+        Test the boolean toggle for allowing lambda calculations for rows with missing
+        data.
+        """
+        pass
+
+    def test_min_elements(self):
+        """
+        Test the warning and filter for minimum number of elements.
+        """
 
 
 class TestConvertChemistry(unittest.TestCase):

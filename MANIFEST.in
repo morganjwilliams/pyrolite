@@ -2,11 +2,10 @@ include versioneer.py
 include pyrolite/_version.py
 include LICENSE
 recursive-include pyrolite/data/Aitchison *
-include pyrolite/data/alphamelts/env.py
 recursive-include pyrolite/data/geochem *
+recursive-include pyrolite/data/mineral *
 recursive-include pyrolite/data/models *
 recursive-include pyrolite/data/radii *
 recursive-include pyrolite/data/timescale *
-recursive-include pyrolite/data/mineral *
-# recursive-exclude pyrolite/data/alphamelts/localinstall *
+recursive-include pyrolite/data/_config *
 # global-exclude __pycache__

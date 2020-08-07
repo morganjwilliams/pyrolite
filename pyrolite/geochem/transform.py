@@ -521,6 +521,9 @@ def lambda_lnREE(
     params=None,
     degree=4,
     scale="ppm",
+    allow_missing=True,
+    min_elements=7,
+    algorithm="ONeill",
     **kwargs
 ):
     """
@@ -535,14 +538,24 @@ def lambda_lnREE(
     norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
         Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
     exclude : :class:`list`, :code:`["Pm", "Eu"]`
-        Which REE elements to exclude from the fit. May wish to include Ce for minerals
+        Which REE elements to exclude from the *fit*. May wish to include Ce for minerals
         in which Ce anomalies are common.
-    params : :class:`list`, :code:`None`
-        Set of predetermined orthagonal polynomial parameters.
-    degree : :class:`int`, 5
+    params : :class:`list` | :class:`str`, :code:`None`
+        Pre-computed parameters for the orthogonal polynomials (a list of tuples).
+        Optionally specified, otherwise defaults the parameterisation as in
+        O'Neill (2016). If a string is supplied, :code:`"O'Neill (2016)"` or
+        similar will give the original defaults, while :code:`"full"` will use all
+        of the REE (including Eu) as a basis for the orthogonal polynomials.
+    degree : :class:`int`, 4
         Maximum degree polynomial fit component to include.
     scale : :class:`str`
         Current units for the REE data, used to scale the reference dataset.
+    allow_missing : :class:`True`
+        Whether to calculate lambdas for rows which might be missing values.
+    min_elements : :class:`int`
+        Minimum columns present to return lambda values.
+    algorithm : :class:`str`
+        Algorithm to use for fitting the orthogonal polynomials.
 
     Todo
     -----
@@ -563,21 +576,24 @@ def lambda_lnREE(
     :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
-    # check if there are columns which are empty
-    exclude += list(df.columns[df.isnull().all(axis=0)])
+    # if there are no supplied params, they will be calculated in calc_lambdas
+
     # Check which REE we're dealing with
     ree = [el for el in REE() if el in df.columns and el not in exclude]
-    # get the ionic radii for these REE
-    radii = np.array(get_ionic_radii(ree, coordination=8, charge=3))
 
-    # if there are no supplied params, we need to create them here
-    if params is None:
-        params = lambdas.orthogonal_polynomial_constants(radii, degree=degree)
-    else:
-        degree = len(params)
+    # initialize normdf
+    norm_df = df.loc[:, ree].copy()
+    # check if there are columns which are empty
+    empty = list(norm_df.columns[norm_df.isnull().all(axis=0)])
+    if empty:
+        logger.debug("Empty columns found: {}".format(", ".join(empty)))
+        exclude += empty
 
-    null_in_row = pd.isnull(df.loc[:, ree]).any(axis=1)
-    norm_df = df.loc[~null_in_row, ree].copy()  # initialize normdf
+    if norm_df.columns.size < min_elements:
+        msg = (
+            "Dataframe size below minimum number of elements required to conduct a fit."
+        )
+        logger.warning(msg)
 
     if norm_to is not None:  # None = already normalised data
         if isinstance(norm_to, str):
@@ -597,12 +613,28 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    try:
-        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
-    except np.linalg.LinAlgError:  # singular matrix
-        kwargs.update({"algorithm": "opt"})  # use scipy.optimise method
-        lambdadf = lambdas.calc_lambdas(norm_df, params=params, degree=degree, **kwargs)
+    if not allow_missing:
+        # nullify rows with missing data
+        missing = pd.isnull(df.loc[:, ree]).any(axis=1)
+        if missing.any():
+            logger.debug("Ignoring {} rows with missing data.".format(missing.sum()))
+            norm_df.loc[missing, :] = np.nan
 
+    row_filter = norm_df.count(axis=1) >= min_elements
+
+    lambdadf = pd.DataFrame(
+        index=norm_df.index,
+        columns=[chr(955) + str(d) for d in range(degree)],
+        dtype="float32",
+    )
+    # we've already excluded columns, so dont' need to here
+    lambdadf.loc[row_filter, :] = lambdas.calc_lambdas(
+        norm_df.loc[row_filter, :],
+        params=params,
+        degree=degree,
+        algorithm=algorithm,
+        **kwargs
+    )
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

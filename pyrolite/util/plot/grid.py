@@ -11,7 +11,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-def bin_centres_to_edges(centres):
+def bin_centres_to_edges(centres, sort=True):
     """
     Translates point estimates at the centres of bins to equivalent edges,
     for the case of evenly spaced bins.
@@ -20,9 +20,14 @@ def bin_centres_to_edges(centres):
     ------
         * This can be updated to unevenly spaced bins, just need to calculate outer bins.
     """
-    sortcentres = np.sort(centres.flatten())
-    step = (sortcentres[1] - sortcentres[0]) / 2.0
-    return np.append(sortcentres - step, [sortcentres[-1] + step])
+    if sort:
+        centres = np.sort(centres.flatten())
+    internal_means = (centres[1:] + centres[:-1]) / 2.0
+    before, after = (
+        centres[0] - (internal_means[0] - centres[0]),
+        centres[-1] + (centres[-1] - internal_means[-1]),
+    )
+    return np.hstack([before, internal_means, after])
 
 
 def bin_edges_to_centres(edges):
@@ -84,7 +89,7 @@ def ternary_grid(
             [1.0 - 2 * margin, margin, margin],
         ]
     )
-    xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T # in the cartesian xy space
+    xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T  # in the cartesian xy space
     xbounds = np.hstack((xbounds, [xbounds[0]]))
     ybounds = np.hstack((ybounds, [ybounds[0]]))
     tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)

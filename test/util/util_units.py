@@ -1,6 +1,6 @@
 import unittest
 import pyrolite
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.util.units import *
 from pyrolite.util.units import scale, __UNITS__
 
@@ -10,7 +10,7 @@ class TestScaleFunction(unittest.TestCase):
 
     def setUp(self):
         self.df = pd.DataFrame()
-        self.df["units"] = pd.Series(__UNITS__.keys())
+        self.df["units"] = pd.Series(list(__UNITS__.keys()))
         self.df["values"] = pd.Series(np.random.rand(self.df.index.size))
 
     def test_same_units(self):

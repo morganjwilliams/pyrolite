@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from pyrolite.comp.aggregate import *
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 
 import logging
 
@@ -11,7 +11,7 @@ class TestCompositionalMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
-        self.df = test_df(cols=self.cols)
+        self.df = normal_frame(columns=self.cols)
 
     def test_1D(self):
         """Checks results on single records."""
@@ -57,7 +57,7 @@ class TestWeightsFromArray(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
-        self.df = test_df(cols=self.cols)
+        self.df = normal_frame(columns=self.cols)
 
     def test_single(self):
         """Checks results on single records."""
@@ -77,7 +77,7 @@ class TestGetFullColumn(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
-        self.df = test_df(cols=self.cols)
+        self.df = normal_frame(columns=self.cols)
         nans = 10
         self.df.iloc[
             np.random.randint(1, 10, size=nans),
@@ -102,7 +102,7 @@ class TestNANWeightedMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
-        self.df = test_df(cols=self.cols)
+        self.df = normal_frame(columns=self.cols)
 
     def test_single(self):
         """Checks results on single records."""
@@ -156,7 +156,7 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
 
     def setUp(self):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
-        self.df = test_df(cols=self.cols)
+        self.df = normal_frame(columns=self.cols)
         self.df = self.df.apply(lambda x: x / np.sum(x), axis="columns")
 
     def test_single(self):
@@ -204,7 +204,7 @@ class TestCrossRatios(unittest.TestCase):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
         self.d = len(self.cols)
         self.n = 10
-        self.df = test_df(cols=self.cols, index_length=self.n)
+        self.df = normal_frame(columns=self.cols, size=self.n)
 
     def test_single(self):
         """Checks results on single record."""
@@ -245,7 +245,7 @@ class TestNPCrossRatios(unittest.TestCase):
         self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
         self.d = len(self.cols)
         self.n = 10
-        self.df = test_df(cols=self.cols, index_length=self.n)
+        self.df = normal_frame(columns=self.cols, size=self.n)
 
     def test_single(self):
         """Checks results on single record."""

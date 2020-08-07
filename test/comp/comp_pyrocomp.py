@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pyrolite.comp
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.geochem.ind import REE
 
 np.random.seed(81)
@@ -12,9 +12,9 @@ class TestPyroComp(unittest.TestCase):
         self.cols = ["MgO", "SiO2", "CaO"]
 
         # can run into interesting singular matrix errors with bivariate random data
-        self.tridf = test_df(cols=self.cols, index_length=100)
+        self.tridf = normal_frame(columns=self.cols, size=100)
         self.bidf = self.tridf.loc[:, self.cols[:2]]
-        self.multidf = test_df(cols=REE(), index_length=100)
+        self.multidf = normal_frame(columns=REE(), size=100)
 
     def test_renormalise_default(self):
         df = self.bidf.copy(deep=True) * 100  # copy df
@@ -34,18 +34,18 @@ class TestPyroComp(unittest.TestCase):
     def test_ALR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.ALR()
-        self.assertTrue(hasattr(out, "alr_index"))
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("ALR_index" in out.attrs)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_ALR_name_index(self):
         df = self.tridf.copy(deep=True)  # copy df
         ind = "SiO2"
         out = df.pyrocomp.ALR(ind=ind)
-        self.assertTrue(hasattr(out, "alr_index"))
-        self.assertTrue(hasattr(out, "inverts_to"))
+        self.assertTrue("ALR_index" in out.attrs)
+        self.assertTrue("inverts_to" in out.attrs)
         self.assertTrue(all([ind in colname for colname in out.columns]))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_ALR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -57,8 +57,8 @@ class TestPyroComp(unittest.TestCase):
     def test_CLR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.CLR()
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_CLR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -70,8 +70,8 @@ class TestPyroComp(unittest.TestCase):
     def test_ILR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.ILR()
-        self.assertTrue(hasattr(out, "inverts_to"))
-        self.assertTrue(out.inverts_to == self.cols)
+        self.assertTrue("inverts_to" in out.attrs)
+        self.assertTrue(out.attrs["inverts_to"] == self.cols)
 
     def test_inverse_ILR_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -83,7 +83,7 @@ class TestPyroComp(unittest.TestCase):
     def test_boxcox_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.boxcox()
-        self.assertTrue(hasattr(out, "boxcox_lmbda"))
+        self.assertTrue("boxcox_lmbda" in out.attrs)
 
     def test_inverse_boxcox_default(self):
         df = self.tridf.copy(deep=True)  # copy df
@@ -95,6 +95,31 @@ class TestPyroComp(unittest.TestCase):
     def test_logratiomean_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.logratiomean()
+
+    def test_invert_transform(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        for tfm in [df.pyrocomp.ALR, df.pyrocomp.CLR, df.pyrocomp.ILR]:
+            with self.subTest(tfm=tfm):
+                out = tfm()
+                out_inv = out.pyrocomp.invert_transform()
+                self.assertTrue(np.allclose(out_inv.values, df.values))
+
+    def test_labelling(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        # test that the label modes can be called
+        for mode in ["numeric", "simple", "latex"]:
+            for m in [df.pyrocomp.ALR, df.pyrocomp.CLR, df.pyrocomp.ILR]:
+                with self.subTest(mode=mode, m=m):
+                    out = m(label_mode=mode)
+
+    def test_labelling_invalid(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        # test that the label modes can be called
+        for mode in ["math", "bogus"]:
+            for m in [df.pyrocomp.ALR, df.pyrocomp.CLR, df.pyrocomp.ILR]:
+                with self.subTest(mode=mode, m=m):
+                    with self.assertRaises(NotImplementedError):
+                        out = m(label_mode=mode)
 
 
 if __name__ == "__main__":

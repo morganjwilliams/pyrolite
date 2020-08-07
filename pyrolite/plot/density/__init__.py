@@ -97,6 +97,10 @@ def density(
             :func:`matplotlib.pyplot.hist2d`
             :func:`matplotlib.pyplot.contourf`
 
+    Notes
+    -----
+    Could implement an option and filter to 'scatter' points below the minimum threshold
+    or maximum percentile contours.
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
@@ -111,10 +115,11 @@ def density(
     pcolor, contour, contourf = get_axis_density_methods(ax)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
 
-    if isinstance(cmap, str):
-        cmap = plt.get_cmap(cmap)
+    if cmap is not None:
+        if isinstance(cmap, str):
+            cmap = plt.get_cmap(cmap)
 
-    cmap.set_under((1, 1, 1, 0))
+        cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":
         cbarlabel = "Kernel Density Estimate"
@@ -147,7 +152,7 @@ def density(
                     extent=grid.get_hex_extent(),
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hexbin)
                 )
 
             elif mode == "hist2d":
@@ -158,7 +163,7 @@ def density(
                     range=grid.get_range(),
                     cmap=cmap,
                     cmin=[0, 1][vmin > 0],
-                    **kwargs
+                    **subkwargs(kwargs, ax.hist2d)
                 )
                 mappable = im
 
@@ -168,6 +173,7 @@ def density(
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
                     mode="edges",
+                    **subkwargs(kwargs, grid.kdefrom)
                 )
 
                 if percentiles:  # 98th percentile
@@ -205,7 +211,8 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
-            assert (arr > 0).all()
+            # zeros make nans in this case, due to the heatmap calculations
+            arr[~(arr > 0).all(axis=1), :] = np.nan
             arr = close(arr)
             if mode == "hexbin":
                 raise NotImplementedError
@@ -266,6 +273,9 @@ def _add_contours(
     extent=None,
     **kwargs
 ):
+    """
+    Add density-based contours to a plot.
+    """
     # get the contour levels
     percentiles = kwargs.pop("percentiles", True)
     levels = contours or kwargs.get("levels", None)

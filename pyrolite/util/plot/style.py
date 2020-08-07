@@ -9,6 +9,7 @@ DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default discrete colormap.
 """
 import itertools
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines
 import matplotlib.axes
@@ -127,5 +128,5 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     :class:`matplotlib.cm.ScalarMappable`
     """
     sm = plt.cm.ScalarMappable(cmap=cmap)
-    sm.set_array(values)
+    sm.set_array(values[np.isfinite(values)])
     return sm

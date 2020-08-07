@@ -6,7 +6,9 @@ import numpy as np
 from numpy.random import multivariate_normal
 import logging
 from pyrolite.plot.density import density
-from pyrolite.comp.codata import close
+from pyrolite.plot.density.ternary import ternary_heatmap
+from pyrolite.comp.codata import close, ILR, ALR, inverse_ILR, inverse_ALR
+from pyrolite.util.skl.transform import ILRTransform, ALRTransform
 
 logger = logging.getLogger(__name__)
 
@@ -78,19 +80,28 @@ class TestDensityplot(unittest.TestCase):
                     plt.close("all")
 
     def test_colorbar(self):
-        arr = self.biarr
-        for mode in ["density", "hist2d", "hexbin"]:
-            with self.subTest(mode=mode):
-                out = density(arr, mode=mode, colorbar=True)
-                self.assertTrue(isinstance(out, matplotlib.axes.Axes))
-            plt.close("all")
+        for arr in [self.biarr, self.triarr]:
+            for mode in ["density", "hist2d"]: # hexbin won't work for triarr
+                with self.subTest(mode=mode):
+                    out = density(arr, mode=mode, colorbar=True)
+                    self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+                plt.close("all")
 
     def test_contours(self):
-        arr = self.biarr
         contours = [0.9, 0.5]
-        for mode in ["density"]:
-            with self.subTest(mode=mode):
-                out = density(arr, mode=mode, contours=contours)
+        for arr in [self.biarr, self.triarr]:
+            for mode in ["density"]:
+                with self.subTest(mode=mode, arr=arr):
+                    out = density(arr, mode=mode, contours=contours)
+                    self.assertTrue(isinstance(out, matplotlib.axes.Axes))
+                plt.close("all")
+
+    def test_contours_levels(self):
+        arr = self.biarr
+        mode = "density"
+        for levels in [3, None]:
+            with self.subTest(levels=levels):
+                out = density(arr, mode=mode, contours=True, percentiles=False)
                 self.assertTrue(isinstance(out, matplotlib.axes.Axes))
             plt.close("all")
 
@@ -105,6 +116,46 @@ class TestDensityplot(unittest.TestCase):
 
     def tearDown(self):
         plt.close("all")
+
+
+class TestTernaryHeatmap(unittest.TestCase):
+    def setUp(self):
+        self.data = np.random.rand(100, 3)
+
+    def test_default(self):
+        out = ternary_heatmap(self.data)
+        self.assertTrue(isinstance(out, tuple))
+        coords, H, data = out
+        self.assertTrue(coords[0].shape == coords[1].shape)
+        # zi could have more or less bins depending on mode..
+
+    def test_histogram(self):
+        out = ternary_heatmap(self.data, mode="histogram")
+        xe, ye, zi = out
+        coords, H, data = out
+        self.assertTrue(coords[0].shape == coords[1].shape)
+
+    def test_density(self):
+        out = ternary_heatmap(self.data, mode="density")
+        coords, H, data = out
+        self.assertTrue(coords[0].shape == coords[1].shape)
+
+    def test_transform(self):
+        for tfm, itfm in [
+            (ALR, inverse_ALR),
+            (ILR, inverse_ILR),
+            (ILRTransform, None),
+            (ALRTransform, None),
+        ]:
+            with self.subTest(tfm=tfm, itfm=itfm):
+                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
+                coords, H, data = out
+
+    @unittest.expectedFailure
+    def test_need_inverse_transform(self):
+        for tfm, itfm in [(ALR, None), (ILR, None)]:
+            with self.subTest(tfm=tfm, itfm=itfm):
+                out = ternary_heatmap(self.data, transform=tfm, inverse_transform=itfm)
 
 
 if __name__ == "__main__":

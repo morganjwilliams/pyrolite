@@ -15,7 +15,7 @@ including the Total Alkali-Silica (TAS) classification.
     import numpy as np
     import pandas as pd
     import matplotlib.pyplot as plt
-    from pyrolite.util.classification import Geochemistry
+    from pyrolite.util.classification import TAS
     from pyrolite.util.synthetic import test_df, random_cov_matrix
 
 
@@ -31,15 +31,14 @@ We'll first generate some synthetic data to play with:
 
 .. code-block:: default
 
-    mean = np.array([49, 11, 15, 4, 0.5, 4, 1.5])
     df = (
         test_df(
-            cols=["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O"],
-            mean=mean,
+            cols=["SiO2", "Na2O", "K2O", "Al2O3"],
+            mean=[0.5, 0.04, 0.05, 0.4],
             index_length=100,
-            seed=82,
+            seed=49,
         )
-        * mean.sum()
+        * 100
     )
 
     df.head(3)
@@ -71,44 +70,32 @@ We'll first generate some synthetic data to play with:
             <tr style="text-align: right;">
               <th></th>
               <th>SiO2</th>
-              <th>CaO</th>
-              <th>MgO</th>
-              <th>FeO</th>
-              <th>TiO2</th>
               <th>Na2O</th>
               <th>K2O</th>
+              <th>Al2O3</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>0</td>
-              <td>50.949</td>
-              <td>10.522</td>
-              <td>14.147</td>
-              <td>3.752</td>
-              <td>0.435</td>
-              <td>3.851</td>
-              <td>1.342</td>
+              <th>0</th>
+              <td>48.597785</td>
+              <td>3.833775</td>
+              <td>4.695366</td>
+              <td>42.873074</td>
             </tr>
             <tr>
-              <td>1</td>
-              <td>47.525</td>
-              <td>11.133</td>
-              <td>15.962</td>
-              <td>4.216</td>
-              <td>0.513</td>
-              <td>4.189</td>
-              <td>1.462</td>
+              <th>1</th>
+              <td>50.096300</td>
+              <td>3.960378</td>
+              <td>5.196130</td>
+              <td>40.747192</td>
             </tr>
             <tr>
-              <td>2</td>
-              <td>48.273</td>
-              <td>11.044</td>
-              <td>16.082</td>
-              <td>3.823</td>
-              <td>0.479</td>
-              <td>3.935</td>
-              <td>1.363</td>
+              <th>2</th>
+              <td>51.381566</td>
+              <td>4.126436</td>
+              <td>5.181051</td>
+              <td>39.310947</td>
             </tr>
           </tbody>
         </table>
@@ -122,15 +109,17 @@ We can visualise how this chemistry corresponds to the TAS diagram:
 
 .. code-block:: default
 
-    from pyrolite.util.classification import Geochemistry
+    import pyrolite.plot
 
-    df["TotalAlkali"] = df["Na2O"] + df["K2O"]
-    cm = Geochemistry.TAS()
+    df["Na2O + K2O"] = df["Na2O"] + df["K2O"]
+    cm = TAS()
 
     fig, ax = plt.subplots(1)
+    cm.add_to_axes(
+        ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID",
+    )
+    df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
 
-    ax.scatter(df["SiO2"], df["TotalAlkali"], c="k", alpha=0.2)
-    cm.add_to_axes(ax, alpha=0.5, zorder=-1)
 
 
 
@@ -139,6 +128,14 @@ We can visualise how this chemistry corresponds to the TAS diagram:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+
+    <matplotlib.axes._subplots.AxesSubplot object at 0x000001670FE96448>
 
 
 
@@ -150,11 +147,9 @@ the TAS fields correspond to:
 
 .. code-block:: default
 
-    df["TAS"] = cm.classify(df)
-    df["Rocknames"] = df.TAS.apply(
-        lambda x: cm.clsf.fields.get(x, {"names": None})["names"]
-    )
-    df["TAS"].unique()
+    df["TAS"] = cm.predict(df)
+    df["Rocknames"] = df.TAS.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
+    df["Rocknames"].sample(10) # randomly check 10 sample rocknames
 
 
 
@@ -166,7 +161,17 @@ the TAS fields correspond to:
  .. code-block:: none
 
 
-    array(['S1', 'U1', 'Bs', 'O1', 'S2', 'Ba'], dtype=object)
+    78    [Phonotephrite, Foid Monzodiorite]
+    2     [Phonotephrite, Foid Monzodiorite]
+    56    [Phonotephrite, Foid Monzodiorite]
+    41    [Phonotephrite, Foid Monzodiorite]
+    93    [Phonotephrite, Foid Monzodiorite]
+    60    [Phonotephrite, Foid Monzodiorite]
+    61    [Phonotephrite, Foid Monzodiorite]
+    47    [Phonotephrite, Foid Monzodiorite]
+    4            [Trachyandesite, Foidolite]
+    12           [Trachyandesite, Foidolite]
+    Name: Rocknames, dtype: object
 
 
 
@@ -179,14 +184,10 @@ TAS diagram is illustrated:
 .. code-block:: default
 
 
-    colorize = {field: plt.cm.tab10(ix) for ix, field in enumerate(df["TAS"].unique())}
-
     fig, ax = plt.subplots(1)
 
-    ax.scatter(
-        df["SiO2"], df["TotalAlkali"], c=df["TAS"].apply(lambda x: colorize[x]), alpha=0.7
-    )
-    cm.add_to_axes(ax, alpha=0.5, zorder=-1)
+    cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID")
+    df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df['TAS'], alpha=0.7)
 
 
 
@@ -194,13 +195,21 @@ TAS diagram is illustrated:
     :class: sphx-glr-single-img
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+
+    <matplotlib.axes._subplots.AxesSubplot object at 0x000001670E957288>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.585 seconds)
+   **Total running time of the script:** ( 0 minutes  0.488 seconds)
 
 
 .. _sphx_glr_download_examples_util_TAS.py:

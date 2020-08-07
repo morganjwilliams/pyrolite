@@ -2,13 +2,16 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 import scipy.special
+import sympy
 
 # from .renorm import renormalise, close
-from ..util.math import orthogonal_basis_default, orthogonal_basis_from_array
+from ..util.math import helmert_basis, symbolic_helmert_basis
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+__TRANSFORMS__ = {}
 
 
 def close(X: np.ndarray, sumf=np.sum):
@@ -70,7 +73,7 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
         return dfc
 
 
-def alr(X: np.ndarray, ind: int = -1, null_col=False):
+def ALR(X: np.ndarray, ind: int = -1, null_col=False):
     """
     Additive Log Ratio transformation.
 
@@ -107,7 +110,7 @@ def alr(X: np.ndarray, ind: int = -1, null_col=False):
     return np.log(Y)
 
 
-def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
+def inverse_ALR(Y: np.ndarray, ind=-1, null_col=False):
     """
     Inverse Centred Log Ratio transformation.
 
@@ -150,7 +153,7 @@ def inverse_alr(Y: np.ndarray, ind=-1, null_col=False):
     return X
 
 
-def clr(X: np.ndarray):
+def CLR(X: np.ndarray):
     """
     Centred Log Ratio transformation.
 
@@ -170,7 +173,7 @@ def clr(X: np.ndarray):
     return Y
 
 
-def inverse_clr(Y: np.ndarray):
+def inverse_CLR(Y: np.ndarray):
     """
     Inverse Centred Log Ratio transformation.
 
@@ -191,7 +194,7 @@ def inverse_clr(Y: np.ndarray):
     return X
 
 
-def ilr(X: np.ndarray):
+def ILR(X: np.ndarray, **kwargs):
     """
     Isometric Log Ratio transformation.
 
@@ -206,13 +209,13 @@ def ilr(X: np.ndarray):
         ILR-transformed array, of shape :code:`(N, D-1)`.
     """
     d = X.shape[1]
-    Y = clr(X)
-    psi = orthogonal_basis_from_array(X)  # Get a basis
+    Y = CLR(X)
+    psi = helmert_basis(D=d, **kwargs)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
+def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -229,13 +232,9 @@ def inverse_ilr(Y: np.ndarray, X: np.ndarray = None):
     :class:`numpy.ndarray`
         Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
-
-    if X is None:
-        psi = orthogonal_basis_default(D=Y.shape[1] + 1)
-    else:
-        psi = orthogonal_basis_from_array(X)
+    psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
     C = Y @ psi
-    X = inverse_clr(C)  # Inverse log operation
+    X = inverse_CLR(C)  # Inverse log operation
     return X
 
 
@@ -320,7 +319,28 @@ def inverse_boxcox(Y: np.ndarray, lmbda):
     return scipy.special.inv_boxcox(Y, lmbda)
 
 
-def logratiomean(df, transform=clr, inverse_transform=inverse_clr):
+def get_transforms(name):
+    """
+    Lookup a transform-inverse transform pair by name.
+
+    Parameters
+    ----------
+    name : :class:`str`
+        Name of of the transform pairs (e.g. :code:``'CLR'``).
+
+    Returns
+    -------
+    tfm, inv_tfm : :class:`callable`
+        Transform and inverse transform functions.
+    """
+    if callable(name):  #  callable
+        name = name.__name__
+
+    tfm, inv_tfm = __TRANSFORMS__.get(name)
+    return tfm, inv_tfm
+
+
+def logratiomean(df, transform=CLR):
     """
     Take a mean of log-ratios along the index of a dataframe.
 
@@ -338,7 +358,161 @@ def logratiomean(df, transform=clr, inverse_transform=inverse_clr):
     :class:`pandas.Series`
         Mean values as a pandas series.
     """
+    tfm, inv_tfm = get_transforms(transform)
     return pd.Series(
-        inverse_transform(np.mean(transform(df.values), axis=0)[np.newaxis, :])[0],
-        index=df.columns,
+        inv_tfm(np.mean(tfm(df.values), axis=0)[np.newaxis, :])[0], index=df.columns,
     )
+
+
+def _aggregate_sympy_constants(expr):
+    """
+    Aggregate constants and symbolic components within a sympy expression to separate
+    sub-expressions.
+
+    Parameters
+    -----------
+    expr : :class:`sympy.core.expr.Expr`
+        Expression to aggregate. For matricies, use :func:`~sympy.Matrix.applyfunc`.
+
+    Returns
+    -------
+    :class:`sympy.core.expr.Expr`
+    """
+    const = expr.func(*[term for term in expr.args if not term.free_symbols])
+    vars = expr.func(*[term for term in expr.args if term.free_symbols])
+    if const:
+        return sympy.UnevaluatedExpr(const) * sympy.UnevaluatedExpr(vars)
+    else:
+        return sympy.UnevaluatedExpr(vars)
+
+
+def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
+    """
+    Get symbolic labels for CLR coordinates based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate CLR labels for.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+
+    Returns
+    -------
+    :class:`list`
+        List of CLR coordinates corresponding to dataframe columns.
+    """
+
+    names = [r"{} / {}".format(c, df.columns[ind]) for c in df.columns]
+    arr = sympy.Matrix([sympy.ln(n) for n in names])
+
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in arr
+        ]
+    elif mode.lower() == "simple":
+        labels = ["ALR({})".format(n) for n in names]
+    else:
+        msg = "Label mode {} not recognised.".format(mode)
+        raise NotImplementedError(msg)
+    return labels
+
+
+def get_CLR_labels(df, mode="simple", **kwargs):
+    """
+    Get symbolic labels for CLR coordinates based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate CLR labels for.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+
+    Returns
+    -------
+    :class:`list`
+        List of CLR coordinates corresponding to dataframe columns.
+    """
+    D = df.columns.size
+    names = [r"{} / γ".format(c) for c in df.columns]
+
+    arr = sympy.Matrix([sympy.ln(n) for n in names])
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in arr
+        ]
+    elif mode.lower() == "simple":
+        labels = ["CLR({}/G)".format(c) for c in df.columns]
+    else:
+        msg = "Label mode {} not recognised.".format(mode)
+        raise NotImplementedError(msg)
+    return labels
+
+
+def get_ILR_labels(df, mode="latex", **kwargs):
+    """
+    Get symbolic labels for ILR coordinates based on dataframe columns.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to generate ILR labels for.
+    mode : :class:`str`
+        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+
+    Returns
+    -------
+    :class:`list`
+        List of ILR coordinates corresponding to dataframe columns.
+    """
+    D = df.columns.size
+    # encode symbolic variables
+    vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+    arr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+
+    # this is the CLR --> ILR transform
+    helmert = symbolic_helmert_basis(D, **kwargs)
+    expr = sympy.simplify(
+        sympy.logcombine(sympy.simplify(arr @ helmert.transpose()), force=True)
+    )
+    expr = expr.applyfunc(_aggregate_sympy_constants)
+    # sub in Phi (the CLR normalisation variable)
+    names = [r"{} / γ".format(c) for c in df.columns]
+    named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
+    # format latex labels
+    if mode.lower() == "latex":
+        labels = [
+            r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
+            for l in named_expr
+        ]
+    elif mode.lower() == "simple":
+        # here we could exclude scaling terms and just use ILR(A/B)
+        unscaled_components = named_expr.applyfunc(
+            lambda x: x.func(*[term for term in x.args if term.free_symbols])
+        )
+        labels = [str(l).replace("log", "ILR") for l in unscaled_components]
+    else:
+        msg = "Label mode {} not recognised.".format(mode)
+        raise NotImplementedError(msg)
+    return labels
+
+
+def _load_transforms():
+    """
+    Load the transform pairs into the module level variable for later lookup.
+
+    Returns
+    -------
+    :class:`dict`
+    """
+    return {
+        f: (globals().get(f), globals().get("inverse_{}".format(f)))
+        for f in globals().keys()
+        if "inverse_{}".format(f) in globals().keys()
+    }
+
+
+__TRANSFORMS__.update(_load_transforms())

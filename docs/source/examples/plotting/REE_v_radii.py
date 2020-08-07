@@ -49,6 +49,15 @@ from pyrolite.plot.spider import REE_v_radii
 ax = REE_v_radii(index="radii")  # radii mode will put ionic radii on the x axis
 plt.show()
 ########################################################################################
-# .. seealso:: `Visualising Orthogonal Polynomials <../lambdas/lambdavis.html>`__,
-#              `Dimensional Reduction <../lambdas/lambdadimreduction.html>`__,
-#              `Spider Diagrams <spider.html>`__,
+# .. seealso::
+#
+#   Examples:
+#    `Ionic Radii <ionic_radii.html>`__,
+#    `Spider Diagrams <spider.html>`__,
+#    `lambdas: Parameterising REE Profiles <lambdas.html>`__
+#
+#   Functions:
+#     :func:`~pyrolite.geochem.ind.get_ionic_radii`,
+#     :func:`pyrolite.plot.pyroplot.REE`,
+#     :func:`pyrolite.plot.pyroplot.spider`,
+#     :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`

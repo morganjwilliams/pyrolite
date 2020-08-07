@@ -18,6 +18,7 @@ __massunits__ = {
 
 __UNITS__ = {**__massunits__}
 
+
 def scale(in_unit, target_unit="ppm"):
     """
     Provides the scale difference between two mass units.
@@ -47,6 +48,6 @@ def scale(in_unit, target_unit="ppm"):
         scale = __UNITS__[in_unit] / __UNITS__[target_unit]
     else:
         unkn = [i for i in [in_unit, target_unit] if i not in __UNITS__]
-        logger.debug("Units not known: {}. Defaulting to unity.".format(unkn))
+        logger.warn("Units not known: {}. Defaulting to unity.".format(unkn))
         scale = 1.0
     return scale

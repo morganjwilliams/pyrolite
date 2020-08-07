@@ -1,4 +1,5 @@
 import numpy as np
+import sympy
 import scipy
 from copy import copy
 from .meta import update_docstring_references
@@ -66,33 +67,40 @@ def augmented_covariance_matrix(M, C):
     return A
 
 
-def interpolate_line(xy, n=0, logy=False):
+def interpolate_line(x, y, n=0, logy=False):
     """
-    Add intermediate evenly spaced points interpolated between given x-y coordinates.
+    Add intermediate evenly spaced points interpolated between given x-y coordinates,
+    assuming the x points are the same.
+
+    Parameters
+    -----------
+    x : :class:`numpy.ndarray`
+        1D array of x values.
+
+    y : :class:`numpy.ndarray`
+        ND array of y values.
     """
-    xy = np.squeeze(xy)
-    if xy.ndim > 2:
-        return np.array(
-            list(map(lambda line: interpolate_line(line, n=n, logy=logy), xy))
-        )
-    x, y = xy
     if logy:  # perform interpolation against logy, then revert with exp
         y = np.log(y)
-    intervals = x[1:] - x[:-1]
-    current = x[:-1].copy()
+
+    current = x[:-1].copy() # the first part of the x array
+    intervals = x[1:] - x[:-1] # right-wise intervals (could be negative for REE)
     _x = current.copy().astype(np.float)
-    if n:
+
+    if n:  # should be able to tile this instead
         dx = intervals / (n + 1.0)
         for ix in range(n):
             current = current + dx
-            _x = np.append(_x, current)
-    _x = np.append(_x, np.array([x[-1]]))
-    _x = np.sort(_x)
-    _y = np.interp(_x, x, y)
-    assert all([i in _x for i in x])
+            _x = np.hstack([_x, current])
+
+    _x = np.append(_x, x[-1])  # add one final value to x series
+    _x = np.sort(_x, axis=-1)
+    f = scipy.interpolate.interp1d(x, y, axis=-1)
+    _y = f(_x)
+    # assert all([i in _x for i in x])
     if logy:
         _y = np.exp(_y)
-    return np.vstack([_x, _y])
+    return _x, _y
 
 
 def grid_from_ranges(X, bins=100, **kwargs):
@@ -503,9 +511,9 @@ def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
         return equal
 
 
-def orthogonal_basis_default(D: int, **kwargs):
+def helmert_basis(D: int, full=False, **kwargs):
     """
-    Generate a set of orthogonal basis vectors .
+    Generate a set of orthogonal basis vectors in the form of a helmert matrix.
 
     Parameters
     ---------------
@@ -517,33 +525,41 @@ def orthogonal_basis_default(D: int, **kwargs):
     :class:`numpy.ndarray`
         (D-1, D) helmert matrix corresponding to default orthogonal basis.
     """
-    H = scipy.linalg.helmert(D, **kwargs)
-    return H[::-1]
+    H = scipy.linalg.helmert(D, full=full, **kwargs)
+    return H
 
 
-def orthogonal_basis_from_array(X: np.ndarray, **kwargs):
+def symbolic_helmert_basis(D, full=False):
     """
-    Generate a set of orthogonal basis vectors.
+    Get a symbolic representation of a Helmert Matrix.
 
     Parameters
-    ---------------
-    X : :class:`numpy.ndarray`
-        Array from which the size of the set is derived.
+    ----------
+    D : :class:`int`
+        Order of the matrix. Equivalent to dimensionality for compositional data
+        analysis.
+    full : :class:`bool`
+        Whether to return the full matrix, or alternatively exclude the first row.
+        Analogous to the option for :func:`scipy.linalg.helmert`.
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        (D-1, D) helmert matrix corresponding to default orthogonal basis.
-
-    Notes
-    -----
-        * Currently returns the default set of basis vectors for an array of given dim.
-
-    Todo
-    -----
-        * Update to provide other potential sets of basis vectors.
+    :class:`sympy.matrices.dense.DenseMatrix`
     """
-    return orthogonal_basis_default(X.shape[1], **kwargs)
+
+    rows = []
+    if full:
+        rows += [[1 / sympy.sqrt(D)] * D]
+
+    for r in np.arange(1, D):
+        rows += [
+            [1 / sympy.sqrt((r + 1) * r)] * r  # 1/sqrt(n(*n+1))
+            + [-r / sympy.sqrt((r + 1) * r)]  # -n/sqrt(n(*n+1))
+            + [0] * (D - r - 1)
+        ]
+    # could check summations here
+
+    return sympy.Matrix(rows)
 
 
 def on_finite(X, f):

@@ -13,11 +13,7 @@ from ..util import units
 from . import parse
 from . import transform
 from . import norm
-from .ind import (
-    __common_elements__,
-    __common_oxides__,
-    REE,
-)
+from .ind import __common_elements__, __common_oxides__, REE, REY
 from .ions import set_default_ionic_charges
 
 set_default_ionic_charges()
@@ -54,6 +50,22 @@ class pyrochem(object):
         return self._obj.columns[fltr].tolist()
 
     @property
+    def list_isotope_ratios(self):
+        """
+        Get the subset of columns which are isotope ratios.
+
+        Returns
+        --------
+        :class:`list`
+
+        Notes
+        -------
+        The list will have the same ordering as the source DataFrame.
+        """
+        fltr = [parse.is_isotoperatio(c) for c in self._obj.columns]
+        return self._obj.columns[fltr].tolist()
+
+    @property
     def list_REE(self):
         """
         Get the subset of columns which are Rare Earth Element names.
@@ -67,6 +79,21 @@ class pyrochem(object):
         The returned list will reorder REE based on atomic number.
         """
         return [i for i in REE() if i in self._obj.columns]
+
+    @property
+    def list_REY(self):
+        """
+        Get the subset of columns which are Rare Earth Element names.
+
+        Returns
+        --------
+        :class:`list`
+
+        Notes
+        -------
+        The returned list will reorder REE based on atomic number.
+        """
+        return [i for i in REY() if i in self._obj.columns]
 
     @property
     def list_oxides(self):
@@ -119,6 +146,21 @@ class pyrochem(object):
         self._obj.loc[:, self.list_REE] = df
 
     @property
+    def REY(self):
+        """
+        Get a Rare Earth Element + Yttrium subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj[self.list_REY]
+
+    @REE.setter
+    def REY(self, df):
+        self._obj.loc[:, self.list_REY] = df
+
+    @property
     def oxides(self):
         """
         Get an oxide subset of a DataFrame.
@@ -134,6 +176,21 @@ class pyrochem(object):
         self._obj.loc[:, self.list_oxides] = df
 
     @property
+    def isotope_ratios(self):
+        """
+        Get an isotope ratio subset of a DataFrame.
+
+        Returns
+        --------
+        :class:`pandas.Dataframe`
+        """
+        return self._obj[self.list_isotope_ratios]
+
+    @isotope_ratios.setter
+    def isotope_ratios(self, df):
+        self._obj.loc[:, self.list_isotope_ratios] = df
+
+    @property
     def compositional(self):
         """
         Get an oxide & elemental subset of a DataFrame.
@@ -141,6 +198,10 @@ class pyrochem(object):
         Returns
         --------
         :class:`pandas.Dataframe`
+
+        Notes
+        ------
+        This wil not include isotope ratios.
         """
         return self._obj.loc[:, self.list_compositional]
 
@@ -149,6 +210,15 @@ class pyrochem(object):
         self._obj.loc[:, self.list_compositional] = df
 
     # pyrolite.geochem.parse functions
+
+    def parse_chem(self, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+        """
+        Convert column names to pyrolite-recognised elemental, oxide and isotope
+        ratio column names where valid names are found.
+        """
+        self._obj.columns = parse.tochem(
+            self._obj.columns, abbrv=abbrv, split_on=split_on
+        )
 
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
         """
@@ -460,11 +530,15 @@ class pyrochem(object):
         norm_to : :class:`str` | :class:`~pyrolite.geochem.norm.Composition` | :class:`numpy.ndarray`
             Which reservoir to normalise REE data to (defaults to :code:`"ChondriteREE_ON"`).
         exclude : :class:`list`, :code:`["Pm", "Eu"]`
-            Which REE elements to exclude from the fit. May wish to include Ce for minerals
+            Which REE elements to exclude from the *fit*. May wish to include Ce for minerals
             in which Ce anomalies are common.
-        params : :class:`list`, :code:`None`
-            Set of predetermined orthagonal polynomial parameters.
-        degree : :class:`int`, 5
+        params : :class:`list` | :class:`str`, :code:`None`
+            Pre-computed parameters for the orthogonal polynomials (a list of tuples).
+            Optionally specified, otherwise defaults the parameterisation as in
+            O'Neill (2016). If a string is supplied, :code:`"O'Neill (2016)"` or
+            similar will give the original defaults, while :code:`"full"` will use all
+            of the REE (including Eu) as a basis for the orthogonal polynomials.
+        degree : :class:`int`, 4
             Maximum degree polynomial fit component to include.
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.

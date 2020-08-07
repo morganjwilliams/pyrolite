@@ -7,8 +7,11 @@ __version__ = get_versions()["version"]
 del get_versions
 
 import logging
+from pathlib import Path
 import importlib
 import pkgutil
+import matplotlib.style
+from .plot import _export_pyrolite_mplstyle
 
 # http://docs.python-guide.org/en/latest/writing/logging/
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -38,3 +41,7 @@ def load_extensions(base="pyrolite_", replace=["util"]):
         for r in replace:
             n = n.replace(r, "")
         setattr(extensions, n, m)
+
+
+# _export_pyrolite_mplstyle() should be called in .plot import regardless
+matplotlib.style.use("pyrolite")

@@ -1,14 +1,7 @@
 """
 Utility functions for working with matplotlib.
 
-Todo
-------
-
-    * Functions for working with and modifying legend entries.
-
-        ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
-
-Attributes
+Parameters
 ----------
 DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default continuous colormap.
@@ -17,12 +10,17 @@ DEFAULT_DICS_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
-
 """
+from sys import platform
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
+
+if platform == "darwin":
+    logger.debug('Using TkAgg renderer for Mac.')
+    import matplotlib
+    matplotlib.use('TkAgg')
 
 from .style import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 from .density import USE_PCOLOR

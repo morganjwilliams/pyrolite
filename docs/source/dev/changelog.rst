@@ -6,16 +6,8 @@ All notable changes to this project will be documented here.
 Todo
 ------
 
-* **Feature**: Docs page for reference compositions
-  (`#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
-  Work in progress on a
-  `feature branch <https://github.com/morganjwilliams/pyrolite/tree/feature/docs-pyrolite.data>`__.
-* **Feature**: REY function
-  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__).
 * **Feature**: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* **Bug**: Conditional density spider plots should have bins centred on the element indexes
-  (currently this is an edge)
 * **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
@@ -25,6 +17,114 @@ Todo
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
+
+* Updated citation information.
+* Added specific testing for OSX for Travis, and updated the install method to better
+  pick up issues with pip installations.
+* **Feature**: Added a `gallery <../data/index.html>`__ of pages for each of the
+  datasets included with :mod:`pyrolite`. This will soon be expanded, especially for the
+  reference compositions (to address
+  `#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **PR Merged**: `Kaarel Mand <https://github.com/kaarelmand>`__ submitted
+  `a pull request <https://github.com/morganjwilliams/pyrolite/pull/37>`__ to add a
+  number of shale and crustal compositions to the reference database.
+* **Bugfix**: Fixed a bug where lambdas would only be calculated for rows without
+  missing data. Where missing data was present, this would result in an assertion
+  error and hence no returned values.
+* **Bugfix**: Fixed a bug where missing data wasn't handled correctly for calculating
+  lambdas. The functions now correctly ignore the potential contribution of elements
+  which are missing when parameterising REE patterns. Thanks to Steve Barnes for
+  the tip off which led to identifying this issue!
+* **Feature**: Added :func:`pyrolite.geochem.ind.REY`,
+  :meth:`~pyrolite.geochem.pyrochem.list_REY`, and
+  :meth:`~pyrolite.geochem.pyrochem.REY` to address
+  (`#35 <https://github.com/morganjwilliams/pyrolite/issues/35>`__). This issue was
+  also opened by `Kaarel Mand <https://github.com/kaarelmand>`__!
+* As a lead-in to a potential change in default parameterisation, you can now provide
+  additional specifications for the calculation of `lambdas` to
+  :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE` and
+  :func:`~pyrolite.util.lambdas.calc_lambdas` to determine the basis over which the
+  individual orthogonal polynomials are defined (i.e. which REE are included to define
+  the orthonormality of these functions). For the keyword argument :code:`params`,
+  (as before) you can pass a list of tuples defining the constants representing the
+  polynomials, but you can now alternatively pass the string :code:`"ONeill2016"` to
+  explicitly specify the original parameterisation, or :code:`"full"` to use all REE
+  (including Eu) to define the orthonormality of the component functions (i.e. using
+  :code:`params="full"`).
+  To determine which elements are used to perform the *fit*, you can either filter the
+  columns passed to these functions or specifically exclude columns using the `exclude`
+  keyword argument (e.g. the default remains :code:`exclude=["Eu"]` which excludes Eu
+  from the fitting process). Note that the default for fitting will remain, but going
+  forward the default for the definition of the polynomial functions will change to
+  use all the REE by default (i.e. change to :code:`params="full"`).
+* Significant performance upgrades for :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE`
+  and associated functions (up to 3000x for larger datasets).
+* Added a minimum number of elements, configurable for
+  :meth:`~pyrolite.geochem.pyrochem.lambda_lnREE`. This is currently set to seven
+  elements (about half of the REE), and probably lower than it should be ideally. If
+  for some reason you want to test what lambdas (maybe just one or two) look like with
+  less elements, you can use the `min_elements` keyword argument.
+* Added :meth:`~pyrolite.geochem.pyrochem.list_isotope_ratios` and corresponding
+  selector :meth:`~pyrolite.geochem.pyrochem.isotope_ratios` to subset isotope ratios.
+* Added :meth:`~pyrolite.geochem.pyrochem.parse_chem` to translate geochemical columns
+  to a standardised (and pyrolite-recognised) column name format.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where arguments processing by :mod:`pyrolite.plot.color`
+  would consume the 'alpha' parameter if no colour was specified (and as such it would
+  have no effect on the default colors used by :mod:`~matplotlib.pyplot`)
+* **Bugfix**: :mod:`pyrolite.plot.color` now better handles colour and value arrays.
+* **Bugfix**: Keyword arguments passed to :mod:`pyrolite.plot.density` will now correctly be
+  forwarded to respective functions for histogram and hexbin methods.
+* Customised :mod:`matplotlib` styling has been added for :mod:`pyrolite` plotting
+  functions, including legends. This is currently relatively minimal, but could be
+  expanded slightly in the future.
+* The `bw_method` argument for :func:`scipy.stats.kde.gaussian_kde` can now be parsed
+  by :mod:`pyrolite` density-plot functions (e.g.
+  :meth:`~pyrolite.plot.pyroplot.density`, :meth:`~pyrolite.plot.pyroplot.heatscatter`).
+  This means you can modify the default bandwidth of the gaussian kernel density plots.
+  Future updates may allow non-Gaussian kernels to also be used for these purposes -
+  keep an eye out!
+* You can now specify the y-extent for conditional spider plots to restrict the range
+  over which the plot is generated (and focus the plot to where your data actually is).
+  For this, feed in a :code:`(min, max)` tuple for the `yextent` keyword argument.
+* The `ybins` argument for :meth:`~pyrolite.plot.pyroplot.spider` and related functions
+  has been updated to `bins` to be in line with other functions.
+* Conditional density :meth:`~pyrolite.plot.pyroplot.REE` plots now work as expected,
+  after some fixes for generating reverse-ordered indexes and bins
+* Added a filter for ternary density plots to ignore true zeroes.
+* Some updates for :mod:`pyrolite.plot.color` for alpha handling and colour arrays .
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated transform naming to be consistent between functions and class methods. From
+  this version use capitalised versions for the transform name acronyms (e.g.
+  :code:`ILR` instead of :code:`ilr`).
+* Added for transform metadata storage within DataFrames for
+  :class:`~pyrolite.comp.pyrocomp`, and functions to access transforms by name.
+* Added labelling functions for use with :class:`pyrolite.comp.pyrocomp` and
+  :mod:`~pyrolite.comp.codata` to illustrate the precise relationships depicted
+  by the logratio metrics (specified using the `label_mode` parameter supplied to
+  each of the resepective :class:`~pyrolite.comp.pyrocomp` logratio transforms).
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Revamped :mod:`pyrolite.util.classification` to remove cross-compatibility bugs
+  with OSX/other systems. This is now much simpler and uses JSON for serialization.
+* Small fix for :func:`~pyrolite.util.plot.style.mappable_from_values` to deal with
+  NaN values.
+* Added :mod:`pyrolite.util.log` for more streamlined logging (from
+  :mod:`pyrolite-meltsutil`)
+* Added :func:`pyrolite.util.spatial.levenshtein_distance` for comparing sequence
+  differences/distances between 1D iterables (e.g. strings, lists).
 
 `0.2.7`_
 --------------
@@ -901,9 +1001,9 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~
 
 * Added :mod:`pyrolite.util.synthetic`
-* Moved `pyrolite.util.pd.test_df` and `pyrolite.util.pd.test_ser`
-  to :func:`pyrolite.util.synthetic.test_df` and
-  :func:`pyrolite.util.synthetic.test_ser`
+* Moved `pyrolite.util.pd.normal_frame` and `pyrolite.util.pd.normal_series`
+  to :func:`pyrolite.util.synthetic.normal_frame` and
+  :func:`pyrolite.util.synthetic.normal_series`
 * Added :mod:`pyrolite.util.missing` and :func:`pyrolite.util.missing.md_pattern`
 * Added :func:`pyrolite.util.math.eigsorted`,
   :func:`pyrolite.util.math.augmented_covariance_matrix`,

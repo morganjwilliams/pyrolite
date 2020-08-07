@@ -1,6 +1,6 @@
 import unittest
 import pyrolite.comp
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.util.general import temp_path, remove_tempdir
 
 try:
@@ -84,7 +84,7 @@ class TestPdUnion(unittest.TestCase):
     """Checks the default config for scikit-learn augmenting transformer classes."""
 
     def setUp(self):
-        self.df = test_df().pyrocomp.renormalise()
+        self.df = normal_frame().pyrocomp.renormalise()
 
     def test_PdUnion(self):
         """Test the PdUnion pipeline augmentor."""

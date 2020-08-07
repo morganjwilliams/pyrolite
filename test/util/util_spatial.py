@@ -175,5 +175,32 @@ class TestNSEW2Bounds(unittest.TestCase):
         self.assertTrue(result[1] == self.params["east"])
 
 
+class TestLevenshteinDistance(unittest.TestCase):
+    def test_string(self):
+        pairs = [
+            ("bar", "car"),
+            ("bart", "car"),
+            ("Saturday", "Sunday"),
+            ("kitten", "sitting"),
+        ]
+        expect = [1, 2, 3, 3]
+        for pair, exp in zip(pairs, expect):
+            with self.subTest(pair=pair, exp=exp):
+                dist = levenshtein_distance(*pair)
+                self.assertTrue(dist == exp)
+
+    def test_list(self):
+        pairs = [
+            ([1, 2, 3], [1, 2, 2]),
+            (["A", "B", "C"], ["A", "B"]),
+            (["A", "B", "C", "D"], ["A", "E", "C"]),
+        ]
+        expect = [1, 1, 2]
+        for pair, exp in zip(pairs, expect):
+            with self.subTest(pair=pair, exp=exp):
+                dist = levenshtein_distance(*pair)
+                self.assertTrue(dist == exp)
+
+
 if __name__ == "__main__":
     unittest.main()

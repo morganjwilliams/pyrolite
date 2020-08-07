@@ -15,7 +15,7 @@ from pyrolite.util.meta import (
     update_docstring_references,
 )
 import pyrolite.plot  # for logging checks
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 import logging
 
 

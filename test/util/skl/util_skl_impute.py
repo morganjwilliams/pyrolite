@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pyrolite.util.synthetic import test_df
+from pyrolite.util.synthetic import normal_frame
 from pyrolite.comp.codata import close
 
 try:
@@ -28,7 +28,7 @@ class TestImputers(unittest.TestCase):
     """Checks the default config for scikit-learn imputing transformer classes."""
 
     def setUp(self):
-        self.df = test_df().apply(close, axis=1)
+        self.df = normal_frame().apply(close, axis=1)
         self.group = (self.df["MgO"] > 0.21).apply(np.int)
 
     def test_MultipleImputer(self):

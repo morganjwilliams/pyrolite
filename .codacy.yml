@@ -9,3 +9,4 @@ exclude_paths:
   - '.github/**'
   - 'CODE_OF_CONDUCT.md'
   - 'CHANGELOG.md'
+  - 'CONTRIBUTING.md'

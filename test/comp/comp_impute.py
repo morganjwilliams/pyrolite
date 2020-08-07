@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from pyrolite.util.math import augmented_covariance_matrix
 from pyrolite.util.synthetic import (
-    test_df,
-    test_ser,
+    normal_frame,
+    normal_series,
     random_cov_matrix,
     random_composition,
 )
