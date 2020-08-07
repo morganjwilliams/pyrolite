@@ -8,8 +8,6 @@ Todo
 
 * **Feature**: Updates to include more lithogeochemical plot templates
   (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* **Bug**: Conditional density spider plots should have bins centred on the element indexes
-  (currently this is an edge)
 * **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
   (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
 
@@ -23,8 +21,8 @@ Todo
 * Updated citation information.
 * Added specific testing for OSX for Travis, and updated the install method to better
   pick up issues with pip installations.
-* **Feature**: Added a gallery with documentation pages for each of the datasets
-  included with :mod:`pyrolite`. This will soon be expanded, especially for the
+* **Feature**: Added a `gallery <../data/index.html>`__ of pages for each of the
+  datasets included with :mod:`pyrolite`. This will soon be expanded, especially for the
   reference compositions (to address
   `#38 <https://github.com/morganjwilliams/pyrolite/issues/38>`__).
 
