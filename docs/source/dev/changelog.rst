@@ -18,6 +18,10 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+
+`0.2.8`_
+--------------
+
 * Updated citation information.
 * Added specific testing for OSX for Travis, and updated the install method to better
   pick up issues with pip installations.
@@ -1014,7 +1018,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...develop
+.. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
 .. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5
