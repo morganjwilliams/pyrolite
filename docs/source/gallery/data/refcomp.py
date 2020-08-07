@@ -180,8 +180,8 @@ for composition in compositions:
 ax.legend()
 plt.show()
 ########################################################################################
-# References
-# -----------
+# Composition List
+# -----------------
 #
 # |refcomps|
 #
