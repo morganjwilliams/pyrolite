@@ -7,10 +7,12 @@ from pyrolite.util.lambdas import (
     orthogonal_polynomial_constants,
     evaluate_lambda_poly,
     get_lambda_poly_func,
-    plot_lambdas_components
+    plot_lambdas_components,
+    calc_lambdas,
 )
 from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
+from pyrolite.geochem.norm import get_reference_composition
 
 
 class TestOPConstants(unittest.TestCase):
@@ -31,7 +33,6 @@ class TestOPConstants(unittest.TestCase):
     def test_against_original(self):
         """Check that the constants line up with Hugh's paper."""
         ret = orthogonal_polynomial_constants(self.xs, degree=self.default_degree)
-        print(ret, self.expect)
         for out, expect in zip(ret, self.expect):
             with self.subTest(out=out, expect=expect):
                 if out:
@@ -123,8 +124,69 @@ class TestGetLambdaPolyFunc(unittest.TestCase):
         ret = get_lambda_poly_func(self.lambdas, params=params)
         self.assertTrue(callable(ret))
 
-class TestPlotLambdasComponents(unittest.TestCase):
 
+class TestCalcLambdas(unittest.TestCase):
+    def setUp(self):
+        self.C = get_reference_composition("PM_PON")
+        self.C.set_units("ppm")
+        els = [i for i in REE() if not i == "Pm"]
+        vals = self.C[els]
+        self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
+
+        self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
+        self.df.loc[1, :] = self.df.loc[0, :]
+        self.default_degree = 3
+
+    def test_exclude(self):
+        """
+        Tests the ability to generate lambdas from different element sets.
+        """
+        for exclude in [["Pm"], ["Pm", "Eu"]]:
+            with self.subTest(exclude=exclude):
+                ret = calc_lambdas(self.df, exclude=exclude, degree=self.default_degree)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_degree(self):
+        """
+        Tests the ability to generate lambdas of different degree.
+        """
+        for degree in range(1, 3):
+            with self.subTest(degree=degree):
+                ret = calc_lambdas(self.df, degree=degree)
+                self.assertTrue(ret.columns.size == degree)
+
+    def test_params(self):
+        # the first three all have the same result - defaulting to ONeill 2016
+        # the two following use a full REE set for the OP basis function definition
+        # the last illustrates that custom parameters could be used
+        degree = self.default_degree
+        for params in [
+            None,
+            "ONeill2016",
+            "O'Neill (2016)",
+            "full",
+            "Full",
+            orthogonal_polynomial_constants(
+                get_ionic_radii(REE(), charge=3, coordination=8),  # xs
+                degree=self.default_degree,
+            ),
+        ]:
+            with self.subTest(params=params):
+                ret = calc_lambdas(self.df, params=params, degree=degree)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_all_nan(self):
+        """
+        Check that no values are returned for an empty row.
+        """
+        df = self.df.copy()
+        df.loc[1, :] = np.nan
+        ret = calc_lambdas(df)
+        # all of the second row should be nan
+        self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
+
+
+class TestPlotLambdasComponents(unittest.TestCase):
     def setUp(self):
         self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
 
@@ -132,9 +194,8 @@ class TestPlotLambdasComponents(unittest.TestCase):
         ax = plot_lambdas_components(self.lambdas)
         self.assertIsInstance(ax, matplotlib.axes.Axes)
 
-
     def tearDown(self):
-        plt.close('all')
+        plt.close("all")
 
 
 if __name__ == "__main__":

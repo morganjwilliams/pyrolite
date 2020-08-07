@@ -488,17 +488,6 @@ class TestLambdaLnREE(unittest.TestCase):
                 ret = lambda_lnREE(self.df, degree=degree)
                 self.assertTrue(ret.columns.size == degree)
 
-    def test_norm_to(self):
-        """
-        Tests the ability to generate lambdas using different normalisations."""
-        for norm_to in [
-            self.C,
-            np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
-        ]:
-            with self.subTest(norm_to=norm_to):
-                ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)
-                self.assertTrue(ret.columns.size == self.default_degree)
-
     def test_params(self):
         # the first three all have the same result - defaulting to ONeill 2016
         # the two following use a full REE set for the OP basis function definition
@@ -517,8 +506,31 @@ class TestLambdaLnREE(unittest.TestCase):
         ]:
             with self.subTest(params=params):
                 ret = lambda_lnREE(self.df, params=params, degree=degree)
-                print(degree, params, ret.columns)
                 self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_norm_to(self):
+        """
+        Tests the ability to generate lambdas using different normalisations.
+        """
+        for norm_to in [
+            self.C,
+            np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
+        ]:
+            with self.subTest(norm_to=norm_to):
+                ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)
+                self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_allow_missing(self):
+        """
+        Test the boolean toggle for allowing lambda calculations for rows with missing
+        data.
+        """
+        pass
+
+    def test_min_elements(self):
+        """
+        Test the warning and filter for minimum number of elements.
+        """
 
 
 class TestConvertChemistry(unittest.TestCase):

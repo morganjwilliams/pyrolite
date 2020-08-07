@@ -255,13 +255,11 @@ def lambdas_ONeill2016(df, radii, params=None):
     for ind in np.unique(md_inds):
         row_fltr = md_inds == ind  # rows with this pattern
         missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
-        print(ind, missing_fltr)
         if missing_fltr.sum(): # ignore completely empty rows
             A = get_polynomial_matrix(rad[missing_fltr], params=params)
             invA = np.linalg.inv(A)
 
             V = np.vander(rad, degree, increasing=True).T
-
             Z = (
                 df.loc[row_fltr, missing_fltr].values[:, np.newaxis]
                 * V[np.newaxis, :, missing_fltr]
