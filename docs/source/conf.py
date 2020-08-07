@@ -238,6 +238,7 @@ from sphinx_gallery.sorting import ExplicitOrder
 
 def reset_mpl(gallery_conf, fname):
     import matplotlib.style
+
     # this should already be exported, so can be used
     matplotlib.style.use("pyrolite")
 

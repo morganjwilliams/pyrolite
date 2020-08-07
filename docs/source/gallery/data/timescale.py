@@ -12,7 +12,8 @@ from pyrolite.util.time import Timescale, age_name
 
 ts = Timescale()
 
-ts.data.iloc[:, :5]  # the first five columns of this data table
+eg = ts.data.iloc[:, :5]  # the first five columns of this data table
+eg
 ########################################################################################
 # References
 # ~~~~~~~~~~~

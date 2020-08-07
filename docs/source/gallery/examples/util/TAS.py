@@ -39,8 +39,7 @@ cm.add_to_axes(
     ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID",
 )
 df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
-
-
+plt.show()
 ########################################################################################
 # We can now classify this data according to the fields of the TAS diagram, and
 # add this as a column to the dataframe. Similarly, we can extract which rock names
@@ -48,7 +47,7 @@ df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
 #
 df["TAS"] = cm.predict(df)
 df["Rocknames"] = df.TAS.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
-df["Rocknames"].sample(10) # randomly check 10 sample rocknames
+df["Rocknames"].sample(10)  # randomly check 10 sample rocknames
 ########################################################################################
 # We could now take the TAS classes and use them to colorize our points for plotting
 # on the TAS diagram, or more likely, on another plot. Here the relationship to the
@@ -58,4 +57,4 @@ df["Rocknames"].sample(10) # randomly check 10 sample rocknames
 fig, ax = plt.subplots(1)
 
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID")
-df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df['TAS'], alpha=0.7)
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7)
