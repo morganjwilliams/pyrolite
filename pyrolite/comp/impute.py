@@ -169,8 +169,10 @@ def EMCOMP(
     tol : :class:`float`
         Tolerance to check for convergence.
     convergence_metric : :class:`callable`
-        Callable function to verify convergence, which accepts two :class:`numpy.ndarray`
-        arguments and third tolerance argument.
+        Callable function to check for convergence. Here we use a compositional distance
+        rather than a maximum absolute difference, with very similar performance.
+        Function needs to accept two :class:`numpy.ndarray` arguments and third
+        tolerance argument.
     max_iter : :class:`int`
         Maximum number of iterations before an error is thrown.
 
@@ -182,9 +184,6 @@ def EMCOMP(
        Proportion of zeros in the original data set.
     n_iters : :class:`int`
         Number of iterations needed for convergence.
-    convergence_metric : :class:`callable`
-        Callable function to check for convergence. Here we use a compositional distance
-        rather than a maximum absolute difference, with very similar performance.
 
     Notes
     -----
