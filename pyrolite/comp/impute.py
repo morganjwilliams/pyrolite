@@ -188,14 +188,16 @@ def EMCOMP(
 
     Notes
     -----
-        * At least one component without missing values is needed for the divisor. Rounded zeros/
-            missing values are replaced by values below their respective detection limits.
+
+        * At least one component without missing values is needed for the divisor.
+          Rounded zeros/missing values are replaced by values below their respective
+          detection limits.
 
         * This routine is not completely numerically stable as written.
 
     Todo
     -------
-        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code`(N, D)`)
+        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code:`(N, D)`)
         * Conisder non-normal models for data distributions.
         * Improve numerical stability to reduce the chance of :code:`np.inf` appearing.
 
@@ -294,9 +296,9 @@ def EMCOMP(
                 )
                 x /= sigmas[varmiss][np.newaxis, :]  # as standard deviations
                 assert np.isfinite(x).all()
-                # -----------------------------
-                # Calculate inverse Mills Ratio
-                # -----------------------------
+                # ----------------------------------------------------
+                # Calculate inverse Mills Ratio for Heckman correction
+                # ----------------------------------------------------
                 ϕ = stats.norm.pdf(x, loc=0, scale=1)  # pdf
                 Φ = stats.norm.cdf(x, loc=0, scale=1)  # cdf
                 Φ[np.isclose(Φ, 0)] = np.finfo(np.float).eps * 2
