@@ -1,4 +1,4 @@
-import os, sys
+import importlib
 import io
 import inspect
 import webbrowser
@@ -26,7 +26,8 @@ def get_module_datafolder(module="pyrolite", subfolder=None):
     -------
     :class:`pathlib.Path`
     """
-    pth = Path(sys.modules[module].__file__).parent / "data"
+    pth = importlib.machinery.PathFinder().find_module(module).get_filename(module)
+    pth = Path(pth).parent / "data"
     if subfolder:
         pth /= subfolder
     return pth
