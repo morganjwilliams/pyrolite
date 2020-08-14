@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# sphinx_gallery_thumbnail_number = 4
+# sphinx_gallery_thumbnail_number = 3
 
 ########################################################################################
 # Here we'll set up an example which uses EMORB as a starting point. Typically we'll
