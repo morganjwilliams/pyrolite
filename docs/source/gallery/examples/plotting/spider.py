@@ -52,11 +52,11 @@ ax = normdf.pyroplot.spider(
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
-# We can also specify either continous or categorical values to use for the colors,
+# We can also specify either continuous or categorical values to use for the colors,
 # and even map categorical values to specific colors where useful:
 #
 fig, ax = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 8))
-ax[0].set_title('Continous Values')
+ax[0].set_title('Continuous Values')
 normdf.pyroplot.spider(
     ax=ax[0],
     unity_line=True,
