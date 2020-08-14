@@ -1,6 +1,7 @@
 """
 Kernel desnity estimation plots for geochemical data.
 """
+import copy
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as np
@@ -118,7 +119,7 @@ def density(
     if cmap is not None:
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
-
+        cmap = copy.copy(cmap) # without this, it would modify the global cmap
         cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":

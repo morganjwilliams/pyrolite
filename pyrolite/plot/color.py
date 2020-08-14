@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import pandas as pd
 import matplotlib.colors
@@ -211,6 +212,7 @@ def process_color(
             if isinstance(cmap, str):
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
+                cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
             norm = norm or plt.Normalize(
                 vmin=np.nanmin(np.array(c)), vmax=np.nanmax(np.array(c))
