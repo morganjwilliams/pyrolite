@@ -52,6 +52,41 @@ ax = normdf.pyroplot.spider(
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
+# We can also specify either continous or categorical values to use for the colors,
+# and even map categorical values to specific colors where useful:
+#
+fig, ax = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 8))
+ax[0].set_title('Continous Values')
+normdf.pyroplot.spider(
+    ax=ax[0],
+    unity_line=True,
+    index_order=by_incompatibility,
+    cmap="plasma",
+    alpha=0.1,
+    color=np.log(normdf["Li"])  # a range of continous values
+)
+ax[1].set_title('Boolean/Categorical Values')
+normdf.pyroplot.spider(
+    ax=ax[1],
+    alpha=0.1,
+    unity_line=True,
+    index_order=by_incompatibility,
+    color=normdf["Cs"] > 3.5  # a boolean/categorical set of values
+)
+ax[2].set_title('Boolean/Categorical Values with Color Mapping')
+normdf.pyroplot.spider(
+    ax=ax[2],
+    alpha=0.1,
+    unity_line=True,
+    index_order=by_incompatibility,
+    color=normdf["Cs"] > 3.5,  # a boolean/categorical set of values
+    color_mappings={  # mapping the boolean values to specific colors
+        "color": {True: "green", False: "purple"}
+    }
+)
+[a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
+plt.show()
+########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
 # various modes. We could now plot the range of compositions as a filled range:
 #
