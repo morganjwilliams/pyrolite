@@ -138,7 +138,7 @@ def spider(
     _ = lnkw.pop("label")
     # check if colors vary per line/sctr
     variable_colors = False
-    c = sctkw.get("c", None)
+    c = sctkw.pop("c", None)
 
     if c is not None:
         if iscollection(c):
@@ -153,13 +153,16 @@ def spider(
         plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(local_kw))
     elif "plot" in mode.lower():
         ls = ax.plot(indexes.T, arr.T, **lnkw)
+
         if variable_colors:
             # perhaps check shape of color arg here
-            for l, ic in zip(ls, c):
-                l.set_color(ic)
-
-        sctkw.update(dict(label=label))
-        sc = ax.scatter(indexes.T, arr.T, **sctkw)
+            for ix, ic in enumerate(c):
+                ls[ix].set_color(ic)
+                # scatter by row, as difficult to manage if in a single pathcollection
+                sc = ax.scatter(indexes[ix], arr[ix], c=np.array([ic]), **sctkw)
+        else:
+            sctkw.update(dict(label=label))
+            sc = ax.scatter(indexes.T, arr.T, c=c, **sctkw)
         # should create a custom legend handle here
 
         # could modify legend here.
