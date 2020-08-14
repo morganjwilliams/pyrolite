@@ -230,7 +230,8 @@ def process_color(
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
             else:
-                _C = C.copy()
+                unique_vals = np.array(list(cmapper.values()))
+                _C = np.empty_like(C, dtype=unique_vals.dtype)
                 for cat in uniqueC:
                     _C[C == cat] = cmapper.get(cat)  # get the mapping frome the dict
                 C = np.array([matplotlib.colors.to_rgba(ic) for ic in _C])
