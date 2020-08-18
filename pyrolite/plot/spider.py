@@ -56,7 +56,7 @@ def spider(
     cmap : :class:`matplotlib.colors.Colormap`
         Colormap for mapping point and line colors.
     norm : :class:`matplotlib.colors.Normalize`, :code:`None`
-        Normalization instane for the colormap.
+        Normalization instance for the colormap.
     marker : :class:`str`, 'D'
         Matplotlib :mod:`~matplotlib.markers` designation.
     markersize : :class:`int`, 5.
