@@ -133,18 +133,23 @@ class LogTransform(BaseEstimator, TransformerMixin):
 
 
 class ALRTransform(BaseEstimator, TransformerMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, label_mode="numeric", **kwargs):
         """Additive Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
+        self.label_mode = label_mode
         self.label = "ALR"
         self.forward = codata.ALR
         self.inverse = codata.inverse_ALR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
-            out = X.pyrocomp.ALR(**kwargs)
+            out = X.pyrocomp.ALR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         elif isinstance(X, pd.Series):
-            out = X.to_frame().T.pyrocomp.ALR(**kwargs)
+            out = X.to_frame().T.pyrocomp.ALR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
@@ -163,29 +168,34 @@ class ALRTransform(BaseEstimator, TransformerMixin):
 
 
 class CLRTransform(BaseEstimator, TransformerMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, label_mode="numeric", **kwargs):
         """Centred Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
+        self.label_mode = label_mode
         self.label = "CLR"
         self.forward = codata.CLR
         self.inverse = codata.inverse_CLR
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
-            out = X.pyrocomp.CLR(**kwargs)
+            out = X.pyrocomp.CLR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         elif isinstance(X, pd.Series):
-            out = X.to_frame().T.pyrocomp.CLR(**kwargs)
+            out = X.to_frame().T.pyrocomp.CLR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         else:
-            out = self.forward(np.array(X), *args, **kwargs)
+            out = self.forward(np.array(X), *args, **{**self.kpairs, **kwargs})
         return out
 
     def inverse_transform(self, Y, *args, **kwargs):
         if isinstance(Y, pd.DataFrame):
-            out = Y.pyrocomp.inverse_CLR(**kwargs)
+            out = Y.pyrocomp.inverse_CLR(**{**self.kpairs, **kwargs})
         elif isinstance(Y, pd.Series):
-            out = Y.to_frame().T.pyrocomp.inverse_CLR(**kwargs)
+            out = Y.to_frame().T.pyrocomp.inverse_CLR(**{**self.kpairs, **kwargs})
         else:
-            out = self.inverse(np.array(Y), *args, **kwargs)
+            out = self.inverse(np.array(Y), *args, **{**self.kpairs, **kwargs})
         return out
 
     def fit(self, X, *args, **kwargs):
@@ -193,9 +203,10 @@ class CLRTransform(BaseEstimator, TransformerMixin):
 
 
 class ILRTransform(BaseEstimator, TransformerMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, label_mode="numeric", **kwargs):
         """Isometric Log Ratio Transformer for scikit-learn like use."""
         self.kpairs = kwargs
+        self.label_mode = label_mode
         self.label = "ILR"
         self.forward = codata.ILR
         self.inverse = codata.inverse_ILR
@@ -204,9 +215,13 @@ class ILRTransform(BaseEstimator, TransformerMixin):
     def transform(self, X, *args, **kwargs):
         self.X = np.array(X)
         if isinstance(X, pd.DataFrame):
-            out = X.pyrocomp.ILR(**kwargs)
+            out = X.pyrocomp.ILR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         elif isinstance(X, pd.Series):
-            out = X.to_frame().T.pyrocomp.ILR(**kwargs)
+            out = X.to_frame().T.pyrocomp.ILR(
+                label_mode=self.label_mode, **{**self.kpairs, **kwargs}
+            )
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
