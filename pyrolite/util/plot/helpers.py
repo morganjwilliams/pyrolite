@@ -7,9 +7,11 @@ import matplotlib.patches
 import scipy.spatial
 import logging
 from ..math import eigsorted, nancov
+from ..text import int_to_alpha
 from ..missing import cooccurence_pattern
 from .interpolation import interpolated_patch_path
 from .axes import add_colorbar, subaxes
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
@@ -19,6 +21,32 @@ try:
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
+
+
+def alphalabel_subplots(ax, fmt="{}", xy=(0.03, 0.95), ha="left", va="top", **kwargs):
+    """
+    Add alphabetical labels to a successive series of subplots with a specified format.
+
+    Parameters
+    -----------
+    ax : :class:`list` | :class:`numpy.ndarray` | :class:`numpy.flatiter`
+        Axes to label, in desired order.
+    fmt : :class:`str`
+        Format string to use. To add e.g. parentheses, you could specify :code:`"({})"`.
+    xy : :class:`tuple`
+        Position of the labels in axes coordinates.
+    ha : :class:`str`
+        Horizontal alignment of the labels (:code:`{"left", "right"}`).
+    va : :class:`str`
+        Vertical alignment of the labels (:code:`{"top", "bottom"}`).
+    """
+    # get axes in case of iterator which is consumed
+    _ax = [(ix, ax[ix]) for ix in range(len(ax))]
+    labels = [(a, fmt.format(int_to_alpha(ix))) for ix, a in _ax]
+    [
+        a.annotate(label, xy=xy, xycoords=a.transAxes, ha=ha, va=va, **kwargs)
+        for a, label in labels
+    ]
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
@@ -260,7 +288,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanaxx.invert_yaxis()
         nanaxy = subaxes(ax, side="left", width=axes_width)
         nanaxy.invert_xaxis()
-        ax.divider.nanaxx = nanaxx # assign for later use
+        ax.divider.nanaxx = nanaxx  # assign for later use
         ax.divider.nanaxy = nanaxy
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]
