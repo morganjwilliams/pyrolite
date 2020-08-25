@@ -388,28 +388,33 @@ def _aggregate_sympy_constants(expr):
 
 def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
     """
-    Get symbolic labels for CLR coordinates based on dataframe columns.
+    Get symbolic labels for ALR coordinates based on dataframe columns.
 
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
-        Dataframe to generate CLR labels for.
+        Dataframe to generate ALR labels for.
     mode : :class:`str`
         Mode of label to return (:code:`LaTeX`, :code:`simple`).
 
     Returns
     -------
     :class:`list`
-        List of CLR coordinates corresponding to dataframe columns.
+        List of ALR coordinates corresponding to dataframe columns.
     """
 
     names = [r"{} / {}".format(c, df.columns[ind]) for c in df.columns]
-    arr = sympy.Matrix([sympy.ln(n) for n in names])
 
     if mode.lower() == "latex":
+        # edited to avoid issues with clashes between element names and latex (e.g. Ge)
+        D = df.columns.size
+        # encode symbolic variables
+        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+        named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
             r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
-            for l in arr
+            for l in named_expr
         ]
     elif mode.lower() == "simple":
         labels = ["ALR({})".format(n) for n in names]
@@ -438,11 +443,16 @@ def get_CLR_labels(df, mode="simple", **kwargs):
     D = df.columns.size
     names = [r"{} / γ".format(c) for c in df.columns]
 
-    arr = sympy.Matrix([sympy.ln(n) for n in names])
     if mode.lower() == "latex":
+        # edited to avoid issues with clashes between element names and latex (e.g. Ge)
+        D = df.columns.size
+        # encode symbolic variables
+        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+        named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
             r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
-            for l in arr
+            for l in named_expr
         ]
     elif mode.lower() == "simple":
         labels = ["CLR({}/G)".format(c) for c in df.columns]
