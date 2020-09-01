@@ -40,8 +40,9 @@ def alphalabel_subplots(ax, fmt="{}", xy=(0.03, 0.95), ha="left", va="top", **kw
     va : :class:`str`
         Vertical alignment of the labels (:code:`{"top", "bottom"}`).
     """
+    flat = np.array(ax).flatten()
     # get axes in case of iterator which is consumed
-    _ax = [(ix, ax[ix]) for ix in range(len(ax))]
+    _ax = [(ix, flat[ix]) for ix in range(len(flat))]
     labels = [(a, fmt.format(int_to_alpha(ix))) for ix, a in _ax]
     [
         a.annotate(label, xy=xy, xycoords=a.transAxes, ha=ha, va=va, **kwargs)
