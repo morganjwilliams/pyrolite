@@ -37,17 +37,29 @@ from ..util.distributions import sample_kde, get_scaler
 __all__ = ["density", "spider", "pyroplot"]
 
 
-def _export_pyrolite_mplstyle(refresh=False):
-    dest = Path(matplotlib.get_configdir()) / "stylelib"
+def _export_mplstyle(
+    src=pyrolite_datafolder("_config") / "pyrolite.mplstyle", refresh=False
+):
+    """
+    Export a matplotlib style file to the matplotlib style library such that one can
+    use e.g. `matplotlib.style.use("pyrolite")`.
 
-    if (not (dest / "pyrolite.mplstyle").exists()) or refresh:
+    Parameters
+    -----------
+    src : :class:`str` | :class:`pathlib.Path`
+        Path to the style file to be exported.
+    refresh : :class:`bool`
+        Whether to re-export a style file (e.g. after updating) even if it
+        already exists in the matplotlib style libary.
+    """
+    src_fn = Path(src)
+    dest_dir = Path(matplotlib.get_configdir()) / "stylelib"
+    dest_fn = dest_dir / src.name
+    if (not dest_fn.exists()) or refresh:
         logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
-        if not dest.exists():
-            dest.mkdir(parents=True)
-        copy_file(
-            pyrolite_datafolder("_config") / "pyrolite.mplstyle",
-            dest / "pyrolite.mplstyle",
-        )
+        if not dest_dir.exists():
+            dest_dir.mkdir(parents=True)
+        copy_file(src_fn, dest_fn)
         logger.debug("Reloading matplotlib")
         matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
@@ -78,7 +90,7 @@ def _export_nonRCstyles():
     )
 
 
-_export_pyrolite_mplstyle()
+_export_mplstyle()
 _export_nonRCstyles()
 matplotlib.style.use("pyrolite")
 

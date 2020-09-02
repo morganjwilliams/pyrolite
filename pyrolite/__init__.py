@@ -11,7 +11,7 @@ from pathlib import Path
 import importlib
 import pkgutil
 import matplotlib.style
-from .plot import _export_pyrolite_mplstyle
+from .plot import _export_mplstyle
 
 # http://docs.python-guide.org/en/latest/writing/logging/
 logging.getLogger(__name__).addHandler(logging.NullHandler())
