@@ -32,10 +32,11 @@ jobs:
       env: PYVERSION=38
     - os: osx
       language: sh
+      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
       env:
         - HOMEBREW_NO_INSTALL_CLEANUP=1
         - HOMEBREW_NO_ANALYTICS=1
-        - PYVERSION=36
+        - PYVERSION=37
       before_cache:
         # - brew cleanup
         - rm -f "$HOME/Library/Caches/pip/log/debug.log"
@@ -43,10 +44,6 @@ jobs:
         directories:
           # - "$HOME/Library/Caches/Homebrew"
           - "$HOME/Library/Caches/pip"
-      addons:
-        homebrew:
-          # update: true
-          packages: python3
       before_install:
         - python3 -m pip install --upgrade virtualenv
         - virtualenv -p python3 --system-site-packages "$HOME/venv"
