@@ -203,7 +203,7 @@ plt.show()
 #
 #   Examples:
 #    `Ionic Radii <ionic_radii.html>`__,
-#    `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+#    `REE Radii Plot <../plotting/REE_v_radii.html>`__
 #
 #   Functions:
 #     :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`,
