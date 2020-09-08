@@ -47,7 +47,7 @@ def _export_mplstyle(
     Parameters
     -----------
     src : :class:`str` | :class:`pathlib.Path`
-        Path to the style file to be exported.
+        File path for the style file to be exported.
     refresh : :class:`bool`
         Whether to re-export a style file (e.g. after updating) even if it
         already exists in the matplotlib style libary.
@@ -59,9 +59,9 @@ def _export_mplstyle(
         logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
         if not dest_dir.exists():
             dest_dir.mkdir(parents=True)
-        copy_file(src_fn, dest_fn)
+        copy_file(src_fn, dest_dir) # copy to the destination DIR
         logger.debug("Reloading matplotlib")
-        matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
+    matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 
 def _restyle(f, **_style):
