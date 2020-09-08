@@ -142,15 +142,20 @@ def copy_file(src, dst, ext=None, permissions=None):
     src : :class:`str` | :class:`pathlib.Path`
         Source filepath.
     dst : :class:`str` | :class:`pathlib.Path`
-        Destination filepath.
+        Destination filepath or directory.
     ext : :class:`str`, :code:`None`
         Optional file extension specification.
     """
     src = Path(src)
     dst = Path(dst)
+
+    if dst.is_dir():
+        dst = dst / src.name
+
     if ext is not None:
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
+        
     logger.debug("Copying from {} to {}".format(src, dst))
     with open(str(src), "rb") as fin:
         with open(str(dst), "wb") as fout:
