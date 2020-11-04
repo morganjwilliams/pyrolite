@@ -13,6 +13,13 @@ from pyrolite.util.resampling import (
 from pyrolite.util.spatial import great_circle_distance
 from pyrolite.util.synthetic import normal_frame
 
+df = normal_frame()
+
+sample = df.sample(frac=1, replace=True)
+dir(df.index)
+df.index.take(sample.index)
+df.index.intersection(sample.index)
+
 
 def _get_spatiotemporal_dataframe(size, geochem_columns=[]):
     df = pd.DataFrame(
@@ -32,14 +39,45 @@ def _get_spatiotemporal_dataframe(size, geochem_columns=[]):
 
 
 class TestSpatioTemporalBoostrapResample(unittest.TestCase):
+    # TODO: variations of uncertainty (0D, 1D, 2D uncertainties)
+    # TODO: add transform for non-resampled parameters
     def setUp(self):
+        self.geochem_columns = ["SiO2", "Ti", "Al2O3"]
         self.df = _get_spatiotemporal_dataframe(
-            10, geochem_columns=["SiO2", "Ti", "Al2O3"]
+            10, geochem_columns=self.geochem_columns
         )
 
     def test_default(self):
         _df = self.df
-        output = spatiotemporal_bootstrap_resample(_df)
+        output = spatiotemporal_bootstrap_resample(
+            _df, columns=self.geochem_columns, niter=10
+        )
+        self.assertIsInstance(output, dict)
+
+    def test_categories(self):
+        _df = self.df
+        _df["Grouping"] = np.random.randint(3, size=_df.index.size)
+        output = spatiotemporal_bootstrap_resample(
+            _df, columns=self.geochem_columns, niter=10, categories="Grouping"
+        )
+        self.assertIsInstance(output, dict)
+
+    def test_uncertainty_modes(self):
+        _df = self.df
+        subset_shape = _df.index.size, len(self.geochem_columns)
+        for uncert in [
+            0.5,
+            np.random.uniform(size=subset_shape[1]),
+            np.random.uniform(size=subset_shape),
+        ]:
+            with self.subTest(uncert=uncert):
+                output = spatiotemporal_bootstrap_resample(
+                    _df, columns=self.geochem_columns, uncert=uncert, niter=5
+                )
+
+    def test_transform(self):
+        _df = self.df
+        output = spatiotemporal_bootstrap_resample(_df, niter=10, transform=np.log)
 
 
 class TestGetSpatiotemporalResamplingWeights(unittest.TestCase):
@@ -106,4 +144,4 @@ class TestAddAgeNoise(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(exit=False, argv=[""])
+    unittest.main()

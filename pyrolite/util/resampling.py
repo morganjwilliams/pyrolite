@@ -231,6 +231,7 @@ def add_age_noise(
 
 def spatiotemporal_bootstrap_resample(
     df,
+    columns=None,
     uncert=None,
     weights=None,
     niter=100,
@@ -240,6 +241,7 @@ def spatiotemporal_bootstrap_resample(
     add_gaussian_age_noise=True,
     metrics=["mean", "var"],
     default_uncertainty=0.02,
+    relative_uncertainties=True,
     noise_level=1,
     age_name="Age",
     latlong_names=["Latitude", "Longitude"],
@@ -254,6 +256,8 @@ def spatiotemporal_bootstrap_resample(
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe to resample.
+    columns : :class:`list`
+        Columns to provide bootstrap resampled estimates for.
     uncert : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series` | :class:`pandas.DataFrame`
         Fractional uncertainties for the dataset.
     weights : :class:`numpy.ndarray` | :class:`pandas.Series`
@@ -275,6 +279,9 @@ def spatiotemporal_bootstrap_resample(
         List of metrics to use for dataframe aggregation.
     default_uncertainty : :class:`float`
         Default (fractional) uncertainty where uncertainties are not given.
+    relative_uncertainties : :class:`bool`
+        Whether uncertainties are relative (:code:`True`, i.e. fractional proportions
+        of parameter values), or absolute (:code:`False`)
     noise_level : :class:`float`
         Multiplier for the random gaussian noise added to the dataset and ages.
     age_name : :class:`str`
@@ -319,10 +326,19 @@ def spatiotemporal_bootstrap_resample(
             **subkwargs(kwargs, get_spatiotemporal_resampling_weights)
         )
 
+    # to efficiently manage categories we can make sure we have an iterable here
+    if categories is not None:
+        if isinstance(categories, (list, tuple, pd.Series, np.ndarray)):
+            pass
+        elif isinstance(categories, str) and categories in df.columns:
+            categories = df[categories]
+        else:
+            msg = 'Categories unrecognized'
+            raise NotImplementedError(msg)
     # column selection #################################################################
     # get the subset of parameters to be resampled, removing spatial and age names
     # and only taking numeric data
-    subset = [
+    subset = columns or [
         c
         for c in df.columns
         if c not in [[i for i in df.columns if age_name in i], *latlong_names]
@@ -373,21 +389,18 @@ def spatiotemporal_bootstrap_resample(
                         * np.random.randn(*smpl[subset].shape)
                     ) * noise_level
                 else:
+                    noise = np.random.randn(*smpl[subset].shape) * noise_level
                     if uncertainty_type in ["0D", "1D"]:
                         # this should work if a float or series is passed
-                        noise = (
-                            smpl[subset].values
-                            * uncert
-                            * np.random.randn(*smpl[subset].shape)
-                        ) * noise_level
+                        noise *= uncert
                     else:
                         # need to get indexes of the sample to look up uncertainties
-                        idxs = smpl.index.values
-                        noise = (
-                            smpl[subset].values
-                            * uncert[idxs, :]
-                            * np.random.randn(*smpl[subset].shape)
-                        ) * noise_level
+                        # need to extract indexes for the uncertainties, which might be arrays
+                        arr_idxs = df.index.take(smpl.index).values
+                        noise *= uncert[arr_idxs, :]
+
+                    if relative_uncertainties:
+                        noise *= smpl[subset].values
 
                 smpl[subset] += noise
             elif (boostrap_method.upper() == "GP") or (
