@@ -54,9 +54,9 @@ def _segmented_univariate_distance_matrix(
     return dist
 
 
-def get_distance_matrix(a, b=None, distance_metric=None):
+def univariate_distance_matrix(a, b=None, distance_metric=None):
     """
-    Get a distance matrix for a single column or array of values.
+    Get a distance matrix for a single column or array of values (here used for ages).
 
     Parameters
     -----------
@@ -72,8 +72,8 @@ def get_distance_matrix(a, b=None, distance_metric=None):
     :class:`numpy.ndarray`
         2D distance matrix.
     """
-    if metric is None:
-        metric = lambda a, b: np.abs(a - b)
+    if distance_metric is None:
+        distance_metric = lambda a, b: np.abs(a - b)
 
     a = np.atleast_1d(np.array(a).astype(np.float))
     full_matrix = False
@@ -94,6 +94,7 @@ def get_spatiotemporal_resampling_weights(
     latlong_names=["Latitude", "Longitude"],
     age_name="Age",
     max_memory_fraction=0.25,
+    normalized_weights=True,
     **kwargs
 ):
     """
@@ -117,6 +118,8 @@ def get_spatiotemporal_resampling_weights(
         and the distance matrix requires greater than a specified fraction of total
         avaialbe physical memory. This is passed on to
         :func:`~pyrolite.util.spatial.great_circle_distance`.
+    normalized_weights : :class:`bool`
+        Whether to renormalise weights to unity.
 
     Returns
     -------
@@ -138,17 +141,28 @@ def get_spatiotemporal_resampling_weights(
         max_memory_fraction=max_memory_fraction,
         **subkwargs(kwargs, great_circle_distance)
     )  # angular distances
-    t = get_distance_matrix(df[age_name])
+
+    _invnormdistances = np.zeros_like(z)
     # where the distances are zero, these weights will go to inf
     # instead we replace with the smallest non-zero distance/largest non-inf
     # inverse weight
     norm_inverse_distances = 1.0 / ((z / spatial_norm) ** 2 + 1)
     norm_inverse_distances[~np.isfinite(norm_inverse_distances)] = 1
 
+    _invnormdistances += norm_inverse_distances
+
+    # ages - might want to split this out as optional for spatial resampling only?
+    t = univariate_distance_matrix(df[age_name])
+
     norm_inverse_time = 1.0 / ((t / temporal_norm) ** 2 + 1)
     norm_inverse_time[~np.isfinite(norm_inverse_time)] = 1
 
-    return 1.0 / np.sum(norm_inverse_distances + norm_inverse_time, axis=0)
+    _invnormdistances += norm_inverse_time
+
+    weights = 1.0 / np.sum(_invnormdistances, axis=0)
+    if normalized_weights:
+        weights = weights / weights.sum()
+    return weights
 
 
 def add_age_noise(
@@ -189,6 +203,11 @@ def add_age_noise(
     --------
     df : :class:`pandas.DataFrame`
         Dataframe with noise-modified ages.
+
+    Notes
+    ------
+    This modifies the dataframe which is input - be aware of this if using outside
+    of the bootstrap resampling for which this was designed.
     """
     # try and get age uncertainty
     try:
@@ -214,7 +233,7 @@ def spatiotemporal_bootstrap_resample(
     df,
     uncert=None,
     weights=None,
-    niter=10000,
+    niter=100,
     categories=None,
     transform=None,
     boostrap_method="smooth",
