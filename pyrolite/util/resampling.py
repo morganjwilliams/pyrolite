@@ -20,27 +20,51 @@ except ImportError:
     HAVE_SKLEARN = False
 
 
-def _segmented_univariate_distance_matrix(A, B, metric, dtype="float32", segs=10):
+def _segmented_univariate_distance_matrix(
+    A, B, distance_metric, dtype="float32", segs=10
+):
+    """
+    A method to generate a point-to-point distance matrix in segments to be softer
+    on memory requirements yet retain precision (e.g. beyond a few thousand points).
+
+    Parameters
+    -----------
+    A, B : :class:`numpy.ndarray`
+        Numpy arrays with positions of points.
+    distance_metric
+        Callable function f(a, b) from which to derive a distance metric.
+    dtype : :class:`str` | :class:`numpy.dtype`
+        Data type to use for the matrix.
+    segs : :class:`int`
+        Number of segments to split the matrix into (note that this will effectively
+        squared - i.e. 10 -> 100 individual segments).
+
+    Returns
+    -------
+    dist : :class:`numpy.ndarray`
+        2D point-to-point distance matrix.
+    """
     max_size = np.max([a.shape[0] for a in [A, B]])
     dist = np.zeros((max_size, max_size), dtype=dtype)  # full matrix
+    # note that this could be parallelized; the calcuations are independent
     for ix_s, ix_e, iy_s, iy_e in _get_sqare_grid_segment_indicies(max_size, segs):
-        dist[ix_s:ix_e, iy_s:iy_e] = metric(
+        dist[ix_s:ix_e, iy_s:iy_e] = distance_metric(
             A[ix_s:ix_e][:, np.newaxis], B[iy_s:iy_e][np.newaxis, :],
         )
     return dist
 
 
-def get_distance_matrix(a, b=None, metric=None):
+def get_distance_matrix(a, b=None, distance_metric=None):
     """
     Get a distance matrix for a single column or array of values.
 
     Parameters
     -----------
-    a, b : :class:`float` | :class:`numpy.ndarray`
+    a, b : :class:`numpy.ndarray`
         Points or arrays to calculate distance between. If only one array is
         specified, a full distance matrix (i.e. calculate a point-to-point distance
         for every combination of points) will be returned.
-    metric
+    distance_metric
         Callable function f(a, b) from which to derive a distance metric.
 
     Returns
@@ -52,13 +76,15 @@ def get_distance_matrix(a, b=None, metric=None):
         metric = lambda a, b: np.abs(a - b)
 
     a = np.atleast_1d(np.array(a).astype(np.float))
-    matrix = False
+    full_matrix = False
     if b is not None:
+        # a second set of points is specified; the return result will be 1D
         b = np.atleast_1d(np.array(b).astype(np.float))
     else:
-        matrix = True
+        # generate a full point-to-point matrix for a single set of points
+        full_matrix = True
         b = a.copy()
-    return _segmented_univariate_distance_matrix(a, b, metric)
+    return _segmented_univariate_distance_matrix(a, b, distance_metric)
 
 
 def get_spatiotemporal_resampling_weights(
