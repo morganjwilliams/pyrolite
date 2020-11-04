@@ -94,7 +94,7 @@ def get_spatiotemporal_resampling_weights(
 
     Returns
     -------
-    :class:`pandas.Series`
+    :class:`numpy.ndarray`
 
     Notes
     ------
@@ -134,23 +134,55 @@ def add_age_noise(
     min_age_name="MinAge",
     max_age_name="MaxAge",
 ):
+    """
+    Add gaussian noise to a series of geological ages based on specified uncertainties
+    or age ranges.
+
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe with age data within which to look up the age name and add noise.
+    min_sigma : :class:`float`
+        Minimum uncertainty to be considered for adding age noise.
+    noise_level : :class:`float`
+        Scaling of the noise added to the ages. By default the uncertaines are unscaled,
+        but where age uncertaines are specified and are the one standard deviation level
+        this can be used to expand the range of noise added (e.g. to 2SD).
+    age_name : :class:`str`
+        Column name for absolute ages.
+    age_uncertainty_name : :class:`str`
+        Name of the column specifiying absolute age uncertainties.
+    min_age_name : :class:`str`
+        Name of the column specifying minimum absolute ages (used where uncertainties
+        are otherwise unspecified).
+    max_age_name : :class:`str`
+        Name of the column specifying maximum absolute ages (used where uncertainties
+        are otherwise unspecified).
+
+    Returns
+    --------
+    df : :class:`pandas.DataFrame`
+        Dataframe with noise-modified ages.
+    """
     # try and get age uncertainty
     try:
-        age_certainty = df[age_uncertainty_name]
+        age_uncertainty = df[age_uncertainty_name]
     except KeyError:
         # otherwise get age min age max
         # get age uncertainties
-        age_certainty = (
+        age_uncertainty = (
             np.abs(df[max_age_name] - df[min_age_name]) / 2
         )  # half bin width
-    age_certainty[~np.isfinite(age_certainty) | age_certainty < min_sigma] = min_sigma
+    age_uncertainty[~np.isfinite(age_uncertainty) | age_uncertainty < min_sigma] = min_sigma
+    # generate gaussian age noise
+    age_noise = np.random.randn(df.index.size) * age_uncertainty.values
+    age_noise *= noise_level # scale the noise
     # add noise to ages
-    age_noise = np.random.randn(df.index.size) * noise_level * age_certainty.values
     df[age_name] += age_noise
     return df
 
 
-def bootstrap_resample(
+def spatiotemporal_bootstrap_resample(
     df,
     uncert=None,
     weights=None,
