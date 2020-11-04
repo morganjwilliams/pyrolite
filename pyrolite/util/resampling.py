@@ -173,10 +173,12 @@ def add_age_noise(
         age_uncertainty = (
             np.abs(df[max_age_name] - df[min_age_name]) / 2
         )  # half bin width
-    age_uncertainty[~np.isfinite(age_uncertainty) | age_uncertainty < min_sigma] = min_sigma
+    age_uncertainty[
+        ~np.isfinite(age_uncertainty) | age_uncertainty < min_sigma
+    ] = min_sigma
     # generate gaussian age noise
     age_noise = np.random.randn(df.index.size) * age_uncertainty.values
-    age_noise *= noise_level # scale the noise
+    age_noise *= noise_level  # scale the noise
     # add noise to ages
     df[age_name] += age_noise
     return df
@@ -221,7 +223,7 @@ def spatiotemporal_bootstrap_resample(
         Callable function to transform input data prior to aggregation functions. Note
         that the outputs will need to be inverse-transformed.
     boostrap_method : :class:`str`
-        Which bootstrap method to use ('') to add gaussian noise to the input dataset parameters.
+        Which method to use to add gaussian noise to the input dataset parameters.
     add_gaussian_age_noise : :class:`bool`
         Whether to add gassian noise to the input dataset ages, where present.
     metrics : :class:`list`
@@ -248,20 +250,22 @@ def spatiotemporal_bootstrap_resample(
     uncertainty_type = None
     if uncert is not None:
         if isinstance(uncert, float):
-            uncertainty_type = "0D"
+            uncertainty_type = "0D"  # e.g. 2%
         elif isinstance(uncert, (list, pd.Series)) or (
             isinstance(uncert, np.ndarray) and np.array(uncert).ndim < 2
         ):
-            uncertainty_type = "1D"
+            uncertainty_type = "1D"  # e.g. [0.5%, 1%, 2%]
             # shape should be equal to parameter column number
         elif isinstance(uncert, (pd.DataFrame)) or (
             isinstance(uncert, np.ndarray) and np.array(uncert).ndim >= 2
         ):
-            uncertainty_type = "2D"
+            uncertainty_type = "2D"  # e.g. [[0.5%, 1%, 2%], [1.5%, 0.6%, 1.7%]]
             # shape should be equal to parameter column number by rows
         else:
             raise NotImplementedError("Unknown format for uncertainties.")
     # weighting ########################################################################
+    # generate some weights for resampling - here addressing specifically spatial
+    # and temporal resampling
     if weights is None:
         weights = get_spatiotemporal_resampling_weights(
             df,
@@ -285,9 +289,15 @@ def spatiotemporal_bootstrap_resample(
         return repr(metric).replace("'", "")
 
     metric_data = {_metric_name(metric): [] for metric in metrics}
+    # samples are independent, so this could be processed in parallel
     for repeat in range(niter):
+        # take a new sample with replacement equal in size to the original dataframe
         smpl = df.sample(weights=weights, frac=1, replace=True)
 
+        # whether to specfically add noise to the geological ages
+        # note that the metadata around age names are passed through to this function
+        # TODO: Update to have external disambiguation of ages/min-max ages,
+        # and just pass an age series to this function.
         if add_gaussian_age_noise:
             smpl = add_age_noise(
                 smpl,
@@ -297,9 +307,12 @@ def spatiotemporal_bootstrap_resample(
                 **subkwargs(kwargs, add_age_noise)
             )
 
+        # transform the parameters to be estimated before adding parameter noise?
         if transform is not None:
             smpl[subset] = smpl[subset].apply(transform, axis="index")
 
+        # whether to add parameter noise, and if so which method to use?
+        # TODO: Update the naming of this? this is only one part of the bootstrap process
         if boostrap_method is not None:
             # try to get uncertainties for the data, otherwise use standard deviations?
             if boostrap_method.lower() == "smooth":
@@ -323,7 +336,7 @@ def spatiotemporal_bootstrap_resample(
                             * np.random.randn(*smpl[subset].shape)
                         ) * noise_level
                     else:
-                        # need to get indexes of
+                        # need to get indexes of the sample to look up uncertainties
                         idxs = smpl.index.values
                         noise = (
                             smpl[subset].values
@@ -341,19 +354,23 @@ def spatiotemporal_bootstrap_resample(
             else:
                 msg = "Bootstrap method {} not recognised.".format(boostrap_method)
                 raise NotImplementedError(msg)
-            # smpl[subset] = smpl[subset].pyrocomp.renormalise()
 
+        # whether to independently estimate metric values for individual categories?
+        # TODO: Should the categories argument be used to generate indiviudal
+        # bootstrap resampling processes?
         if categories is not None:
             for metric in metrics:
                 metric_data[_metric_name(metric)].append(
                     smpl[subset].groupby(categories).agg(metric)
                 )
 
-        else:
+        else:  # generate the metric summaries for the overall dataset
             for metric in metrics:
                 metric_data[_metric_name(metric)].append(smpl[subset].agg(metric))
 
+    # where the whole dataset is presented
     if categories is not None:
+        # the dataframe will be indexed by iteration of the bootstrap
         return {
             metric: pd.concat(data, keys=range(niter), names=["Iteration"])
             .swaplevel(0, 1)
@@ -362,4 +379,6 @@ def spatiotemporal_bootstrap_resample(
         }
 
     else:
+        # the dataframe will be indexed by categories and iteration
+        # TODO: add iteration level to this index?
         return {metric: pd.DataFrame(data) for metric, data in metric_data.items()}
