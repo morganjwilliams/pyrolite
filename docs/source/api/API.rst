@@ -83,6 +83,8 @@ pyrolite\.util
     util/lambdas
     util/distributions
     util/synthetic
+    util/spatial
+    util/resampling
     util/missing
     util/units
     util/types
