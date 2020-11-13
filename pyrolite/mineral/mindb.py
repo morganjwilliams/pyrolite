@@ -1,3 +1,11 @@
+"""
+Submodule for accessing the rock forming mineral database.
+
+Notes
+-----
+Accessing and modifying the database across multiple with multiple threads/processes
+*could* result in database corruption (e.g. through repeated truncation etc).
+"""
 import functools
 import pandas as pd
 import numpy as np
