@@ -255,7 +255,7 @@ def lambdas_ONeill2016(df, radii, params=None):
     for ind in np.unique(md_inds):
         row_fltr = md_inds == ind  # rows with this pattern
         missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
-        if missing_fltr.sum(): # ignore completely empty rows
+        if missing_fltr.sum():  # ignore completely empty rows
             A = get_polynomial_matrix(rad[missing_fltr], params=params)
             invA = np.linalg.inv(A)
 
@@ -417,9 +417,7 @@ def _get_params(params=None, degree=4):
 
 
 @update_docstring_references
-def calc_lambdas(
-    df, params=None, degree=4, exclude=["Eu"], algorithm="ONeill", **kwargs
-):
+def calc_lambdas(df, params=None, degree=4, exclude=[], algorithm="ONeill", **kwargs):
     """
     Parameterises values based on linear combination of orthogonal polynomials
     over a given set of values for independent variable `x` [#ref_1]_ .
@@ -437,6 +435,8 @@ def calc_lambdas(
         of the REE (including Eu) as a basis for the orthogonal polynomials.
     degree : :class:`int`
         Degree of orthogonal polynomial fit.
+    exclude : :class:`list`
+        REE to exclude from the *fit*.
     algorithm : :class:`str`
         Algorithm to use for fitting the orthogonal polynomials.
 

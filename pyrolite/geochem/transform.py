@@ -627,9 +627,10 @@ def lambda_lnREE(
         columns=[chr(955) + str(d) for d in range(degree)],
         dtype="float32",
     )
-    # we've already excluded columns, so dont' need to here
+    # we've already excluded columns, so don't technically need to pass exclude here
     lambdadf.loc[row_filter, :] = lambdas.calc_lambdas(
         norm_df.loc[row_filter, :],
+        exclude=exclude,
         params=params,
         degree=degree,
         algorithm=algorithm,
