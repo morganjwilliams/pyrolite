@@ -8,9 +8,15 @@ import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
+from .color import process_color
 from ..geochem.ind import get_ionic_radii, REE
 from ..util.types import iscollection
-from ..util.plot.style import DEFAULT_CONT_COLORMAP, _mpl_sp_kw_split, patchkwargs
+from ..util.plot.style import (
+    DEFAULT_CONT_COLORMAP,
+    linekwargs,
+    scatterkwargs,
+    patchkwargs,
+)
 from ..util.plot.density import (
     conditional_prob_density,
     plot_Z_percentiles,
@@ -20,22 +26,26 @@ from ..util.plot.axes import get_twins, init_axes
 
 from ..util.meta import get_additional_params, subkwargs
 
+_scatter_defaults = dict(
+    cmap=DEFAULT_CONT_COLORMAP,
+    marker="D",
+    s=25,
+)
+_line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
 
+# could create a spidercollection?
 def spider(
     arr,
     indexes=None,
     ax=None,
-    color=None,
-    cmap=DEFAULT_CONT_COLORMAP,
-    norm=None,
-    alpha=None,
-    marker="D",
-    markersize=5.0,
     label=None,
     logy=True,
     yextent=None,
     mode="plot",
     unity_line=False,
+    cmap=DEFAULT_CONT_COLORMAP,
+    scatter_kw={},
+    line_kw={},
     **kwargs
 ):
     """
@@ -51,16 +61,6 @@ def spider(
         Numerical indexes of x-axis positions.
     ax : :class:`matplotlib.axes.Axes`, :code:`None`
         The subplot to draw on.
-    color : :class:`str` | :class:`list` | :class:`numpy.ndarray`
-        Individual color or collection of :mod:`~matplotlib.colors` to be passed to matplotlib.
-    cmap : :class:`matplotlib.colors.Colormap`
-        Colormap for mapping point and line colors.
-    norm : :class:`matplotlib.colors.Normalize`, :code:`None`
-        Normalization instance for the colormap.
-    marker : :class:`str`, 'D'
-        Matplotlib :mod:`~matplotlib.markers` designation.
-    markersize : :class:`int`, 5.
-        Size of individual markers.
     label : :class:`str`, :code:`None`
         Label for the individual series.
     logy : :class:`bool`
@@ -72,7 +72,12 @@ def spider(
         a filled range. Density will return a conditional density diagram.
     unity_line : :class:`bool`
         Add a line at y=1 for reference.
-
+    cmap : :class:`matplotlib.colors.Colormap`
+        Colormap for mapping point and line colors.
+    scatter_kw : :class:`dict`
+        Keyword parameters to be passed to the scatter plotting function.
+    line_kw : :class:`dict`
+        Keyword parameters to be passed to the line plotting function.
     {otherparams}
 
     Returns
@@ -108,6 +113,9 @@ def spider(
     if logy:
         ax.set_yscale("log")
 
+    if unity_line:
+        ax.axhline(1.0, ls="--", c="k", lw=0.5)
+
     if indexes is None:
         indexes = np.arange(ncomponents)
     else:
@@ -124,45 +132,74 @@ def spider(
     if (arr is None) or (not np.isfinite(arr).sum()):
         return ax
 
+    # if the indexes are supplied as a 1D array but the data is 2D, we need to expand
+    # it to fit the scatter data
     if indexes.ndim < arr.ndim:
         indexes = np.tile(indexes0, (arr.shape[0], 1))
-
-    local_kw = dict(  # register aliases
-        c=color, color=color, marker=marker, markersize=markersize, s=markersize ** 2
-    )
-    local_kw = {**local_kw, **kwargs}
-    if local_kw.get("color") is None and local_kw.get("c") is None:
-        local_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
-
-    sctkw, lnkw = _mpl_sp_kw_split(local_kw)
-    _ = lnkw.pop("label")
-    # check if colors vary per line/sctr
-    variable_colors = False
-    c = sctkw.pop("c", None)
-
-    if c is not None:
-        if iscollection(c):
-            variable_colors = True
-
-    if unity_line:
-        ax.axhline(1.0, ls="--", c="k", lw=0.5)
 
     if "fill" in mode.lower():
         mins = np.nanmin(arr, axis=0)
         maxs = np.nanmax(arr, axis=0)
-        plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(local_kw))
+        plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
     elif "plot" in mode.lower():
-        ls = ax.plot(indexes.T, arr.T, **lnkw)
+        ################################################################################
+        if line_kw.get('cmap') is None:
+            line_kw["cmap"] = cmap
+        line_kw = {**kwargs, **line_kw}
 
-        if variable_colors:
-            # perhaps check shape of color arg here
-            for ix, ic in enumerate(c):
-                ls[ix].set_color(ic)
-                # scatter by row, as difficult to manage if in a single pathcollection
-                sc = ax.scatter(indexes[ix], arr[ix], c=np.array([ic]), **sctkw)
-        else:
-            sctkw.update(dict(label=label))
-            sc = ax.scatter(indexes.T, arr.T, c=c, **sctkw)
+        # if a color option is not specified, get the next cycled color
+        if line_kw.get("color") is None:
+            line_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
+
+        line_kw = linekwargs(process_color(**{**_line_defaults, **line_kw}))
+        # Construct and Add LineCollection?
+        lcoll = matplotlib.collections.LineCollection(
+            np.dstack((indexes, arr)), zorder=1, **line_kw
+        )
+        ax.add_collection(lcoll)
+
+        ################################################################################
+        # load defaults and any specified parameters in scatter_kw / line_kw
+        if scatter_kw.get('cmap') is None:
+            scatter_kw["cmap"] = cmap
+        _sctr_cfg = {**_scatter_defaults, **kwargs, **scatter_kw}
+        scatter_kw = scatterkwargs(process_color(**_sctr_cfg))
+
+        if scatter_kw["marker"] is not None:
+            # will need to process colours for scatter markers here
+
+            scatter_kw.update(dict(label=label))
+
+            scattercolor = None
+            if scatter_kw.get("c") is not None:
+                scattercolor = scatter_kw.get("c")
+            elif scatter_kw.get("color") is not None:
+                scattercolor = scatter_kw.get("color")
+            else:
+                # no color recognised - will be default, here we get the
+                # cycled color we added earlier
+                scattercolor = line_kw["color"]
+
+            if scattercolor is not None:
+                if not isinstance(scattercolor, (str, tuple)):
+                    # colors will be processed to arrays by this point
+                    # here we reshape them to be the same length as ravel-ed arrays
+                    if scattercolor.ndim >= 2 and scattercolor.shape[0] > 1:
+                        scattercolor = np.tile(scattercolor, arr.shape[1]).reshape(
+                            -1, scattercolor.shape[1]
+                        )
+                else:
+                    # singular color should be converted to 2d array?
+                    pass
+
+            sc = ax.scatter(
+                indexes.ravel(),
+                arr.ravel(),
+                zorder=2,
+                c=scattercolor,
+                **{k: v for k, v in scatter_kw.items() if k not in ["c", "color"]}
+            )
+
         # should create a custom legend handle here
 
         # could modify legend here.
@@ -177,7 +214,7 @@ def spider(
             yextent=yextent,
             mode=mode,
             ret_centres=True,
-            **local_kw
+            **kwargs
         )
         # can have issues with nans here?
         vmin = kwargs.pop("vmin", 0)
@@ -213,6 +250,8 @@ def REE_v_radii(
     logy=True,
     tl_rotation=60,
     unity_line=False,
+    scatter_kw={},
+    line_kw={},
     **kwargs
 ):
     r"""
@@ -237,6 +276,10 @@ def REE_v_radii(
         Rotation of the numerical index labels in degrees.
     unity_line : :class:`bool`
         Add a line at y=1 for reference.
+    scatter_kw : :class:`dict`
+        Keyword parameters to be passed to the scatter plotting function.
+    line_kw : :class:`dict`
+        Keyword parameters to be passed to the line plotting function.
 
     {otherparams}
 
@@ -288,6 +331,8 @@ def REE_v_radii(
             mode=mode,
             unity_line=unity_line,
             indexes=indexes,
+            scatter_kw=scatter_kw,
+            line_kw=line_kw,
             **kwargs
         )
 

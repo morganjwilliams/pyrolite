@@ -87,6 +87,25 @@ normdf.pyroplot.spider(
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
 ########################################################################################
+# If you have potential conflicts between desired configurations for the lines and
+# markers of your plots, you can explictly separate the configuration using the
+# :code:`scatter_kw` and :code:`line_kw` keyword arguments:
+
+fig, ax = plt.subplots(1, 1, sharex=True, sharey=True, figsize=(10, 4))
+ax.set_title("Split Configuration")
+normdf.pyroplot.spider(
+    ax=ax,
+    unity_line=True,
+    index_order=by_incompatibility,
+    scatter_kw=dict(cmap="magma_r", color=np.log(normdf["Li"])),
+    line_kw=dict(
+        color=normdf["Cs"] > 5,
+        color_mappings={"color": {True: "green", False: "purple"}},
+    ),
+    alpha=0.2,  # common alpha config between lines and markers
+    s=25,  # argument for scatter which won't be passed to lines
+)
+########################################################################################
 # The spiderplot can be extended to provide visualisations of ranges and density via the
 # various modes. We could now plot the range of compositions as a filled range:
 #
