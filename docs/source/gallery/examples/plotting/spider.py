@@ -35,6 +35,9 @@ ax = normdf.pyroplot.spider(color="0.5", alpha=0.5, unity_line=True, figsize=(10
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
+# Index Ordering
+# --------------
+#
 # The default ordering here follows that of the dataframe columns, but we typically
 # want to reorder these based on some physical ordering. A :code:`index_order` keyword
 # argument can be used to supply a function which will reorder the elements before
@@ -52,6 +55,9 @@ ax = normdf.pyroplot.spider(
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
+# Color Mapping
+# -------------
+#
 # We can also specify either continuous or categorical values to use for the colors,
 # and even map categorical values to specific colors where useful:
 #
@@ -87,6 +93,9 @@ normdf.pyroplot.spider(
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
 ########################################################################################
+# Split Configuration
+# -------------------
+#
 # If you have potential conflicts between desired configurations for the lines and
 # markers of your plots, you can explictly separate the configuration using the
 # :code:`scatter_kw` and :code:`line_kw` keyword arguments:
@@ -105,7 +114,11 @@ normdf.pyroplot.spider(
     alpha=0.2,  # common alpha config between lines and markers
     s=25,  # argument for scatter which won't be passed to lines
 )
+plt.show()
 ########################################################################################
+# Filled Ranges
+# -------------
+#
 # The spiderplot can be extended to provide visualisations of ranges and density via the
 # various modes. We could now plot the range of compositions as a filled range:
 #
@@ -120,6 +133,9 @@ ax = normdf.pyroplot.spider(
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
 plt.show()
 ########################################################################################
+# Spider Density Plots
+# --------------------
+#
 # Alternatively, we can plot a conditional density spider plot:
 #
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True, figsize=(10, 6))
@@ -182,6 +198,9 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
 
 plt.tight_layout()
 ########################################################################################
+# REE Density Plots
+# -----------------
+#
 # Note that this can also be used for REE-indexed plots, in both configurations. Here
 # we first specify a set of common keyword-argument configurations and use them for
 # both plots:
