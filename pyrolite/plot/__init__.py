@@ -357,7 +357,16 @@ class pyroplot(object):
         # ax.set_aspect("equal")
         return ax
 
-    def REE(self, index="elements", ax=None, mode="plot", dropPm=True, **kwargs):
+    def REE(
+        self,
+        index="elements",
+        ax=None,
+        mode="plot",
+        dropPm=True,
+        scatter_kw={},
+        line_kw={},
+        **kwargs,
+    ):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -370,6 +379,14 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
+        dropPm : :class:`bool`
+            Whether to exclude the (almost) non-existent element Promethium from the REE
+            list.
+
+        scatter_kw : :class:`dict`
+            Keyword parameters to be passed to the scatter plotting function.
+        line_kw : :class:`dict`
+            Keyword parameters to be passed to the line plotting function.
         {otherparams}
 
         Returns
@@ -387,6 +404,8 @@ class pyroplot(object):
             ree=ree,
             mode=mode,
             ax=ax,
+            scatter_kw=scatter_kw,
+            line_kw=line_kw,
             **kwargs,
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
@@ -445,6 +464,8 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
+        scatter_kw={},
+        line_kw={},
         **kwargs,
     ):
         r"""
@@ -465,6 +486,10 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
+        scatter_kw : :class:`dict`
+            Keyword parameters to be passed to the scatter plotting function.
+        line_kw : :class:`dict`
+            Keyword parameters to be passed to the line plotting function.
         {otherparams}
 
         Returns
@@ -499,6 +524,8 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
+            scatter_kw=scatter_kw,
+            line_kw=line_kw,
             **kwargs,
         )
         ax._pyrolite_components = components
