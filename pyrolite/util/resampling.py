@@ -102,7 +102,7 @@ def get_spatiotemporal_resampling_weights(
     sample which is essentailly the inverse of the mean distance to other samples.
 
     Parameters
-    ----------
+    -----------
     df : :class:`pandas.DataFrame`
         Dataframe to calculate weights for.
     spatial_norm : :class:`float`
@@ -122,16 +122,19 @@ def get_spatiotemporal_resampling_weights(
         Whether to renormalise weights to unity.
 
     Returns
-    -------
-    :class:`numpy.ndarray`
+    --------
+    weights : :class:`numpy.ndarray`
+        Sampling weights.
 
     Notes
     ------
     This function is equivalent to Eq(1) from Keller and Schone:
 
-    \\
-    W_i \propto 1 \Big / \sum_{j=1}^{n} \Big ( \frac{1}{((z_i - z_j)/a)^2 + 1} + \frac{1}{((t_i - t_j)/b)^2 + 1} \Big )
-    \\
+    .. math::
+
+        W_i \\propto 1 \\Big / \\sum_{j=1}^{n} \\Big ( \\frac{1}{((z_i - z_j)/a)^2 + 1} + \\frac{1}{((t_i - t_j)/b)^2 + 1} \\Big )
+
+
     """
 
     weights = pd.Series(index=df.index, dtype="float")
