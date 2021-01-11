@@ -142,51 +142,53 @@ def spider(
         maxs = np.nanmax(arr, axis=0)
         plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
     elif "plot" in mode.lower():
+        # copy params
+        l_kw, s_kw = {**line_kw}, {**scatter_kw}
         ################################################################################
         if line_kw.get("cmap") is None:
-            line_kw["cmap"] = cmap
+            l_kw["cmap"] = cmap
 
-        line_kw = {**kwargs, **line_kw}
+        l_kw = {**kwargs, **l_kw}
 
         # if a line color hasn't been specified, perhaps we can use the scatter 'c'
-        if line_kw.get("color") is None:
-            if line_kw.get("c") is not None:
+        if l_kw.get("color") is None:
+            if l_kw.get("c") is not None:
                 if isinstance(kwargs.get("c"), (str, tuple)):
-                    line_kw["color"] = kwargs.get("c")
-        if "c" in line_kw:
-            line_kw.pop("c")  # remove c if it's been specified globally
+                    l_kw["color"] = kwargs.get("c")
+        if "c" in l_kw:
+            l_kw.pop("c")  # remove c if it's been specified globally
         # if a color option is not specified, get the next cycled color
-        if line_kw.get("color") is None:
-            line_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
+        if l_kw.get("color") is None:
+            l_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
 
-        line_kw = linekwargs(process_color(**{**_line_defaults, **line_kw}))
+        l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
         # Construct and Add LineCollection?
         lcoll = matplotlib.collections.LineCollection(
-            np.dstack((indexes, arr)), zorder=1, **line_kw
+            np.dstack((indexes, arr)), zorder=1, **l_kw
         )
         ax.add_collection(lcoll)
 
         ################################################################################
         # load defaults and any specified parameters in scatter_kw / line_kw
-        if scatter_kw.get("cmap") is None:
-            scatter_kw["cmap"] = cmap
-        _sctr_cfg = {**_scatter_defaults, **kwargs, **scatter_kw}
-        scatter_kw = process_color(**_sctr_cfg)
+        if s_kw.get("cmap") is None:
+            s_kw["cmap"] = cmap
+        _sctr_cfg = {**_scatter_defaults, **kwargs, **s_kw}
+        s_kw = process_color(**_sctr_cfg)
 
-        if scatter_kw["marker"] is not None:
+        if s_kw["marker"] is not None:
             # will need to process colours for scatter markers here
 
-            scatter_kw.update(dict(label=label))
+            s_kw.update(dict(label=label))
 
             scattercolor = None
-            if scatter_kw.get("c") is not None:
+            if s_kw.get("c") is not None:
                 scattercolor = scatter_kw.get("c")
-            elif scatter_kw.get("color") is not None:
+            elif s_kw.get("color") is not None:
                 scattercolor = scatter_kw.get("color")
             else:
                 # no color recognised - will be default, here we get the
                 # cycled color we added earlier
-                scattercolor = line_kw["color"]
+                scattercolor = l_kw["color"]
 
             if scattercolor is not None:
                 if not isinstance(scattercolor, (str, tuple)):
@@ -199,11 +201,11 @@ def spider(
                 else:
                     # singular color should be converted to 2d array?
                     pass
-            scatter_kw = scatterkwargs(
-                {k: v for k, v in scatter_kw.items() if k not in ["c", "color"]}
+            s_kw = scatterkwargs(
+                {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
             sc = ax.scatter(
-                indexes.ravel(), arr.ravel(), zorder=2, c=scattercolor, **scatter_kw
+                indexes.ravel(), arr.ravel(), zorder=2, c=scattercolor, **s_kw
             )
 
         # should create a custom legend handle here
