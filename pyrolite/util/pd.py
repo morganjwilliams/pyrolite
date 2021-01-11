@@ -40,9 +40,7 @@ def read_table(filepath, index_col=0, **kwargs):
     filepath = Path(filepath)
     ext = filepath.suffix.replace(".", "")
     assert ext in ["xls", "xlsx", "csv"]
-    if ext in ["xls"]:
-        reader, kw = pd.read_excel, {}  # accessible with xlrd
-    elif ext in ["xlsx"]:
+    if ext in ["xls", "xlsx"]:
         reader, kw = pd.read_excel, dict(engine="openpyxl")
     elif ext in ["csv"]:
         reader, kw = pd.read_csv, {}
