@@ -102,7 +102,7 @@ normdf.pyroplot.spider(
         color=normdf["Cs"] > 5,
         color_mappings={"color": {True: "green", False: "purple"}},
     ),
-    alpha=0.1,  # common alpha config between lines and markers
+    alpha=0.2,  # common alpha config between lines and markers
     s=25,  # argument for scatter which won't be passed to lines
 )
 ########################################################################################
