@@ -96,6 +96,9 @@ def REE(output="string", dropPm=True):
     -----------
     output : :class:`str`
         Whether to return output list as formulae ('formula') or strings (anthing else).
+    dropPm : :class:`bool`
+        Whether to exclude the (almost) non-existent element Promethium from the REE
+        list.
 
     Returns
     -------

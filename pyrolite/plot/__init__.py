@@ -382,7 +382,6 @@ class pyroplot(object):
         dropPm : :class:`bool`
             Whether to exclude the (almost) non-existent element Promethium from the REE
             list.
-
         scatter_kw : :class:`dict`
             Keyword parameters to be passed to the scatter plotting function.
         line_kw : :class:`dict`
