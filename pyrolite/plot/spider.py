@@ -143,10 +143,18 @@ def spider(
         plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
     elif "plot" in mode.lower():
         ################################################################################
-        if line_kw.get('cmap') is None:
+        if line_kw.get("cmap") is None:
             line_kw["cmap"] = cmap
+
         line_kw = {**kwargs, **line_kw}
 
+        # if a line color hasn't been specified, perhaps we can use the scatter 'c'
+        if line_kw.get("color") is None:
+            if line_kw.get("c") is not None:
+                if isinstance(kwargs.get("c"), (str, tuple)):
+                    line_kw["color"] = kwargs.get("c")
+        if "c" in line_kw:
+            line_kw.pop("c")  # remove c if it's been specified globally
         # if a color option is not specified, get the next cycled color
         if line_kw.get("color") is None:
             line_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
@@ -160,10 +168,10 @@ def spider(
 
         ################################################################################
         # load defaults and any specified parameters in scatter_kw / line_kw
-        if scatter_kw.get('cmap') is None:
+        if scatter_kw.get("cmap") is None:
             scatter_kw["cmap"] = cmap
         _sctr_cfg = {**_scatter_defaults, **kwargs, **scatter_kw}
-        scatter_kw = scatterkwargs(process_color(**_sctr_cfg))
+        scatter_kw = process_color(**_sctr_cfg)
 
         if scatter_kw["marker"] is not None:
             # will need to process colours for scatter markers here
@@ -191,13 +199,11 @@ def spider(
                 else:
                     # singular color should be converted to 2d array?
                     pass
-
+            scatter_kw = scatterkwargs(
+                {k: v for k, v in scatter_kw.items() if k not in ["c", "color"]}
+            )
             sc = ax.scatter(
-                indexes.ravel(),
-                arr.ravel(),
-                zorder=2,
-                c=scattercolor,
-                **{k: v for k, v in scatter_kw.items() if k not in ["c", "color"]}
+                indexes.ravel(), arr.ravel(), zorder=2, c=scattercolor, **scatter_kw
             )
 
         # should create a custom legend handle here
