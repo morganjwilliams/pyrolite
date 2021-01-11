@@ -59,7 +59,7 @@ def _export_mplstyle(
         logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
         if not dest_dir.exists():
             dest_dir.mkdir(parents=True)
-        copy_file(src_fn, dest_dir) # copy to the destination DIR
+        copy_file(src_fn, dest_dir)  # copy to the destination DIR
         logger.debug("Reloading matplotlib")
     matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
@@ -181,7 +181,11 @@ class pyroplot(object):
         return ax
 
     def density(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        **kwargs,
     ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
@@ -312,7 +316,11 @@ class pyroplot(object):
         return ax
 
     def plot(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        **kwargs,
     ):
         r"""
         Convenience method for line plots using the pyroplot API. See
@@ -379,13 +387,17 @@ class pyroplot(object):
             ree=ree,
             mode=mode,
             ax=ax,
-            **process_color(**kwargs),
+            **kwargs,
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
     def scatter(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
+        self,
+        components: list = None,
+        ax=None,
+        axlabels=True,
+        **kwargs,
     ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
@@ -487,7 +499,7 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
-            **process_color(**kwargs),
+            **kwargs,
         )
         ax._pyrolite_components = components
         ax.set_xticklabels(components, rotation=60)
