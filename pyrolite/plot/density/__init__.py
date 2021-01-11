@@ -35,7 +35,7 @@ def density(
     percentiles=True,
     relim=True,
     cmap=DEFAULT_CONT_COLORMAP,
-    shading="auto",
+    shading="gouraud",
     vmin=0.0,
     colorbar=False,
     **kwargs
