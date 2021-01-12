@@ -35,7 +35,8 @@ jobs:
             ${{ runner.os }}-pip-
       - name: Python Packages Install
         run: |
-          pip install wheel               # pre-install
+          python -m pip install --upgrade pip  # upgrade pip
+          pip install wheel
           pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
           pip install coveralls
           pip install .[skl,stats]
