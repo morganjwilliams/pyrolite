@@ -1,0 +1,36 @@
+name: Unittest
+
+on:
+  push:
+  pull_request:
+    branches:
+    - develop
+  schedule:
+    - cron: '0 0 * * 0' # weekly
+
+jobs:
+  unit_tests:
+    name: Unit Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: [3.6, 3.7, 3.8]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+            python-version: ${{ matrix.python }}
+      - name: install
+        run: |
+          sudo apt-get install jq curl    # codacy requirement
+          pip install wheel               # pre-install
+          pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
+          pip install coveralls
+          pip install .[skl,stats]
+      - name: Test Windows, MacOS
+        if: runner.os != 'Linux'
+        run: python setup.py test
+      - name: Test Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get install xvfb
+        run: xvfb-run python setup.py test
