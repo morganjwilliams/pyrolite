@@ -9,7 +9,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
 
 
-__data__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_spans.csv"
+__data__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_202003.csv"
 __colors__ = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
 
 
