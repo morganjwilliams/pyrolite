@@ -34,7 +34,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Python Packages Install
-        if: steps.pip-cache.outputs.cache-hit != 'true'
         run: |
           pip install wheel               # pre-install
           pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
