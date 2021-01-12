@@ -40,8 +40,13 @@ jobs:
           pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
           pip install coveralls
           pip install .[skl,stats]
-      - name: Test Windows, MacOS
-        if: runner.os != 'Linux'
+      - name: Test Windows
+        if: runner.os == 'Windows'
+        env:
+          MPLBACKEND: Agg
+        run: python setup.py test
+      - name: Test MacOS
+        if: runner.os == 'macOS'
         run: python setup.py test
       - name: Prep Linux
         if: runner.os == 'Linux'
