@@ -21,9 +21,8 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install
+      - name: Python Packages Install
         run: |
-          sudo apt-get install jq curl    # codacy requirement
           pip install wheel               # pre-install
           pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
           pip install coveralls
@@ -31,8 +30,14 @@ jobs:
       - name: Test Windows, MacOS
         if: runner.os != 'Linux'
         run: python setup.py test
+      - name: Prep Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install jq curl    # codacy requirement
+          sudo apt-get install xvfb
       - name: Test Linux
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install xvfb
           xvfb-run python setup.py test
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v1.1.2
