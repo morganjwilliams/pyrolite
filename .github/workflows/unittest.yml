@@ -54,6 +54,21 @@ jobs:
           xvfb-run python setup.py test
       - name: Coveralls
         env:
+          COVERALLS_SERVICE_NAME: github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.test-name }}
+          COVERALLS_PARALLEL: true
         run: |
             coveralls
+  coveralls:
+    name: Indicate completion to coveralls.io
+    needs: unit_tests
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+    - name: Finished
+      run: |
+        pip3 install --upgrade coveralls
+        coveralls --finish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
