@@ -64,9 +64,11 @@ If you use pyrolite extensively for your research, citation of the software woul
 [![Formatted with Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![Code Quality](https://api.codacy.com/project/badge/Grade/fd9912a3faae43bf84a47e3da685d84c)](https://www.codacy.com/manual/morganjwilliams/pyrolite?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=morganjwilliams/pyrolite&amp;utm_campaign=Badge_Grade)
 
+
+
 |                                                                                  **master**                                                                                  |                                                                                  **develop**                                                                                   |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                     [![Build Status](https://travis-ci.com/morganjwilliams/pyrolite.svg?branch=master)](https://travis-ci.com/morganjwilliams/pyrolite)                      |                      [![Build Status](https://travis-ci.com/morganjwilliams/pyrolite.svg?branch=develop)](https://travis-ci.com/morganjwilliams/pyrolite)                      |
+|                               ![Unit Tests on Master](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=master)                                |                               ![Unit Tests on Develop](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=develop)                                |
 | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=master)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=master) | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=develop)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=develop) |
 
 **Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)
