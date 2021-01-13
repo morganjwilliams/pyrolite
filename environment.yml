@@ -32,6 +32,7 @@ dependencies:
   - black
   - jedi<0.18.0 # for use on atom/ipython
   - pip:
+    - pyzmq
     - pytest
     - pytest-runner
     - pytest-cov

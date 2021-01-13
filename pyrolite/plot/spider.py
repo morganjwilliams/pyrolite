@@ -172,6 +172,7 @@ def spider(
         # load defaults and any specified parameters in scatter_kw / line_kw
         if s_kw.get("cmap") is None:
             s_kw["cmap"] = cmap
+
         _sctr_cfg = {**_scatter_defaults, **kwargs, **s_kw}
         s_kw = process_color(**_sctr_cfg)
 
@@ -182,9 +183,9 @@ def spider(
 
             scattercolor = None
             if s_kw.get("c") is not None:
-                scattercolor = scatter_kw.get("c")
+                scattercolor = s_kw.get("c")
             elif s_kw.get("color") is not None:
-                scattercolor = scatter_kw.get("color")
+                scattercolor = s_kw.get("color")
             else:
                 # no color recognised - will be default, here we get the
                 # cycled color we added earlier
