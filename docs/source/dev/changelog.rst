@@ -18,6 +18,57 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* Continuous Integration has been migrated from Travis to GitHub Actions.
+* Added an :code:`environment.yml` file for development environment consistency.
+* Removed some tests dependent on :mod:`xlrd` due to external issues with reading
+  :code:`.xls` and :code:`.xlsx` files with somne OS-Python version combinations.
+* Fixed some broken documentation links.
+* Added :mod:`psutil` to requirements.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where there scatter and line arguments would conflict for
+  :func:`~pyrolite.plot.pyroplot.spider`
+  (`#46 <https://github.com/morganjwilliams/pyrolite/issues/46>`__). To address this,
+  :func:`~pyrolite.plot.pyroplot.spider` and related functions will now accept the
+  keyword arguments :code:`line_kw` and :code:`scatter_kw` to explicitly configure the
+  scatter and line aspects of the spider plot - enabling finer customization. An
+  `extra example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#split-configuration>`__
+  has been added to the docs to illustrate the use of these parameters.
+  Thanks go to Lucy Mathieson for raising this one!
+* Updated :func:`pyrolite.plot.color.process_color` to better handle colour mapping and
+  added `examples illustrating this <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#color-mapping>`__.
+* Updated automated pyrolite :mod:`matplotlib` style export to be more reliable.
+* Changed the default shading for :func:`~pyrolite.plot.pyroplot.density` to suppress
+  error about upcoming :mod:`matplotlib` depreciation.
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where Eu was unnecessarily excluded from the
+  :func:`~pyrolite.geochem.pyrochem.lambda_lnREE` fit in all cases.
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the docstring for :func:`pyrolite.comp.impute.EMCOMP`.
+* Minor updates for :mod:`pyrolite.comp.codata` labelling, and reflected changes in
+  :mod:`pyrolite.util.skl.transform`.
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added :mod:`pyrolite.util.resampling` for weighted spatiotemporal bootstrap resampling
+  and estimation, together with added a number of updates to
+  :mod:`pyrolite.util.spatial` to provide required spatial-similarity functionality.
+* Updated the geological timescale in :mod:`pyrolite.util.time` to use the
+  2020/03 version of the International Chronostratigraphic Chart
+  (`#45 <https://github.com/morganjwilliams/pyrolite/issues/45>`__).
+* Added :func:`~pyrolite.util.plot.helpers.alphalabel_subplots` for automatic alphabetic
+  labelling of subplots (e.g. for a manuscript figure).
+* Fixed an low-precision integer rollover issue in a combinatorial calculation
+  for :mod:`pyrolite.util.missing` by increasing precision to 64-bit integers.
 
 `0.2.8`_
 --------------
