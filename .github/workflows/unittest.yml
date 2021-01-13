@@ -15,7 +15,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.6', '3.7', '3.8']
+        python-version: [3.6, 3.7, 3.8]
+        exclude:
+        # excludes py38 on macOS, which seems to stall currently
+        - os: macos-latest
+          python-version: 3.8
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
