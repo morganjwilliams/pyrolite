@@ -273,7 +273,7 @@ def lambdas_ONeill2016(df, radii, params=None):
 
 def _lambda_min_func(ls, ys, poly_components, power=1.0):
     """
-    Cost function for lambda optitmization.
+    Cost function for lambda optimization.
 
     Parameters
     ------------
@@ -297,6 +297,30 @@ def _lambda_min_func(ls, ys, poly_components, power=1.0):
     return cost
 
 
+def _lambda_residuals_func(ls, ys, poly_components):
+    """
+    Residuals function for lambda optimization.
+
+    Parameters
+    ------------
+    ls : :class:`numpy.ndarray`
+        Lambda values, effectively weights for the polynomial components.
+    ys : :class:`numpy.ndarray`
+        Target y values.
+    poly_components : :class:`numpy.ndarray`
+        Arrays representing the individual unweighted orthaogonal polynomial components.
+        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]`
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Residuals at the given set of `ls`.
+    """
+    res = ls @ poly_components - ys
+    res[np.isnan(res)] = 0.0  # can't change nans - don't penalise them
+    return res
+
+
 @update_docstring_references
 def lambdas_optimize(
     df: pd.DataFrame,
@@ -304,7 +328,7 @@ def lambdas_optimize(
     params=None,
     guess=None,
     degree=5,
-    cost_function=_lambda_min_func,
+    residuals_function=_lambda_residuals_func,
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -320,8 +344,8 @@ def lambdas_optimize(
     params : :class:`list`, :code:`None`
         Orthogonal polynomial coefficients (see
         :func:`orthogonal_polynomial_constants`).
-    cost_function : :class:`Callable`
-        Cost function to use for optimization of lambdas.
+    residuals_function : :class:`Callable`
+        Residuals function to use for optimization of lambdas.
 
     Returns
     --------
@@ -352,9 +376,12 @@ def lambdas_optimize(
 
     for row in range(df.index.size):
         result = scipy.optimize.least_squares(
-            cost_function,
+            residuals_function,
             starting_guess,
-            args=(df.iloc[row, :].values, poly_components,),
+            args=(
+                df.iloc[row, :].values,
+                poly_components,
+            ),
         )
         x = result.x
         # redisuals res = result.fun
@@ -388,7 +415,8 @@ def _get_params(params=None, degree=4):
         # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
         _ree = [i for i in REE() if i not in ["Eu"]]
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8),
+            degree=degree,
         )
     elif isinstance(params, str):
         name = params.replace("'", "").lower()
@@ -403,7 +431,8 @@ def _get_params(params=None, degree=4):
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8),
+            degree=degree,
         )
     else:
         # check that params is a tuple or list
@@ -518,3 +547,16 @@ def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
         )
         ax.plot(xs, l_func(xs), label=label, ls="--", **kwargs)  # plot the polynomials
     return ax
+
+
+
+def tetrad(centre, width):
+    def tet(x):
+        g = (x - centre) / (width / 2)
+        x0 = 1 - g ** 2
+        r = x0 + np.sqrt(x0 ** 2) / 2
+        r[r < 0] = 0
+        return r
+
+    return tet
+
