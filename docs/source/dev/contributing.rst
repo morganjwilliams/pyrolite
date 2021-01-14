@@ -72,9 +72,9 @@ or a relevant feature branch.
 
 .. note::
 
-  * See `Installation <installation.html>`__ for directions for installing extra
-    dependencies for development, and `Development <development.html>`__ for information
-    on development environments and tests.
+  * See `Development <development.html>`__ for directions for installing extra
+    dependencies for development and for information on development environments and
+    tests.
 
   * :code:`pyrolite` development roughly follows a
     `gitflow workflow <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>`__.
@@ -92,10 +92,11 @@ Writing Tests
 -------------------------
 
 There is currently a broad unit test suite for :code:`pyrolite`, which guards
-against breaking changes and assures baseline functionality. :code:`pyrolite` uses continuous
-integration via `Travis <https://travis-ci.com/morganjwilliams/pyrolite>`__, where the
-full suite of tests are run for each commit and pull request, and test coverage output
-to `Coveralls <https://coveralls.io/github/morganjwilliams/pyrolite>`__.
+against breaking changes and assures baseline functionality. :code:`pyrolite` uses
+continuous integration via
+`GitHub Actions <https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest>`__,
+where the full suite of tests are run for each commit and pull request, and test
+coverage output to `Coveralls <https://coveralls.io/github/morganjwilliams/pyrolite>`__.
 
 Adding or expanding tests is a helpful way to ensure :code:`pyrolite` does what is meant to,
 and does it reproducibly. The unit test suite one critical component of the package,
