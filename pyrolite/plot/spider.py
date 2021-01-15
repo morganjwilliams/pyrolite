@@ -159,7 +159,8 @@ def spider(
             l_kw.pop("c")  # remove c if it's been specified globally
         # if a color option is not specified, get the next cycled color
         if l_kw.get("color") is None:
-            l_kw["color"] = next(ax._get_lines.prop_cycler)["color"]
+            # add cycler color as array to suppress singular color warning
+            l_kw["color"] = np.array([next(ax._get_lines.prop_cycler)["color"]])
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
         # Construct and Add LineCollection?
