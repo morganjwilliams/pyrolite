@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
-import scipy
+import scipy.optimize
+import scipy.linalg
 from ..geochem.ind import REE, get_ionic_radii
 from .. import plot
 from .meta import update_docstring_references
@@ -166,10 +167,10 @@ def get_lambda_poly_func(lambdas: np.ndarray, params=None, radii=None, degree=5)
         xarr: :class:`numpy.ndarray`
             X values at which to evaluate the function.
         """
-        poly_components = np.array(
+        func_components = np.array(
             [evaluate_lambda_poly(xarr, pset) for pset in params]
         )
-        return np.dot(lambdas, poly_components)
+        return np.dot(lambdas, func_components)
 
     return _lambda_evaluator
 
@@ -271,7 +272,7 @@ def lambdas_ONeill2016(df, radii, params=None):
 ########################################################################################
 
 
-def _lambda_min_func(ls, ys, poly_components, power=1.0):
+def _cost_func(ls, ys, func_components, power=1.0):
     """
     Cost function for lambda optimization.
 
@@ -281,9 +282,9 @@ def _lambda_min_func(ls, ys, poly_components, power=1.0):
         Lambda values, effectively weights for the polynomial components.
     ys : :class:`numpy.ndarray`
         Target y values.
-    poly_components : :class:`numpy.ndarray`
-        Arrays representing the individual unweighted orthaogonal polynomial components.
-        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]`
+    func_components : :class:`numpy.ndarray`
+        Arrays representing the individual unweighted function components.
+        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
     power : :class:`float`
         Power for the cost function.
 
@@ -292,12 +293,12 @@ def _lambda_min_func(ls, ys, poly_components, power=1.0):
     :class:`numpy.ndarray`
         Cost at the given set of `ls`.
     """
-    cost = np.abs(ls @ poly_components - ys) ** power
+    cost = np.abs(ls @ func_components - ys) ** power
     cost[np.isnan(cost)] = 0.0  # can't change nans - don't penalise them
     return cost
 
 
-def _lambda_residuals_func(ls, ys, poly_components):
+def _residuals_func(ls, ys, func_components):
     """
     Residuals function for lambda optimization.
 
@@ -307,16 +308,16 @@ def _lambda_residuals_func(ls, ys, poly_components):
         Lambda values, effectively weights for the polynomial components.
     ys : :class:`numpy.ndarray`
         Target y values.
-    poly_components : :class:`numpy.ndarray`
-        Arrays representing the individual unweighted orthaogonal polynomial components.
-        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]`
+    func_components : :class:`numpy.ndarray`
+        Arrays representing the individual unweighted unweighted function components.
+        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
 
     Returns
     -------
     :class:`numpy.ndarray`
         Residuals at the given set of `ls`.
     """
-    res = ls @ poly_components - ys
+    res = ls @ func_components - ys
     res[np.isnan(res)] = 0.0  # can't change nans - don't penalise them
     return res
 
@@ -328,7 +329,7 @@ def lambdas_optimize(
     params=None,
     guess=None,
     degree=5,
-    residuals_function=_lambda_residuals_func,
+    residuals_function=_residuals_func,
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -372,7 +373,7 @@ def lambdas_optimize(
     )
     starting_guess = np.exp(np.arange(degree) + 2) / 2
     # arrays representing the unweighted individual polynomial components
-    poly_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
+    func_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
 
     for row in range(df.index.size):
         result = scipy.optimize.least_squares(
@@ -380,7 +381,7 @@ def lambdas_optimize(
             starting_guess,
             args=(
                 df.iloc[row, :].values,
-                poly_components,
+                func_components,
             ),
         )
         x = result.x
@@ -508,6 +509,79 @@ def calc_lambdas(df, params=None, degree=4, exclude=[], algorithm="ONeill", **kw
         return lambdas_optimize(df, radii=radii, params=params, **kwargs)
 
 
+def pcov_from_jac(jac):
+    """
+    Extract a covariance matrix from a Jacobian matrix returned from
+    :mod:`scipy.optimize` functions.
+
+    Parameters
+    ----------
+    jac : :class:`numpy.ndarray`
+        Jacobian array.
+
+    Returns
+    -------
+    pcov : :class:`numpy.ndarray`
+        Square covariance array; this hasn't yet been scaled by residuals.
+    """
+    # from scipy.opt minpack
+    # Do Moore-Penrose inverse discarding zero singular values.
+    _, s, VT = scipy.linalg.svd(jac, full_matrices=False)
+    threshold = np.finfo(float).eps * max(jac.shape) * s[0]
+    s = s[s > threshold]
+    VT = VT[: s.size]
+    pcov = np.dot(VT.T / s ** 2, VT)
+    return pcov
+
+
+def fit_components(y, x0, func_components, residuals_function=_residuals_func):
+    """
+    Fit a weighted sum of function components using
+    :func:`scipy.optimize.least_squares`.
+
+    Parameters
+    -----------
+    y : :class:`numpy.ndarray`
+        Array of target values to fit.
+    x0 : :class:`numpy.ndarray`
+        Starting guess for the function weights.
+    func_components : :class:`list` ( :class:`numpy.ndarray` )
+        List of arrays representing static/evaluated function components.
+    redsiduals_function : callable
+        Callable funciton to compute residuals which accepts ordered arguments for
+        weights, target values and function components.
+
+    Returns
+    -------
+    arr, uarr : :class:`numpy.ndarray`
+        Arrays for the optimized parameter values (arr) and parameter
+        uncertaintes (uarr, 1σ).
+    """
+    m, n = y.shape[0], x0.size  # shape of output
+    arr = np.ones((m, n)) * np.nan
+    uarr = np.ones((m, n)) * np.nan
+    for row in range(m):
+        res = scipy.optimize.least_squares(
+            residuals_function,
+            x0,
+            args=(
+                y[row, :],
+                func_components,
+            ),
+        )
+        arr[row, :] = res.x
+        # get the covariance matrix of the parameters from the jacobian
+        pcov = pcov_from_jac(res.jac)
+        yd, xd = y.shape[0], x0.size
+        if yd > xd:
+            s_sq = res.cost / (yd - xd)  # check rank
+            pcov = pcov * s_sq
+        else:
+            pcov.fill(inf)
+        uarr[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
+    return arr, uarr
+
+
 def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
     """
     Plot a decomposed orthogonal polynomial using the lambda coefficients.
@@ -549,14 +623,92 @@ def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
     return ax
 
 
-
 def tetrad(centre, width):
+    """
+    Generate a function :math:`f(z)` describing a tetrad given a specified centre and
+    width.
+
+    Parameters
+    ----------
+    centre : :class:`float`
+
+    width : :class:`float`
+
+    Returns
+    --------
+    """
+
     def tet(x):
         g = (x - centre) / (width / 2)
         x0 = 1 - g ** 2
-        r = x0 + np.sqrt(x0 ** 2) / 2
+        r = (x0 + np.sqrt(x0 ** 2)) / 2
         r[r < 0] = 0
         return r
 
     return tet
-
+
+
+def REE_z_to_radii(z, fit=None, degree=7):
+    """
+    Estimate the ionic radii which would be approximated by a given atomic number
+    based on a provided (or calcuated) fit for the Rare Earth Elements.
+
+    Parameters
+    ----------
+    z : :class:`float` | :class:`list` | :class:`numpy.ndarray`
+        Atomic nubmers to be converted.
+    fit : callable
+        Callable function optionally specified; if not specified it will be calculated
+        from Shannon Radii.
+    degree : :class:`int`
+        Degree of the polynomial fit between atomic number and radii.
+
+    Returns
+    -------
+    r : :class:`float` | :class:`numpy.ndarray`
+        Approximate atomic nubmers for given radii.
+    """
+    if fit is None:
+        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
+        p, resids, rank, s, rcond = np.polyfit(
+            np.arange(57, 72), radii, degree, full=True
+        )
+
+        def fit(x):
+            return np.polyval(p, x)
+
+    r = fit(z)
+    return r
+
+
+def REE_radii_to_z(r, fit=None, degree=7):
+    """
+    Estimate the atomic number which would be approximated by a given ionic radii
+    based on a provided (or calcuated) fit for the Rare Earth Elements.
+
+    Parameters
+    ----------
+    r : :class:`float` | :class:`list` | :class:`numpy.ndarray`
+        Radii to be converted.
+    fit : callable
+        Callable function optionally specified; if not specified it will be calculated
+        from Shannon Radii.
+    degree : :class:`int`
+        Degree of the polynomial fit between radii and atomic number.
+
+    Returns
+    -------
+    z : :class:`float` | :class:`numpy.ndarray`
+        Approximate atomic nubmers for given radii.
+    """
+    if fit is None:
+        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
+        p, resids, rank, s, rcond = np.polyfit(
+            radii, np.arange(57, 72), degree, full=True
+        )
+
+        def fit(x):
+            return np.polyval(p, x)
+
+    z = fit(r)
+    return z
