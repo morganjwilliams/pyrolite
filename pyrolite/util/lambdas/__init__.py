@@ -9,7 +9,7 @@ from .oneill import lambdas_ONeill2016
 from .opt import lambdas_optimize
 from .tetrads import get_tetrads_function, tetrad
 from .plot import plot_lambdas_components, plot_tetrads_profiles
-
+from .transform import REE_radii_to_z, REE_z_to_radii
 
 logger = Handle(__name__)
 
@@ -75,69 +75,3 @@ def calc_lambdas(df, params=None, degree=4, exclude=[], algorithm="ONeill", **kw
             return lambdas_optimize(df, radii=radii, params=params, **kwargs)
     else:
         return lambdas_optimize(df, radii=radii, params=params, **kwargs)
-
-
-def REE_z_to_radii(z, fit=None, degree=7):
-    """
-    Estimate the ionic radii which would be approximated by a given atomic number
-    based on a provided (or calcuated) fit for the Rare Earth Elements.
-
-    Parameters
-    ----------
-    z : :class:`float` | :class:`list` | :class:`numpy.ndarray`
-        Atomic nubmers to be converted.
-    fit : callable
-        Callable function optionally specified; if not specified it will be calculated
-        from Shannon Radii.
-    degree : :class:`int`
-        Degree of the polynomial fit between atomic number and radii.
-
-    Returns
-    -------
-    r : :class:`float` | :class:`numpy.ndarray`
-        Approximate atomic nubmers for given radii.
-    """
-    if fit is None:
-        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
-        p, resids, rank, s, rcond = np.polyfit(
-            np.arange(57, 72), radii, degree, full=True
-        )
-
-        def fit(x):
-            return np.polyval(p, x)
-
-    r = fit(z)
-    return r
-
-
-def REE_radii_to_z(r, fit=None, degree=7):
-    """
-    Estimate the atomic number which would be approximated by a given ionic radii
-    based on a provided (or calcuated) fit for the Rare Earth Elements.
-
-    Parameters
-    ----------
-    r : :class:`float` | :class:`list` | :class:`numpy.ndarray`
-        Radii to be converted.
-    fit : callable
-        Callable function optionally specified; if not specified it will be calculated
-        from Shannon Radii.
-    degree : :class:`int`
-        Degree of the polynomial fit between radii and atomic number.
-
-    Returns
-    -------
-    z : :class:`float` | :class:`numpy.ndarray`
-        Approximate atomic nubmers for given radii.
-    """
-    if fit is None:
-        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
-        p, resids, rank, s, rcond = np.polyfit(
-            radii, np.arange(57, 72), degree, full=True
-        )
-
-        def fit(x):
-            return np.polyval(p, x)
-
-    z = fit(r)
-    return z

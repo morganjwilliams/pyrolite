@@ -4,6 +4,8 @@ from ...geochem.ind import get_ionic_radii, REE
 from ..log import Handle
 from .params import orthogonal_polynomial_constants, _get_params
 from .eval import get_lambda_poly_func
+from .tetrads import get_tetrads_function
+from .transform import REE_z_to_radii
 
 logger = Handle(__file__)
 
@@ -88,10 +90,12 @@ def plot_tetrads_profiles(
     linex = REE_z_to_radii(linez)
     ####################################################################################
     if index in ["radii", "elements"]:
-        ax = REE_v_radii(logy=logy, index=index, **kwargs)
+        ax = plot.spider.REE_v_radii(logy=logy, index=index, **kwargs)
     else:
         index = "z"
-        ax = spider(np.array([np.nan] * len(z)), indexes=z, logy=logy, **kwargs)
+        ax = plot.spider.spider(
+            np.array([np.nan] * len(z)), indexes=z, logy=logy, **kwargs
+        )
         ax.set_xticklabels(REE(dropPm=False))
         xs = z
         linex = linez
@@ -104,8 +108,12 @@ def plot_tetrads_profiles(
         ys[yfltr] = np.nan
         liney[np.isclose(liney, 0)] = np.nan
     # scatter-only spider
-    spider(ys, ax=ax, indexes=xs, logy=logy, linewidth=0, set_ticks=False, **kwargs)
+    plot.spider.spider(
+        ys, ax=ax, indexes=xs, logy=logy, linewidth=0, set_ticks=False, **kwargs
+    )
     # line-only spider
-    spider(liney, ax=ax, indexes=linex, logy=logy, set_ticks=False, marker="", **kwargs)
+    plot.spider.spider(
+        liney, ax=ax, indexes=linex, logy=logy, set_ticks=False, marker="", **kwargs
+    )
 
     return ax

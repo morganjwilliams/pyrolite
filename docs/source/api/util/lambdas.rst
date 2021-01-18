@@ -2,10 +2,11 @@
 pyrolite\.util\.lambdas
 -------------------------------
   .. automodule:: pyrolite.util.lambdas
-
+      :members:
+      :undoc-members:
 
 pyrolite\.util\.lambdas\.params
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   .. automodule:: pyrolite.util.lambdas.params
       :members:
       :undoc-members:
@@ -19,7 +20,7 @@ pyrolite\.util\.lambdas\.eval
 
 
 pyrolite\.util\.lambdas\.oneill
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   .. automodule:: pyrolite.util.lambdas.oneill
       :members:
       :undoc-members:
@@ -40,7 +41,14 @@ pyrolite\.util\.lambdas\.plot
 
 
 pyrolite\.util\.lambdas\.tetrads
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   .. automodule:: pyrolite.util.lambdas.tetrads
+      :members:
+      :undoc-members:
+
+
+pyrolite\.util\.lambdas\.transform
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  .. automodule:: pyrolite.util.lambdas.transform
       :members:
       :undoc-members:
