@@ -3,12 +3,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.axes
+
+from pyrolite.util.lambdas.eval import evaluate_lambda_poly, get_lambda_poly_func
 from pyrolite.util.lambdas import (
-    orthogonal_polynomial_constants,
-    evaluate_lambda_poly,
-    get_lambda_poly_func,
     plot_lambdas_components,
     calc_lambdas,
+    orthogonal_polynomial_constants,
 )
 from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
