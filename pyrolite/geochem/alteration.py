@@ -119,7 +119,7 @@ def WIP(df: pd.DataFrame):
     ----------
     .. [#ref_1] Parker A (1970). An Index of Weathering for Silicate Rocks.
            Geological Magazine 107:501–504.
-           dcoi: `10.1017/S0016756800058581 <https://dx.doi.org/10.1017/S0016756800058581>`__
+           doi: `10.1017/S0016756800058581 <https://dx.doi.org/10.1017/S0016756800058581>`__
 
     """
     return 2 * df.Na2O / 0.35 + df.MgO / 0.9 + 2 * df.K2O / 0.25 + df.CaO / 0.7
