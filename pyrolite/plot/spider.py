@@ -46,6 +46,7 @@ def spider(
     cmap=DEFAULT_CONT_COLORMAP,
     scatter_kw={},
     line_kw={},
+    set_ticks=True,
     **kwargs
 ):
     """
@@ -78,6 +79,8 @@ def spider(
         Keyword parameters to be passed to the scatter plotting function.
     line_kw : :class:`dict`
         Keyword parameters to be passed to the line plotting function.
+    set_ticks : :class:`bool`
+        Whether to set the x-axis ticks according to the specified index.
     {otherparams}
 
     Returns
@@ -126,7 +129,8 @@ def spider(
     else:
         indexes0 = indexes[0]
 
-    ax.set_xticks(indexes0)
+    if set_ticks:
+        ax.set_xticks(indexes0)
 
     # if there is no data, return the blank axis
     if (arr is None) or (not np.isfinite(arr).sum()):
@@ -163,6 +167,9 @@ def spider(
             l_kw["color"] = np.array([next(ax._get_lines.prop_cycler)["color"]])
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
+        # marker explictly dealth with by scatter
+        for k in ['marker', 'markers']:
+            l_kw.pop(k, None)
         # Construct and Add LineCollection?
         lcoll = matplotlib.collections.LineCollection(
             np.dstack((indexes, arr)), zorder=1, **l_kw
@@ -262,6 +269,8 @@ def REE_v_radii(
     unity_line=False,
     scatter_kw={},
     line_kw={},
+    set_labels=True,
+    set_ticks=True,
     **kwargs
 ):
     r"""
@@ -290,7 +299,10 @@ def REE_v_radii(
         Keyword parameters to be passed to the scatter plotting function.
     line_kw : :class:`dict`
         Keyword parameters to be passed to the line plotting function.
-
+    set_labels : :class:`bool`
+        Whether to set the x-axis ticklabels for the REE.
+    set_ticks : :class:`bool`
+        Whether to set the x-axis ticks according to the specified index.
     {otherparams}
 
     Returns
@@ -346,23 +358,28 @@ def REE_v_radii(
             **kwargs
         )
 
-    ax.set_xlabel(xtitle)
-    ax.set_xticks(xticks)
-    ax.set_xticklabels(xlabels, rotation=xlabelrotation)
-    if invertx:
-        xlim = xlim[::-1]
-    if xlim is not None:
-        ax.set_xlim(xlim)
-
     twinys = get_twins(ax, which="y")
     if len(twinys):
         _ax = twinys[0]
     else:
         _ax = ax.twiny()
-    _ax.set_xlabel(_xtitle)
-    _ax.set_xticks(_xticks)
-    _ax.set_xticklabels(_xlabels, rotation=_xlabelrotation)
-    _ax.set_xlim(ax.get_xlim())
+
+    if set_labels:
+        ax.set_xlabel(xtitle)
+        _ax.set_xlabel(_xtitle)
+
+    if set_ticks:
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xlabels, rotation=xlabelrotation)
+
+        if invertx:
+            xlim = xlim[::-1]
+        if xlim is not None:
+            ax.set_xlim(xlim)
+
+        _ax.set_xticks(_xticks)
+        _ax.set_xticklabels(_xlabels, rotation=_xlabelrotation)
+        _ax.set_xlim(ax.get_xlim())
     return ax
 
 
