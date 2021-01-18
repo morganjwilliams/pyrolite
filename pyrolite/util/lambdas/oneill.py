@@ -1,3 +1,7 @@
+"""
+Linear algebra methods for fitting a series of orthogonal polynomial functions to
+REE patterns.
+"""
 import numpy as np
 import pandas as pd
 from .eval import evaluate_lambda_poly
@@ -65,7 +69,7 @@ def lambdas_ONeill2016(df, radii, params=None):
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
-    
+
     """
     assert params is not None
     degree = len(params)

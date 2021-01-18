@@ -1,3 +1,7 @@
+"""
+Generation and evauluation of tetrad functions, for use in optimization-based fitting
+of REE patterns.
+"""
 import numpy as np
 from ..log import Handle
 

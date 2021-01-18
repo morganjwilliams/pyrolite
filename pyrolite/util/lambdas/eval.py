@@ -1,3 +1,7 @@
+"""
+Generation and evalutation of orthogonal polynomial functions from a set of parameters
+(the sequence of polymomial roots).
+"""
 import numpy as np
 from ..log import Handle
 from .params import orthogonal_polynomial_constants

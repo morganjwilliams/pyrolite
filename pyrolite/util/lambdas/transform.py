@@ -1,8 +1,14 @@
+"""
+Functions for transforming ionic radii to and from atomic number for the visualisation
+of REE patterns.
+"""
 import numpy as np
 from ...geochem.ind import get_ionic_radii, REE
+from ..log import Handle
 
+logger = Handle(__file__)
 
-def REE_z_to_radii(z, fit=None, degree=7):
+def REE_z_to_radii(z, fit=None, degree=7, **kwargs):
     """
     Estimate the ionic radii which would be approximated by a given atomic number
     based on a provided (or calcuated) fit for the Rare Earth Elements.
@@ -23,7 +29,9 @@ def REE_z_to_radii(z, fit=None, degree=7):
         Approximate atomic nubmers for given radii.
     """
     if fit is None:
-        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
+        radii = np.array(
+            get_ionic_radii(REE(dropPm=False), charge=3, coordination=8, **kwargs)
+        )
         p, resids, rank, s, rcond = np.polyfit(
             np.arange(57, 72), radii, degree, full=True
         )
@@ -35,7 +43,7 @@ def REE_z_to_radii(z, fit=None, degree=7):
     return r
 
 
-def REE_radii_to_z(r, fit=None, degree=7):
+def REE_radii_to_z(r, fit=None, degree=7, **kwargs):
     """
     Estimate the atomic number which would be approximated by a given ionic radii
     based on a provided (or calcuated) fit for the Rare Earth Elements.
@@ -53,10 +61,12 @@ def REE_radii_to_z(r, fit=None, degree=7):
     Returns
     -------
     z : :class:`float` | :class:`numpy.ndarray`
-        Approximate atomic nubmers for given radii.
+        Approximate atomic numbers for given radii.
     """
     if fit is None:
-        radii = np.array(get_ionic_radii(REE(dropPm=False), charge=3, coordination=8))
+        radii = np.array(
+            get_ionic_radii(REE(dropPm=False), charge=3, coordination=8, **kwargs)
+        )
         p, resids, rank, s, rcond = np.polyfit(
             radii, np.arange(57, 72), degree, full=True
         )

@@ -1,3 +1,8 @@
+"""
+Functions for the visualisation of reconstructed and deconstructed parameterised REE
+profiles based on parameterisations using 'lambdas' (and tetrad-equivalent weights
+'taus').
+"""
 import numpy as np
 from ... import plot
 from ...geochem.ind import get_ionic_radii, REE

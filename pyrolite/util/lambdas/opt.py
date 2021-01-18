@@ -1,3 +1,7 @@
+"""
+Functions for optimization-based REE profile fitting and parameter uncertainty
+estimation.
+"""
 import numpy as np
 import pandas as pd
 import scipy.optimize
