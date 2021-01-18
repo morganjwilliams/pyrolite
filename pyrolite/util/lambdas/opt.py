@@ -169,7 +169,7 @@ def lambdas_optimize(
 
     See Also
     ---------
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     References

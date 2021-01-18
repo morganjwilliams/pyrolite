@@ -572,8 +572,8 @@ def lambda_lnREE(
     See Also
     ---------
     :func:`~pyrolite.geochem.ind.get_ionic_radii`
-    :func:`~pyrolite.util.lambdas.lambdas`
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.calc_lambdas`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     # if there are no supplied params, they will be calculated in calc_lambdas

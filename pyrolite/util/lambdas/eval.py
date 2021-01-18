@@ -53,8 +53,8 @@ def get_lambda_poly_func(lambdas: np.ndarray, params=None, radii=None, degree=5)
 
     See Also
     ---------
-    :func:`~pyrolite.util.lambdas.lambdas`
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.calc_lambdas`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     Notes

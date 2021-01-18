@@ -68,7 +68,7 @@ ls = df.pyrochem.lambda_lnREE(degree=4)
 # polynomial components are summed to produce the regressed profile, using the last REE
 # profile we generated above as an example:
 #
-from pyrolite.util.lambdas import plot_lambdas_components
+from pyrolite.util.lambdas.plot import plot_lambdas_components
 
 ax = (
     df.pyrochem.normalize_to("ChondriteREE_ON")

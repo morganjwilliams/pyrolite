@@ -30,7 +30,7 @@ def get_polynomial_matrix(radii, params=None):
 
     See Also
     ---------
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     """
     radii = np.array(radii)
     degree = len(params)
@@ -61,7 +61,7 @@ def lambdas_ONeill2016(df, radii, params=None):
 
     See Also
     ---------
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     References

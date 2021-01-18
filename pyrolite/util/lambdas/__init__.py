@@ -44,7 +44,7 @@ def calc_lambdas(df, params=None, degree=4, exclude=[], algorithm="ONeill", **kw
 
     See Also
     ---------
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.geochem.pyrochem.lambda_lnREE`
     :func:`~pyrolite.geochem.pyrochem.normalize_to`
 

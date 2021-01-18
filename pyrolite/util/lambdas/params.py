@@ -53,7 +53,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
 
     See Also
     --------
-    :func:`~pyrolite.util.math.lambdas`
+    :func:`~pyrolite.util.lambdas.calc_lambdas`
     :func:`~pyrolite.geochem.transform.lambda_lnREE`
 
     References
