@@ -4,10 +4,10 @@ from sympy.solvers.solvers import nsolve
 from sympy import symbols, var
 import scipy.optimize
 import scipy.linalg
-from ..geochem.ind import REE, get_ionic_radii
-from .. import plot
-from .meta import update_docstring_references
-from .missing import md_pattern
+from ...geochem.ind import REE, get_ionic_radii
+from ... import plot
+from ..meta import update_docstring_references
+from ..missing import md_pattern
 import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -259,7 +259,6 @@ def lambdas_ONeill2016(df, radii, params=None):
         if missing_fltr.sum():  # ignore completely empty rows
             A = get_polynomial_matrix(rad[missing_fltr], params=params)
             invA = np.linalg.inv(A)
-
             V = np.vander(rad, degree, increasing=True).T
             Z = (
                 df.loc[row_fltr, missing_fltr].values[:, np.newaxis]
@@ -582,47 +581,6 @@ def fit_components(y, x0, func_components, residuals_function=_residuals_func):
     return arr, uarr
 
 
-def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
-    """
-    Plot a decomposed orthogonal polynomial using the lambda coefficients.
-
-    Parameters
-    ----------
-    lambdas
-        1D array of lambdas.
-    ax : :class:`matplotlib.axes.Axes`
-        Axis to plot on.
-
-    Returns
-    --------
-    :class:`matplotlib.axes.Axes`
-    """
-    radii = np.array(get_ionic_radii(REE(), charge=3, coordination=8))
-    xs = np.linspace(np.max(radii), np.min(radii), 100)
-    if params is None:
-        if params is None:  # use standard parameters as used in O'Neill 2016 paper
-            default_REE = [i for i in REE() if i not in ["Eu"]]
-            default_radii = get_ionic_radii(default_REE, charge=3, coordination=8)
-            params = orthogonal_polynomial_constants(default_radii, degree=degree)
-    else:
-        params = params[: degree - 1]  # limit the degree for the vis
-    ax = plot.spider.REE_v_radii(ax=ax)
-    # plot the overall function
-    overall_func = get_lambda_poly_func(lambdas, params)
-    ax.plot(  # plot the polynomials
-        xs, overall_func(xs), label="Regression", color="k", **kwargs
-    )
-    for w, p in zip(lambdas, params):  # plot the components
-        l_func = get_lambda_poly_func([w], [p])  # pasing singluar vaules and one tuple
-        label = (
-            "$r^{}: \lambda_{}".format(len(p), len(p))
-            + ["\cdot f_{}".format(len(p)), ""][int(len(p) == 0)]
-            + "$"
-        )
-        ax.plot(xs, l_func(xs), label=label, ls="--", **kwargs)  # plot the polynomials
-    return ax
-
-
 def tetrad(centre, width):
     """
     Generate a function :math:`f(z)` describing a tetrad given a specified centre and
@@ -646,6 +604,19 @@ def tetrad(centre, width):
         return r
 
     return tet
+
+
+def get_tetrads_function(params=None):
+    if params is None:
+        params = ((58.75, 3.5), (62.25, 3.5), (65.75, 3.5), (69.25, 3.5))
+
+    def tetrads(x, sum=True):
+        ts = np.array([tetrad(centre, width)(x) for centre, width in params])
+        if sum:
+            ts = np.sum(ts, axis=0)
+        return ts
+
+    return tetrads
 
 
 def REE_z_to_radii(z, fit=None, degree=7):
@@ -711,4 +682,45 @@ def REE_radii_to_z(r, fit=None, degree=7):
             return np.polyval(p, x)
 
     z = fit(r)
-    return z
+    return z
+
+
+def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):
+    """
+    Plot a decomposed orthogonal polynomial using the lambda coefficients.
+
+    Parameters
+    ----------
+    lambdas
+        1D array of lambdas.
+    ax : :class:`matplotlib.axes.Axes`
+        Axis to plot on.
+
+    Returns
+    --------
+    :class:`matplotlib.axes.Axes`
+    """
+    radii = np.array(get_ionic_radii(REE(), charge=3, coordination=8))
+    xs = np.linspace(np.max(radii), np.min(radii), 100)
+    if params is None:
+        if params is None:  # use standard parameters as used in O'Neill 2016 paper
+            default_REE = [i for i in REE() if i not in ["Eu"]]
+            default_radii = get_ionic_radii(default_REE, charge=3, coordination=8)
+            params = orthogonal_polynomial_constants(default_radii, degree=degree)
+    else:
+        params = params[: degree - 1]  # limit the degree for the vis
+    ax = plot.spider.REE_v_radii(ax=ax)
+    # plot the overall function
+    overall_func = get_lambda_poly_func(lambdas, params)
+    ax.plot(  # plot the polynomials
+        xs, overall_func(xs), label="Regression", color="k", **kwargs
+    )
+    for w, p in zip(lambdas, params):  # plot the components
+        l_func = get_lambda_poly_func([w], [p])  # pasing singluar vaules and one tuple
+        label = (
+            "$r^{}: \lambda_{}".format(len(p), len(p))
+            + ["\cdot f_{}".format(len(p)), ""][int(len(p) == 0)]
+            + "$"
+        )
+        ax.plot(xs, l_func(xs), label=label, ls="--", **kwargs)  # plot the polynomials
+    return ax
