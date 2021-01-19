@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.axes
 
-from pyrolite.util.lambdas.eval import evaluate_lambda_poly, get_lambda_poly_func
+from pyrolite.util.lambdas.eval import lambda_poly, get_lambda_poly_function
 from pyrolite.util.lambdas import (
     plot_lambdas_components,
     calc_lambdas,
@@ -111,17 +111,17 @@ class TestGetLambdaPolyFunc(unittest.TestCase):
         self.xs = np.linspace(0.9, 1.1, 5)
 
     def test_noparams(self):
-        ret = get_lambda_poly_func(self.lambdas, radii=self.xs)
+        ret = get_lambda_poly_function(self.lambdas, radii=self.xs)
         self.assertTrue(callable(ret))
 
     def test_noparams_noxs(self):
         with self.assertRaises(AssertionError):
-            ret = get_lambda_poly_func(self.lambdas)
+            ret = get_lambda_poly_function(self.lambdas)
             self.assertTrue(callable(ret))
 
     def test_function_params(self):
         params = orthogonal_polynomial_constants(self.xs, degree=len(self.lambdas))
-        ret = get_lambda_poly_func(self.lambdas, params=params)
+        ret = get_lambda_poly_function(self.lambdas, params=params)
         self.assertTrue(callable(ret))
 
 
@@ -163,6 +163,19 @@ class TestCalcLambdas(unittest.TestCase):
             with self.subTest(alg=alg):
                 ret = calc_lambdas(self.df, algorithm=alg, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
+
+    def test_tetrads(self):
+        """
+        Check that tetrads can be calculated using the optimization algorithm,
+        and that where the O'Neill algorithm is specified it will default back to
+        the optimization algorithm instead.
+        """
+        for alg in ["ONeill", "opt"]:
+            with self.subTest(alg=alg):
+                ret = calc_lambdas(
+                    self.df, algorithm=alg, degree=self.default_degree, fit_tetrads=True
+                )
+                self.assertTrue(ret.columns.size == self.default_degree + 4)
 
     def test_params(self):
         # the first three all have the same result - defaulting to ONeill 2016

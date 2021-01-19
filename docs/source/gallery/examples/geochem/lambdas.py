@@ -49,6 +49,7 @@ plt.show()
 # pattern/profile:
 #
 ls = df.pyrochem.lambda_lnREE(degree=4)
+ls.head(2)
 ########################################################################################
 # So what's actually happening here? To get some idea of what these λ coefficients
 # correspond to, we can pull this process apart and visualise our REE profiles as
@@ -82,10 +83,6 @@ plot_lambdas_components(ls.iloc[-1, :], ax=ax)
 ax.legend()
 plt.show()
 ########################################################################################
-# Note that we've not used Eu in this regression - Eu anomalies are a deviation from
-# the 'smooth profile' we need to use this method. Consider this if your data might also
-# exhibit significant Ce anomalies, you might need to exclude this data.
-#
 # Now that we've gone through a brief introduction to how the lambdas are generated,
 # let's quickly check what the coefficient values themselves look like:
 #
@@ -95,6 +92,19 @@ for ix in range(ls.columns.size - 1):
     ls[ls.columns[ix : ix + 2]].pyroplot.scatter(ax=ax[ix], alpha=0.1, c="k")
 
 plt.tight_layout()
+########################################################################################
+# Note that we've not used Eu in this regression - Eu anomalies are a deviation from
+# the 'smooth profile' we need to use this method. Consider this if your data might also
+# exhibit significant Ce anomalies, you might need to exclude this data. For convenience
+# there is also functionality to calculate anomalies derived from the orthogonal
+# polynomial fit itself (rather than linear interpolation methods). Below we use the
+# :code:`anomalies` keyword argument to also calculate the :math:`\frac{Ce}{Ce*}`
+# and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
+#
+ls_anomalies = df.pyrochem.lambda_lnREE(
+    degree=4, anomalies=["Ce", "Eu"], exclude=["Ce", "Eu"]
+)
+ls_anomalies.iloc[:, -2:].pyroplot.scatter()
 ########################################################################################
 # But what do these parameters correspond to? From the deconstructed orthogonal
 # polynomial above, we can see that :math:`\lambda_0` parameterises relative enrichement
@@ -113,6 +123,35 @@ plt.tight_layout()
 # distrtibuted, so the values themeselves here are not particularly revealing,
 # but they do illustrate the expected mangitudes of values for each of the parameters.
 #
+
+########################################################################################
+# Fitting Tetrads
+# ~~~~~~~~~~~~~~~~
+#
+# In addition to fitting orothogonal polynomial functions, the ability to fit tetrad
+# functions has also recently been added. This supplements the :math:`\lambda`
+# coefficients with :math:`\tau` coefficients which describe subtle electronic
+# configuration effects affecting sequential subsets of the REE. Below we plot four
+# profiles - each describing only a single tetrad - to illustrate the shape of
+# these function components. Note that these are functions of :math:`z`, and are here
+# transformed to plot against radii.
+#
+from pyrolite.util.lambdas.plot import plot_tetrads_profiles
+
+plot_tetrads_profiles(np.eye(4), color=np.arange(4))
+
+########################################################################################
+# In order to also fit these function components, you can pass the keyword argument
+# :code:`fit_tetrads=True` to :func:`~pyrolite.pyrochem.lambda_lnREE` and releated
+# functions:
+#
+lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
+########################################################################################
+# We can see that the four extra :math:`\tau` Parameters have been appended to the
+# right of the lambdas withn the output:
+#
+lts.head(2)
+########################################################################################
 # More Advanced Customisation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Above we've used default parameterisations for calculating `lambdas`, but

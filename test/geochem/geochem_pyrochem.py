@@ -72,14 +72,13 @@ class TestPyrochem(unittest.TestCase):
         obj = self.df.copy(deep=True).pyrochem.compositional
         start = obj.values
         out = obj.pyrochem.to_molecular()
-        self.assertFalse((out.values.flatten() == start.flatten()).any())
+        self.assertFalse(np.isclose(out.values.flatten(), start.flatten()).any())
 
     def test_pyrochem_to_weight(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
         start = obj.values
         out = obj.pyrochem.to_weight()
-        print(out.values.flatten() == self.df.values.flatten())
-        self.assertFalse((out.values.flatten() == start.flatten()).any())
+        self.assertFalse(np.isclose(out.values.flatten(), start.flatten()).any())
 
     def test_pyrochem_add_MgNo(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
@@ -94,7 +93,7 @@ class TestPyrochem(unittest.TestCase):
         self.assertIn("Mg#", obj.columns)
         self.assertIn("Fe2O3", obj.columns)
         self.assertIn("Mg#2", obj.columns)
-        self.assertFalse((obj["Mg#"].values == obj["Mg#2"].values).any())
+        self.assertFalse(np.isclose(obj["Mg#"].values, obj["Mg#2"].values).any())
 
     def test_pyrochem_add_ratio(self):
         obj = self.df.copy(deep=True)
@@ -115,7 +114,7 @@ class TestPyrochem(unittest.TestCase):
     def test_pyrochem_elemental_sum(self):
         obj = self.df.copy(deep=True)
         Mg = obj.pyrochem.elemental_sum("Mg")
-        self.assertFalse((Mg == obj.MgO).any())
+        self.assertFalse(np.isclose(Mg, obj.MgO).any())
 
     def test_pyrochem_lambda_lnREE(self):
         obj = self.df.copy(deep=True)
@@ -169,5 +168,5 @@ class TestPyrochem(unittest.TestCase):
     def test_pyrochem_scale(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
         REEppm = obj.pyrochem.REE.pyrochem.scale("wt%", "ppm")
-        self.assertFalse((REEppm.values == obj.pyrochem.REE.values).any())
+        self.assertFalse(np.isclose(REEppm.values, obj.pyrochem.REE.values).any())
         self.assertTrue((REEppm.values > obj.pyrochem.REE.values).all())

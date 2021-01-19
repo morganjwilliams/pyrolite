@@ -514,7 +514,7 @@ class TestLambdaLnREE(unittest.TestCase):
         """
         for norm_to in [
             self.C,
-            np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
+            np.random.rand(len([i for i in self.df.columns if i not in ["Pm"]])),
         ]:
             with self.subTest(norm_to=norm_to):
                 ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)

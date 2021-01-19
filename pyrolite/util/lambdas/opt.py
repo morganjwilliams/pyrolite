@@ -8,7 +8,7 @@ import scipy.optimize
 import scipy.linalg
 from ..meta import update_docstring_references
 from ..log import Handle
-from .eval import evaluate_lambda_poly
+from .eval import get_function_components
 
 logger = Handle(__file__)
 
@@ -127,11 +127,11 @@ def fit_components(y, x0, func_components, residuals_function=_residuals_func):
         # get the covariance matrix of the parameters from the jacobian
         pcov = pcov_from_jac(res.jac)
         yd, xd = y.shape[0], x0.size
-        if yd > xd:
-            s_sq = res.cost / (yd - xd)  # check rank
+        if yd > xd:  # check samples in y vs paramater dimension
+            s_sq = res.cost / (yd - xd)
             pcov = pcov * s_sq
         else:
-            pcov.fill(inf)
+            pcov.fill(np.inf)
         uarr[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
     return arr, uarr
 
@@ -142,7 +142,8 @@ def lambdas_optimize(
     radii,
     params=None,
     guess=None,
-    degree=5,
+    fit_tetrads=False,
+    tetrad_params=None,
     residuals_function=_residuals_func,
 ):
     """
@@ -159,6 +160,10 @@ def lambdas_optimize(
     params : :class:`list`, :code:`None`
         Orthogonal polynomial coefficients (see
         :func:`orthogonal_polynomial_constants`).
+    fit_tetrads : :class:`bool`
+        Whether to also fit the patterns for tetrads.
+    tetrad_params : :class:`list`
+        List of parameter sets for tetrad functions.
     residuals_function : :class:`Callable`
         Residuals function to use for optimization of lambdas.
 
@@ -180,25 +185,15 @@ def lambdas_optimize(
     """
     assert params is not None
     degree = len(params)
+    # arrays representing the unweighted individual polynomial components
+    names, x0, func_components = get_function_components(
+        radii, params=params, fit_tetrads=fit_tetrads, tetrad_params=tetrad_params
+    )
+    arr, uarr = fit_components(df.pyrochem.REE.values, np.array(x0), func_components)
     lambdas = pd.DataFrame(
+        arr,
         index=df.index,
-        columns=[chr(955) + str(d) for d in range(degree)],
+        columns=names,
         dtype="float32",
     )
-    starting_guess = np.exp(np.arange(degree) + 2) / 2
-    # arrays representing the unweighted individual polynomial components
-    func_components = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
-
-    for row in range(df.index.size):
-        result = scipy.optimize.least_squares(
-            residuals_function,
-            starting_guess,
-            args=(
-                df.iloc[row, :].values,
-                func_components,
-            ),
-        )
-        x = result.x
-        # redisuals res = result.fun
-        lambdas.iloc[row, :] = x
     return lambdas

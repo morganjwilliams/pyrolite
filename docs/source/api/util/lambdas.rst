@@ -39,14 +39,6 @@ pyrolite\.util\.lambdas\.plot
       :members:
       :undoc-members:
 
-
-pyrolite\.util\.lambdas\.tetrads
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  .. automodule:: pyrolite.util.lambdas.tetrads
-      :members:
-      :undoc-members:
-
-
 pyrolite\.util\.lambdas\.transform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   .. automodule:: pyrolite.util.lambdas.transform

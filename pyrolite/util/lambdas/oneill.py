@@ -4,7 +4,7 @@ REE patterns.
 """
 import numpy as np
 import pandas as pd
-from .eval import evaluate_lambda_poly
+from .eval import lambda_poly
 from ..missing import md_pattern
 from ..meta import update_docstring_references
 from ..log import Handle
@@ -35,7 +35,7 @@ def get_polynomial_matrix(radii, params=None):
     radii = np.array(radii)
     degree = len(params)
     a = np.vander(radii, degree, increasing=True).T
-    b = np.array([evaluate_lambda_poly(radii, pset) for pset in params])
+    b = np.array([lambda_poly(radii, pset) for pset in params])
     A_radii = a[:, np.newaxis, :] * b[np.newaxis, :, :]
     A = A_radii.sum(axis=-1)  # `A` as in O'Neill (2016)
     return A
@@ -74,11 +74,8 @@ def lambdas_ONeill2016(df, radii, params=None):
     assert params is not None
     degree = len(params)
     # initialise the dataframe
-    lambdas = pd.DataFrame(
-        index=df.index,
-        columns=[chr(955) + str(d) for d in range(degree)],
-        dtype="float32",
-    )
+    names = [chr(955) + str(d) for d in range(degree)]
+    lambdas = pd.DataFrame(index=df.index, columns=names, dtype="float32")
     rad = np.array(radii)  # so we can use a boolean index
 
     md_inds, patterns = md_pattern(df)

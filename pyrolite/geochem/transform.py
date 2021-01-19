@@ -577,10 +577,7 @@ def lambda_lnREE(
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     # if there are no supplied params, they will be calculated in calc_lambdas
-
-    # Check which REE we're dealing with
-    ree = [el for el in REE() if el in df.columns and el not in exclude]
-
+    ree = df.pyrochem.list_REE  # this excludes Pm
     # initialize normdf
     norm_df = df.loc[:, ree].copy()
     # check if there are columns which are empty
@@ -624,11 +621,9 @@ def lambda_lnREE(
 
     lambdadf = pd.DataFrame(
         index=norm_df.index,
-        columns=[chr(955) + str(d) for d in range(degree)],
         dtype="float32",
     )
-    # we've already excluded columns, so don't technically need to pass exclude here
-    lambdadf.loc[row_filter, :] = lambdas.calc_lambdas(
+    ls = lambdas.calc_lambdas(
         norm_df.loc[row_filter, :],
         exclude=exclude,
         params=params,
@@ -636,6 +631,7 @@ def lambda_lnREE(
         algorithm=algorithm,
         **kwargs
     )
+    lambdadf.loc[row_filter, ls.columns] = ls
     assert lambdadf.index.size == df.index.size
     return lambdadf
 
