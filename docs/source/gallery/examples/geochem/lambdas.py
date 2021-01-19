@@ -143,8 +143,8 @@ ax = plot_tetrads_profiles(np.eye(4), color=np.arange(4))
 plt.show()
 ########################################################################################
 # In order to also fit these function components, you can pass the keyword argument
-# :code:`fit_tetrads=True` to :func:`~pyrolite.pyrochem.lambda_lnREE` and releated
-# functions:
+# :code:`fit_tetrads=True` to :func:`~pyrolite.geochem.pyrochem.lambda_lnREE` and
+# related functions:
 #
 lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 ########################################################################################
