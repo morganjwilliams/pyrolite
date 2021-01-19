@@ -168,11 +168,11 @@ def spider(
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
         # marker explictly dealth with by scatter
-        for k in ['marker', 'markers']:
+        for k in ["marker", "markers"]:
             l_kw.pop(k, None)
         # Construct and Add LineCollection?
         lcoll = matplotlib.collections.LineCollection(
-            np.dstack((indexes, arr)), zorder=1, **l_kw
+            np.dstack((indexes, arr)), **{"zorder": 1, **l_kw}
         )
         ax.add_collection(lcoll)
 
@@ -214,7 +214,7 @@ def spider(
                 {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
             sc = ax.scatter(
-                indexes.ravel(), arr.ravel(), zorder=2, c=scattercolor, **s_kw
+                indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
             )
 
         # should create a custom legend handle here
