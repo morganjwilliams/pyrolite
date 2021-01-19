@@ -87,8 +87,8 @@ def calc_lambdas(
         msg = "No columns specified (after exclusion), nothing to calculate."
         raise IndexError(msg)
 
-    fit_df = df[columns]
-    fit_df[~np.isfinite(fit_df)] = np.nan  # deal with np.nan, np.inf
+    fit_df = df.loc[:, columns]
+    fit_df.mask(~np.isfinite(fit_df), np.nan, inplace=True)  # deal with np.nan, np.inf
     fit_radii = get_ionic_radii(columns, charge=3, coordination=8)
 
     if "oneill" in algorithm.lower():
@@ -116,7 +116,7 @@ def calc_lambdas(
             index=df.index,
         )
 
-        rdiff = df - regression
+        rdiff = df[ree] - regression
 
         for anomaly in anomalies:
             assert anomaly in rdiff.columns

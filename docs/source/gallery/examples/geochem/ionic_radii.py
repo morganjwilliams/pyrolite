@@ -52,7 +52,7 @@ ax.set_xticklabels(REE())
 ax.set_ylabel("Ionic Radius ($\AA$)")
 ax.set_title("Rare Earth Element Ionic Radii")
 ax.legend()
-
+plt.show()
 ########################################################################################
 # .. seealso::
 #

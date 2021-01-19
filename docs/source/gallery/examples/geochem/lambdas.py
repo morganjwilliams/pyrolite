@@ -104,7 +104,8 @@ plt.tight_layout()
 ls_anomalies = df.pyrochem.lambda_lnREE(
     degree=4, anomalies=["Ce", "Eu"], exclude=["Ce", "Eu"]
 )
-ls_anomalies.iloc[:, -2:].pyroplot.scatter()
+ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
+plt.show()
 ########################################################################################
 # But what do these parameters correspond to? From the deconstructed orthogonal
 # polynomial above, we can see that :math:`\lambda_0` parameterises relative enrichement
@@ -138,8 +139,8 @@ ls_anomalies.iloc[:, -2:].pyroplot.scatter()
 #
 from pyrolite.util.lambdas.plot import plot_tetrads_profiles
 
-plot_tetrads_profiles(np.eye(4), color=np.arange(4))
-
+ax = plot_tetrads_profiles(np.eye(4), color=np.arange(4))
+plt.show()
 ########################################################################################
 # In order to also fit these function components, you can pass the keyword argument
 # :code:`fit_tetrads=True` to :func:`~pyrolite.pyrochem.lambda_lnREE` and releated
@@ -148,7 +149,7 @@ plot_tetrads_profiles(np.eye(4), color=np.arange(4))
 lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 ########################################################################################
 # We can see that the four extra :math:`\tau` Parameters have been appended to the
-# right of the lambdas withn the output:
+# right of the lambdas within the output:
 #
 lts.head(2)
 ########################################################################################
