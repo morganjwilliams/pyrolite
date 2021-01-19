@@ -93,20 +93,6 @@ for ix in range(ls.columns.size - 1):
 
 plt.tight_layout()
 ########################################################################################
-# Note that we've not used Eu in this regression - Eu anomalies are a deviation from
-# the 'smooth profile' we need to use this method. Consider this if your data might also
-# exhibit significant Ce anomalies, you might need to exclude this data. For convenience
-# there is also functionality to calculate anomalies derived from the orthogonal
-# polynomial fit itself (rather than linear interpolation methods). Below we use the
-# :code:`anomalies` keyword argument to also calculate the :math:`\frac{Ce}{Ce*}`
-# and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
-#
-ls_anomalies = df.pyrochem.lambda_lnREE(
-    degree=4, anomalies=["Ce", "Eu"], exclude=["Ce", "Eu"]
-)
-ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
-plt.show()
-########################################################################################
 # But what do these parameters correspond to? From the deconstructed orthogonal
 # polynomial above, we can see that :math:`\lambda_0` parameterises relative enrichement
 # (this is the mean value of the logarithm of Chondrite-normalised REE abundances),
@@ -125,6 +111,22 @@ plt.show()
 # but they do illustrate the expected mangitudes of values for each of the parameters.
 #
 
+########################################################################################
+# Dealing With Anomalies
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Note that we've not used Eu in this regression - Eu anomalies are a deviation from
+# the 'smooth profile' we need to use this method. Consider this if your data might also
+# exhibit significant Ce anomalies, you might need to exclude this data. For convenience
+# there is also functionality to calculate anomalies derived from the orthogonal
+# polynomial fit itself (rather than linear interpolation methods). Below we use the
+# :code:`anomalies` keyword argument to also calculate the :math:`\frac{Ce}{Ce*}`
+# and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
+#
+ls_anomalies = df.pyrochem.lambda_lnREE(
+    degree=4, anomalies=["Ce", "Eu"], exclude=["Ce", "Eu"]
+)
+ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
+plt.show()
 ########################################################################################
 # Fitting Tetrads
 # ~~~~~~~~~~~~~~~~
