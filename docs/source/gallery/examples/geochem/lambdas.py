@@ -122,9 +122,7 @@ plt.tight_layout()
 # :code:`anomalies` keyword argument to also calculate the :math:`\frac{Ce}{Ce*}`
 # and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
 #
-ls_anomalies = df.pyrochem.lambda_lnREE(
-    degree=4, anomalies=["Ce", "Eu"], exclude=["Ce", "Eu"]
-)
+ls_anomalies = df.pyrochem.lambda_lnREE(anomalies=["Ce", "Eu"])
 ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
 plt.show()
 ########################################################################################
