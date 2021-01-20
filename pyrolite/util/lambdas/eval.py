@@ -121,10 +121,7 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
 
 def get_function_components(
-    radii,
-    params=None,
-    fit_tetrads=False,
-    tetrad_params=None,
+    radii, params=None, fit_tetrads=False, tetrad_params=None, **kwargs
 ):
     assert params is not None
     degree = len(params)

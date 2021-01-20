@@ -7,7 +7,7 @@ from ..log import Handle
 from .params import orthogonal_polynomial_constants, _get_params
 from .oneill import lambdas_ONeill2016
 from .opt import lambdas_optimize
-from .plot import plot_lambdas_components, plot_tetrads_profiles
+from .plot import plot_lambdas_components, plot_profiles
 from .transform import REE_radii_to_z, REE_z_to_radii
 from .eval import get_function_components
 
@@ -23,6 +23,7 @@ def calc_lambdas(
     algorithm="ONeill",
     anomalies=[],
     fit_tetrads=False,
+    add_SE=False,
     **kwargs
 ):
     """
@@ -51,6 +52,8 @@ def calc_lambdas(
     fit_tetrads : :class:`bool`
         Whether to fit tetrad functions in addition to orthogonal polynomial functions.
         This will force the use of the optimization algorithm.
+    add_SE : :class:`bool`
+        Append parameter standard errors to the dataframe.
 
     Returns
     --------
@@ -72,9 +75,10 @@ def calc_lambdas(
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
     params = _get_params(params=params, degree=degree)
-    if fit_tetrads and "oneill" in algorithm.lower():
+    if (fit_tetrads or add_SE) and "oneill" in algorithm.lower():
         logger.warning(
-            "Can't use th O'Neill (2016) algorithm to fit tetrads, "
+            "Can't use th O'Neill (2016) algorithm to fit tetrads, and uncertainty"
+            "calcuations are not yet implemented for this method;"
             "falling back to the optimization based algorithm."
         )
         algorithm = "opt"
@@ -93,12 +97,21 @@ def calc_lambdas(
 
     if "oneill" in algorithm.lower():
         try:
-            ls = lambdas_ONeill2016(fit_df, radii=fit_radii, params=params, **kwargs)
+            ls = lambdas_ONeill2016(
+                fit_df, radii=fit_radii, params=params, add_SE=add_SE, **kwargs
+            )
         except np.linalg.LinAlgError:  # singular matrix, use optimize
-            ls = lambdas_optimize(fit_df, radii=fit_radii, params=params, **kwargs)
+            ls = lambdas_optimize(
+                fit_df, radii=fit_radii, params=params, add_SE=add_SE, **kwargs
+            )
     else:
         ls = lambdas_optimize(
-            fit_df, radii=fit_radii, params=params, fit_tetrads=fit_tetrads, **kwargs
+            fit_df,
+            radii=fit_radii,
+            params=params,
+            fit_tetrads=fit_tetrads,
+            add_SE=add_SE,
+            **kwargs
         )
     if anomalies:
         # radii here use all the REE columns in df, including those excluded
@@ -110,8 +123,11 @@ def calc_lambdas(
             **kwargs
         )
         # regression over all
+
+        if add_SE:
+            relevant_parameters = ls.columns[: ls.columns.size // 2]
         regression = pd.DataFrame(
-            ls.values @ np.array(func_components),
+            ls[relevant_parameters].values @ np.array(func_components),
             columns=ree,
             index=df.index,
         )

@@ -177,6 +177,18 @@ class TestCalcLambdas(unittest.TestCase):
                 )
                 self.assertTrue(ret.columns.size == self.default_degree + 4)
 
+    def test_opt_fit_method(self):
+        for fit_method in ["opt", "lin"]:
+            with self.subTest(fit_method=fit_method):
+                ret = calc_lambdas(
+                    self.df,
+                    algorithm="opt",
+                    degree=self.default_degree,
+                    fit_tetrads=True,
+                    fit_method=fit_method,
+                )
+                self.assertTrue(ret.columns.size == self.default_degree + 4)
+
     def test_params(self):
         # the first three all have the same result - defaulting to ONeill 2016
         # the two following use a full REE set for the OP basis function definition

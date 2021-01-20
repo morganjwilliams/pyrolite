@@ -7,6 +7,7 @@ import pandas as pd
 import scipy.optimize
 import scipy.linalg
 from ..meta import update_docstring_references
+from ..missing import md_pattern
 from ..log import Handle
 from .eval import get_function_components
 
@@ -88,11 +89,57 @@ def pcov_from_jac(jac):
     return pcov
 
 
-def fit_components(y, x0, func_components, residuals_function=_residuals_func):
+def linear_fit_components(y, x0, func_components):
+    """
+    Fit a weighted sum of function components using linear algebra.
+
+    Parameters
+    -----------
+    y : :class:`numpy.ndarray`
+        Array of target values to fit.
+    x0 : :class:`numpy.ndarray`
+        Starting guess for the function weights.
+    func_components : :class:`list` ( :class:`numpy.ndarray` )
+        List of arrays representing static/evaluated function components.
+
+    Returns
+    -------
+    B, se : :class:`numpy.ndarray`
+        Arrays for the optimized parameter values (B) and parameter
+        uncertaintes (se, 1σ).
+    """
+    X = np.array(func_components).T
+    Y = y.T
+    md_inds, patterns = md_pattern(y)
+    xd = len(func_components)
+    # for each missing data pattern, we create the matrix A - rather than each row
+    B = np.ones((y.shape[0], len(func_components))) * np.nan
+    se = np.ones((y.shape[0], len(func_components))) * np.nan
+    for ind in np.unique(md_inds):
+        row_fltr = md_inds == ind  # rows with this pattern
+        missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
+        if missing_fltr.sum():  # ignore completely empty row
+            yd = missing_fltr.sum()
+            _x, _y = X[missing_fltr, :], Y[np.ix_(missing_fltr, row_fltr)]
+            invXX = np.linalg.pinv(_x.T @ _x)
+            _B = (invXX @ _x.T @ _y).T
+            res = _y - _x @ _B.T  # residuals over all rows
+            mse = (res ** 2).sum(axis=0)  # mse per row
+            # F stats
+            # SSRB = B ** 2 / np.diag(invXX)
+            # F = SSRB / mse[:, None]
+            _se = np.sqrt(np.diag(invXX) * mse[:, None]) / (yd - xd)
+            # t stats
+            # t = B / stderr
+            B[row_fltr, :] = _B
+            se[row_fltr, :] = _se
+    return B, se
+
+
+def optimize_fit_components(y, x0, func_components, residuals_function=_residuals_func):
     """
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
-
     Parameters
     -----------
     y : :class:`numpy.ndarray`
@@ -104,7 +151,6 @@ def fit_components(y, x0, func_components, residuals_function=_residuals_func):
     redsiduals_function : callable
         Callable funciton to compute residuals which accepts ordered arguments for
         weights, target values and function components.
-
     Returns
     -------
     arr, uarr : :class:`numpy.ndarray`
@@ -126,7 +172,7 @@ def fit_components(y, x0, func_components, residuals_function=_residuals_func):
         arr[row, :] = res.x
         # get the covariance matrix of the parameters from the jacobian
         pcov = pcov_from_jac(res.jac)
-        yd, xd = y.shape[0], x0.size
+        yd, xd = y.shape[1], x0.size
         if yd > xd:  # check samples in y vs paramater dimension
             s_sq = res.cost / (yd - xd)
             pcov = pcov * s_sq
@@ -144,7 +190,9 @@ def lambdas_optimize(
     guess=None,
     fit_tetrads=False,
     tetrad_params=None,
-    residuals_function=_residuals_func,
+    fit_method="opt",
+    add_SE=False,
+    **kwargs
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -164,8 +212,10 @@ def lambdas_optimize(
         Whether to also fit the patterns for tetrads.
     tetrad_params : :class:`list`
         List of parameter sets for tetrad functions.
-    residuals_function : :class:`Callable`
-        Residuals function to use for optimization of lambdas.
+    fit_method : :class:`str`
+        Which fit method to use: :code:`"optimization"` or :code:`"linear"`.
+    add_SE : :class:`bool`
+        Append parameter standard errors to the dataframe.
 
     Returns
     --------
@@ -189,11 +239,19 @@ def lambdas_optimize(
     names, x0, func_components = get_function_components(
         radii, params=params, fit_tetrads=fit_tetrads, tetrad_params=tetrad_params
     )
-    arr, uarr = fit_components(df.pyrochem.REE.values, np.array(x0), func_components)
+    if fit_method.lower().startswith("opt"):
+        fit = optimize_fit_components
+    else:
+        fit = linear_fit_components
+
+    B, se = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
+
     lambdas = pd.DataFrame(
-        arr,
+        B,
         index=df.index,
         columns=names,
         dtype="float32",
     )
+    if add_SE:
+        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = se
     return lambdas
