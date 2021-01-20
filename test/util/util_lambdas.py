@@ -164,6 +164,27 @@ class TestCalcLambdas(unittest.TestCase):
                 ret = calc_lambdas(self.df, algorithm=alg, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
 
+    def test_anomalies(self):
+
+        anomalies = ["Eu", "Ce"]
+        for alg in ["ONeill", "opt"]:
+            for add_SE in [True, False]:
+                with self.subTest(alg=alg, add_SE=add_SE):
+                    ret = calc_lambdas(
+                        self.df,
+                        algorithm=alg,
+                        degree=self.default_degree,
+                        add_SE=add_SE,
+                        anomalies=anomalies,
+                    )
+                    self.assertTrue(
+                        ret.columns.size
+                        == (self.default_degree * [1, 2][add_SE] + len(anomalies))
+                    )
+                    self.assertTrue(
+                        all(["{}/{}*".format(a, a) in ret.columns for a in anomalies])
+                    )
+
     def test_tetrads(self):
         """
         Check that tetrads can be calculated using the optimization algorithm,
@@ -188,6 +209,20 @@ class TestCalcLambdas(unittest.TestCase):
                     fit_method=fit_method,
                 )
                 self.assertTrue(ret.columns.size == self.default_degree + 4)
+
+    def test_opt_addSE(self):
+        for fit_method in ["opt", "lin"]:
+            with self.subTest(fit_method=fit_method):
+                ret = calc_lambdas(
+                    self.df,
+                    algorithm="opt",
+                    degree=self.default_degree,
+                    fit_tetrads=True,
+                    fit_method=fit_method,
+                    add_SE=True,
+                )
+                # should have lambdas, tetrads and uncertainties for both
+                self.assertTrue(ret.columns.size == (self.default_degree + 4) * 2)
 
     def test_params(self):
         # the first three all have the same result - defaulting to ONeill 2016

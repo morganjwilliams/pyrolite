@@ -122,12 +122,11 @@ def calc_lambdas(
             fit_tetrads=fit_tetrads,
             **kwargs
         )
-        # regression over all
-
-        if add_SE:
-            relevant_parameters = ls.columns[: ls.columns.size // 2]
+        B_parameters = ls.columns
+        if add_SE: # half of these will be uncertainties
+            B_parameters = B_parameters[: B_parameters.size // 2]
         regression = pd.DataFrame(
-            ls[relevant_parameters].values @ np.array(func_components),
+            ls[B_parameters].values @ np.array(func_components),
             columns=ree,
             index=df.index,
         )

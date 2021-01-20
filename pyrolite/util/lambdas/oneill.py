@@ -42,7 +42,7 @@ def get_polynomial_matrix(radii, params=None):
 
 
 @update_docstring_references
-def lambdas_ONeill2016(df, radii, params=None, add_SE=False):
+def lambdas_ONeill2016(df, radii, params=None, add_SE=False, **kwargs):
     """
     Implementation of the original algorithm. [#ref_1]_
 
