@@ -42,7 +42,7 @@ def get_polynomial_matrix(radii, params=None):
 
 
 @update_docstring_references
-def lambdas_ONeill2016(df, radii, params=None):
+def lambdas_ONeill2016(df, radii, params=None, add_SE=False):
     """
     Implementation of the original algorithm. [#ref_1]_
 
@@ -54,6 +54,8 @@ def lambdas_ONeill2016(df, radii, params=None):
         Radii at which to evaluate the orthogonal polynomial.
     params : :class:`tuple`
         Tuple of constants for the orthogonal polynomial.
+    add_SE : :class:`bool`
+        Append parameter standard errors to the dataframe.
 
     Returns
     --------
