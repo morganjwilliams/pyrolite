@@ -140,6 +140,7 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
     """
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
+
     Parameters
     -----------
     y : :class:`numpy.ndarray`
@@ -151,11 +152,13 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
     redsiduals_function : callable
         Callable funciton to compute residuals which accepts ordered arguments for
         weights, target values and function components.
+
     Returns
     -------
     arr, uarr : :class:`numpy.ndarray`
         Arrays for the optimized parameter values (arr) and parameter
         uncertaintes (uarr, 1σ).
+    
     """
     m, n = y.shape[0], x0.size  # shape of output
     arr = np.ones((m, n)) * np.nan

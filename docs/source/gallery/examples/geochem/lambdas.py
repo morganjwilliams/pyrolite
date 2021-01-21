@@ -137,9 +137,20 @@ plt.show()
 # these function components. Note that these are functions of :math:`z`, and are here
 # transformed to plot against radii.
 #
-from pyrolite.util.lambdas.plot import plot_tetrads_profiles
+from pyrolite.util.lambdas.plot import plot_profiles
 
-ax = plot_tetrads_profiles(np.eye(4), color=np.arange(4))
+# let's first create some synthetic pattern parameters
+# we want lambdas to be zero, and each of the tetrads to be shown in only one pattern
+lambdas = np.zeros((5, 4))
+tetrads = np.eye(4)
+# putting it together to generate four sets of combined parameters
+fit_parameters = np.vstack([lambdas, tetrads]).T
+
+ax = plot_profiles(
+    fit_parameters,
+    tetrads=True,
+    color=np.arange(4),
+)
 plt.show()
 ########################################################################################
 # In order to also fit these function components, you can pass the keyword argument
