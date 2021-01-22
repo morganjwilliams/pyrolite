@@ -77,7 +77,7 @@ def calc_lambdas(
     params = _get_params(params=params, degree=degree)
     if (fit_tetrads or add_SE) and "oneill" in algorithm.lower():
         logger.warning(
-            "Can't use th O'Neill (2016) algorithm to fit tetrads, and uncertainty"
+            "Can't use the O'Neill (2016) algorithm to fit tetrads, and uncertainty "
             "calcuations are not yet implemented for this method;"
             "falling back to the optimization based algorithm."
         )

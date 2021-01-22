@@ -6,7 +6,7 @@ import numpy as np
 
 from ..log import Handle
 from .transform import REE_radii_to_z
-from .params import orthogonal_polynomial_constants
+from .params import orthogonal_polynomial_constants, _get_params, _get_tetrad_params
 
 logger = Handle(__name__)
 
@@ -58,8 +58,7 @@ def tetrad(x, centre, width):
 
 
 def get_tetrads_function(params=None):
-    if params is None:
-        params = ((58.75, 3.5), (62.25, 3.5), (65.75, 3.5), (69.25, 3.5))
+    params = _get_tetrad_params(params=params)
 
     def tetrads(x, sum=True):
         ts = np.array([tetrad(x, centre, width) for centre, width in params])
@@ -121,18 +120,19 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
 
 def get_function_components(
-    radii, params=None, fit_tetrads=False, tetrad_params=None, **kwargs
+    radii, params=None, fit_tetrads=False, tetrad_params=None, degree=5, **kwargs
 ):
-    assert params is not None
-    degree = len(params)
+    lambda_params = _get_params(params=params, degree=degree)
+    degree = len(lambda_params)
     names = [chr(955) + str(d) for d in range(degree)]
-    func_components = [lambda_poly(radii, pset) for pset in params]
+    func_components = [lambda_poly(radii, pset) for pset in lambda_params]
     x0 = list(np.exp(np.arange(degree) + 2) / 2)
     if fit_tetrads:
+        zs = REE_radii_to_z(radii)
         if tetrad_params is None:
             tetrad_params = [(c, 3.5) for c in [58.75, 62.25, 65.75, 69.25]]
         func_components += list(
-            get_tetrads_function(params=tetrad_params)(REE_radii_to_z(radii), sum=False)
+            get_tetrads_function(params=tetrad_params)(zs, sum=False)
         )
 
         names += [chr(964) + str(d) for d in range(4)]

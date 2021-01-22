@@ -318,6 +318,38 @@ def example_spider_data(
     return syn_df
 
 
+def example_patterns_from_parameters(
+    fit_parameters,
+    radii=None,
+    n=100,
+    proportional_noise=0.15,
+    includes_tetrads=False,
+    columns=None,
+):
+
+    """
+    """
+    fit_parameters = np.tile(fit_parameters, n).reshape(n, -1)
+    if radii is None:
+        radii = get_ionic_radii(REE(), coordination=8, charge=3)
+
+    names, _, components = get_function_components(radii, fit_tetrads=includes_tetrads)
+    pattern_df = pd.DataFrame(
+        np.exp(fit_parameters @ np.array(components)), columns=columns
+    )
+    # add some random correlated proportional noise
+    sz = len(radii)
+    cov = np.zeros((sz, sz))
+    for offset in np.arange(-sz + 1, sz):
+        vals = np.ones(sz - np.abs(offset)) * np.abs((sz - np.abs(offset))) / sz
+        cov += np.diag(vals ** 2, offset)
+    noise = 1 + proportional_noise * np.random.multivariate_normal(
+        np.zeros(sz), cov, size=pattern_df.shape[0]
+    )
+    pattern_df *= noise
+    return pattern_df
+
+
 _add_additional_parameters = True
 
 normal_frame.__doc__ = normal_frame.__doc__.format(

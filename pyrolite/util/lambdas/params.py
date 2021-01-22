@@ -94,6 +94,12 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
     return params
 
 
+def _get_tetrad_params(params=None):
+    if params is None:
+        params = ((58.75, 3.5), (62.25, 3.5), (65.75, 3.5), (69.25, 3.5))
+    return params
+
+
 def _get_params(params=None, degree=4):
     """
     Disambiguate parameter specification for orthogonal polynomials.
