@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from ..comp.codata import ILR, inverse_ILR
 from ..geochem.norm import get_reference_composition
+from ..geochem.ind import get_ionic_radii, REE
+from ..util.lambdas.eval import get_function_components
 from .meta import get_additional_params
 
 

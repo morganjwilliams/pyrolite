@@ -164,6 +164,98 @@ lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 #
 lts.head(2)
 ########################################################################################
+# Below we'll look at some of the potential issues of fitting lambdas and tetrads
+# together - by examining the effects of i) fitting tetrads where there are none
+# and ii) not fitting tetrads where they do indeed exist using some synthetic datasets.
+#
+from pyrolite.util.synthetic import example_patterns_from_parameters
+from pyrolite.geochem.ind import REE
+
+
+ls = np.array(
+    [
+        [2, 5, -30, 100, -600, 0, 0, 0, 0],  # lambda-only
+        [3, 15, 30, 300, 1500, 0, 0, 0, 0],  # lambda-only
+        [1, 5, -50, 0, -1000, -0.3, -0.7, -1.4, -0.2],  # W-pattern tetrad
+        [5, 15, 50, 400, 2000, 0.6, 1.1, 1.5, 0.3],  # M-pattern tetrad
+    ]
+)
+# now we use these parameters to generate some synthetic log-scaled normalised REE
+# patterns and add a bit of noise
+pattern_df = pd.DataFrame(
+    np.vstack([example_patterns_from_parameters(l, includes_tetrads=True) for l in ls]),
+    columns=REE(),
+)
+########################################################################################
+# We can now fit these patterns and see what the effect of fitting and not-Fitting
+# tetrads might look like in these (slightly extreme) cases:
+#
+fit_ls_only = pattern_df.pyrochem.lambda_lnREE(
+    norm_to=None, degree=5, fit_tetrads=False
+)
+fit_ts = pattern_df.pyrochem.lambda_lnREE(norm_to=None, degree=5, fit_tetrads=True)
+########################################################################################
+# We can now examine what the differences between the fits are. Below we plot the four
+# sets of synthetic REE patterns (lambda-only above and lamba+tetrad below) and examine
+# the relative accuracy of fitting some of the higher order lambda parameters where
+# tetrads are also fit:
+#
+from pyrolite.util.plot.axes import share_axes
+
+x, y = 2, 3
+categories = np.repeat(np.arange(ls.shape[0]), 100)
+colors = np.array([str(ix) * 2 for ix in categories])
+l_only = categories < 2
+
+ax = plt.figure(figsize=(12, 7)).subplot_mosaic(
+    """
+    AAABBCC
+    DDDEEFF
+    """
+)
+share_axes([ax["A"], ax["D"]])
+share_axes([ax["B"], ax["C"], ax["E"], ax["F"]])
+
+ax["B"].set_title("lambdas only Fit")
+ax["C"].set_title("lambdas+tetrads Fit")
+
+
+for a, fltr in zip(["A", "D"], [l_only, ~l_only]):
+    pattern_df.iloc[fltr, :].pyroplot.spider(
+        ax=ax[a],
+        label="True",
+        unity_line=True,
+        alpha=0.5,
+        color=colors[fltr],
+    )
+
+for a, fltr in zip(["B", "E"], [l_only, ~l_only]):
+    fit_ls_only.iloc[fltr, [x, y]].pyroplot.scatter(
+        ax=ax[a],
+        alpha=0.2,
+        color=colors[fltr],
+    )
+
+for a, fltr in zip(["C", "F"], [l_only, ~l_only]):
+    fit_ts.iloc[fltr, [x, y]].pyroplot.scatter(
+        ax=ax[a],
+        alpha=0.2,
+        color=colors[fltr],
+    )
+
+
+true = pd.DataFrame(ls[:, [x, y]], columns=[fit_ls_only.columns[ix] for ix in [x, y]])
+for ix, a in enumerate(["B", "C", "E", "F"]):
+    true.iloc[np.array([ix < 2, ix < 2, ix >= 2, ix >= 2]), :].pyroplot.scatter(
+        ax=ax[a],
+        color=np.array([str(ix) * 2 for ix in np.arange(ls.shape[0 ]// 2)]),
+        marker="X",
+        s=100,
+    )
+
+plt.tight_layout()
+plt.show()
+########################################################################################
 # More Advanced Customisation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Above we've used default parameterisations for calculating `lambdas`, but
