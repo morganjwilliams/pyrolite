@@ -186,10 +186,8 @@ pattern_df = pd.DataFrame(
     np.vstack([example_patterns_from_parameters(l, includes_tetrads=True) for l in ls]),
     columns=REE(),
 )
-########################################################################################
 # We can now fit these patterns and see what the effect of fitting and not-Fitting
 # tetrads might look like in these (slightly extreme) cases:
-#
 fit_ls_only = pattern_df.pyrochem.lambda_lnREE(
     norm_to=None, degree=5, fit_tetrads=False
 )
