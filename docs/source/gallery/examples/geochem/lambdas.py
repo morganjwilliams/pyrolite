@@ -94,9 +94,9 @@ for ix in range(ls.columns.size - 1):
 plt.tight_layout()
 ########################################################################################
 # But what do these parameters correspond to? From the deconstructed orthogonal
-# polynomial above, we can see that :math:`\lambda_0` parameterises relative enrichement
+# polynomial above, we can see that :math:`\lambda_0` parameterises relative enrichment
 # (this is the mean value of the logarithm of Chondrite-normalised REE abundances),
-# :math:`\lambda_1` parameterises a linear slope (here, LREE enrichemnt), and higher
+# :math:`\lambda_1` parameterises a linear slope (here, LREE enrichment), and higher
 # order terms describe curvature of the REE pattern. Through this parameterisation,
 # the REE profile can be effectively described and directly linked to geochemical
 # processes. While the amount of data we need to describe the patterns is lessened,
@@ -107,7 +107,7 @@ plt.tight_layout()
 # where you're trying to compare REE profiles.
 #
 # We've used a synthetic dataset here which is by design approximately normally
-# distrtibuted, so the values themeselves here are not particularly revealing,
+# distributed, so the values themeselves here are not particularly revealing,
 # but they do illustrate the expected mangitudes of values for each of the parameters.
 #
 
@@ -141,10 +141,10 @@ from pyrolite.util.lambdas.plot import plot_profiles
 
 # let's first create some synthetic pattern parameters
 # we want lambdas to be zero, and each of the tetrads to be shown in only one pattern
-lambdas = np.zeros((5, 4))
+lambdas = np.zeros((4, 5))
 tetrads = np.eye(4)
 # putting it together to generate four sets of combined parameters
-fit_parameters = np.vstack([lambdas, tetrads]).T
+fit_parameters = np.hstack([lambdas, tetrads])
 
 ax = plot_profiles(
     fit_parameters,
@@ -227,6 +227,10 @@ ls_original = df.pyrochem.lambda_lnREE(params="ONeill2016")
 # this uses a full set of REE
 ls_fullREE_polynomials = df.pyrochem.lambda_lnREE(params="full")
 ########################################################################################
+# Note that as of :mod:`pyrolite` v0.2.8, the oringinal formulation is used by default,
+# but this will cease to be the case as of the following version, where the full set of
+# REE will instead be used to generate the orthogonal polynomials.
+#
 # While the results are simlar, there are small differences. They're typically less
 # than 1%:
 np.abs((ls_original / ls_fullREE_polynomials) - 1).max() * 100
