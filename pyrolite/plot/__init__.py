@@ -443,9 +443,10 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
+        kw = process_color(size=size, **kwargs)
         sc = ax.scatter(
             *obj.reindex(columns=components).values.T,
-            **scatterkwargs(process_color(size=size, **kwargs)),
+            **scatterkwargs(kw),
         )
 
         if axlabels:

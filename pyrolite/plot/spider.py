@@ -43,7 +43,6 @@ def spider(
     yextent=None,
     mode="plot",
     unity_line=False,
-    cmap=DEFAULT_CONT_COLORMAP,
     scatter_kw={},
     line_kw={},
     set_ticks=True,
@@ -73,8 +72,6 @@ def spider(
         a filled range. Density will return a conditional density diagram.
     unity_line : :class:`bool`
         Add a line at y=1 for reference.
-    cmap : :class:`matplotlib.colors.Colormap`
-        Colormap for mapping point and line colors.
     scatter_kw : :class:`dict`
         Keyword parameters to be passed to the scatter plotting function.
     line_kw : :class:`dict`
@@ -150,7 +147,7 @@ def spider(
         l_kw, s_kw = {**line_kw}, {**scatter_kw}
         ################################################################################
         if line_kw.get("cmap") is None:
-            l_kw["cmap"] = cmap
+            l_kw["cmap"] = kwargs.get("cmap", None)
 
         l_kw = {**kwargs, **l_kw}
 
@@ -179,7 +176,7 @@ def spider(
         ################################################################################
         # load defaults and any specified parameters in scatter_kw / line_kw
         if s_kw.get("cmap") is None:
-            s_kw["cmap"] = cmap
+            s_kw["cmap"] = kwargs.get("cmap", None)
 
         _sctr_cfg = {**_scatter_defaults, **kwargs, **s_kw}
         s_kw = process_color(**_sctr_cfg)
@@ -221,6 +218,7 @@ def spider(
 
         # could modify legend here.
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
+        cmap = kwargs.get("cmap", None)
         if "contours" in kwargs and "vmin" in kwargs:
             msg = "Combining `contours` and `vmin` arugments for density plots should be avoided."
             logger.warn(msg)
