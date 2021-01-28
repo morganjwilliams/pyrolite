@@ -19,6 +19,7 @@ import matplotlib.patches
 import matplotlib.lines
 from .plot.style import patchkwargs
 from .plot.axes import init_axes
+from .plot.helpers import get_centroid
 from .meta import (
     pyrolite_datafolder,
     subkwargs,
@@ -29,35 +30,6 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 logger = logging.getLogger(__name__)
-
-
-def get_centroid(poly):
-    """
-    Centroid of a closed polygon using the Shoelace formula.
-
-    Parameters
-    ----------
-    poly : :class:`matplotlib.patches.Polygon`
-        Polygon to obtain the centroid of.
-
-    Returns
-    -------
-    cx, cy : :class:`tuple`
-        Centroid coordinates.
-    """
-    # get signed area
-    verts = poly.get_xy()
-    A = 0
-    cx, cy = 0, 0
-    x, y = verts.T
-    for i in range(len(verts) - 1):
-        A += x[i] * y[i + 1] - x[i + 1] * y[i]
-        cx += (x[i] + x[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
-        cy += (y[i] + y[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
-    A /= 2
-    cx /= 6 * A
-    cy /= 6 * A
-    return cx, cy
 
 
 class PolygonClassifier(object):
@@ -82,7 +54,13 @@ class PolygonClassifier(object):
     """
 
     def __init__(
-        self, name=None, axes=None, fields=None, scale=1.0, xlim=None, ylim=None,
+        self,
+        name=None,
+        axes=None,
+        fields=None,
+        scale=1.0,
+        xlim=None,
+        ylim=None,
     ):
         self.default_scale = scale
         self._scale = self.default_scale

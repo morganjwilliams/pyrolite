@@ -50,6 +50,35 @@ def alphalabel_subplots(ax, fmt="{}", xy=(0.03, 0.95), ha="left", va="top", **kw
     ]
 
 
+def get_centroid(poly):
+    """
+    Centroid of a closed polygon using the Shoelace formula.
+
+    Parameters
+    ----------
+    poly : :class:`matplotlib.patches.Polygon`
+        Polygon to obtain the centroid of.
+
+    Returns
+    -------
+    cx, cy : :class:`tuple`
+        Centroid coordinates.
+    """
+    # get signed area
+    verts = poly.get_xy()
+    A = 0
+    cx, cy = 0, 0
+    x, y = verts.T
+    for i in range(len(verts) - 1):
+        A += x[i] * y[i + 1] - x[i + 1] * y[i]
+        cx += (x[i] + x[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+        cy += (y[i] + y[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+    A /= 2
+    cx /= 6 * A
+    cy /= 6 * A
+    return cx, cy
+
+
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
     """
     Takes an xy point, and creates a rectangular patch centred about it.
