@@ -514,13 +514,14 @@ class pyroplot(object):
         if index_order is not None:
             if isinstance(index_order, str):
                 try:
-                    index_order = geochem.ordering[index_order]
+                    index_order = geochem.ind.ordering[index_order]
                 except KeyError:
                     msg = (
                         "Ordering not applied, as parameter '{}' not recognized."
                         " Select from: {}"
-                    ).format(index_order, ", ".join(list(geochem.ordering.keys())))
-                    logging.warning(msg)
+                    ).format(index_order, ", ".join(list(geochem.ind.ordering.keys())))
+                    logger.warning(msg)
+                components = index_order(components)
             else:
                 components = index_order(components)
 
