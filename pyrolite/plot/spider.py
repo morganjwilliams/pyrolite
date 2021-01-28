@@ -154,8 +154,7 @@ def spider(
         # if a line color hasn't been specified, perhaps we can use the scatter 'c'
         if l_kw.get("color") is None:
             if l_kw.get("c") is not None:
-                if isinstance(kwargs.get("c"), (str, tuple)):
-                    l_kw["color"] = kwargs.get("c")
+                l_kw["color"] = kwargs.get("c")
         if "c" in l_kw:
             l_kw.pop("c")  # remove c if it's been specified globally
         # if a color option is not specified, get the next cycled color

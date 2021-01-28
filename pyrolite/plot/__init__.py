@@ -512,7 +512,17 @@ class pyroplot(object):
         assert len(components) != 0
 
         if index_order is not None:
-            components = index_order(components)
+            if isinstance(index_order, str):
+                try:
+                    index_order = geochem.ordering[index_order]
+                except KeyError:
+                    msg = (
+                        "Ordering not applied, as parameter '{}' not recognized."
+                        " Select from: {}"
+                    ).format(index_order, ", ".join(list(geochem.ordering.keys())))
+                    logging.warning(msg)
+            else:
+                components = index_order(components)
 
         ax = init_axes(ax=ax, **kwargs)
 
