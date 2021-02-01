@@ -18,11 +18,15 @@ import warnings
 warnings.filterwarnings("ignore", "Unknown section")
 
 from ..util.plot.axes import init_axes, label_axes
-from ..util.plot.style import linekwargs, scatterkwargs
+from ..util.plot.style import (
+    linekwargs,
+    scatterkwargs,
+    _export_mplstyle,
+    _export_nonRCstyles,
+)
 from ..util.plot.helpers import plot_cooccurence
-from ..util.general import copy_file
 from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs, pyrolite_datafolder
+from ..util.meta import get_additional_params, subkwargs
 from .. import geochem
 from . import density
 from . import spider
@@ -35,64 +39,6 @@ from ..util.distributions import sample_kde, get_scaler
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]
-
-
-def _export_mplstyle(
-    src=pyrolite_datafolder("_config") / "pyrolite.mplstyle", refresh=False
-):
-    """
-    Export a matplotlib style file to the matplotlib style library such that one can
-    use e.g. `matplotlib.style.use("pyrolite")`.
-
-    Parameters
-    -----------
-    src : :class:`str` | :class:`pathlib.Path`
-        File path for the style file to be exported.
-    refresh : :class:`bool`
-        Whether to re-export a style file (e.g. after updating) even if it
-        already exists in the matplotlib style libary.
-    """
-    src_fn = Path(src)
-    dest_dir = Path(matplotlib.get_configdir()) / "stylelib"
-    dest_fn = dest_dir / src.name
-    if (not dest_fn.exists()) or refresh:
-        logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
-        if not dest_dir.exists():
-            dest_dir.mkdir(parents=True)
-        copy_file(src_fn, dest_dir)  # copy to the destination DIR
-        logger.debug("Reloading matplotlib")
-    matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
-
-
-def _restyle(f, **_style):
-    """
-    A decorator to set the default keyword arguments for :mod:`matplotlib`
-    functions and classes which are not contained in the `matplotlibrc` file.
-    """
-
-    def wrapped(*args, **kwargs):
-        return f(*args, **{**_style, **kwargs})
-
-    wrapped.__name__ = f.__name__
-    wrapped.__doc__ = f.__doc__
-    return wrapped
-
-
-def _export_nonRCstyles():
-    """
-    Export default options for parameters not in rcParams using :func:`_restyle`.
-    """
-    matplotlib.axes.Axes.legend = _restyle(
-        matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
-    )
-    matplotlib.figure.Figure.legend = _restyle(
-        matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
-    )
-
-
-_export_mplstyle()
-_export_nonRCstyles()
-matplotlib.style.use("pyrolite")
 
 
 def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
