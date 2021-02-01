@@ -244,7 +244,7 @@ def spider(
         else:
             zi[zi < vmin] = np.nan
             ax.pcolormesh(
-                xe, ye, zi, cmap=cmap, vmin=vmin, *subkwargs(kwargs, ax.pcolormesh)
+                xe, ye, zi, cmap=cmap, vmin=vmin, **subkwargs(kwargs, ax.pcolormesh)
             )
     else:
         raise NotImplementedError(
