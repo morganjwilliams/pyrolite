@@ -383,7 +383,7 @@ def by_number(els, reverse=False):
     :class:`list`
         Reordered list of elements.
     """
-    ordered = np.array(els)[np.argsort([getattr(pt, el).number for el in elements])]
+    ordered = np.array(els)[np.argsort([getattr(pt, el).number for el in els])]
     if reverse:
         ordered = ordered[::-1]
     return list(ordered)
@@ -517,7 +517,7 @@ def get_ionic_radii(
         return result  # return the series
 
 
-ordering = {"incompatibility": by_incompatibility, 'number': by_number}
+ordering = {"incompatibility": by_incompatibility, "number": by_number}
 
 # update doi links for radii
 
