@@ -41,15 +41,29 @@ plt.show()
 # The default ordering here follows that of the dataframe columns, but we typically
 # want to reorder these based on some physical ordering. A :code:`index_order` keyword
 # argument can be used to supply a function which will reorder the elements before
-# plotting. Here we order the elements by relative incompatiblity using
-# :func:`pyrolite.geochem.ind.order_incompatibility`:
+# plotting. Here we order the elements by relative incompatiblity (using
+# :func:`pyrolite.geochem.ind.by_incompatibility` behind the scenes):
 from pyrolite.geochem.ind import by_incompatibility
 
 ax = normdf.pyroplot.spider(
     color="k",
     alpha=0.1,
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order="incompatiblity",
+    figsize=(10, 4),
+)
+ax.set_ylabel("X / $X_{Primitive Mantle}$")
+plt.show()
+########################################################################################
+# Similarly, you can also rearrange elemnts to be in order of atomic number:
+#
+from pyrolite.geochem.ind import by_number
+
+ax = normdf.pyroplot.spider(
+    color="k",
+    alpha=0.1,
+    unity_line=True,
+    index_order="number",
     figsize=(10, 4),
 )
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
@@ -62,33 +76,33 @@ plt.show()
 # and even map categorical values to specific colors where useful:
 #
 fig, ax = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 8))
-ax[0].set_title('Continuous Values')
+ax[0].set_title("Continuous Values")
 normdf.pyroplot.spider(
     ax=ax[0],
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order='incompatiblity',
     cmap="plasma",
     alpha=0.1,
-    color=np.log(normdf["Li"])  # a range of continous values
+    color=np.log(normdf["Li"]),  # a range of continous values
 )
-ax[1].set_title('Boolean/Categorical Values')
+ax[1].set_title("Boolean/Categorical Values")
 normdf.pyroplot.spider(
     ax=ax[1],
     alpha=0.1,
     unity_line=True,
-    index_order=by_incompatibility,
-    color=normdf["Cs"] > 3.5  # a boolean/categorical set of values
+    index_order='incompatiblity',
+    color=normdf["Cs"] > 3.5,  # a boolean/categorical set of values
 )
-ax[2].set_title('Boolean/Categorical Values with Color Mapping')
+ax[2].set_title("Boolean/Categorical Values with Color Mapping")
 normdf.pyroplot.spider(
     ax=ax[2],
     alpha=0.1,
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order='incompatiblity',
     color=normdf["Cs"] > 3.5,  # a boolean/categorical set of values
     color_mappings={  # mapping the boolean values to specific colors
         "color": {True: "green", False: "purple"}
-    }
+    },
 )
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
@@ -105,7 +119,7 @@ ax.set_title("Split Configuration")
 normdf.pyroplot.spider(
     ax=ax,
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order='incompatiblity',
     scatter_kw=dict(cmap="magma_r", color=np.log(normdf["Li"])),
     line_kw=dict(
         color=normdf["Cs"] > 5,
@@ -127,7 +141,7 @@ ax = normdf.pyroplot.spider(
     color="green",
     alpha=0.5,
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order='incompatiblity',
     figsize=(10, 4),
 )
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
@@ -148,7 +162,7 @@ normdf.pyroplot.spider(
     vmin=0.05,  # 95th percentile,
     resolution=10,
     unity_line=True,
-    index_order=by_incompatibility,
+    index_order='incompatiblity',
 )
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
@@ -191,7 +205,7 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
         vmin=0.05,  # minimum percentile
         fontsize=8,
         unity_line=True,
-        index_order=by_incompatibility,
+        index_order='incompatiblity',
         *args,
         **kwargs
     )
