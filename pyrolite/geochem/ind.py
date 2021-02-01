@@ -367,6 +367,28 @@ def by_incompatibility(els, reverse=False):
         return [i for i in incomp if i in els]
 
 
+def by_number(els, reverse=False):
+    """
+    Order a list of elements by their atomic number.
+
+    Parameters
+    ------------
+    els : :class:`list`
+        List of element names to be reodered.
+    reverse : :class:`bool`
+        Whether to reverse the ordering.
+
+    Returns
+    ---------
+    :class:`list`
+        Reordered list of elements.
+    """
+    ordered = np.array(els)[np.argsort([getattr(pt, el).number for el in elements])]
+    if reverse:
+        ordered = ordered[::-1]
+    return list(ordered)
+
+
 # RADII ################################################################################
 @update_docstring_references
 def get_ionic_radii(
