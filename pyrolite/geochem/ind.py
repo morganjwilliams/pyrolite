@@ -517,7 +517,7 @@ def get_ionic_radii(
         return result  # return the series
 
 
-ordering = {"incompatibility": by_incompatibility}
+ordering = {"incompatibility": by_incompatibility, 'number': by_number}
 
 # update doi links for radii
 
