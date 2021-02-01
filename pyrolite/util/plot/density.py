@@ -118,7 +118,8 @@ def plot_Z_percentiles(
     fontsize=8,
     cmap=None,
     colors=None,
-    linestyles="-",
+    linewidths=None,
+    linestyles=None,
     contour_labels=None,
     label_contours=True,
     **kwargs
@@ -145,8 +146,10 @@ def plot_Z_percentiles(
         Color map for the contours and contour labels.
     colors : :class:`str` | :class:`list`
         Colors for the contours, can optionally be specified *in place of* `cmap.`
+    linewidths : :class:`str` | :class:`list`
+        Widths of contour lines.
     linestyles : :class:`str` | :class:`list`
-        Style of the contour lines.
+        Styles for contour lines.
     contour_labels : :class:`dict`
         Labels to assign to contours, organised by level.
     label_contours :class:`bool`
@@ -173,7 +176,7 @@ def plot_Z_percentiles(
         # if len(coords) == 2:  # currently won't work for ternary
         extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
 
-    clabels, contours = percentile_contour_values_from_meshz(
+    clabels, contour_values = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
 
@@ -181,14 +184,28 @@ def plot_Z_percentiles(
     if colors is not None:  # colors are explicitly specified
         cmap = None
 
+    # contours will need to increase for matplotlib, so we check the ordering here.
+    ordering = np.argsort(contour_values)
+    # sort out multi-object properties - reorder to fit the increasing order requirement
+    cntr_config = {}
+    for p, v in [
+        ("colors", colors),
+        ("linestyles", linestyles),
+        ("linewidths", linewidths),
+    ]:
+        if v is not None:
+            if isinstance(v, (list, tuple)):
+                # reorder the list
+                cntr_config[p] = [v[ix] for ix in ordering]
+            else:
+                cntr_config[p] = v
+
     cs = contour(
         *coords,
         zi,
-        levels=contours,
+        levels=contour_values[ordering], # must increase
         cmap=cmap,
-        colors=colors,
-        linestyles=linestyles,
-        **kwargs
+        **{**cntr_config, **kwargs}
     )
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8

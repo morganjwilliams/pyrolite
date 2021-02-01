@@ -119,7 +119,7 @@ def density(
     if cmap is not None:
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
-        cmap = copy.copy(cmap) # without this, it would modify the global cmap
+        cmap = copy.copy(cmap)  # without this, it would modify the global cmap
         cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":
