@@ -64,7 +64,8 @@ def percentile_contour_values_from_meshz(
 ):
     """
     Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
-    correspond to specified percentile contours.T
+    correspond to specified percentile contours. Contour values will be returned
+    with the same order as the inputs.
 
     Parameters
     ----------
@@ -89,7 +90,6 @@ def percentile_contour_values_from_meshz(
     be updated to cater for arrays - where some of the values may be above
     the minimum.
     """
-    percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
     t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
