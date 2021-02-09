@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
+from ...geochem.norm import get_reference_composition
 from .components import Linear2D, LogLinear2D, GeometryCollection, Point
 
 
@@ -47,10 +48,13 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
             [ax_ylim, ylim][np.allclose(ax_ylim, defaults)],
         )
 
+    CH = get_reference_composition("Chondrite_SM89")
+    CH_ThNb = CH['Th'] / CH['Nb']
+    
     geom = GeometryCollection(
         Linear2D(slope=12.5, name="Upper Crustal Limit"),
-        Linear2D(slope=0.1, name="Upper MORB-OIB Array"),
-        Linear2D(slope=0.1 / 3, name="Lower MORB-OIB Array"),
+        Linear2D(slope=CH_ThNb, name="Upper MORB-OIB Array"),
+        Linear2D(slope=CH_ThNb / 3, name="Lower MORB-OIB Array"),
     )
     xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
     geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
