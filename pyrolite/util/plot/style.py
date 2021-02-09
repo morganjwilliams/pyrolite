@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.colors
 import matplotlib.lines
 import matplotlib.axes
 import matplotlib.collections
@@ -183,7 +184,9 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     return itertools.cycle(markers)
 
 
-def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
+def mappable_from_values(
+    values, cmap=DEFAULT_CONT_COLORMAP, norm=matplotlib.colors.Normalize, **kwargs
+):
     """
     Create a scalar mappable object from an array of values.
 
@@ -191,6 +194,6 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, **kwargs):
     -------
     :class:`matplotlib.cm.ScalarMappable`
     """
-    sm = plt.cm.ScalarMappable(cmap=cmap)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array(values[np.isfinite(values)])
     return sm
