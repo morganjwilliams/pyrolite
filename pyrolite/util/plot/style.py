@@ -185,7 +185,7 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
 
 
 def mappable_from_values(
-    values, cmap=DEFAULT_CONT_COLORMAP, norm=matplotlib.colors.Normalize, **kwargs
+    values, cmap=DEFAULT_CONT_COLORMAP, norm=matplotlib.colors.Normalize(), **kwargs
 ):
     """
     Create a scalar mappable object from an array of values.
