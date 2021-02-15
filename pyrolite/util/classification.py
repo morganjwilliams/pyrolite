@@ -242,7 +242,8 @@ class TAS(PolygonClassifier):
             config = json.load(f)
         kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
         kw.update(kwargs)
-        super().__init__(**config, **kw)
+        poly_config = {**config, **kw}
+        super().__init__(**poly_config)
 
     def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
         """
