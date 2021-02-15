@@ -10,6 +10,7 @@ DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 """
 import itertools
 from pathlib import Path
+import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -184,9 +185,7 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     return itertools.cycle(markers)
 
 
-def mappable_from_values(
-    values, cmap=DEFAULT_CONT_COLORMAP, norm=matplotlib.colors.Normalize(), **kwargs
-):
+def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, norm=None, **kwargs):
     """
     Create a scalar mappable object from an array of values.
 
@@ -194,6 +193,8 @@ def mappable_from_values(
     -------
     :class:`matplotlib.cm.ScalarMappable`
     """
+    if isinstance(values, pd.Series):
+        values = values.values
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array(values[np.isfinite(values)])
     return sm
