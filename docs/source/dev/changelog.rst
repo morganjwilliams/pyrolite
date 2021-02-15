@@ -971,7 +971,8 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~
 
 * Expanded :mod:`pyrolite.comp.impute` and improved :func:`pyrolite.comp.impute.EMCOMP`
-* Added `EMCOMP example <../examples/comp/EMCOMP.html>`__
+* Added EMCOMP example (later removed in 0.2.5, pending validation and improvements for
+  EMCOMP).
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
