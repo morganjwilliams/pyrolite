@@ -233,10 +233,11 @@ def process_color(
                 C = cmap(_C)
             else:
                 unique_vals = np.array(list(cmapper.values()))
-                _C = np.empty_like(C, dtype=unique_vals.dtype)
+                _C = np.ones((len(C), 4), dtype=np.float)
                 for cat in uniqueC:
-                    _C[C == cat] = cmapper.get(cat)  # get the mapping frome the dict
-                C = np.array([matplotlib.colors.to_rgba(ic) for ic in _C])
+                    val = matplotlib.colors.to_rgba(cmapper.get(cat))
+                    _C[C == cat] = val  # get the mapping frome the dict
+                C = _C
         else:
             pass
         if alpha is not None:
