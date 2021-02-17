@@ -18,6 +18,7 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* **New Contributor**: Lucy Mathieson
 * Continuous Integration has been migrated from Travis to GitHub Actions.
 * Added an :code:`environment.yml` file for development environment consistency.
 * Removed some tests dependent on :mod:`xlrd` due to external issues with reading
@@ -37,28 +38,45 @@ Todo
   `extra example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#split-configuration>`__
   has been added to the docs to illustrate the use of these parameters.
   Thanks go to Lucy Mathieson for raising this one!
+* Added the :code:`set_ticks` keyword argument to :func:`~pyrolite.plot.pyroplot.spider`
+  and associated functions, allowing ticks to be optionally set
+  (:code:`set_ticks=False` if you don't want to set the x-ticks).
 * Updated :func:`pyrolite.plot.color.process_color` to better handle colour mapping and
   added `examples illustrating this <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#color-mapping>`__.
+  You can also now use RGBA colours when using the :code:`color_mappings` keyword
+  argument.
 * Updated automated pyrolite :mod:`matplotlib` style export to be more reliable.
 * Changed the default shading for :func:`~pyrolite.plot.pyroplot.density` to suppress
   error about upcoming :mod:`matplotlib` depreciation.
+* Ordering for contours, contour names and contour styles is now preserved for
+  :func:`~pyrolite.plot.density.density` and related functions.
+* Updated :mod:`pyrolite.plot.templates.pearce` to use ratios from
+  Sun & McDonough (1989), as in the Pearce (2008) paper.
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Bugfix**: Fixed a bug where Eu was unnecessarily excluded from the
   :func:`~pyrolite.geochem.pyrochem.lambda_lnREE` fit in all cases.
+* Added a local variable to :mod:`pyrolite.geochem.ind` to allow referencing of
+  indexing functions (e.g. :func:`~pyrolite.geochem.ind.by_incompatibility`) by
+  name, allowing easier integration with :func:`~pyrolite.plot.pyroplot.spider`.
+* Added :func:`~pyrolite.geochem.ind.by_number` for indexing a set of elements by
+  atomic number.
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * Updated the docstring for :func:`pyrolite.comp.impute.EMCOMP`.
 * Minor updates for :mod:`pyrolite.comp.codata` labelling, and reflected changes in
-  :mod:`pyrolite.util.skl.transform`.
+  :mod:`pyrolite.util.skl.transform`. Issues were identified where the column name 'S'
+  appears, and a workaround has been put in place for now.
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* Expanded :mod:`pyrolite.util.lambdas` to allow fitting of tetrad functions, anomalies
+  and estimation of parameter uncertainties.
 * Added :mod:`pyrolite.util.resampling` for weighted spatiotemporal bootstrap resampling
   and estimation, together with added a number of updates to
   :mod:`pyrolite.util.spatial` to provide required spatial-similarity functionality.
@@ -69,6 +87,19 @@ Todo
   labelling of subplots (e.g. for a manuscript figure).
 * Fixed an low-precision integer rollover issue in a combinatorial calculation
   for :mod:`pyrolite.util.missing` by increasing precision to 64-bit integers.
+* Added :func:`~pyrolite.util.synthetic.example_patterns_from_parameters` to work with
+  :mod:`pyrolite.util.lambdas` and generate synthetic REE patterns based on
+  lambda and/or tetrad-parameterised curves.
+* Moved :func:`get_centroid` from :mod:`pyrolite.util.classification` to
+  :mod:`pyrolite.util.plot.helpers`
+* :func:`~pyrolite.util.plot.style.mappable_from_values` will not accept a :code:`norm`
+  keyword argument, allowing use of colormap normalisers like
+  :class:`matplotlib.colors.Normalize`. This function was also updated to better handle
+  :class:`~pandas.Series` objects.
+* Fixed a small bug for :class:`~pyrolite.util.classification.TAS` instantiation which
+  didn't allow passing the variables to be used from a :class:`pandas.DataFrame`.
+  If you have different variable names, you can now pass them as a list with the
+  :code:`axes` keyword argument (e.g. :code:`TAS(axes=['sio2', 'alkali'])`).
 
 `0.2.8`_
 --------------
