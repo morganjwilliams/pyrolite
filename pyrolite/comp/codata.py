@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 __TRANSFORMS__ = {}
 
+__sympy_protected_variables__ = {"S": "Ss"}
+
 
 def close(X: np.ndarray, sumf=np.sum):
     """
@@ -401,9 +403,23 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
     -------
     :class:`list`
         List of ALR coordinates corresponding to dataframe columns.
+
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
 
-    names = [r"{} / {}".format(c, df.columns[ind]) for c in df.columns]
+    names = [
+        r"{} / {}".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+            df.columns[ind],
+        )
+        for c in df.columns
+    ]
 
     if mode.lower() == "latex":
         # edited to avoid issues with clashes between element names and latex (e.g. Ge)
@@ -439,9 +455,23 @@ def get_CLR_labels(df, mode="simple", **kwargs):
     -------
     :class:`list`
         List of CLR coordinates corresponding to dataframe columns.
+
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
+
+    names = [
+        r"{} / γ".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+        )
+        for c in df.columns
+    ]
     D = df.columns.size
-    names = [r"{} / γ".format(c) for c in df.columns]
 
     if mode.lower() == "latex":
         # edited to avoid issues with clashes between element names and latex (e.g. Ge)
@@ -477,6 +507,12 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     -------
     :class:`list`
         List of ILR coordinates corresponding to dataframe columns.
+
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
     D = df.columns.size
     # encode symbolic variables
@@ -490,7 +526,14 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     )
     expr = expr.applyfunc(_aggregate_sympy_constants)
     # sub in Phi (the CLR normalisation variable)
-    names = [r"{} / γ".format(c) for c in df.columns]
+    names = [
+        r"{} / γ".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+        )
+        for c in df.columns
+    ]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
     # format latex labels
     if mode.lower() == "latex":
