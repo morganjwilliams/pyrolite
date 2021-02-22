@@ -78,7 +78,7 @@ def density(
         Colormap for mapping surfaces.
     vmin : :class:`float`, 0.
         Minimum value for colormap.
-    shading : :class:`str`, 'flat'
+    shading : :class:`str`, 'auto'
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
@@ -212,6 +212,8 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
+            if shading == 'auto':
+                shading = 'flat' # auto cant' be passed to tripcolor
             # zeros make nans in this case, due to the heatmap calculations
             arr[~(arr > 0).all(axis=1), :] = np.nan
             arr = close(arr)
