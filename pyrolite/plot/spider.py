@@ -163,7 +163,7 @@ def spider(
             l_kw["color"] = np.array([next(ax._get_lines.prop_cycler)["color"]])
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
-        # marker explictly dealth with by scatter
+        # marker explictly dealt with by scatter
         for k in ["marker", "markers"]:
             l_kw.pop(k, None)
         # Construct and Add LineCollection?
