@@ -20,7 +20,8 @@ df = normal_frame(
         "Ti",
         "La",
         "Lu",
-        "Y" "Mg/Fe",
+        "Y",
+        "Mg/Fe",
         "87Sr/86Sr",
         "Ar40/Ar36",
     ]
