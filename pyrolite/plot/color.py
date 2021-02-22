@@ -215,7 +215,7 @@ def process_color(
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
             norm = norm or plt.Normalize(
-                vmin=np.nanmin(np.array(c)), vmax=np.nanmax(np.array(c))
+                vmin=np.nanmin(np.array(C)), vmax=np.nanmax(np.array(C))
             )
             C = cmap(norm(C))
         elif cmode == "categories":
