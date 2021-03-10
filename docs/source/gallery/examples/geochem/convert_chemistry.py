@@ -18,14 +18,14 @@ pd.set_option("precision", 3)  # smaller outputs
 from pyrolite.util.synthetic import normal_frame
 
 df = normal_frame(columns=["MgO", "SiO2", "FeO", "CaO", "Na2O", "Te", "K", "Na"]) * 100
-df.pyrochem.elements *= 100 # elements in ppm
+df.pyrochem.elements *= 100  # elements in ppm
 ########################################################################################
 df.head(2)
 ########################################################################################
 # As the units are heterogeneous, we'll need to convert the data frame to a single set of
 # units (here we use Wt%):
 #
-df.pyrochem.elements = df.pyrochem.elements.pyrochem.scale('ppm', 'wt%') # ppm to wt%
+df.pyrochem.elements = df.pyrochem.elements.pyrochem.scale("ppm", "wt%")  # ppm to wt%
 ########################################################################################
 # We can transform this chemical data to a new set of compositional variables.
 # Here we i) convert CaO to Ca, ii) aggregate Na2O and Na to Na and iii) calculate

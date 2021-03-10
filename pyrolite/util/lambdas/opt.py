@@ -89,7 +89,47 @@ def pcov_from_jac(jac):
     return pcov
 
 
-def linear_fit_components(y, x0, func_components):
+def parse_sigmas(y, sigmas=None):
+    """
+    Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
+    algorithms.
+
+    Parameters
+    ----------
+    y : :class:`numpy.ndarray`
+        2D array of y values.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of sigmas.
+
+    Returns
+    -------
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of sigmas.
+
+    Notes
+    -----
+    If no sigmas are provided, 1% of the mean y values will be returned.
+    """
+    # if sigmas is none, it's assumed 2% uncertainty on log-transformed
+    # normalised abundances; 1D and 2D arrays should also work
+    sigma2d = False
+    if sigmas is None:
+        sigmas = 0.01 * y.mean(axis=0)
+    elif isinstance(sigmas, float):
+        sigmas = sigmas * y.mean(axis=0)
+    elif sigmas.ndim > 1:
+        if any(ix == 1 for ix in sigmas.shape):
+            sigmas = sigmas.flatten()
+        else:
+            msg = "2D uncertainty estimation not yet implemented."
+            raise NotImplementedError(msg)
+    else:
+        pass  # should be a 1D array
+
+    return sigmas
+
+
+def linear_fit_components(y, x0, func_components, sigmas=None):
     """
     Fit a weighted sum of function components using linear algebra.
 
@@ -108,35 +148,66 @@ def linear_fit_components(y, x0, func_components):
         Arrays for the optimized parameter values (B) and parameter
         uncertaintes (se, 1σ).
     """
-    X = np.array(func_components).T
-    Y = y.T
+    X = np.array(func_components)
+
     md_inds, patterns = md_pattern(y)
     xd = len(func_components)
     # for each missing data pattern, we create the matrix A - rather than each row
+    sigmas = parse_sigmas(y, sigmas=sigmas)
+
     B = np.ones((y.shape[0], len(func_components))) * np.nan
     se = np.ones((y.shape[0], len(func_components))) * np.nan
+    x2 = np.ones((y.shape[0], 1)) * np.nan
+
     for ind in np.unique(md_inds):
         row_fltr = md_inds == ind  # rows with this pattern
         missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
         if missing_fltr.sum():  # ignore completely empty row
             yd = missing_fltr.sum()
-            _x, _y = X[missing_fltr, :], Y[np.ix_(missing_fltr, row_fltr)]
-            invXX = np.linalg.pinv(_x.T @ _x)
-            _B = (invXX @ _x.T @ _y).T
-            res = _y - _x @ _B.T  # residuals over all rows
-            mse = (res ** 2).sum(axis=0)  # mse per row
-            # F stats
-            # SSRB = B ** 2 / np.diag(invXX)
-            # F = SSRB / mse[:, None]
-            _se = np.sqrt(np.diag(invXX) * mse[:, None]) / (yd - xd)
-            # t stats
-            # t = B / stderr
+            # underscores for local variables referring to part of the array
+            _x, _y, _sigmas = (
+                X[:, missing_fltr],
+                y[np.ix_(row_fltr, missing_fltr)],
+                sigmas[missing_fltr],
+            )
+            invXX = np.linalg.pinv(_x @ _x.T)
+
+            _B = (invXX @ _x @ _y.T).T  # parameter estimates
+
+            ############################################################################
+            # Uncertainties following Bevington
+            est = (_x.T @ _B.T).T  # modelled values
+            res = _y - est  # residuals over all rows
+            chi_squared = (res ** 2 / sigmas ** 2).sum(axis=1)  # chi_squared per row
+            mse = (res ** 2).sum(axis=1)
+            # mse per row divided by degrees of freedom
+            _se = np.sqrt(mse[:, None] / (yd - xd) * np.diag(invXX)[None, :])
+
+            """
+            # row matrix beta = sum (1/ sigmas**2 * yi * fk(sxi))
+            β = np.array(
+                [
+                    ((fk[missing_fltr] * _y) / _sigmas ** 2).sum(axis=1)
+                    for fk in X
+                ]
+            ).T
+
+            # if the sigmas are 2D, this will need to be per-row (i.e. ϵ varies by row)
+            α = (X / sigmas[missing_fltr] ** 2) @ X.T
+            ϵ = np.linalg.inv(α)
+            a = β @ ϵ
+
+            _se = np.sqrt(mse[:, None] / (yd - xd) * np.diag(ϵ)[None, :])
+            """
             B[row_fltr, :] = _B
             se[row_fltr, :] = _se
-    return B, se
+            x2[row_fltr, :] = chi_squared[:, None]
+    return B, se, x2
 
 
-def optimize_fit_components(y, x0, func_components, residuals_function=_residuals_func):
+def optimize_fit_components(
+    y, x0, func_components, residuals_function=_residuals_func, sigmas=None
+):
     """
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
@@ -161,8 +232,10 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
 
     """
     m, n = y.shape[0], x0.size  # shape of output
-    arr = np.ones((m, n)) * np.nan
-    uarr = np.ones((m, n)) * np.nan
+    sigmas = parse_sigmas(y, sigmas=sigmas)
+    B = np.ones((y.shape[0], len(func_components))) * np.nan
+    se = np.ones((y.shape[0], len(func_components))) * np.nan
+    x2 = np.ones((y.shape[0], 1)) * np.nan
     for row in range(m):
         res = scipy.optimize.least_squares(
             residuals_function,
@@ -172,7 +245,6 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
                 func_components,
             ),
         )
-        arr[row, :] = res.x
         # get the covariance matrix of the parameters from the jacobian
         pcov = pcov_from_jac(res.jac)
         yd, xd = y.shape[1], x0.size
@@ -181,8 +253,12 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
             pcov = pcov * s_sq
         else:
             pcov.fill(np.inf)
-        uarr[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
-    return arr, uarr
+
+        chi_squared = (res.fun ** 2 / sigmas ** 2).sum()
+        B[row, :] = res.x
+        se[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
+        x2[row, 0] = chi_squared
+    return B, se, x2
 
 
 @update_docstring_references
@@ -195,6 +271,7 @@ def lambdas_optimize(
     tetrad_params=None,
     fit_method="opt",
     add_SE=False,
+    add_X2=False,
     **kwargs
 ):
     """
@@ -247,7 +324,7 @@ def lambdas_optimize(
     else:
         fit = linear_fit_components
 
-    B, se = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
+    B, se, X2 = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
 
     lambdas = pd.DataFrame(
         B,
@@ -257,4 +334,6 @@ def lambdas_optimize(
     )
     if add_SE:
         lambdas.loc[:, [n + "_" + chr(963) for n in names]] = se
+    if add_X2:
+        lambdas["X2"] = X2
     return lambdas
