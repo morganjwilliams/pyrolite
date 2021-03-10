@@ -162,7 +162,7 @@ def CLR(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation, of shape :code:`(N, D)`.
+        2D array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
@@ -171,7 +171,9 @@ def CLR(X: np.ndarray):
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
-    Y -= 1 / X.shape[1] * np.nansum(Y, axis=1)[:, np.newaxis]
+    nvars = max(X.shape[1], 1)  # if the array is empty we'd get a div-by-0 error
+    G = (1 / nvars) * np.nansum(Y, axis=1)[:, np.newaxis]
+    Y -= G
     return Y
 
 
@@ -196,7 +198,7 @@ def inverse_CLR(Y: np.ndarray):
     return X
 
 
-def ILR(X: np.ndarray, **kwargs):
+def ILR(X: np.ndarray, psi=None, **kwargs):
     """
     Isometric Log Ratio transformation.
 
@@ -204,6 +206,8 @@ def ILR(X: np.ndarray, **kwargs):
     ---------------
     X : :class:`numpy.ndarray`
         Array on which to perform the transformation, of shape :code:`(N, D)`.
+    psi : :class:`numpy.ndarray`
+        Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
@@ -212,12 +216,13 @@ def ILR(X: np.ndarray, **kwargs):
     """
     d = X.shape[1]
     Y = CLR(X)
-    psi = helmert_basis(D=d, **kwargs)  # Get a basis
+    if psi is None:
+        psi = helmert_basis(D=d, **kwargs)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
+def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, psi=None, **kwargs):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -228,13 +233,16 @@ def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
     X : :class:`numpy.ndarray`, :code:`None`
         Optional specification for an array from which to derive the orthonormal basis,
         with shape :code:`(N, D)`.
+    psi : :class:`numpy.ndarray`
+        Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
     :class:`numpy.ndarray`
         Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
-    psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
+    if psi is None:
+        psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
     C = Y @ psi
     X = inverse_CLR(C)  # Inverse log operation
     return X
