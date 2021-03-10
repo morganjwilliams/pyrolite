@@ -100,6 +100,10 @@ Todo
   didn't allow passing the variables to be used from a :class:`pandas.DataFrame`.
   If you have different variable names, you can now pass them as a list with the
   :code:`axes` keyword argument (e.g. :code:`TAS(axes=['sio2', 'alkali'])`).
+* Homogenised logging throughout the package - now all managed through
+  :mod:`pyrolite.util.log`. The debugging and logging streaming function
+  :func:`stream_log` can now also be accessed here
+  (:func:`pyrolite.util.log.stream_log`).
 
 `0.2.8`_
 --------------
