@@ -8,8 +8,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.style
 import mpltern
-
-
 import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
@@ -127,11 +125,7 @@ class pyroplot(object):
         return ax
 
     def density(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
@@ -262,11 +256,7 @@ class pyroplot(object):
         return ax
 
     def plot(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for line plots using the pyroplot API. See
@@ -357,11 +347,7 @@ class pyroplot(object):
         return ax
 
     def scatter(
-        self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        **kwargs,
+        self, components: list = None, ax=None, axlabels=True, **kwargs,
     ):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
@@ -390,10 +376,7 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
         kw = process_color(size=size, **kwargs)
-        sc = ax.scatter(
-            *obj.reindex(columns=components).values.T,
-            **scatterkwargs(kw),
-        )
+        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw),)
 
         if axlabels:
             label_axes(ax, labels=components)

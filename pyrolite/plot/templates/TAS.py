@@ -7,6 +7,7 @@ from ...util.log import Handle
 
 logger = Handle(__name__)
 
+
 @update_docstring_references
 def TAS(ax=None, relim=True, color="k", **kwargs):
     """

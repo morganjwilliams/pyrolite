@@ -84,9 +84,7 @@ def _export_nonRCstyles(**kwargs):
 
 
 _export_mplstyle()
-_export_nonRCstyles(
-    handler_map={tuple: HandlerTuple(ndivide=None)},
-)
+_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)},)
 matplotlib.style.use("pyrolite")
 
 

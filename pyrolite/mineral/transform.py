@@ -37,6 +37,7 @@ def merge_formulae(formulas):
         molecule += pt.formula(f)
     return molecule
 
+
 def recalc_cations(
     df,
     ideal_cations=4,

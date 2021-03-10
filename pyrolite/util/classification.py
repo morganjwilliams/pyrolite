@@ -31,7 +31,6 @@ from .log import Handle
 logger = Handle(__name__)
 
 
-
 class PolygonClassifier(object):
     """
     A classifier model built form a series of polygons defining specific classes.
@@ -54,13 +53,7 @@ class PolygonClassifier(object):
     """
 
     def __init__(
-        self,
-        name=None,
-        axes=None,
-        fields=None,
-        scale=1.0,
-        xlim=None,
-        ylim=None,
+        self, name=None, axes=None, fields=None, scale=1.0, xlim=None, ylim=None,
     ):
         self.default_scale = scale
         self._scale = self.default_scale

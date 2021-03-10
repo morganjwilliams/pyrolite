@@ -26,11 +26,7 @@ from ..util.plot.axes import get_twins, init_axes
 
 from ..util.meta import get_additional_params, subkwargs
 
-_scatter_defaults = dict(
-    cmap=DEFAULT_CONT_COLORMAP,
-    marker="D",
-    s=25,
-)
+_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25,)
 _line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
 
 # could create a spidercollection?

@@ -11,6 +11,7 @@ from ..log import Handle
 
 logger = Handle(__name__)
 
+
 @update_docstring_references
 def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
     r"""
@@ -124,8 +125,7 @@ def _get_params(params=None, degree=4):
         # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
         _ree = [i for i in REE() if i not in ["Eu"]]
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8),
-            degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
         )
     elif isinstance(params, str):
         name = params.replace("'", "").lower()
@@ -140,8 +140,7 @@ def _get_params(params=None, degree=4):
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8),
-            degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
         )
     else:
         # check that params is a tuple or list

@@ -4,6 +4,7 @@ from .log import Handle
 
 logger = Handle(__name__)
 
+
 def validate_value(value, validator):
     """Validates a value based on one or a series of validator functions."""
     if iscollection(validator):

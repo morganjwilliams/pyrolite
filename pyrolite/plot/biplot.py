@@ -7,6 +7,7 @@ from ..util.log import Handle
 
 logger = Handle(__name__)
 
+
 def compositional_SVD(X: np.ndarray):
     """
     Breakdown a set of compositions to vertexes and cases for adding to a

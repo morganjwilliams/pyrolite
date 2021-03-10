@@ -3,6 +3,7 @@ from ...util.log import Handle
 
 logger = Handle(__name__)
 
+
 def deadtime_correction(data, deadtime):
     """
     Apply a deadtime correction to count data.
@@ -26,6 +27,6 @@ def deadtime_correction(data, deadtime):
             data * dt * np.exp(data * dt * np.exp(data * dt * np.exp(data * dt)))
         )
     else:
-        data = data / (1. - (data * dt))
+        data = data / (1.0 - (data * dt))
 
     return data

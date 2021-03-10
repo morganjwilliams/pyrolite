@@ -33,6 +33,7 @@ from ..util.log import Handle
 
 logger = Handle(__name__)
 
+
 @update_docstring_references
 def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
     r"""

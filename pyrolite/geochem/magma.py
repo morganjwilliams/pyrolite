@@ -13,6 +13,7 @@ from ..util.log import Handle
 
 logger = Handle(__name__)
 
+
 @update_docstring_references
 def FeAt8MgO(FeOT: float, MgO: float) -> float:
     """

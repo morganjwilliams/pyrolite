@@ -202,7 +202,7 @@ def plot_Z_percentiles(
     cs = contour(
         *coords,
         zi,
-        levels=contour_values[ordering], # must increase
+        levels=contour_values[ordering],  # must increase
         cmap=cmap,
         **{**cntr_config, **kwargs}
     )
