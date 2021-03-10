@@ -5,7 +5,6 @@ import copy
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as np
-import logging
 
 from ...comp.codata import close
 from ...util.plot.density import (
@@ -18,9 +17,9 @@ from ...util.plot.axes import init_axes, add_colorbar
 from ...util.meta import get_additional_params, subkwargs
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
+from ...util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def density(

@@ -53,10 +53,9 @@ __doc__ = __doc__.format(
 )
 __doc__ = str(__doc__).replace("ref", __name__)
 
-import logging
+from ...util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 from .count import deadtime_correction
 # from .background import *

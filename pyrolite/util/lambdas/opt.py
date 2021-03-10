@@ -8,10 +8,10 @@ import scipy.optimize
 import scipy.linalg
 from ..meta import update_docstring_references
 from ..missing import md_pattern
-from ..log import Handle
 from .eval import get_function_components
+from ..log import Handle
 
-logger = Handle(__file__)
+logger = Handle(__name__)
 
 
 def _cost_func(ls, ys, func_components, power=1.0):
@@ -158,7 +158,7 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
     arr, uarr : :class:`numpy.ndarray`
         Arrays for the optimized parameter values (arr) and parameter
         uncertaintes (uarr, 1σ).
-    
+
     """
     m, n = y.shape[0], x0.size  # shape of output
     arr = np.ones((m, n)) * np.nan
@@ -176,7 +176,7 @@ def optimize_fit_components(y, x0, func_components, residuals_function=_residual
         # get the covariance matrix of the parameters from the jacobian
         pcov = pcov_from_jac(res.jac)
         yd, xd = y.shape[1], x0.size
-        if yd > xd:  # check samples in y vs paramater dimension
+        if yd > xd:  # check samples in y vs parameter dimension
             s_sq = res.cost / (yd - xd)
             pcov = pcov * s_sq
         else:

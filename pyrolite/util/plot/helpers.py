@@ -5,16 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches
 import scipy.spatial
-import logging
 from ..math import eigsorted, nancov
 from ..text import int_to_alpha
 from ..missing import cooccurence_pattern
 from .interpolation import interpolated_patch_path
 from .axes import add_colorbar, subaxes
+from ..log import Handle
 
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     from sklearn.decomposition import PCA

@@ -5,10 +5,9 @@ import periodictable as pt
 from .mindb import get_mineral_group, list_minerals, parse_composition
 from ..comp.codata import renormalise, close
 from ..geochem.transform import convert_chemistry, to_molecular
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def unmix(comp, parts, ord=1, det_lim=0.0001):

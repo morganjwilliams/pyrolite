@@ -1,13 +1,12 @@
-import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import joblib
 from ..plot import save_figure
 from ..meta import get_additional_params
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     import sklearn.svm

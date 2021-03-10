@@ -19,11 +19,9 @@ from .ind import (
     get_cations,
 )
 from .norm import Composition, get_reference_composition
+from ..util.log import Handle
 
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def to_molecular(df: pd.DataFrame, renorm=True):
@@ -619,10 +617,7 @@ def lambda_lnREE(
 
     row_filter = norm_df.count(axis=1) >= min_elements
 
-    lambdadf = pd.DataFrame(
-        index=norm_df.index,
-        dtype="float32",
-    )
+    lambdadf = pd.DataFrame(index=norm_df.index, dtype="float32",)
     ls = lambdas.calc_lambdas(
         norm_df.loc[row_filter, :],
         exclude=exclude,

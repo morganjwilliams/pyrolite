@@ -9,11 +9,9 @@ from .ind import __common_elements__, __common_oxides__
 from .transform import to_molecular, to_weight
 from ..util.meta import update_docstring_references
 from ..util.units import scale
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
-
+logger = Handle(__name__)
 
 @update_docstring_references
 def FeAt8MgO(FeOT: float, MgO: float) -> float:

@@ -3,7 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from ..comp import codata
 from ..util.plot.axes import init_axes
+from ..util.log import Handle
 
+logger = Handle(__name__)
 
 def compositional_SVD(X: np.ndarray):
     """

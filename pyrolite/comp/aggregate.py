@@ -2,11 +2,9 @@ import numpy as np
 import pandas as pd
 import warnings
 from .codata import ALR, inverse_ALR
+from ..util.log import Handle
 
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def get_full_column(X: np.ndarray):
@@ -275,7 +273,7 @@ def standardise_aggregate(
             # Use an internal standard
             int_std = potential_int_stds[0]
             if len(potential_int_stds) > 1:
-                logging.info("Multiple int. stds possible. Using " + str(int_std))
+                logger.info("Multiple int. stds possible. Using " + str(int_std))
 
         non_nan_cols = df.dropna(axis=1, how="all").columns
         assert len(non_nan_cols)

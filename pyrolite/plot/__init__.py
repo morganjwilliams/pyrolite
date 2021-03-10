@@ -1,7 +1,6 @@
 """
 Submodule with various plotting and visualisation functions.
 """
-import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -10,8 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib.style
 import mpltern
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
 
 import warnings
 
@@ -36,6 +33,9 @@ from .color import process_color
 
 from ..comp.codata import close, ILR
 from ..util.distributions import sample_kde, get_scaler
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]

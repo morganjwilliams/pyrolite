@@ -8,5 +8,8 @@ Todo
 
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .TAS import TAS
+from ...util.log import Handle
+
+logger = Handle(__name__)
 
 __all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS"]

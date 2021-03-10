@@ -5,10 +5,9 @@ import numpy as np
 from ...comp.codata import close
 from .transform import ABC_to_xy, xy_to_ABC
 import scipy.interpolate
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def bin_centres_to_edges(centres, sort=True):

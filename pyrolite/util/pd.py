@@ -2,12 +2,10 @@ import pandas as pd
 import hashlib
 from pathlib import Path
 import numpy as np
-import logging
-
 from .meta import subkwargs
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def drop_where_all_empty(df):

@@ -5,12 +5,11 @@ are used to fit REE patterns.
 import numpy as np
 import sympy.solvers.solvers
 from sympy import symbols, var
-from ..log import Handle
 from ..meta import update_docstring_references
 from ...geochem.ind import REE, get_ionic_radii
+from ..log import Handle
 
-logger = Handle(__file__)
-
+logger = Handle(__name__)
 
 @update_docstring_references
 def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):

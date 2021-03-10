@@ -6,6 +6,9 @@ from pandas.plotting import parallel_coordinates
 from ..util.meta import subkwargs
 from ..util.plot.style import DEFAULT_CONT_COLORMAP
 from ..util.plot.axes import init_axes
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 
 def plot_across_axes():
@@ -47,7 +50,7 @@ def parallel(
     ax=None,
     alpha=1.0,
     label_rotate=60,
-    **kwargs
+    **kwargs,
 ):
     """
     Create a parallel coordinate plot across dataframe columns, with

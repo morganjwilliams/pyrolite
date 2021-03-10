@@ -6,16 +6,14 @@ from ._version import get_versions
 __version__ = get_versions()["version"]
 del get_versions
 
-import logging
 from pathlib import Path
 import importlib
 import pkgutil
 import matplotlib.style
 from .plot import _export_mplstyle
+from .util.log import Handle
 
-# http://docs.python-guide.org/en/latest/writing/logging/
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logging.captureWarnings(True)
+logger = Handle(__name__)
 
 
 def load_extensions(base="pyrolite_", replace=["util"]):

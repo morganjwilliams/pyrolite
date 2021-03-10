@@ -6,7 +6,8 @@ import numpy as np
 from ...geochem.ind import get_ionic_radii, REE
 from ..log import Handle
 
-logger = Handle(__file__)
+logger = Handle(__name__)
+
 
 def REE_z_to_radii(z, fit=None, degree=7, **kwargs):
     """

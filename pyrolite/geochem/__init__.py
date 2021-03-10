@@ -1,12 +1,8 @@
 """
 Submodule for working with geochemical data.
 """
-import logging
 import pandas as pd
 import numpy as np
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
 
 from ..util.meta import update_docstring_references
 from ..util import units
@@ -15,6 +11,9 @@ from . import transform
 from . import norm
 from .ind import __common_elements__, __common_oxides__, REE, REY
 from .ions import set_default_ionic_charges
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 set_default_ionic_charges()
 

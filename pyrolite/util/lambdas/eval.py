@@ -4,11 +4,12 @@ parameters (the sequence of polymomial roots and tetrad centres and widths).
 """
 import numpy as np
 
-from ..log import Handle
 from .transform import REE_radii_to_z
 from .params import orthogonal_polynomial_constants, _get_params, _get_tetrad_params
+from ..log import Handle
 
 logger = Handle(__name__)
+
 
 
 def lambda_poly(x, ps):

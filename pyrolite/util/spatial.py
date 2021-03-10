@@ -8,10 +8,9 @@ import functools
 import itertools
 from psutil import virtual_memory  # memory check
 from .math import on_finite
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def _get_sqare_grid_segment_indicies(size, segments):

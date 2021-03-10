@@ -22,10 +22,9 @@ import matplotlib.patches
 from matplotlib.legend_handler import HandlerTuple
 from ..meta import subkwargs, pyrolite_datafolder
 from ..general import copy_file
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 DEFAULT_CONT_COLORMAP = plt.cm.viridis
 DEFAULT_DISC_COLORMAP = plt.cm.tab10

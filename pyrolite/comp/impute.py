@@ -3,11 +3,9 @@ import scipy.stats as stats
 from pyrolite.util.math import nancov, augmented_covariance_matrix
 from pyrolite.util.missing import md_pattern
 from pyrolite.comp.codata import ALR, inverse_ALR, close
-import logging
+from ..util.log import Handle
 
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def _little_sweep(G, k: int = 0, verify=False):

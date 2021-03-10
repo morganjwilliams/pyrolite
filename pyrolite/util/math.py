@@ -3,10 +3,9 @@ import sympy
 import scipy
 from copy import copy
 from .meta import update_docstring_references
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def eigsorted(cov):

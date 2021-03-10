@@ -10,10 +10,9 @@ from pathlib import Path
 from ..util.text import to_width
 from ..util.units import scale
 from ..util.meta import pyrolite_datafolder
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __dbfile__ = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
 

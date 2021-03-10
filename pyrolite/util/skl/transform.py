@@ -1,4 +1,3 @@
-import logging
 import numpy as np
 import pandas as pd
 from ...geochem import transform
@@ -6,9 +5,9 @@ from ...geochem import ind
 from ...geochem import parse
 from ...comp import codata
 from ..lambdas import orthogonal_polynomial_constants
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     from sklearn.base import TransformerMixin, BaseEstimator

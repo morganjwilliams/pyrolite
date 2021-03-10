@@ -5,10 +5,9 @@ import numpy as np
 import pandas as pd
 from .meta import subkwargs
 from .spatial import great_circle_distance, _get_sqare_grid_segment_indicies
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     import sklearn
@@ -336,7 +335,7 @@ def spatiotemporal_bootstrap_resample(
         elif isinstance(categories, str) and categories in df.columns:
             categories = df[categories]
         else:
-            msg = 'Categories unrecognized'
+            msg = "Categories unrecognized"
             raise NotImplementedError(msg)
     # column selection #################################################################
     # get the subset of parameters to be resampled, removing spatial and age names

@@ -8,7 +8,9 @@ from ..geochem.norm import get_reference_composition
 from ..geochem.ind import get_ionic_radii, REE
 from ..util.lambdas.eval import get_function_components
 from .meta import get_additional_params
+from .log import Handle
 
+logger = Handle(__name__)
 
 def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
     """

@@ -2,6 +2,10 @@ import sys
 import struct
 from contextlib import contextmanager
 from tinydb import TinyDB
+from .log import Handle
+
+logger = Handle(__name__)
+
 
 __backend__ = None
 try:

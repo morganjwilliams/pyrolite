@@ -16,10 +16,9 @@ from ..meta import subkwargs
 from ..math import flattengrid, linspc_, logspc_, interpolate_line
 from ..distributions import sample_kde
 from .grid import bin_centres_to_edges
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     import statsmodels.api as sm

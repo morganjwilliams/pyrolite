@@ -15,10 +15,9 @@ from tinydb import TinyDB, Query
 from .transform import formula_to_elemental, merge_formulae
 from ..util.meta import pyrolite_datafolder
 from ..util.database import _list_tindyb_unique_values
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __dbpath__ = pyrolite_datafolder(subfolder="mineral") / "mindb.json"
 

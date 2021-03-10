@@ -1,4 +1,3 @@
-import logging
 import itertools
 import numpy as np
 import scipy.stats
@@ -7,9 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 from pyrolite.util.meta import inargs, subkwargs
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     from sklearn.metrics import confusion_matrix

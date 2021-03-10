@@ -6,7 +6,6 @@ profiles based on parameterisations using 'lambdas' (and tetrad-equivalent weigh
 import numpy as np
 from ... import plot
 from ...geochem.ind import get_ionic_radii, REE
-from ..log import Handle
 from .params import orthogonal_polynomial_constants, _get_params
 from .eval import (
     get_lambda_poly_function,
@@ -14,8 +13,9 @@ from .eval import (
     get_function_components,
 )
 from .transform import REE_z_to_radii, REE_radii_to_z
+from ..log import Handle
 
-logger = Handle(__file__)
+logger = Handle(__name__)
 
 
 def plot_lambdas_components(lambdas, ax=None, params=None, degree=4, **kwargs):

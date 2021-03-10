@@ -6,10 +6,9 @@ import sympy
 
 # from .renorm import renormalise, close
 from ..util.math import helmert_basis, symbolic_helmert_basis
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __TRANSFORMS__ = {}
 
