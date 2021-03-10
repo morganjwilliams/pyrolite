@@ -155,7 +155,7 @@ class pyrochem(object):
         """
         return self._obj[self.list_REY]
 
-    @REE.setter
+    @REY.setter
     def REY(self, df):
         self._obj.loc[:, self.list_REY] = df
 
@@ -218,6 +218,7 @@ class pyrochem(object):
         self._obj.columns = parse.tochem(
             self._obj.columns, abbrv=abbrv, split_on=split_on
         )
+        return self._obj
 
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
         """

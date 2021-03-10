@@ -26,8 +26,8 @@ class TestPyrochem(unittest.TestCase):
             "Zr",
             "H2O",
             "Sr87_Sr86",
-            "87Sr/87Sr",
-            "87Sr/87Sri",
+            "87Sr/86Sr",
+            "87Sr/86Sri",
         ] + pyrolite.geochem.REE()
         self.df = normal_frame(size=4, columns=cols)
         self.df = renormalise(self.df)
@@ -48,14 +48,28 @@ class TestPyrochem(unittest.TestCase):
 
     def test_pyrochem_subsetters(self):
         obj = self.df
-        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
+        for subset in [
+            "REE",
+            "REY",
+            "elements",
+            "oxides",
+            "isotope_ratios",
+            "compositional",
+        ]:
             with self.subTest(subset=subset):
                 out = getattr(obj.pyrochem, subset)
                 self.assertIsInstance(out, obj.__class__)  # in this case a dataframe
 
     def test_pyrochem_subsetter_assignment(self):
         obj = self.df
-        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
+        for subset in [
+            "REE",
+            "REY",
+            "elements",
+            "oxides",
+            "isotope_ratios",
+            "compositional",
+        ]:
             with self.subTest(subset=subset):
                 setattr(obj.pyrochem, subset, getattr(obj.pyrochem, subset) * 1.0)
 
@@ -65,6 +79,15 @@ class TestPyrochem(unittest.TestCase):
         obj = self.df.copy(deep=True)
         cations = obj.pyrochem.check_multiple_cation_inclusion()
         self.assertTrue(len(cations) == 0)
+
+    def test_pyochem_parse_chem(self):
+        obj = self.df.copy(deep=True)
+        start_cols = obj.columns
+        out = obj.pyrochem.parse_chem()
+        self.assertTrue(len(out.columns) == len(start_cols))
+        self.assertTrue(
+            all([a == b for (a, b) in zip(out.columns, start_cols) if "/" not in a])
+        )
 
     # pyrolite.geochem.transform functions
 
@@ -105,6 +128,10 @@ class TestPyrochem(unittest.TestCase):
 
     def test_pyrochem_aggregate_element(self):
         obj = self.df.copy(deep=True)
+        target = "Fe"
+        out = obj.pyrochem.aggregate_element(target)
+        self.assertIsInstance(out, pd.DataFrame)
+        self.assertTrue(target in out.columns)
 
     def test_pyrochem_devolatilise(self):
         obj = self.df.copy(deep=True).pyrochem.compositional

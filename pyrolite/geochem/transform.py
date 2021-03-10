@@ -271,13 +271,10 @@ def aggregate_element(
     -------
     This won't convert units, so need to start from single set of units.
 
-    This function as currently formulated consumes a lot of memory, and seems causes
-    memory leaks.
-
     Returns
     -------
-    :class:`pandas.Series`
-        Series with cation aggregated.
+    :class:`pandas.DataFrame`
+        Dataframe with cation aggregated to the desired species.
     """
     # get the elemental sum
     subsum = elemental_sum(
