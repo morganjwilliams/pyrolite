@@ -424,32 +424,48 @@ def get_ratio(
     :func:`~pyrolite.geochem.transform.add_MgNo`
     """
     num, den = ratio.split("/")
+    # remove start/trailing brackets for ratios of the form (A/B)_n ?
+    num = num.replace("(", "")
+    den = den.replace(")", "")
+
     _to_norm = False
     if den.lower().endswith("_n"):
         den = titlecase(den.lower().replace("_n", ""))
         _to_norm = True
 
-    if _to_norm or (norm_to is not None):  # if molecular, this will need to change
-        if isinstance(norm_to, str):
-            norm = get_reference_composition(norm_to)
-            num_n, den_n = norm[num], norm[den]
-        elif isinstance(norm_to, Composition):
-            norm = norm_to
-            num_n, den_n = norm[num], norm[den]
-        elif iscollection(norm_to):  # list, iterable, pd.Index etc
-            num_n, den_n = norm_to
-        else:
-            logger.warning("Unknown normalization, defaulting to Chondrite.")
-            norm = get_reference_composition("Chondrite_PON")
-            num_n, den_n = norm[num], norm[den]
-
     name = [ratio if ((not alias) or (alias is None)) else alias][0]
-    logger.debug("Adding Ratio: {}".format(name))
+    logger.debug("Calculating Ratio: {}".format(name))
     numsum, densum = (
         elemental_sum(df, num, to=num, molecular=molecular),
         elemental_sum(df, den, to=den, molecular=molecular),
     )
     ratio = numsum / densum
+
+    if _to_norm or (norm_to is not None):  # if molecular, this will need to change
+        if isinstance(norm_to, str):
+            norm = get_reference_composition(norm_to)
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+        elif isinstance(norm_to, Composition):
+            norm = norm_to
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+        elif iscollection(norm_to):  # list, iterable, pd.Index etc
+            num_n, den_n = norm_to
+            norm_ratio = num_n / den_n
+        elif isinstance(norm_to, (int, float)):  # a number for the ratio
+            norm_ratio = norm_to
+        else:
+            logger.warning("Unknown normalization, defaulting to Chondrite.")
+            norm = get_reference_composition("Chondrite_PON")
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+
+        if not np.isfinite(norm_ratio):  # could be NaN
+            logger.warn("Invalid ratio for normalisation from: {}".format(norm_to))
+        logger.debug("Normalizing Ratio: {}".format(name))
+        ratio /= norm_ratio
+
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
     ratio.name = name
     return ratio
