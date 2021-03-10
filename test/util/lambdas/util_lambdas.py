@@ -6,7 +6,6 @@ import matplotlib.axes
 
 from pyrolite.util.lambdas.eval import lambda_poly, get_lambda_poly_function
 from pyrolite.util.lambdas import (
-    plot_lambdas_components,
     calc_lambdas,
     orthogonal_polynomial_constants,
 )
@@ -16,7 +15,7 @@ from pyrolite.geochem.norm import get_reference_composition
 
 
 class TestOPConstants(unittest.TestCase):
-    """Checks the generation of orthagonal polynomial parameters."""
+    """Checks the generation of orthogonal polynomial parameters."""
 
     def setUp(self):
         elements = [i for i in REE(dropPm=True) if i != "Eu"]  # drop Pm, Eu
@@ -254,17 +253,6 @@ class TestCalcLambdas(unittest.TestCase):
         # all of the second row should be nan
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
 
-
-class TestPlotLambdasComponents(unittest.TestCase):
-    def setUp(self):
-        self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
-
-    def test_default(self):
-        ax = plot_lambdas_components(self.lambdas)
-        self.assertIsInstance(ax, matplotlib.axes.Axes)
-
-    def tearDown(self):
-        plt.close("all")
 
 
 if __name__ == "__main__":
