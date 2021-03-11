@@ -144,21 +144,21 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
 
     Returns
     -------
-    B, se : :class:`numpy.ndarray`
-        Arrays for the optimized parameter values (B) and parameter
-        uncertaintes (se, 1σ).
+    B, s, χ2 : :class:`numpy.ndarray`
+        Arrays for the optimized parameter values (B; (n, d)), parameter
+        uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
-    X = np.array(func_components)
+    X = np.array(func_components).T  # components as vectors [1 f0 f1 f2]
+    xd = len(func_components)  # number of parameters
 
-    md_inds, patterns = md_pattern(y)
-    xd = len(func_components)
-    # for each missing data pattern, we create the matrix A - rather than each row
     sigmas = parse_sigmas(y, sigmas=sigmas)
 
     B = np.ones((y.shape[0], len(func_components))) * np.nan
-    se = np.ones((y.shape[0], len(func_components))) * np.nan
-    x2 = np.ones((y.shape[0], 1)) * np.nan
+    s = np.ones((y.shape[0], len(func_components))) * np.nan
+    χ2 = np.ones((y.shape[0], 1)) * np.nan
 
+    # for each missing data pattern, we create the matrix A - rather than each row
+    md_inds, patterns = md_pattern(y)
     for ind in np.unique(md_inds):
         row_fltr = md_inds == ind  # rows with this pattern
         missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
@@ -166,43 +166,31 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
             yd = missing_fltr.sum()
             # underscores for local variables referring to part of the array
             _x, _y, _sigmas = (
-                X[:, missing_fltr],
+                X[missing_fltr, :],
                 y[np.ix_(row_fltr, missing_fltr)],
                 sigmas[missing_fltr],
             )
-            invXX = np.linalg.pinv(_x @ _x.T)
-
-            _B = (invXX @ _x @ _y.T).T  # parameter estimates
-
+            # M = np.cov(_y, rowvar=False)  # variance-covariance matrix
+            # weights derived from inverse variance of y-uncertaintes
+            W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
+            invXWX = np.linalg.pinv(_x.T @ W @ _x)
+            _B = (invXWX @ _x.T @ W @ _y.T).T  # parameter estimates
             ############################################################################
-            # Uncertainties following Bevington
-            est = (_x.T @ _B.T).T  # modelled values
+            est = (_x @ _B.T).T  # modelled values
             res = _y - est  # residuals over all rows
-            chi_squared = (res ** 2 / sigmas ** 2).sum(axis=1)  # chi_squared per row
-            mse = (res ** 2).sum(axis=1)
-            # mse per row divided by degrees of freedom
-            _se = np.sqrt(mse[:, None] / (yd - xd) * np.diag(invXX)[None, :])
+            H = X @ invXWX @ X.T @ W  # Hat matrix
+            dof = yd - xd  # effective degrees of freedom
+            # calculate the reduced_chi_squared per row
+            reduced_chi_squared = (res ** 2 / sigmas ** 2).sum(axis=1) / dof
 
-            """
-            # row matrix beta = sum (1/ sigmas**2 * yi * fk(sxi))
-            β = np.array(
-                [
-                    ((fk[missing_fltr] * _y) / _sigmas ** 2).sum(axis=1)
-                    for fk in X
-                ]
-            ).T
+            mse = (res ** 2).sum(axis=1)  # mse per row
+            # mse is divided by divided by degrees of freedom
+            _s = np.sqrt(mse[:, None] / dof * np.diag(invXWX)[None, :])
 
-            # if the sigmas are 2D, this will need to be per-row (i.e. ϵ varies by row)
-            α = (X / sigmas[missing_fltr] ** 2) @ X.T
-            ϵ = np.linalg.inv(α)
-            a = β @ ϵ
-
-            _se = np.sqrt(mse[:, None] / (yd - xd) * np.diag(ϵ)[None, :])
-            """
             B[row_fltr, :] = _B
-            se[row_fltr, :] = _se
-            x2[row_fltr, :] = chi_squared[:, None]
-    return B, se, x2
+            s[row_fltr, :] = _s
+            χ2[row_fltr, :] = reduced_chi_squared[:, None]
+    return B, s, χ2
 
 
 def optimize_fit_components(
@@ -226,16 +214,15 @@ def optimize_fit_components(
 
     Returns
     -------
-    arr, uarr : :class:`numpy.ndarray`
-        Arrays for the optimized parameter values (arr) and parameter
-        uncertaintes (uarr, 1σ).
-
+    B, s, χ2 : :class:`numpy.ndarray`
+        Arrays for the optimized parameter values (B; (n, d)), parameter
+        uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
     m, n = y.shape[0], x0.size  # shape of output
     sigmas = parse_sigmas(y, sigmas=sigmas)
     B = np.ones((y.shape[0], len(func_components))) * np.nan
-    se = np.ones((y.shape[0], len(func_components))) * np.nan
-    x2 = np.ones((y.shape[0], 1)) * np.nan
+    s = np.ones((y.shape[0], len(func_components))) * np.nan
+    χ2 = np.ones((y.shape[0], 1)) * np.nan
     for row in range(m):
         res = scipy.optimize.least_squares(
             residuals_function,
@@ -254,11 +241,12 @@ def optimize_fit_components(
         else:
             pcov.fill(np.inf)
 
-        chi_squared = (res.fun ** 2 / sigmas ** 2).sum()
+        dof = yd - xd  # effective degrees of freedom
+        reduced_chi_squared = (res.fun ** 2 / sigmas ** 2).sum() / dof
         B[row, :] = res.x
-        se[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
-        x2[row, 0] = chi_squared
-    return B, se, x2
+        s[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
+        χ2[row, 0] = reduced_chi_squared
+    return B, s, χ2
 
 
 @update_docstring_references
@@ -270,7 +258,7 @@ def lambdas_optimize(
     fit_tetrads=False,
     tetrad_params=None,
     fit_method="opt",
-    add_SE=False,
+    add_uncertainties=False,
     add_X2=False,
     **kwargs
 ):
@@ -294,8 +282,10 @@ def lambdas_optimize(
         List of parameter sets for tetrad functions.
     fit_method : :class:`str`
         Which fit method to use: :code:`"optimization"` or :code:`"linear"`.
-    add_SE : :class:`bool`
-        Append parameter standard errors to the dataframe.
+    add_uncertainties : :class:`bool`
+        Whether to append estimated parameter uncertainties to the dataframe.
+    add_X2 : :class:`bool`
+        Whether to append the chi-squared values (χ2) to the dataframe.
 
     Returns
     --------
@@ -324,7 +314,7 @@ def lambdas_optimize(
     else:
         fit = linear_fit_components
 
-    B, se, X2 = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
+    B, s, χ2 = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
 
     lambdas = pd.DataFrame(
         B,
@@ -332,8 +322,8 @@ def lambdas_optimize(
         columns=names,
         dtype="float32",
     )
-    if add_SE:
-        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = se
+    if add_uncertainties:
+        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
     if add_X2:
-        lambdas["X2"] = X2
+        lambdas["X2"] = χ2
     return lambdas
