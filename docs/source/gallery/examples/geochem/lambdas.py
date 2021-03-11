@@ -124,7 +124,7 @@ plt.tight_layout()
 # and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
 #
 ls_anomalies = df.pyrochem.lambda_lnREE(anomalies=["Ce", "Eu"])
-ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
+ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter(color='k')
 plt.show()
 ########################################################################################
 # Coefficient Uncertainties and Fit Quality
@@ -144,11 +144,12 @@ plt.show()
 ls = df.pyrochem.lambda_lnREE(add_X2=True, sigmas=0.1, anomalies=["Eu", "Ce"])
 ls.columns
 ########################################################################################
-# We can have a quick look at these values look like like for the synthetic dataset,
+# We can have a quick look at the χ2 values look like for the synthetic dataset,
 # given the assumed 10% uncertainties. While the fit appears reasonable for a good
-# fraction of the dataset, for some rows it is notably worse:
+# fraction of the dataset (~2 and below), for some rows it is notably worse:
 #
 ls["X2"].plot.hist(bins=30)
+plt.show()
 ########################################################################################
 # We can also examine the estimated uncertainties on the coefficients from the fit
 # by adding the keyword argument :code:`add_uncertainties=True` (note: these do not
@@ -169,7 +170,7 @@ ls = (df + 3 * np.exp(np.random.randn(*df.shape))).pyrochem.lambda_lnREE(
 ########################################################################################
 # With this 'noisy' dataset, we can see some of the errorbars:
 #
-fig, ax = plt.subplots(1, 3, figsize=(9, 2.5))
+fig, ax = plt.subplots(1, 3, figsize=(9, 3))
 ax = ax.flat
 dc = ls.columns.size // 2
 for ix, a in enumerate(ls.columns[:3]):
@@ -181,13 +182,12 @@ for ix, a in enumerate(ls.columns[:3]):
         xerr=ls.iloc[:, i0 + dc] * 2,
         yerr=ls.iloc[:, i1 + dc] * 2,
         ls="none",
-        zorder=-1,
         ecolor="0.5",
-        marker="D",
         markersize=1,
         color="k",
     )
 plt.tight_layout()
+plt.show()
 ########################################################################################
 # Fitting Tetrads
 # ~~~~~~~~~~~~~~~~

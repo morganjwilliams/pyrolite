@@ -58,6 +58,9 @@ Todo
 
 * **Bugfix**: Fixed a bug where Eu was unnecessarily excluded from the
   :func:`~pyrolite.geochem.pyrochem.lambda_lnREE` fit in all cases.
+* **Bugfix**: Fixed a bug where ratio-based normalisation was not implemented for
+  :func:`~pyrolite.geochem.transform.get_ratio` and related functions
+  (`#34 <https://github.com/morganjwilliams/pyrolite/issues/34>`__)
 * Added a local variable to :mod:`pyrolite.geochem.ind` to allow referencing of
   indexing functions (e.g. :func:`~pyrolite.geochem.ind.by_incompatibility`) by
   name, allowing easier integration with :func:`~pyrolite.plot.pyroplot.spider`.
@@ -76,7 +79,7 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * Expanded :mod:`pyrolite.util.lambdas` to allow fitting of tetrad functions, anomalies
-  and estimation of parameter uncertainties.
+  and estimation of parameter uncertainties for all three algorithms.
 * Added :mod:`pyrolite.util.resampling` for weighted spatiotemporal bootstrap resampling
   and estimation, together with added a number of updates to
   :mod:`pyrolite.util.spatial` to provide required spatial-similarity functionality.
