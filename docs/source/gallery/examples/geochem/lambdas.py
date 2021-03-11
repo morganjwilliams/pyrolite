@@ -148,7 +148,9 @@ ls.columns
 # dataset, given the assumed 10% uncertainties. While the fit appears reasonable for a good
 # fraction of the dataset (~2 and below), for some rows it is notably worse:
 #
-ls["X2"].plot.hist(bins=30, color="0.5")
+ax = ls["X2"].plot.hist(bins=30, color="0.5")
+ax.set(xlabel="$\chi^2$")
+ax.axvline(1, color='k', ls='--')
 plt.show()
 ########################################################################################
 # We can also examine the estimated uncertainties on the coefficients from the fit
