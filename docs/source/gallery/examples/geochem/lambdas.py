@@ -124,7 +124,7 @@ plt.tight_layout()
 # and :math:`\frac{Eu}{Eu*}` anomalies (note that these are excluded from the fit):
 #
 ls_anomalies = df.pyrochem.lambda_lnREE(anomalies=["Ce", "Eu"])
-ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter(color='k')
+ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter(color="0.5")
 plt.show()
 ########################################################################################
 # Coefficient Uncertainties and Fit Quality
@@ -132,10 +132,10 @@ plt.show()
 #
 # In order to determine the relative significance of the parameterisation and
 # 'goodness of fit', the functions are able to estimate uncertainties on the returned
-# coefficients (lambdas and taus) and will also return the chi-square value (χ2;
-# equivalent to the MSWD) where requested. This will be appended to the end of the
-# dataframe. Note that if you do not supply an estimate of observed value uncertainties
-# a default of 1% of the log-mean will be used.
+# coefficients (lambdas and taus) and will also return the chi-square value
+# (:math:`\chi^2`; equivalent to the MSWD) where requested. This will be appended to the
+# end of the dataframe. Note that if you do not supply an estimate of observed value
+# uncertainties a default of 1% of the log-mean will be used.
 #
 # To append the reduced chi-square for each row, the keyword argument
 # :code:`add_X2=True` can be used; here we've estimated 10% uncertainty on the
@@ -144,11 +144,11 @@ plt.show()
 ls = df.pyrochem.lambda_lnREE(add_X2=True, sigmas=0.1, anomalies=["Eu", "Ce"])
 ls.columns
 ########################################################################################
-# We can have a quick look at the χ2 values look like for the synthetic dataset,
-# given the assumed 10% uncertainties. While the fit appears reasonable for a good
+# We can have a quick look at the :math:`\chi^2` values look like for the synthetic
+# dataset, given the assumed 10% uncertainties. While the fit appears reasonable for a good
 # fraction of the dataset (~2 and below), for some rows it is notably worse:
 #
-ls["X2"].plot.hist(bins=30)
+ls["X2"].plot.hist(bins=30, color="0.5")
 plt.show()
 ########################################################################################
 # We can also examine the estimated uncertainties on the coefficients from the fit
