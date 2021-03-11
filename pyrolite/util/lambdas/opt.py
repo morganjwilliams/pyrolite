@@ -99,7 +99,7 @@ def parse_sigmas(y, sigmas=None):
     y : :class:`numpy.ndarray`
         2D array of y values.
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of sigmas.
+        Single value or 1D array of observed value uncertainties.
 
     Returns
     -------
@@ -141,6 +141,8 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
         Starting guess for the function weights.
     func_components : :class:`list` ( :class:`numpy.ndarray` )
         List of arrays representing static/evaluated function components.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
 
     Returns
     -------
@@ -177,13 +179,12 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
             _B = (invXWX @ _x.T @ W @ _y.T).T  # parameter estimates
             ############################################################################
             est = (_x @ _B.T).T  # modelled values
-            res = _y - est  # residuals over all rows
-            H = X @ invXWX @ X.T @ W  # Hat matrix
-            dof = yd - xd  # effective degrees of freedom
+            residuals = _y - est  # residuals over all rows
+            # H = X @ invXWX @ X.T @ W  # Hat matrix
+            dof = yd - xd  # effective degrees of freedom (for this mising filter)
             # calculate the reduced_chi_squared per row
-            reduced_chi_squared = (res ** 2 / sigmas ** 2).sum(axis=1) / dof
-
-            mse = (res ** 2).sum(axis=1)  # mse per row
+            reduced_chi_squared = (residuals ** 2 / sigmas ** 2).sum(axis=1) / dof
+            mse = (residuals ** 2).sum(axis=1)  # mse per row
             # mse is divided by divided by degrees of freedom
             _s = np.sqrt(mse[:, None] / dof * np.diag(invXWX)[None, :])
 
@@ -211,6 +212,8 @@ def optimize_fit_components(
     redsiduals_function : callable
         Callable funciton to compute residuals which accepts ordered arguments for
         weights, target values and function components.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
 
     Returns
     -------
@@ -258,6 +261,7 @@ def lambdas_optimize(
     fit_tetrads=False,
     tetrad_params=None,
     fit_method="opt",
+    sigmas=None,
     add_uncertainties=False,
     add_X2=False,
     **kwargs
@@ -282,6 +286,8 @@ def lambdas_optimize(
         List of parameter sets for tetrad functions.
     fit_method : :class:`str`
         Which fit method to use: :code:`"optimization"` or :code:`"linear"`.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
     add_uncertainties : :class:`bool`
         Whether to append estimated parameter uncertainties to the dataframe.
     add_X2 : :class:`bool`
@@ -314,7 +320,9 @@ def lambdas_optimize(
     else:
         fit = linear_fit_components
 
-    B, s, χ2 = fit(df.pyrochem.REE.values, np.array(x0), func_components, **kwargs)
+    B, s, χ2 = fit(
+        df.pyrochem.REE.values, np.array(x0), func_components, sigmas=sigmas, **kwargs
+    )
 
     lambdas = pd.DataFrame(
         B,

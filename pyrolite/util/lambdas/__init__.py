@@ -23,7 +23,9 @@ def calc_lambdas(
     algorithm="ONeill",
     anomalies=[],
     fit_tetrads=False,
-    add_SE=False,
+    sigmas=None,
+    add_uncertainties=False,
+    add_X2=False,
     **kwargs
 ):
     """
@@ -52,8 +54,12 @@ def calc_lambdas(
     fit_tetrads : :class:`bool`
         Whether to fit tetrad functions in addition to orthogonal polynomial functions.
         This will force the use of the optimization algorithm.
-    add_SE : :class:`bool`
-        Append parameter standard errors to the dataframe.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
+    add_uncertainties : :class:`bool`
+        Whether to append estimated parameter uncertainties to the dataframe.
+    add_X2 : :class:`bool`
+        Whether to append the chi-squared values (χ2) to the dataframe.
 
     Returns
     --------
@@ -75,7 +81,7 @@ def calc_lambdas(
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
     params = _get_params(params=params, degree=degree)
-    if (fit_tetrads or add_SE) and "oneill" in algorithm.lower():
+    if (fit_tetrads or add_uncertainties) and "oneill" in algorithm.lower():
         logger.warning(
             "Can't use the O'Neill (2016) algorithm to fit tetrads, and uncertainty "
             "calcuations are not yet implemented for this method;"
@@ -86,11 +92,19 @@ def calc_lambdas(
     #  to cacluate an anomaly rather than a residual, exclude the element from the fit
     exclude += anomalies
     # these are the REE which the lambdas will be EVALUATED at; exclude empty columns
-    columns = [c for c in df.columns if c not in exclude and np.isfinite(df[c]).sum()]
+    column_fltr = [
+        (c not in exclude) and (np.isfinite(df[c]).sum() > 0) for c in df.columns
+    ]
+    columns = df.columns[column_fltr].tolist()
     if not columns:
         msg = "No columns specified (after exclusion), nothing to calculate."
         raise IndexError(msg)
 
+    # also filter the sigmas we pass to subsequent functions, if needed
+    if not (sigmas is None):
+        if not isinstance(sigmas, (int, float)):
+            sigmas = sigmas[column_fltr]
+            
     fit_df = df.loc[:, columns]
     fit_df.mask(~np.isfinite(fit_df), np.nan, inplace=True)  # deal with np.nan, np.inf
     fit_radii = get_ionic_radii(columns, charge=3, coordination=8)
@@ -98,11 +112,23 @@ def calc_lambdas(
     if "oneill" in algorithm.lower():
         try:
             ls = lambdas_ONeill2016(
-                fit_df, radii=fit_radii, params=params, add_SE=add_SE, **kwargs
+                fit_df,
+                radii=fit_radii,
+                params=params,
+                add_uncertainties=add_uncertainties,
+                add_X2=add_X2,
+                sigmas=sigmas,
+                **kwargs
             )
         except np.linalg.LinAlgError:  # singular matrix, use optimize
             ls = lambdas_optimize(
-                fit_df, radii=fit_radii, params=params, add_SE=add_SE, **kwargs
+                fit_df,
+                radii=fit_radii,
+                params=params,
+                add_uncertainties=add_uncertainties,
+                add_X2=add_X2,
+                sigmas=sigmas,
+                **kwargs
             )
     else:
         ls = lambdas_optimize(
@@ -110,7 +136,9 @@ def calc_lambdas(
             radii=fit_radii,
             params=params,
             fit_tetrads=fit_tetrads,
-            add_SE=add_SE,
+            add_uncertainties=add_uncertainties,
+            add_X2=add_X2,
+            sigmas=sigmas,
             **kwargs
         )
     if anomalies:
@@ -122,18 +150,18 @@ def calc_lambdas(
             fit_tetrads=fit_tetrads,
             **kwargs
         )
-        B_parameters = ls.columns
-        if add_SE: # half of these will be uncertainties
-            B_parameters = B_parameters[: B_parameters.size // 2]
+        npars = ls.columns.size - int(add_X2)  # exclude chi_squared if included
+        npars -= int(add_uncertainties) * npars // 2  # remove parameter uncertainties
+
         regression = pd.DataFrame(
-            ls[B_parameters].values @ np.array(func_components),
+            ls[ls.columns[:npars]].values @ np.array(func_components),
             columns=ree,
             index=df.index,
         )
 
         rdiff = df[ree] - regression
 
-        for anomaly in anomalies:
+        for anomaly in anomalies:  # add anomalies in linear (not log) space
             assert anomaly in rdiff.columns
             # log residuals are linear ratios, can back-transform
             ls["{}/{}*".format(anomaly, anomaly)] = np.exp(rdiff[anomaly])
