@@ -81,16 +81,17 @@ def calc_lambdas(
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
     params = _get_params(params=params, degree=degree)
-    if (fit_tetrads or add_uncertainties) and "oneill" in algorithm.lower():
+    if fit_tetrads and ("oneill" in algorithm.lower()):
         logger.warning(
-            "Can't use the O'Neill (2016) algorithm to fit tetrads, and uncertainty "
-            "calcuations are not yet implemented for this method;"
+            "Can't use the O'Neill (2016) algorithm to fit tetrads; "
             "falling back to the optimization based algorithm."
         )
         algorithm = "opt"
     # this is what will be passed to the fit
     #  to cacluate an anomaly rather than a residual, exclude the element from the fit
     exclude += anomalies
+    if exclude:
+        logger.debug("Excluding columns from the fit: " + ",".join(exclude))
     # these are the REE which the lambdas will be EVALUATED at; exclude empty columns
     column_fltr = [
         (c not in exclude) and (np.isfinite(df[c]).sum() > 0) for c in df.columns
@@ -102,25 +103,29 @@ def calc_lambdas(
 
     # also filter the sigmas we pass to subsequent functions, if needed
     if not (sigmas is None):
+        logger.debug("Sigmas provided.")
         if not isinstance(sigmas, (int, float)):
             sigmas = sigmas[column_fltr]
-            
+
     fit_df = df.loc[:, columns]
     fit_df.mask(~np.isfinite(fit_df), np.nan, inplace=True)  # deal with np.nan, np.inf
     fit_radii = get_ionic_radii(columns, charge=3, coordination=8)
 
     if "oneill" in algorithm.lower():
-        try:
-            ls = lambdas_ONeill2016(
-                fit_df,
-                radii=fit_radii,
-                params=params,
-                add_uncertainties=add_uncertainties,
-                add_X2=add_X2,
-                sigmas=sigmas,
-                **kwargs
-            )
+        #try:
+        logger.debug("Using implementation of ONeill2016.")
+        ls = lambdas_ONeill2016(
+            fit_df,
+            radii=fit_radii,
+            params=params,
+            add_uncertainties=add_uncertainties,
+            add_X2=add_X2,
+            sigmas=sigmas,
+            **kwargs
+        )
+        """
         except np.linalg.LinAlgError:  # singular matrix, use optimize
+            logger.debug("Singular Matrix - Falling back to optimization.")
             ls = lambdas_optimize(
                 fit_df,
                 radii=fit_radii,
@@ -130,7 +135,9 @@ def calc_lambdas(
                 sigmas=sigmas,
                 **kwargs
             )
+        """
     else:
+        logger.debug("Using optimization algorithm.")
         ls = lambdas_optimize(
             fit_df,
             radii=fit_radii,
@@ -142,6 +149,7 @@ def calc_lambdas(
             **kwargs
         )
     if anomalies:
+        logger.debug("Calculating anomalies.")
         # radii here use all the REE columns in df, including those excluded
         ree = df.pyrochem.list_REE
         names, x0, func_components = get_function_components(
@@ -154,7 +162,7 @@ def calc_lambdas(
         npars -= int(add_uncertainties) * npars // 2  # remove parameter uncertainties
 
         regression = pd.DataFrame(
-            ls[ls.columns[:npars]].values @ np.array(func_components),
+            ls.loc[:, ls.columns[:npars]].values @ np.array(func_components),
             columns=ree,
             index=df.index,
         )

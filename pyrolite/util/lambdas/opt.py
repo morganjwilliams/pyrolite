@@ -9,6 +9,7 @@ import scipy.linalg
 from ..meta import update_docstring_references
 from ..missing import md_pattern
 from .eval import get_function_components
+from .params import parse_sigmas
 from ..log import Handle
 
 logger = Handle(__name__)
@@ -89,46 +90,6 @@ def pcov_from_jac(jac):
     return pcov
 
 
-def parse_sigmas(y, sigmas=None):
-    """
-    Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
-    algorithms.
-
-    Parameters
-    ----------
-    y : :class:`numpy.ndarray`
-        2D array of y values.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of observed value uncertainties.
-
-    Returns
-    -------
-    sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of sigmas.
-
-    Notes
-    -----
-    If no sigmas are provided, 1% of the mean y values will be returned.
-    """
-    # if sigmas is none, it's assumed 2% uncertainty on log-transformed
-    # normalised abundances; 1D and 2D arrays should also work
-    sigma2d = False
-    if sigmas is None:
-        sigmas = 0.01 * y.mean(axis=0)
-    elif isinstance(sigmas, float):
-        sigmas = sigmas * y.mean(axis=0)
-    elif sigmas.ndim > 1:
-        if any(ix == 1 for ix in sigmas.shape):
-            sigmas = sigmas.flatten()
-        else:
-            msg = "2D uncertainty estimation not yet implemented."
-            raise NotImplementedError(msg)
-    else:
-        pass  # should be a 1D array
-
-    return sigmas
-
-
 def linear_fit_components(y, x0, func_components, sigmas=None):
     """
     Fit a weighted sum of function components using linear algebra.
@@ -175,7 +136,7 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
             # M = np.cov(_y, rowvar=False)  # variance-covariance matrix
             # weights derived from inverse variance of y-uncertaintes
             W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
-            invXWX = np.linalg.pinv(_x.T @ W @ _x)
+            invXWX = np.linalg.inv(_x.T @ W @ _x)
             _B = (invXWX @ _x.T @ W @ _y.T).T  # parameter estimates
             ############################################################################
             est = (_x @ _B.T).T  # modelled values
@@ -183,14 +144,14 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
             # H = X @ invXWX @ X.T @ W  # Hat matrix
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
             # calculate the reduced_chi_squared per row
-            reduced_chi_squared = (residuals ** 2 / sigmas ** 2).sum(axis=1) / dof
+            reduced_chi_squared = (residuals ** 2 / _sigmas ** 2).sum(axis=1) / dof
             mse = (residuals ** 2).sum(axis=1)  # mse per row
             # mse is divided by divided by degrees of freedom
-            _s = np.sqrt(mse[:, None] / dof * np.diag(invXWX)[None, :])
+            _s = np.sqrt(mse.reshape(-1, 1) / dof * np.diag(invXWX))
 
             B[row_fltr, :] = _B
             s[row_fltr, :] = _s
-            χ2[row_fltr, :] = reduced_chi_squared[:, None]
+            χ2[row_fltr, 0] = reduced_chi_squared
     return B, s, χ2
 
 

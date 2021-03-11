@@ -7,6 +7,8 @@ import pandas as pd
 from .eval import lambda_poly
 from ..missing import md_pattern
 from ..meta import update_docstring_references
+from .params import parse_sigmas
+from .eval import get_function_components
 from ..log import Handle
 
 logger = Handle(__name__)
@@ -42,7 +44,9 @@ def get_polynomial_matrix(radii, params=None):
 
 
 @update_docstring_references
-def lambdas_ONeill2016(df, radii, params=None, add_SE=False, **kwargs):
+def lambdas_ONeill2016(
+    df, radii, params=None, sigmas=None, add_X2=False, add_uncertainties=False, **kwargs
+):
     """
     Implementation of the original algorithm. [#ref_1]_
 
@@ -54,7 +58,9 @@ def lambdas_ONeill2016(df, radii, params=None, add_SE=False, **kwargs):
         Radii at which to evaluate the orthogonal polynomial.
     params : :class:`tuple`
         Tuple of constants for the orthogonal polynomial.
-    add_SE : :class:`bool`
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
+    add_uncertainties : :class:`bool`
         Append parameter standard errors to the dataframe.
 
     Returns
@@ -74,11 +80,17 @@ def lambdas_ONeill2016(df, radii, params=None, add_SE=False, **kwargs):
 
     """
     assert params is not None
-    degree = len(params)
-    # initialise the dataframe
-    names = [chr(955) + str(d) for d in range(degree)]
-    lambdas = pd.DataFrame(index=df.index, columns=names, dtype="float32")
+    names, x0, func_components = get_function_components(radii, params=params)
+    X = np.array(func_components).T
+    y = df.values
+    xd = len(func_components)
+
     rad = np.array(radii)  # so we can use a boolean index
+    sigmas = parse_sigmas(y, sigmas=sigmas)
+
+    B = np.ones((y.shape[0], xd)) * np.nan
+    s = np.ones((y.shape[0], xd)) * np.nan
+    χ2 = np.ones((y.shape[0], 1)) * np.nan
 
     md_inds, patterns = md_pattern(df)
     # for each missing data pattern, we create the matrix A - rather than each row
@@ -86,12 +98,43 @@ def lambdas_ONeill2016(df, radii, params=None, add_SE=False, **kwargs):
         row_fltr = md_inds == ind  # rows with this pattern
         missing_fltr = ~patterns[ind]["pattern"]  # boolean presence-absence filter
         if missing_fltr.sum():  # ignore completely empty rows
+            yd = missing_fltr.sum()  # number of elements used for the fit
             A = get_polynomial_matrix(rad[missing_fltr], params=params)
             invA = np.linalg.inv(A)
-            V = np.vander(rad, degree, increasing=True).T
+            V = np.vander(rad, xd, increasing=True).T
             Z = (
-                df.loc[row_fltr, missing_fltr].values[:, np.newaxis]
+                y[np.ix_(row_fltr, missing_fltr)][:, np.newaxis]
                 * V[np.newaxis, :, missing_fltr]
             ).sum(axis=-1)
-            lambdas.loc[row_fltr, :] = (invA @ Z.T).T
-    return lambdas
+            _B = (invA @ Z.T).T
+
+            ############################################################################
+            _sigmas = sigmas[missing_fltr]
+            _x = X[missing_fltr, :]
+            W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
+            invXWX = np.linalg.inv(_x.T @ W @ _x)
+
+            est = (X[missing_fltr, :] @ _B.T).T  # modelled values
+            # residuals over all rows
+            residuals = (df.loc[row_fltr, missing_fltr] - est).values
+            dof = yd - xd  # effective degrees of freedom (for this mising filter)
+            reduced_chi_squared = (residuals ** 2 / _sigmas ** 2).sum(axis=1) / dof
+            mse = (residuals ** 2).sum(axis=1)  # mse per row
+            # mse is divided by divided by degrees of freedom
+            _s = np.sqrt(mse.reshape(-1, 1) / dof * np.diag(invXWX))
+
+            B[row_fltr, :] = _B
+            s[row_fltr, :] = _s
+            χ2[row_fltr, 0] = reduced_chi_squared
+
+        lambdas = pd.DataFrame(
+            B,
+            index=df.index,
+            columns=names,
+            dtype="float32",
+        )
+        if add_uncertainties:
+            lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
+        if add_X2:
+            lambdas["X2"] = χ2
+        return lambdas

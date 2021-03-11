@@ -13,6 +13,10 @@ from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 
+from pyrolite.util.log import stream_log
+
+stream_log("pyrolite.util.lambdas", level="DEBUG")
+
 
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthogonal polynomial parameters."""
@@ -167,28 +171,41 @@ class TestCalcLambdas(unittest.TestCase):
 
         anomalies = ["Eu", "Ce"]
         for alg in ["ONeill", "opt"]:
-            for add_SE in [True, False]:
-                with self.subTest(alg=alg, add_SE=add_SE):
-                    ret = calc_lambdas(
-                        self.df,
-                        algorithm=alg,
-                        degree=self.default_degree,
-                        add_SE=add_SE,
-                        anomalies=anomalies,
-                    )
-                    self.assertTrue(
-                        ret.columns.size
-                        == (self.default_degree * [1, 2][add_SE] + len(anomalies))
-                    )
-                    self.assertTrue(
-                        all(["{}/{}*".format(a, a) in ret.columns for a in anomalies])
-                    )
+            for add_uncertainties in [True, False]:
+                for add_X2 in [True, False]:
+                    with self.subTest(
+                        alg=alg, add_uncertainties=add_uncertainties, add_X2=add_X2
+                    ):
+                        ret = calc_lambdas(
+                            self.df,
+                            algorithm=alg,
+                            degree=self.default_degree,
+                            add_uncertainties=add_uncertainties,
+                            add_X2=add_X2,
+                            anomalies=anomalies,
+                        )
+                        self.assertTrue(
+                            ret.columns.size
+                            == (
+                                self.default_degree * [1, 2][add_uncertainties]
+                                + int(add_X2)
+                                + len(anomalies)
+                            )
+                        )
+                        self.assertTrue(
+                            all(
+                                [
+                                    "{}/{}*".format(a, a) in ret.columns
+                                    for a in anomalies
+                                ]
+                            )
+                        )
 
     def test_tetrads(self):
         """
         Check that tetrads can be calculated using the optimization algorithm,
         and that where the O'Neill algorithm is specified it will default back to
-        the optimization algorithm instead.
+        the optimization algorithm instead (i.e. still produce a result).
         """
         for alg in ["ONeill", "opt"]:
             with self.subTest(alg=alg):
@@ -209,7 +226,7 @@ class TestCalcLambdas(unittest.TestCase):
                 )
                 self.assertTrue(ret.columns.size == self.default_degree + 4)
 
-    def test_opt_addSE(self):
+    def test_opt_add_uncertainties(self):
         for fit_method in ["opt", "lin"]:
             with self.subTest(fit_method=fit_method):
                 ret = calc_lambdas(
@@ -218,7 +235,7 @@ class TestCalcLambdas(unittest.TestCase):
                     degree=self.default_degree,
                     fit_tetrads=True,
                     fit_method=fit_method,
-                    add_SE=True,
+                    add_uncertainties=True,
                 )
                 # should have lambdas, tetrads and uncertainties for both
                 self.assertTrue(ret.columns.size == (self.default_degree + 4) * 2)
@@ -251,8 +268,8 @@ class TestCalcLambdas(unittest.TestCase):
         df.loc[1, :] = np.nan
         ret = calc_lambdas(df)
         # all of the second row should be nan
+        print(df, ret)
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
-
 
 
 if __name__ == "__main__":

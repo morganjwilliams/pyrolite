@@ -125,7 +125,8 @@ def _get_params(params=None, degree=4):
         # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
         _ree = [i for i in REE() if i not in ["Eu"]]
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8),
+            degree=degree,
         )
     elif isinstance(params, str):
         name = params.replace("'", "").lower()
@@ -140,7 +141,8 @@ def _get_params(params=None, degree=4):
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8),
+            degree=degree,
         )
     else:
         # check that params is a tuple or list
@@ -151,3 +153,43 @@ def _get_params(params=None, degree=4):
             raise NotImplementedError(msg)
 
     return params
+
+
+def parse_sigmas(y, sigmas=None):
+    """
+    Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
+    algorithms.
+
+    Parameters
+    ----------
+    y : :class:`numpy.ndarray`
+        2D array of y values.
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of observed value uncertainties.
+
+    Returns
+    -------
+    sigmas : :class:`float` | :class:`numpy.ndarray`
+        Single value or 1D array of sigmas.
+
+    Notes
+    -----
+    If no sigmas are provided, 1% of the mean y values will be returned.
+    """
+    # if sigmas is none, it's assumed 2% uncertainty on log-transformed
+    # normalised abundances; 1D and 2D arrays should also work
+    sigma2d = False
+    if sigmas is None:
+        sigmas = 0.01 * y.mean(axis=0)
+    elif isinstance(sigmas, float):
+        sigmas = sigmas * y.mean(axis=0)
+    elif sigmas.ndim > 1:
+        if any(ix == 1 for ix in sigmas.shape):
+            sigmas = sigmas.flatten()
+        else:
+            msg = "2D uncertainty estimation not yet implemented."
+            raise NotImplementedError(msg)
+    else:
+        pass  # should be a 1D array
+
+    return sigmas
