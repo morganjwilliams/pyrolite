@@ -36,7 +36,8 @@ df = example_spider_data(
     start="DMM_WH2005",
     norm_to="Chondrite_PON",
     offsets={"Eu": 0.2},
-).pyrochem.denormalize_from("Chondrite_PON")
+).pyrochem.REE.pyrochem.denormalize_from("Chondrite_PON")
+df.head(2)
 ########################################################################################
 # Let's have a quick look at what this REE data looks like normalized to Primitive
 # Mantle:
@@ -125,6 +126,68 @@ plt.tight_layout()
 ls_anomalies = df.pyrochem.lambda_lnREE(anomalies=["Ce", "Eu"])
 ax = ls_anomalies.iloc[:, -2:].pyroplot.scatter()
 plt.show()
+########################################################################################
+# Coefficient Uncertainties and Fit Quality
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# In order to determine the relative significance of the parameterisation and
+# 'goodness of fit', the functions are able to estimate uncertainties on the returned
+# coefficients (lambdas and taus) and will also return the chi-square value (χ2;
+# equivalent to the MSWD) where requested. This will be appended to the end of the
+# dataframe. Note that if you do not supply an estimate of observed value uncertainties
+# a default of 1% of the log-mean will be used.
+#
+# To append the reduced chi-square for each row, the keyword argument
+# :code:`add_X2=True` can be used; here we've estimated 10% uncertainty on the
+# log mean values:
+#
+ls = df.pyrochem.lambda_lnREE(add_X2=True, sigmas=0.1, anomalies=["Eu", "Ce"])
+ls.columns
+########################################################################################
+# We can have a quick look at these values look like like for the synthetic dataset,
+# given the assumed 10% uncertainties. While the fit appears reasonable for a good
+# fraction of the dataset, for some rows it is notably worse:
+#
+ls["X2"].plot.hist(bins=30)
+########################################################################################
+# We can also examine the estimated uncertainties on the coefficients from the fit
+# by adding the keyword argument :code:`add_uncertainties=True` (note: these do not
+# explicitly propagate observation uncertainties):
+#
+ls = df.pyrochem.lambda_lnREE(add_uncertainties=True)
+ls.columns
+########################################################################################
+# Notably, on the scale of natural dataset variation, these uncertainties may end
+# up being smaller than symbol sizes. If your dataset happened to have a great
+# deal more noise, you may happen to see them - for demonstration purposes we can
+# generate a noiser dataset and have a quick look at what these uncertainties
+# *could* look like:
+#
+ls = (df + 3 * np.exp(np.random.randn(*df.shape))).pyrochem.lambda_lnREE(
+    add_uncertainties=True
+)
+########################################################################################
+# With this 'noisy' dataset, we can see some of the errorbars:
+#
+fig, ax = plt.subplots(1, 3, figsize=(9, 2.5))
+ax = ax.flat
+dc = ls.columns.size // 2
+for ix, a in enumerate(ls.columns[:3]):
+    i0, i1 = ix, ix + 1
+    ax[ix].set(xlabel=ls.columns[i0], ylabel=ls.columns[i1])
+    ax[ix].errorbar(
+        ls.iloc[:, i0],
+        ls.iloc[:, i1],
+        xerr=ls.iloc[:, i0 + dc] * 2,
+        yerr=ls.iloc[:, i1 + dc] * 2,
+        ls="none",
+        zorder=-1,
+        ecolor="0.5",
+        marker="D",
+        markersize=1,
+        color="k",
+    )
+plt.tight_layout()
 ########################################################################################
 # Fitting Tetrads
 # ~~~~~~~~~~~~~~~~
@@ -246,7 +309,7 @@ true = pd.DataFrame(ls[:, [x, y]], columns=[fit_ls_only.columns[ix] for ix in [x
 for ix, a in enumerate(["B", "C", "E", "F"]):
     true.iloc[np.array([ix < 2, ix < 2, ix >= 2, ix >= 2]), :].pyroplot.scatter(
         ax=ax[a],
-        color=np.array([str(ix) * 2 for ix in np.arange(ls.shape[0 ]// 2)]),
+        color=np.array([str(ix) * 2 for ix in np.arange(ls.shape[0] // 2)]),
         marker="X",
         s=100,
     )
