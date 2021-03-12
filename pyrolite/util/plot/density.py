@@ -149,7 +149,7 @@ def plot_Z_percentiles(
         Widths of contour lines.
     linestyles : :class:`str` | :class:`list`
         Styles for contour lines.
-    contour_labels : :class:`dict`
+    contour_labels : :class:`dict` | :class:`list`
         Labels to assign to contours, organised by level.
     label_contours :class:`bool`
         Whether to add text labels to individual contours.
@@ -216,9 +216,13 @@ def plot_Z_percentiles(
         }
         if contour_labels is None:
             _labels = [trans[float(l.get_text())] for l in lbls]
-        else:  # get the labels from the dictionary provided
-            contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
-            _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+        else:
+            if isinstance(contour_labels, dict):
+                # get the labels from the dictionary provided
+                contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
+                _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+            else:  # a list is specified in the same order as the contours are drawn
+                _labels = contour_labels
 
         for l, t in zip(lbls, _labels):
             l.set_text(t)
