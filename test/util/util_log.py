@@ -5,6 +5,7 @@ from io import StringIO
 from pyrolite.util.log import (
     stream_log,
     ToLogger,
+    Handle
 )
 import pyrolite.plot  # for logging checks
 
@@ -59,6 +60,20 @@ class TestStreamLog(unittest.TestCase):
             # trigger something with a logging output
 
         # check that the relevant logging output has been redirected to stdout
+
+
+class TestHandle(unittest.TestCase):
+    def test_default(self):
+        # get the root pyrolite logger
+        logger = Handle("pyrolite")
+        self.assertIsInstance(logger, logging.Logger)
+
+    def test_set_level(self):
+
+        for level, val in zip(['DEBUG', 'INFO', 'WARNING', 'ERROR'], [10, 20, 30, 40]):
+            with self.subTest(level=level, val=val):
+                logger = Handle("pyrolite", level=level)
+                self.assertTrue(logger.level == val)
 
 
 if __name__ == "__main__":
