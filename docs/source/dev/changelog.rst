@@ -3,14 +3,6 @@ Changelog
 
 All notable changes to this project will be documented here.
 
-Todo
-------
-
-* **Feature**: Updates to include more lithogeochemical plot templates
-  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
-  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-
 `Development`_
 --------------
 
