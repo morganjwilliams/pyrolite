@@ -3,20 +3,16 @@ Changelog
 
 All notable changes to this project will be documented here.
 
-Todo
-------
-
-* **Feature**: Updates to include more lithogeochemical plot templates
-  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
-  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-
 `Development`_
 --------------
 
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
+
+
+`0.3.0`_
+--------------
 
 * **New Contributor**: Lucy Mathieson
 * Continuous Integration has been migrated from Travis to GitHub Actions.
@@ -1110,7 +1106,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...develop
+.. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
 .. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
 .. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
