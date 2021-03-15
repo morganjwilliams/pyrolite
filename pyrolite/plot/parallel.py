@@ -13,11 +13,12 @@ logger = Handle(__name__)
 
 def plot_across_axes():
     """
-    Parallel coordinate plots in matplotlib where each variable
-    has its own axis.
+    Parallel coordinate plots in matplotlib where each variable has its own axis.
 
-    From
-    https://stackoverflow.com/questions/17543359/drawing-lines-between-two-plots-in-matplotlib
+    Notes
+    -----
+    This stub is a work-in-progress.
+    From stackoverflow.com/questions/17543359/drawing-lines-between-two-plots-in-matplotlib
     """
     transFigure = fig.transFigure.inverted()
 
@@ -128,66 +129,4 @@ def parallel(
     if label_rotate is not None:
         [i.set_rotation(label_rotate) for i in ax.get_xticklabels()]
 
-    return ax
-
-
-def patched_parallel_coordinates(
-    frame,
-    class_column,
-    cols=None,
-    ax=None,
-    color=None,
-    xticks=None,
-    colormap=None,
-    axvlines=True,
-    **kwds,
-):
-    """
-    """
-
-    if axvlines_kwds is None:
-        axvlines_kwds = {"linewidth": 1, "color": "black"}
-
-    n = len(frame)
-    classes = frame[class_column].drop_duplicates()
-    class_col = frame[class_column]
-
-    if cols is None:
-        df = frame.drop(class_column, axis=1)
-    else:
-        df = frame[cols]
-
-    used_legends = set()
-
-    ncols = len(df.columns)
-
-    if ax is None:
-        ax = plt.gca()
-
-    color_values = _get_standard_colors(
-        num_colors=len(classes), colormap=colormap, color_type="random", color=color
-    )
-
-    colors = dict(zip(classes, color_values))
-
-    for i in range(n):
-        y = df.iloc[i].values
-        kls = class_col.iat[i]
-        label = pprint_thing(kls)
-        if label not in used_legends:
-            used_legends.add(label)
-            ax.plot(x, y, color=colors[kls], label=label, **kwds)
-        else:
-            ax.plot(x, y, color=colors[kls], **kwds)
-
-    if axvlines:
-        for i in x:
-            ax.axvline(i)
-
-    x = list(range(ncols))
-    ax.set_xticks(x)
-    ax.set_xticklabels(df.columns)
-    ax.set_xlim(x[0], x[-1])
-    ax.legend(loc="upper right")
-    ax.grid()
     return ax

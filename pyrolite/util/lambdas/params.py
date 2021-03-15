@@ -187,7 +187,7 @@ def parse_sigmas(y, sigmas=None):
         sigmas = np.ones(y.shape[1]) * 0.01
     else:  # sigmas are passed
         if isinstance(sigmas, float):
-            sigmas = sigmas
+            sigmas = sigmas * np.ones(y.shape[1])
         elif sigmas.ndim > 1:
             if any(ix == 1 for ix in sigmas.shape):
                 sigmas = sigmas.flatten()
