@@ -18,6 +18,10 @@ Todo
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+
+`0.3.0`_
+--------------
+
 * **New Contributor**: Lucy Mathieson
 * Continuous Integration has been migrated from Travis to GitHub Actions.
 * Added an :code:`environment.yml` file for development environment consistency.
@@ -1110,7 +1114,8 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...develop
+.. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
 .. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
 .. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
