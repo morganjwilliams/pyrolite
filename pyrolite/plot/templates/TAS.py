@@ -3,6 +3,9 @@ import numpy as np
 from ...util.plot.axes import init_axes
 from ...util.classification import TAS as TASclassifier
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
+from ...util.log import Handle
+
+logger = Handle(__name__)
 
 
 @update_docstring_references

@@ -5,10 +5,9 @@ import numpy as np
 import scipy.interpolate
 import matplotlib.path
 import matplotlib.collections
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def interpolate_path(

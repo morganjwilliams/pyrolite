@@ -1,9 +1,8 @@
 import os
 from .types import iscollection
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def validate_value(value, validator):
@@ -65,9 +64,9 @@ def validate_update_envvar(
                 value = default
 
     if value is not None:
-        logging.debug("EnvVar {} set to {}.".format(prefix + key, value))
+        logger.debug("EnvVar {} set to {}.".format(prefix + key, value))
         os.environ[prefix + key] = formatter(value)
     else:  # Remove the environment variable if it exists
         if prefix + key in os.environ:
-            logging.debug("EnvVar {} removed.".format(prefix + key))
+            logger.debug("EnvVar {} removed.".format(prefix + key))
             del os.environ[prefix + key]

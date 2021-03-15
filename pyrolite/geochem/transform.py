@@ -19,11 +19,9 @@ from .ind import (
     get_cations,
 )
 from .norm import Composition, get_reference_composition
+from ..util.log import Handle
 
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def to_molecular(df: pd.DataFrame, renorm=True):
@@ -273,13 +271,10 @@ def aggregate_element(
     -------
     This won't convert units, so need to start from single set of units.
 
-    This function as currently formulated consumes a lot of memory, and seems causes
-    memory leaks.
-
     Returns
     -------
-    :class:`pandas.Series`
-        Series with cation aggregated.
+    :class:`pandas.DataFrame`
+        Dataframe with cation aggregated to the desired species.
     """
     # get the elemental sum
     subsum = elemental_sum(
@@ -429,32 +424,48 @@ def get_ratio(
     :func:`~pyrolite.geochem.transform.add_MgNo`
     """
     num, den = ratio.split("/")
+    # remove start/trailing brackets for ratios of the form (A/B)_n ?
+    num = num.replace("(", "")
+    den = den.replace(")", "")
+
     _to_norm = False
     if den.lower().endswith("_n"):
         den = titlecase(den.lower().replace("_n", ""))
         _to_norm = True
 
-    if _to_norm or (norm_to is not None):  # if molecular, this will need to change
-        if isinstance(norm_to, str):
-            norm = get_reference_composition(norm_to)
-            num_n, den_n = norm[num], norm[den]
-        elif isinstance(norm_to, Composition):
-            norm = norm_to
-            num_n, den_n = norm[num], norm[den]
-        elif iscollection(norm_to):  # list, iterable, pd.Index etc
-            num_n, den_n = norm_to
-        else:
-            logger.warning("Unknown normalization, defaulting to Chondrite.")
-            norm = get_reference_composition("Chondrite_PON")
-            num_n, den_n = norm[num], norm[den]
-
     name = [ratio if ((not alias) or (alias is None)) else alias][0]
-    logger.debug("Adding Ratio: {}".format(name))
+    logger.debug("Calculating Ratio: {}".format(name))
     numsum, densum = (
         elemental_sum(df, num, to=num, molecular=molecular),
         elemental_sum(df, den, to=den, molecular=molecular),
     )
     ratio = numsum / densum
+
+    if _to_norm or (norm_to is not None):  # if molecular, this will need to change
+        if isinstance(norm_to, str):
+            norm = get_reference_composition(norm_to)
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+        elif isinstance(norm_to, Composition):
+            norm = norm_to
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+        elif iscollection(norm_to):  # list, iterable, pd.Index etc
+            num_n, den_n = norm_to
+            norm_ratio = num_n / den_n
+        elif isinstance(norm_to, (int, float)):  # a number for the ratio
+            norm_ratio = norm_to
+        else:
+            logger.warning("Unknown normalization, defaulting to Chondrite.")
+            norm = get_reference_composition("Chondrite_PON")
+            num_n, den_n = norm[num], norm[den]
+            norm_ratio = num_n / den_n
+
+        if not np.isfinite(norm_ratio):  # could be NaN
+            logger.warn("Invalid ratio for normalisation from: {}".format(norm_to))
+        logger.debug("Normalizing Ratio: {}".format(name))
+        ratio /= norm_ratio
+
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
     ratio.name = name
     return ratio
@@ -524,6 +535,7 @@ def lambda_lnREE(
     allow_missing=True,
     min_elements=7,
     algorithm="ONeill",
+    sigmas=None,
     **kwargs
 ):
     """
@@ -556,6 +568,9 @@ def lambda_lnREE(
         Minimum columns present to return lambda values.
     algorithm : :class:`str`
         Algorithm to use for fitting the orthogonal polynomials.
+    sigmas : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series`
+        Value or 1D array of fractional REE uncertaintes (i.e.
+        :math:`\sigma_{REE}/REE`).
 
     Todo
     -----
@@ -572,15 +587,12 @@ def lambda_lnREE(
     See Also
     ---------
     :func:`~pyrolite.geochem.ind.get_ionic_radii`
-    :func:`~pyrolite.util.lambdas.lambdas`
-    :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
+    :func:`~pyrolite.util.lambdas.calc_lambdas`
+    :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     # if there are no supplied params, they will be calculated in calc_lambdas
-
-    # Check which REE we're dealing with
-    ree = [el for el in REE() if el in df.columns and el not in exclude]
-
+    ree = df.pyrochem.list_REE  # this excludes Pm
     # initialize normdf
     norm_df = df.loc[:, ree].copy()
     # check if there are columns which are empty
@@ -613,6 +625,10 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
+    if not (sigmas is None):
+        if isinstance(sigmas, pd.Series):  # convert this to an array
+            sigmas = sigmas[ree].values
+
     if not allow_missing:
         # nullify rows with missing data
         missing = pd.isnull(df.loc[:, ree]).any(axis=1)
@@ -624,17 +640,18 @@ def lambda_lnREE(
 
     lambdadf = pd.DataFrame(
         index=norm_df.index,
-        columns=[chr(955) + str(d) for d in range(degree)],
         dtype="float32",
     )
-    # we've already excluded columns, so dont' need to here
-    lambdadf.loc[row_filter, :] = lambdas.calc_lambdas(
+    ls = lambdas.calc_lambdas(
         norm_df.loc[row_filter, :],
+        exclude=exclude,
         params=params,
         degree=degree,
         algorithm=algorithm,
+        sigmas=sigmas,
         **kwargs
     )
+    lambdadf.loc[row_filter, ls.columns] = ls
     assert lambdadf.index.size == df.index.size
     return lambdadf
 

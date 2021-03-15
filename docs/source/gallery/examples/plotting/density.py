@@ -164,4 +164,4 @@ plt.show()
 #
 # .. seealso:: `Heatscatter Plots <heatscatter.html>`__,
 #              `Ternary Plots <ternary.html>`__,
-#              `Spider Density Diagrams <conditionaldensity.html>`__
+#              `Spider Density Diagrams <spider.html>`__

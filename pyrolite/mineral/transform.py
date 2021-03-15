@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import periodictable as pt
 from ..util.pd import to_frame
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def formula_to_elemental(formula, weight=True):
@@ -37,6 +36,7 @@ def merge_formulae(formulas):
     for f in formulas:
         molecule += pt.formula(f)
     return molecule
+
 
 def recalc_cations(
     df,

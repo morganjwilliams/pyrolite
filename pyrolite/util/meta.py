@@ -1,14 +1,12 @@
-import os, sys
-import io
+import importlib
 import inspect
 import webbrowser
 from pathlib import Path
 import numpydoc.docscrape
-import logging
 import warnings
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 warnings.filterwarnings("ignore", "Unknown section")
 
@@ -26,7 +24,8 @@ def get_module_datafolder(module="pyrolite", subfolder=None):
     -------
     :class:`pathlib.Path`
     """
-    pth = Path(sys.modules[module].__file__).parent / "data"
+    pth = importlib.machinery.PathFinder().find_module(module).get_filename(module)
+    pth = Path(pth).parent / "data"
     if subfolder:
         pth /= subfolder
     return pth
@@ -46,85 +45,6 @@ def pyrolite_datafolder(subfolder=None):
     :class:`pathlib.Path`
     """
     return get_module_datafolder(module="pyrolite", subfolder=subfolder)
-
-
-class ToLogger(io.StringIO):
-    """
-    Output stream which will output to logger module instead of stdout.
-    """
-
-    logger = None
-    level = None
-    buf = ""
-
-    def __init__(self, logger, level=None):
-        super(ToLogger, self).__init__()
-        self.logger = logger
-        self.level = level or logging.INFO
-
-    def write(self, buf):
-        self.buf = buf.strip("\r\n\t ")
-
-    def flush(self):
-        self.logger.log(self.level, self.buf)
-
-
-def stream_log(logger=None, level="INFO"):
-    """
-    Stream the log from a specific package or subpackage.
-
-    Parameters
-    ----------
-    logger : :class:`str` | :class:`logging.Logger`
-        Name of the logger or module to monitor logging from.
-    level : :class:`str`, :code:`'INFO'`
-        Logging level at which to set the handler output.
-
-    Returns
-    -------
-    :class:`logging.Logger`
-        Logger for the specified package with stream handler added.
-    """
-    # remove ipython active stream handler if present
-
-    if logger is None:
-        logger = logging.getLogger()  # root logger
-        propagate = True
-    else:
-        propagate = False
-
-    if isinstance(logger, str):
-        logger = logging.getLogger(logger)  # module logger
-    elif isinstance(logger, logging.Logger):
-        pass  # enable passing a logger instance
-    else:
-        raise NotImplementedError
-
-    logger.propagate = propagate  # don't duplicate by propagating to root
-    int_level = getattr(logging, level)
-    # check there are no handlers other than Null
-    active_handlers = [
-        i
-        for i in logger.handlers
-        if isinstance(i, (logging.StreamHandler))  # not a null handler
-    ]
-
-    if active_handlers:
-        handler = active_handlers[0]  # use the existing one
-    else:
-        handler = logging.StreamHandler()  # make a new one
-
-    if handler.level <= int_level:
-        handler.setLevel(int_level)
-
-    fmt = logging.Formatter("%(name)s - %(levelname)s: %(message)s")
-    handler.setFormatter(fmt)
-    logger.addHandler(handler)
-
-    if (logger.level == 0) or (logger.level > int_level):
-        logger.setLevel(int_level)
-
-    return logger
 
 
 def take_me_to_the_docs():

@@ -265,6 +265,20 @@ class TestByIncompatibility(unittest.TestCase):
         self.assertEqual(reordered_REE[0], "Ni")
 
 
+class TestByNumber(unittest.TestCase):
+    def setUp(self):
+        self.els = ["Ni", "Mg", "Cs", "Sr"]
+
+    def test_default(self):
+        reordered_REE = by_number(self.els)
+        self.assertEqual(reordered_REE[0], "Mg")
+        self.assertEqual(reordered_REE[-1], "Cs")
+
+    def test_reverse(self):
+        reordered_REE = by_number(self.els, reverse=True)
+        self.assertEqual(reordered_REE[0], "Cs")
+        self.assertEqual(reordered_REE[-1], "Mg")
+
 # todo: get_cations
 
 

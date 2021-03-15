@@ -1,8 +1,8 @@
 import numpy as np
-import logging
+from ...util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
+
 
 def deadtime_correction(data, deadtime):
     """
@@ -27,6 +27,6 @@ def deadtime_correction(data, deadtime):
             data * dt * np.exp(data * dt * np.exp(data * dt * np.exp(data * dt)))
         )
     else:
-        data = data / (1. - (data * dt))
+        data = data / (1.0 - (data * dt))
 
     return data

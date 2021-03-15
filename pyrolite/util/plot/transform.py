@@ -3,10 +3,9 @@ Transformation utilites for matplotlib.
 """
 import numpy as np
 from ...comp.codata import close
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):

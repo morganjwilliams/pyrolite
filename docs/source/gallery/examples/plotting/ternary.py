@@ -36,4 +36,4 @@ plt.tight_layout()
 ########################################################################################
 # .. seealso:: `Heatscatter Plots <heatscatter.html>`__,
 #              `Density Plots <density.html>`__,
-#              `Spider Density Diagrams <conditionaldensity.html>`__
+#              `Spider Density Diagrams <spider.html>`__

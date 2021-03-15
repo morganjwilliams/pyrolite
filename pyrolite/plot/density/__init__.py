@@ -1,10 +1,10 @@
 """
 Kernel desnity estimation plots for geochemical data.
 """
+import copy
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as np
-import logging
 
 from ...comp.codata import close
 from ...util.plot.density import (
@@ -17,9 +17,9 @@ from ...util.plot.axes import init_axes, add_colorbar
 from ...util.meta import get_additional_params, subkwargs
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
+from ...util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def density(
@@ -34,7 +34,7 @@ def density(
     percentiles=True,
     relim=True,
     cmap=DEFAULT_CONT_COLORMAP,
-    shading="flat",
+    shading="auto",
     vmin=0.0,
     colorbar=False,
     **kwargs
@@ -77,7 +77,7 @@ def density(
         Colormap for mapping surfaces.
     vmin : :class:`float`, 0.
         Minimum value for colormap.
-    shading : :class:`str`, 'flat'
+    shading : :class:`str`, 'auto'
         Shading to apply to pcolormesh.
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
@@ -118,7 +118,7 @@ def density(
     if cmap is not None:
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
-
+        cmap = copy.copy(cmap)  # without this, it would modify the global cmap
         cmap.set_under((1, 1, 1, 0))
 
     if mode == "density":
@@ -211,6 +211,8 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
+            if shading == 'auto':
+                shading = 'flat' # auto cant' be passed to tripcolor
             # zeros make nans in this case, due to the heatmap calculations
             arr[~(arr > 0).all(axis=1), :] = np.nan
             arr = close(arr)

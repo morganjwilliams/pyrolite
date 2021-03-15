@@ -16,10 +16,9 @@ from ..meta import subkwargs
 from ..math import flattengrid, linspc_, logspc_, interpolate_line
 from ..distributions import sample_kde
 from .grid import bin_centres_to_edges
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     import statsmodels.api as sm
@@ -64,7 +63,8 @@ def percentile_contour_values_from_meshz(
 ):
     """
     Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
-    correspond to specified percentile contours.T
+    correspond to specified percentile contours. Contour values will be returned
+    with the same order as the inputs.
 
     Parameters
     ----------
@@ -89,7 +89,6 @@ def percentile_contour_values_from_meshz(
     be updated to cater for arrays - where some of the values may be above
     the minimum.
     """
-    percentiles = sorted(percentiles, reverse=True)
     # Integral approach from https://stackoverflow.com/a/37932566
     t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
@@ -118,7 +117,8 @@ def plot_Z_percentiles(
     fontsize=8,
     cmap=None,
     colors=None,
-    linestyles="-",
+    linewidths=None,
+    linestyles=None,
     contour_labels=None,
     label_contours=True,
     **kwargs
@@ -145,9 +145,11 @@ def plot_Z_percentiles(
         Color map for the contours and contour labels.
     colors : :class:`str` | :class:`list`
         Colors for the contours, can optionally be specified *in place of* `cmap.`
+    linewidths : :class:`str` | :class:`list`
+        Widths of contour lines.
     linestyles : :class:`str` | :class:`list`
-        Style of the contour lines.
-    contour_labels : :class:`dict`
+        Styles for contour lines.
+    contour_labels : :class:`dict` | :class:`list`
         Labels to assign to contours, organised by level.
     label_contours :class:`bool`
         Whether to add text labels to individual contours.
@@ -173,7 +175,7 @@ def plot_Z_percentiles(
         # if len(coords) == 2:  # currently won't work for ternary
         extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
 
-    clabels, contours = percentile_contour_values_from_meshz(
+    clabels, contour_values = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
 
@@ -181,14 +183,28 @@ def plot_Z_percentiles(
     if colors is not None:  # colors are explicitly specified
         cmap = None
 
+    # contours will need to increase for matplotlib, so we check the ordering here.
+    ordering = np.argsort(contour_values)
+    # sort out multi-object properties - reorder to fit the increasing order requirement
+    cntr_config = {}
+    for p, v in [
+        ("colors", colors),
+        ("linestyles", linestyles),
+        ("linewidths", linewidths),
+    ]:
+        if v is not None:
+            if isinstance(v, (list, tuple)):
+                # reorder the list
+                cntr_config[p] = [v[ix] for ix in ordering]
+            else:
+                cntr_config[p] = v
+
     cs = contour(
         *coords,
         zi,
-        levels=contours,
+        levels=contour_values[ordering],  # must increase
         cmap=cmap,
-        colors=colors,
-        linestyles=linestyles,
-        **kwargs
+        **{**cntr_config, **kwargs}
     )
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
@@ -200,9 +216,13 @@ def plot_Z_percentiles(
         }
         if contour_labels is None:
             _labels = [trans[float(l.get_text())] for l in lbls]
-        else:  # get the labels from the dictionary provided
-            contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
-            _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+        else:
+            if isinstance(contour_labels, dict):
+                # get the labels from the dictionary provided
+                contour_labels = {str(k): str(v) for k, v in contour_labels.items()}
+                _labels = [contour_labels[trans[float(l.get_text())]] for l in lbls]
+            else:  # a list is specified in the same order as the contours are drawn
+                _labels = contour_labels
 
         for l, t in zip(lbls, _labels):
             l.set_text(t)

@@ -1,7 +1,6 @@
 """
 Submodule with various plotting and visualisation functions.
 """
-import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -9,20 +8,20 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.style
 import mpltern
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
-
 import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
 from ..util.plot.axes import init_axes, label_axes
-from ..util.plot.style import linekwargs, scatterkwargs
+from ..util.plot.style import (
+    linekwargs,
+    scatterkwargs,
+    _export_mplstyle,
+    _export_nonRCstyles,
+)
 from ..util.plot.helpers import plot_cooccurence
-from ..util.general import copy_file
 from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs, pyrolite_datafolder
+from ..util.meta import get_additional_params, subkwargs
 from .. import geochem
 from . import density
 from . import spider
@@ -32,55 +31,12 @@ from .color import process_color
 
 from ..comp.codata import close, ILR
 from ..util.distributions import sample_kde, get_scaler
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 # pyroplot added to __all__ for docs
 __all__ = ["density", "spider", "pyroplot"]
-
-
-def _export_pyrolite_mplstyle(refresh=False):
-    dest = Path(matplotlib.get_configdir()) / "stylelib"
-
-    if (not (dest / "pyrolite.mplstyle").exists()) or refresh:
-        logger.debug("Exporting pyrolite.mplstyle to matplotlib config folder.")
-        if not dest.exists():
-            dest.mkdir(parents=True)
-        copy_file(
-            pyrolite_datafolder("_config") / "pyrolite.mplstyle",
-            dest / "pyrolite.mplstyle",
-        )
-        logger.debug("Reloading matplotlib")
-        matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
-
-
-def _restyle(f, **_style):
-    """
-    A decorator to set the default keyword arguments for :mod:`matplotlib`
-    functions and classes which are not contained in the `matplotlibrc` file.
-    """
-
-    def wrapped(*args, **kwargs):
-        return f(*args, **{**_style, **kwargs})
-
-    wrapped.__name__ = f.__name__
-    wrapped.__doc__ = f.__doc__
-    return wrapped
-
-
-def _export_nonRCstyles():
-    """
-    Export default options for parameters not in rcParams using :func:`_restyle`.
-    """
-    matplotlib.axes.Axes.legend = _restyle(
-        matplotlib.axes.Axes.legend, bbox_to_anchor=(1, 1)
-    )
-    matplotlib.figure.Figure.legend = _restyle(
-        matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
-    )
-
-
-_export_pyrolite_mplstyle()
-_export_nonRCstyles()
-matplotlib.style.use("pyrolite")
 
 
 def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
@@ -337,7 +293,16 @@ class pyroplot(object):
         # ax.set_aspect("equal")
         return ax
 
-    def REE(self, index="elements", ax=None, mode="plot", dropPm=True, **kwargs):
+    def REE(
+        self,
+        index="elements",
+        ax=None,
+        mode="plot",
+        dropPm=True,
+        scatter_kw={},
+        line_kw={},
+        **kwargs,
+    ):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
@@ -350,6 +315,13 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
+        dropPm : :class:`bool`
+            Whether to exclude the (almost) non-existent element Promethium from the REE
+            list.
+        scatter_kw : :class:`dict`
+            Keyword parameters to be passed to the scatter plotting function.
+        line_kw : :class:`dict`
+            Keyword parameters to be passed to the line plotting function.
         {otherparams}
 
         Returns
@@ -367,7 +339,9 @@ class pyroplot(object):
             ree=ree,
             mode=mode,
             ax=ax,
-            **process_color(**kwargs),
+            scatter_kw=scatter_kw,
+            line_kw=line_kw,
+            **kwargs,
         )
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
@@ -401,10 +375,8 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
-        sc = ax.scatter(
-            *obj.reindex(columns=components).values.T,
-            **scatterkwargs(process_color(size=size, **kwargs)),
-        )
+        kw = process_color(size=size, **kwargs)
+        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw),)
 
         if axlabels:
             label_axes(ax, labels=components)
@@ -421,6 +393,8 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
+        scatter_kw={},
+        line_kw={},
         **kwargs,
     ):
         r"""
@@ -441,6 +415,10 @@ class pyroplot(object):
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
+        scatter_kw : :class:`dict`
+            Keyword parameters to be passed to the scatter plotting function.
+        line_kw : :class:`dict`
+            Keyword parameters to be passed to the line plotting function.
         {otherparams}
 
         Returns
@@ -463,7 +441,18 @@ class pyroplot(object):
         assert len(components) != 0
 
         if index_order is not None:
-            components = index_order(components)
+            if isinstance(index_order, str):
+                try:
+                    index_order = geochem.ind.ordering[index_order]
+                except KeyError:
+                    msg = (
+                        "Ordering not applied, as parameter '{}' not recognized."
+                        " Select from: {}"
+                    ).format(index_order, ", ".join(list(geochem.ind.ordering.keys())))
+                    logger.warning(msg)
+                components = index_order(components)
+            else:
+                components = index_order(components)
 
         ax = init_axes(ax=ax, **kwargs)
 
@@ -475,7 +464,9 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
-            **process_color(**kwargs),
+            scatter_kw=scatter_kw,
+            line_kw=line_kw,
+            **kwargs,
         )
         ax._pyrolite_components = components
         ax.set_xticklabels(components, rotation=60)

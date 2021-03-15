@@ -22,6 +22,9 @@ and numerous auxiliary utilities.
 - If you're interested in `contributing to the project <./dev/contributing.html>`__, there are
   many potential avenues, whether you're experienced with python or not.
 
+.. note:: pyrolite has recently been
+          `published in the Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.02314>`__!
+
 Why *pyrolite*?
 ..................
 
@@ -84,6 +87,3 @@ make use of your geochemical data to build and test geological models.
    api/API
    data/index
    ext/extensions
-
-.. note:: This documentation is a work in progress and is updated regularly. Contact
-          the maintainer with any specific questions/requests.

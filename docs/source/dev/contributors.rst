@@ -13,3 +13,4 @@ comments, testing, bug reports, or feature requests.
 * `Kaarel Mand <https://github.com/kaarelmand>`__
 * `Laura Miller <https://github.com/Lauraanme>`__
 * Steve Barnes
+* Lucy Mathieson

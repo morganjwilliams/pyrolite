@@ -6,10 +6,9 @@ import scipy.optimize
 from .sites import Site, MX, TX, OX
 from .transform import recalc_cations
 from .mindb import get_mineral, parse_composition
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 class MineralTemplate(object):
@@ -335,7 +334,9 @@ class Mineral(object):
             occupancy.loc[:, :] = 0.0
 
             for site in self.sites:
-                site.occupancy = pd.Series(index=occupancy.index, dtype='float').fillna(0)
+                site.occupancy = pd.Series(index=occupancy.index, dtype="float").fillna(
+                    0
+                )
 
             inventory = composition.copy()
             for site in self.sites[::-1]:

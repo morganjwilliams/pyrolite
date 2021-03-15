@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     from sklearn.experimental import enable_iterative_imputer

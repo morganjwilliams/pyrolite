@@ -15,7 +15,6 @@ Various utilities used by other submodules.
 # from .wfs import *
 # from .skl import *
 
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)

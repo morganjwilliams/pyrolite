@@ -52,13 +52,13 @@ ax.set_xticklabels(REE())
 ax.set_ylabel("Ionic Radius ($\AA$)")
 ax.set_title("Rare Earth Element Ionic Radii")
 ax.legend()
-
+plt.show()
 ########################################################################################
 # .. seealso::
 #
 #   Examples:
 #    `lambdas: Parameterising REE Profiles <lambdas.html>`__,
-#    `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+#    `REE Radii Plot <../plotting/REE_v_radii.html>`__
 #
 #   Functions:
 #     :func:`~pyrolite.geochem.ind.get_ionic_radii`,

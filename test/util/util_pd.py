@@ -24,14 +24,12 @@ class TestReadTable(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path()
         self.fn = self.dir / "test_read_table.csv"
-        self.files = [self.fn.with_suffix(s) for s in [".xlsx", ".xls", ".csv"]]
+        self.files = [self.fn.with_suffix(s) for s in [".csv"]]  # ".xlsx",
         self.expect = pd.DataFrame(
             np.ones((2, 2)), columns=["C1", "C2"], index=["i0", "i1"]
         )
-        for fn, ex in zip(
-            self.files, ["to_excel", "to_excel", "to_csv"]
-        ):  # make some csvs
-            kw = dict(engine="openpyxl")
+        for fn, ex in zip(self.files, ["to_csv"]):  # make some csvs # "to_excel",
+            kw = dict()  # engine="openpyxl"
             getattr(self.expect, ex)(str(fn), **subkwargs(kw, getattr(self.expect, ex)))
 
     def test_read_csv(self):
@@ -40,17 +38,6 @@ class TestReadTable(unittest.TestCase):
         self.assertTrue((df.values == self.expect.values).all())
         self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
 
-    def test_read_xlsx(self):
-        f = self.fn.with_suffix(".xlsx")
-        df = read_table(f)
-        self.assertTrue((df.values == self.expect.values).all())
-        self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
-
-    def test_read_xls(self):
-        f = self.fn.with_suffix(".xls")
-        df = read_table(f)
-        self.assertTrue((df.values == self.expect.values).all())
-        self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
 
 
 class TestAccumulate(unittest.TestCase):

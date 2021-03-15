@@ -3,20 +3,111 @@ Changelog
 
 All notable changes to this project will be documented here.
 
-Todo
-------
-
-* **Feature**: Updates to include more lithogeochemical plot templates
-  (`#26 <https://github.com/morganjwilliams/pyrolite/issues/26>`__)
-* **Feature**: Index memory for :func:`~pyrolite.plot.spider.spider`
-  (`#27 <https://github.com/morganjwilliams/pyrolite/issues/27>`__)
-
 `Development`_
 --------------
 
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
+
+
+`0.3.0`_
+--------------
+
+* **New Contributor**: Lucy Mathieson
+* Continuous Integration has been migrated from Travis to GitHub Actions.
+* Added an :code:`environment.yml` file for development environment consistency.
+* Removed some tests dependent on :mod:`xlrd` due to external issues with reading
+  :code:`.xls` and :code:`.xlsx` files with somne OS-Python version combinations.
+* Fixed some broken documentation links.
+* Added :mod:`psutil` to requirements.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where there scatter and line arguments would conflict for
+  :func:`~pyrolite.plot.pyroplot.spider`
+  (`#46 <https://github.com/morganjwilliams/pyrolite/issues/46>`__). To address this,
+  :func:`~pyrolite.plot.pyroplot.spider` and related functions will now accept the
+  keyword arguments :code:`line_kw` and :code:`scatter_kw` to explicitly configure the
+  scatter and line aspects of the spider plot - enabling finer customization. An
+  `extra example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#split-configuration>`__
+  has been added to the docs to illustrate the use of these parameters.
+  Thanks go to Lucy Mathieson for raising this one!
+* Added the :code:`set_ticks` keyword argument to :func:`~pyrolite.plot.pyroplot.spider`
+  and associated functions, allowing ticks to be optionally set
+  (:code:`set_ticks=False` if you don't want to set the x-ticks).
+* Updated :func:`pyrolite.plot.color.process_color` to better handle colour mapping and
+  added `examples illustrating this <https://pyrolite.readthedocs.io/en/develop/examples/plotting/spider.html#color-mapping>`__.
+  You can also now use RGBA colours when using the :code:`color_mappings` keyword
+  argument.
+* Updated automated pyrolite :mod:`matplotlib` style export to be more reliable.
+* Changed the default shading for :func:`~pyrolite.plot.pyroplot.density` to suppress
+  error about upcoming :mod:`matplotlib` depreciation.
+* Ordering for contours, contour names and contour styles is now preserved for
+  :func:`~pyrolite.plot.density.density` and related functions.
+* Updated :mod:`pyrolite.plot.templates.pearce` to use ratios from
+  Sun & McDonough (1989), as in the Pearce (2008) paper.
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where Eu was unnecessarily excluded from the
+  :func:`~pyrolite.geochem.pyrochem.lambda_lnREE` fit in all cases.
+* **Bugfix**: Fixed a bug where ratio-based normalisation was not implemented for
+  :func:`~pyrolite.geochem.transform.get_ratio` and related functions
+  (`#34 <https://github.com/morganjwilliams/pyrolite/issues/34>`__)
+* Added a local variable to :mod:`pyrolite.geochem.ind` to allow referencing of
+  indexing functions (e.g. :func:`~pyrolite.geochem.ind.by_incompatibility`) by
+  name, allowing easier integration with :func:`~pyrolite.plot.pyroplot.spider`.
+* Added :func:`~pyrolite.geochem.ind.by_number` for indexing a set of elements by
+  atomic number.
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the docstring for :func:`pyrolite.comp.impute.EMCOMP`.
+* Minor updates for :mod:`pyrolite.comp.codata` labelling, and reflected changes in
+  :mod:`pyrolite.util.skl.transform`. Issues were identified where the column name 'S'
+  appears, and a workaround has been put in place for now.
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Expanded :mod:`pyrolite.util.lambdas` to allow fitting of tetrad functions, anomalies
+  and estimation of parameter uncertainties for all three algorithms.
+* Added :mod:`pyrolite.util.resampling` for weighted spatiotemporal bootstrap resampling
+  and estimation, together with added a number of updates to
+  :mod:`pyrolite.util.spatial` to provide required spatial-similarity functionality.
+* Updated the geological timescale in :mod:`pyrolite.util.time` to use the
+  2020/03 version of the International Chronostratigraphic Chart
+  (`#45 <https://github.com/morganjwilliams/pyrolite/issues/45>`__).
+* Added :func:`~pyrolite.util.plot.helpers.alphalabel_subplots` for automatic alphabetic
+  labelling of subplots (e.g. for a manuscript figure).
+* Fixed an low-precision integer rollover issue in a combinatorial calculation
+  for :mod:`pyrolite.util.missing` by increasing precision to 64-bit integers.
+* Added :func:`~pyrolite.util.synthetic.example_patterns_from_parameters` to work with
+  :mod:`pyrolite.util.lambdas` and generate synthetic REE patterns based on
+  lambda and/or tetrad-parameterised curves.
+* Moved :func:`get_centroid` from :mod:`pyrolite.util.classification` to
+  :mod:`pyrolite.util.plot.helpers`
+* Made a small change to :mod:`~pyrolite.util.plot.density` to allow passing contour
+  labels as a list.
+* :func:`~pyrolite.util.plot.style.mappable_from_values` will not accept a :code:`norm`
+  keyword argument, allowing use of colormap normalisers like
+  :class:`matplotlib.colors.Normalize`. This function was also updated to better handle
+  :class:`~pandas.Series` objects.
+* Fixed a small bug for :class:`~pyrolite.util.classification.TAS` instantiation which
+  didn't allow passing the variables to be used from a :class:`pandas.DataFrame`.
+  If you have different variable names, you can now pass them as a list with the
+  :code:`axes` keyword argument (e.g. :code:`TAS(axes=['sio2', 'alkali'])`).
+* Homogenised logging throughout the package - now all managed through
+  :mod:`pyrolite.util.log`. The debugging and logging streaming function
+  :func:`stream_log` can now also be accessed here
+  (:func:`pyrolite.util.log.stream_log`).
+
+`0.2.8`_
+--------------
 
 * Updated citation information.
 * Added specific testing for OSX for Travis, and updated the install method to better
@@ -916,7 +1007,8 @@ Todo
 ~~~~~~~~~~~~~~~~~~~~~~
 
 * Expanded :mod:`pyrolite.comp.impute` and improved :func:`pyrolite.comp.impute.EMCOMP`
-* Added `EMCOMP example <../examples/comp/EMCOMP.html>`__
+* Added EMCOMP example (later removed in 0.2.5, pending validation and improvements for
+  EMCOMP).
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1014,7 +1106,9 @@ Todo
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...develop
+.. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
+.. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
 .. _0.2.6: https://github.com/morganjwilliams/pyrolite/compare/0.2.5...0.2.6
 .. _0.2.5: https://github.com/morganjwilliams/pyrolite/compare/0.2.4...0.2.5

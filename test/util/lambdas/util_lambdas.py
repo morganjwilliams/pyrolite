@@ -3,12 +3,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.axes
+
+from pyrolite.util.lambdas.eval import lambda_poly, get_lambda_poly_function
 from pyrolite.util.lambdas import (
-    orthogonal_polynomial_constants,
-    evaluate_lambda_poly,
-    get_lambda_poly_func,
-    plot_lambdas_components,
     calc_lambdas,
+    orthogonal_polynomial_constants,
 )
 from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
@@ -16,7 +15,7 @@ from pyrolite.geochem.norm import get_reference_composition
 
 
 class TestOPConstants(unittest.TestCase):
-    """Checks the generation of orthagonal polynomial parameters."""
+    """Checks the generation of orthogonal polynomial parameters."""
 
     def setUp(self):
         elements = [i for i in REE(dropPm=True) if i != "Eu"]  # drop Pm, Eu
@@ -99,7 +98,6 @@ class TestOPConstants(unittest.TestCase):
                         test_tol = tol * np.exp(len(ps) + 1)
                         a = np.array(list(ps), dtype=float)
                         b = np.array(list(hightol_result[ix]), dtype=float)
-                        # print( (abs(a)-abs(b)) / ((abs(a)+abs(b))/2)  - test_tol)
                         self.assertTrue(np.allclose(a, b, atol=test_tol))
 
 
@@ -111,17 +109,17 @@ class TestGetLambdaPolyFunc(unittest.TestCase):
         self.xs = np.linspace(0.9, 1.1, 5)
 
     def test_noparams(self):
-        ret = get_lambda_poly_func(self.lambdas, radii=self.xs)
+        ret = get_lambda_poly_function(self.lambdas, radii=self.xs)
         self.assertTrue(callable(ret))
 
     def test_noparams_noxs(self):
         with self.assertRaises(AssertionError):
-            ret = get_lambda_poly_func(self.lambdas)
+            ret = get_lambda_poly_function(self.lambdas)
             self.assertTrue(callable(ret))
 
     def test_function_params(self):
         params = orthogonal_polynomial_constants(self.xs, degree=len(self.lambdas))
-        ret = get_lambda_poly_func(self.lambdas, params=params)
+        ret = get_lambda_poly_function(self.lambdas, params=params)
         self.assertTrue(callable(ret))
 
 
@@ -133,7 +131,7 @@ class TestCalcLambdas(unittest.TestCase):
         vals = self.C[els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
 
-        self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
+        self.df = self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
         self.df.loc[1, :] = self.df.loc[0, :]
         self.default_degree = 3
 
@@ -164,6 +162,79 @@ class TestCalcLambdas(unittest.TestCase):
                 ret = calc_lambdas(self.df, algorithm=alg, degree=self.default_degree)
                 self.assertTrue(ret.columns.size == self.default_degree)
 
+    def test_anomalies(self):
+
+        anomalies = ["Eu", "Ce"]
+        for alg in ["ONeill", "opt"]:
+            for add_uncertainties in [True, False]:
+                for add_X2 in [True, False]:
+                    with self.subTest(
+                        alg=alg, add_uncertainties=add_uncertainties, add_X2=add_X2
+                    ):
+                        ret = calc_lambdas(
+                            self.df,
+                            algorithm=alg,
+                            degree=self.default_degree,
+                            add_uncertainties=add_uncertainties,
+                            add_X2=add_X2,
+                            anomalies=anomalies,
+                        )
+                        self.assertTrue(
+                            ret.columns.size
+                            == (
+                                self.default_degree * [1, 2][add_uncertainties]
+                                + int(add_X2)
+                                + len(anomalies)
+                            )
+                        )
+                        self.assertTrue(
+                            all(
+                                [
+                                    "{}/{}*".format(a, a) in ret.columns
+                                    for a in anomalies
+                                ]
+                            )
+                        )
+
+    def test_tetrads(self):
+        """
+        Check that tetrads can be calculated using the optimization algorithm,
+        and that where the O'Neill algorithm is specified it will default back to
+        the optimization algorithm instead (i.e. still produce a result).
+        """
+        for alg in ["ONeill", "opt"]:
+            with self.subTest(alg=alg):
+                ret = calc_lambdas(
+                    self.df, algorithm=alg, degree=self.default_degree, fit_tetrads=True
+                )
+                self.assertTrue(ret.columns.size == self.default_degree + 4)
+
+    def test_opt_fit_method(self):
+        for fit_method in ["opt", "lin"]:
+            with self.subTest(fit_method=fit_method):
+                ret = calc_lambdas(
+                    self.df,
+                    algorithm="opt",
+                    degree=self.default_degree,
+                    fit_tetrads=True,
+                    fit_method=fit_method,
+                )
+                self.assertTrue(ret.columns.size == self.default_degree + 4)
+
+    def test_opt_add_uncertainties(self):
+        for fit_method in ["opt", "lin"]:
+            with self.subTest(fit_method=fit_method):
+                ret = calc_lambdas(
+                    self.df,
+                    algorithm="opt",
+                    degree=self.default_degree,
+                    fit_tetrads=True,
+                    fit_method=fit_method,
+                    add_uncertainties=True,
+                )
+                # should have lambdas, tetrads and uncertainties for both
+                self.assertTrue(ret.columns.size == (self.default_degree + 4) * 2)
+
     def test_params(self):
         # the first three all have the same result - defaulting to ONeill 2016
         # the two following use a full REE set for the OP basis function definition
@@ -193,18 +264,6 @@ class TestCalcLambdas(unittest.TestCase):
         ret = calc_lambdas(df)
         # all of the second row should be nan
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
-
-
-class TestPlotLambdasComponents(unittest.TestCase):
-    def setUp(self):
-        self.lambdas = np.array([0.1, 1.0, 10.0, 100.0])
-
-    def test_default(self):
-        ax = plot_lambdas_components(self.lambdas)
-        self.assertIsInstance(ax, matplotlib.axes.Axes)
-
-    def tearDown(self):
-        plt.close("all")
 
 
 if __name__ == "__main__":

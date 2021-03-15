@@ -19,45 +19,16 @@ import matplotlib.patches
 import matplotlib.lines
 from .plot.style import patchkwargs
 from .plot.axes import init_axes
+from .plot.helpers import get_centroid
 from .meta import (
     pyrolite_datafolder,
     subkwargs,
     sphinx_doi_link,
     update_docstring_references,
 )
-import logging
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
-
-
-def get_centroid(poly):
-    """
-    Centroid of a closed polygon using the Shoelace formula.
-
-    Parameters
-    ----------
-    poly : :class:`matplotlib.patches.Polygon`
-        Polygon to obtain the centroid of.
-
-    Returns
-    -------
-    cx, cy : :class:`tuple`
-        Centroid coordinates.
-    """
-    # get signed area
-    verts = poly.get_xy()
-    A = 0
-    cx, cy = 0, 0
-    x, y = verts.T
-    for i in range(len(verts) - 1):
-        A += x[i] * y[i + 1] - x[i + 1] * y[i]
-        cx += (x[i] + x[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
-        cy += (y[i] + y[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
-    A /= 2
-    cx /= 6 * A
-    cy /= 6 * A
-    return cx, cy
+logger = Handle(__name__)
 
 
 class PolygonClassifier(object):
@@ -264,7 +235,8 @@ class TAS(PolygonClassifier):
             config = json.load(f)
         kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
         kw.update(kwargs)
-        super().__init__(**config, **kw)
+        poly_config = {**config, **kw}
+        super().__init__(**poly_config)
 
     def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
         """

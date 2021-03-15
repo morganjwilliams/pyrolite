@@ -2,10 +2,9 @@ import periodictable as pt
 from periodictable.core import Element
 from periodictable.formulas import Formula
 from collections import defaultdict
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __default_charges__ = defaultdict(lambda: None)
 __default_charges__.update(

@@ -26,8 +26,8 @@ class TestPyrochem(unittest.TestCase):
             "Zr",
             "H2O",
             "Sr87_Sr86",
-            "87Sr/87Sr",
-            "87Sr/87Sri",
+            "87Sr/86Sr",
+            "87Sr/86Sri",
         ] + pyrolite.geochem.REE()
         self.df = normal_frame(size=4, columns=cols)
         self.df = renormalise(self.df)
@@ -48,14 +48,28 @@ class TestPyrochem(unittest.TestCase):
 
     def test_pyrochem_subsetters(self):
         obj = self.df
-        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
+        for subset in [
+            "REE",
+            "REY",
+            "elements",
+            "oxides",
+            "isotope_ratios",
+            "compositional",
+        ]:
             with self.subTest(subset=subset):
                 out = getattr(obj.pyrochem, subset)
                 self.assertIsInstance(out, obj.__class__)  # in this case a dataframe
 
     def test_pyrochem_subsetter_assignment(self):
         obj = self.df
-        for subset in ["REE", "REY", "elements", "oxides", "isotope_ratios"]:
+        for subset in [
+            "REE",
+            "REY",
+            "elements",
+            "oxides",
+            "isotope_ratios",
+            "compositional",
+        ]:
             with self.subTest(subset=subset):
                 setattr(obj.pyrochem, subset, getattr(obj.pyrochem, subset) * 1.0)
 
@@ -66,20 +80,28 @@ class TestPyrochem(unittest.TestCase):
         cations = obj.pyrochem.check_multiple_cation_inclusion()
         self.assertTrue(len(cations) == 0)
 
+    def test_pyochem_parse_chem(self):
+        obj = self.df.copy(deep=True)
+        start_cols = obj.columns
+        out = obj.pyrochem.parse_chem()
+        self.assertTrue(len(out.columns) == len(start_cols))
+        self.assertTrue(
+            all([a == b for (a, b) in zip(out.columns, start_cols) if "/" not in a])
+        )
+
     # pyrolite.geochem.transform functions
 
     def test_pyrochem_to_molecular(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
         start = obj.values
         out = obj.pyrochem.to_molecular()
-        self.assertFalse((out.values.flatten() == start.flatten()).any())
+        self.assertFalse(np.isclose(out.values.flatten(), start.flatten()).any())
 
     def test_pyrochem_to_weight(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
         start = obj.values
         out = obj.pyrochem.to_weight()
-        print(out.values.flatten() == self.df.values.flatten())
-        self.assertFalse((out.values.flatten() == start.flatten()).any())
+        self.assertFalse(np.isclose(out.values.flatten(), start.flatten()).any())
 
     def test_pyrochem_add_MgNo(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
@@ -94,7 +116,7 @@ class TestPyrochem(unittest.TestCase):
         self.assertIn("Mg#", obj.columns)
         self.assertIn("Fe2O3", obj.columns)
         self.assertIn("Mg#2", obj.columns)
-        self.assertFalse((obj["Mg#"].values == obj["Mg#2"].values).any())
+        self.assertFalse(np.isclose(obj["Mg#"].values, obj["Mg#2"].values).any())
 
     def test_pyrochem_add_ratio(self):
         obj = self.df.copy(deep=True)
@@ -106,6 +128,10 @@ class TestPyrochem(unittest.TestCase):
 
     def test_pyrochem_aggregate_element(self):
         obj = self.df.copy(deep=True)
+        target = "Fe"
+        out = obj.pyrochem.aggregate_element(target)
+        self.assertIsInstance(out, pd.DataFrame)
+        self.assertTrue(target in out.columns)
 
     def test_pyrochem_devolatilise(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
@@ -115,7 +141,7 @@ class TestPyrochem(unittest.TestCase):
     def test_pyrochem_elemental_sum(self):
         obj = self.df.copy(deep=True)
         Mg = obj.pyrochem.elemental_sum("Mg")
-        self.assertFalse((Mg == obj.MgO).any())
+        self.assertFalse(np.isclose(Mg, obj.MgO).any())
 
     def test_pyrochem_lambda_lnREE(self):
         obj = self.df.copy(deep=True)
@@ -169,5 +195,5 @@ class TestPyrochem(unittest.TestCase):
     def test_pyrochem_scale(self):
         obj = self.df.copy(deep=True).pyrochem.compositional
         REEppm = obj.pyrochem.REE.pyrochem.scale("wt%", "ppm")
-        self.assertFalse((REEppm.values == obj.pyrochem.REE.values).any())
+        self.assertFalse(np.isclose(REEppm.values, obj.pyrochem.REE.values).any())
         self.assertTrue((REEppm.values > obj.pyrochem.REE.values).all())

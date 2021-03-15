@@ -1,15 +1,14 @@
 import re
 import textwrap
 import numpy as np
-import logging
+from .log import Handle
+
+logger = Handle(__name__)
 
 try:
     from sortedcollections import SortedSet as set
 except ImportError:
     pass
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
 
 
 def to_width(multiline_string, width=79, **kwargs):

@@ -52,9 +52,9 @@ plt.show()
 # .. seealso::
 #
 #   Examples:
-#    `Ionic Radii <ionic_radii.html>`__,
+#    `Ionic Radii <../geochem/ionic_radii.html>`__,
 #    `Spider Diagrams <spider.html>`__,
-#    `lambdas: Parameterising REE Profiles <lambdas.html>`__
+#    `lambdas: Parameterising REE Profiles <../geochem/lambdas.html>`__
 #
 #   Functions:
 #     :func:`~pyrolite.geochem.ind.get_ionic_radii`,

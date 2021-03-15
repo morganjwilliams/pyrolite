@@ -1,13 +1,11 @@
 import numpy as np
-import logging
 import scipy.stats
+from functools import partial
 from ..util.math import flattengrid
 from ..comp.codata import ILR, close
+from .log import Handle
 
-from functools import partial
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def get_scaler(*fs):
@@ -72,7 +70,7 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
         zshape = samples.shape[0]
         ksamples = transform(samples)
 
-     # ensures shape is fine even if row is passed
+    # ensures shape is fine even if row is passed
     ksamples = ksamples.reshape(-1, tdata.shape[1])
 
     # samples shouldnt typically contain nans

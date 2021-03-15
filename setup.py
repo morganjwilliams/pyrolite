@@ -51,6 +51,7 @@ setup(
         "numpydoc",
         "pathlib",
         "tinydb",
+        "psutil",
         "periodictable",
         "matplotlib",
         "mpltern>=0.3.1",

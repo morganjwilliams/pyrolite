@@ -2,12 +2,10 @@ import pandas as pd
 import hashlib
 from pathlib import Path
 import numpy as np
-import logging
-
 from .meta import subkwargs
+from .log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def drop_where_all_empty(df):
@@ -41,12 +39,14 @@ def read_table(filepath, index_col=0, **kwargs):
     ext = filepath.suffix.replace(".", "")
     assert ext in ["xls", "xlsx", "csv"]
     if ext in ["xls", "xlsx"]:
-        reader = pd.read_excel
+        reader, kw = pd.read_excel, dict(engine="openpyxl")
     elif ext in ["csv"]:
-        reader = pd.read_csv
+        reader, kw = pd.read_csv, {}
     else:
         raise NotImplementedError("Only .xls* and .csv currently supported.")
-    df = reader(str(filepath), index_col=index_col, **subkwargs(kwargs, reader))
+    df = reader(
+        str(filepath), index_col=index_col, **subkwargs({**kw, **kwargs}, reader)
+    )
     df = drop_where_all_empty(df)
     return df
 
@@ -222,8 +222,7 @@ def outliers(
     logquantile=False,
     exclude=False,
 ):
-    """
-    """
+    """"""
     if not cols:
         cols = df.columns
     colfltr = (df.dtypes == np.float) & ([i in cols for i in df.columns])

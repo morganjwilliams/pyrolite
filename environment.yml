@@ -1,0 +1,58 @@
+name: pyrolite
+
+channels:
+  - conda-forge # get things from conda-forge first
+  - defaults
+
+dependencies:
+  - python=3.7
+  # pandas and scientific python
+  - numpy
+  - numpydoc
+  - pandas>=1.0  # dataframe acccessors, attrs attribute
+  - xlrd
+  - openpyxl
+  - psutil
+  - matplotlib
+  - pytables
+  - scipy>=1.2  # uses scipy.optimize.Bounds, added around 1.2
+  - umap-learn
+  - tinydb
+  - periodictable
+  - mpltern>=0.3.1
+  - mpmath
+  - sympy
+  - joblib
+  - requests
+  # Tools
+  - jupyter
+  - jupyterlab
+  - ipykernel
+  - pip
+  - black
+  - jedi<0.18.0 # for use on atom/ipython
+  - pip:
+    - pyzmq
+    - pytest
+    - pytest-runner
+    - pytest-cov
+    - coverage
+    - codecov
+    - sphinx_rtd_theme
+    - sphinx-autodoc-annotation
+    - sphinx_gallery>=0.6.0
+    - recommonmark
+    - versioneer
+    - twine
+    - -e . # install the local pyrolite package
+
+# conda env create -f environment.yml
+# python -m ipykernel install --user --name pyrolite
+
+# conda activate pyrolite
+
+# conda deactivate pyrolite
+# conda env remove -n pyrolite
+# jupyter kernelspec uninstall pyrolite
+
+# make sure to launch Jupyter, atom etc from the command line after activating

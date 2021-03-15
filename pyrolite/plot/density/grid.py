@@ -2,10 +2,9 @@ import numpy as np
 from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
 from ...util.plot.grid import bin_centres_to_edges
 from ...util.distributions import sample_kde
-import logging
+from ...util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 class DensityGrid(object):

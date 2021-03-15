@@ -39,7 +39,7 @@ plt.show()
 #
 #   Examples:
 #     `lambdas: Parameterising REE Profiles <lambdas.html>`__,
-#     `REE Radii Plot <../plotting/REE_radii_plot.html>`__
+#     `REE Radii Plot <../plotting/REE_v_radii.html>`__
 #
 # Currently available models include:
 #

@@ -3,11 +3,9 @@ import scipy.stats as stats
 from pyrolite.util.math import nancov, augmented_covariance_matrix
 from pyrolite.util.missing import md_pattern
 from pyrolite.comp.codata import ALR, inverse_ALR, close
-import logging
+from ..util.log import Handle
 
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def _little_sweep(G, k: int = 0, verify=False):
@@ -169,8 +167,10 @@ def EMCOMP(
     tol : :class:`float`
         Tolerance to check for convergence.
     convergence_metric : :class:`callable`
-        Callable function to verify convergence, which accepts two :class:`numpy.ndarray`
-        arguments and third tolerance argument.
+        Callable function to check for convergence. Here we use a compositional distance
+        rather than a maximum absolute difference, with very similar performance.
+        Function needs to accept two :class:`numpy.ndarray` arguments and third
+        tolerance argument.
     max_iter : :class:`int`
         Maximum number of iterations before an error is thrown.
 
@@ -182,20 +182,19 @@ def EMCOMP(
        Proportion of zeros in the original data set.
     n_iters : :class:`int`
         Number of iterations needed for convergence.
-    convergence_metric : :class:`callable`
-        Callable function to check for convergence. Here we use a compositional distance
-        rather than a maximum absolute difference, with very similar performance.
 
     Notes
     -----
-        * At least one component without missing values is needed for the divisor. Rounded zeros/
-            missing values are replaced by values below their respective detection limits.
+
+        * At least one component without missing values is needed for the divisor.
+          Rounded zeros/missing values are replaced by values below their respective
+          detection limits.
 
         * This routine is not completely numerically stable as written.
 
     Todo
     -------
-        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code`(N, D)`)
+        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code:`(N, D)`)
         * Conisder non-normal models for data distributions.
         * Improve numerical stability to reduce the chance of :code:`np.inf` appearing.
 
@@ -294,9 +293,9 @@ def EMCOMP(
                 )
                 x /= sigmas[varmiss][np.newaxis, :]  # as standard deviations
                 assert np.isfinite(x).all()
-                # -----------------------------
-                # Calculate inverse Mills Ratio
-                # -----------------------------
+                # ----------------------------------------------------
+                # Calculate inverse Mills Ratio for Heckman correction
+                # ----------------------------------------------------
                 ϕ = stats.norm.pdf(x, loc=0, scale=1)  # pdf
                 Φ = stats.norm.cdf(x, loc=0, scale=1)  # cdf
                 Φ[np.isclose(Φ, 0)] = np.finfo(np.float).eps * 2

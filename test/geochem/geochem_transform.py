@@ -398,14 +398,17 @@ class TestGetRatio(unittest.TestCase):
         """Check that norm indicator _n can be used with a specific norm."""
         df = self.df.copy()
         ratio = "Li/B_n"
+        values = df["Li"].values / df["B"].values
 
         for norm_to in [
             "Chondrite_PON",
             get_reference_composition("Chondrite_PON"),
             (1.0, 2.0),
+            4.5,
         ]:
             with self.subTest(norm_to=norm_to):
                 r = get_ratio(df, ratio=ratio, norm_to=norm_to)
+                self.assertFalse(np.isclose(values, r.values).any())
 
     def test_alias(self):
         """Check that aliases can be used."""
@@ -514,7 +517,7 @@ class TestLambdaLnREE(unittest.TestCase):
         """
         for norm_to in [
             self.C,
-            np.random.rand(len([i for i in self.df.columns if i not in ["Pm", "Eu"]])),
+            np.random.rand(len([i for i in self.df.columns if i not in ["Pm"]])),
         ]:
             with self.subTest(norm_to=norm_to):
                 ret = lambda_lnREE(self.df, norm_to=norm_to, degree=self.default_degree)

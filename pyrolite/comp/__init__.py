@@ -3,12 +3,10 @@ Submodule for working with compositional data.
 """
 
 import pandas as pd
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
-
 from . import codata
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 
 def attribute_transform(f, *args, **kwargs):
@@ -105,7 +103,7 @@ class pyrocomp(object):
             index_col_no += len(components)
         index_col = components[index_col_no]
 
-        if label_mode == "numeric":
+        if label_mode.lower().startswith("num"):
             colnames = ["ALR{}".format(ix) for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_ALR_labels(
@@ -173,7 +171,7 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             CLR-transformed array, of shape :code:`(N, D)`.
         """
-        if label_mode == "numeric":
+        if label_mode.lower().startswith("num"):
             colnames = ["CLR{}".format(ix) for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
@@ -224,7 +222,7 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             ILR-transformed array, of shape :code:`(N, D-1)`.
         """
-        if label_mode == "numeric":
+        if label_mode.lower().startswith("num"):
             colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
         else:
             colnames = codata.get_ILR_labels(self._obj, mode=label_mode)

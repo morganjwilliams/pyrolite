@@ -6,12 +6,13 @@ import sympy
 
 # from .renorm import renormalise, close
 from ..util.math import helmert_basis, symbolic_helmert_basis
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __TRANSFORMS__ = {}
+
+__sympy_protected_variables__ = {"S": "Ss"}
 
 
 def close(X: np.ndarray, sumf=np.sum):
@@ -160,7 +161,7 @@ def CLR(X: np.ndarray):
     Parameters
     ---------------
     X : :class:`numpy.ndarray`
-        Array on which to perform the transformation, of shape :code:`(N, D)`.
+        2D array on which to perform the transformation, of shape :code:`(N, D)`.
 
     Returns
     ---------
@@ -169,7 +170,9 @@ def CLR(X: np.ndarray):
     """
     X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
     Y = np.log(X)  # Log operation
-    Y -= 1 / X.shape[1] * np.nansum(Y, axis=1)[:, np.newaxis]
+    nvars = max(X.shape[1], 1)  # if the array is empty we'd get a div-by-0 error
+    G = (1 / nvars) * np.nansum(Y, axis=1)[:, np.newaxis]
+    Y -= G
     return Y
 
 
@@ -194,7 +197,7 @@ def inverse_CLR(Y: np.ndarray):
     return X
 
 
-def ILR(X: np.ndarray, **kwargs):
+def ILR(X: np.ndarray, psi=None, **kwargs):
     """
     Isometric Log Ratio transformation.
 
@@ -202,6 +205,8 @@ def ILR(X: np.ndarray, **kwargs):
     ---------------
     X : :class:`numpy.ndarray`
         Array on which to perform the transformation, of shape :code:`(N, D)`.
+    psi : :class:`numpy.ndarray`
+        Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
@@ -210,12 +215,13 @@ def ILR(X: np.ndarray, **kwargs):
     """
     d = X.shape[1]
     Y = CLR(X)
-    psi = helmert_basis(D=d, **kwargs)  # Get a basis
+    if psi is None:
+        psi = helmert_basis(D=d, **kwargs)  # Get a basis
     assert np.allclose(psi @ psi.T, np.eye(d - 1))
     return Y @ psi.T
 
 
-def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
+def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, psi=None, **kwargs):
     """
     Inverse Isometric Log Ratio transformation.
 
@@ -226,13 +232,16 @@ def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, **kwargs):
     X : :class:`numpy.ndarray`, :code:`None`
         Optional specification for an array from which to derive the orthonormal basis,
         with shape :code:`(N, D)`.
+    psi : :class:`numpy.ndarray`
+        Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
     :class:`numpy.ndarray`
         Inverse-ILR transformed array, of shape :code:`(N, D)`.
     """
-    psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
+    if psi is None:
+        psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
     C = Y @ psi
     X = inverse_CLR(C)  # Inverse log operation
     return X
@@ -388,28 +397,47 @@ def _aggregate_sympy_constants(expr):
 
 def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
     """
-    Get symbolic labels for CLR coordinates based on dataframe columns.
+    Get symbolic labels for ALR coordinates based on dataframe columns.
 
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
-        Dataframe to generate CLR labels for.
+        Dataframe to generate ALR labels for.
     mode : :class:`str`
         Mode of label to return (:code:`LaTeX`, :code:`simple`).
 
     Returns
     -------
     :class:`list`
-        List of CLR coordinates corresponding to dataframe columns.
+        List of ALR coordinates corresponding to dataframe columns.
+
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
 
-    names = [r"{} / {}".format(c, df.columns[ind]) for c in df.columns]
-    arr = sympy.Matrix([sympy.ln(n) for n in names])
+    names = [
+        r"{} / {}".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+            df.columns[ind],
+        )
+        for c in df.columns
+    ]
 
     if mode.lower() == "latex":
+        # edited to avoid issues with clashes between element names and latex (e.g. Ge)
+        D = df.columns.size
+        # encode symbolic variables
+        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+        named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
             r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
-            for l in arr
+            for l in named_expr
         ]
     elif mode.lower() == "simple":
         labels = ["ALR({})".format(n) for n in names]
@@ -434,15 +462,34 @@ def get_CLR_labels(df, mode="simple", **kwargs):
     -------
     :class:`list`
         List of CLR coordinates corresponding to dataframe columns.
-    """
-    D = df.columns.size
-    names = [r"{} / γ".format(c) for c in df.columns]
 
-    arr = sympy.Matrix([sympy.ln(n) for n in names])
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
+    """
+
+    names = [
+        r"{} / γ".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+        )
+        for c in df.columns
+    ]
+    D = df.columns.size
+
     if mode.lower() == "latex":
+        # edited to avoid issues with clashes between element names and latex (e.g. Ge)
+        D = df.columns.size
+        # encode symbolic variables
+        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+        named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
             r"${}$".format(sympy.latex(l, mul_symbol="dot", ln_notation=True))
-            for l in arr
+            for l in named_expr
         ]
     elif mode.lower() == "simple":
         labels = ["CLR({}/G)".format(c) for c in df.columns]
@@ -467,6 +514,12 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     -------
     :class:`list`
         List of ILR coordinates corresponding to dataframe columns.
+
+    Notes
+    ------
+    Some variable names are protected in :mod:`sympy` and if used can result in errors.
+    If one of these column names is found, it will be replaced with a title-cased
+    duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
     D = df.columns.size
     # encode symbolic variables
@@ -480,7 +533,14 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     )
     expr = expr.applyfunc(_aggregate_sympy_constants)
     # sub in Phi (the CLR normalisation variable)
-    names = [r"{} / γ".format(c) for c in df.columns]
+    names = [
+        r"{} / γ".format(
+            c
+            if c not in __sympy_protected_variables__
+            else __sympy_protected_variables__[c],
+        )
+        for c in df.columns
+    ]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
     # format latex labels
     if mode.lower() == "latex":

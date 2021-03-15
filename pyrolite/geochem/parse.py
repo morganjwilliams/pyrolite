@@ -12,11 +12,9 @@ from .ind import (
     common_elements,
     get_isotopes,
 )
-import logging
+from ..util.log import Handle
 
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def is_isotoperatio(s):

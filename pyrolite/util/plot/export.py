@@ -5,14 +5,13 @@ import os
 import numpy as np
 import matplotlib.path
 import matplotlib.transforms
-import logging
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 
 def save_figure(
-    figure, save_at="", name="fig", save_fmts=["png"], output=False, **kwargs
+    figure, name="fig", save_at="", save_fmts=["png"], output=False, **kwargs
 ):
     """
     Save a figure at a specified location in a number of formats.
@@ -27,7 +26,7 @@ def save_figure(
         figure.savefig(out_filename, format=fmt, **config)
 
 
-def save_axes(ax, save_at="", name="fig", save_fmts=["png"], pad=0.0, **kwargs):
+def save_axes(ax, name="fig", save_at="", save_fmts=["png"], pad=0.0, **kwargs):
     """
     Save either a single or multiple axes (from a single figure) based on their
     extent. Uses the save_figure procedure to save at a specific location using

@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import pandas as pd
 import matplotlib.colors
@@ -43,7 +44,7 @@ def get_cmode(c=None):
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
             logger.debug("Checking array-based color modes.")
             if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
-                c = np.array(c)
+                c = np.array(c, dtype=getattr(c, "dtype", "object"))
                 convertible = False
                 try:  # could test all of them, or just a few
                     _ = [matplotlib.colors.to_rgba(_c) for _c in [c[0], c[-1]]]
@@ -211,9 +212,10 @@ def process_color(
             if isinstance(cmap, str):
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
+                cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
             norm = norm or plt.Normalize(
-                vmin=np.nanmin(np.array(c)), vmax=np.nanmax(np.array(c))
+                vmin=np.nanmin(np.array(C)), vmax=np.nanmax(np.array(C))
             )
             C = cmap(norm(C))
         elif cmode == "categories":
@@ -230,10 +232,12 @@ def process_color(
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
             else:
-                _C = C.copy()
+                unique_vals = np.array(list(cmapper.values()))
+                _C = np.ones((len(C), 4), dtype=np.float)
                 for cat in uniqueC:
-                    _C[C == cat] = cmapper.get(cat)  # get the mapping frome the dict
-                C = np.array([matplotlib.colors.to_rgba(ic) for ic in _C])
+                    val = matplotlib.colors.to_rgba(cmapper.get(cat))
+                    _C[C == cat] = val  # get the mapping frome the dict
+                C = _C
         else:
             pass
         if alpha is not None:

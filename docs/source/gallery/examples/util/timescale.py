@@ -9,7 +9,7 @@ specific geological ages, to look up times for known geological age names
 and to access a reference table for all of these.
 
 .. [#ICS] Cohen, K.M., Finney, S.C., Gibbard, P.L., Fan, J.-X., 2013.
-    `The ICS International Chronostratigraphic Chart <http://www.stratigraphy.org/index.php/ics-chart-timescale>`__.
+    `The ICS International Chronostratigraphic Chart <https://stratigraphy.org/chart>`__.
     Episodes 36, 199–204.
 """
 ########################################################################################

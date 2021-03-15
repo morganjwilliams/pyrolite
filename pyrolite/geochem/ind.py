@@ -17,10 +17,9 @@ from ..util.meta import (
     sphinx_doi_link,
     update_docstring_references,
 )
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 __radii__ = {}
 
@@ -96,6 +95,9 @@ def REE(output="string", dropPm=True):
     -----------
     output : :class:`str`
         Whether to return output list as formulae ('formula') or strings (anthing else).
+    dropPm : :class:`bool`
+        Whether to exclude the (almost) non-existent element Promethium from the REE
+        list.
 
     Returns
     -------
@@ -364,6 +366,28 @@ def by_incompatibility(els, reverse=False):
         return [i for i in incomp if i in els]
 
 
+def by_number(els, reverse=False):
+    """
+    Order a list of elements by their atomic number.
+
+    Parameters
+    ------------
+    els : :class:`list`
+        List of element names to be reodered.
+    reverse : :class:`bool`
+        Whether to reverse the ordering.
+
+    Returns
+    ---------
+    :class:`list`
+        Reordered list of elements.
+    """
+    ordered = np.array(els)[np.argsort([getattr(pt, el).number for el in els])]
+    if reverse:
+        ordered = ordered[::-1]
+    return list(ordered)
+
+
 # RADII ################################################################################
 @update_docstring_references
 def get_ionic_radii(
@@ -491,6 +515,8 @@ def get_ionic_radii(
     else:
         return result  # return the series
 
+
+ordering = {"incompatibility": by_incompatibility, "number": by_number}
 
 # update doi links for radii
 

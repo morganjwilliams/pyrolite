@@ -4,10 +4,10 @@ Functions for calcuating indexes of chemical alteration.
 import numpy as np
 import pandas as pd
 from ..util.meta import update_docstring_references
-import logging
+from ..util.log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
+
 
 @update_docstring_references
 def CIA(df: pd.DataFrame):
@@ -34,6 +34,7 @@ def CIA(df: pd.DataFrame):
     """
     return 100 * df.Al2O3 / (df.Al2O3 + df.CaO + df.Na2O + df.K2O)
 
+
 @update_docstring_references
 def CIW(df: pd.DataFrame):
     """
@@ -56,6 +57,7 @@ def CIW(df: pd.DataFrame):
            `10.1016/0037-0738(88)90137-6 <https://dx.doi.org/10.1016/0037-0738(88)90137-6>`__
     """
     return 100.0 * df.Al2O3 / (df.Al2O3 + df.CaO + df.Na2O)
+
 
 @update_docstring_references
 def PIA(df: pd.DataFrame):
@@ -82,6 +84,7 @@ def PIA(df: pd.DataFrame):
 
     """
     return 100.0 * (df.Al2O3 - df.K2O) / (df.Al2O3 + df.CaO + df.Na2O - df.K2O)
+
 
 @update_docstring_references
 def SAR(df: pd.DataFrame):
@@ -110,6 +113,7 @@ def SiTiIndex(df: pd.DataFrame):
     al_ti = df.Al2O3 / df.TiO2
     return si_ti / (si_ti + si_al + al_ti)
 
+
 @update_docstring_references
 def WIP(df: pd.DataFrame):
     """
@@ -119,7 +123,7 @@ def WIP(df: pd.DataFrame):
     ----------
     .. [#ref_1] Parker A (1970). An Index of Weathering for Silicate Rocks.
            Geological Magazine 107:501–504.
-           dcoi: `10.1017/S0016756800058581 <https://dx.doi.org/10.1017/S0016756800058581>`__
+           doi: `10.1017/S0016756800058581 <https://dx.doi.org/10.1017/S0016756800058581>`__
 
     """
     return 2 * df.Na2O / 0.35 + df.MgO / 0.9 + 2 * df.K2O / 0.25 + df.CaO / 0.7

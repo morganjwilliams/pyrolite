@@ -1,13 +1,12 @@
-import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import joblib
 from ..plot import save_figure
 from ..meta import get_additional_params
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     import sklearn.svm
@@ -178,8 +177,8 @@ def SVC_pipeline(
     Returns
     -------
     gs : :class:`sklearn.model_selection.GridSearchCV`
-        Gridsearch object containing the results of the SVC trainig across the parameter
-        grid. Access the best estimator with :code:`gs.best_estimator_`
+        Gridsearch object containing the results of the SVC training across the
+        parameter grid. Access the best estimator with :code:`gs.best_estimator_`
         and its parameters with :code:`gs.best_params_`.
     """
     classifier_kwargs = {

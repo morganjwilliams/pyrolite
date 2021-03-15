@@ -5,20 +5,76 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches
 import scipy.spatial
-import logging
 from ..math import eigsorted, nancov
+from ..text import int_to_alpha
 from ..missing import cooccurence_pattern
 from .interpolation import interpolated_patch_path
 from .axes import add_colorbar, subaxes
+from ..log import Handle
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
+logger = Handle(__name__)
 
 try:
     from sklearn.decomposition import PCA
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
+
+
+def alphalabel_subplots(ax, fmt="{}", xy=(0.03, 0.95), ha="left", va="top", **kwargs):
+    """
+    Add alphabetical labels to a successive series of subplots with a specified format.
+
+    Parameters
+    -----------
+    ax : :class:`list` | :class:`numpy.ndarray` | :class:`numpy.flatiter`
+        Axes to label, in desired order.
+    fmt : :class:`str`
+        Format string to use. To add e.g. parentheses, you could specify :code:`"({})"`.
+    xy : :class:`tuple`
+        Position of the labels in axes coordinates.
+    ha : :class:`str`
+        Horizontal alignment of the labels (:code:`{"left", "right"}`).
+    va : :class:`str`
+        Vertical alignment of the labels (:code:`{"top", "bottom"}`).
+    """
+    flat = np.array(ax).flatten()
+    # get axes in case of iterator which is consumed
+    _ax = [(ix, flat[ix]) for ix in range(len(flat))]
+    labels = [(a, fmt.format(int_to_alpha(ix))) for ix, a in _ax]
+    [
+        a.annotate(label, xy=xy, xycoords=a.transAxes, ha=ha, va=va, **kwargs)
+        for a, label in labels
+    ]
+
+
+def get_centroid(poly):
+    """
+    Centroid of a closed polygon using the Shoelace formula.
+
+    Parameters
+    ----------
+    poly : :class:`matplotlib.patches.Polygon`
+        Polygon to obtain the centroid of.
+
+    Returns
+    -------
+    cx, cy : :class:`tuple`
+        Centroid coordinates.
+    """
+    # get signed area
+    verts = poly.get_xy()
+    A = 0
+    cx, cy = 0, 0
+    x, y = verts.T
+    for i in range(len(verts) - 1):
+        A += x[i] * y[i + 1] - x[i + 1] * y[i]
+        cx += (x[i] + x[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+        cy += (y[i] + y[i + 1]) * (x[i] * y[i + 1] - x[i + 1] * y[i])
+    A /= 2
+    cx /= 6 * A
+    cy /= 6 * A
+    return cx, cy
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
@@ -260,7 +316,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanaxx.invert_yaxis()
         nanaxy = subaxes(ax, side="left", width=axes_width)
         nanaxy.invert_xaxis()
-        ax.divider.nanaxx = nanaxx # assign for later use
+        ax.divider.nanaxx = nanaxx  # assign for later use
         ax.divider.nanaxy = nanaxy
 
     nanxdata = xdata[(np.isnan(ydata) & np.isfinite(xdata))]

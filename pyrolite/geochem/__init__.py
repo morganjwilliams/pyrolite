@@ -1,12 +1,8 @@
 """
 Submodule for working with geochemical data.
 """
-import logging
 import pandas as pd
 import numpy as np
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
 
 from ..util.meta import update_docstring_references
 from ..util import units
@@ -15,6 +11,9 @@ from . import transform
 from . import norm
 from .ind import __common_elements__, __common_oxides__, REE, REY
 from .ions import set_default_ionic_charges
+from ..util.log import Handle
+
+logger = Handle(__name__)
 
 set_default_ionic_charges()
 
@@ -156,7 +155,7 @@ class pyrochem(object):
         """
         return self._obj[self.list_REY]
 
-    @REE.setter
+    @REY.setter
     def REY(self, df):
         self._obj.loc[:, self.list_REY] = df
 
@@ -219,6 +218,7 @@ class pyrochem(object):
         self._obj.columns = parse.tochem(
             self._obj.columns, abbrv=abbrv, split_on=split_on
         )
+        return self._obj
 
     def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
         """
@@ -518,9 +518,10 @@ class pyrochem(object):
         params=None,
         degree=4,
         scale="ppm",
+        sigmas=None,
         **kwargs
     ):
-        """
+        r"""
         Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
         normalised to a specific composition [#localref_1]_. Lambda factors are given for the
         radii vs. ln(REE/NORM) polynomial combination.
@@ -542,6 +543,9 @@ class pyrochem(object):
             Maximum degree polynomial fit component to include.
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.
+        sigmas : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series`
+            Value or 1D array of fractional REE uncertaintes (i.e.
+            :math:`\sigma_{REE}/REE`).
 
         References
         ----------
@@ -563,7 +567,8 @@ class pyrochem(object):
             params=params,
             degree=degree,
             scale=scale,
-            **kwargs
+            sigmas=sigmas,
+            **kwargs,
         )
 
     def convert_chemistry(self, to=[], logdata=False, renorm=False, molecular=False):
