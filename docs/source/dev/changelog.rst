@@ -95,6 +95,8 @@ Todo
   lambda and/or tetrad-parameterised curves.
 * Moved :func:`get_centroid` from :mod:`pyrolite.util.classification` to
   :mod:`pyrolite.util.plot.helpers`
+* Made a small change to :mod:`~pyrolite.util.plot.density` to allow passing contour
+  labels as a list.
 * :func:`~pyrolite.util.plot.style.mappable_from_values` will not accept a :code:`norm`
   keyword argument, allowing use of colormap normalisers like
   :class:`matplotlib.colors.Normalize`. This function was also updated to better handle

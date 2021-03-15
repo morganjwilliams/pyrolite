@@ -139,7 +139,7 @@ plt.show()
 #
 # To append the reduced chi-square for each row, the keyword argument
 # :code:`add_X2=True` can be used; here we've estimated 10% uncertainty on the
-# log mean values:
+# REE:
 #
 ls = df.pyrochem.lambda_lnREE(add_X2=True, sigmas=0.1, anomalies=["Eu", "Ce"])
 ls.columns
@@ -148,7 +148,7 @@ ls.columns
 # dataset, given the assumed 10% uncertainties. While the fit appears reasonable for a good
 # fraction of the dataset (~2 and below), for some rows it is notably worse:
 #
-ax = ls["X2"].plot.hist(bins=30, color="0.5")
+ax = ls["X2"].plot.hist(bins=40, color="0.5")
 ax.set(xlabel="$\chi^2$")
 ax.axvline(1, color="k", ls="--")
 plt.show()
