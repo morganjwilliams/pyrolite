@@ -122,13 +122,9 @@ def _get_params(params=None, degree=4):
         functions.
     """
     if params is None:
-        # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
-        _ree = [i for i in REE() if i not in ["Eu"]]
-        params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8),
-            degree=degree,
-        )
-    elif isinstance(params, str):
+        params = "full"  # use all the REE to generate the orthogonal polynomials
+
+    if isinstance(params, str):
         name = params.replace("'", "").lower()
         if "full" in name:
             # use ALL the REE for defininng the orthogonal polynomial functions
@@ -141,8 +137,7 @@ def _get_params(params=None, degree=4):
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8),
-            degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
         )
     else:
         # check that params is a tuple or list

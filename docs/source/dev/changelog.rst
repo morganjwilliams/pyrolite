@@ -10,6 +10,10 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+* Update default parameterisation to :code:`"full"` for lambdas, using all REE to
+  generate orthogonal polynomial functions.
 
 `0.3.0`_
 --------------
@@ -18,7 +22,7 @@ All notable changes to this project will be documented here.
 * Continuous Integration has been migrated from Travis to GitHub Actions.
 * Added an :code:`environment.yml` file for development environment consistency.
 * Removed some tests dependent on :mod:`xlrd` due to external issues with reading
-  :code:`.xls` and :code:`.xlsx` files with somne OS-Python version combinations.
+  :code:`.xls` and :code:`.xlsx` files with some OS-Python version combinations.
 * Fixed some broken documentation links.
 * Added :mod:`psutil` to requirements.
 
