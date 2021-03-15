@@ -535,6 +535,7 @@ def lambda_lnREE(
     allow_missing=True,
     min_elements=7,
     algorithm="ONeill",
+    sigmas=None,
     **kwargs
 ):
     """
@@ -567,6 +568,9 @@ def lambda_lnREE(
         Minimum columns present to return lambda values.
     algorithm : :class:`str`
         Algorithm to use for fitting the orthogonal polynomials.
+    sigmas : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series`
+        Value or 1D array of fractional REE uncertaintes (i.e.
+        :math:`\sigma_{REE}/REE`).
 
     Todo
     -----
@@ -621,6 +625,10 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
+    if not (sigmas is None):
+        if isinstance(sigmas, pd.Series):  # convert this to an array
+            sigmas = sigmas[ree].values
+
     if not allow_missing:
         # nullify rows with missing data
         missing = pd.isnull(df.loc[:, ree]).any(axis=1)
@@ -630,13 +638,17 @@ def lambda_lnREE(
 
     row_filter = norm_df.count(axis=1) >= min_elements
 
-    lambdadf = pd.DataFrame(index=norm_df.index, dtype="float32",)
+    lambdadf = pd.DataFrame(
+        index=norm_df.index,
+        dtype="float32",
+    )
     ls = lambdas.calc_lambdas(
         norm_df.loc[row_filter, :],
         exclude=exclude,
         params=params,
         degree=degree,
         algorithm=algorithm,
+        sigmas=sigmas,
         **kwargs
     )
     lambdadf.loc[row_filter, ls.columns] = ls

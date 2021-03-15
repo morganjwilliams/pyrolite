@@ -193,7 +193,6 @@ def great_circle_distance(
             angle = np.zeros((size, 1))
             # compute sum-distances for each lat-long pair
             for ix, (_φ1, _λ1) in enumerate(np.vstack([φ1, λ1])):
-                print(pair)
                 angle[ix, 0] = f(_φ1, φ2, _λ1, λ2,)
         else:
             try:

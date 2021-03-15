@@ -47,7 +47,7 @@ def get_polynomial_matrix(radii, params=None):
 def lambdas_ONeill2016(
     df, radii, params=None, sigmas=None, add_X2=False, add_uncertainties=False, **kwargs
 ):
-    """
+    r"""
     Implementation of the original algorithm. [#ref_1]_
 
     Parameters
@@ -59,7 +59,8 @@ def lambdas_ONeill2016(
     params : :class:`tuple`
         Tuple of constants for the orthogonal polynomial.
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of observed value uncertainties.
+        Single value or 1D array of normalised observed value uncertainties
+        (:math:`\sigma_{REE} / REE`).
     add_uncertainties : :class:`bool`
         Append parameter standard errors to the dataframe.
 
@@ -83,10 +84,10 @@ def lambdas_ONeill2016(
     names, x0, func_components = get_function_components(radii, params=params)
     X = np.array(func_components).T
     y = df.values
-    xd = len(func_components)
-
-    rad = np.array(radii)  # so we can use a boolean index
     sigmas = parse_sigmas(y, sigmas=sigmas)
+
+    xd = len(func_components)
+    rad = np.array(radii)  # so we can use a boolean index
 
     B = np.ones((y.shape[0], xd)) * np.nan
     s = np.ones((y.shape[0], xd)) * np.nan
@@ -118,10 +119,9 @@ def lambdas_ONeill2016(
             # residuals over all rows
             residuals = (df.loc[row_fltr, missing_fltr] - est).values
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
+            # chi-sqared as SSQ / sigmas / residual degrees of freedom
             reduced_chi_squared = (residuals ** 2 / _sigmas ** 2).sum(axis=1) / dof
-            mse = (residuals ** 2).sum(axis=1)  # mse per row
-            # mse is divided by divided by degrees of freedom
-            _s = np.sqrt(mse.reshape(-1, 1) / dof * np.diag(invXWX))
+            _s = np.sqrt(reduced_chi_squared.reshape(-1, 1) * np.diag(invXWX))
 
             B[row_fltr, :] = _B
             s[row_fltr, :] = _s

@@ -97,14 +97,14 @@ def open_db_connection(
             try:
                 crsr.execute("ROLLBACK;")
             except SQLOperationalError:
-                print("No transaction to rollback.")
+                logger.info("No transaction to rollback.")
         except PyODBCProgrammingError as err:
-            print("ROLLBACK not supported.")
+            logger.error("ROLLBACK not supported.")
 
     try:
         yield connection, cursor
     except PyODBCDatabaseError as err:
-        error, = err.args
+        (error,) = err.args
         sys.stderr.write(error.message)
         rollback(cursor)
         raise err
@@ -113,7 +113,7 @@ def open_db_connection(
             try:
                 cursor.execute("COMMIT;")
             except SQLOperationalError:
-                print("No active transaction to commit.")
+                logger.info("No active transaction to commit.")
         else:
             rollback(cursor)
     finally:

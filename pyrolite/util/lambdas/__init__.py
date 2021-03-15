@@ -112,7 +112,6 @@ def calc_lambdas(
     fit_radii = get_ionic_radii(columns, charge=3, coordination=8)
 
     if "oneill" in algorithm.lower():
-        #try:
         logger.debug("Using implementation of ONeill2016.")
         ls = lambdas_ONeill2016(
             fit_df,
@@ -123,19 +122,6 @@ def calc_lambdas(
             sigmas=sigmas,
             **kwargs
         )
-        """
-        except np.linalg.LinAlgError:  # singular matrix, use optimize
-            logger.debug("Singular Matrix - Falling back to optimization.")
-            ls = lambdas_optimize(
-                fit_df,
-                radii=fit_radii,
-                params=params,
-                add_uncertainties=add_uncertainties,
-                add_X2=add_X2,
-                sigmas=sigmas,
-                **kwargs
-            )
-        """
     else:
         logger.debug("Using optimization algorithm.")
         ls = lambdas_optimize(

@@ -103,7 +103,8 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
     func_components : :class:`list` ( :class:`numpy.ndarray` )
         List of arrays representing static/evaluated function components.
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of observed value uncertainties.
+        Single value or 1D array of normalised observed value uncertainties
+        (:math:`\sigma_{REE} / REE`).
 
     Returns
     -------
@@ -181,7 +182,8 @@ def optimize_fit_components(
         Callable funciton to compute residuals which accepts ordered arguments for
         weights, target values and function components.
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of observed value uncertainties.
+        Single value or 1D array of normalised observed value uncertainties
+        (:math:`\sigma_{REE} / REE`).
 
     Returns
     -------

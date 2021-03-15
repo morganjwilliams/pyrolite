@@ -156,40 +156,45 @@ def _get_params(params=None, degree=4):
 
 
 def parse_sigmas(y, sigmas=None):
-    """
+    r"""
     Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
     algorithms.
 
     Parameters
     ----------
-    y : :class:`numpy.ndarray`
-        2D array of y values.
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of observed value uncertainties.
+        2D array of REE uncertainties. Values as fractional uncertaintes
+        (i.e. :math:`\sigma_{REE} / REE`).
 
     Returns
     -------
     sigmas : :class:`float` | :class:`numpy.ndarray`
-        Single value or 1D array of sigmas.
+        1D array of sigmas (:math:`\sigma_{REE} / REE`).
 
     Notes
     -----
-    If no sigmas are provided, 1% of the mean y values will be returned.
+    Note that the y-array is passed here only to infer the shape which should be
+    assumed by the uncertainty array.
+    Through propagation of uncertainties, the uncertainty on the natural logarithm of
+    the normalised REE values are equivalent to :math:`\sigma_{REE} / REE` where the
+    uncertainty in the reference composition is assumed to be zero. Thus, standard
+    deviations of 1% in REE will result in :math:`\sigma=0.01` for the log-transformed
+    REE. If no sigmas are provided, 1% uncertainty will be assumed and an array of
+    0.01 will be returned.
     """
-    # if sigmas is none, it's assumed 2% uncertainty on log-transformed
-    # normalised abundances; 1D and 2D arrays should also work
     sigma2d = False
     if sigmas is None:
-        sigmas = 0.01 * y.mean(axis=0)
-    elif isinstance(sigmas, float):
-        sigmas = sigmas * y.mean(axis=0)
-    elif sigmas.ndim > 1:
-        if any(ix == 1 for ix in sigmas.shape):
-            sigmas = sigmas.flatten()
+        sigmas = np.ones(y.shape[1]) * 0.01
+    else:  # sigmas are passed
+        if isinstance(sigmas, float):
+            sigmas = sigmas
+        elif sigmas.ndim > 1:
+            if any(ix == 1 for ix in sigmas.shape):
+                sigmas = sigmas.flatten()
+            else:
+                msg = "2D uncertainty estimation not yet implemented."
+                raise NotImplementedError(msg)
         else:
-            msg = "2D uncertainty estimation not yet implemented."
-            raise NotImplementedError(msg)
-    else:
-        pass  # should be a 1D array
+            pass  # should be a 1D array
 
     return sigmas

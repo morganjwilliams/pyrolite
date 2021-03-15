@@ -518,9 +518,10 @@ class pyrochem(object):
         params=None,
         degree=4,
         scale="ppm",
+        sigmas=None,
         **kwargs
     ):
-        """
+        r"""
         Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
         normalised to a specific composition [#localref_1]_. Lambda factors are given for the
         radii vs. ln(REE/NORM) polynomial combination.
@@ -542,6 +543,9 @@ class pyrochem(object):
             Maximum degree polynomial fit component to include.
         scale : :class:`str`
             Current units for the REE data, used to scale the reference dataset.
+        sigmas : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series`
+            Value or 1D array of fractional REE uncertaintes (i.e.
+            :math:`\sigma_{REE}/REE`).
 
         References
         ----------
@@ -563,7 +567,8 @@ class pyrochem(object):
             params=params,
             degree=degree,
             scale=scale,
-            **kwargs
+            sigmas=sigmas,
+            **kwargs,
         )
 
     def convert_chemistry(self, to=[], logdata=False, renorm=False, molecular=False):
