@@ -133,21 +133,28 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
                 y[np.ix_(row_fltr, missing_fltr)],
                 sigmas[missing_fltr],
             )
-            # M = np.cov(_y, rowvar=False)  # variance-covariance matrix
-            # weights derived from inverse variance of y-uncertaintes
-            W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
-            invXWX = np.linalg.inv(_x.T @ W @ _x)
-            _B = (invXWX @ _x.T @ W @ _y.T).T  # parameter estimates
+            # weights derived from reciprocal variance of y-uncertaintes
+            # W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
+            # assuming the errors on y are uncorrelated, we can use _sigmas as
+            # whitening transformation for X and y:
+            # w = np.diag(np.sqrt(W))
+            w = 1 / _sigmas
+            _x *= w.reshape(-1, 1)
+            _y *= w
+
+            invXX = np.linalg.inv(_x.T @ _x)
+            _B = (invXX @ _x.T @ _y.T).T  # parameter estimates
             ############################################################################
-            est = (_x @ _B.T).T  # modelled values
-            residuals = _y - est  # residuals over all rows
+            est = (_x @ _B.T).T  # estimated values of y
+            residuals = _y - est  # residuals
+            S = (residuals ** 2).sum(axis=1)  # residual sum of squares
             # H = X @ invXWX @ X.T @ W  # Hat matrix
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
-            # calculate the reduced_chi_squared per row
-            reduced_chi_squared = (residuals ** 2 / _sigmas ** 2).sum(axis=1) / dof
-            mse = (residuals ** 2).sum(axis=1)  # mse per row
-            # mse is divided by divided by degrees of freedom
-            _s = np.sqrt(mse.reshape(-1, 1) / dof * np.diag(invXWX))
+            # calculate the reduced_chi_squared per row (divided by degrees of freedom)
+            # note due to the whitening transformation above, S is effectively
+            # sum(residual/sigma)**2
+            reduced_chi_squared = S / dof
+            _s = np.sqrt(reduced_chi_squared.reshape(-1, 1) * np.diag(invXX))
 
             B[row_fltr, :] = _B
             s[row_fltr, :] = _s

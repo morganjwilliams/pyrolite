@@ -13,10 +13,6 @@ from pyrolite.util.synthetic import random_cov_matrix
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 
-from pyrolite.util.log import stream_log
-
-stream_log("pyrolite.util.lambdas", level="DEBUG")
-
 
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthogonal polynomial parameters."""
@@ -136,7 +132,7 @@ class TestCalcLambdas(unittest.TestCase):
         vals = self.C[els]
         self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
 
-        self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
+        self.df = self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
         self.df.loc[1, :] = self.df.loc[0, :]
         self.default_degree = 3
 
@@ -268,7 +264,6 @@ class TestCalcLambdas(unittest.TestCase):
         df.loc[1, :] = np.nan
         ret = calc_lambdas(df)
         # all of the second row should be nan
-        print(df, ret)
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
 
 
