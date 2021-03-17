@@ -5,8 +5,7 @@ Mineral Endmember Decomposition
 A common task when working with mineral chemistry data is to take measured compositions
 and decompose these into relative proportions of mineral endmember compositions.
 pyrolite includes some utilities to achieve this and a limited mineral database
-for looking up endmember compositions. This part of the package is being actively
-developed, so expect expansions and improvements soon.
+for looking up endmember compositions.
 """
 import pandas as pd
 import numpy as np
