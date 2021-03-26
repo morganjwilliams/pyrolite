@@ -118,13 +118,9 @@ plt.show()
 #
 labels = pd.cut(
     np.log(normdf["Cs"]), bins=4, labels=["Low", "Mid. Low", "Mid High", "High"]
-).astype(object)
-labels.unique()
+)
+np.unique(labels)
 ########################################################################################
-# Note that here we want these to be strings; :mod:`pyrolite.plot.color` isn't set up
-# for categories just yet. So above we've converted the categorical dtype to strings
-# (:code:`object`).
-#
 # Below we'll use :func:`~pyrolite.plot.color.process_color` and
 # :func:`~pyrolite.util.plot.legend.proxy_line` to construct a set of legend proxies.
 # Note that we need to pass the same configuration to both
@@ -145,19 +141,12 @@ ax = normdf.pyroplot.spider(
     figsize=(11, 4),
 )
 
-legend_labels = np.unique(labels)  # could also use pd.Series.unique() for Series
-proxy_colors = process_color(
-    color=legend_labels,
-    cmap="Paired",
-    alpha=0.5,
-)["c"]
-legend_proxies = [
-    proxy_line(
-        color=c,
-        marker="D",
-    )
-    for c in proxy_colors
-]
+legend_labels = np.unique(labels)  # process_color uses this behind the scenes
+
+proxy_colors = process_color(color=legend_labels, cmap="Paired", alpha=0.5)["c"]
+
+legend_proxies = [proxy_line(color=c, marker="D") for c in proxy_colors]
+
 ax.legend(legend_proxies, legend_labels)
 plt.show()
 ########################################################################################
@@ -169,13 +158,11 @@ proxies = {
     label: proxy_line(color=c, marker="D")
     for label, c in zip(legend_labels, proxy_colors)
 }
-ordered_labels = [
-    "High",
-    "Mid High",
-    "Mid. Low",
-    "Low",
-]
+
+ordered_labels = ["High", "Mid High", "Mid. Low", "Low"]
+
 ax.legend([proxies[l] for l in ordered_labels], ordered_labels)
+
 plt.show()
 ########################################################################################
 # Split Configuration
