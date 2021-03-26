@@ -13,7 +13,7 @@ dependencies:
   - xlrd
   - openpyxl
   - psutil
-  - matplotlib
+  - matplotlib<3.4  # 3.4 breaks mpltern with axes creation change
   - pytables
   - scipy>=1.2  # uses scipy.optimize.Bounds, added around 1.2
   - umap-learn
