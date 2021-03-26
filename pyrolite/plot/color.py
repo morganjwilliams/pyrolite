@@ -44,7 +44,10 @@ def get_cmode(c=None):
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
             logger.debug("Checking array-based color modes.")
             if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
-                c = np.array(c, dtype=getattr(c, "dtype", "object"))
+                dtype = getattr(c, "dtype", np.dtype("O"))
+                if dtype.name == "category":  # convert categories to objects for numpy
+                    dtype = np.dtype("O")
+                c = np.array(c, dtype=dtype)
                 convertible = False
                 try:  # could test all of them, or just a few
                     _ = [matplotlib.colors.to_rgba(_c) for _c in [c[0], c[-1]]]
