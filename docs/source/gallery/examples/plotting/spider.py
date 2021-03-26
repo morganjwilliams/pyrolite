@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# sphinx_gallery_thumbnail_number = 3
+# sphinx_gallery_thumbnail_number = 4
 
 ########################################################################################
 # Here we'll set up an example which uses EMORB as a starting point. Typically we'll
@@ -80,7 +80,7 @@ ax[0].set_title("Continuous Values")
 normdf.pyroplot.spider(
     ax=ax[0],
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
     cmap="plasma",
     alpha=0.1,
     color=np.log(normdf["Li"]),  # a range of continous values
@@ -90,7 +90,7 @@ normdf.pyroplot.spider(
     ax=ax[1],
     alpha=0.1,
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
     color=normdf["Cs"] > 3.5,  # a boolean/categorical set of values
 )
 ax[2].set_title("Boolean/Categorical Values with Color Mapping")
@@ -98,13 +98,84 @@ normdf.pyroplot.spider(
     ax=ax[2],
     alpha=0.1,
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
     color=normdf["Cs"] > 3.5,  # a boolean/categorical set of values
     color_mappings={  # mapping the boolean values to specific colors
         "color": {True: "green", False: "purple"}
     },
 )
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
+plt.show()
+########################################################################################
+# Legend Proxies for Spiderplots
+# ------------------------------
+#
+# While it's relatively straightforward to style spider plots as you wish, for the
+# moment can be a bit more involved to create a legend for these styles. Where you're
+# creating styles based on a set of categories or labels, a few of pyrolite's utility
+# functions might come in handy. Below we'll go through such an example, after creating
+# a few labels (here based on a binning of the Cs abundance):
+#
+labels = pd.cut(
+    np.log(normdf["Cs"]), bins=4, labels=["Low", "Mid. Low", "Mid High", "High"]
+).astype(object)
+labels.unique()
+########################################################################################
+# Note that here we want these to be strings; :mod:`pyrolite.plot.color` isn't set up
+# for categories just yet. So above we've converted the categorical dtype to strings
+# (:code:`object`).
+#
+# Below we'll use :func:`~pyrolite.plot.color.process_color` and
+# :func:`~pyrolite.util.plot.legend.proxy_line` to construct a set of legend proxies.
+# Note that we need to pass the same configuration to both
+# :func:`~pyrolite.plot.pyroplot.spider` and :func:`~pyrolite.plot.color.process_color`
+# in order to get the same results, and that the order of labels in the legend
+# will depend on which labels appear first in your dataframe or series (and hence the
+# ordering of the unique values which are returned).
+#
+from pyrolite.plot.color import process_color
+from pyrolite.util.plot.legend import proxy_line
+
+ax = normdf.pyroplot.spider(
+    unity_line=True,
+    index_order="incompatibility",
+    color=labels,  # a categorical set of values
+    cmap="Paired",
+    alpha=0.5,
+    figsize=(11, 4),
+)
+
+legend_labels = np.unique(labels)  # could also use pd.Series.unique() for Series
+proxy_colors = process_color(
+    color=legend_labels,
+    cmap="Paired",
+    alpha=0.5,
+)["c"]
+legend_proxies = [
+    proxy_line(
+        color=c,
+        marker="D",
+    )
+    for c in proxy_colors
+]
+ax.legend(legend_proxies, legend_labels)
+plt.show()
+########################################################################################
+# If the specific order of the labels in your legend is important or you only want to
+# include some of the legend entries for some reason, you could use a dictionary to
+# store the key-value pairs and remap the order of the legend entries manually:
+#
+proxies = {
+    label: proxy_line(color=c, marker="D")
+    for label, c in zip(legend_labels, proxy_colors)
+}
+ordered_labels = [
+    "High",
+    "Mid High",
+    "Mid. Low",
+    "Low",
+]
+ax.legend([proxies[l] for l in ordered_labels], ordered_labels)
 plt.show()
 ########################################################################################
 # Split Configuration
@@ -119,7 +190,7 @@ ax.set_title("Split Configuration")
 normdf.pyroplot.spider(
     ax=ax,
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
     scatter_kw=dict(cmap="magma_r", color=np.log(normdf["Li"])),
     line_kw=dict(
         color=normdf["Cs"] > 5,
@@ -141,7 +212,7 @@ ax = normdf.pyroplot.spider(
     color="green",
     alpha=0.5,
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
     figsize=(10, 4),
 )
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
@@ -162,7 +233,7 @@ normdf.pyroplot.spider(
     vmin=0.05,  # 95th percentile,
     resolution=10,
     unity_line=True,
-    index_order='incompatibility',
+    index_order="incompatibility",
 )
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 plt.show()
@@ -205,7 +276,7 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
         vmin=0.05,  # minimum percentile
         fontsize=8,
         unity_line=True,
-        index_order='incompatibility',
+        index_order="incompatibility",
         *args,
         **kwargs
     )
