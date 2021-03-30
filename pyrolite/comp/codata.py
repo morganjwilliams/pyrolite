@@ -587,12 +587,11 @@ def sphere(ys):
     an issue for this function given that the input values are all positive.
     """
     p = ys.shape[1] - 1
-    _ys = np.sqrt(close(ys))
-    θ = np.ones((ys.shape[0], p))  # * np.pi / 2
+    _ys = np.sqrt(close(ys))  # closure operation
+    θ = np.ones((ys.shape[0], p))
 
     indicies = np.arange(1, p + 1)[::-1]
     for ix in indicies:  # we have to recurse from p back down to #2
-        # print("ix={}".format("p" if ix == p else ix))
         if ix == p:
             sinprod = 1
         else:
@@ -607,9 +606,6 @@ def sphere(ys):
         ratios[np.isclose(ratios, 1.0)] = 1
         θ[:, ix - 1] = np.arccos(ratios)
 
-    # if (θ > (np.pi / 2)).any():
-    #    print("Values greater than pi/2 detected")
-    # θ = np.where(θ > (np.pi / 2), np.pi - θ, θ)
     return θ
 
 
@@ -631,16 +627,11 @@ def inverse_sphere(θ):
     p = θ.shape[1]
     n = θ.shape[0]
     y = np.ones((θ.shape[0], p + 1)) * np.pi / 2
-    # _θ = np.c_[np.zeros((θ.shape[0], 1)), θ][:, ::-1]
 
-    # sinθ, cosθ = np.sin(_θ), np.cos(_θ)
     sinθ, cosθ = np.sin(θ), np.cos(θ)
-    labels = ["θ{}".format(ix if ix <= p else "p") for ix in range(2, p + 2)]
 
     indicies = np.arange(0, p + 1)
-
     for ix in indicies:
-        # print(labels[ix - 1], labels[ix:])
         if ix == 0:
             C = 1.0
         else:
