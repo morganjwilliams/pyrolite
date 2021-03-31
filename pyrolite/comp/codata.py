@@ -580,11 +580,11 @@ def sphere(ys):
     Returns
     -------
     θ : :class:`numpy.ndarray`
-        Array of angles in radians ($(0, \pi / 2]$)
+        Array of angles in radians (:math:`(0, \pi / 2]`)
 
     Notes
     -----
-    :func:`numpy.arccos` will return angles in the range $(0, \pi)$. This shouldn't be
+    :func:`numpy.arccos` will return angles in the range :math:`(0, \pi)`. This shouldn't be
     an issue for this function given that the input values are all positive.
     """
     p = ys.shape[1] - 1
