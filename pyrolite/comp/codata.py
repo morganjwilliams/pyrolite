@@ -593,14 +593,14 @@ def sphere(ys):
     indicies = np.arange(1, p + 1)[::-1]
     for ix in indicies:  # we have to recurse from p back down to #2
         if ix == p:
-            sinprod = 1
+            S = 1
         else:
             # vector - the product of sin components
-            sinprod = np.product(np.sin(θ[:, ix:]), axis=1)
+            S = np.product(np.sin(θ[:, ix:]), axis=1)
             # where this evaluates to zero, the composition is all in the first component
-            sinprod[np.isclose(sinprod, 0.0)] = 1
+            S[np.isclose(S, 0.0)] = 1
 
-        ratios = _ys[:, ix] / sinprod
+        ratios = _ys[:, ix] / S
         # where this looks like it could be slightly higher than 1
         # np.arcos will return np.nan, so we can filter these.
         ratios[np.isclose(ratios, 1.0)] = 1
