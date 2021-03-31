@@ -4,6 +4,8 @@ Submodule for working with compositional data.
 
 import pandas as pd
 import numpy as np
+import functools
+import inspect
 from . import codata
 from ..util.log import Handle
 
@@ -25,12 +27,13 @@ def attribute_transform(f, *args, **kwargs):
     :class:`func` | :class:`class`
         Object with modified docstring.
     """
-
+    @functools.wraps(f)
     def wrapper(*args, **kwargs):
         output = f(*args, **kwargs)
         output.attrs["transform"] = f.__name__
         return output
-
+    wrapper.__signature__ = inspect.signature(f)
+    wrapper.__doc__ = f.__doc__  # keep the docstring!
     return wrapper
 
 
