@@ -168,7 +168,8 @@ def CLR(X: np.ndarray):
     :class:`numpy.ndarray`
         CLR-transformed array, of shape :code:`(N, D)`.
     """
-    X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
+    X = np.array(X)
+    X = np.divide(X, np.sum(X, axis=1).reshape(-1, 1))  # Closure operation
     Y = np.log(X)  # Log operation
     nvars = max(X.shape[1], 1)  # if the array is empty we'd get a div-by-0 error
     G = (1 / nvars) * np.nansum(Y, axis=1)[:, np.newaxis]
@@ -568,7 +569,7 @@ forecasting model for compositional data. European Journal of Operational Resear
 
 
 def sphere(ys):
-    """
+    r"""
     Spherical coordinate transformation for compositional data.
 
     Parameters
