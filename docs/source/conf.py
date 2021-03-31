@@ -37,7 +37,7 @@ import pyrolite
 
 
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
-release = version
+release = pyrolite.__version__
 """
 from mock import Mock as MagicMock
 class Mock(MagicMock):
