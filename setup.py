@@ -49,11 +49,10 @@ setup(
     install_requires=[
         "numpy",
         "numpydoc",
-        "pathlib",
         "tinydb",
         "psutil",
         "periodictable",
-        "matplotlib", 
+        "matplotlib",
         "mpltern>=0.3.1",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
