@@ -129,18 +129,21 @@ def WIP(df: pd.DataFrame):
     return 2 * df.Na2O / 0.35 + df.MgO / 0.9 + 2 * df.K2O / 0.25 + df.CaO / 0.7
 
 @update_docstring_references
-def AI(df: pd.DataFrame):
+def IshikawaAltIndex(df: pd.DataFrame):
     """
     Alteration Index of Ishikawa (wt%) [#ref_1]_
 
     References
     ----------
-    .. [#ref_1] Ishikawa Y, Sawaguchi T, Iwaya S, Horiuchi M (1976). Delineation of prospecting targets for Kuroko deposits based on modes of volcanism of underlying dacite and alteration halos.
-           Mining Geology 27:106-117.
+    .. [#ref_1] Ishikawa Y, Sawaguchi T, Iwaya S, Horiuchi M (1976). 
+            Delineation of prospecting targets for Kuroko deposits based on 
+            modes of volcanism of underlying dacite and alteration halos.
+            Mining Geology 27:106-117.
            
     """
     return 100*(df.K2O + df.MgO) / (df.K2O + df.MgO + df.Na2O + df.CaO)
 
+@update_docstring_references
 def CCPI(df: pd.DataFrame):
     """
     Chlorite-carbonate-pyrite index of Large et al. (wt%) [#ref_1]_
@@ -148,9 +151,12 @@ def CCPI(df: pd.DataFrame):
 
     References
     ----------
-    .. [#ref_1] Large R R, Gemmell, J B, Paulick, H(2001). The alteration box plot: A simple approach to understanding the relationship between alteration mineralogy and lithogeochemistry associated with volcanic-hosted massive sulfide deposits.
+    .. [#ref_1] Large R R, Gemmell, J B, Paulick, H(2001). The alteration box 
+           plot: A simple approach to understanding the relationship between 
+           alteration mineralogy and lithogeochemistry associated with 
+           volcanic-hosted massive sulfide deposits.
            Economic Geology 96:957-971.
-           doi:`10.2113/gsecongeo.96.5.957`
+           doi:`10.2113/gsecongeo.96.5.957 <http://dx.doi.org/10.2113/gsecongeo.96.5.957>`__
            
     """
     if 'FeO' in df.columns:

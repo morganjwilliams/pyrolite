@@ -87,9 +87,6 @@ class TestWIP(unittest.TestCase):
         df.loc[:, "WIP"] = WIP(df)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 class TestAI(unittest.TestCase):
     """Tests the Alteration index."""
 
@@ -103,9 +100,6 @@ class TestAI(unittest.TestCase):
         df = self.df
         df.loc[:, "AI"] = AI(df)
 
-
-if __name__ == "__main__":
-    unittest.main()
     
 class TestCCPI(unittest.TestCase):
     """Tests the Chlorite-carbonate-pyrite index."""
