@@ -89,3 +89,37 @@ class TestWIP(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestAI(unittest.TestCase):
+    """Tests the Alteration index."""
+
+    def setUp(self):
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+
+    def test_AI(self):
+        df = self.df
+        df.loc[:, "AI"] = AI(df)
+
+
+if __name__ == "__main__":
+    unittest.main()
+    
+class TestCCPI(unittest.TestCase):
+    """Tests the Chlorite-carbonate-pyrite index."""
+
+    def setUp(self):
+        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+
+    def test_CCPI(self):
+        df = self.df
+        df.loc[:, "CCPI"] = CCPI(df)
+
+
+if __name__ == "__main__":
+    unittest.main()
