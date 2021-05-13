@@ -164,4 +164,4 @@ def CCPI(df: pd.DataFrame):
     elif 'Fe2O3'in df.columns and 'FeO' in df.columns:
         ccpi = 100*(df.MgO+ df.FeO + df.Fe2O3) / (df.MgO+ df.FeO + df.Fe2O3 + 
                                                   df.Na2O + df.K2O)
-    return(ccpi)
+    return ccpi
