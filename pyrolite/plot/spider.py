@@ -274,7 +274,8 @@ def spider(
             # add 10% range either side for linear scale
             _ymin, _ymax = 0.9 * _ymin, 1.1 * _ymax
 
-        ax.set_ylim(_ymin, _ymax)
+        if np.isfinite(_ymax) and np.isfinite(_ymin) and (_ymax - _ymin) > 0:
+            ax.set_ylim(_ymin, _ymax)
     return ax
 
 
