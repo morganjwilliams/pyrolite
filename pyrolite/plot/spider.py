@@ -26,7 +26,7 @@ from ..util.plot.axes import get_twins, init_axes
 
 from ..util.meta import get_additional_params, subkwargs
 
-_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25,)
+_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)
 _line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
 
 # could create a spidercollection?
@@ -42,6 +42,7 @@ def spider(
     scatter_kw={},
     line_kw={},
     set_ticks=True,
+    autoscale=True,
     **kwargs
 ):
     """
@@ -62,7 +63,8 @@ def spider(
     logy : :class:`bool`
         Whether to use a log y-axis.
     yextent : :class:`tuple`
-        Extent in the y direction for conditional probability plots.
+        Extent in the y direction for conditional probability plots, to limit
+        the gridspace over which the kernel density estimates are evaluated.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -74,6 +76,8 @@ def spider(
         Keyword parameters to be passed to the line plotting function.
     set_ticks : :class:`bool`
         Whether to set the x-axis ticks according to the specified index.
+    autoscale : :class:`bool`
+        Whether to autoscale the y-axis limits for standard spider plots.
     {otherparams}
 
     Returns
@@ -106,11 +110,15 @@ def spider(
 
     ax = init_axes(ax=ax, figsize=figsize, **kwargs)
 
-    if logy:
-        ax.set_yscale("log")
-
+    # autoscale ranges
+    _ymin, _ymax = 0.9 * np.nanmin(arr), 1.1 * np.nanmax(arr)
     if unity_line:
         ax.axhline(1.0, ls="--", c="k", lw=0.5)
+        _ymin, _ymax = min(_ymin, 0.9), max(_ymax, 1.1)
+
+    if logy:
+        ax.set_yscale("log")
+        _ymin, _ymax = 10 ** np.floor(np.log10(_ymin)), 10 ** np.ceil(np.log10(_ymax))
 
     if indexes is None:
         indexes = np.arange(ncomponents)
@@ -167,7 +175,6 @@ def spider(
             np.dstack((indexes, arr)), **{"zorder": 1, **l_kw}
         )
         ax.add_collection(lcoll)
-
         ################################################################################
         # load defaults and any specified parameters in scatter_kw / line_kw
         if s_kw.get("cmap") is None:
@@ -175,7 +182,6 @@ def spider(
 
         _sctr_cfg = {**_scatter_defaults, **kwargs, **s_kw}
         s_kw = process_color(**_sctr_cfg)
-
         if s_kw["marker"] is not None:
             # will need to process colours for scatter markers here
 
@@ -247,7 +253,8 @@ def spider(
             "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
         )
 
-    # consider relimiting here
+    if autoscale:  # set the y range to lock to the outermost log-
+        ax.set_ylim(_ymin, _ymax)
     return ax
 
 
