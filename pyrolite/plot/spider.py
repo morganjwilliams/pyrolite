@@ -110,15 +110,11 @@ def spider(
 
     ax = init_axes(ax=ax, figsize=figsize, **kwargs)
 
-    # autoscale ranges
-    _ymin, _ymax = 0.9 * np.nanmin(arr), 1.1 * np.nanmax(arr)
     if unity_line:
         ax.axhline(1.0, ls="--", c="k", lw=0.5)
-        _ymin, _ymax = min(_ymin, 0.9), max(_ymax, 1.1)
 
     if logy:
         ax.set_yscale("log")
-        _ymin, _ymax = 10 ** np.floor(np.log10(_ymin)), 10 ** np.ceil(np.log10(_ymax))
 
     if indexes is None:
         indexes = np.arange(ncomponents)
@@ -253,7 +249,17 @@ def spider(
             "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
         )
 
-    if autoscale:  # set the y range to lock to the outermost log-
+    if autoscale and arr.size:
+        # set the y range to lock to the outermost log-increments
+        _ymin, _ymax = 0.9 * np.nanmin(arr), 1.1 * np.nanmax(arr)
+
+        if unity_line:
+            _ymin, _ymax = min(_ymin, 0.9), max(_ymax, 1.1)
+
+        if logy:
+            _ymin, _ymax = 10 ** np.floor(np.log10(_ymin)), 10 ** np.ceil(
+                np.log10(_ymax)
+            )
         ax.set_ylim(_ymin, _ymax)
     return ax
 
