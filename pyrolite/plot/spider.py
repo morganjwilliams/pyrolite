@@ -207,6 +207,7 @@ def spider(
             s_kw = scatterkwargs(
                 {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
+            # do these need to be ravelled?
             sc = ax.scatter(
                 indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
             )
@@ -251,15 +252,28 @@ def spider(
 
     if autoscale and arr.size:
         # set the y range to lock to the outermost log-increments
-        _ymin, _ymax = 0.9 * np.nanmin(arr), 1.1 * np.nanmax(arr)
+        _ymin, _ymax = np.nanmin(arr), np.nanmax(arr)
 
         if unity_line:
-            _ymin, _ymax = min(_ymin, 0.9), max(_ymax, 1.1)
+            _ymin, _ymax = min(_ymin, 1.0), max(_ymax, 1.0)
 
         if logy:
-            _ymin, _ymax = 10 ** np.floor(np.log10(_ymin)), 10 ** np.ceil(
-                np.log10(_ymax)
+            # at 5% range in log space, and clip to nearest 'minor' tick
+            logy_range = np.log(_ymax) - np.log(_ymin)
+
+            floor_scale = 10 ** np.floor(np.log10(_ymin))
+            ceil_scale = 10 ** np.ceil(np.log10(_ymax)) - 1.0
+
+            _ymin, _ymax = (
+                np.floor(10 ** (np.log10(_ymin) - 0.05 * logy_range) / floor_scale)
+                * floor_scale,
+                np.ceil(10 ** (np.log10(_ymax) + 0.05 * logy_range) / ceil_scale)
+                * ceil_scale,
             )
+        else:
+            # add 10% range either side for linear scale
+            _ymin, _ymax = 0.9 * _ymin, 1.1 * _ymax
+
         ax.set_ylim(_ymin, _ymax)
     return ax
 
