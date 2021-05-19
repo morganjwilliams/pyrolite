@@ -124,9 +124,7 @@ class pyroplot(object):
         ax.set_yticklabels(obj.columns, minor=False)
         return ax
 
-    def density(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def density(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
         esitimates from point data. Convenience access function to
@@ -255,9 +253,7 @@ class pyroplot(object):
         )
         return ax
 
-    def plot(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def plot(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Convenience method for line plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -346,9 +342,7 @@ class pyroplot(object):
         ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
         return ax
 
-    def scatter(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -376,7 +370,7 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
         kw = process_color(size=size, **kwargs)
-        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw),)
+        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
 
         if axlabels:
             label_axes(ax, labels=components)
@@ -393,6 +387,7 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
+        autoscale=True,
         scatter_kw={},
         line_kw={},
         **kwargs,
@@ -412,6 +407,8 @@ class pyroplot(object):
             The subplot to draw on.
         index_order
             Function to order spider plot indexes (e.g. by incompatibility).
+        autoscale : :class:`bool`
+            Whether to autoscale the y-axis limits for standard spider plots.
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
@@ -464,6 +461,7 @@ class pyroplot(object):
             indexes=indexes,
             ax=ax,
             mode=mode,
+            autoscale=autoscale,
             scatter_kw=scatter_kw,
             line_kw=line_kw,
             **kwargs,
