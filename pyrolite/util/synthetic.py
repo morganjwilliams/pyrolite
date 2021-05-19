@@ -12,6 +12,7 @@ from .log import Handle
 
 logger = Handle(__name__)
 
+
 def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
@@ -101,6 +102,9 @@ def random_composition(
             * If :code:`missing = "MCAR"`, data will be missing at random.
             * If :code:`missing = "MAR"`, data will be missing with some relationship to other parameters.
             * If :code:`missing = "MNAR"`, data will be thresholded at some lower bound.
+
+    seed : :class:`int`, :code:`None`
+        Random seed to use, optionally specified.
 
     Returns
     --------
