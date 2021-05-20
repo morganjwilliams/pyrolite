@@ -127,14 +127,14 @@ def lambdas_ONeill2016(
             s[row_fltr, :] = _s
             χ2[row_fltr, 0] = reduced_chi_squared
 
-        lambdas = pd.DataFrame(
-            B,
-            index=df.index,
-            columns=names,
-            dtype="float32",
-        )
-        if add_uncertainties:
-            lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
-        if add_X2:
-            lambdas["X2"] = χ2
-        return lambdas
+    lambdas = pd.DataFrame(
+        B,
+        index=df.index,
+        columns=names,
+        dtype="float32",
+    )
+    if add_uncertainties:
+        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
+    if add_X2:
+        lambdas["X2"] = χ2
+    return lambdas
