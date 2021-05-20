@@ -10,10 +10,33 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* Removed a redundant :mod:`pathlib` dependency (which is standard library as of
+  Python 3.4)
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Bugfix**: Fixed a bug where incomplete results where being returned for
+  calls to :func:`~pyrolite.geochem.lambda_lnREE` using the O'Neill algorithm.
+  In this instance only the rows with the least missing data (typically those
+  with no missing data) would return lambda values, other rows would contain
+  null values. Thanks to Mark Pearce for identifying this one!
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added autoscaling for standard :func:`~pyrolite.plot.pyroplot.spider` and
+  related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
+* :func:`~pyrolite.plot.color.process_color` has been updated to better deal
+  with data explicitly declared to be of a 'category' data type (as a
+  :class:`pandas.Series`).
+
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~
+
 * Update default parameterisation to :code:`"full"` for lambdas, using all REE to
   generate orthogonal polynomial functions.
+
 
 `0.3.0`_
 --------------
