@@ -21,6 +21,8 @@ All notable changes to this project will be documented here.
   In this instance only the rows with the least missing data (typically those
   with no missing data) would return lambda values, other rows would contain
   null values. Thanks to Mark Pearce for identifying this one!
+  In the meantime, using :code:`df.pyrochem.lambda_lnREE(algorithm='opt')` will
+  allow you to avoid the issue.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
