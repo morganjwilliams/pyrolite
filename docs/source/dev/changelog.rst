@@ -24,6 +24,13 @@ All notable changes to this project will be documented here.
   In the meantime, using :code:`df.pyrochem.lambda_lnREE(algorithm='opt')` will
   allow you to avoid the issue.
 
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Added spherical coordinate transformation to :class:`pyrolite.comp.pyrocomp`
+  and :mod:`pyrolite.comp.codata` (see :func:`pyrolite.comp.pyrocomp.sphere`).
+
+
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
