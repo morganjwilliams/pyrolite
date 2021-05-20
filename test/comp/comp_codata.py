@@ -189,5 +189,34 @@ class TestGetILRLabel(unittest.TestCase):
         self.assertTrue(out.shape[1] == len(labels))
 
 
+class TestSphere(unittest.TestCase):
+    def setUp(self):
+        self.df = normal_frame().apply(close, axis=1)
+
+    def test_single(self):
+        """Checks whether the function works on a single record."""
+        df = self.df.head(1)
+        out = sphere(df.values)
+
+    def test_multiple(self):
+        """Checks whether the function works on multiple records."""
+        df = self.df
+        out = sphere(df.values)
+
+    def test_isomorphism_single(self):
+        """Checks that the function is reversible for a record."""
+        df = self.df.head(1)
+        out = sphere(df.values)
+        inv = inverse_sphere(out)
+        self.assertTrue(np.allclose(inv, df.values))
+
+    def test_isomorphism_multiple(self):
+        """Checks that the function is reversible for multiple records."""
+        df = self.df
+        out = sphere(df.values)
+        inv = inverse_sphere(out)
+        self.assertTrue(np.allclose(inv, df.values))
+
+
 if __name__ == "__main__":
     unittest.main()
