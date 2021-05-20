@@ -27,11 +27,13 @@ def attribute_transform(f, *args, **kwargs):
     :class:`func` | :class:`class`
         Object with modified docstring.
     """
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         output = f(*args, **kwargs)
         output.attrs["transform"] = f.__name__
         return output
+
     wrapper.__signature__ = inspect.signature(f)
     wrapper.__doc__ = f.__doc__  # keep the docstring!
     return wrapper
@@ -339,7 +341,7 @@ class pyrocomp(object):
         Returns
         -------
         θ : :class:`numpy.ndarray`
-            Array of angles in radians (:math`(0, \pi / 2]`)
+            Array of angles in radians (:math:`(0, \pi / 2]`)
         """
         arr = codata.sphere(self._obj.values)
         tfm_df = pd.DataFrame(
