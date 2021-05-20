@@ -340,7 +340,7 @@ class pyrocomp(object):
 
         Returns
         -------
-        θ : :class:`numpy.ndarray`
+        θ : :class:`pandas.DataFrame`
             Array of angles in radians (:math:`(0, \pi / 2]`)
         """
         arr = codata.sphere(self._obj.values)
