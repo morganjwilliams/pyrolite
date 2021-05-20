@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # processes, so here we're normalising to a Primitive Mantle composition first.
 # We're here taking this normalised composition and adding some noise in log-space to
 # generate multiple compositions about this mean (i.e. a compositional distribution).
-# For simplicility, this is handlded by
+# For simplicility, this is handled by
 # :func:`~pyrolite.util.synthetic.example_spider_data`:
 #
 from pyrolite.util.synthetic import example_spider_data

@@ -259,16 +259,14 @@ def spider(
 
         if logy:
             # at 5% range in log space, and clip to nearest 'minor' tick
-            logy_range = np.log(_ymax) - np.log(_ymin)
+            logmin, logmax = np.log10(_ymin), np.log10(_ymax)
+            logy_rng = logmax - logmin
 
-            floor_scale = 10 ** np.floor(np.log10(_ymin))
-            ceil_scale = 10 ** np.ceil(np.log10(_ymax)) - 1.0
+            low, high = 10 ** np.floor(logmin), 10 ** np.floor(logmax)
 
             _ymin, _ymax = (
-                np.floor(10 ** (np.log10(_ymin) - 0.05 * logy_range) / floor_scale)
-                * floor_scale,
-                np.ceil(10 ** (np.log10(_ymax) + 0.05 * logy_range) / ceil_scale)
-                * ceil_scale,
+                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low,
+                np.ceil(10 ** (logmax + 0.05 * logy_rng) / high) * high,
             )
         else:
             # add 10% range either side for linear scale
