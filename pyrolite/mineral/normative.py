@@ -55,6 +55,83 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
     # where access access to the composition of the endmembers is guaranteed
     return close(byparts)
 
+def endmember_decompose(
+    composition, endmembers=[], drop_zeros=True, molecular=True, ord=1, det_lim=0.0001
+):
+    """
+    Decompose a given mineral composition to given endmembers.
+    Parameters
+    -----------
+    composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` | :class:`~periodictable.formulas.Formula` | :class:`str`
+        Composition to decompose into endmember components.
+    endmembers : :class:`str` | :class:`list` | :class:`dict`
+    drop_zeros : :class:`bool`, :code:`True`
+        Whether to omit components with zero estimated abundance.
+    molecular : :class:`bool`, :code:`True`
+        Whether to *convert* the chemistry to molecular before calculating the
+        decomposition.
+    ord : :class:`int`
+        Order of regularization passed to :func:`unmix`, defaults to L1 for sparsity.
+    det_lim : :class:`float`
+        Detection limit, below which minor components will be omitted for sparsity.
+    Returns
+    ---------
+    :class:`pandas.DataFrame`
+    """
+    # parse composition ----------------------------------------------------------------
+    assert isinstance(composition, (pd.DataFrame, pd.Series, pt.formulas.Formula, str))
+    if not isinstance(
+        composition, pd.DataFrame
+    ):  # convert to a dataframe representation
+        if isinstance(composition, pd.Series):
+            # convert to frame
+            composition = to_frame(composition)
+        elif isinstance(composition, (pt.formulas.Formula, str)):
+            formula = composition
+            if isinstance(composition, str):
+                formula = pt.formula(formula)
+
+    # parse endmember compositions -----------------------------------------------------
+    aliases = None
+    if not endmembers:
+        logger.warning(
+            "No endmembers specified, using all minerals. Expect non-uniqueness."
+        )
+        # try a decomposition with all the minerals; this will be non-unique
+        endmembers = list_minerals()
+
+    if isinstance(endmembers, str):  # mineral group
+        Y = get_mineral_group(endmembers).set_index("name")
+    elif isinstance(endmembers, (list, set, dict, tuple)):
+        if isinstance(endmembers, dict):
+            aliases, endmembers = list(endmembers.keys()), list(endmembers.values())
+        Y = pd.DataFrame(
+            [parse_composition(em) for em in endmembers], index=aliases or endmembers
+        )
+    else:
+        raise NotImplementedError("Unknown endmember specification format.")
+
+    # calculate the decomposition ------------------------------------------------------
+    X = renormalise(composition, scale=1.0)
+    Y = renormalise(
+        convert_chemistry(Y, to=composition.columns)
+        .loc[:, composition.columns]
+        .fillna(0),
+        scale=1.0,
+    )
+    if molecular:
+        X, Y = to_molecular(X), to_molecular(Y)
+    # optimise decomposition into endmember components
+    modal = pd.DataFrame(
+        unmix(X.fillna(0).values, Y.fillna(0).values, ord=ord, det_lim=det_lim),
+        index=X.index,
+        columns=Y.index,
+    )
+    if drop_zeros:
+        modal = modal.loc[:, modal.sum(axis=0) > 0.0]
+
+    modal = renormalise(modal)
+    return modal
 
 def CIPW_norm(data, form="weight"):
     """
