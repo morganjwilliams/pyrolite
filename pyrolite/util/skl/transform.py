@@ -241,6 +241,36 @@ class ILRTransform(BaseEstimator, TransformerMixin):
         return self
 
 
+class SphericalCoordTransform(BaseEstimator, TransformerMixin):
+    def __init__(self, **kwargs):
+        """Spherical Coordinate Transformer for scikit-learn like use."""
+        self.kpairs = kwargs
+        self.label = "SphericalCoordTransform"
+        self.forward = codata.sphere
+        self.inverse = codata.inverse_sphere
+
+    def transform(self, X, *args, **kwargs):
+        if isinstance(X, pd.DataFrame):
+            out = X.pyrocomp.sphere(**{**self.kpairs, **kwargs})
+        elif isinstance(X, pd.Series):
+            out = X.to_frame().T.pyrocomp.sphere(**{**self.kpairs, **kwargs})
+        else:
+            out = self.forward(np.array(X), *args, **kwargs)
+        return out
+
+    def inverse_transform(self, Y, *args, **kwargs):
+        if isinstance(Y, pd.DataFrame):
+            out = Y.pyrocomp.inverse_sphere(**kwargs)
+        elif isinstance(Y, pd.Series):
+            out = Y.to_frame().T.pyrocomp.inverse_sphere(**kwargs)
+        else:
+            out = self.inverse(np.array(Y), *args, **kwargs)
+        return out
+
+    def fit(self, X, *args, **kwargs):
+        return self
+
+
 class BoxCoxTransform(BaseEstimator, TransformerMixin):
     def __init__(self, **kwargs):
         """BoxCox Transformer for scikit-learn like use."""
