@@ -23,6 +23,12 @@ All notable changes to this project will be documented here.
   null values. Thanks to Mark Pearce for identifying this one!
   In the meantime, using :code:`df.pyrochem.lambda_lnREE(algorithm='opt')` will
   allow you to avoid the issue.
+* **Bugfix**: Modified a few of the :class:`pyrolite.geochem.pyrochem` methods
+  to a avoid a bug due to assignment of the dataframe (
+  :func:`~pyrolite.geochem.pyrochem.to_molecular`,
+  :func:`~pyrolite.geochem.pyrochem.to_weight`,
+  :func:`~pyrolite.geochem.pyrochem.recalculate_Fe`
+  )
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
