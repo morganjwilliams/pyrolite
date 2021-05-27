@@ -256,8 +256,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.to_molecular(self._obj, renorm=renorm)
-        return self._obj
+        return transform.to_molecular(self._obj, renorm=renorm)
 
     def to_weight(self, renorm=True):
         """
@@ -277,8 +276,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.to_weight(self._obj, renorm=renorm)
-        return self._obj
+        return transform.to_weight(self._obj, renorm=renorm)
 
     def devolatilise(
         self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
@@ -298,8 +296,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
-        return self._obj
+        return transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
 
     def elemental_sum(
         self, component=None, to=None, total_suffix="T", logdata=False, molecular=False
@@ -408,7 +405,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.recalculate_Fe(
+        return transform.recalculate_Fe(
             self._obj,
             to,
             total_suffix=total_suffix,
@@ -416,7 +413,6 @@ class pyrochem(object):
             renorm=renorm,
             molecular=molecular,
         )
-        return self._obj
 
     def get_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """
