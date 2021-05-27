@@ -28,7 +28,9 @@ All notable changes to this project will be documented here.
   :func:`~pyrolite.geochem.pyrochem.to_molecular`,
   :func:`~pyrolite.geochem.pyrochem.to_weight`,
   :func:`~pyrolite.geochem.pyrochem.recalculate_Fe`
-  )
+  ). This bug seems to be contained to the dataframe accessor, the individual
+  functions from :mod:`pyrolite.geochem.transform` appear to work as expected
+  outside of this context. Thanks to Chetan Nathwani for highlighting this one!
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
