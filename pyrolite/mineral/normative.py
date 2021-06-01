@@ -157,21 +157,44 @@ def CIPW_norm(data, form="weight"):
     -----
     This function is currently a stub.
     """
+    
     columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5','CO2','SO3']
-    mol_w = pd.Series([pt.formula(c).mass for c in columns], index=columns)
-
-    # If want to convert to FeOtotal
-#     data['FeO'] = data['FeO'] + (data['Fe2O3']*(2*71.8444/159.6882))
-#     data['Fe2O3'] = 0
+    critical_columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5']
+    # Validate columns
+    if np.all(data.columns == columns): # pass if all columns present
+        pass
+    else: # raise warning for missing columns
+        for col in critical_columns:
+            if col not in data.columns:
+                logger.warning('%s columns missing', col)
+    
+    # Reindex columns to be expected and fill missing ones with zeros
+    data_update = data.reindex(columns=columns).fillna(0)
+    for col in data_update: # check what has been added
+        if col not in data:
+            logging.debug('%s columns added with default 0 values', col)
+    data = data_update
+    
+    # Check if Fe2O3 and FeO are present
+    if 'FeO' and 'Fe2O3' in data.columns:
+        pass
+    else:
+        for index, row in data.iterrows():
+            Fe_ratio = 0.93-(0.0042*row['SiO2'])-0.022*(row['Na2O']+row['K2O']) # Middlemost
+            if row['Fe2O3'] == 0: # if Fe given as FeO
+                data.loc[index,'FeO'] = row['FeO']*Fe_ratio
+                data.loc[index,'Fe2O3'] = (1.11134*row['FeO'])*(1-Fe_ratio)
+            if row['FeO'] == 0: # if Fe given as Fe2O3
+                data.loc[index,'FeO'] = (row['Fe2O3']/1.11134)*Fe_ratio
+                data.loc[index,'Fe2O3'] = row['Fe2O3']*(1-Fe_ratio)
+                
+    mol_w = pd.Series([pt.formula(c).mass for c in columns], index=columns) # calc molecular weights
 
     # Normalise to 100 on anhydrous basis
-    print(data)
 #     res = data[columns].copy(deep = True).pyrochem.to_molecular()
     totals = data.sum(axis = 1)
     res = data.divide(totals/100, axis = 0)
     res = data.div(mol_w)
-    print('hi',res)
-    
     # endmember component fractions
     res.pyrochem.add_MgNo(molecular = True)
     MgNo, FeNo = res['Mg#'], 1 - res['Mg#']
@@ -284,7 +307,7 @@ def CIPW_norm(data, form="weight"):
     res["Y"] = res["Y"] + norm["titanite"]
 
     # Magnetite and haematite
-    mag_fltr = res["Fe2O3"] >= res["FeO"]
+    mag_fltr = res["Fe2O3"] >= res["FeO"] # where FeO is limiting
     norm["magnetite"] = np.where(mag_fltr, res["FeO"], res["Fe2O3"])
     res["Fe2O3"] = res["Fe2O3"] - norm["magnetite"]
     res["FeO"] = res["FeO"] - norm["magnetite"]
@@ -307,87 +330,91 @@ def CIPW_norm(data, form="weight"):
     # Quartz/undersaturated minerals
     qua_flt = res["SiO2"] >= res["Y"] # if silica is in excess
     norm["quartz"] = np.where(qua_flt, res['SiO2']-res["Y"], 0)
-    res["D"] = np.where(qua_flt, 0, res["Y"] - res["SiO2"]) # amount of silica deficiency
+    res["D"] = np.where(qua_flt, 0, res["Y"] - res["SiO2"]) # amount of silica deficit
 
     # Olivine 
-    # Using two filters as we want to skip if deficiency = 0
-    oli_flt_1 = (res["D"] > 0) & (res["D"] < norm["hypersthene"]/2) 
-    oli_flt_2 = (res["D"] > 0) & (res["D"] >= norm["hypersthene"]/2)
+    # Using two filters as we want to skip if deficit = 0
+    oli_flt_1 = (res["D"] > 0) & (res["D"] < norm["hypersthene"]/2) # if deficit less than hypersthene
+    oli_flt_2 = (res["D"] > 0) & (res["D"] >= norm["hypersthene"]/2) # if more deficit than hypersthene
     norm["olivine"] = np.where(oli_flt_1, res["D"], 0)
     norm["olivine"] = np.where(oli_flt_2, norm["hypersthene"]/2, norm["olivine"])
-    res["D1"] = np.where(oli_flt_2, res["D"] - (norm["hypersthene"] / 2), 0) # Updated silica deficiency
     hypersthene = np.where(oli_flt_1, norm["hypersthene"] - (2 * res["D"]), norm["hypersthene"])
-    norm["hypersthene"] = np.where(oli_flt_2, 0, hypersthene)
+    hypersthene = np.where(oli_flt_2, 0, hypersthene)
+    res["D"] = np.where(oli_flt_2, res["D"] - (norm["hypersthene"] / 2), 0) # Updated silica deficit
+    norm['hypersthene'] = hypersthene
 
     # Sphene/perovskite
-    tit_flt_1 = (res["D1"] > 0) & (res["D1"] < norm["titanite"])
-    tit_flt_2 = (res["D1"] > 0) & (res["D1"] >= norm["titanite"])
-    titanite = np.where(tit_flt_1, norm["titanite"] - res["D1"], norm["titanite"])
+    # if silica deficit still present...
+    tit_flt_1 = (res["D"] > 0) & (res["D"] < norm["titanite"])  # if deficit less than titanite
+    tit_flt_2 = (res["D"] > 0) & (res["D"] >= norm["titanite"]) # if more deficit than titanite
+    titanite = np.where(tit_flt_1, norm["titanite"] - res["D"], norm["titanite"])
     titanite = np.where(tit_flt_2, 0, titanite)
-    perovskite = np.where(tit_flt_1, res["D1"], 0)
+    perovskite = np.where(tit_flt_1, res["D"], 0)
     norm["perovskite"] = np.where(tit_flt_2, norm["titanite"], perovskite)
-    res["D2"] = np.where(tit_flt_2, res["D1"] - norm['titanite'], 0) # Update silica deficiency
+    res["D"] = np.where(tit_flt_2, res["D"] - norm['titanite'], 0) # Update silica deficit
     norm['titanite'] = titanite
     norm['perovskite'] = perovskite
 
     # Nepheline
-    nep_flt_1 = (res["D2"] > 0) & (res["D2"] < (4 * norm["albite"]))
-    nep_flt_2 = (res["D2"] > 0) & (res["D2"] >= (4 * norm["albite"]))
-    nepheline = np.where(nep_flt_1, res["D2"] / 4, 0)
+    nep_flt_1 = (res["D"] > 0) & (res["D"] < (4 * norm["albite"])) # if deficit less than albite
+    nep_flt_2 = (res["D"] > 0) & (res["D"] >= (4 * norm["albite"])) # if deficit more than albite
+    nepheline = np.where(nep_flt_1, res["D"] / 4, 0)
     nepheline = np.where(nep_flt_2, norm['albite'], nepheline)
-    albite = np.where(nep_flt_1, norm["albite"] - (res["D2"] / 4), norm["albite"])
+    albite = np.where(nep_flt_1, norm["albite"] - (res["D"] / 4), norm["albite"])
     albite = np.where(nep_flt_2, 0, albite)
-    res["D3"] = np.where(nep_flt_2, res["D2"] - 4 * (norm['albite']), 0)
+    res["D"] = np.where(nep_flt_2, res["D"] - 4 * (norm['albite']), 0) # update silica deficit 
     norm["albite"] = albite
     norm["nepheline"] = nepheline
 
     # Leucite
-    leu_flt_1 = (res["D3"] > 0) & (res["D3"] < 2 * norm["orthoclase"])
-    leu_flt_2 = (res["D3"] > 0) & (res["D3"] >= 2 * norm["orthoclase"])            
-    leucite = np.where(leu_flt_1, res["D3"] / 2, 0)
+    leu_flt_1 = (res["D"] > 0) & (res["D"] < 2 * norm["orthoclase"]) # if deficit less than orthoclase
+    leu_flt_2 = (res["D"] > 0) & (res["D"] >= 2 * norm["orthoclase"]) # if deficit more than orthoclase            
+    leucite = np.where(leu_flt_1, res["D"] / 2, 0)
     leucite = np.where(leu_flt_2, norm['orthoclase'], leucite)
-    orthoclase = np.where(leu_flt_1, norm['orthoclase'] - (res["D3"] / 2), norm['orthoclase'])
+    orthoclase = np.where(leu_flt_1, norm['orthoclase'] - (res["D"] / 2), norm['orthoclase'])
     orthoclase = np.where(leu_flt_2, 0, norm["orthoclase"])
-    res["D4"] = np.where(leu_flt_2, res["D3"] - (2 * norm['orthoclase']), 0)
+    res["D"] = np.where(leu_flt_2, res["D"] - (2 * norm['orthoclase']), 0) # update silica deficit 
     norm['leucite'] = leucite
     norm['orthoclase'] = orthoclase
 
     # Dicalcium silicate/wollastonite
-    cs_flt_1 = (res["D4"] > 0) & (res["D4"] < norm['wollastonite'] / 2)   
-    cs_flt_2 = (res["D4"] > 0) & (res["D4"] >= norm['wollastonite'] / 2) 
-    cs = np.where(cs_flt_1, res["D4"], 0)
+    cs_flt_1 = (res["D"] > 0) & (res["D"] < norm['wollastonite'] / 2) # if deficit less than wollastonite
+    cs_flt_2 = (res["D"] > 0) & (res["D"] >= norm['wollastonite'] / 2) # if deficit more than wollastonite
+    cs = np.where(cs_flt_1, res["D"], 0)
     norm['cs'] = np.where(cs_flt_2, norm["wollastonite"], cs)
-    wollastonite = np.where(cs_flt_1, norm['wollastonite'] - (2 * res["D4"]), norm['wollastonite'])
+    wollastonite = np.where(cs_flt_1, norm['wollastonite'] - (2 * res["D"]), norm['wollastonite'])
     wollastonite = np.where(cs_flt_2, 0, wollastonite)
-    res["D5"] = np.where(cs_flt_2, res["D4"] - (norm["wollastonite"] / 2), 0)
+    res["D"] = np.where(cs_flt_2, res["D"] - (norm["wollastonite"] / 2), 0) # update silica deficit 
     norm['wollastonite'] = wollastonite
 
 
     #Dicalcium silicate/olivine
-    oli_flt_1 = (res["D5"] > 0) & (res["D5"] < norm["diopside"])
-    oli_flt_2 = (res["D5"] > 0) & (res["D5"] >= norm["diopside"])                              
-    olivine = np.where(oli_flt_1, norm['olivine'] + (res["D5"] / 2), norm["olivine"])
+    oli_flt_1 = (res["D"] > 0) & (res["D"] < norm["diopside"]) # if deficit less than diopside
+    oli_flt_2 = (res["D"] > 0) & (res["D"] >= norm["diopside"]) # if deficit more than diopside                               
+    olivine = np.where(oli_flt_1, norm['olivine'] + (res["D"] / 2), norm["olivine"])
     olivine = np.where(oli_flt_2, norm['olivine'] + (norm['diopside'] / 2), olivine)                     
-    cs = np.where(oli_flt_1, norm['cs'] + (res["D5"] / 2), norm['cs'])
-    norm['cs'] = np.where(oli_flt_2, norm['cs']+(norm['diopside'] / 2), cs)
-    res["D6"] = np.where(oli_flt_2, res["D5"] - norm['diopside'], 0)                           
-    diopside = np.where(oli_flt_1, norm['diopside']-res["D5"], norm['diopside'])
-    norm['diopside'] = np.where(oli_flt_2, 0, diopside) 
+    cs = np.where(oli_flt_1, norm['cs'] + (res["D"] / 2), norm['cs'])
+    norm['cs'] = np.where(oli_flt_2, norm['cs']+(norm['diopside'] / 2), cs)                        
+    diopside = np.where(oli_flt_1, norm['diopside']-res["D"], norm['diopside'])
+    diopside = np.where(oli_flt_2, 0, diopside)
+    res["D"] = np.where(oli_flt_2, res["D"] - norm['diopside'], 0)  # update silica deficit
+    norm['diopside'] = diopside
     norm['olivine'] = olivine
     norm['cs'] = cs
 
     # Kaliophilite/leucite
-    kal_flt_1 = (res["D6"] > 0) & (norm["leucite"] >= (res["D6"] / 2))
-    kal_flt_2 = (res["D6"] > 0) & (norm["leucite"] < (res["D6"] / 2))
-    norm["kaliophilite"] = np.where(kal_flt_1, res["D6"] / 2, 0)
+    kal_flt_1 = (res["D"] > 0) & (norm["leucite"] >= (res["D"] / 2)) # if deficit less than leucite
+    kal_flt_2 = (res["D"] > 0) & (norm["leucite"] < (res["D"] / 2)) # if deficit more than leucite
+    norm["kaliophilite"] = np.where(kal_flt_1, res["D"] / 2, 0)
     norm['kaliophilite'] = np.where(kal_flt_2, norm['leucite'], norm["kaliophilite"])
-    res["DEFSIO2"] = np.where(kal_flt_2, res["D6"] - (2 * norm['kaliophilite']), 0)
-    leucite = np.where(kal_flt_1, norm['leucite']-(res["D6"]/ 2), norm['leucite'])
-    norm['leucite'] = np.where(kal_flt_2, 0, leucite)
+    leucite = np.where(kal_flt_1, norm['leucite']-(res["D"]/ 2), norm['leucite'])
+    leucite = np.where(kal_flt_2, 0, leucite)
+    res["D"] = np.where(kal_flt_2, res["D"] - (2 * norm['kaliophilite']), 0) # final silica deficit
+    norm['leucite'] = leucite
     # Subdivide hy & di into Mg & Fe??
 
     # Convert normative minerals to % by multiplying by molecular weights
-    # Will need to do Fe minerals separately
+    # Fe minerals using mw calculated earlier
     minerals = [("apatite", mineral_mw["apatite"]), ("thenardite", pt.formula("Na2SO4").mass), 
                 ("ilmenite", mineral_mw["ilmenite"]), ("orthoclase", pt.formula("KAlSi3O8").mass * 2),
                 ("albite", pt.formula("NaAlSi3O8").mass * 2), ("acmite", pt.formula("NaFe(SiO3)2").mass * 2),
@@ -401,7 +428,5 @@ def CIPW_norm(data, form="weight"):
                 ("perovskite", pt.formula("CaTiO3").mass), ("nepheline", pt.formula("NaAlSiO4").mass*2),
                 ("leucite", pt.formula("KAlSi2O6").mass * 2), ("cs", pt.formula("Ca2O 2SiO2").mass),
                 ("kaliophilite", pt.formula("K2O Al2O3 2SiO2").mass)]
-    print(norm)
-    print(minerals)
     norm.loc[:, [m[0] for m in minerals]] *= np.array([m[1] for m in minerals])[None, :]
     return norm
