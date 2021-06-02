@@ -1,7 +1,8 @@
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.mineral.normative import unmix, endmember_decompose
+from pyrolite.mineral.normative import unmix, endmember_decompose, CIPW_norm
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestUnmix(unittest.TestCase):
@@ -54,3 +55,21 @@ class TestEndmemberDecompose(unittest.TestCase):
         for molecular in [True, False]:
             with self.subTest(molecular=molecular):
                 s = endmember_decompose(self.df, molecular=molecular)
+
+
+class TestCIPW(unittest.TestCase):
+    def setUp(self):
+        self.df = normal_frame(
+            columns=["SiO2", "TiO2", "Al2O3", "Fe2O3", "FeO", "MnO"]
+            + ["MgO", "CaO", "Na2O", "K2O", "P2O5", "CO2", "SO3"]
+            + []
+        )
+
+    def test_default(self):
+        norm = CIPW_norm(self.df)
+
+    def noncritical_missing():
+        norm = CIPW_norm(self.df)
+
+    def critical_missing():
+        pass
