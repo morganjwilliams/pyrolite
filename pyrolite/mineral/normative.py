@@ -155,6 +155,16 @@ def CIPW_norm(df):
     --------
     :class:`pandas.DataFrame`
 
+    References
+    ----------
+
+    Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
+    A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
+
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
+    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
+
+
     Todo
     ----
     * Note whether data needs to be normalised to 1 or 100?
