@@ -69,7 +69,11 @@ class TestCIPW(unittest.TestCase):
         norm = CIPW_norm(self.df)
 
     def noncritical_missing():
-        norm = CIPW_norm(self.df)
+        for drop in (["CO2"], ["CO2", "SO3"]):
+            with self.subTest(drop=drop):
+                norm = CIPW_norm(self.df.drop(columns=drop))
 
     def critical_missing():
-        pass
+        for drop in (["SiO2"], ["TiO2", "SO3"], ["SiO2", "MgO"]):
+            with self.subTest(drop=drop):
+                norm = CIPW_norm(self.df.drop(columns=drop))
