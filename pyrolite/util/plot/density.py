@@ -350,7 +350,7 @@ def conditional_prob_density(
             zi = sample_kde(src, sample_at, **kde_kw)
         except LinAlgError:  # singular matrix, try adding miniscule noise on x?
             logger.warn("Singular Matrix")
-            src[:, 0] += np.random.randn(*x.shape) * np.finfo(np.float).eps
+            src[:, 0] += np.random.randn(*x.shape) * np.finfo(np.float64).eps
         zi = sample_kde(src, sample_at, **kde_kw)
         zi.reshape(xi.shape)
         zi /= xkde[np.newaxis, :]

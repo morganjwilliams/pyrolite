@@ -153,7 +153,7 @@ class Composition(object):
             self._process_imported_frame()
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
             self.comp = pd.DataFrame(
-                src.loc[src.index[0], src.pyrochem.list_compositional].astype(np.float),
+                src.loc[src.index[0], src.pyrochem.list_compositional].astype(float),
                 index=["value"],
             )
         elif isinstance(src, dict):
@@ -212,14 +212,14 @@ class Composition(object):
 
         self.comp = self._df.loc[
             ["value"], self._df.pyrochem.list_compositional
-        ].astype(np.float)
+        ].astype(float)
         self.comp = self.comp.dropna(axis=1)
         if "units" in self._df.index:
             self.units = self._df.loc["units", self.comp.columns]
 
         if "unc_2sigma" in self._df.index:
             self.unc_2sigma = self._df.loc["unc_2sigma", self.comp.columns].astype(
-                np.float
+                float
             )
 
     def set_units(self, to="wt%"):
@@ -230,15 +230,13 @@ class Composition(object):
         ------------
         to : :class:`str`, :code:`"wt%"`
         """
-        scales = self.units.apply(scale, target_unit=to).astype(np.float)
+        scales = self.units.apply(scale, target_unit=to).astype(float)
         self.comp *= scales
         self.units[:] = to
         return self
 
     def describe(self, verbose=True, **kwargs):
-        """
-
-        """
+        """ """
         metadata = self._df.loc[
             "value",
             [

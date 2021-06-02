@@ -87,7 +87,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
             guess = np.linspace(np.nanmin(xs), np.nanmax(xs), d + 2)[1:-1]
             result = sympy.solvers.solvers.nsolve(sums, ps, list(guess), tol=tol)
             if rounding is not None:
-                result = np.around(np.array(result, dtype=np.float), decimals=rounding)
+                result = np.around(np.array(result, dtype=float), decimals=rounding)
             params.append(tuple(result))
         else:
             params.append(())  # first parameter
@@ -137,7 +137,8 @@ def _get_params(params=None, degree=4):
             msg = "Parameter specification {} not recognised.".format(params)
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8), degree=degree,
+            get_ionic_radii(_ree, charge=3, coordination=8),
+            degree=degree,
         )
     else:
         # check that params is a tuple or list

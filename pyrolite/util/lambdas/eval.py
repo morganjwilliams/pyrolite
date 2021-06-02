@@ -11,7 +11,6 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-
 def lambda_poly(x, ps):
 
     """
@@ -34,7 +33,7 @@ def lambda_poly(x, ps):
     result = np.ones(len(x))
     for p in ps:
         result = result * (x - p)
-    return result.astype(np.float)
+    return result.astype(float)
 
 
 def tetrad(x, centre, width):

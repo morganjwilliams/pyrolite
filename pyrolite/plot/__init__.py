@@ -152,7 +152,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
 
         ax = density.density(
-            obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
+            obj.reindex(columns=components).astype(float).values, ax=ax, **kwargs
         )
         if axlabels:
             label_axes(ax, labels=components)
@@ -330,7 +330,7 @@ class pyroplot(object):
         ree = [i for i in geochem.ind.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
-            obj.reindex(columns=ree).astype(np.float).values,
+            obj.reindex(columns=ree).astype(float).values,
             index=index,
             ree=ree,
             mode=mode,
@@ -457,7 +457,7 @@ class pyroplot(object):
             pass
 
         ax = spider.spider(
-            obj.reindex(columns=components).astype(np.float).values,
+            obj.reindex(columns=components).astype(float).values,
             indexes=indexes,
             ax=ax,
             mode=mode,

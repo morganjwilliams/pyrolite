@@ -82,9 +82,9 @@ def interpolate_line(x, y, n=0, logy=False):
     if logy:  # perform interpolation against logy, then revert with exp
         y = np.log(y)
 
-    current = x[:-1].copy() # the first part of the x array
-    intervals = x[1:] - x[:-1] # right-wise intervals (could be negative for REE)
-    _x = current.copy().astype(np.float)
+    current = x[:-1].copy()  # the first part of the x array
+    intervals = x[1:] - x[:-1]  # right-wise intervals (could be negative for REE)
+    _x = current.copy().astype(float)
 
     if n:  # should be able to tile this instead
         dx = intervals / (n + 1.0)
@@ -306,13 +306,13 @@ def round_sig(x, sig=2):
     where_nan = ~np.isfinite(x)
     x = copy(x)
     if hasattr(x, "__len__"):
-        x[where_nan] = np.finfo(np.float).eps
-        vals = np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+        x[where_nan] = np.finfo(np.float64).eps
+        vals = np.round(x, sig - int(np.floor(np.log10(np.abs(x)))) - 1)
         vals[where_nan] = np.nan
         return vals
     else:
         try:
-            return np.round(x, sig - np.int(np.floor(np.log10(np.abs(x)))) - 1)
+            return np.round(x, sig - int(np.floor(np.log10(np.abs(x)))) - 1)
         except (ValueError, OverflowError):  # nan or inf is passed
             return x
 
@@ -367,11 +367,9 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
             mag_n = np.floor(np.log10(np.abs(_n)))
             mag_u = np.floor(np.log10(unc))
             sfs = np.nanmax(
-                np.vstack(
-                    [np.zeros(mag_n.shape), (1.0 + mag_n - mag_u).astype(np.int)]
-                ),
+                np.vstack([np.zeros(mag_n.shape), (1.0 + mag_n - mag_u).astype(int)]),
                 axis=0,
-            ).astype(np.int)
+            ).astype(int)
         else:
             rounded = np.vstack([_n] * max_sf).reshape(max_sf, *_n.shape)
             indx = np.indices(rounded.shape)[0]  # get the row indexes for no. sig figs

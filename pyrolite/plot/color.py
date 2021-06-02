@@ -236,7 +236,7 @@ def process_color(
                 C = cmap(_C)
             else:
                 unique_vals = np.array(list(cmapper.values()))
-                _C = np.ones((len(C), 4), dtype=np.float)
+                _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
                     val = matplotlib.colors.to_rgba(cmapper.get(cat))
                     _C[C == cat] = val  # get the mapping frome the dict

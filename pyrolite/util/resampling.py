@@ -48,7 +48,8 @@ def _segmented_univariate_distance_matrix(
     # note that this could be parallelized; the calcuations are independent
     for ix_s, ix_e, iy_s, iy_e in _get_sqare_grid_segment_indicies(max_size, segs):
         dist[ix_s:ix_e, iy_s:iy_e] = distance_metric(
-            A[ix_s:ix_e][:, np.newaxis], B[iy_s:iy_e][np.newaxis, :],
+            A[ix_s:ix_e][:, np.newaxis],
+            B[iy_s:iy_e][np.newaxis, :],
         )
     return dist
 
@@ -74,11 +75,11 @@ def univariate_distance_matrix(a, b=None, distance_metric=None):
     if distance_metric is None:
         distance_metric = lambda a, b: np.abs(a - b)
 
-    a = np.atleast_1d(np.array(a).astype(np.float))
+    a = np.atleast_1d(np.array(a).astype(float))
     full_matrix = False
     if b is not None:
         # a second set of points is specified; the return result will be 1D
-        b = np.atleast_1d(np.array(b).astype(np.float))
+        b = np.atleast_1d(np.array(b).astype(float))
     else:
         # generate a full point-to-point matrix for a single set of points
         full_matrix = True

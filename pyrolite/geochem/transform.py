@@ -300,7 +300,7 @@ def aggregate_element(
     elif isinstance(to, dict):
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
-        props = close(np.array([t[1] for t in targets]).astype(np.float))
+        props = close(np.array([t[1] for t in targets]).astype(float))
         coeff = [
             oxide_conversion(cation, t, molecular=molecular)(p)
             for t, p in zip(targetnames, props)

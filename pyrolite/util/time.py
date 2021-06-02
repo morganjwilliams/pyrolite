@@ -223,7 +223,7 @@ class Timescale(object):
             Tuple or list of tuples.
         """
         try:
-            entry = np.float(entry)
+            entry = float(entry)
             return (entry, entry)
         except ValueError:
             return self.locate[entry.lower().strip()]

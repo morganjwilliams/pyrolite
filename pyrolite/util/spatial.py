@@ -193,16 +193,11 @@ def great_circle_distance(
             angle = np.zeros((size, 1))
             # compute sum-distances for each lat-long pair
             for ix, (_φ1, _λ1) in enumerate(np.vstack([φ1, λ1])):
-                angle[ix, 0] = f(_φ1, φ2, _λ1, λ2,)
+                angle[ix, 0] = f(_φ1, φ2, _λ1, λ2)
         else:
             try:
                 angle = np.atleast_1d(
-                    f(
-                        φ1[:, np.newaxis],
-                        φ2[np.newaxis, :],
-                        λ1[:, np.newaxis],
-                        λ2[np.newaxis, :],
-                    )
+                    f(φ1[:, None], φ2[None, :], λ1[:, None], λ2[None, :])
                 )
             except (MemoryError, ValueError):
                 logger.warn(
@@ -226,7 +221,7 @@ def great_circle_distance(
         return np.rad2deg(angle)
 
 
-def piecewise(segment_ranges: list, segments=2, output_fmt=np.float):
+def piecewise(segment_ranges: list, segments=2, output_fmt=np.float64):
     """
     Generator to provide values of quantizable paramaters which define a grid,
     here used to split up queries from databases to reduce load.
@@ -241,8 +236,8 @@ def piecewise(segment_ranges: list, segments=2, output_fmt=np.float):
         Function to call on the output.
     """
     outf = np.vectorize(output_fmt)
-    if isinstance(segments, np.int):
-        segments = list(np.ones(len(segment_ranges), dtype=np.int) * segments)
+    if isinstance(segments, int):
+        segments = list(np.ones(len(segment_ranges), dtype=int) * segments)
     else:
         pass
     seg_width = [
