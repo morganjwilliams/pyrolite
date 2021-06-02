@@ -64,16 +64,23 @@ class TestCIPW(unittest.TestCase):
             + ["MgO", "CaO", "Na2O", "K2O", "P2O5", "CO2", "SO3"]
             + []
         )
+        self.handler = "pyrolite.mineral.normative"
 
     def test_default(self):
         norm = CIPW_norm(self.df)
 
     def noncritical_missing():
+        # should logger.debug mentioning those missing
         for drop in (["CO2"], ["CO2", "SO3"]):
             with self.subTest(drop=drop):
-                norm = CIPW_norm(self.df.drop(columns=drop))
+                with self.assertLogs(self.handler, level="DEBUG") as cm:
+                    norm = CIPW_norm(self.df.drop(columns=drop))
+                    logging_output = cm.output
 
     def critical_missing():
+        # should logger.warning mentioning the critical ones missing
         for drop in (["SiO2"], ["TiO2", "SO3"], ["SiO2", "MgO"]):
             with self.subTest(drop=drop):
-                norm = CIPW_norm(self.df.drop(columns=drop))
+                with self.assertLogs(self.handler, level="WARNING") as cm:
+                    norm = CIPW_norm(self.df.drop(columns=drop))
+                    logging_output = cm.output
