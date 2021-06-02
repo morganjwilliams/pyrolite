@@ -223,7 +223,7 @@ def CIPW_norm(df):
 
     # Components (used only for calc) ##########################################
     # effective MW of (Fe2+, Mn2+)O
-    molw_FeO = (xMnO * pt.formula("MnO") + xFeO * pt.formula("FeO")).mass
+    molw_FeO = xMnO * pt.formula("MnO").mass + xFeO * pt.formula("FeO").mass
     # effective MW of Mn-fayalite
     molw_fayalite = (2 * molw_FeO) + pt.formula("SiO2").mass
     # effective v of ferrosilite (Fe2+, Mn2+)SiO3
