@@ -160,17 +160,13 @@ def CIPW_norm(df):
     * Note whether data needs to be normalised to 1 or 100?
     """
 
-    columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5','CO2','SO3']
-    critical_columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5']
-    # Validate columns
-    if np.all(data.columns == columns): # pass if all columns present
-        pass
-    else: # raise warning for missing columns
-        for col in critical_columns:
-            if col not in data.columns:
-                logger.warning('%s columns missing', col)
-    
     noncrit = ["CO2", "SO3"]
+    columns = (
+        ["SiO2", "TiO2", "Al2O3", "Fe2O3", "FeO", "MnO", "MgO", "CaO"]
+        + ["Na2O", "K2O", "P2O5"]
+        + noncrit
+    )
+
     # Check that all of the columns we'd like are present
     to_impute = []
     if not set(columns).issubset(set(df.columns.values)):
