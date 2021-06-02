@@ -61,13 +61,13 @@ def endmember_decompose(
 ):
     """
     Decompose a given mineral composition to given endmembers.
-    
+
     Parameters
     -----------
     composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` | :class:`~periodictable.formulas.Formula` | :class:`str`
         Composition to decompose into endmember components.
     endmembers : :class:`str` | :class:`list` | :class:`dict`
-    
+        List of endmembers to use for the decomposition.
     drop_zeros : :class:`bool`, :code:`True`
         Whether to omit components with zero estimated abundance.
     molecular : :class:`bool`, :code:`True`
@@ -77,7 +77,7 @@ def endmember_decompose(
         Order of regularization passed to :func:`unmix`, defaults to L1 for sparsity.
     det_lim : :class:`float`
         Detection limit, below which minor components will be omitted for sparsity.
-        
+
     Returns
     ---------
     :class:`pandas.DataFrame`
@@ -138,26 +138,28 @@ def endmember_decompose(
     return modal
 
 
-def CIPW_norm(data, form="weight"):
+def CIPW_norm(df):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
-    
-    This is the CIPW norm of Verma et al. (2003)
-    
-    This version only uses major elements
+
+    This is the CIPW norm of Verma et al. (2003).  This version only uses major
+    elements.
+
     Parameters
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe containing compositions to transform.
+
     Returns
     --------
     :class:`pandas.DataFrame`
-    Notes
-    -----
-    This function is currently a stub.
+
+    Todo
+    ----
+    * Note whether data needs to be normalised to 1 or 100?
     """
-    
+
     columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5','CO2','SO3']
     critical_columns = ['SiO2','TiO2','Al2O3','Fe2O3','FeO','MnO','MgO','CaO','Na2O','K2O','P2O5']
     # Validate columns
