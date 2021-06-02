@@ -170,21 +170,20 @@ def CIPW_norm(df):
             if col not in data.columns:
                 logger.warning('%s columns missing', col)
     
+    noncrit = ["CO2", "SO3"]
     # Check that all of the columns we'd like are present
     to_impute = []
     if not set(columns).issubset(set(df.columns.values)):
-        # raise warning for missing columns
-        missing_critical = [c for c in critical_columns if c not in df.columns]
-        if missing_critical:
-            logger.warning(
-                "Required columns missing: {}".format(", ".join(missing_critical))
-            )
         to_impute += [c for c in columns if c not in df.columns]
+        # raise warning for missing critical columns
+        crit_miss = [c for c in to_impute if (c not in noncrit)]
+        if _crit:
+            logger.warning("Required columns missing: {}".format(", ".join(crit_miss)))
 
     # Reindex columns to be expected and fill missing ones with zeros
     df_update = df.reindex(columns=columns).fillna(0)
     if to_impute:  # Note that we're adding the columns with default values.
-        logging.debug("Columns added with default 0 values: ", ", ".join(to_impute))
+        logging.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
 
     df = df_update
 
