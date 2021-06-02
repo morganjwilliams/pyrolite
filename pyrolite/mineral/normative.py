@@ -376,9 +376,10 @@ def CIPW_norm(df):
     titanite = np.where(tit_flt_2, 0, titanite)
     perovskite = np.where(tit_flt_1, D_SiO2, 0)
     norm["perovskite"] = np.where(tit_flt_2, norm["titanite"], perovskite)
-    D_SiO2 = np.where(tit_flt_2, D_SiO2 - norm["titanite"], 0)
     norm["titanite"] = titanite
     norm["perovskite"] = perovskite  ## this is assigned twice? ##
+
+    D_SiO2 = np.where(tit_flt_2, D_SiO2 - norm["titanite"], 0)
 
     # Nepheline & Albite ###################
     nep_flt_1 = (D_SiO2 > 0) & (D_SiO2 < (4 * norm["albite"]))  # if deficit < Ab
@@ -429,10 +430,11 @@ def CIPW_norm(df):
     norm["cs"] = np.where(oli_flt_2, norm["cs"] + (norm["diopside"] / 2), cs)
     diopside = np.where(oli_flt_1, norm["diopside"] - D_SiO2, norm["diopside"])
     diopside = np.where(oli_flt_2, 0, diopside)
-    D_SiO2 = np.where(oli_flt_2, D_SiO2 - norm["diopside"], 0)  # update silica deficit
     norm["diopside"] = diopside
     norm["olivine"] = olivine
     norm["cs"] = cs
+
+    D_SiO2 = np.where(oli_flt_2, D_SiO2 - norm["diopside"], 0)
 
     # Kaliophilite/leucite ###################
     kal_flt_1 = (D_SiO2 > 0) & (norm["leucite"] >= (D_SiO2 / 2))  # if deficit < leucite
