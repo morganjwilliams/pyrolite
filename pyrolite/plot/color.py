@@ -158,9 +158,9 @@ def process_color(
                 alpha=alpha,
                 cmap=cmap,
                 norm=norm,
-                color_mappings={"color": color_mappings.get(kw)},
+                color_mappings={"c": color_mappings.get(kw)},
             )
-            otherkwargs[kw] = _pc.get("color", None)
+            otherkwargs[kw] = _pc.get("c")
     if c is not None:
         C = c
     elif color is not None:

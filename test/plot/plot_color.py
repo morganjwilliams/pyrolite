@@ -1,5 +1,6 @@
 import numpy as np
 import unittest
+import matplotlib.colors
 from pyrolite.plot.color import *
 
 
@@ -7,6 +8,8 @@ class TestProcessColor(unittest.TestCase):
     def setUp(self):
         self.black = (0.0, 0.0, 0.0, 1.0)
         self.multiblack = np.array([(0.0, 0.0, 0.0, 1.0), (0.0, 0.0, 0.0, 1.0)])
+        for color in ["green", "red", "purple"]:
+            setattr(self, color, matplotlib.colors.to_rgba(color))
 
     def test_hex(self):
         hex = "#000000"
@@ -81,11 +84,22 @@ class TestProcessColor(unittest.TestCase):
         for c in [categories]:
             out = process_color(c=c)
 
-    def test_categories_color_mappings(self):
-        categories = ["Bird", "Fish", "Cat"]
-        mappings = {"Bird": "green", "Fish": "blue", "Cat": "orange"}
-        for c, m in zip([categories], [mappings]):
-            out = process_color(c=c, color_mappings=m)
+    def test_color_mappings(self):
+        """
+        Check for boolean, categorical color-mappings.
+        """
+        for kw in ["c", "color", "facecolors"]:
+            for c, m in (
+                [np.array([True, False, True]), {True: "green", False: "red"}],
+                [
+                    ["Bird", "Fish", "Cat"],
+                    {"Bird": "green", "Fish": "red", "Cat": "orange"},
+                ],
+            ):
+                with self.subTest(c=c, m=m, kw=kw):
+                    out = process_color(**{kw: c}, color_mappings={kw: m})
+                    self.assertTrue(np.isclose(out[kw][0], self.green).all())
+                    self.assertTrue(np.isclose(out[kw][1], self.red).all())
 
     @unittest.expectedFailure
     def test_singular_value(self):
@@ -180,14 +194,14 @@ class TestGetCmode(unittest.TestCase):
     def test_mixed_input(self):
         c = ["0.5", (1, 0, 0), "black"]
         cmode = get_cmode(c)
-        self.assertEqual(cmode, 'mixed_fmt_color_array')
+        self.assertEqual(cmode, "mixed_fmt_color_array")
 
     @unittest.expectedFailure
     def test_invalid_mixed_input(self):
         """Non-scaled floats etc."""
         c = [1.0, 10.1, "0.5", (1, 0, 0), "black"]
         cmode = get_cmode(c)
-        self.assertEqual(cmode, 'mixed_fmt_color_array')
+        self.assertEqual(cmode, "mixed_fmt_color_array")
 
 
 if __name__ == "__main__":
