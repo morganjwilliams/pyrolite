@@ -214,11 +214,9 @@ class pyroplot(object):
 
     def parallel(
         self,
-        columns=None,
+        components=None,
         rescale=False,
-        color_by=None,
         legend=False,
-        cmap=plt.cm.viridis,
         ax=None,
         **kwargs,
     ):
@@ -227,6 +225,16 @@ class pyroplot(object):
         Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
         the columns of the :class:`~pandas.DataFrame`.
 
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Components to use as axes for the plot.
+        rescale : :class:`bool`
+            Whether to rescale values to [-1, 1].
+        legend : :class:`bool`, :code:`False`
+            Whether to include or suppress the legend.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
         {otherparams}
 
         Returns
@@ -243,11 +251,9 @@ class pyroplot(object):
         obj = to_frame(self._obj)
         ax = parallel.parallel(
             obj,
-            columns=columns,
+            components=components,
             rescale=rescale,
-            color_by=color_by,
             legend=legend,
-            cmap=cmap,
             ax=ax,
             **kwargs,
         )
