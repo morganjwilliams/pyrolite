@@ -223,7 +223,12 @@ def process_color(
             C = cmap(norm(C))
         elif cmode == "categories":
             uniqueC = np.unique(C)
-            cmapper = color_mappings.get("color")
+            # this should now work for 'c' in addition to 'color', where the notation is matching
+            cmapper = (
+                color_mappings.get("c")
+                if c is not None
+                else color_mappings.get("color")
+            )
             if cmapper is None:
                 _C = np.ones_like(C, dtype="int") * np.nan
 
