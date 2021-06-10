@@ -207,7 +207,7 @@ def CCPI(df: pd.DataFrame):
 
     References
     ----------
-    .. [#ref_1] Large R R, Gemmell, J B, Paulick, H(2001). The alteration box
+    .. [#ref_1] Large RR, Gemmell, JB, Paulick, H (2001). The alteration box
            plot: A simple approach to understanding the relationship between
            alteration mineralogy and lithogeochemistry associated with
            volcanic-hosted massive sulfide deposits.
