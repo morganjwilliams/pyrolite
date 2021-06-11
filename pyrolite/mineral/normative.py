@@ -183,13 +183,13 @@ def CIPW_norm(df):
         to_impute += [c for c in columns if c not in df.columns]
         # raise warning for missing critical columns
         crit_miss = [c for c in to_impute if (c not in noncrit)]
-        if _crit:
+        if crit_miss:
             logger.warning("Required columns missing: {}".format(", ".join(crit_miss)))
 
     # Reindex columns to be expected and fill missing ones with zeros
     df_update = df.reindex(columns=columns).fillna(0)
     if to_impute:  # Note that we're adding the columns with default values.
-        logging.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
+        logger.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
 
     df = df_update
 
@@ -487,5 +487,12 @@ def CIPW_norm(df):
         ("cs", pt.formula("Ca2O 2SiO2").mass),
         ("kaliophilite", pt.formula("K2O Al2O3 2SiO2").mass),
     ]
-    norm.loc[:, [m[0] for m in minerals]] *= np.array([m[1] for m in minerals])[None, :]
+    # 2D array of massess - per column, and where relevant, per row (e.g. Il, Hyp)
+    masses = np.array(
+        [
+            np.ones(norm.index.size) * m[1] if isinstance(m[1], float) else m[1]
+            for m in minerals
+        ]
+    ).T
+    norm.loc[:, [m[0] for m in minerals]] *= masses
     return norm
