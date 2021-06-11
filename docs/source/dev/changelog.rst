@@ -10,8 +10,12 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* **New Contributor**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
 * Removed a redundant :mod:`pathlib` dependency (which is standard library as of
-  Python 3.4)
+  Python 3.4).
+* Updated instances of redundant :mod:`numpy` types throughout to silence
+  depreciation warnings (using base types :class:`float`, :class:`int` except
+  where specific :mod:`numpy` types are required).
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,6 +35,12 @@ All notable changes to this project will be documented here.
   ). This bug seems to be contained to the dataframe accessor, the individual
   functions from :mod:`pyrolite.geochem.transform` appear to work as expected
   outside of this context. Thanks to Chetan Nathwani for highlighting this one!
+* `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
+  contributed two new functions for :mod:`pyrolite.geochem.alteration`:
+  The chlorite-carbonate-pyrite index of Large et al. (2001;
+  :func:`~pyrolite.geochem.alteration.CCPI`) and the Alteration index of
+  Ishikawa (1976; :func:`~pyrolite.geochem.alteration.IshikawaAltIndex`).
+
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +56,9 @@ All notable changes to this project will be documented here.
   related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
 * :func:`~pyrolite.plot.color.process_color` has been updated to better deal
   with data explicitly declared to be of a 'category' data type (as a
-  :class:`pandas.Series`).
+  :class:`pandas.Series`), and also to better handle variation in mapping notations.
+* :func:`~pyrolite.plot.pyroplot.parallel` has been updated to align with other
+  plotting functions (taking an optional `components` keyword argument).
 
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~

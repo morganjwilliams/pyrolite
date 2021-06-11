@@ -14,3 +14,4 @@ comments, testing, bug reports, or feature requests.
 * `Laura Miller <https://github.com/Lauraanme>`__
 * Steve Barnes
 * Lucy Mathieson
+* `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
