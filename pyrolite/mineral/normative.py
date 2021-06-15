@@ -496,3 +496,59 @@ def CIPW_norm(df):
     ).T
     norm.loc[:, [m[0] for m in minerals]] *= masses
     return norm
+
+
+def fe_correction(df, method='Le Maitre', ig_type='plutonic', constant=None):
+    """
+        Adjusts FeO Fe2O3 ratio
+        -----------
+        df : :class:`pandas.DataFrame`
+            dataframe containing values for FeO, Fe2O3 SiO2, Na2O and K2O
+        Returns
+        --------
+        :class:`pandas.DataFrame`
+            dataframe with corrected FeO and Fe2O3 values
+
+
+        References
+        --------
+        Le Maitre, R.W. Some problems of the projection of chemical data into mineralogical classifications.
+        Contr. Mineral. and Petrol. 56, 181–189 (1976). https://doi.org/10.1007/BF00399603
+        
+    """
+
+    df = df.copy(deep=True)
+
+    method_values = ['Le Maitre', 'Constant']
+    if method not in method_values:
+        raise ValueError("Invalid method given. Expecting {}".format(method_values))
+
+    ig_type_values = ['plutonic', 'volcanic']
+    if ig_type not in ig_type_values:
+        raise ValueError("Invalid ig_type given. Expecting {}".format(ig_type_values))
+
+
+    df['total_Fe_as_FeO'] = (df['Fe2O3'] / 1.11134) + df['FeO']
+
+    if method == 'Le Maitre':
+        if ig_type == 'plutonic':
+            fe_adjustment_factor = 0.88 - (0.0016 * df['SiO2']) - (0.027 * (df['Na2O'] + df['K2O']))
+        elif ig_type =='volcanic':
+            fe_adjustment_factor = 0.93 - (0.0042 * df['SiO2']) - (0.022 * (df['Na2O'] + df['K2O']))
+        else:
+            fe_adjustment_factor = None
+
+    elif method == 'Constant':
+        fe_adjustment_factor = constant
+    else:
+        fe_adjustment_factor = None
+
+    adjustment_flag = np.where((df['FeO'] == 0) | (df['Fe2O3'] == 0), True, False)
+
+    df['adjusted_Fe2O3'] = np.where(adjustment_flag, df['total_Fe_as_FeO'] * (1 - fe_adjustment_factor) * 1.11134, df['Fe2O3'])
+    df['adjusted_FeO'] = np.where(adjustment_flag, df['total_Fe_as_FeO'] * fe_adjustment_factor, df['FeO'])
+
+    df['Fe2O3'] = df['adjusted_Fe2O3']
+    df['FeO'] = df['adjusted_FeO']
+
+    return df[['FeO', 'Fe2O3']]
