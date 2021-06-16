@@ -230,78 +230,11 @@ class TestOxideConversion(unittest.TestCase):
         f = oxide_conversion(oxin, oxout)
 
 
-class TestRecalculateFe(unittest.TestCase):
-    """Tests the pandas dataframe Fe redox conversion."""
-
-    def setUp(self):
-        self.df = pd.DataFrame(
-            np.array([[0.5, 0.3, 0.1], [0.5, 0.3, 0.1]]),
-            columns=["FeO", "Fe2O3", "Fe2O3T"],
-        )
-
-    def test_none(self):
-        """Check the function copes with no records."""
-        df = self.df.head(0)
-        out = recalculate_Fe(df)
-        self.assertTrue(isinstance(out, pd.DataFrame))
-        self.assertEqual(out.index.size, 0)
-
-    def test_one(self):
-        """Check the transformation functions for one record."""
-        df = self.df.head(1)
-        self.assertEqual(recalculate_Fe(df).index.size, df.index.size)
-
-    def test_multiple(self):
-        """Check the transformation functions for multiple records."""
-        df = self.df
-        out = recalculate_Fe(df)
-        self.assertEqual(out.index.size, df.index.size)
-
-    def test_to_oxidised(self):
-        """Check the oxidised form is returned when called."""
-        df = self.df
-        to = "Fe2O3"
-        outdf = recalculate_Fe(df, to=to)
-        self.assertTrue(to in outdf.columns)
-
-    def test_to_reduced(self):
-        """Check the reduced form is returned when called."""
-        df = self.df
-        to = "FeO"
-        outdf = recalculate_Fe(df, to=to)
-        self.assertTrue(to in outdf.columns)
-
-    def test_renorm(self):
-        """Checks closure is achieved when renorm is used."""
-        for renorm in [True, False]:
-            with self.subTest(renorm=renorm):
-                reddf = recalculate_Fe(self.df, renorm=renorm)
-                if renorm:
-                    self.assertTrue((reddf.sum(axis=1) == 100.0).all())
-                else:
-                    # the reduced columns will be dropped,
-                    pass
-
-    def test_dictionary_passed(self):
-        df = self.df
-        to = {"FeO": 0.9, "Fe2O3": 0.1}
-        outdf = recalculate_Fe(df, to=to)
-        self.assertTrue(all([t in outdf.columns for t in to.keys()]))
-
-    def test_total_suffix(self):
-        """Checks that different suffixes can be used."""
-        pass
-
-    def test_columns_dropped(self):
-        """Checks that only one redox state is found in output."""
-        pass
-
-
 class TestAggregateElement(unittest.TestCase):
     """Tests the pandas dataframe element aggregation transformation."""
 
     def setUp(self):
-        self.cols = ["MgO", "FeO", "Fe2O3", "Mg", "Fe", "FeOT"]
+        self.cols = ["MgO", "FeO", "Fe2O3", "Mg", "Fe", "FeOT", "Fe2O3"]
         self.df = pd.DataFrame(
             {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
         )
@@ -355,6 +288,38 @@ class TestAggregateElement(unittest.TestCase):
         # Check preciseness
 
         # Check no additional features
+
+    def test_Fe_to_oxidised(self):
+        """Check the oxidised iron form is returned when called."""
+        df = self.df
+        to = "Fe2O3"
+        outdf = aggregate_element(df, to=to)
+        self.assertTrue(to in outdf.columns)
+
+    def test_to_reduced(self):
+        """Check the reduced iron  form is returned when called."""
+        df = self.df
+        to = "FeO"
+        outdf = aggregate_element(df, to=to)
+        self.assertTrue(to in outdf.columns)
+
+    def test_dictionary_passed(self):
+        df = self.df
+        to = {"FeO": 0.9, "Fe2O3": 0.1}
+        outdf = aggregate_element(df, to=to)
+        self.assertTrue(all([t in outdf.columns for t in to.keys()]))
+
+    def test_renorm(self):
+        """Checks closure is achieved when renorm is used with a dict."""
+        to = {"FeO": 0.9, "Fe2O3": 0.1}
+        for renorm in [True, False]:
+            with self.subTest(renorm=renorm):
+                reddf = aggregate_element(self.df, to=to, renorm=renorm)
+                if renorm:
+                    self.assertTrue((reddf.sum(axis=1) == 100.0).all())
+                else:
+                    # the reduced columns will be dropped,
+                    pass
 
 
 class TestGetRatio(unittest.TestCase):
