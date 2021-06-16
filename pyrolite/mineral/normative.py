@@ -211,12 +211,15 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     feo_moles = mass_ratios / pt.formula("FeO").mass
     fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
     Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
-    return df.loc[:, ["FeO", "Fe2O3", "FeOT", "Fe2O3T"]].pyrochem.convert_chemistry(
-        to=[{"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}]
-    )
+
+    to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
+
+    return df.reindex(
+        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
+    ).pyrochem.convert_chemistry(to=[to])
 
 
-def CIPW_norm(df):
+def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -228,6 +231,11 @@ def CIPW_norm(df):
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe containing compositions to transform.
+    Fe_correction : :class:`str`
+        Iron correction to apply, if any. Will default to 'LeMaitre'.
+    adjust_all : :class:`bool`
+        Where correcting iron compositions, whether to adjust all iron
+        compositions, or only those where singular components are specified.
 
     Returns
     --------
@@ -261,22 +269,41 @@ def CIPW_norm(df):
             logger.warning("Required columns missing: {}".format(", ".join(crit_miss)))
 
     # Reindex columns to be expected and fill missing ones with zeros
-    df_update = df.reindex(columns=columns).fillna(0)
     if to_impute:  # Note that we're adding the columns with default values.
         logger.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
 
-    df = df_update
+    df = df.reindex(columns=columns).fillna(0)
+    ############################################################################
+    if Fe_correction is None:  # default to LeMaitre_Fe_correction
+        Fe_correction = "LeMaitre"
 
-    # Check if Fe2O3 and FeO are present
-    if "FeO" and "Fe2O3" in df.columns:
-        pass
+    if adjust_all:
+        fltr = np.ones(df.index.size, dtype="bool")
     else:
-        df[["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(df)
+        # check where the iron speciation is already specified or there is no iron
+        iron_specified = (
+            (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
+        ) | (
+            np.isclose(
+                df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
+            )
+        )
+        fltr = iron_specified
 
-    # Normalise to 100 on anhydrous basis
+    if Fe_correction.lower().startswith("lemait"):
+        df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(df.loc[fltr, :])
+    else:
+        raise NotImplementedError(
+            "Iron correction {} not recognised.".format(Fe_correction)
+        )
+    ############################################################################
+    # Verma's ADJ columns are equivalent to `df_update.pyrocomp.renormalise()`
+    # at this point in the workflow.
+    ############################################################################
+    # Normalise to 100 molar percent on anhydrous basis
     # res = df[columns].pyrochem.to_molecular()
-    res = df.divide(df.sum(axis=1) / 100, axis=0)
     res = df.div(pd.Series([pt.formula(c).mass for c in columns], index=columns))
+    res = res.divide(res.sum(axis=1) / 100, axis=0)
 
     # endmember component fractions
     res.pyrochem.add_MgNo(molecular=True)
@@ -559,4 +586,5 @@ def CIPW_norm(df):
         ]
     ).T
     norm.loc[:, [m[0] for m in minerals]] *= masses
+    norm = norm.pyrocomp.renormalise(scale=100.0)
     return norm
