@@ -337,55 +337,6 @@ def aggregate_element(
         return df
 
 
-def recalculate_Fe(
-    df: pd.DataFrame,
-    to="FeOT",
-    renorm=False,
-    total_suffix="T",
-    logdata=False,
-    molecular=False,
-):
-    """
-    Recalculates abundances of iron, and normalises a dataframe to contain  either
-    a single species, or multiple species in certain proportions.
-
-    Parameters
-    -----------
-    df : :class:`pandas.DataFrame`
-        Dataframe to recalcuate iron.
-    to : :class:`str` | :class:`~periodictable.core.Element` | :class:`~periodictable.formulas.Formula`  | :class:`dict`
-        Component(s) to convert to.
-
-        If one component is specified, all iron will be
-        converted to the target species.
-
-        If more than one component is specified with proportions in a dictionary
-        (e.g. :code:`{'FeO': 0.9, 'Fe2O3': 0.1}`), the components will be split as a
-        fraction of Fe.
-    renorm : :class:`bool`, :code:`False`
-        Whether to renormalise the dataframe after recalculation.
-    total_suffix : :class:`str`, 'T'
-        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
-    logdata : :class:`bool`, :code:`False`
-        Whether the data has been log transformed.
-    molecular : :class:`bool`, :code:`False`
-        Flag that data is in molecular units, rather than weight units.
-
-    Returns
-    -------
-    :class:`pandas.DataFrame`
-        Transformed dataframe.
-    """
-    return aggregate_element(
-        df,
-        to=to,
-        renorm=renorm,
-        total_suffix=total_suffix,
-        logdata=logdata,
-        molecular=molecular,
-    )
-
-
 def get_ratio(
     df: pd.DataFrame, ratio: str, alias: str = None, norm_to=None, molecular=False
 ):
@@ -659,7 +610,15 @@ def lambda_lnREE(
 lambda_lnREE = update_docstring_references(lambda_lnREE, ref="localref")
 
 
-def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=False):
+def convert_chemistry(
+    input_df,
+    to=[],
+    total_suffix="T",
+    renorm=False,
+    molecular=False,
+    logdata=False,
+    **kwargs
+):
     """
     Attempts to convert a dataframe with one set of components to another.
 
@@ -670,14 +629,16 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=Fa
     to : :class:`list`
         Set of columns to try to extract from the dataframe.
 
-        Can also include a dictionary for iron speciation. See :func:`recalculate_Fe`.
-    logdata : :class:`bool`, :code:`False`
-        Whether chemical data has been log transformed. Necessary for aggregation
-        functions.
+        Can also include a dictionary for iron speciation. See :func:`aggregate_element`.
+    total_suffix : :class:`str`, 'T'
+        Suffix of 'total' variables. E.g. 'T' for FeOT, Fe2O3T.
     renorm : :class:`bool`, :code:`False`
         Whether to renormalise the data after transformation.
     molecular : :class:`bool`, :code:`False`
         Flag that data is in molecular units, rather than weight units.
+    logdata : :class:`bool`, :code:`False`
+        Whether chemical data has been log transformed. Necessary for aggregation
+        functions.
 
     Returns
     --------
@@ -742,9 +703,18 @@ def convert_chemistry(input_df, to=[], logdata=False, renorm=False, molecular=Fa
 
     if get_fe:
         get_fe = get_fe[0]
-        logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
-        df = recalculate_Fe(
-            df, to=get_fe, renorm=False, logdata=logdata, molecular=molecular
+        try:
+            logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
+        except TypeError:
+            pass  # this is likely because there are arrays etc in get_fe
+        df = aggregate_element(
+            df,
+            to=get_fe,
+            renorm=False,
+            logdata=logdata,
+            molecular=molecular,
+            total_suffix=total_suffix,
+            **kwargs
         )
 
     # Try to get some ratios -----------------------------------------------------------
