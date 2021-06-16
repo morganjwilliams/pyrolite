@@ -138,6 +138,92 @@ def endmember_decompose(
     return modal
 
 
+def LeMatireOxRatio(df, mode="volcanic"):
+    """
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe containing compositions to calibrate against.
+    mode : :class:`str`
+        Mode for the correction - 'volcanic' or 'plutonic'.
+
+    Returns
+    -------
+    :class:`pandas.Series`
+        Series with oxidation ratios.
+
+    Notes
+    ------
+    This is a  FeO / (FeO + Fe2O3) mass ratio, not a standar molar ratio
+    Fe2+/(Fe2+ + Fe3+) which is more straightfowardly used; data presented
+    should be in mass units.
+
+    References
+    ----------
+    Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
+    into Mineralogical Classifications.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    https://doi.org/10.1007/BF00399603.
+    """
+    if mode.lower().startswith("volc"):
+        ratio = (
+            0.93
+            - 0.0042 * df["SiO2"]
+            - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+        )
+    else:
+        ratio = (
+            0.88
+            - 0.0016 * df["SiO2"]
+            - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+        )
+    ratio.name = "FeO/(FeO+Fe2O3)"
+    return ratio
+
+
+def LeMaitre_Fe_correction(df, mode="volcanic"):
+    """
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe containing compositions to correct iron for.
+    mode : :class:`str`
+        Mode for the correction - 'volcanic' or 'plutonic'.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Series with two corrected iron components (FeO, Fe2O3).
+
+    References
+    ----------
+
+    Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
+    into Mineralogical Classifications.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    https://doi.org/10.1007/BF00399603.
+
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
+    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
+    """
+    mass_ratios = LeMatireOxRatio(df, mode=mode)  # mass ratios
+    # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
+    feo_moles = mass_ratios / pt.formula("FeO").mass
+    fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
+    Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
+    sumFe = df.reindex(
+        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
+    ).pyrochem.aggregate_element("Fe")
+    arr = np.vstack([Fe_mole_ratios.values, (1 - Fe_mole_ratios).values]).T
+    arr *= np.array(
+        [
+            pt.formula("FeO").mass / pt.formula("Fe").mass,
+            (pt.formula("Fe2O3").mass / pt.formula("Fe").mass) / 2,
+        ]
+    )
+    return pd.DataFrame((sumFe.values * arr), columns=["FeO", "Fe2O3"], index=df.index)
+
+
 def CIPW_norm(df):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
@@ -160,10 +246,6 @@ def CIPW_norm(df):
 
     Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
     A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
-
-    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
-    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
-
 
     Todo
     ----
@@ -197,17 +279,7 @@ def CIPW_norm(df):
     if "FeO" and "Fe2O3" in df.columns:
         pass
     else:
-        # should be able to do this in a vectorised way...
-        for index, row in df.iterrows():
-            Fe_ratio = (
-                0.93 - (0.0042 * row["SiO2"]) - 0.022 * (row["Na2O"] + row["K2O"])
-            )  # Middlemost
-            if row["Fe2O3"] == 0:  # if Fe given as FeO
-                df.loc[index, "FeO"] = row["FeO"] * Fe_ratio
-                df.loc[index, "Fe2O3"] = (1.11134 * row["FeO"]) * (1 - Fe_ratio)
-            if row["FeO"] == 0:  # if Fe given as Fe2O3
-                df.loc[index, "FeO"] = (row["Fe2O3"] / 1.11134) * Fe_ratio
-                df.loc[index, "Fe2O3"] = row["Fe2O3"] * (1 - Fe_ratio)
+        df[["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(df)
 
     # Normalise to 100 on anhydrous basis
     # res = df[columns].pyrochem.to_molecular()
