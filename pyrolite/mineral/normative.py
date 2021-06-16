@@ -211,17 +211,9 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     feo_moles = mass_ratios / pt.formula("FeO").mass
     fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
     Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
-    sumFe = df.reindex(
-        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
-    ).pyrochem.aggregate_element("Fe")
-    arr = np.vstack([Fe_mole_ratios.values, (1 - Fe_mole_ratios).values]).T
-    arr *= np.array(
-        [
-            pt.formula("FeO").mass / pt.formula("Fe").mass,
-            (pt.formula("Fe2O3").mass / pt.formula("Fe").mass) / 2,
-        ]
+    return df.loc[:, ["FeO", "Fe2O3", "FeOT", "Fe2O3T"]].pyrochem.convert_chemistry(
+        to=[{"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}]
     )
-    return pd.DataFrame((sumFe.values * arr), columns=["FeO", "Fe2O3"], index=df.index)
 
 
 def CIPW_norm(df):
