@@ -648,6 +648,35 @@ def inverse_sphere(θ):
     return ys
 
 
+################################################################################
+
+
+def compositional_cosine_distances(arr):
+    """
+    Calculate a distance matrix corresponding to the angles between a number
+    of compositional vectors.
+
+    Parameters
+    ----------
+    arr: :class:`numpy.ndarray`
+        Array of n-dimensional compositions of shape (n_samples, n).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Array of angular distances of shape (n_samples, n_samples).
+    """
+    # all vectors are unit vectors where we start with closed compositions
+    _closed = close(arr)
+    # and we can then calculate the cosine similarity
+    cosine_sim = np.dot(
+        np.sqrt(np.expand_dims(_closed, axis=1)),
+        np.sqrt(np.expand_dims(_closed, axis=2)),
+    ).squeeze()
+    # finally, we convert the cosines back to angules
+    return np.arccos(np.clip(cosine_sim, -1.0, 1.0))
+
+
 ########################################################################################
 # Meta-functions for accessing transformations.
 ########################################################################################
