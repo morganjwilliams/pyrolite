@@ -108,16 +108,6 @@ class TestPyrochem(unittest.TestCase):
         obj.pyrochem.add_MgNo()
         self.assertIn("Mg#", obj.columns)
 
-    def test_pyrochem_add_MgNo_ferricferrous(self):
-        obj = self.df.copy(deep=True).pyrochem.compositional
-        obj.pyrochem.add_MgNo()
-        obj.pyrochem.recalculate_Fe(to=dict(FeO=0.9, Fe2O3=0.1))
-        obj.pyrochem.add_MgNo(name="Mg#2")
-        self.assertIn("Mg#", obj.columns)
-        self.assertIn("Fe2O3", obj.columns)
-        self.assertIn("Mg#2", obj.columns)
-        self.assertFalse(np.isclose(obj["Mg#"].values, obj["Mg#2"].values).any())
-
     def test_pyrochem_add_ratio(self):
         obj = self.df.copy(deep=True)
 
@@ -148,13 +138,6 @@ class TestPyrochem(unittest.TestCase):
         lambdas = obj.pyrochem.lambda_lnREE()
         self.assertIsInstance(lambdas, pd.DataFrame)
         self.assertIn("λ0", lambdas.columns)
-
-    def test_pyrochem_recalculate_Fe(self):
-        obj = self.df.copy(deep=True)
-        obj.pyrochem.recalculate_Fe(to=dict(FeO=0.9, Fe2O3=0.1))
-        self.assertIn("Fe2O3", obj.columns)
-        self.assertIn("FeO", obj.columns)
-        self.assertTrue((obj.FeO.values > obj.Fe2O3.values).all())
 
     def test_pyrochem_convert_chemistry(self):
         obj = self.df.copy(deep=True)

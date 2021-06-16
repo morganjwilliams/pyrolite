@@ -316,7 +316,7 @@ class TestAggregateElement(unittest.TestCase):
             with self.subTest(renorm=renorm):
                 reddf = aggregate_element(self.df, to=to, renorm=renorm)
                 if renorm:
-                    self.assertTrue((reddf.sum(axis=1) == 100.0).all())
+                    self.assertTrue(np.isclose(reddf.sum(axis=1), 100.0).all())
                 else:
                     # the reduced columns will be dropped,
                     pass
