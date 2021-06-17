@@ -127,3 +127,26 @@ def WIP(df: pd.DataFrame):
 
     """
     return 2 * df.Na2O / 0.35 + df.MgO / 0.9 + 2 * df.K2O / 0.25 + df.CaO / 0.7
+
+def AIOCG_xy(df: pd.DataFrame):
+    """
+    
+    Alteration diagram coordinates for iron oxide-copper-gold mineralisation 
+    system. (molecular) [#ref_1]_
+    Returns X,Y coordinates to plot in discriminant diagram scaled to the 
+    400x600 dimension of the background
+
+    References
+    ----------
+    .. [#ref_1] Montreuil J F, Corriveau L, Grunsky E C (2013). Compositional 
+            data analysis of hydrothermal alteration in IOCG systems, Great 
+            Bear magmatic zone, Canada: to each alteration type its own 
+            geochemical signature. Geochemistry: Exploration, Environment, 
+            Analysis 13:229-247.
+            doi:`<http://dx.doi.org/10.1144/geochem2011-101>`__
+    """
+    x = (2*df.Ca+5*df.Fe+2*df.Mn)/(2*df.Ca+5*df.Fe+2*df.Mn+df.Mg+df.Si)*600
+    y = df.K/(df.K+df.Na+0.5*df.Ca)*400
+    return x, y
+
+

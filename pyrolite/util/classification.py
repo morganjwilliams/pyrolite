@@ -289,6 +289,110 @@ class TAS(PolygonClassifier):
         ax.set_xlabel("$SiO_2$")
         return ax
 
+class AIOCG(PolygonClassifier):
+    """
+    AIOCG Diagram classifier from Montreuil et al. (2013) [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    scale : :class:`float`
+        Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
+    xlim : :class:`tuple`
+        Default x-limits for this classifier for plotting.
+    ylim : :class:`tuple`
+        Default y-limits for this classifier for plotting.
+
+    References
+    -----------
+    .. [#ref_1] Montreuil J F, Corriveau L, and Potter E G (2015). Formation of 
+            albitite-hosted uranium within IOCG systems: the Southern Breccia, 
+            Great Bear magmatic zone, Northwest Territories, Canada. 
+            Mineralium Deposita, 50:293-325.
+            doi:`<https://doi.org/10.1007/s00126-014-0530-7>`__
+    """
+
+    @update_docstring_references
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "AIOCG" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+        kw = dict(scale=100.0, xlim=[0, 607.4], ylim=[0, 405.2])
+        kw.update(kwargs)
+        poly_config = {**config, **kw}
+        super().__init__(**poly_config)
+
+    def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
+        """
+        Add the AIOCG fields from the classifier to an axis.
+
+        Parameters
+        ----------
+        ax : :class:`matplotlib.axes.Axes`
+            Axis to add the polygons to.
+        fill : :class:`bool`
+            Whether to fill the polygons.
+        axes_scale : :class:`float`
+            Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        labels : :class:`str`
+            Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
+            or the field 'ID').
+
+        Returns
+        --------
+        ax : :class:`matplotlib.axes.Axes`
+        """
+        # use and override the default add_to_axes
+        ax = self._add_polygons_to_axes(
+            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+        )
+        rescale_by = 1.0
+        if axes_scale is not None:  # rescale polygons to fit ax
+            if not np.isclose(self.default_scale, axes_scale):
+                rescale_by = axes_scale / self.default_scale
+        if labels is not None:
+            for k, cfg in self.fields.items():
+                if cfg["poly"]:
+                    verts = np.array(cfg["poly"]) * rescale_by
+                    x, y = get_centroid(matplotlib.patches.Polygon(verts))
+                    label = cfg["name"][0]
+                    ax.annotate(
+                        "\n".join(label.split()),
+                        xy=(x, y),
+                        ha="center",
+                        va="center",
+                        **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
+                    )
+                    
+                    
+                    #  if cfg["poly"]:
+                    # verts = np.array(cfg["poly"]) * rescale_by
+                    # x, y = get_centroid(matplotlib.patches.Polygon(verts))
+                    # if "volc" in labels:  # use the volcanic name
+                    #     label = cfg["name"][0]
+                    # elif "intr" in labels:  # use the intrusive name
+                    #     label = cfg["name"][-1]
+                    # else:  # use the field identifier
+                    #     label = k
+                    # ax.annotate(
+                    #     "\n".join(label.split()),
+                    #     xy=(x, y),
+                    #     ha="center",
+                    #     va="center",
+                    #     **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
+                    # )
+                    
+
+        ax.set_ylabel("$K/(K+Na+0.5Ca) molar$")
+        ax.set_xlabel("$(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar$")
+        return ax
 
 class PeralkalinityClassifier(object):
     def __init__(self):

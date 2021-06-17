@@ -87,5 +87,19 @@ class TestWIP(unittest.TestCase):
         df.loc[:, "WIP"] = WIP(df)
 
 
+
+class TestAIOCG_xy(unittest.TestCase):
+    """Tests the AIOCG coordinate calculation."""
+
+    def setUp(self):
+        self.cols = ["Si", "Ca", "Mg", "Mn", "Fe", "Ti", "Na", "K", "Al"]
+        self.df = pd.DataFrame(
+            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
+        )
+
+    def test_AIOCG_xy(self):
+        df = self.df
+        df.loc[:, "AIOCG_x"], df.loc[:, "AIOCG_y"] = AIOCG_xy(df)
+
 if __name__ == "__main__":
     unittest.main()
