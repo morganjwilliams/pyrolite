@@ -27,6 +27,8 @@ dependencies:
   # Tools
   - jupyter
   - jupyterlab
+  - jupyterlab-spellchecker
+  - jupyterlab_code_formatter
   - ipykernel
   - pip
   - black
