@@ -16,7 +16,7 @@ geochemical variables (e.g. elements to oxides), functions for common plotting
 tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagrams),
 and numerous auxiliary utilities.
 
-pyrolite's is principally developed for use in geochemical research, but is also
+pyrolite is principally developed for use in geochemical research, but is also
 well suited to being incorporated into university-level geochemistry and petrology
 classes which wish to include a little Python. The documentation is continually
 evolving, and more examples and tutorials will gradually be added (feel free to
