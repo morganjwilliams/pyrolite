@@ -1,7 +1,8 @@
 import unittest
 import pandas as pd
 import numpy as np
-from pyrolite.mineral.normative import unmix, endmember_decompose
+from pyrolite.mineral.normative import unmix, endmember_decompose, CIPW_norm
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestUnmix(unittest.TestCase):
@@ -54,3 +55,32 @@ class TestEndmemberDecompose(unittest.TestCase):
         for molecular in [True, False]:
             with self.subTest(molecular=molecular):
                 s = endmember_decompose(self.df, molecular=molecular)
+
+
+class TestCIPW(unittest.TestCase):
+    def setUp(self):
+        self.df = normal_frame(
+            columns=["SiO2", "TiO2", "Al2O3", "Fe2O3", "FeO", "MnO"]
+            + ["MgO", "CaO", "Na2O", "K2O", "P2O5", "CO2", "SO3"]
+            + []
+        )
+        self.handler = "pyrolite.mineral.normative"
+
+    def test_default(self):
+        norm = CIPW_norm(self.df)
+
+    def noncritical_missing():
+        # should logger.debug mentioning those missing
+        for drop in (["CO2"], ["CO2", "SO3"]):
+            with self.subTest(drop=drop):
+                with self.assertLogs(self.handler, level="DEBUG") as cm:
+                    norm = CIPW_norm(self.df.drop(columns=drop))
+                    logging_output = cm.output
+
+    def critical_missing():
+        # should logger.warning mentioning the critical ones missing
+        for drop in (["SiO2"], ["TiO2", "SO3"], ["SiO2", "MgO"]):
+            with self.subTest(drop=drop):
+                with self.assertLogs(self.handler, level="WARNING") as cm:
+                    norm = CIPW_norm(self.df.drop(columns=drop))
+                    logging_output = cm.output
