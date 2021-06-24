@@ -83,7 +83,7 @@ def _multisweep(G, ks):
 
 
 def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
-    """
+    r"""
     Performs multiple sweeps of the augmented covariance matrix and extracts the
     regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
     for the regression of missing variables against observed variables for a given
@@ -153,7 +153,7 @@ def EMCOMP(
     convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
     max_iter=30,
 ):
-    """
+    r"""
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
     thresholds. After Palarea-Albaladejo and Martín-Fernández (2008) [#ref_1]_.
 

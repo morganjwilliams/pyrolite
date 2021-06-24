@@ -489,7 +489,7 @@ def lambda_lnREE(
     sigmas=None,
     **kwargs
 ):
-    """
+    r"""
     Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
     normalised to a specific composition [#localref_1]_. Lambda coefficeints are given
     for the polynomial regression of ln(REE/NORM) vs radii.

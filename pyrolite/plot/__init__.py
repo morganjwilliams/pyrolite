@@ -345,7 +345,7 @@ class pyroplot(object):
             line_kw=line_kw,
             **kwargs,
         )
-        ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+        ax.set_ylabel(r"$\mathrm{X / X_{Reference}}$")
         return ax
 
     def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
