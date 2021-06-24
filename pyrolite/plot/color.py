@@ -199,7 +199,6 @@ def process_color(
         if size is not None:
             _c = np.ones((size, 1)) * _c  # turn this into a full array as a fallback
     else:
-        C = np.array(C)
         if cmode in [
             "hex_array",
             "named_array",
@@ -211,18 +210,17 @@ def process_color(
         elif cmode in ["mixed_fmt_color_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["value_array"]:
+            _C = np.array(C)
             cmap = cmap or DEFAULT_CONT_COLORMAP
             if isinstance(cmap, str):
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
-            norm = norm or plt.Normalize(
-                vmin=np.nanmin(np.array(C)), vmax=np.nanmax(np.array(C))
-            )
-            C = cmap(norm(C))
+            norm = norm or plt.Normalize(vmin=np.nanmin(_C), vmax=np.nanmax(_C))
+            C = cmap(norm(_C))
         elif cmode == "categories":
-            uniqueC = np.unique(C)
+            uniqueC = np.unique(np.array(C, dtype="object"))
             # this should now work for 'c' in addition to 'color', where the notation is matching
             cmapper = (
                 color_mappings.get("c")
@@ -230,7 +228,7 @@ def process_color(
                 else color_mappings.get("color")
             )
             if cmapper is None:
-                _C = np.ones_like(C, dtype="int") * np.nan
+                _C = np.ones(len(C), dtype="int") * np.nan
 
                 cmap = cmap or DEFAULT_DISC_COLORMAP
                 if isinstance(cmap, str):
@@ -240,6 +238,7 @@ def process_color(
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
             else:
+                C = np.array(C)
                 unique_vals = np.array(list(cmapper.values()))
                 _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
@@ -247,7 +246,7 @@ def process_color(
                     _C[C == cat] = val  # get the mapping frome the dict
                 C = _C
         else:
-            pass
+            C = np.array(C)
         if alpha is not None:
             C[:, -1] = alpha
         _c, _color = C, C
