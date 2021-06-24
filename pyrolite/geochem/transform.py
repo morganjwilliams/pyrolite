@@ -305,7 +305,7 @@ def aggregate_element(
         )
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
-        _props = np.array([t[1] for t in targets]).astype(np.float)
+        _props = np.array([t[1] for t in targets]).astype(float)
         if _props.ndim == 2:
             # proportions are a n-dimensional array (i.e. one array for each component)
             props = close(_props.T).T
