@@ -29,7 +29,7 @@ class TestImputers(unittest.TestCase):
 
     def setUp(self):
         self.df = normal_frame().apply(close, axis=1)
-        self.group = (self.df["MgO"] > 0.21).apply(np.int)
+        self.group = (self.df["MgO"] > 0.21).apply(int)
 
     def test_MultipleImputer(self):
         """Test the MultipleImputer transfomer."""

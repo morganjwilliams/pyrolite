@@ -114,7 +114,7 @@ class TestIsNumeric(unittest.TestCase):
                 self.assertTrue(is_numeric(obj))
 
     def test_number_classes(self):
-        for obj in [np.float, np.int, np.bool, float, int, bool]:
+        for obj in [float, int, bool]:
             with self.subTest(obj=obj):
                 self.assertTrue(is_numeric(obj))
 
