@@ -251,6 +251,10 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     ----
     * Note whether data needs to be normalised to 1 or 100?
     """
+    logger.warning(
+        "The current CIPW Norm implmentation is under continuting development, "
+        "and does not yet return expected results."
+    )
 
     noncrit = ["CO2", "SO3"]
     columns = (
