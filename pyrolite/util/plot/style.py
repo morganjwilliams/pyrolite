@@ -84,7 +84,7 @@ def _export_nonRCstyles(**kwargs):
 
 
 _export_mplstyle()
-_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)},)
+_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)})
 matplotlib.style.use("pyrolite")
 
 
@@ -110,7 +110,11 @@ def linekwargs(kwargs):
     )
     # could trim cmap and norm here, in case they get passed accidentally
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
@@ -135,7 +139,11 @@ def scatterkwargs(kwargs):
         matplotlib.collections.Collection,
     )
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
@@ -148,7 +156,11 @@ def patchkwargs(kwargs):
         matplotlib.patches.Patch,
     )
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
