@@ -146,7 +146,8 @@ class PolygonClassifier(object):
         :class:`tuple`
             Names of the x and y axes for the classifier.
         """
-        return tuple(self.axes.values())
+        print(list(self.axes.values()))
+        return list(self.axes.values())
 
     def _add_polygons_to_axes(
         self, ax=None, fill=False, axes_scale=100.0, add_labels=False, **kwargs
@@ -183,6 +184,7 @@ class PolygonClassifier(object):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
+
         pgns = []
 
         for (k, cfg) in self.fields.items():
@@ -194,8 +196,10 @@ class PolygonClassifier(object):
                     verts,
                     closed=True,
                     edgecolor="k",
-                    transform=ax.transAxes if self.projection else None,
-                    **patchkwargs(kwargs)
+                    transform=ax.transAxes
+                    if self.projection is not None
+                    else ax.transData,
+                    **patchkwargs(kwargs),
                 )
                 pgns.append(pg)
                 ax.add_patch(pg)
@@ -207,9 +211,11 @@ class PolygonClassifier(object):
                         xy=(x, y),
                         ha="center",
                         va="center",
-                        xycoords=ax.transAxes if self.projection else None,
                         fontsize=kwargs.get("fontsize", 8),
-                        **subkwargs(kwargs, ax.annotate)
+                        xycoords=ax.transAxes
+                        if self.projection is not None
+                        else ax.transData,
+                        **subkwargs(kwargs, ax.annotate),
                     )
 
         # if the axis has the default scaling, there's a good chance that it hasn't
@@ -217,7 +223,7 @@ class PolygonClassifier(object):
         if self.projection is None:
             if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
                 ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
-                ax.set_ylim(np.array(self.lims["xlim"]) * rescale_by)
+                ax.set_ylim(np.array(self.lims["ylim"]) * rescale_by)
         return ax
 
     def add_to_axes(
@@ -248,7 +254,7 @@ class PolygonClassifier(object):
             if len(self.axes) == 2 and self.projection is None:
                 ax.set_ylabel(self.axes[0])
                 ax.set_xlabel(self.axes[1])
-            elif len(self.axes) == 3 and self.projection is "ternary":
+            elif len(self.axes) == 3 and (self.projection == "ternary"):
                 pass
             else:
                 raise NotImplementedError
@@ -303,7 +309,7 @@ class TAS(PolygonClassifier):
         fill=False,
         axes_scale=100.0,
         add_labels=False,
-        which_labels=None,
+        which_labels="",
         **kwargs
     ):
         """
@@ -317,6 +323,8 @@ class TAS(PolygonClassifier):
             Whether to fill the polygons.
         axes_scale : :class:`float`
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        add_labels : :class:`bool`
+            Whether to add labels for the polygons.
         which_labels : :class:`str`
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
@@ -326,30 +334,33 @@ class TAS(PolygonClassifier):
         ax : :class:`matplotlib.axes.Axes`
         """
         # use and override the default add_to_axes
+        # here we don't want to add the labels in the normal way, because there
+        # are two sets - one for volcanic rocks and one for plutonic rocks
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False, **kwargs
         )
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
-        if add_labels and (which_labels is not None):
+        if add_labels:
             for k, cfg in self.fields.items():
                 if cfg["poly"]:
-                    verts = np.array(cfg["poly"]) * rescale_by
-                    x, y = get_centroid(matplotlib.patches.Polygon(verts))
                     if "volc" in which_labels:  # use the volcanic name
                         label = cfg["name"][0]
                     elif "intr" in which_labels:  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         label = k
+                    verts = np.array(cfg["poly"]) * rescale_by
+                    _poly = matplotlib.patches.Polygon(verts)
+                    x, y = get_centroid(_poly)
                     ax.annotate(
                         "\n".join(label.split()),
                         xy=(x, y),
                         ha="center",
                         va="center",
-                        **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
+                        **subkwargs(kwargs, ax.annotate),
                     )
 
         ax.set(xlabel="$SiO_2$", ylabel="$Na_2O + K_2O$")
