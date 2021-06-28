@@ -207,7 +207,8 @@ class PolygonClassifier(object):
                         xy=(x, y),
                         ha="center",
                         va="center",
-                        transform=ax.transAxes if self.projection else None,
+                        xycoords=ax.transAxes if self.projection else None,
+                        fontsize=kwargs.get("fontsize", 8),
                         **subkwargs(kwargs, ax.annotate)
                     )
 
@@ -241,7 +242,7 @@ class PolygonClassifier(object):
         ax : :class:`matplotlib.axes.Axes`
         """
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
+            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=add_labels, **kwargs
         )
         if self.axes:  # may be none?
             if len(self.axes) == 2 and self.projection is None:
