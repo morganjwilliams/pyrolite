@@ -17,9 +17,11 @@ import matplotlib.text
 import matplotlib.pyplot as plt
 import matplotlib.patches
 import matplotlib.lines
+from ..comp.codata import close
 from .plot.style import patchkwargs
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
+from .plot.transform import affine_transform
 from .meta import (
     pyrolite_datafolder,
     subkwargs,
@@ -29,6 +31,11 @@ from .meta import (
 from .log import Handle
 
 logger = Handle(__name__)
+
+
+def tlr_to_xy(tlr):
+    shear = affine_transform(np.array([[1, 1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    return shear(close(np.array(tlr)[:, [2, 0, 1]])).T
 
 
 class PolygonClassifier(object):
@@ -53,17 +60,30 @@ class PolygonClassifier(object):
     """
 
     def __init__(
-        self, name=None, axes=None, fields=None, scale=1.0, xlim=None, ylim=None,
+        self, name=None, axes=None, fields=None, scale=1.0, transform=None, **kwargs
     ):
         self.default_scale = scale
         self._scale = self.default_scale
-        self.xlim = xlim
-        self.ylim = ylim
+        self.lims = {
+            k: v for (k, v) in kwargs.items() if ("lim" in k) and (len(k) == 4)
+        }
+        self.projection = None
+        if transform is not None:
+            if isinstance(transform, str):
+                if transform.lower().startswith("tern"):
+                    self.transform = tlr_to_xy
+                    self.projection = "ternary"
+                else:
+                    raise NotImplementedError
+            else:
+                self.transform = transform
+        else:
+            self.transform = lambda x: x  # passthrough
 
         self.name = name
         self.axes = axes or []
         # check axes for ratios, adition/subtraction etc
-        self.fields = fields or []
+        self.fields = fields or {}
         self.classes = list(self.fields.keys())
 
     def predict(self, X, data_scale=None):
@@ -84,8 +104,11 @@ class PolygonClassifier(object):
             it inherit the index.
         """
         classes = [k for (k, cfg) in self.fields.items() if cfg["poly"]]
+        # transformed polys
         polys = [
-            matplotlib.patches.Polygon(self.fields[k]["poly"], closed=True)
+            matplotlib.patches.Polygon(
+                self.transform(self.fields[k]["poly"]), closed=True
+            )
             for k in classes
         ]
         if isinstance(X, pd.DataFrame):
@@ -95,20 +118,22 @@ class PolygonClassifier(object):
             X = X.loc[:, axes].values
         else:
             idx = np.arange(X.shape[0])
+
         out = pd.Series(index=idx, dtype="object")
 
         rescale_by = 1.0  # rescaling the data to fit the classifier scale
         if data_scale is not None:
             if not np.isclose(self.default_scale, data_scale):
                 rescale_by = self.default_scale / data_scale
-        X = X * rescale_by
 
+        X = self.transform(X) * rescale_by  # transformed X
         indexes = np.array([p.contains_points(X) for p in polys]).T
         notfound = np.logical_not(indexes.sum(axis=-1))
-
         outlist = list(map(lambda ix: classes[ix], np.argmax(indexes, axis=-1)))
         out.loc[:] = outlist
         out.loc[(notfound)] = "none"
+        # for those which are none, we could check if they're on polygon boundaries
+        # and assign to the closest centroid (e.g. for boundary points on axes)
         return out
 
     @property
@@ -121,10 +146,10 @@ class PolygonClassifier(object):
         :class:`tuple`
             Names of the x and y axes for the classifier.
         """
-        return self.axes.get("x"), self.axes.get("y")
+        return tuple(self.axes.values())
 
     def _add_polygons_to_axes(
-        self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs
+        self, ax=None, fill=False, axes_scale=100.0, add_labels=False, **kwargs
     ):
         """
         Add the polygonal fields from the classifier to an axis.
@@ -137,44 +162,68 @@ class PolygonClassifier(object):
             Whether to fill the polygons.
         axes_scale : :class:`float`
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
-        labels : :class:`str`
-            Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
-            or the field 'ID').
+        add_labels : :class:`bool`
+            Whether to add labels at polygon centroids.
 
         Returns
         --------
         ax : :class:`matplotlib.axes.Axes`
         """
         if ax is None:
-            ax = init_axes(**kwargs)
-
+            ax = init_axes(projection=self.projection, **kwargs)
+        else:
+            if self.projection:
+                if not isinstance(ax, get_projection_class(self.projection)):
+                    logger.warning(
+                        "Projection of axis for {} should be {}.".format(
+                            self.name or self.__class.__name__, self.projection
+                        )
+                    )
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
         pgns = []
-        for k, cfg in self.fields.items():
+
+        for (k, cfg) in self.fields.items():
             if cfg["poly"]:
                 if not fill:
                     kwargs["facecolor"] = "none"
-                verts = np.array(cfg["poly"]) * rescale_by
+                verts = self.transform(np.array(cfg["poly"])) * rescale_by
                 pg = matplotlib.patches.Polygon(
-                    verts, closed=True, edgecolor="k", **patchkwargs(kwargs)
+                    verts,
+                    closed=True,
+                    edgecolor="k",
+                    transform=ax.transAxes if self.projection else None,
+                    **patchkwargs(kwargs)
                 )
                 pgns.append(pg)
                 ax.add_patch(pg)
+                if add_labels:
+                    x, y = get_centroid(pg)
+                    label = cfg["name"]
+                    ax.annotate(
+                        "\n".join(label.split()),
+                        xy=(x, y),
+                        ha="center",
+                        va="center",
+                        transform=ax.transAxes if self.projection else None,
+                        **subkwargs(kwargs, ax.annotate)
+                    )
 
         # if the axis has the default scaling, there's a good chance that it hasn't
         # been rescaled/rendered. We need to rescale to show the polygons.
-        if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
-            ax.set_xlim(np.array(self.xlim) * rescale_by)
-            ax.set_ylim(np.array(self.ylim) * rescale_by)
-
+        if self.projection is None:
+            if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
+                ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
+                ax.set_ylim(np.array(self.lims["xlim"]) * rescale_by)
         return ax
 
-    def add_to_axes(self, ax=None, fill=False, axes_scale=1, **kwargs):
+    def add_to_axes(
+        self, ax=None, fill=False, axes_scale=1.0, add_labels=False, **kwargs
+    ):
         """
-        Add the polygonal fields from the classifier to an axis.
+        Add the TAS fields from the classifier to an axis.
 
         Parameters
         ----------
@@ -184,6 +233,8 @@ class PolygonClassifier(object):
             Whether to fill the polygons.
         axes_scale : :class:`float`
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        add_labels : :class:`bool`
+            Whether to add labels for the polygons.
 
         Returns
         --------
@@ -193,8 +244,15 @@ class PolygonClassifier(object):
             ax=ax, fill=fill, axes_scale=axes_scale, **kwargs
         )
         if self.axes:  # may be none?
-            ax.set_ylabel(self.axes[0])
-            ax.set_xlabel(self.axes[1])
+            if len(self.axes) == 2 and self.projection is None:
+                ax.set_ylabel(self.axes[0])
+                ax.set_xlabel(self.axes[1])
+            elif len(self.axes) == 3 and self.projection is "ternary":
+                pass
+            else:
+                raise NotImplementedError
+
+        ax.set(**{"{}label".format(a): var for a, var in self.axes.items()})
         return ax
 
 
@@ -238,7 +296,15 @@ class TAS(PolygonClassifier):
         poly_config = {**config, **kw}
         super().__init__(**poly_config)
 
-    def add_to_axes(self, ax=None, fill=False, axes_scale=100.0, labels=None, **kwargs):
+    def add_to_axes(
+        self,
+        ax=None,
+        fill=False,
+        axes_scale=100.0,
+        add_labels=False,
+        which_labels=None,
+        **kwargs
+    ):
         """
         Add the TAS fields from the classifier to an axis.
 
@@ -250,7 +316,7 @@ class TAS(PolygonClassifier):
             Whether to fill the polygons.
         axes_scale : :class:`float`
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
-        labels : :class:`str`
+        which_labels : :class:`str`
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
 
@@ -266,14 +332,14 @@ class TAS(PolygonClassifier):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
-        if labels is not None:
+        if add_labels and (which_labels is not None):
             for k, cfg in self.fields.items():
                 if cfg["poly"]:
                     verts = np.array(cfg["poly"]) * rescale_by
                     x, y = get_centroid(matplotlib.patches.Polygon(verts))
-                    if "volc" in labels:  # use the volcanic name
+                    if "volc" in which_labels:  # use the volcanic name
                         label = cfg["name"][0]
-                    elif "intr" in labels:  # use the intrusive name
+                    elif "intr" in which_labels:  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         label = k
@@ -285,9 +351,46 @@ class TAS(PolygonClassifier):
                         **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
                     )
 
-        ax.set_ylabel("$Na_2O + K_2O$")
-        ax.set_xlabel("$SiO_2$")
+        ax.set(xlabel="$SiO_2$", ylabel="$Na_2O + K_2O$")
         return ax
+
+
+class USDASoilTexture(PolygonClassifier):
+    """
+    United States Department of Agriculture Soil Texture classification model
+    [#ref_1]_ [#ref_2]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Soil Science Division Staff (2017). Soil survey sand.
+                C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
+                USDA Handbook 18. Government Printing Office, Washington, D.C.
+    .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
+                Texture-by-Feel Analysis. Journal of Agronomic Education 8:54–55.
+                doi: {Thien1979}
+    """
+
+    @update_docstring_references
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models") / "USDASoilTexture" / "config.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
 
 
 class PeralkalinityClassifier(object):
@@ -314,4 +417,7 @@ class PeralkalinityClassifier(object):
 
 TAS.__init__.__doc__ = TAS.__init__.__doc__.format(
     LeBas1992=sphinx_doi_link("10.1007/BF01160698")
+)
+USDASoilTexture.__init__.__doc__ = USDASoilTexture.__init__.__doc__.format(
+    Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
