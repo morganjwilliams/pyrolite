@@ -276,7 +276,7 @@ def aggregate_element(
     :class:`pandas.DataFrame`
         Dataframe with cation aggregated to the desired species.
     """
-    # get the elemental sum
+    # get the elemental sum for the specified cation
     subsum = elemental_sum(
         df, to, total_suffix=total_suffix, logdata=logdata, molecular=molecular
     )
@@ -286,21 +286,31 @@ def aggregate_element(
     species = [i for i in species if i in df.columns]
     _df = df.copy()
     if isinstance(to, str):
+        logger.debug("Aggregating string-specified component {}.".format(to))
         toform = remove_suffix(to, suffix=total_suffix)
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
-        props = [1.0]
+        props = [1.0]  # 100%
         coeff = [oxide_conversion(cation, toform, molecular=molecular)(1)]
     elif isinstance(to, (pt.core.Element, pt.formulas.Formula)):
+        logger.debug("Aggregating object-specified component {}.".format(to))
         to = str(to)
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
-        props = [1.0]
+        props = [1.0]  # 100%
         coeff = [oxide_conversion(cation, to, molecular=molecular)(1)]
     elif isinstance(to, dict):
+        logger.debug(
+            "Aggregating dict-specified components {}.".format(",".join(to.keys()))
+        )
         targets = list(to.items())
         targetnames = [str(t[0]) for t in targets]
-        props = close(np.array([t[1] for t in targets]).astype(np.float))
+        _props = np.array([t[1] for t in targets]).astype(np.float)
+        if _props.ndim == 2:
+            # proportions are a n-dimensional array (i.e. one array for each component)
+            props = close(_props.T).T
+        else:
+            props = close(_props)  # proportions are a series of floats
         coeff = [
             oxide_conversion(cation, t, molecular=molecular)(p)
             for t, p in zip(targetnames, props)
@@ -308,10 +318,16 @@ def aggregate_element(
         drop = [i for i in species if str(i) not in targetnames]
     else:
         raise NotImplementedError("Not yet implemented for tuples, lists, arrays etc.")
-    logger.debug(
+
+    logger.debug(  # edited to deal with arrays
         "Transforming {} to: {}".format(
             cation,
-            {k: "{:2.1f}%".format(v * 100) for (k, v) in zip(targetnames, props)},
+            {
+                k: "{:2.1f}%".format(v * 100)
+                if not isinstance(v, np.ndarray)
+                else ",".join(list((v * 100).astype(str)))
+                for (k, v) in zip(targetnames, props)
+            },
         )
     )
     if drop:
@@ -322,9 +338,11 @@ def aggregate_element(
         if t not in _df:
             _df[t] = np.nan  # avoid missing column errors
 
-    _df.loc[:, targetnames] = (
-        subsum.values[:, np.newaxis] @ np.array(coeff)[np.newaxis, :]
-    )
+    coeff = np.array(coeff)
+    if coeff.ndim == 2:
+        _df.loc[:, targetnames] = subsum.values[:, np.newaxis] * coeff.T
+    else:
+        _df.loc[:, targetnames] = subsum.values[:, np.newaxis] @ coeff[np.newaxis, :]
 
     if logdata:
         logger.debug("Log-transforming {} Data.".format(cation))

@@ -138,7 +138,88 @@ def endmember_decompose(
     return modal
 
 
-def CIPW_norm(df):
+def LeMatireOxRatio(df, mode="volcanic"):
+    """
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe containing compositions to calibrate against.
+    mode : :class:`str`
+        Mode for the correction - 'volcanic' or 'plutonic'.
+
+    Returns
+    -------
+    :class:`pandas.Series`
+        Series with oxidation ratios.
+
+    Notes
+    ------
+    This is a  FeO / (FeO + Fe2O3) mass ratio, not a standar molar ratio
+    Fe2+/(Fe2+ + Fe3+) which is more straightfowardly used; data presented
+    should be in mass units.
+
+    References
+    ----------
+    Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
+    into Mineralogical Classifications.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    https://doi.org/10.1007/BF00399603.
+    """
+    if mode.lower().startswith("volc"):
+        ratio = (
+            0.93
+            - 0.0042 * df["SiO2"]
+            - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+        )
+    else:
+        ratio = (
+            0.88
+            - 0.0016 * df["SiO2"]
+            - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+        )
+    ratio.name = "FeO/(FeO+Fe2O3)"
+    return ratio
+
+
+def LeMaitre_Fe_correction(df, mode="volcanic"):
+    """
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe containing compositions to correct iron for.
+    mode : :class:`str`
+        Mode for the correction - 'volcanic' or 'plutonic'.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Series with two corrected iron components (FeO, Fe2O3).
+
+    References
+    ----------
+
+    Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
+    into Mineralogical Classifications.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    https://doi.org/10.1007/BF00399603.
+
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
+    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
+    """
+    mass_ratios = LeMatireOxRatio(df, mode=mode)  # mass ratios
+    # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
+    feo_moles = mass_ratios / pt.formula("FeO").mass
+    fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
+    Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
+
+    to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
+
+    return df.reindex(
+        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
+    ).pyrochem.convert_chemistry(to=[to])
+
+
+def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -150,6 +231,11 @@ def CIPW_norm(df):
     -----------
     df : :class:`pandas.DataFrame`
         Dataframe containing compositions to transform.
+    Fe_correction : :class:`str`
+        Iron correction to apply, if any. Will default to 'LeMaitre'.
+    adjust_all : :class:`bool`
+        Where correcting iron compositions, whether to adjust all iron
+        compositions, or only those where singular components are specified.
 
     Returns
     --------
@@ -161,14 +247,14 @@ def CIPW_norm(df):
     Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
     A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
 
-    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
-    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
-
-
     Todo
     ----
     * Note whether data needs to be normalised to 1 or 100?
     """
+    logger.warning(
+        "The current CIPW Norm implmentation is under continuting development, "
+        "and does not yet return expected results."
+    )
 
     noncrit = ["CO2", "SO3"]
     columns = (
@@ -187,39 +273,48 @@ def CIPW_norm(df):
             logger.warning("Required columns missing: {}".format(", ".join(crit_miss)))
 
     # Reindex columns to be expected and fill missing ones with zeros
-    df_update = df.reindex(columns=columns).fillna(0)
     if to_impute:  # Note that we're adding the columns with default values.
         logger.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
 
-    df = df_update
+    ############################################################################
+    if Fe_correction is None:  # default to LeMaitre_Fe_correction
+        Fe_correction = "LeMaitre"
 
-    # Check if Fe2O3 and FeO are present
-    if "FeO" and "Fe2O3" in df.columns:
-        pass
+    if adjust_all:
+        fltr = np.ones(df.index.size, dtype="bool")
     else:
-        # should be able to do this in a vectorised way...
-        for index, row in df.iterrows():
-            Fe_ratio = (
-                0.93 - (0.0042 * row["SiO2"]) - 0.022 * (row["Na2O"] + row["K2O"])
-            )  # Middlemost
-            if row["Fe2O3"] == 0:  # if Fe given as FeO
-                df.loc[index, "FeO"] = row["FeO"] * Fe_ratio
-                df.loc[index, "Fe2O3"] = (1.11134 * row["FeO"]) * (1 - Fe_ratio)
-            if row["FeO"] == 0:  # if Fe given as Fe2O3
-                df.loc[index, "FeO"] = (row["Fe2O3"] / 1.11134) * Fe_ratio
-                df.loc[index, "Fe2O3"] = row["Fe2O3"] * (1 - Fe_ratio)
+        # check where the iron speciation is already specified or there is no iron
+        iron_specified = (
+            (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
+        ) | (
+            np.isclose(
+                df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
+            )
+        )
+        fltr = iron_specified
 
-    # Normalise to 100 on anhydrous basis
+    if Fe_correction.lower().startswith("lemait"):
+        df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(df.loc[fltr, :])
+    else:
+        raise NotImplementedError(
+            "Iron correction {} not recognised.".format(Fe_correction)
+        )
+
+    df = df.reindex(columns=columns).fillna(0)
+    ############################################################################
+    # Verma's ADJ columns are equivalent to `df_update.pyrocomp.renormalise()`
+    # at this point in the workflow.
+    ############################################################################
+    # Normalise to 100 molar percent on anhydrous basis
     # res = df[columns].pyrochem.to_molecular()
-    res = df.divide(df.sum(axis=1) / 100, axis=0)
     res = df.div(pd.Series([pt.formula(c).mass for c in columns], index=columns))
+    res = res.divide(res.sum(axis=1) / 100, axis=0).fillna(0)
 
     # endmember component fractions
-    res.pyrochem.add_MgNo(molecular=True)
+    res.pyrochem.add_MgNo()
     MgNo, FeNo = res["Mg#"], 1 - res["Mg#"]
     xFeO = res["FeO"] / (res["FeO"] + res["MnO"])
     xMnO = 1 - xFeO
-
     ############################################################################
     # Calculate effective molecular weights for silicate & oxide endmembers
     ############################################################################
@@ -268,8 +363,7 @@ def CIPW_norm(df):
     # which minerals are 'extracted' and ii) the mineralogical norm extracted
     # from it. The silica content of the norm is denoted 'Y_SiO2', and the
     # deficit in silica relative to the reservoir is denonted 'D_SiO2'.
-
-    norm = pd.DataFrame(index=res.index)  # dataframe to store mineralogy
+    norm = pd.DataFrame(index=res.index).fillna(0)  # dataframe to store mineralogy
     # Apatite ###################
     ap_fltr = res["CaO"] >= ((10.0 / 3) * res["P2O5"])  # where phosphate is limiting
     norm["apatite"] = np.where(ap_fltr, res["P2O5"], res["CaO"] / (10.0 / 3))
@@ -277,92 +371,105 @@ def CIPW_norm(df):
     res["P2O5"] = res["P2O5"] - norm["apatite"]
     # Fluorite
     # Halite
-    # Thenardite ###################
+    # Thenardite ################### Na2SO4
     then_fltr = res["Na2O"] >= res["SO3"]  # where sulfate is limiting
     norm["thenardite"] = np.where(then_fltr, res["SO3"], res["Na2O"])
     res["SO3"] = res["SO3"] - norm["thenardite"]
     res["Na2O"] = res["Na2O"] - norm["thenardite"]
 
-    # Ilmenite ###################
+    # Ilmenite ################### FeTiO3
     ilm_fltr = res["FeO"] >= res["TiO2"]  # where titanium is limiting
     norm["ilmenite"] = np.where(ilm_fltr, res["TiO2"], res["FeO"])
     res["FeO"] = res["FeO"] - norm["ilmenite"]
     res["TiO2"] = res["TiO2"] - norm["ilmenite"]
 
-    # Orthoclase ###################
+    # Orthoclase ################### 2 * KAlSi3O8
     ort_fltr = res["Al2O3"] >= res["K2O"]  # where aluminium is limiting
     norm["orthoclase"] = np.where(ort_fltr, res["K2O"], res["Al2O3"])
     res["Al2O3"] = res["Al2O3"] - norm["orthoclase"]
     res["K2O"] = res["K2O"] - norm["orthoclase"]
-    res["ks"] = res["K2O"]
 
-    # Norm Silica Content
-    Y_SiO2 = (norm["orthoclase"] * 6) + res["ks"]
+    Y_SiO2 = norm["orthoclase"] * 6
 
-    # Albite ###################
+    # Potassium Silicate ################### K2SiO3
+    norm["ks"] = res["K2O"]
+    Y_SiO2 += norm["ks"]  # Norm Silica Content
+
+    # Albite ################### 2 * NaAlSi3O4
     alb_fltr = res["Al2O3"] >= res["Na2O"]  # where sodium is limiting
     norm["albite"] = np.where(alb_fltr, res["Na2O"], res["Al2O3"])
     res["Al2O3"] = res["Al2O3"] - norm["albite"]
     res["Na2O"] = res["Na2O"] - norm["albite"]
 
-    Y_SiO2 = Y_SiO2 + (6 * norm["albite"])  # add to sum silica
+    Y_SiO2 += 6 * norm["albite"]  # add to sum silica
 
-    # Acmite - for Fe2O3 ###################
+    # Acmite - for Fe2O3 ################### 2 * NaFe3+Si2O6
     acm_fltr = res["Na2O"] >= res["Fe2O3"]  # where iron is limiting
     norm["acmite"] = np.where(acm_fltr, res["Fe2O3"], res["Na2O"])
     res["Na2O"] = res["Na2O"] - norm["acmite"]
-    norm["ns"] = res["Na2O"]  # leftover sodium assigned to sodium metasilicate
     res["Fe2O3"] = res["Fe2O3"] - norm["acmite"]
 
-    Y_SiO2 = Y_SiO2 + (4 * norm["acmite"])
+    Y_SiO2 += 4 * norm["acmite"]
 
-    # Anorthite and corundum ###################
+    # sodium metasilicate ################### Na2SiO3
+    norm["ns"] = res["Na2O"]
+    Y_SiO2 += norm["ns"]
+
+    # Anorthite ###################  CaAl2Si2O8
     ano_fltr = res["Al2O3"] >= res["CaO"]  # where calcium is limiting
     norm["anorthite"] = np.where(ano_fltr, res["CaO"], res["Al2O3"])
     res["Al2O3"] = res["Al2O3"] - norm["anorthite"]
-    norm["corundum"] = res["Al2O3"]  # assign any residual aluminium to corundum
     res["CaO"] = res["CaO"] - norm["anorthite"]
 
-    Y_SiO2 = (2 * norm["anorthite"]) + Y_SiO2
+    Y_SiO2 += 2 * norm["anorthite"]
+    # corundum ###########  Al2O3
+    norm["corundum"] = res["Al2O3"]
 
-    # Titanite/rutile ###################  - not sure if working correctly
+    # Titanite ############ CaTiSiO5 - not sure if working correctly
     tit_fltr = res["CaO"] >= res["TiO2"]  # where titanium is limiting
     norm["titanite"] = np.where(tit_fltr, res["TiO2"], res["CaO"])
     res["CaO"] = res["CaO"] - norm["titanite"]
     res["TiO2"] = res["TiO2"] - norm["titanite"]
-    norm["rutile"] = res["TiO2"]  # assign any residual titanium to rutile
 
-    Y_SiO2 = Y_SiO2 + norm["titanite"]
+    Y_SiO2 += norm["titanite"]
 
-    # Magnetite and haematite ###################
+    # Rutile ############# TiO2
+    norm["rutile"] = res["TiO2"]
+
+    # Magnetite ########## Fe3O4
     mag_fltr = res["Fe2O3"] >= res["FeO"]  # where FeO is limiting
     norm["magnetite"] = np.where(mag_fltr, res["FeO"], res["Fe2O3"])
     res["Fe2O3"] = res["Fe2O3"] - norm["magnetite"]
     res["FeO"] = res["FeO"] - norm["magnetite"]
-    norm["haematite"] = res["Fe2O3"]  # assign any residual Fe2O3 to haeamatite
+    # haematite ########## Fe2O3
+    norm["haematite"] = res["Fe2O3"]
 
     # Subdivided normative minerals
     res["MgFeO"] = res["MgO"] + res["FeO"]
     #     data['Mg/Fe'] = data['MgO']/(data['FeO']+data['MgO'])
     #     data['Fe/Mg'] = data['FeO']/(data['FeO']+data['MgO'])
 
-    # Diopside, Wollastonite, Hypersthene (provisional) ###################
+    # Provisional Pyroxene Norms ###############################################
+
+    # Diopside ########## Ca(Mg,Fe)Si2O6
     dio_flt = res["CaO"] >= res["MgFeO"]  # where Mg and Fe are limiting
     norm["diopside"] = np.where(dio_flt, res["MgFeO"], res["CaO"])
     res["CaO"] = res["CaO"] - norm["diopside"]
     res["MgFeO"] = res["MgFeO"] - norm["diopside"]
+    Y_SiO2 += 2 * norm["diopside"]
+    # Wollastonite ########## CaSiO3
     norm["wollastonite"] = res["CaO"]  # assign residual calcium to wollastonite
-    # assign residual magnesium and iron to hypersthene
+    Y_SiO2 += norm["wollastonite"]
+    # Hypersthene ############ (Mg,Fe)SiO3
     norm["hypersthene"] = res["MgFeO"]
-
-    Y_SiO2 += 2 * norm["diopside"] + norm["wollastonite"] + norm["hypersthene"]
+    Y_SiO2 += norm["hypersthene"]
 
     # Quartz/undersaturated minerals ###################
-    qua_flt = res["SiO2"] >= Y_SiO2  # if silica is in excess
-    norm["quartz"] = np.where(qua_flt, res["SiO2"] - Y_SiO2, 0)
+    qtz_flt = res["SiO2"] >= Y_SiO2  # if silica is in excess
+    norm["quartz"] = np.where(qtz_flt, res["SiO2"] - Y_SiO2, 0)
 
     # Silica Deficit
-    D_SiO2 = np.where(qua_flt, 0, Y_SiO2 - res["SiO2"])
+    D_SiO2 = np.where(qtz_flt, 0, Y_SiO2 - res["SiO2"])
 
     # Olivine ###################
     # Using two filters as we want to skip if deficit = 0
@@ -391,7 +498,7 @@ def CIPW_norm(df):
 
     D_SiO2 = np.where(tit_flt_2, D_SiO2 - norm["titanite"], 0)
 
-    # Nepheline & Albite ###################
+    # Nepheline & Albite ################### NaAlSiO4, NaAlSi3O8
     nep_flt_1 = (D_SiO2 > 0) & (D_SiO2 < (4 * norm["albite"]))  # if deficit < Ab
     nep_flt_2 = (D_SiO2 > 0) & (D_SiO2 >= (4 * norm["albite"]))  # if deficit > Ab
     nepheline = np.where(nep_flt_1, D_SiO2 / 4, 0)
@@ -436,13 +543,14 @@ def CIPW_norm(df):
     oli_flt_2 = (D_SiO2 > 0) & (D_SiO2 >= norm["diopside"])  # if deficit > diopside
     olivine = np.where(oli_flt_1, norm["olivine"] + (D_SiO2 / 2), norm["olivine"])
     olivine = np.where(oli_flt_2, norm["olivine"] + (norm["diopside"] / 2), olivine)
+    norm["olivine"] = olivine
+
     cs = np.where(oli_flt_1, norm["cs"] + (D_SiO2 / 2), norm["cs"])
     norm["cs"] = np.where(oli_flt_2, norm["cs"] + (norm["diopside"] / 2), cs)
+
     diopside = np.where(oli_flt_1, norm["diopside"] - D_SiO2, norm["diopside"])
     diopside = np.where(oli_flt_2, 0, diopside)
     norm["diopside"] = diopside
-    norm["olivine"] = olivine
-    norm["cs"] = cs
 
     D_SiO2 = np.where(oli_flt_2, D_SiO2 - norm["diopside"], 0)
 
@@ -451,6 +559,7 @@ def CIPW_norm(df):
     kal_flt_2 = (D_SiO2 > 0) & (norm["leucite"] < (D_SiO2 / 2))  # if deficit > leucite
     norm["kaliophilite"] = np.where(kal_flt_1, D_SiO2 / 2, 0)
     norm["kaliophilite"] = np.where(kal_flt_2, norm["leucite"], norm["kaliophilite"])
+
     leucite = np.where(kal_flt_1, norm["leucite"] - (D_SiO2 / 2), norm["leucite"])
     leucite = np.where(kal_flt_2, 0, leucite)
     norm["leucite"] = leucite
@@ -495,6 +604,7 @@ def CIPW_norm(df):
         ]
     ).T
     norm.loc[:, [m[0] for m in minerals]] *= masses
+    norm = norm.pyrocomp.renormalise(scale=100.0)
     return norm
 
 
