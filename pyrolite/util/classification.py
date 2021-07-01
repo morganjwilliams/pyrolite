@@ -146,7 +146,6 @@ class PolygonClassifier(object):
         :class:`tuple`
             Names of the x and y axes for the classifier.
         """
-        print(list(self.axes.values()))
         return list(self.axes.values())
 
     def _add_polygons_to_axes(
