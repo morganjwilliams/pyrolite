@@ -17,6 +17,7 @@ import matplotlib.text
 import matplotlib.pyplot as plt
 import matplotlib.patches
 import matplotlib.lines
+from matplotlib.projections import get_projection_class
 from ..comp.codata import close
 from .plot.style import patchkwargs
 from .plot.axes import init_axes
