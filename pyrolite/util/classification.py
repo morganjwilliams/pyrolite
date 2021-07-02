@@ -22,7 +22,7 @@ from ..comp.codata import close
 from .plot.style import patchkwargs
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
-from .plot.transform import affine_transform
+from .plot.transform import xy_to_tlr, tlr_to_xy
 from .meta import (
     pyrolite_datafolder,
     subkwargs,
@@ -32,11 +32,6 @@ from .meta import (
 from .log import Handle
 
 logger = Handle(__name__)
-
-
-def tlr_to_xy(tlr):
-    shear = affine_transform(np.array([[1, 1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
-    return shear(close(np.array(tlr)[:, [2, 0, 1]])).T
 
 
 class PolygonClassifier(object):
