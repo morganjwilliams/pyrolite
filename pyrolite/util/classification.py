@@ -181,7 +181,6 @@ class PolygonClassifier(object):
                 rescale_by = axes_scale / self.default_scale
 
         pgns = []
-
         for (k, cfg) in self.fields.items():
             if cfg["poly"]:
                 if not fill:
@@ -194,6 +193,7 @@ class PolygonClassifier(object):
                     transform=ax.transAxes
                     if self.projection is not None
                     else ax.transData,
+                    zorder=kwargs.get("zorder", -1),
                     **patchkwargs(kwargs),
                 )
                 pgns.append(pg)

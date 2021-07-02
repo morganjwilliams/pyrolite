@@ -240,10 +240,10 @@ def ternary_color(
     :class:`numpy.ndarray`
         Color array for the ternary points.
     """
-    colors = np.array([matplotlib.colors.to_rgba(c) for c in colors])
+    colors = np.array([matplotlib.colors.to_rgba(c) for c in colors], dtype=float)
     _tlr = close(np.array(tlr) * np.array(coefficients))
-    color = _tlr @ colors
-    color[-1] *= alpha
+    color = np.atleast_2d(_tlr @ colors)
+    color[:, -1] *= alpha * (1 - 10e-7)  # avoid 'greater than 1' issues
     return color
 
 
