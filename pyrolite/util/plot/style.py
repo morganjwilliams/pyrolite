@@ -20,9 +20,13 @@ import matplotlib.axes
 import matplotlib.collections
 import matplotlib.patches
 from matplotlib.legend_handler import HandlerTuple
+from ...comp.codata import close
 from ..meta import subkwargs, pyrolite_datafolder
 from ..general import copy_file
 from ..log import Handle
+from .helpers import get_centroid
+from .transform import xy_to_tlr
+
 
 logger = Handle(__name__)
 
@@ -207,3 +211,84 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, norm=None, **kwargs
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array(values[np.isfinite(values)])
     return sm
+
+
+def ternary_color(
+    tlr,
+    alpha=1.0,
+    colors=([1, 0, 0], [0, 1, 0], [0, 0, 1]),
+    coefficients=(1, 1, 1),
+):
+    """
+    Color a set of points by their ternary combinations of three specified colors.
+
+    Parameters
+    ----------
+    tlr : :class:`numpy.ndarray`
+
+    alpha : :class:`float`
+        Alpha coefficient for the colors; to be applied *multiplicatively* with
+        any existing alpha value (for RGBA colors specified).
+    colors : :class:`tuple`
+        Set of colours corresponding to the top, left and right verticies,
+        respectively.
+    coefficients : :class:`tuple`
+        Coefficients for the ternary data to adjust the centre.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Color array for the ternary points.
+    """
+    colors = np.array([matplotlib.colors.to_rgba(c) for c in colors])
+    _tlr = close(np.array(tlr) * np.array(coefficients))
+    color = _tlr @ colors
+    color[-1] *= alpha
+    return color
+
+
+def color_ternary_polygons_by_centroid(
+    ax=None,
+    patches=None,
+    alpha=1.0,
+    colors=([1, 0, 0], [0, 1, 0], [0, 0, 1]),
+    coefficients=(1, 1, 1),
+):
+    """
+    Color a set of polygons within a ternary diagram by their centroid colors.
+
+    Parameters
+    ----------
+    ax : :class:`matplotlib.axes.Axes`
+        Ternary axes to check for patches, if patches is not supplied.
+    patches : :class:`list`
+        List of ternary-hosted patches to apply color to.
+    alpha : :class:`float`
+        Alpha coefficient for the colors; to be applied *multiplicatively* with
+        any existing alpha value (for RGBA colors specified).
+    colors : :class:`tuple`
+        Set of colours corresponding to the top, left and right verticies,
+        respectively.
+    coefficients : :class:`tuple`
+        Coefficients for the ternary data to adjust the centre.
+
+    Returns
+    -------
+    patches : :class:`list`
+        List of patches, with updated facecolors.
+    """
+
+    if patches is None:
+        if ax is None:
+            raise NotImplementedError("Either an axis or patches need to be supplied.")
+        patches = ax.patches
+
+    for poly in patches:
+        xy = get_centroid(poly)
+        tlr = xy_to_tlr(np.array([xy]))[0]
+        color = ternary_color(
+            tlr, alpha=alpha, colors=colors, coefficients=coefficients
+        )
+        poly.set_facecolor(color)
+
+    return patches
