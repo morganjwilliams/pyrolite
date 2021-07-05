@@ -50,6 +50,7 @@ setup(
         "numpy",
         "numpydoc",
         "tinydb",
+        "typing-extensions", # required for newer tinydb versions?
         "psutil",
         "periodictable",
         "matplotlib",
