@@ -145,8 +145,9 @@ def AIOCG_xy(df: pd.DataFrame):
             Analysis 13:229-247.
             doi:`<http://dx.doi.org/10.1144/geochem2011-101>`__
     """
-    x = (2*df.Ca+5*df.Fe+2*df.Mn)/(2*df.Ca+5*df.Fe+2*df.Mn+df.Mg+df.Si)*600
-    y = df.K/(df.K+df.Na+0.5*df.Ca)*400
-    return x, y
+    df['(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si)'] = 
+    (2*df.Ca+5*df.Fe+2*df.Mn)/(2*df.Ca+5*df.Fe+2*df.Mn+df.Mg+df.Si)
+    df['K/(K+Na+0.5Ca)'] = df.K/(df.K+df.Na+0.5*df.Ca)
+    return df['(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si)','K/(K+Na+0.5Ca)']
 
 

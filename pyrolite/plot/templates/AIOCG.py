@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from ...util.plot.axes import init_axes
-from ...util.classification import AIOCG as AIOCGclassifier
+from ...util.classification import AIOCG as _AIOCG_Classifier
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from ...util.log import Handle
 
@@ -50,8 +50,8 @@ def AIOCG(ax=None, relim=True, color="k", **kwargs):
         )
     ax = init_axes(ax=ax, **kwargs)
 
-    aiocg = AIOCGclassifier()
-    aiocg.add_to_axes(ax=ax, **kwargs)
+    _AIOCG_Classifier().add_to_axes(ax=ax, **kwargs)
+
     if relim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)

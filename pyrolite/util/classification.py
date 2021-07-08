@@ -370,26 +370,6 @@ class AIOCG(PolygonClassifier):
                         va="center",
                         **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
                     )
-                    
-                    
-                    #  if cfg["poly"]:
-                    # verts = np.array(cfg["poly"]) * rescale_by
-                    # x, y = get_centroid(matplotlib.patches.Polygon(verts))
-                    # if "volc" in labels:  # use the volcanic name
-                    #     label = cfg["name"][0]
-                    # elif "intr" in labels:  # use the intrusive name
-                    #     label = cfg["name"][-1]
-                    # else:  # use the field identifier
-                    #     label = k
-                    # ax.annotate(
-                    #     "\n".join(label.split()),
-                    #     xy=(x, y),
-                    #     ha="center",
-                    #     va="center",
-                    #     **subkwargs(kwargs, ax.annotate, matplotlib.text.Text)
-                    # )
-                    
-
         ax.set_ylabel("$K/(K+Na+0.5Ca) molar$")
         ax.set_xlabel("$(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar$")
         return ax
