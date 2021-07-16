@@ -220,7 +220,8 @@ def process_color(
             norm = norm or plt.Normalize(vmin=np.nanmin(_C), vmax=np.nanmax(_C))
             C = cmap(norm(_C))
         elif cmode == "categories":
-            uniqueC = np.unique(np.array(C, dtype="object"))
+            C = np.array(C, dtype="object")
+            uniqueC = np.unique(C)
             # this should now work for 'c' in addition to 'color', where the notation is matching
             cmapper = (
                 color_mappings.get("c")
