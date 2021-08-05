@@ -14,4 +14,4 @@ from ...util.log import Handle
 
 logger = Handle(__name__)
 
-__all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS", USDASoilTexture, "QAP"]
+__all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS", "USDASoilTexture", "QAP"]

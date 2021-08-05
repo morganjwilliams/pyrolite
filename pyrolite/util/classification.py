@@ -258,6 +258,7 @@ class PolygonClassifier(object):
         return ax
 
 
+@update_docstring_references
 class TAS(PolygonClassifier):
     """
     Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
@@ -287,7 +288,6 @@ class TAS(PolygonClassifier):
                 doi: {LeBas1992}
     """
 
-    @update_docstring_references
     def __init__(self, **kwargs):
         src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
 
@@ -362,6 +362,7 @@ class TAS(PolygonClassifier):
         return ax
 
 
+@update_docstring_references
 class USDASoilTexture(PolygonClassifier):
     """
     United States Department of Agriculture Soil Texture classification model
@@ -387,7 +388,6 @@ class USDASoilTexture(PolygonClassifier):
                 doi: {Thien1979}
     """
 
-    @update_docstring_references
     def __init__(self, **kwargs):
         src = (
             pyrolite_datafolder(subfolder="models") / "USDASoilTexture" / "config.json"
@@ -400,6 +400,7 @@ class USDASoilTexture(PolygonClassifier):
         super().__init__(**poly_config)
 
 
+@update_docstring_references
 class QAP(PolygonClassifier):
     """
     IUGS QAP ternary classification
@@ -420,18 +421,15 @@ class QAP(PolygonClassifier):
     .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
                 recommendations of the IUGS subcommission on the systematics of
                 Igneous Rocks. Geol Rundsch 63, 773–786 (1974).
-                https://doi.org/10.1007/BF01820841
+                doi: {Streckeisen1974}
     .. [#ref_2] Le Maitre,R.W. 2002. Igneous Rocks: A Classification and Glossary
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
     """
 
-    @update_docstring_references
     def __init__(self, **kwargs):
-        src = (
-            pyrolite_datafolder(subfolder="models") / "QAP" / "config.json"
-        )
+        src = pyrolite_datafolder(subfolder="models") / "QAP" / "config.json"
 
         with open(src, "r") as f:
             config = json.load(f)
@@ -462,9 +460,8 @@ class PeralkalinityClassifier(object):
         return out
 
 
-TAS.__init__.__doc__ = TAS.__init__.__doc__.format(
-    LeBas1992=sphinx_doi_link("10.1007/BF01160698")
-)
-USDASoilTexture.__init__.__doc__ = USDASoilTexture.__init__.__doc__.format(
+TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
+QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
