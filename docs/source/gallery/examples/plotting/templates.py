@@ -12,6 +12,8 @@ from pyrolite.util.plot.axes import share_axes
 # sphinx_gallery_thumbnail_number = 2
 
 ########################################################################################
+# Bivariate Templates
+# ~~~~~~~~~~~~~~~~~~~~
 # First let's build a simple total-alkali vs silica (
 # :func:`~pyrolite.plot.templates.TAS`) diagram:
 #
@@ -35,6 +37,8 @@ pearceTiNbYb(ax=ax[1])
 
 plt.tight_layout()  # nicer spacing for axis labels
 ########################################################################################
+# Ternary Templates
+# ~~~~~~~~~~~~~~~~~~
 # pyrolite now also includes ternary classification diagrams inlcuding
 # the :func:`~pyrolite.plot.templates.QAP` and
 # :func:`~pyrolite.plot.templates.USDASoilTexture` diagrams:
