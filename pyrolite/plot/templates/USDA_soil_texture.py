@@ -36,7 +36,6 @@ def USDASoilTexture(ax=None, add_labels=False, color="k", **kwargs):
                 Texture-by-Feel Analysis. Journal of Agronomic Education 8:54–55.
                 doi: {Thien1979}
     """
-    ax = init_axes(ax=ax, **kwargs)
     clf = USDAclassifier()
     clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
     return ax

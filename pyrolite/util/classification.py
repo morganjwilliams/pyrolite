@@ -181,20 +181,23 @@ class PolygonClassifier(object):
                 rescale_by = axes_scale / self.default_scale
 
         pgns = []
+        poly_config = patchkwargs(kwargs)
+        poly_config["edgecolor"] = kwargs.get("edgecolor", kwargs.get("color", "k"))
+        poly_config["zorder"] = poly_config.get("zorder", -1)
+        if not fill:
+            poly_config["facecolor"] = "none"
+            poly_config.pop("color")
         for (k, cfg) in self.fields.items():
             if cfg["poly"]:
-                if not fill:
-                    kwargs["facecolor"] = "none"
+
                 verts = self.transform(np.array(cfg["poly"])) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
                     closed=True,
-                    edgecolor="k",
                     transform=ax.transAxes
                     if self.projection is not None
                     else ax.transData,
-                    zorder=kwargs.get("zorder", -1),
-                    **patchkwargs(kwargs),
+                    **poly_config,
                 )
                 pgns.append(pg)
                 ax.add_patch(pg)
