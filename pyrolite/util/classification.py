@@ -417,7 +417,7 @@ class QAP(PolygonClassifier):
 
     References
     -----------
-}    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
+    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
                 recommendations of the IUGS subcommission on the systematics of
                 Igneous Rocks. Geol Rundsch 63, 773–786 (1974).
                 https://doi.org/10.1007/BF01820841

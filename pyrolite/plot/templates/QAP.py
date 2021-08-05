@@ -26,7 +26,7 @@ def QAP(ax=None, add_labels=False, color="k", **kwargs):
 
     References
     -----------
-}    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
+    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
                 recommendations of the IUGS subcommission on the systematics of
                 Igneous Rocks. Geol Rundsch 63, 773–786 (1974).
                 doi: {Streckeisen1974}
