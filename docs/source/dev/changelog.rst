@@ -10,6 +10,8 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+* **New Contributor**: `Martin Bentley <https://github.com/mtb-za>`__
+* **New Contributor**: `Chetan Nathwani <https://github.com/ChetanNathwani>`__
 * **New Contributor**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
 * Removed a redundant :mod:`pathlib` dependency (which is standard library as of
   Python 3.4).
@@ -20,6 +22,11 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Feature**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
+  contributed two new functions for :mod:`pyrolite.geochem.alteration`:
+  The chlorite-carbonate-pyrite index of Large et al. (2001;
+  :func:`~pyrolite.geochem.alteration.CCPI`) and the Alteration index of
+  Ishikawa (1976; :func:`~pyrolite.geochem.alteration.IshikawaAltIndex`).
 * **Bugfix**: Fixed a bug where incomplete results where being returned for
   calls to :func:`~pyrolite.geochem.lambda_lnREE` using the O'Neill algorithm.
   In this instance only the rows with the least missing data (typically those
@@ -34,12 +41,9 @@ All notable changes to this project will be documented here.
   :func:`~pyrolite.geochem.pyrochem.recalculate_Fe`
   ). This bug seems to be contained to the dataframe accessor, the individual
   functions from :mod:`pyrolite.geochem.transform` appear to work as expected
-  outside of this context. Thanks to Chetan Nathwani for highlighting this one!
-* `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
-  contributed two new functions for :mod:`pyrolite.geochem.alteration`:
-  The chlorite-carbonate-pyrite index of Large et al. (2001;
-  :func:`~pyrolite.geochem.alteration.CCPI`) and the Alteration index of
-  Ishikawa (1976; :func:`~pyrolite.geochem.alteration.IshikawaAltIndex`).
+  outside of this context.
+  Thanks to `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+  for highlighting this one!
 
 
 :mod:`pyrolite.comp`
@@ -52,6 +56,11 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Feature**: Added ternary classification plot templates
+  :class:`~pyrolite.plot.templates.USDASoilTexture` and
+  :class:`~pyrolite.plot.templates.QAP` (
+  `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
+  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
 * Added autoscaling for standard :func:`~pyrolite.plot.pyroplot.spider` and
   related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
 * :func:`~pyrolite.plot.color.process_color` has been updated to better deal
@@ -63,6 +72,11 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.util`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* **Feature**: Added ternary classification models for
+  :class:`~pyrolite.util.classification.USDASoilTexture` and
+  :class:`~pyrolite.util.classification.QAP` (
+  `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
+  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
 * Update default parameterisation to :code:`"full"` for lambdas, using all REE to
   generate orthogonal polynomial functions.
 
