@@ -55,3 +55,17 @@ plt.show()
 # and within the pyrolite documentation:
 #
 help(TAS)
+########################################################################################
+# .. seealso::
+#
+#   Examples:
+#    `TAS Classifier <../util/TAS.html>`__
+#
+#   Modules:
+#     :mod:`pyrolite.util.classification`
+#
+#   Classes:
+#     :class:`~pyrolite.util.classification.TAS`,
+#     :class:`~pyrolite.util.classification.QAP`,
+#     :class:`~pyrolite.util.classification.USDASoilTexture`
+#
