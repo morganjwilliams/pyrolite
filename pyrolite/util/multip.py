@@ -13,7 +13,7 @@ logger = Handle(__name__)
 # pickle, which has a hard time serializing even simple objects
 
 
-def combine_choices(choices):
+def combine_choices(choices, include_none=False):
     """
     Explode a set of choices into possible combinations.
 
@@ -22,6 +22,8 @@ def combine_choices(choices):
     choices : :class:`dict`
         Dictionary where keys are names, and values are list of potential
         choices.
+    include_none : :class:`bool`
+        Whether to include 'None' values, or otherwise omit them.
 
     Returns
     ---------
@@ -30,8 +32,6 @@ def combine_choices(choices):
 
     Notes
     -----
-
-        Will not append choices which are set to None.
 
         This requires Python 3.6+ (for ordered dictonaries).
 
@@ -53,7 +53,7 @@ def combine_choices(choices):
                 {
                     k: v[vix]
                     for vix, (k, v) in zip(ix, choices.items())
-                    if v[vix] is not None
+                    if ((v[vix] is not None) or include_none)
                 }
             )
         out = []
