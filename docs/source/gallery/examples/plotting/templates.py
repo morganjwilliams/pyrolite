@@ -17,7 +17,7 @@ from pyrolite.util.plot.axes import share_axes
 #
 from pyrolite.plot.templates import TAS
 
-ax = TAS(linewidth=0.5, labels='ID')
+ax = TAS(linewidth=0.5, labels="ID")
 plt.show()
 ########################################################################################
 # The other templates currently included in :mod:`pyrolite` are the
@@ -34,7 +34,18 @@ pearceThNbYb(ax=ax[0])
 pearceTiNbYb(ax=ax[1])
 
 plt.tight_layout()  # nicer spacing for axis labels
+########################################################################################
+# pyrolite now also includes ternary classification diagrams inlcuding
+# the :func:`~pyrolite.plot.templates.QAP` and
+# :func:`~pyrolite.plot.templates.USDASoilTexture` diagrams:
+#
+from pyrolite.plot.templates import QAP, USDASoilTexture
 
+ax = QAP(linewidth=0.4)
+plt.show()
+########################################################################################
+ax = USDASoilTexture(linewidth=0.4)
+plt.show()
 ########################################################################################
 # References and other notes for diagram templates can be found within the docstrings
 # and within the pyrolite documentation:
