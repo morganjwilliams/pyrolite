@@ -400,6 +400,46 @@ class USDASoilTexture(PolygonClassifier):
         super().__init__(**poly_config)
 
 
+class QAP(PolygonClassifier):
+    """
+    IUGS QAP ternary classification
+    [#ref_1]_ [#ref_2]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
+                recommendations of the IUGS subcommission on the systematics of
+                Igneous Rocks. Geol Rundsch 63, 773–786 (1974).
+                https://doi.org/10.1007/BF01820841
+    .. [#ref_2] Le Maitre,R.W. 2002. Igneous Rocks: A Classification and Glossary
+                of Terms : Recommendations of International Union of Geological
+                Sciences Subcommission on the Systematics of Igneous Rocks.
+                Cambridge University Press, 236pp
+    """
+
+    @update_docstring_references
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models") / "QAP" / "config.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+
 class PeralkalinityClassifier(object):
     def __init__(self):
         self.fields = None

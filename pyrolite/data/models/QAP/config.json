@@ -1,0 +1,59 @@
+
+{"name": "QAP-classification", "axes": {"t": "Quartz", "l": "Alkali Feldspar", "r": "Plagioclase"}, "transform": "ternary",
+    "fields": {
+        "quartzolite": {
+            "name": "Quartzolite",
+            "poly": [[100, 0, 0], [90, 10, 0], [90, 0, 10]]},
+        "quart-granitoid": {
+            "name": "Quartz-rich Granitoid",
+            "poly": [[90, 10, 0], [90, 0, 10], [60, 0, 40], [60, 40, 0]]},
+        "alkali-fspar-granite": {
+            "name": "Alkali Feldspar Granite",
+            "poly": [[60, 40, 0], [60, 36, 4], [20, 72, 8], [20, 80, 0]]},
+        "quartz-alkali-fspar-syenite": {
+            "name": "Quartz Alkali Feldspar Granite",
+            "poly": [[20, 80, 0], [20, 72, 8], [5, 85.5, 9.5], [5, 95, 0]]},
+        "alkali-feldspar-syenite": {
+            "name": "Alkali Feldspar Syenite",
+            "poly": [[5, 95, 0], [5, 85.5, 9.5], [0, 90, 10], [0, 100, 0]]},
+        "syenogranite": {
+            "name": "Syenogranite",
+            "poly": [[60, 36, 4], [60, 26, 14], [20, 52, 28], [20, 72, 8]]},
+        "quartz-syenite": {
+            "name": "Quartz Syenite",
+            "poly": [[20, 72, 8], [20, 52, 28], [5, 61.75, 33.25], [5, 85.5, 9.5]]},
+        "syenite": {
+            "name": "Syenite",
+            "poly": [[5, 85.5, 9.5], [5, 61.75, 33.25], [0, 65, 35], [0, 90, 10]]},
+        "monzogranite": {
+            "name": "Monzogranite",
+            "poly": [[60, 26, 14], [60, 14, 26], [20, 28, 52], [20, 52, 28]]},
+        "quartz-monzonite": {
+            "name": "Quartz Monzonite",
+            "poly": [[20, 52, 28], [20, 28, 52], [5, 33.25, 61.75], [5, 61.75, 33.25]]},
+        "monzonite": {
+            "name": "Monzonite",
+            "poly": [[5, 61.75, 33.25], [5, 33.25, 61.75], [0, 35, 65], [0, 65, 35]]},
+        "granodiorite": {
+            "name": "Granodiorite",
+            "poly": [[60, 14, 26], [60, 4, 36], [20, 8, 72], [20, 28, 52]]},
+        "quartz-monzodiorite-monzogabbro": {
+            "name": "Quartz Monzodiorite/Monzogabbro",
+            "poly": [[20, 28, 52], [20, 8, 72], [5, 9.5, 85.5], [5, 33.25, 61.75]]},
+        "monzodiorite-monzogabbro": {
+            "name": "Monzodiorite/Monzogabbro",
+            "poly": [[5, 9.5, 85.5], [5, 33.25, 61.75], [0, 35, 65], [0, 10, 90]]},
+        "tonalite": {
+            "name": "Tonalite",
+            "poly": [[60, 4, 36], [60, 0, 40], [20, 0, 80], [20, 8, 72]]},
+        "quart-diorite": {
+            "name": "Quartz Diorite/Gabbro/Anorthosite",
+            "poly": [[20, 8, 72], [20, 0, 80], [5, 0, 95], [5, 9.5, 85.5]]},
+        "diorite-gabbro-anorthosite": {
+            "name": "Diorite/Gabbro/Anorthosite",
+            "poly": [[5, 9.5, 85.5], [5, 0, 95], [0, 0, 100], [0, 10, 90]]},
+        "granite": {
+            "name": "Granite",
+            "poly": [[60, 36, 4], [60, 14, 26], [20, 28, 52], [20, 72, 8]]}
+    }
+}

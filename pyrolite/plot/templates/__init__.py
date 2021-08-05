@@ -9,8 +9,9 @@ Todo
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
+from .QAP import QAP
 from ...util.log import Handle
 
 logger = Handle(__name__)
 
-__all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS", USDASoilTexture]
+__all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS", USDASoilTexture, "QAP"]
