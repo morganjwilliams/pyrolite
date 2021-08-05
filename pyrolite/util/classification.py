@@ -186,7 +186,7 @@ class PolygonClassifier(object):
         poly_config["zorder"] = poly_config.get("zorder", -1)
         if not fill:
             poly_config["facecolor"] = "none"
-            poly_config.pop("color")
+            poly_config.pop("color", None)
         for (k, cfg) in self.fields.items():
             if cfg["poly"]:
 
