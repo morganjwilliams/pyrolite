@@ -409,7 +409,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3", "mass": None},
         "Hm": {"name": "hematite", "formulae": "Fe2O3", "mass": None},
         "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "mass": None},
-        "Fe-Ol": {"name": "fayalite", "formulae": "MgO SiO2", "mass": None},
+        "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "mass": None},
         "Fe-Di": {"name": "clinoferrosilite", "formulae": "CaO FeO 2SiO2", "mass": None},
         "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2", "mass": None},
         "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "mass": None},
