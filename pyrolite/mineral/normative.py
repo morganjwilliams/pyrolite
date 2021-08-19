@@ -261,6 +261,35 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
         print()
         data["mass"] = masses
 
+def _aggregate_components(df, to_component, from_components, corrected_mass):
+    """
+    Aggregate minor components into major oxides and cacluate associated
+    minor component fractions and a corrected molecular weight for the major
+    oxide component.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to aggregate molar components from.
+    to_component : :class:`str`
+        Major oxide component to aggreagte to.
+    from_components : :class:`list`
+        Minor oxide components to aggregate from.
+    corrected_mass : :class:`pandas.DataFrame`
+        Dataframe to put corrected masses.
+
+    """
+    target = "n_{}_corr".format(to_component)
+    # ensure the main component is included..
+    from_components = list(set([to_component] + from_components))
+    n_components = ["{}".format(f) for f in from_components]
+    x_components = ["x_{}".format(f) for f in from_components]
+    df[target] = df[n_components].sum(axis=1)
+    df[x_components] = df[n_components].div(df[target], axis=0)
+
+    corrected_mass[to_component] = df[x_components] @ np.array(
+        [pt.formula(f.replace("n_", "")).mass for f in from_components]
+    )
 
 def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     """
@@ -408,7 +437,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     # Adjust majors wt% to 100% then adjust again to account for trace components
 
     # Rounding to 3 dp
-    df[majors + minors_trace] = df[majors + minors_trace].round(3)
+    df[majors] = df[majors].round(3)
 
     # First adjustment
     df['intial_sum'] = df[majors].sum(axis=1)
@@ -421,56 +450,27 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
 
+
+
     # Mole Calculations
+    # TODO: update to use df.pyrochem.to_molecular()
 
     for oxide in majors + minors_trace:
         df[oxide] = df[oxide] / pt.formula(oxide).mass
 
-    # Combine minor oxides
-    df['FeO_corr'] = df['FeO'] + df['MnO'] + df['NiO'] + df['CoO']
-    df['CaO_corr'] = df['CaO'] + df['SrO'] + df['BaO']
-    df['K2O_corr'] = df['K2O'] + df['Rb2O'] + df['Cs2O']
-    df['Na2O_corr'] = df['Na2O'] + df['Li2O']
-    df['Cr2O3_corr'] = df['Cr2O3'] + df['V2O3']
-
-    # Corrected oxide molecular weight computations
-    df['x_MnO'] = df['MnO'] / df['FeO_corr']
-    df['x_FeO'] = df['FeO'] / df['FeO_corr']
-
-    df['x_NiO'] = df['NiO'] / df['FeO_corr']
-    df['x_CoO'] = df['CoO'] / df['FeO_corr']
-
-    df['x_SrO'] = df['SrO'] / df['CaO_corr']
-    df['x_BaO'] = df['BaO'] / df['CaO_corr']
-    df['x_CaO'] = df['CaO'] / df['CaO_corr']
-
-    df['x_Rb2O'] = df['Rb2O'] / df['K2O_corr']
-    df['x_Cs2O'] = df['Cs2O'] / df['K2O_corr']
-    df['x_K2O'] = df['K2O'] / df['K2O_corr']
-
-    df['x_Li2O'] = df['Li2O'] / df['Na2O_corr']
-    df['x_Na2O'] = df['Na2O'] / df['Na2O_corr']
-
-    df['x_V2O3'] = df['V2O3'] / df['Cr2O3_corr']
-    df['x_Cr2O3'] = df['Cr2O3'] / df['Cr2O3_corr']
-
-    df['FeO'] = df['FeO_corr']
-    df['CaO'] = df['CaO_corr']
-    df['K2O'] = df['K2O_corr']
-    df['Na2O'] = df['Na2O_corr']
-    df['Cr2O3'] = df['Cr2O3_corr']
-
-    # Corrected normative mineral molecular weight computations
-    def corr_m_wt(oxide):
-        return (df['x_' + oxide] * pt.formula(oxide).mass)
+    # Combine minor components, compute minor component fractions and correct masses
 
     corrected_mass = pd.DataFrame()
 
-    corrected_mass['FeO'] = corr_m_wt('MnO') + corr_m_wt('NiO') + corr_m_wt('CoO') + corr_m_wt('FeO')
-    corrected_mass['CaO'] = corr_m_wt('BaO') + corr_m_wt('SrO') + corr_m_wt('CaO')
-    corrected_mass['K2O'] = corr_m_wt('Rb2O') + corr_m_wt('Cs2O') + corr_m_wt('K2O')
-    corrected_mass['Na2O'] = corr_m_wt('Li2O') + corr_m_wt('Na2O')
-    corrected_mass['Cr2O3'] = corr_m_wt('V2O3') + corr_m_wt('Cr2O3')
+    for major, minors in [
+        ("FeO", ["MnO", "NiO", "CoO"]),
+        ("CaO", ["SrO", "BaO"]),
+        ("K2O", ["Rb2O", "Cs2O"]),
+        ("Na2O", ["Li2O"]),
+        ("Cr2O3", ["V2O3"]),
+    ]:
+        _aggregate_components(df, major, minors, corrected_mass)
+
 
     # Corrected molecular weight of Ca, Na and Fe
     corrected_mass['Ca'] = corrected_mass['CaO'] - pt.O.mass
@@ -478,9 +478,6 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     corrected_mass['Fe'] = corrected_mass['FeO'] - pt.O.mass
 
     _update_molecular_masses(minerals, corrected_mass)
-
-    print(df.columns.tolist())
-
 
     df['Y'] = 0
 
@@ -695,7 +692,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     df['Hm'] = df['Fe2O3']
 
     # Subdivision of some normative minerals
-    df['MgFe_O'] = df['MgO'] + df['FeO']
+    df['MgFe_O'] = df[['FeO', 'MgO']].sum(axis=1)
 
     df['MgO_ratio'] = df['MgO'] / df['MgFe_O']
     df['FeO_ratio'] = df['FeO'] / df['MgFe_O']
