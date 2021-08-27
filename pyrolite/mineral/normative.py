@@ -471,8 +471,6 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     # convert to a single set of oxides and gas traces
     df = df.pyrochem.convert_chemistry(to=majors + minors_trace, renorm=False).fillna(0)
 
-    print(df)
-
     df["SO3"] = SO3
 
     # Adjust majors wt% to 100% then adjust again to account for trace components
