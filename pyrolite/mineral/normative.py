@@ -141,7 +141,7 @@ def endmember_decompose(
 
 
 def LeMatireOxRatio(df, mode="volcanic"):
-    """
+    r"""
     Parameters
     -----------
     df : :class:`pandas.DataFrame`
@@ -156,9 +156,9 @@ def LeMatireOxRatio(df, mode="volcanic"):
 
     Notes
     ------
-    This is a  FeO / (FeO + Fe2O3) mass ratio, not a standar molar ratio
-    Fe2+/(Fe2+ + Fe3+) which is more straightfowardly used; data presented
-    should be in mass units.
+    This is a  :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
+    molar ratio  :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
+    straightfowardly used; data presented should be in mass units.
 
     References
     ----------
@@ -184,7 +184,7 @@ def LeMatireOxRatio(df, mode="volcanic"):
 
 
 def LeMaitre_Fe_correction(df, mode="volcanic"):
-    """
+    r"""
     Parameters
     -----------
     df : :class:`pandas.DataFrame`
@@ -195,7 +195,7 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     Returns
     -------
     :class:`pandas.DataFrame`
-        Series with two corrected iron components (FeO, Fe2O3).
+        Series with two corrected iron components (:math:`\mathrm{FeO, Fe_2O_3}`).
 
     References
     ----------
