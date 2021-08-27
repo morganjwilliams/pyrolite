@@ -252,4 +252,11 @@ def int_to_alpha(num):
 
     """
     alphas = [chr(i).lower() for i in range(65, 65 + 26)]
-    return alphas[num]
+    remainder = num
+    text = []
+    if num >= 26:
+        major = remainder // 26
+        text.append(alphas[remainder // 26 - 1])
+        remainder -= major * 26
+    text.append(alphas[remainder])
+    return "".join(text)
