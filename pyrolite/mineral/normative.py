@@ -59,7 +59,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
 
 
 def endmember_decompose(
-        composition, endmembers=[], drop_zeros=True, molecular=True, ord=1, det_lim=0.0001
+    composition, endmembers=[], drop_zeros=True, molecular=True, ord=1, det_lim=0.0001
 ):
     """
     Decompose a given mineral composition to given endmembers.
@@ -87,7 +87,7 @@ def endmember_decompose(
     # parse composition ----------------------------------------------------------------
     assert isinstance(composition, (pd.DataFrame, pd.Series, pt.formulas.Formula, str))
     if not isinstance(
-            composition, pd.DataFrame
+        composition, pd.DataFrame
     ):  # convert to a dataframe representation
         if isinstance(composition, pd.Series):
             # convert to frame
@@ -121,8 +121,8 @@ def endmember_decompose(
     X = renormalise(composition, scale=1.0)
     Y = renormalise(
         convert_chemistry(Y, to=composition.columns)
-            .loc[:, composition.columns]
-            .fillna(0),
+        .loc[:, composition.columns]
+        .fillna(0),
         scale=1.0,
     )
     if molecular:
@@ -169,15 +169,15 @@ def LeMatireOxRatio(df, mode="volcanic"):
     """
     if mode.lower().startswith("volc"):
         ratio = (
-                0.93
-                - 0.0042 * df["SiO2"]
-                - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+            0.93
+            - 0.0042 * df["SiO2"]
+            - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
         )
     else:
         ratio = (
-                0.88
-                - 0.0016 * df["SiO2"]
-                - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+            0.88
+            - 0.0016 * df["SiO2"]
+            - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
         )
     ratio.name = "FeO/(FeO+Fe2O3)"
     return ratio
@@ -220,10 +220,11 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
         columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
     ).pyrochem.convert_chemistry(to=[to])
 
+
 def _update_molecular_masses(mineral_dict, corrected_mass_df):
     """
     Update a dictionary of mineral molecular masses based on their oxide
-    components.
+    components. Note that this modifies in place and has no return value.
 
     Parameters
     ----------
@@ -234,13 +235,10 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
         for specific oxide components.
     """
     for mineral, data in mineral_dict.items():
-        composition = data['formulae']
+        composition = data["formulae"]
         masses = 0.0
-        print(mineral)
         for oxide in composition.split():
             count = re.findall(r"(?<![a-zA-Z:])[-+]?\d*\.?\d+", oxide)
-            print(count)
-            print(oxide)
 
             if len(count) > 0:
                 count = float(count[0])
@@ -249,23 +247,18 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
 
             if oxide in corrected_mass_df:
                 mass = count * corrected_mass_df[oxide]
-
             else:
                 # get the components which don't have adjusted molecular weights
                 mass = pt.formula(oxide).mass
-            print(mass)
-
             masses += mass
-        print(masses)
-        print()
-        print()
         data["mass"] = masses
+
 
 def _aggregate_components(df, to_component, from_components, corrected_mass):
     """
     Aggregate minor components into major oxides and cacluate associated
     minor component fractions and a corrected molecular weight for the major
-    oxide component.
+    oxide component. Note that this modifies in place and has no return value.
 
     Parameters
     ----------
@@ -290,6 +283,7 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     corrected_mass[to_component] = df[x_components] @ np.array(
         [pt.formula(f.replace("n_", "")).mass for f in from_components]
     )
+
 
 def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     """
@@ -328,12 +322,27 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         "and does not yet return expected results."
     )
 
-    noncrit = ['CO2', 'SO3', 'F', 'Cl', 'S', 'Ni', 'Co',
-               'Sr', 'Ba', 'Rb', 'Cs', 'Li', 'Zr', 'Cr', 'V']
+    noncrit = [
+        "CO2",
+        "SO3",
+        "F",
+        "Cl",
+        "S",
+        "Ni",
+        "Co",
+        "Sr",
+        "Ba",
+        "Rb",
+        "Cs",
+        "Li",
+        "Zr",
+        "Cr",
+        "V",
+    ]
     columns = (
-            ["SiO2", "TiO2", "Al2O3", "Fe2O3", "FeO", "MnO", "MgO", "CaO"]
-            + ["Na2O", "K2O", "P2O5"]
-            + noncrit
+        ["SiO2", "TiO2", "Al2O3", "Fe2O3", "FeO", "MnO", "MgO", "CaO"]
+        + ["Na2O", "K2O", "P2O5"]
+        + noncrit
     )
 
     # Check that all of the columns we'd like are present
@@ -358,12 +367,12 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     else:
         # check where the iron speciation is already specified or there is no iron
         iron_specified = (
-                                 (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
-                         ) | (
-                             np.isclose(
-                                 df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
-                             )
-                         )
+            (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
+        ) | (
+            np.isclose(
+                df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
+            )
+        )
         fltr = iron_specified
 
     if Fe_correction.lower().startswith("lemait"):
@@ -375,12 +384,21 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     df = df.reindex(columns=columns).fillna(0)
 
-    majors = ['SiO2', 'TiO2', 'Al2O3', 'Fe2O3', 'FeO', 'MnO', 'MgO', 'CaO',
-              'Na2O', 'K2O', 'P2O5']
+    majors = [
+        "SiO2",
+        "TiO2",
+        "Al2O3",
+        "Fe2O3",
+        "FeO",
+        "MnO",
+        "MgO",
+        "CaO",
+        "Na2O",
+        "K2O",
+        "P2O5",
+    ]
 
-    trace = ['F', 'Cl', 'S', 'Ni', 'Co',
-             'Sr', 'Ba', 'Rb', 'Cs', 'Li', 'Zr', 'Cr', 'V']
-
+    trace = ["F", "Cl", "S", "Ni", "Co", "Sr", "Ba", "Rb", "Cs", "Li", "Zr", "Cr", "V"]
 
     minerals = {
         "Q": {"name": "quartz", "formulae": "SiO2", "mass": None},
@@ -398,7 +416,11 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         "Cs": {"name": "dicalcium silicate", "formulae": "2CaO SiO2", "mass": None},
         "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 2SiO2", "mass": None},
         "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)", "mass": None},
-        "CaF2-Ap": {"name": "fluroapatite", "formulae": "(3CaO) P2O5 (0.33333CaO)", "mass": None},
+        "CaF2-Ap": {
+            "name": "fluroapatite",
+            "formulae": "(3CaO) P2O5 (0.33333CaO)",
+            "mass": None,
+        },
         "Fr": {"name": "fluorite", "formulae": "CaF2", "mass": None},
         "Pr": {"name": "pyrite", "formulae": "FeS2", "mass": None},
         "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "mass": None},
@@ -410,29 +432,48 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         "Hm": {"name": "hematite", "formulae": "Fe2O3", "mass": None},
         "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "mass": None},
         "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "mass": None},
-        "Fe-Di": {"name": "clinoferrosilite", "formulae": "CaO FeO 2SiO2", "mass": None},
+        "Fe-Di": {
+            "name": "clinoferrosilite",
+            "formulae": "CaO FeO 2SiO2",
+            "mass": None,
+        },
         "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2", "mass": None},
         "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "mass": None},
-        "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2", "mass": None}
+        "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2", "mass": None},
     }
 
     # Add standard masses to minerals
     for mineral in minerals.keys():
-        minerals[mineral]['mass'] = pt.formula(minerals[mineral]['formulae'])
+        minerals[mineral]["mass"] = pt.formula(minerals[mineral]["formulae"])
 
     # convert ppm traces to wt%
     df.loc[:, trace] *= scale("ppm", "wt%")
 
-    minors_trace = ['F', 'Cl', 'S', 'CO2',  'NiO', 'CoO', 'SrO', 'BaO', 'Rb2O', 'Cs2O', 'Li2O', 'ZrO2','Cr2O3', 'V2O3']
+    minors_trace = [
+        "F",
+        "Cl",
+        "S",
+        "CO2",
+        "NiO",
+        "CoO",
+        "SrO",
+        "BaO",
+        "Rb2O",
+        "Cs2O",
+        "Li2O",
+        "ZrO2",
+        "Cr2O3",
+        "V2O3",
+    ]
 
-    SO3 = df['SO3']
+    SO3 = df["SO3"]
 
     # convert to a single set of oxides and gas traces
     df = df.pyrochem.convert_chemistry(to=majors + minors_trace, renorm=False).fillna(0)
 
     print(df)
 
-    df['SO3'] = SO3
+    df["SO3"] = SO3
 
     # Adjust majors wt% to 100% then adjust again to account for trace components
 
@@ -440,17 +481,15 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     df[majors] = df[majors].round(3)
 
     # First adjustment
-    df['intial_sum'] = df[majors].sum(axis=1)
-    adjustment_factor = 100 / df['intial_sum']
+    df["intial_sum"] = df[majors].sum(axis=1)
+    adjustment_factor = 100 / df["intial_sum"]
     df[majors] = df[majors].mul(adjustment_factor, axis=0)
 
     # Second adjustment
-    df['major_minor_sum'] = df[majors].sum(axis=1) + df[minors_trace].sum(axis=1)
-    adjustment_factor = 100 / df['major_minor_sum']
+    df["major_minor_sum"] = df[majors].sum(axis=1) + df[minors_trace].sum(axis=1)
+    adjustment_factor = 100 / df["major_minor_sum"]
 
     df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
-
-
 
     # Mole Calculations
     # TODO: update to use df.pyrochem.to_molecular()
@@ -471,406 +510,448 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     ]:
         _aggregate_components(df, major, minors, corrected_mass)
 
-
     # Corrected molecular weight of Ca, Na and Fe
-    corrected_mass['Ca'] = corrected_mass['CaO'] - pt.O.mass
-    corrected_mass['Na'] = (corrected_mass['Na2O'] - pt.O.mass) / 2
-    corrected_mass['Fe'] = corrected_mass['FeO'] - pt.O.mass
+    corrected_mass["Ca"] = corrected_mass["CaO"] - pt.O.mass
+    corrected_mass["Na"] = (corrected_mass["Na2O"] - pt.O.mass) / 2
+    corrected_mass["Fe"] = corrected_mass["FeO"] - pt.O.mass
 
     _update_molecular_masses(minerals, corrected_mass)
 
-    df['Y'] = 0
+    df["Y"] = 0
 
     ############################################################################
     # Calculate normative components
     ############################################################################
 
     # Normative Zircon
-    df['Z'] = df['ZrO2']
-    df['Y'] = df['Z']
+    df["Z"] = df["ZrO2"]
+    df["Y"] = df["Z"]
 
     # Normative apatite
 
-    df['Ap'] = np.where(
-        df['CaO'] >= (3 + 1 / 3) * df['P2O5'], df['P2O5'], df['CaO'] / (3 + 1 / 3)
+    df["Ap"] = np.where(
+        df["CaO"] >= (3 + 1 / 3) * df["P2O5"], df["P2O5"], df["CaO"] / (3 + 1 / 3)
     ).T
 
-    df['CaO_'] = np.where(
-        df['CaO'] >= (3 + 1 / 3) * df['P2O5'], df['CaO'] - (3 + 1 / 3) * df['Ap'], 0
+    df["CaO_"] = np.where(
+        df["CaO"] >= (3 + 1 / 3) * df["P2O5"], df["CaO"] - (3 + 1 / 3) * df["Ap"], 0
     ).T
 
-    df['P2O5_'] = np.where(
-        df['CaO'] < (3 + 1 / 3) * df['P2O5'], df['P2O5'] - df['Ap'], 0).T
+    df["P2O5_"] = np.where(
+        df["CaO"] < (3 + 1 / 3) * df["P2O5"], df["P2O5"] - df["Ap"], 0
+    ).T
 
-    df['CaO'] = df['CaO_']
-    df['P2O5'] = df['P2O5_']
+    df["CaO"] = df["CaO_"]
+    df["P2O5"] = df["P2O5_"]
 
-    df['FREE_P2O5'] = df['P2O5']
+    df["FREE_P2O5"] = df["P2O5"]
 
     # apatite options where F in present
 
-    df['ap_option'] = np.where(
-        df['F'] >= (2 / 3) * df['Ap'], 2, 3).T
+    df["ap_option"] = np.where(df["F"] >= (2 / 3) * df["Ap"], 2, 3).T
 
-    df['F'] = np.where(
-        (df['ap_option']) == 2 & (df['F'] > 0), df['F'] - (2 / 3 * df['Ap']), df['F']).T
+    df["F"] = np.where(
+        (df["ap_option"]) == 2 & (df["F"] > 0), df["F"] - (2 / 3 * df["Ap"]), df["F"]
+    ).T
 
-    df['CaF2-Ap'] = np.where(
-        (df['ap_option']) == 3 & (df['F'] > 0), df['F'] * 1.5, 0).T
+    df["CaF2-Ap"] = np.where((df["ap_option"]) == 3 & (df["F"] > 0), df["F"] * 1.5, 0).T
 
-    df['CaO-Ap'] = np.where(
-        (df['ap_option']) == 3 & (df['F'] > 0), df['P2O5'] - (1.5 * df['F']), 0).T
+    df["CaO-Ap"] = np.where(
+        (df["ap_option"]) == 3 & (df["F"] > 0), df["P2O5"] - (1.5 * df["F"]), 0
+    ).T
 
-    df['Ap'] = np.where(
-        (df['ap_option']) == 3 & (df['F'] > 0), df['CaF2-Ap'] + df['CaO-Ap'], df['Ap']).T
+    df["Ap"] = np.where(
+        (df["ap_option"]) == 3 & (df["F"] > 0), df["CaF2-Ap"] + df["CaO-Ap"], df["Ap"]
+    ).T
 
-    df['FREEO_12b'] = np.where(df['ap_option'] == 2, 1 / 3 * df['Ap'], 0).T
-    df['FREEO_12c'] = np.where(df['ap_option'] == 3, df['F'] / 2, 0).T
+    df["FREEO_12b"] = np.where(df["ap_option"] == 2, 1 / 3 * df["Ap"], 0).T
+    df["FREEO_12c"] = np.where(df["ap_option"] == 3, df["F"] / 2, 0).T
 
     # Normative Fluorite
-    df['Fr'] = np.where(df['CaO'] >= df['F'] / 2, df['F'] / 2, df['CaO']).T
+    df["Fr"] = np.where(df["CaO"] >= df["F"] / 2, df["F"] / 2, df["CaO"]).T
 
-    df['CaO'] = np.where(
-        df['CaO'] >= df['F'] / 2, df['CaO'] - df['Fr'], 0).T
+    df["CaO"] = np.where(df["CaO"] >= df["F"] / 2, df["CaO"] - df["Fr"], 0).T
 
-    df['F'] = np.where(
-        df['CaO'] >= df['F'] / 2, df['F'], df['F'] - (2 * df['Fr'])).T
+    df["F"] = np.where(df["CaO"] >= df["F"] / 2, df["F"], df["F"] - (2 * df["Fr"])).T
 
-    df['FREEO_13'] = df['Fr']
-    df['FREE_F'] = df['F']
+    df["FREEO_13"] = df["Fr"]
+    df["FREE_F"] = df["F"]
 
     # Normative halite
-    df['Hl'] = np.where(
-        df['Na2O'] >= 2 * df['Cl'], df['Cl'], df['Na2O'] / 2).T
+    df["Hl"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Cl"], df["Na2O"] / 2).T
 
-    df['Na2O'] = np.where(
-        df['Na2O'] >= 2 * df['Cl'], df['Na2O'] - df['Hl'] / 2, 0).T
+    df["Na2O"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Na2O"] - df["Hl"] / 2, 0).T
 
-    df['Cl'] = np.where(
-        df['Na2O'] >= 2 * df['Cl'], df['Cl'], df['Cl'] - df['Hl']).T
+    df["Cl"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Cl"], df["Cl"] - df["Hl"]).T
 
-    df['FREE_Cl'] = df['Cl']
-    df['FREEO_14'] = df['Hl'] / 2
+    df["FREE_Cl"] = df["Cl"]
+    df["FREEO_14"] = df["Hl"] / 2
 
     # Normative thenardite
-    df['Th'] = np.where(df['Na2O'] >= df['SO3'], df['SO3'], df['Na2O']).T
+    df["Th"] = np.where(df["Na2O"] >= df["SO3"], df["SO3"], df["Na2O"]).T
 
-    df['Na2O'] = np.where(df['Na2O'] >= df['SO3'], df['Na2O'] - df['Th'], 0).T
+    df["Na2O"] = np.where(df["Na2O"] >= df["SO3"], df["Na2O"] - df["Th"], 0).T
 
-    df['SO3'] = np.where(df['Na2O'] >= df['SO3'], df['SO3'], df['SO3'] - df['Th']).T
+    df["SO3"] = np.where(df["Na2O"] >= df["SO3"], df["SO3"], df["SO3"] - df["Th"]).T
 
-    df['FREE_SO3'] = df['SO3']
+    df["FREE_SO3"] = df["SO3"]
 
     # Normative Pyrite
-    df['Pr'] = np.where(df['FeO'] >= 2 * df['S'], df['S'] / 2, df['FeO']).T
+    df["Pr"] = np.where(df["FeO"] >= 2 * df["S"], df["S"] / 2, df["FeO"]).T
 
-    df['FeO'] = np.where(df['FeO'] >= 2 * df['S'], df['FeO'] - df['Pr'], df['FeO'] - df['Pr'] * 2).T
+    df["FeO"] = np.where(
+        df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], df["FeO"] - df["Pr"] * 2
+    ).T
 
-    df['FREE_S'] = np.where(df['FeO'] >= 2 * df['S'], 0, df['FeO']).T
+    df["FREE_S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["FeO"]).T
 
-    df['FeO'] = df['FeO'] - df['FREE_S']
+    df["FeO"] = df["FeO"] - df["FREE_S"]
 
-    df['FREEO_16'] = df['Pr']
+    df["FREEO_16"] = df["Pr"]
 
     # Normative sodium carbonate or calcite
 
-    df['Nc'] = np.where(df['Na2O'] >= df['CO2'], df['CO2'], df['Na2O']).T
+    df["Nc"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["Na2O"]).T
 
-    df['Na2O'] = np.where(df['Na2O'] >= df['CO2'], df['Na2O'] - df['Nc'], df['Na2O']).T
+    df["Na2O"] = np.where(df["Na2O"] >= df["CO2"], df["Na2O"] - df["Nc"], df["Na2O"]).T
 
-    df['CO2'] = np.where(df['Na2O'] >= df['CO2'], df['CO2'], df['CO2'] - df['Nc']).T
+    df["CO2"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["CO2"] - df["Nc"]).T
 
-    df['Cc'] = np.where(df['CaO'] >= df['CO2'], df['CO2'], df['CaO']).T
+    df["Cc"] = np.where(df["CaO"] >= df["CO2"], df["CO2"], df["CaO"]).T
 
-    df['CaO'] = np.where(df['Na2O'] >= df['CO2'], df['CaO'] - df['Cc'], df['CaO']).T
+    df["CaO"] = np.where(df["Na2O"] >= df["CO2"], df["CaO"] - df["Cc"], df["CaO"]).T
 
-    df['CO2'] = np.where(df['Na2O'] >= df['CO2'], df['CO2'], df['CO2'] - df['Cc']).T
+    df["CO2"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["CO2"] - df["Cc"]).T
 
-    df['FREECO2'] = df['CO2']
+    df["FREECO2"] = df["CO2"]
 
     # Normative Chromite
-    df['Cm'] = np.where(df['FeO'] >= df['Cr2O3'], df['Cr2O3'], df['FeO']).T
+    df["Cm"] = np.where(df["FeO"] >= df["Cr2O3"], df["Cr2O3"], df["FeO"]).T
 
-    df['FeO'] = np.where(df['FeO'] >= df['Cr2O3'], df['FeO'] - df['Cm'], 0).T
-    df['Cr2O3'] = np.where(df['FeO'] >= df['Cr2O3'], df['Cr2O3'] - df['Cm'], df['Cr2O3']).T
+    df["FeO"] = np.where(df["FeO"] >= df["Cr2O3"], df["FeO"] - df["Cm"], 0).T
+    df["Cr2O3"] = np.where(
+        df["FeO"] >= df["Cr2O3"], df["Cr2O3"] - df["Cm"], df["Cr2O3"]
+    ).T
 
-    df['FREE_CR2O3'] = df['Cm']
+    df["FREE_CR2O3"] = df["Cm"]
 
     # Normative Ilmenite
-    df['Il'] = np.where(df['FeO'] >= df['TiO2'], df['TiO2'], df['FeO']).T
+    df["Il"] = np.where(df["FeO"] >= df["TiO2"], df["TiO2"], df["FeO"]).T
 
-    df['FeO_'] = np.where(df['FeO'] >= df['TiO2'], df['FeO'] - df['Il'], 0).T
+    df["FeO_"] = np.where(df["FeO"] >= df["TiO2"], df["FeO"] - df["Il"], 0).T
 
-    df['TiO2_'] = np.where(df['FeO'] >= df['TiO2'], 0, df['TiO2'] - df['Il']).T
+    df["TiO2_"] = np.where(df["FeO"] >= df["TiO2"], 0, df["TiO2"] - df["Il"]).T
 
-    df['FeO'] = df['FeO_']
+    df["FeO"] = df["FeO_"]
 
-    df['TiO2'] = df['TiO2_']
+    df["TiO2"] = df["TiO2_"]
 
     # Normative Orthoclase/potasium metasilicate
 
-    df['Or_p'] = np.where(df['Al2O3'] >= df['K2O'], df['K2O'], df['Al2O3']).T
+    df["Or_p"] = np.where(df["Al2O3"] >= df["K2O"], df["K2O"], df["Al2O3"]).T
 
-    df['Al2O3_'] = np.where(df['Al2O3'] >= df['K2O'], df['Al2O3'] - df['Or_p'], 0).T
+    df["Al2O3_"] = np.where(df["Al2O3"] >= df["K2O"], df["Al2O3"] - df["Or_p"], 0).T
 
-    df['K2O_'] = np.where(df['Al2O3'] >= df['K2O'], 0, df['K2O'] - df['Or_p']).T
+    df["K2O_"] = np.where(df["Al2O3"] >= df["K2O"], 0, df["K2O"] - df["Or_p"]).T
 
-    df['Ks'] = df['K2O_']
+    df["Ks"] = df["K2O_"]
 
-    df['Y'] = np.where(df['Al2O3'] >= df['K2O'], df['Y'] + (df['Or_p'] * 6),
-                       df['Y'] + (df['Or_p'] * 6 + df['Ks'])).T
+    df["Y"] = np.where(
+        df["Al2O3"] >= df["K2O"],
+        df["Y"] + (df["Or_p"] * 6),
+        df["Y"] + (df["Or_p"] * 6 + df["Ks"]),
+    ).T
 
-    df['Al2O3'] = df['Al2O3_']
-    df['K2O'] = df['K2O_']
+    df["Al2O3"] = df["Al2O3_"]
+    df["K2O"] = df["K2O_"]
 
     # Normative Albite
-    df['Ab_p'] = np.where(df['Al2O3'] >= df['Na2O'], df['Na2O'], df['Al2O3']).T
+    df["Ab_p"] = np.where(df["Al2O3"] >= df["Na2O"], df["Na2O"], df["Al2O3"]).T
 
-    df['Al2O3_'] = np.where(df['Al2O3'] >= df['Na2O'], df['Al2O3'] - df['Ab_p'], 0).T
+    df["Al2O3_"] = np.where(df["Al2O3"] >= df["Na2O"], df["Al2O3"] - df["Ab_p"], 0).T
 
-    df['Na2O_'] = np.where(df['Al2O3'] >= df['Na2O'], 0, df['Na2O'] - df['Ab_p']).T
+    df["Na2O_"] = np.where(df["Al2O3"] >= df["Na2O"], 0, df["Na2O"] - df["Ab_p"]).T
 
-    df['Y'] = df['Y'] + (df['Ab_p'] * 6)
+    df["Y"] = df["Y"] + (df["Ab_p"] * 6)
 
-    df['Al2O3'] = df['Al2O3_']
-    df['Na2O'] = df['Na2O_']
+    df["Al2O3"] = df["Al2O3_"]
+    df["Na2O"] = df["Na2O_"]
 
     # Normative Acmite / sodium metasilicate
-    df['Ac'] = np.where(df['Na2O'] >= df['Fe2O3'], df['Fe2O3'], df['Na2O']).T
+    df["Ac"] = np.where(df["Na2O"] >= df["Fe2O3"], df["Fe2O3"], df["Na2O"]).T
 
-    df['Na2O_'] = np.where(df['Na2O'] >= df['Fe2O3'], df['Na2O'] - df['Ac'], 0).T
+    df["Na2O_"] = np.where(df["Na2O"] >= df["Fe2O3"], df["Na2O"] - df["Ac"], 0).T
 
-    df['Fe2O3_'] = np.where(df['Na2O'] >= df['Fe2O3'], 0, df['Fe2O3'] - df['Ac']).T
+    df["Fe2O3_"] = np.where(df["Na2O"] >= df["Fe2O3"], 0, df["Fe2O3"] - df["Ac"]).T
 
-    df['Ns'] = df['Na2O_']
+    df["Ns"] = df["Na2O_"]
 
-    df['Y'] = np.where(df['Na2O'] >= df['Fe2O3'], df['Y'] + (4 * df['Ac'] + df['Ns']), df['Y'] + 4 * df['Ac']).T
+    df["Y"] = np.where(
+        df["Na2O"] >= df["Fe2O3"],
+        df["Y"] + (4 * df["Ac"] + df["Ns"]),
+        df["Y"] + 4 * df["Ac"],
+    ).T
 
-    df['Na2O'] = df['Na2O_']
-    df['Fe2O3'] = df['Fe2O3_']
+    df["Na2O"] = df["Na2O_"]
+    df["Fe2O3"] = df["Fe2O3_"]
 
     # Normative Anorthite / Corundum
-    df['An'] = np.where(df['Al2O3'] >= df['CaO'], df['CaO'], df['Al2O3']).T
+    df["An"] = np.where(df["Al2O3"] >= df["CaO"], df["CaO"], df["Al2O3"]).T
 
-    df['Al2O3_'] = np.where(df['Al2O3'] >= df['CaO'], df['Al2O3'] - df['An'], 0).T
+    df["Al2O3_"] = np.where(df["Al2O3"] >= df["CaO"], df["Al2O3"] - df["An"], 0).T
 
-    df['CaO_'] = np.where(df['Al2O3'] >= df['CaO'], 0, df['CaO'] - df['An']).T
+    df["CaO_"] = np.where(df["Al2O3"] >= df["CaO"], 0, df["CaO"] - df["An"]).T
 
-    df['C'] = df['Al2O3_']
+    df["C"] = df["Al2O3_"]
 
-    df['Al2O3'] = df['Al2O3_']
+    df["Al2O3"] = df["Al2O3_"]
 
-    df['CaO'] = df['CaO_']
+    df["CaO"] = df["CaO_"]
 
-    df['Y'] = df['Y'] + 2 * df['An']
+    df["Y"] = df["Y"] + 2 * df["An"]
 
     # Normative Sphene / Rutile
-    df['Tn_p'] = np.where(df['CaO'] >= df['TiO2'], df['TiO2'], df['CaO']).T
+    df["Tn_p"] = np.where(df["CaO"] >= df["TiO2"], df["TiO2"], df["CaO"]).T
 
-    df['CaO_'] = np.where(df['CaO'] >= df['TiO2'], df['CaO'] - df['Tn_p'], 0).T
+    df["CaO_"] = np.where(df["CaO"] >= df["TiO2"], df["CaO"] - df["Tn_p"], 0).T
 
-    df['TiO2_'] = np.where(df['CaO'] >= df['TiO2'], 0, df['TiO2'] - df['Tn_p']).T
+    df["TiO2_"] = np.where(df["CaO"] >= df["TiO2"], 0, df["TiO2"] - df["Tn_p"]).T
 
-    df['CaO'] = df['CaO_']
-    df['TiO2'] = df['TiO2_']
+    df["CaO"] = df["CaO_"]
+    df["TiO2"] = df["TiO2_"]
 
-    df['Ru'] = df['TiO2']
+    df["Ru"] = df["TiO2"]
 
-    df['Y'] = df['Y'] + df['Tn_p']
+    df["Y"] = df["Y"] + df["Tn_p"]
 
     # Normative Magnetite / Hematite
-    df['Mt'] = np.where(df['Fe2O3'] >= df['FeO'], df['FeO'], df['Fe2O3']).T
+    df["Mt"] = np.where(df["Fe2O3"] >= df["FeO"], df["FeO"], df["Fe2O3"]).T
 
-    df['Fe2O3_'] = np.where(df['Fe2O3'] >= df['FeO'], df['Fe2O3'] - df['Mt'], 0).T
+    df["Fe2O3_"] = np.where(df["Fe2O3"] >= df["FeO"], df["Fe2O3"] - df["Mt"], 0).T
 
-    df['FeO_'] = np.where(df['Fe2O3'] >= df['FeO'], 0, df['FeO'] - df['Mt']).T
+    df["FeO_"] = np.where(df["Fe2O3"] >= df["FeO"], 0, df["FeO"] - df["Mt"]).T
 
-    df['Fe2O3'] = df['Fe2O3_']
+    df["Fe2O3"] = df["Fe2O3_"]
 
-    df['FeO'] = df['FeO_']
+    df["FeO"] = df["FeO_"]
 
-    df['Hm'] = df['Fe2O3']
+    df["Hm"] = df["Fe2O3"]
 
     # Subdivision of some normative minerals
-    df['MgFe_O'] = df[['FeO', 'MgO']].sum(axis=1)
+    df["MgFe_O"] = df[["FeO", "MgO"]].sum(axis=1)
 
-    df['MgO_ratio'] = df['MgO'] / df['MgFe_O']
-    df['FeO_ratio'] = df['FeO'] / df['MgFe_O']
+    df["MgO_ratio"] = df["MgO"] / df["MgFe_O"]
+    df["FeO_ratio"] = df["FeO"] / df["MgFe_O"]
 
     # Provisional normative dioside, wollastonite / Hypersthene
-    df['Di_p'] = np.where(df['CaO'] >= df['MgFe_O'], df['MgFe_O'], df['CaO']).T
+    df["Di_p"] = np.where(df["CaO"] >= df["MgFe_O"], df["MgFe_O"], df["CaO"]).T
 
-    df['CaO_'] = np.where(df['CaO'] >= df['MgFe_O'], df['CaO'] - df['Di_p'], 0).T
+    df["CaO_"] = np.where(df["CaO"] >= df["MgFe_O"], df["CaO"] - df["Di_p"], 0).T
 
-    df['MgFe_O_'] = np.where(df['CaO'] >= df['MgFe_O'], 0, df['MgFe_O'] - df['Di_p']).T
+    df["MgFe_O_"] = np.where(df["CaO"] >= df["MgFe_O"], 0, df["MgFe_O"] - df["Di_p"]).T
 
-    df['Hy_p'] = df['MgFe_O_']
+    df["Hy_p"] = df["MgFe_O_"]
 
-    df['Wo_p'] = np.where(df['CaO'] >= df['MgFe_O'], df['CaO_'], 0).T
+    df["Wo_p"] = np.where(df["CaO"] >= df["MgFe_O"], df["CaO_"], 0).T
 
-    df['Y'] = np.where(df['CaO'] >= df['MgFe_O'], df['Y'] + (2 * df['Di_p'] + df['Wo_p']),
-                       df['Y'] + (2 * df['Di_p'] + df['Hy_p'])).T
+    df["Y"] = np.where(
+        df["CaO"] >= df["MgFe_O"],
+        df["Y"] + (2 * df["Di_p"] + df["Wo_p"]),
+        df["Y"] + (2 * df["Di_p"] + df["Hy_p"]),
+    ).T
 
-    df['CaO'] = df['CaO_']
-    df['MgFe_O'] = df['MgFe_O_']
+    df["CaO"] = df["CaO_"]
+    df["MgFe_O"] = df["MgFe_O_"]
 
     # Normative quartz / undersaturated minerals
-    df['Q'] = np.where(df['SiO2'] >= df['Y'], df['SiO2'] - df['Y'], 0).T
+    df["Q"] = np.where(df["SiO2"] >= df["Y"], df["SiO2"] - df["Y"], 0).T
 
-    df['D'] = np.where(df['SiO2'] < df['Y'], df['Y'] - df['SiO2'], 0).T
+    df["D"] = np.where(df["SiO2"] < df["Y"], df["Y"] - df["SiO2"], 0).T
 
-    df['deficit'] = df['D'] > 0
+    df["deficit"] = df["D"] > 0
 
     # Normative Olivine / Hypersthene
-    df['Ol_'] = np.where((df['D'] < df['Hy_p'] / 2), df['D'], df['Hy_p'] / 2).T
+    df["Ol_"] = np.where((df["D"] < df["Hy_p"] / 2), df["D"], df["Hy_p"] / 2).T
 
-    df['Hy'] = np.where((df['D'] < df['Hy_p'] / 2), df['Hy_p'] - 2 * df['D'], 0).T
+    df["Hy"] = np.where((df["D"] < df["Hy_p"] / 2), df["Hy_p"] - 2 * df["D"], 0).T
 
-    df['D1'] = df['D'] - df['Hy_p'] / 2
+    df["D1"] = df["D"] - df["Hy_p"] / 2
 
-    df['Ol'] = np.where((df['deficit']), df['Ol_'], 0).T
+    df["Ol"] = np.where((df["deficit"]), df["Ol_"], 0).T
 
-    df['Hy'] = np.where((df['deficit']), df['Hy'], df['Hy_p']).T
+    df["Hy"] = np.where((df["deficit"]), df["Hy"], df["Hy_p"]).T
 
-    df['deficit'] = df['D1'] > 0
+    df["deficit"] = df["D1"] > 0
 
     # Normative Sphene / Perovskite
-    df['Tn'] = np.where((df['D1'] < df['Tn_p']), df['Tn_p'] - df['D1'], 0).T
+    df["Tn"] = np.where((df["D1"] < df["Tn_p"]), df["Tn_p"] - df["D1"], 0).T
 
-    df['Pf_'] = np.where((df['D1'] < df['Tn_p']), df['D1'], df['Tn_p']).T
+    df["Pf_"] = np.where((df["D1"] < df["Tn_p"]), df["D1"], df["Tn_p"]).T
 
-    df['D2'] = df['D1'] - df['Tn_p']
+    df["D2"] = df["D1"] - df["Tn_p"]
 
-    df['Tn'] = np.where((df['deficit']), df['Tn'], df['Tn_p']).T
-    df['Pf'] = np.where((df['deficit']), df['Pf_'], 0).T
+    df["Tn"] = np.where((df["deficit"]), df["Tn"], df["Tn_p"]).T
+    df["Pf"] = np.where((df["deficit"]), df["Pf_"], 0).T
 
-    df['deficit'] = df['D2'] > 0
+    df["deficit"] = df["D2"] > 0
 
     # Normative Nepheline / Albite
-    df['Ne_'] = np.where((df['D2'] < 4 * df['Ab_p']), df['D2'] / 4, df['Ab_p']).T
+    df["Ne_"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["D2"] / 4, df["Ab_p"]).T
 
-    df['Ab'] = np.where((df['D2'] < 4 * df['Ab_p']), df['Ab_p'] - df['D2'] / 4, 0).T
+    df["Ab"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["Ab_p"] - df["D2"] / 4, 0).T
 
-    df['D3'] = df['D2'] - 4 * df['Ab_p']
+    df["D3"] = df["D2"] - 4 * df["Ab_p"]
 
-    df['Ne'] = np.where((df['deficit']), df['Ne_'], 0).T
-    df['Ab'] = np.where((df['deficit']), df['Ab'], df['Ab_p']).T
+    df["Ne"] = np.where((df["deficit"]), df["Ne_"], 0).T
+    df["Ab"] = np.where((df["deficit"]), df["Ab"], df["Ab_p"]).T
 
-    df['deficit'] = df['D3'] > 0
+    df["deficit"] = df["D3"] > 0
 
     # Normative Leucite / Orthoclase
-    df['Lc'] = np.where((df['D3'] < 2 * df['Or_p']), df['D3'] / 2, df['Or_p']).T
+    df["Lc"] = np.where((df["D3"] < 2 * df["Or_p"]), df["D3"] / 2, df["Or_p"]).T
 
-    df['Or'] = np.where((df['D3'] < 2 * df['Or_p']), df['Or_p'] - df['D3'] / 2, 0).T
+    df["Or"] = np.where((df["D3"] < 2 * df["Or_p"]), df["Or_p"] - df["D3"] / 2, 0).T
 
-    df['D4'] = df['D3'] - 2 * df['Or_p']
+    df["D4"] = df["D3"] - 2 * df["Or_p"]
 
-    df['Lc'] = np.where((df['deficit']), df['Lc'], 0).T
-    df['Or'] = np.where((df['deficit']), df['Or'], df['Or_p']).T
+    df["Lc"] = np.where((df["deficit"]), df["Lc"], 0).T
+    df["Or"] = np.where((df["deficit"]), df["Or"], df["Or_p"]).T
 
-    df['deficit'] = df['D4'] > 0
+    df["deficit"] = df["D4"] > 0
 
     # Normative dicalcium silicate / wollastonite
-    df['Cs'] = np.where((df['D4'] < df['Wo_p'] / 2), df['D4'], df['Wo_p'] / 2).T
+    df["Cs"] = np.where((df["D4"] < df["Wo_p"] / 2), df["D4"], df["Wo_p"] / 2).T
 
-    df['Wo'] = np.where((df['D4'] < df['Wo_p'] / 2), df['Wo_p'] - 2 * df['D4'], 0).T
+    df["Wo"] = np.where((df["D4"] < df["Wo_p"] / 2), df["Wo_p"] - 2 * df["D4"], 0).T
 
-    df['D5'] = df['D4'] - df['Wo_p'] / 2
+    df["D5"] = df["D4"] - df["Wo_p"] / 2
 
-    df['Cs'] = np.where((df['deficit']), df['Cs'], 0).T
-    df['Wo'] = np.where((df['deficit']), df['Wo'], df['Wo_p']).T
+    df["Cs"] = np.where((df["deficit"]), df["Cs"], 0).T
+    df["Wo"] = np.where((df["deficit"]), df["Wo"], df["Wo_p"]).T
 
-    df['deficit'] = df['D5'] > 0
+    df["deficit"] = df["D5"] > 0
 
     # Normative dicalcium silicate / Olivine Adjustment
-    df['Cs_'] = np.where((df['D5'] < df['Di_p']), df['D5'] / 2 + df['Cs'], df['Di_p'] / 2 + df['Cs']).T
+    df["Cs_"] = np.where(
+        (df["D5"] < df["Di_p"]), df["D5"] / 2 + df["Cs"], df["Di_p"] / 2 + df["Cs"]
+    ).T
 
-    df['Ol_'] = np.where((df['D5'] < df['Di_p']), df['D5'] / 2 + df['Ol'], df['Di_p'] / 2 + df['Ol']).T
+    df["Ol_"] = np.where(
+        (df["D5"] < df["Di_p"]), df["D5"] / 2 + df["Ol"], df["Di_p"] / 2 + df["Ol"]
+    ).T
 
-    df['Di_'] = np.where((df['D5'] < df['Di_p']), df['Di_p'] - df['D5'], 0).T
+    df["Di_"] = np.where((df["D5"] < df["Di_p"]), df["Di_p"] - df["D5"], 0).T
 
-    df['D6'] = df['D5'] - df['Di_p']
+    df["D6"] = df["D5"] - df["Di_p"]
 
-    df['Cs'] = np.where((df['deficit']), df['Cs_'], df['Cs']).T
-    df['Ol'] = np.where((df['deficit']), df['Ol_'], df['Ol']).T
-    df['Di'] = np.where((df['deficit']), df['Di_'], df['Di_p']).T
+    df["Cs"] = np.where((df["deficit"]), df["Cs_"], df["Cs"]).T
+    df["Ol"] = np.where((df["deficit"]), df["Ol_"], df["Ol"]).T
+    df["Di"] = np.where((df["deficit"]), df["Di_"], df["Di_p"]).T
 
-    df['deficit'] = df['D6'] > 0
+    df["deficit"] = df["D6"] > 0
 
     # Normative Kaliophilite / Leucite
-    df['Kp'] = np.where((df['Lc'] >= df['D6'] / 2), df['D6'] / 2, df['Lc']).T
+    df["Kp"] = np.where((df["Lc"] >= df["D6"] / 2), df["D6"] / 2, df["Lc"]).T
 
-    df['Lc_'] = np.where((df['Lc'] >= df['D6'] / 2), df['Lc'] - df['D6'] / 2, 0).T
+    df["Lc_"] = np.where((df["Lc"] >= df["D6"] / 2), df["Lc"] - df["D6"] / 2, 0).T
 
-    df['Kp'] = np.where((df['deficit']), df['Kp'], 0).T
-    df['Lc'] = np.where((df['deficit']), df['Lc_'], df['Lc']).T
+    df["Kp"] = np.where((df["deficit"]), df["Kp"], 0).T
+    df["Lc"] = np.where((df["deficit"]), df["Lc_"], df["Lc"]).T
 
-    df['DEFSIO2'] = np.where((df['Lc'] < df['D6'] / 2) & (df['deficit']), df['D6'] - 2 * df['Kp'], 0).T
-
-    # Allocate definite mineral proportions
+    df["DEFSIO2"] = np.where(
+        (df["Lc"] < df["D6"] / 2) & (df["deficit"]), df["D6"] - 2 * df["Kp"], 0
+    ).T
+    ############################################################################
+    # Allocate definite mineral proportions ####################################
     ## Subdivide Hypersthene, Diopside and Olivine into Mg- and Fe- varieties
 
-    df['Fe-Hy'] = df['Hy'] * df['FeO_ratio']
-    df['Fe-Di'] = df['Di'] * df['FeO_ratio']
-    df['Fe-Ol'] = df['Ol'] * df['FeO_ratio']
+    df["Fe-Hy"] = df["Hy"] * df["FeO_ratio"]
+    df["Fe-Di"] = df["Di"] * df["FeO_ratio"]
+    df["Fe-Ol"] = df["Ol"] * df["FeO_ratio"]
 
-    df['Mg-Hy'] = df['Hy'] * df['MgO_ratio']
-    df['Mg-Di'] = df['Di'] * df['MgO_ratio']
-    df['Mg-Ol'] = df['Ol'] * df['MgO_ratio']
+    df["Mg-Hy"] = df["Hy"] * df["MgO_ratio"]
+    df["Mg-Di"] = df["Di"] * df["MgO_ratio"]
+    df["Mg-Ol"] = df["Ol"] * df["MgO_ratio"]
 
-
+    ############################################################################
+    # calculate free component molecular abundances
+    ############################################################################
     FREE = pd.DataFrame()
 
-    FREE['FREEO_12b'] = (
-                                1 + ((0.1) * ((minerals['CaF2-Ap']['mass'] / 328.86918) - 1))
-                        ) * pt.O.mass * df['FREEO_12b']
-    FREE['FREEO_12c'] = (
-                                1 + ((0.1) * (df['CaF2-Ap'] / df['Ap']) * (
-                                (minerals['CaF2-Ap']['mass'] / 328.86918) - 1))
-                        ) * pt.O.mass * df['FREEO_12c']
+    FREE["FREEO_12b"] = (
+        (1 + ((0.1) * ((minerals["CaF2-Ap"]["mass"] / 328.86918) - 1)))
+        * pt.O.mass
+        * df["FREEO_12b"]
+    )
+    FREE["FREEO_12c"] = (
+        (
+            1
+            + (
+                (0.1)
+                * (df["CaF2-Ap"] / df["Ap"])
+                * ((minerals["CaF2-Ap"]["mass"] / 328.86918) - 1)
+            )
+        )
+        * pt.O.mass
+        * df["FREEO_12c"]
+    )
 
-    FREE['FREEO_13'] = (
-                               1 + ((pt.formula('CaO').mass // 56.0774) - 1)
-                       ) * pt.O.mass * df['FREEO_13']
+    FREE["FREEO_13"] = (
+        (1 + ((pt.formula("CaO").mass // 56.0774) - 1)) * pt.O.mass * df["FREEO_13"]
+    )
 
-    FREE['FREEO_14'] = (
-                               1 + (0.5 * ((pt.formula('Na2O').mass / 61.9789) - 1))
-                       ) * pt.O.mass * df['FREEO_14']
+    FREE["FREEO_14"] = (
+        (1 + (0.5 * ((pt.formula("Na2O").mass / 61.9789) - 1)))
+        * pt.O.mass
+        * df["FREEO_14"]
+    )
 
-    FREE['FREEO_16'] = (
-                               1 + ((pt.formula('FeO').mass // 71.8444) - 1)
-                       ) * pt.O.mass * df['FREEO_16']
+    FREE["FREEO_16"] = (
+        (1 + ((pt.formula("FeO").mass // 71.8444) - 1)) * pt.O.mass * df["FREEO_16"]
+    )
 
-    FREE['O'] = FREE[['FREEO_12b', 'FREEO_12c', 'FREEO_13', 'FREEO_14', 'FREEO_16']].sum(axis=1)
+    FREE["O"] = FREE[
+        ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"]
+    ].sum(axis=1)
 
-    FREE['CO2'] = df['FREECO2'] * 44.0095
+    ############################################################################
+    # get masses of free components
+    ############################################################################
+    FREE["CO2"] = df["FREECO2"] * 44.0095
 
-    FREE['P2O5'] = df['FREE_P2O5'] * 141.94452
-    FREE['F'] = df['FREE_F'] * 18.9984032
-    FREE['Cl'] = df['FREE_Cl'] * 35.4527
-    FREE['SO3'] = df['FREE_SO3'] * 80.0642
-    FREE['S'] = df['FREE_S'] * 32.066
-    FREE['Cr2O3'] = df['FREE_CR2O3'] * 151.990
+    FREE["P2O5"] = df["FREE_P2O5"] * 141.94452
+    FREE["F"] = df["FREE_F"] * 18.9984032
+    FREE["Cl"] = df["FREE_Cl"] * 35.4527
+    FREE["SO3"] = df["FREE_SO3"] * 80.0642
+    FREE["S"] = df["FREE_S"] * 32.066
+    FREE["Cr2O3"] = df["FREE_CR2O3"] * 151.990
 
-    FREE['OXIDES'] = FREE[['P2O5', 'F', 'Cl', 'SO3', 'S', 'Cr2O3']].sum(axis=1)
-    FREE['DEFSIO2'] = df['DEFSIO2'] * 60.0843
-    FREE.drop(['P2O5', 'F', 'Cl', 'SO3', 'S', 'Cr2O3'], axis=1, inplace=True)
+    FREE["OXIDES"] = FREE[["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"]].sum(axis=1)
+    FREE["DEFSIO2"] = df["DEFSIO2"] * 60.0843
+    FREE.drop(["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"], axis=1, inplace=True)
 
+    ############################################################################
+    # populate tables of molecular proportions and masses
+    ############################################################################
     mineral_proportions = pd.DataFrame()
     mineral_pct_mm = pd.DataFrame()
 
     for mineral in minerals.keys():
-        if mineral == ['Ap']:
+        if mineral == ["Ap"]:
             mineral_pct_mm[mineral] = np.where(
-                df['ap_option'] == 2, df[mineral] * minerals['Ap']['mass'],
-                (df['CaF2-Ap'] * minerals['CaF2-Ap']['mass']) + (
-                        df['CaO-Ap'] * minerals['Ap']['mass']))
+                df["ap_option"] == 2,
+                df[mineral] * minerals["Ap"]["mass"],
+                (df["CaF2-Ap"] * minerals["CaF2-Ap"]["mass"])
+                + (df["CaO-Ap"] * minerals["Ap"]["mass"]),
+            )
         else:
             mineral_proportions[mineral] = df[mineral]
-            mineral_pct_mm[mineral] = mineral_proportions[mineral] * minerals[mineral]['mass']
+            mineral_pct_mm[mineral] = (
+                mineral_proportions[mineral] * minerals[mineral]["mass"]
+            )
 
-
-    mineral_names = [minerals[mineral]['name'] for mineral in mineral_pct_mm]
+    # rename columns with proper names rather than abbreviations
+    mineral_names = [minerals[mineral]["name"] for mineral in mineral_pct_mm]
 
     mineral_pct_mm.columns = mineral_names
     mineral_pct_mm.fillna(0, inplace=True)
