@@ -179,7 +179,7 @@ def endmember_decompose(
     return modal
 
 
-def LeMatireOxRatio(df, mode="volcanic"):
+def LeMatireOxRatio(df, mode=None):
     r"""
     Parameters
     -----------
@@ -206,6 +206,9 @@ def LeMatireOxRatio(df, mode="volcanic"):
     Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
     https://doi.org/10.1007/BF00399603.
     """
+    if mode is None:  # defualt to volcanic
+        mode = "volcanic"
+
     if mode.lower().startswith("volc"):
         logger.debug("Using LeMaitre Volcanic Fe Correction.")
         ratio = (
@@ -236,7 +239,8 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     Returns
     -------
     :class:`pandas.DataFrame`
-        Series with two corrected iron components (:math:`\mathrm{FeO, Fe_2O_3}`).
+        Series with two corrected iron components
+        (:math:`\mathrm{FeO, Fe_2O_3}`).
 
     References
     ----------
@@ -246,8 +250,9 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
     https://doi.org/10.1007/BF00399603.
 
-    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the Classification of Volcanic Rocks.
-    Chemical Geology 77, 1: 19–26. https://doi.org/10.1016/0009-2541(89)90011-9.
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    https://doi.org/10.1016/0009-2541(89)90011-9.
     """
     mass_ratios = LeMatireOxRatio(df, mode=mode)  # mass ratios
     # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
@@ -326,7 +331,7 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     )
 
 
-def CIPW_norm(df, Fe_correction=None, adjust_all=False):
+def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=False):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -340,7 +345,9 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         Dataframe containing compositions to transform.
     Fe_correction : :class:`str`
         Iron correction to apply, if any. Will default to 'LeMaitre'.
-    adjust_all : :class:`bool`
+    Fe_correction_mode : :class:`str`
+        Mode for the iron correction, where applicable.
+    adjust_all_Fe : :class:`bool`
         Where correcting iron compositions, whether to adjust all iron
         compositions, or only those where singular components are specified.
 
@@ -408,7 +415,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     if Fe_correction is None:  # default to LeMaitre_Fe_correction
         Fe_correction = "LeMaitre"
 
-    if adjust_all:
+    if adjust_all_Fe:
         fltr = np.ones(df.index.size, dtype="bool")
     else:
         # check where the iron speciation is already specified or there is no iron
@@ -422,7 +429,9 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
         fltr = iron_specified
 
     if Fe_correction.lower().startswith("lemait"):
-        df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(df.loc[fltr, :])
+        df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(
+            df.loc[fltr, :], mode=Fe_correction_mode
+        )
     else:
         raise NotImplementedError(
             "Iron correction {} not recognised.".format(Fe_correction)
@@ -449,6 +458,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     # convert ppm traces to wt%
     df.loc[:, trace] *= scale("ppm", "wt%")
 
+    # define the form which we want our minor and trace components to be in
     minors_trace = [
         "F",
         "Cl",
@@ -473,8 +483,10 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     df["SO3"] = SO3
 
+    ############################################################################
+    # Normalization
     # Adjust majors wt% to 100% then adjust again to account for trace components
-
+    ############################################################################
     # Rounding to 3 dp
     df[majors] = df[majors].round(3)
 
@@ -489,14 +501,16 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
 
+    ############################################################################
     # Mole Calculations
     # TODO: update to use df.pyrochem.to_molecular()
+    ############################################################################
+    for component in majors + minors_trace:
+        df[component] = df[component] / pt.formula(component).mass
 
-    for oxide in majors + minors_trace:
-        df[oxide] = df[oxide] / pt.formula(oxide).mass
-
+    ############################################################################
     # Combine minor components, compute minor component fractions and correct masses
-
+    ############################################################################
     corrected_mass = pd.DataFrame()
 
     for major, minors in [
