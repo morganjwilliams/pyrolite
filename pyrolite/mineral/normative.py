@@ -921,17 +921,18 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     ############################################################################
     # get masses of free components
     ############################################################################
-    FREE["CO2"] = df["FREECO2"] * 44.0095
+    FREE["CO2"] = df["FREECO2"] * pt.formula("CO2").mass  # 44.0095
 
-    FREE["P2O5"] = df["FREE_P2O5"] * 141.94452
-    FREE["F"] = df["FREE_F"] * 18.9984032
-    FREE["Cl"] = df["FREE_Cl"] * 35.4527
-    FREE["SO3"] = df["FREE_SO3"] * 80.0642
-    FREE["S"] = df["FREE_S"] * 32.066
-    FREE["Cr2O3"] = df["FREE_CR2O3"] * 151.990
+    FREE["P2O5"] = df["FREE_P2O5"] * pt.formula("P2O5").mass  # 141.94452
+    FREE["F"] = df["FREE_F"] * pt.F.mass  # 18.9984032
+    FREE["Cl"] = df["FREE_Cl"] * pt.Cl.mass  # 35.4527
+    FREE["SO3"] = df["FREE_SO3"] * pt.formula("SO3").mass  # 80.0642
+    FREE["S"] = df["FREE_S"] * pt.S.mass  # 32.066
+    FREE["Cr2O3"] = df["FREE_CR2O3"] * pt.formula("Cr2O3").mass  # 151.990
 
     FREE["OXIDES"] = FREE[["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"]].sum(axis=1)
-    FREE["DEFSIO2"] = df["DEFSIO2"] * 60.0843
+
+    FREE["DEFSIO2"] = df["DEFSIO2"] * pt.formula("SiO2").mass  # 60.0843
     FREE.drop(["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"], axis=1, inplace=True)
 
     ############################################################################
