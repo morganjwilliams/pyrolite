@@ -179,7 +179,7 @@ def endmember_decompose(
     return modal
 
 
-def LeMatireOxRatio(df, mode=None):
+def LeMaitreOxRatio(df, mode=None):
     r"""
     Parameters
     -----------
@@ -197,7 +197,8 @@ def LeMatireOxRatio(df, mode=None):
     ------
     This is a  :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
     molar ratio  :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
-    straightfowardly used; data presented should be in mass units.
+    straightfowardly used; data presented should be in mass units. For the
+    calculation, SiO2, Na2O and K2O are expected to be present.
 
     References
     ----------
@@ -208,6 +209,13 @@ def LeMatireOxRatio(df, mode=None):
     """
     if mode is None:  # defualt to volcanic
         mode = "volcanic"
+
+    missing_columns = [c for c in ["SiO2", "Na2O", "K2O"] if c not in df.columns]
+    if missing_columns:
+        logger.warning(
+            "Missing columns required for calculation of iron oxidation"
+            "speciation ratio: {}.".format(",".join(missing_columns))
+        )
 
     if mode.lower().startswith("volc"):
         logger.debug("Using LeMaitre Volcanic Fe Correction.")
@@ -254,7 +262,7 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
-    mass_ratios = LeMatireOxRatio(df, mode=mode)  # mass ratios
+    mass_ratios = LeMaitreOxRatio(df, mode=mode)  # mass ratios
     # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
     feo_moles = mass_ratios / pt.formula("FeO").mass
     fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
