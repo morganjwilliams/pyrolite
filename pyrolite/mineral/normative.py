@@ -11,6 +11,45 @@ import re
 
 logger = Handle(__name__)
 
+# minerals for the CIPW Norm
+NORM_MINERALS = minerals = {
+    "Q": {"name": "quartz", "formulae": "SiO2"},
+    "Z": {"name": "zircon", "formulae": "ZrO2 SiO2"},
+    "Ks": {"name": "potassium metasilicate", "formulae": "K2O SiO2"},
+    "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2"},
+    "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2"},
+    "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 4SiO2"},
+    "Tn": {"name": "thenardite", "formulae": "Na2O SO3"},
+    "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2"},
+    "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2"},
+    "Pf": {"name": "perovskite", "formulae": "CaO TiO2"},
+    "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 2SiO2"},
+    "Lc": {"name": "leucite", "formulae": "K2O Al2O3 4SiO2"},
+    "Cs": {"name": "dicalcium silicate", "formulae": "2CaO SiO2"},
+    "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 2SiO2"},
+    "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
+    "CaF2-Ap": {"name": "fluroapatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
+    "Fr": {"name": "fluorite", "formulae": "CaF2"},
+    "Pr": {"name": "pyrite", "formulae": "FeS2"},
+    "Cm": {"name": "chromite", "formulae": "FeO Cr2O3"},
+    "Il": {"name": "ilmenite", "formulae": "FeOTiO2"},
+    "Cc": {"name": "calcite", "formulae": "CaO CO2"},
+    "C": {"name": "corundum", "formulae": "Al2O3"},
+    "Ru": {"name": "rutile", "formulae": "TiO2"},
+    "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3"},
+    "Hm": {"name": "hematite", "formulae": "Fe2O3"},
+    "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2"},
+    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2"},
+    "Fe-Di": {"name": "clinoferrosilite", "formulae": "CaO FeO 2SiO2"},
+    "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2"},
+    "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2"},
+    "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2"},
+}
+
+# Add standard masses to minerals
+for mineral in NORM_MINERALS.keys():
+    NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"])
+
 
 def unmix(comp, parts, ord=1, det_lim=0.0001):
     """
@@ -407,52 +446,6 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     trace = ["F", "Cl", "S", "Ni", "Co", "Sr", "Ba", "Rb", "Cs", "Li", "Zr", "Cr", "V"]
 
-    minerals = {
-        "Q": {"name": "quartz", "formulae": "SiO2", "mass": None},
-        "Z": {"name": "zircon", "formulae": "ZrO2 SiO2", "mass": None},
-        "Ks": {"name": "potassium metasilicate", "formulae": "K2O SiO2", "mass": None},
-        "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2", "mass": None},
-        "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2", "mass": None},
-        "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 4SiO2", "mass": None},
-        "Tn": {"name": "thenardite", "formulae": "Na2O SO3", "mass": None},
-        "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2", "mass": None},
-        "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2", "mass": None},
-        "Pf": {"name": "perovskite", "formulae": "CaO TiO2", "mass": None},
-        "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 2SiO2", "mass": None},
-        "Lc": {"name": "leucite", "formulae": "K2O Al2O3 4SiO2", "mass": None},
-        "Cs": {"name": "dicalcium silicate", "formulae": "2CaO SiO2", "mass": None},
-        "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 2SiO2", "mass": None},
-        "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)", "mass": None},
-        "CaF2-Ap": {
-            "name": "fluroapatite",
-            "formulae": "(3CaO) P2O5 (0.33333CaO)",
-            "mass": None,
-        },
-        "Fr": {"name": "fluorite", "formulae": "CaF2", "mass": None},
-        "Pr": {"name": "pyrite", "formulae": "FeS2", "mass": None},
-        "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "mass": None},
-        "Il": {"name": "ilmenite", "formulae": "FeOTiO2", "mass": None},
-        "Cc": {"name": "calcite", "formulae": "CaO CO2", "mass": None},
-        "C": {"name": "corundum", "formulae": "Al2O3", "mass": None},
-        "Ru": {"name": "rutile", "formulae": "TiO2", "mass": None},
-        "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3", "mass": None},
-        "Hm": {"name": "hematite", "formulae": "Fe2O3", "mass": None},
-        "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "mass": None},
-        "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "mass": None},
-        "Fe-Di": {
-            "name": "clinoferrosilite",
-            "formulae": "CaO FeO 2SiO2",
-            "mass": None,
-        },
-        "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2", "mass": None},
-        "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "mass": None},
-        "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2", "mass": None},
-    }
-
-    # Add standard masses to minerals
-    for mineral in minerals.keys():
-        minerals[mineral]["mass"] = pt.formula(minerals[mineral]["formulae"])
-
     # convert ppm traces to wt%
     df.loc[:, trace] *= scale("ppm", "wt%")
 
@@ -519,6 +512,12 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     corrected_mass["Ca"] = corrected_mass["CaO"] - pt.O.mass
     corrected_mass["Na"] = (corrected_mass["Na2O"] - pt.O.mass) / 2
     corrected_mass["Fe"] = corrected_mass["FeO"] - pt.O.mass
+
+    # Get mineral data, update with corrected masses
+
+    minerals = {
+        k: {**v} for k, v in NORM_MINERALS.items()
+    }  # copy the dictionary rather than edit it
 
     _update_molecular_masses(minerals, corrected_mass)
 
