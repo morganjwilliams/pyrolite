@@ -168,12 +168,14 @@ def LeMatireOxRatio(df, mode="volcanic"):
     https://doi.org/10.1007/BF00399603.
     """
     if mode.lower().startswith("volc"):
+        logger.debug("Using LeMaitre Volcanic Fe Correction.")
         ratio = (
             0.93
             - 0.0042 * df["SiO2"]
             - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
         )
     else:
+        logger.debug("Using LeMaitre Plutonic Fe Correction.")
         ratio = (
             0.88
             - 0.0016 * df["SiO2"]
@@ -278,8 +280,8 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     n_components = ["{}".format(f) for f in from_components]
     x_components = ["x_{}".format(f) for f in from_components]
     df[target] = df[n_components].sum(axis=1)
+    logger.debug("Aggregating {} to {}.".format(",".join(n_components), target))
     df[x_components] = df[n_components].div(df[target], axis=0)
-
     corrected_mass[to_component] = df[x_components] @ np.array(
         [pt.formula(f.replace("n_", "")).mass for f in from_components]
     )
@@ -316,6 +318,11 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     Todo
     ----
     * Note whether data needs to be normalised to 1 or 100?
+
+    Notes
+    -----
+    The function expect oxide components to be in wt% and elemental data to be
+    in ppm.
     """
     logger.warning(
         "The current CIPW Norm implmentation is under continuting development, "
@@ -480,12 +487,12 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     # First adjustment
     df["intial_sum"] = df[majors].sum(axis=1)
-    adjustment_factor = 100 / df["intial_sum"]
+    adjustment_factor = 100.0 / df["intial_sum"]
     df[majors] = df[majors].mul(adjustment_factor, axis=0)
 
     # Second adjustment
     df["major_minor_sum"] = df[majors].sum(axis=1) + df[minors_trace].sum(axis=1)
-    adjustment_factor = 100 / df["major_minor_sum"]
+    adjustment_factor = 100.0 / df["major_minor_sum"]
 
     df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
 
@@ -895,7 +902,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     )
 
     FREE["FREEO_13"] = (
-        (1 + ((pt.formula("CaO").mass // 56.0774) - 1)) * pt.O.mass * df["FREEO_13"]
+        (1 + ((pt.formula("CaO").mass / 56.0774) - 1)) * pt.O.mass * df["FREEO_13"]
     )
 
     FREE["FREEO_14"] = (
@@ -905,7 +912,7 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
     )
 
     FREE["FREEO_16"] = (
-        (1 + ((pt.formula("FeO").mass // 71.8444) - 1)) * pt.O.mass * df["FREEO_16"]
+        (1 + ((pt.formula("FeO").mass / 71.8444) - 1)) * pt.O.mass * df["FREEO_16"]
     )
 
     FREE["O"] = FREE[
@@ -936,6 +943,9 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
 
     for mineral in minerals.keys():
         if mineral == ["Ap"]:
+            # deal with the results of apatite options
+            # get the abundance weighted total mass of apatite where split
+            # otherwise just get the apatite mass
             mineral_pct_mm[mineral] = np.where(
                 df["ap_option"] == 2,
                 df[mineral] * minerals["Ap"]["mass"],
@@ -949,9 +959,9 @@ def CIPW_norm(df, Fe_correction=None, adjust_all=False):
             )
 
     # rename columns with proper names rather than abbreviations
-    mineral_names = [minerals[mineral]["name"] for mineral in mineral_pct_mm]
-
-    mineral_pct_mm.columns = mineral_names
+    mineral_pct_mm.columns = [
+        minerals[mineral]["name"] for mineral in mineral_pct_mm.columns
+    ]
     mineral_pct_mm.fillna(0, inplace=True)
 
     return mineral_pct_mm
