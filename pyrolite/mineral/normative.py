@@ -888,8 +888,9 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         (df["Lc"] < df["D6"] / 2) & (df["deficit"]), df["D6"] - 2 * df["Kp"], 0
     ).T
     ############################################################################
-    # Allocate definite mineral proportions ####################################
-    ## Subdivide Hypersthene, Diopside and Olivine into Mg- and Fe- varieties
+    # Allocate definite mineral proportions
+    # Subdivide Hypersthene, Diopside and Olivine into Mg- and Fe- varieties
+    # TODO: Add option for subdivision?
 
     df["Fe-Hy"] = df["Hy"] * df["FeO_ratio"]
     df["Fe-Di"] = df["Di"] * df["FeO_ratio"]
