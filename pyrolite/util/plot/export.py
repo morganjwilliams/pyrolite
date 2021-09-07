@@ -2,9 +2,12 @@
 Functions for export of figures and figure elements from matplolib.
 """
 import os
-import numpy as np
+from pathlib import Path
+
 import matplotlib.path
 import matplotlib.transforms
+import numpy as np
+
 from ..log import Handle
 
 logger = Handle(__name__)
@@ -19,6 +22,10 @@ def save_figure(
     default_config = dict(bbox_inches="tight", transparent=True)
     config = default_config.copy()
     config.update(kwargs)
+    save_at = Path(save_at)
+    if not save_at.exists():
+        logger.debug("Creating save directory at {}".format(str(save_at)))
+    save_at.mkdir(parents=True, exist_ok=True)
     for fmt in save_fmts:
         out_filename = os.path.join(str(save_at), name + "." + fmt)
         if output:
