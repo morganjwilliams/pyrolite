@@ -11,7 +11,7 @@ associated classifiers (:mod:`pyrolite.util.classification`).
 import numpy as np
 import matplotlib.pyplot as plt
 
-# sphinx_gallery_thumbnail_number = 2
+# sphinx_gallery_thumbnail_number = 5
 
 ########################################################################################
 # Colors by Ternary Position
@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 from pyrolite.util.plot.style import ternary_color
 from pyrolite.util.synthetic import normal_frame
 
-# generate a
+# generate a synthetic dataset we can use for the colouring example
 df = normal_frame(
     columns=["CaO", "MgO", "FeO"],
     size=100,
