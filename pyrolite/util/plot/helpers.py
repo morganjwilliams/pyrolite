@@ -1,16 +1,17 @@
 """
 matplotlib helper functions for commong drawing tasks.
 """
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy.spatial
-from ..math import eigsorted, nancov
-from ..text import int_to_alpha
-from ..missing import cooccurence_pattern
-from .interpolation import interpolated_patch_path
-from .axes import add_colorbar, subaxes, init_axes
+
 from ..log import Handle
+from ..math import eigsorted, nancov
+from ..missing import cooccurence_pattern
+from ..text import int_to_alpha
+from .axes import add_colorbar, init_axes, subaxes
+from .interpolation import interpolated_patch_path
 
 logger = Handle(__name__)
 
@@ -186,7 +187,16 @@ def plot_stdev_ellipses(
     return ax
 
 
-def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwargs):
+def plot_pca_vectors(
+    comp,
+    nstds=2,
+    scale=100.0,
+    transform=None,
+    ax=None,
+    colors=None,
+    linestyles=None,
+    **kwargs
+):
     """
     Plot vectors corresponding to principal components and their magnitudes.
 
@@ -219,12 +229,28 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
     if ax is None:
         fig, ax = plt.subplots(1)
 
-    for variance, vector in zip(pca.explained_variance_, pca.components_):
+    iter = [pca.explained_variance_, pca.components_]
+    if linestyles is not None:
+        assert len(linestyles) == 2
+        iter.append(linestyles)
+    else:
+        iter.append([None, None])
+    if colors is not None:
+        assert len(colors) == 2
+        iter.append(colors)
+    else:
+        iter.append([None, None])
+    for variance, vector, linestyle, color in zip(*iter):
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
         line *= scale
-        ax.plot(*line.T, **kwargs)
+        kw = {**kwargs}
+        if color is not None:
+            kw["color"] = color
+        if linestyle is not None:
+            kw["ls"] = linestyle
+        ax.plot(*line.T, **kw)
     return ax
 
 
@@ -353,7 +379,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
 ###############################################################################
 # Helpers for pyrolite.comp.codata.sphere and related functions
-from pyrolite.comp.codata import sphere, inverse_sphere
+from pyrolite.comp.codata import inverse_sphere, sphere
 
 
 def _get_spherical_vector(phis):
@@ -412,7 +438,7 @@ def _get_spherical_arc(thetas0, thetas1, resolution=100):
 
 
 def init_spherical_octant(
-    angle_indicated=30, labels=None, view_init=(25, 55), **kwargs
+    angle_indicated=30, labels=None, view_init=(25, 55), fontsize=10, **kwargs
 ):
     """
     Initalize a figure with a 3D octant of a unit sphere, appropriately labeled
@@ -464,7 +490,7 @@ def init_spherical_octant(
     ax.plot(*lines[[1, 1, 0]], lw=2, color="k", marker="D", markevery=(1, 2))  # z axis
     # axes labels
     for ix, row in enumerate(np.eye(3) * 1.6):
-        ax.text(*row, labels[ix])
+        ax.text(*row, labels[ix], fontsize=fontsize)
 
     if angle_indicated is not None:
         _a = np.deg2rad(angle_indicated)
@@ -480,7 +506,7 @@ def init_spherical_octant(
             _get_spherical_vector(np.array([[_a, np.pi / 2]]))[1]
             + np.array([0, 1, 0]) / 2
         )
-        ax.text(*theta2_pos, angle_labels[0], color="purple")
+        ax.text(*theta2_pos, angle_labels[0], color="purple", fontsize=fontsize)
 
         # theta 3 ##############################################################
         _plot_spherical_vector(ax, np.array([[_a, _a]]), color="g")
@@ -491,6 +517,8 @@ def init_spherical_octant(
         theta3_pos = (
             _get_spherical_vector(np.array([[_a, _a]]))[1] + np.array([0, 0, 1]) / 2
         )
-        ax.text(*theta3_pos, angle_labels[1], ha="left", color="green")
+        ax.text(
+            *theta3_pos, angle_labels[1], ha="left", color="green", fontsize=fontsize
+        )
 
     return ax
