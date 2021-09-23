@@ -76,3 +76,10 @@ color_ternary_polygons_by_centroid(
     ax, colors=("red", "green", "blue"), coefficients=(1, 1, 1), alpha=0.5
 )
 plt.show()
+########################################################################################
+# .. seealso::
+#
+#   Examples:
+#     `Ternary Diagrams <ternary.html>`__,
+#     `Plot Templates <templates.html>`__
+#

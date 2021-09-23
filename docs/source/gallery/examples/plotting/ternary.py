@@ -36,4 +36,5 @@ plt.tight_layout()
 ########################################################################################
 # .. seealso:: `Heatscatter Plots <heatscatter.html>`__,
 #              `Density Plots <density.html>`__,
-#              `Spider Density Diagrams <spider.html>`__
+#              `Spider Density Diagrams <spider.html>`__,
+#              `Ternary Color Mapping <ternary_color.html>`__
