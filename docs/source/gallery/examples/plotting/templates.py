@@ -60,6 +60,7 @@ help(TAS)
 #
 #   Examples:
 #    `TAS Classifier <../util/TAS.html>`__
+#    `Ternary Colour Mapping <ternary_color.html>`__
 #
 #   Modules:
 #     :mod:`pyrolite.util.classification`
