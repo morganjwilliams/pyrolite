@@ -52,7 +52,7 @@ def plot_confusion_matrix(
     if ax is None:
         fig, ax = plt.subplots(1)
 
-    im = ax.imshow(conf_matrix, interpolation="nearest", cmap=cmap, norm=norm)
+    im = ax.imshow(conf_matrix, interpolation="none", cmap=cmap, norm=norm)
     ax.set_title(title)
     plt.colorbar(im, ax=ax)
     tick_marks = np.arange(len(classes))
@@ -78,6 +78,7 @@ def plot_confusion_matrix(
         xticklabels=classes,
         yticklabels=classes,
     )
+    ax.grid(False)
     plt.tight_layout()
     return ax
 
@@ -264,7 +265,7 @@ def plot_mapping(
             ps = Y.predict_proba(X_)
             a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)
             c[:, -1] = a
-            cmap=None
+            cmap = None
         else:
             c = Y.predict(X)
             cmap = cmap or DEFAULT_DISC_COLORMAP
