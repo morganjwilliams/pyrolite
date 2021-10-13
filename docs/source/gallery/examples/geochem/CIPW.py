@@ -107,7 +107,7 @@ plt.show()
 # loaded above (which already includes the output of SINCLAS), comparing the original
 # software to the pyrolite implementation.
 #
-# .. warning:: Currently there are inconsistent results for a small number or samples
+# .. note:: Currently there are inconsistent results for a small number or samples
 #   (deviations colormapped, and inconsistent results shown in red below), likely related
 #   to the handling of iron components and their conversion.
 #
