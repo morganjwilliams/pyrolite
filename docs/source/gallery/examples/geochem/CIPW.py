@@ -2,7 +2,7 @@
 CIPW Norm
 ===========
 
-The CIPW (W. Cross, J. P. Iddings, L. V. Pirsson, and H. S. Wash) Norm was
+The CIPW (W. Cross, J. P. Iddings, L. V. Pirsson, and H. S. Washington) Norm was
 introducted as a standard procedure for the estimation of rock-forming mineral
 assemblages of igneous rocks from their geochemical compositions [Cross1902]_ .
 This estimation process enables the approximate classificaiton of
@@ -23,14 +23,13 @@ For the purposes of testing, pyrolite includes a file incliudng the outputs from
 Verma's SINCLAS program. Here we can use this file to demonstrate the use of the
 CIPW Norm and verify that the results should generally be comparable between
 Verma's original implementation and the :mod:`pyrolite` implementation.
-Here we import this file and do a little cleaning and registraiton of
+Here we import this file and do a little cleaning and registration of
 geochemical components so we can work with it in the sections to follow:
 """
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import pyrolite.geochem
-
 from pyrolite.util.meta import pyrolite_datafolder
 
 df = (
