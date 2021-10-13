@@ -26,7 +26,7 @@ of the implementation and the currently available options is given below.
     There's a warning implemented in the function so that you should be notified
     of this.
 
-For the purposes of testing, pyrolite includes a file incliudng the outputs from
+For the purposes of testing, pyrolite includes a file containing the outputs from
 Verma's SINCLAS/IgRoCS program. Here we can use this file to demonstrate the use
 of the CIPW Norm and verify that the results should generally be comparable
 between Verma's original implementation and the :mod:`pyrolite` implementation.
@@ -98,8 +98,8 @@ ax = NORM[["orthoclase", "albite", "anorthite"]].pyroplot.scatter(
 )
 plt.show()
 ########################################################################################
-# Checking Coherency with SINCLAS / IgRoCS
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Coherency with SINCLAS / IgRoCS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # Given we're reproducting an existing algorithm, it's prudent to check how closely
 # the results match for a specific dataset to check whether there might be any numerical
@@ -127,8 +127,7 @@ translation
 ########################################################################################
 # First we'll collect the minerals which appear in both dataframes, and then iterate
 # through these to check how close the implementations are.
-########################################################################################
-
+#
 minerals = {
     k: v for (k, v) in translation.items() if (df[v] > 0).sum() and (NORM[k] > 0).sum()
 }
