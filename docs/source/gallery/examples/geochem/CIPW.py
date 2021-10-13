@@ -107,9 +107,9 @@ plt.show()
 # loaded above (which already includes the output of SINCLAS), comparing the original
 # software to the pyrolite implementation.
 #
-# Currently there are inconsistent results for a small number or samples
-# (deviations colormapped, and inconsistent results shown in red below), likely related
-# to the handling of iron components and their conversion.
+# .. warning:: Currently there are inconsistent results for a small number or samples
+#   (deviations colormapped, and inconsistent results shown in red below), likely related
+#   to the handling of iron components and their conversion.
 #
 # The output of SINCLAS has slightly different column naming that that of
 # :mod:`pyrolite`, which provides full mineral names in the output dataframe
@@ -165,10 +165,37 @@ for a in ax:
 plt.tight_layout()
 ########################################################################################
 # These normative mineralogical components could be input into mineralogical
-# classifiers, as mentioned above.
+# classifiers, as mentioned above. For example, the IUGS QAP classifier:
 #
-# TODO: Add IUGS QAP classifier example
+from pyrolite.util.classification import QAP
 
+clf = QAP()  # build a QAP classifier
+
+qap_data = NORM.loc[:, ["quartz", "orthoclase"]]  #
+qap_data["plagioclase"] = NORM.loc[:, ["albite", "anorthite"]].sum(axis=1)
+# predict which lithological class each mineralogical composiiton belongs in
+# we add a small value to zeros here to ensure points fit in polygons
+predicted_classes = clf.predict(qap_data.replace(0, 10e-6).values)
+predicted_classes.head()
+########################################################################################
+# We can use these predicted classes as a color index also, within the QAP diagram
+# or elsewhere:
+#
+ax = clf.add_to_axes()
+qap_data.pyroplot.scatter(ax=ax, c=predicted_classes, axlabels=False, cmap="tab20c")
+plt.show()
+########################################################################################
+# We could also compare how these mineralogical distinctions map into chemical ones
+# like the TAS diagram:
+#
+from pyrolite.plot.templates import TAS
+
+ax = TAS()
+components = df.loc[:, ["SiO2"]]
+components["alkali"] = df.loc[:, ["Na2O", "K2O"]].sum(axis=1)
+# add the predictions from normative mineralogy to the TAS diagram
+components.pyroplot.scatter(ax=ax, c=predicted_classes, cmap="tab20c", axlabels=False)
+plt.show()
 ########################################################################################
 # References
 # ~~~~~~~~~~
