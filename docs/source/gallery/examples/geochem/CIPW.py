@@ -15,14 +15,21 @@ A range of updated, modified and adjusted Norms were published in the century
 following the original publication of the CIPW Norm, largely culminating in
 Surendra Verma's 2003 paper "A revised CIPW norm" which enumerates an
 algorithm for the estimation of an anhydrous Standard Igenous Norm (SIN)
-[Verma2003]_ . A version of this algorithm has now been implemented in
+[Verma2003]_ .
+This was subsequently updated with the publication of IgRoCS [Verma2013]_ .
+A version of this algorithm has now been implemented in
 :mod:`pyrolite` (:func:`~pyrolite.mineral.normative.CIPW_norm`), and an overview
 of the implementation and the currently available options is given below.
 
+.. warning:: The current implementation of CIPW in pyrolite produces results
+    which are inconsistent with SINCLAS/IgRoCS; we're working on addressing this.
+    There's a warning implemented in the function so that you should be notified
+    of this.
+
 For the purposes of testing, pyrolite includes a file incliudng the outputs from
-Verma's SINCLAS program. Here we can use this file to demonstrate the use of the
-CIPW Norm and verify that the results should generally be comparable between
-Verma's original implementation and the :mod:`pyrolite` implementation.
+Verma's SINCLAS/IgRoCS program. Here we can use this file to demonstrate the use
+of the CIPW Norm and verify that the results should generally be comparable
+between Verma's original implementation and the :mod:`pyrolite` implementation.
 Here we import this file and do a little cleaning and registration of
 geochemical components so we can work with it in the sections to follow:
 """
@@ -31,6 +38,8 @@ import numpy as np
 import pandas as pd
 import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
+
+# sphinx_gallery_thumbnail_number = 2
 
 df = (
     pd.read_csv(pyrolite_datafolder() / "testing" / "CIPW_Verma_Test.csv")
@@ -51,6 +60,9 @@ df.loc[:, [c for c in df.columns if "NORM" in c]] = df.loc[
 from pyrolite.mineral.normative import CIPW_norm
 
 NORM = CIPW_norm(df.pyrochem.compositional)
+########################################################################################
+# We can quickly check that this includes mineralogical data:
+#
 NORM.columns
 ########################################################################################
 # The function accepts a few keyword arguments, all to do with the iron compositions
@@ -75,6 +87,30 @@ NORM.columns
 #
 NORM = CIPW_norm(df.pyrochem.compositional, adjust_all_Fe=True)
 ########################################################################################
+# Now we have the normative mineralogical outputs, we can have a look to see how
+# these compare to some relevant geochemical inputs:
+#
+ax = NORM[["ilmenite", "magnetite"]].pyroplot.scatter(clip_on=False, c=df["TiO2"])
+plt.show()
+########################################################################################
+ax = NORM[["orthoclase", "albite", "anorthite"]].pyroplot.scatter(
+    clip_on=False, c=df["K2O"]
+)
+plt.show()
+########################################################################################
+# Checking Coherency with SINCLAS / IgRoCS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Given we're reproducting an existing algorithm, it's prudent to check how closely
+# the results match for a specific dataset to check whether there might be any numerical
+# or computational errors. Below we go through this exercise for the test dataset we
+# loaded above (which already includes the output of SINCLAS), comparing the original
+# software to the pyrolite implementation.
+#
+# Currently there are inconsistent results for a small number or samples
+# (deviations colormapped, and inconsistent results shown in red below), likely related
+# to the handling of iron components and their conversion.
+#
 # The output of SINCLAS has slightly different column naming that that of
 # :mod:`pyrolite`, which provides full mineral names in the output dataframe
 # columns. For this reason, we'll need to translate our NORM output columns
@@ -89,19 +125,26 @@ translation = {
 }
 translation
 ########################################################################################
-#
+# First we'll collect the minerals which appear in both dataframes, and then iterate
+# through these to check how close the implementations are.
+########################################################################################
+
+minerals = {
+    k: v for (k, v) in translation.items() if (df[v] > 0).sum() and (NORM[k] > 0).sum()
+}
 ########################################################################################
 import matplotlib.pyplot as plt
 from pyrolite.plot.color import process_color
 
-minerals = {k: v for (k, v) in translation.items() if df[v].count() and NORM[k].count()}
 ncols = 4
 nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
+
 fig, ax = plt.subplots(
     nrows,
     ncols,
     figsize=(ncols * 2.5, nrows * 2),
 )
+fig.suptitle("Comparing pyrolite's CIPW Norm to SINCLAS/IgRoCS", fontsize=16)
 ax = ax.flat
 
 for ix, (b, a) in enumerate(minerals.items()):
@@ -112,17 +155,12 @@ for ix, (b, a) in enumerate(minerals.items()):
             cmap="RdBu_r",
             norm=plt.Normalize(vmin=0, vmax=0.1),
         )["c"]
-        try:
-            ax[ix].scatter(df[a], NORM[b], c=c)
-        except:
-            pass
-    try:
-        ax[ix].plot([0, df[a].max()], [0, df[a].max()], color="k", ls="--")
-    except:
-        pass
+        ax[ix].scatter(df[a], NORM[b], c=c)
+    ax[ix].plot([0, df[a].max()], [0, df[a].max()], color="k", ls="--")
+
 for a in ax:
-    a.set(xticks=[], yticks=[])
-    if not a.collections:
+    a.set(xticks=[], yticks=[])  # turn off the ticks
+    if not a.collections:  # turn off the axis for empty axes
         a.axis("off")
 plt.tight_layout()
 ########################################################################################
@@ -144,6 +182,10 @@ plt.tight_layout()
 # .. [Verma2003] Verma, S. P., Torres-Alvarado, I. S., & Velasco-Tapia, F. (2003).
 #     A revised CIPW norm.
 #     Swiss Bulletin of Mineralogy and Petrology, 83(2), 197–216.
+#
+# .. [Verma2013] Verma, S. P., & Rivera-Gomez, M. A. (2013). Computer Programs
+#     for the Classification and Nomenclature of Igneous Rocks.
+#     Episodes, 36(2), 115–124.
 #
 # .. [LeMaitre1976] Le Maitre, R. W (1976).
 #     Some Problems of the Projection of Chemical Data into Mineralogical

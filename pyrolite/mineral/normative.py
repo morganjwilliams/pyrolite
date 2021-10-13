@@ -1,13 +1,16 @@
+import re
+import warnings
+
 import numpy as np
 import pandas as pd
-import scipy
 import periodictable as pt
-from .mindb import get_mineral_group, list_minerals, parse_composition
-from ..comp.codata import renormalise, close
+import scipy
+
+from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
 from ..util.log import Handle
 from ..util.units import scale
-import re
+from .mindb import get_mineral_group, list_minerals, parse_composition
 
 logger = Handle(__name__)
 
@@ -177,6 +180,11 @@ def endmember_decompose(
 
     modal = renormalise(modal)
     return modal
+
+
+################################################################################
+# CIPW Norm and Related functions
+################################################################################
 
 
 def LeMaitreOxRatio(df, mode=None):
@@ -369,6 +377,9 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
     A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
 
+    Verma, S. P., & Rivera-Gomez, M. A. (2013). Computer Programs for the
+    Classification and Nomenclature of Igneous Rocks. Episodes, 36(2), 115–124.
+
     Todo
     ----
     * Note whether data needs to be normalised to 1 or 100?
@@ -378,7 +389,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     The function expect oxide components to be in wt% and elemental data to be
     in ppm.
     """
-    logger.warning(
+    warnings.warn(
         "The current CIPW Norm implmentation is under continuting development, "
         "and does not yet return expected results."
     )
