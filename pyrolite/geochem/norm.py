@@ -97,7 +97,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     if path is None:
         path = __dbfile__
     # require write access
-    with TinyDB(str(path), access_mode="w") as db:
+    with TinyDB(str(path)) as db:
         db.truncate()
 
         for f in get_reference_files():

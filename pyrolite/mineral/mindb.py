@@ -196,8 +196,7 @@ def update_database(path=None, **kwargs):
 
     # name group formula composition
     # needs write access
-    with TinyDB(str(path), access_mode="w") as db:
+    with TinyDB(str(path)) as db:
         db.truncate()
         for k, v in mindf.T.to_dict().items():
             db.insert(v)
-        db.close()
