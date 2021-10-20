@@ -1,7 +1,9 @@
-import sys
 import struct
+import sys
 from contextlib import contextmanager
+
 from tinydb import TinyDB
+
 from .log import Handle
 
 logger = Handle(__name__)
@@ -46,7 +48,7 @@ def _list_tindyb_unique_values(variable, dbpath=None):
     :class:`list`
     """
 
-    with TinyDB(str(dbpath)) as db:
+    with TinyDB(str(dbpath), access_mode="r") as db:
         out = list(set([a.get(variable, None) for a in db.all()]))
     return out
 

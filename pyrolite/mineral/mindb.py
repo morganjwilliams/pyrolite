@@ -7,15 +7,17 @@ Accessing and modifying the database across multiple with multiple threads/proce
 *could* result in database corruption (e.g. through repeated truncation etc).
 """
 import functools
-import pandas as pd
-import numpy as np
-import periodictable as pt
 from pathlib import Path
-from tinydb import TinyDB, Query
-from .transform import formula_to_elemental, merge_formulae
-from ..util.meta import pyrolite_datafolder
+
+import numpy as np
+import pandas as pd
+import periodictable as pt
+from tinydb import Query, TinyDB
+
 from ..util.database import _list_tindyb_unique_values
 from ..util.log import Handle
+from ..util.meta import pyrolite_datafolder
+from .transform import formula_to_elemental, merge_formulae
 
 logger = Handle(__name__)
 
@@ -77,7 +79,7 @@ def get_mineral(name="", dbpath=None):
         dbpath = __dbpath__
 
     assert name in list_minerals()
-    with TinyDB(str(dbpath)) as db:
+    with TinyDB(str(dbpath), access_mode="r") as db:
         out = db.get(Query().name == name)
 
     return pd.Series(out)
@@ -148,7 +150,7 @@ def get_mineral_group(group=""):
         Dataframe of group members and compositions.
     """
     assert group in list_groups()
-    with TinyDB(str(__dbpath__)) as db:
+    with TinyDB(str(__dbpath__), access_mode="r") as db:
         grp = db.search(Query().group == group)
 
     df = pd.DataFrame(grp)
@@ -193,7 +195,8 @@ def update_database(path=None, **kwargs):
     path = Path(path).with_suffix(".json")
 
     # name group formula composition
-    with TinyDB(str(path)) as db:
+    # needs write access
+    with TinyDB(str(path), access_mode="w") as db:
         db.truncate()
         for k, v in mindf.T.to_dict().items():
             db.insert(v)

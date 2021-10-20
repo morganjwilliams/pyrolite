@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+
 import versioneer
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
@@ -49,8 +50,8 @@ setup(
     install_requires=[
         "numpy",
         "numpydoc",
-        "tinydb",
-        "typing-extensions", # required for newer tinydb versions?
+        "tinydb>4.1",  # >4.1 required for read-only access mode for JSON storage
+        "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
         "matplotlib",

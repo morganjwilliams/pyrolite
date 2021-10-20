@@ -1,16 +1,18 @@
 """
 Reference compostitions and compositional normalisation.
 """
-import sys
-import pandas as pd
-import numpy as np
 import json
-from tinydb import TinyDB, Query
+import sys
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from tinydb import Query, TinyDB
+
+from ..util.log import Handle
+from ..util.meta import pyrolite_datafolder
 from ..util.text import to_width
 from ..util.units import scale
-from ..util.meta import pyrolite_datafolder
-from ..util.log import Handle
 
 logger = Handle(__name__)
 
@@ -31,12 +33,11 @@ def all_reference_compositions(path=None):
     """
     if path is None:
         path = __dbfile__
-    with TinyDB(str(path)) as db:
+    with TinyDB(str(path), access_mode="r") as db:
         refs = {}
         for r in db.all():  # there should be only one "_default" table
             n, c = r["name"], r["composition"]
             refs[n] = Composition(json.loads(c), name=n)
-        db.close()
     return refs
 
 
@@ -53,9 +54,8 @@ def get_reference_composition(name):
     --------
     :class:`pyrolite.geochem.norm.Composition`
     """
-    with TinyDB(str(__dbfile__)) as db:
+    with TinyDB(str(__dbfile__), access_mode="r") as db:
         res = db.search(Query().name == name)
-        db.close()
     assert len(res) == 1
     res = res[0]
     name, composition = res["name"], res["composition"]
@@ -96,7 +96,8 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     """
     if path is None:
         path = __dbfile__
-    with TinyDB(str(path)) as db:
+    # require write access
+    with TinyDB(str(path), access_mode="w") as db:
         db.truncate()
 
         for f in get_reference_files():
