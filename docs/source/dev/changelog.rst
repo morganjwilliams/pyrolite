@@ -12,12 +12,21 @@ All notable changes to this project will be documented here.
 
 * **New Contributor**: `Martin Bentley <https://github.com/mtb-za>`__
 * **New Contributor**: `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+* **New Contributor**: `Tom Buckle <https://github.com/bomtuckle>`__
 * **New Contributor**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
 * Removed a redundant :mod:`pathlib` dependency (which is standard library as of
   Python 3.4).
 * Updated instances of redundant :mod:`numpy` types throughout to silence
   depreciation warnings (using base types :class:`float`, :class:`int` except
   where specific :mod:`numpy` types are required).
+* A user installation is now recommended by default. This solves some potential issues
+  on \*-nix and MacOS systems.
+* Fixed broken links to documentation in the README (thanks to
+  `Alessandro Gentilini <https://github.com/alessandro-gentilini>`__).
+* **Bugfix**: Updated use of :mod:`tinydb` databases to default to read-only access except
+  where write access is explicitly needed. This should solve issues with permissions
+  during installation and use of pyrolite on some systems (
+  `#61 <https://github.com/morganjwilliams/pyrolite/issues/61>`__).
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,6 +54,15 @@ All notable changes to this project will be documented here.
   Thanks to `Chetan Nathwani <https://github.com/ChetanNathwani>`__
   for highlighting this one!
 
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~
+* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative`.
+  Note that the implementation still has a bug or two to be ironed out;
+  it will currently raise a warning when used to make sure you're aware of this.
+  An `example <https://pyrolite.readthedocs.io/en/develop/examples/geochem/CIPW.html>`__
+  has been added demonstrating the intended functionality and demonstrating how
+  coherent this is with existing implementations of CIPW (e.g. SINCLAS).
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +97,25 @@ All notable changes to this project will be documented here.
   implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
 * Update default parameterisation to :code:`"full"` for lambdas, using all REE to
   generate orthogonal polynomial functions.
-
+* Expanded :func:`pyrolite.util.text.int_to_alpha` to handle integers which are
+  greater than 25 by adding multiple alphabetical characters (e.g. `26` > `aa`).
+* :func:`~pyrolite.util.plot.export.save_figure` will now create the directory
+  it's given if it doesn't exist.
+* Citation information for :mod:`~pyrolite.util.lambdas` updated to include
+  recent publications.
+* Updated :mod:`~pyrolite.util.plot.helpers.plot_pca_vectors` to accept line `colors`
+  and `linestyles` arguments.
+* Updated :mod:`~pyrolite.util.plot.helpers.init_spherical_octant` to accept
+  a `fontsize` argument.
+* Added `example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/ternary_color.html>`__
+  for coloring ternary diagrams and ternary scatter points based on a ternary color system.
+* Added helper for generating PCA component labels from a `scikit-learn` PCA object
+  (:func:`~pyrolite.util.skl.helpers.get_PCA_component_labels`)
+* Updated confusion matrix visualisation helper
+  :func:`~pyrolite.util.skl.vis.plot_confusion_matrix` to remove grid and
+  provide more useful default colormap normalization options.
+* Moved the `manifold visualisation <https://pyrolite.readthedocs.io/en/develop/examples/util/manifold_vis.html>`__
+  example to utility examples from plotting examples
 
 `0.3.0`_
 --------------
