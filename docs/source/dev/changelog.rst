@@ -15,7 +15,7 @@ All notable changes to this project will be documented here.
 * **New Contributor**: `Tom Buckle <https://github.com/bomtuckle>`__
 * **New Contributor**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
 * Removed a redundant :mod:`pathlib` dependency (which is standard library as of
-  Python 3.4). This will fix a blocking issue with setting up a `conda-forge`
+  Python 3.4). This will fix an issue blocking setting up a `conda-forge`
   recipe (`#51 <https://github.com/morganjwilliams/pyrolite/issues/51>`__).
 * Updated instances of redundant :mod:`numpy` types throughout to silence
   depreciation warnings (using base types :class:`float`, :class:`int` except
@@ -27,7 +27,10 @@ All notable changes to this project will be documented here.
 * **Bugfix**: Updated use of :mod:`tinydb` databases to default to read-only access except
   where write access is explicitly needed. This should solve issues with permissions
   during installation and use of pyrolite on some systems (
-  `#61 <https://github.com/morganjwilliams/pyrslite/issues/61>`__).
+  `#61 <https://github.com/morganjwilliams/pyrslite/issues/61>`__). Thanks to
+  `Antoine Ouellet <https://github.com/antoine-gs>`__ for bringing this to attention,
+  and both Sam Bradley and Alex Hunt for following up with the idea for the
+  current solution.
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
