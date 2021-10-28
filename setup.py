@@ -3,6 +3,7 @@ from setuptools import find_packages, setup
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
+    "sphinx>=4",
     "sphinx_rtd_theme",
     "sphinx-autodoc-annotation",
     "sphinx_gallery>=0.6.0",
