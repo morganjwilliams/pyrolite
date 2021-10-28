@@ -1,6 +1,5 @@
-from setuptools import find_packages, setup
-
 import versioneer
+from setuptools import find_packages, setup
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
@@ -58,7 +57,7 @@ setup(
         "mpltern>=0.3.1",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
-        "sympy",
+        "sympy>=1.7",
         "pandas>=1.0",  # dataframe acccessors, attrs attribute
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas

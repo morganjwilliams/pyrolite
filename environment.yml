@@ -21,7 +21,7 @@ dependencies:
   - periodictable
   - mpltern>=0.3.1
   - mpmath
-  - sympy
+  - sympy>=1.7 # import changes after sympy 1.6
   - joblib
   - requests
   # Tools
