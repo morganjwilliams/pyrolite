@@ -139,8 +139,8 @@ plt.show()
 # If for some reason the density plot or contours are cut off on the edges, it may be
 # that the span of the underlying grid doesn't cut it (this is often the case for just
 # a small number of points). You can either manually adjust the extent (
-# `extent = (min_x, max_x, min_y, max_y)`) or adjust the coverage scale (
-# e.g.`coverage_scale = 1.5` will increase the buffer from the default 10% to 25%).
+# `extent = (min_x, max_x, min_y, max_y)` ) or adjust the coverage scale (
+# e.g. `coverage_scale = 1.5` will increase the buffer from the default 10% to 25%).
 # You can also adjust the number of bins in the underlying grid (either for both axes
 # with e.g. `bins=100` or individually with `bins=(<xbins>, <ybins>)`):
 #
