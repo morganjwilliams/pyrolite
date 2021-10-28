@@ -1,16 +1,17 @@
+import re
+
 import numpy as np
 import pandas as pd
-from ...geochem import transform
-from ...geochem import ind
-from ...geochem import parse
+
 from ...comp import codata
+from ...geochem import ind, parse, transform
 from ..lambdas import orthogonal_polynomial_constants
 from ..log import Handle
 
 logger = Handle(__name__)
 
 try:
-    from sklearn.base import TransformerMixin, BaseEstimator
+    from sklearn.base import BaseEstimator, TransformerMixin
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
@@ -98,20 +99,28 @@ class ExpTransform(BaseEstimator, TransformerMixin):
 
 
 class LogTransform(BaseEstimator, TransformerMixin):
-    def __init__(self, **kwargs):
+    def __init__(self, fmt_string="Ln({})", **kwargs):
         """Log Transformer for scikit-learn like use."""
         self.kpairs = kwargs
         self.label = "Feedthrough"
         self.forward = np.log
         self.inverse = np.exp
+        self.fmt_string = fmt_string
+        self.inverse_regex = "(?P<column>.)".join(
+            [re.escape(s) for s in self.fmt_string.split("{}")]
+        )
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
             out = X.copy(deep=True)
             out.loc[:, :] = self.forward(X.values, *args, **kwargs)
+            if self.fmt_string is not None:
+                out.columns = [self.fmt_string.format(c) for c in X.columns]
         elif isinstance(X, pd.Series):
             out = X.copy(deep=True)
             out.loc[:] = self.forward(X.values, *args, **kwargs)
+            if self.fmt_string is not None:
+                out.name = self.fmt_string.format(X.name)
         else:
             out = self.forward(np.array(X), *args, **kwargs)
         return out
@@ -120,9 +129,18 @@ class LogTransform(BaseEstimator, TransformerMixin):
         if isinstance(Y, pd.DataFrame):
             out = Y.copy(deep=True)
             out.loc[:, :] = self.inverse(Y.values, *args, **kwargs)
+            if self.fmt_string is not None:
+                # could store the original columns, but this is generalizable
+                out.columns = [
+                    re.findall(self.inverse_regex, "Ln(A)", re.DOTALL)[0]
+                    for c in out.columns
+                ]
+
         elif isinstance(Y, pd.Series):
             out = Y.copy(deep=True)
             out.loc[:] = self.inverse(Y.values, *args, **kwargs)
+            if self.fmt_string is not None:
+                out.name = re.findall(self.inverse_regex, "Ln(A)", re.DOTALL)[0]
         else:
             out = self.inverse(np.array(Y), *args, **kwargs)
         return out
