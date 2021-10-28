@@ -85,6 +85,7 @@ All notable changes to this project will be documented here.
   :class:`~pyrolite.plot.templates.QAP` (
   `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
   implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
+* Updated examples and documentation for density and contour plots.
 * Added autoscaling for standard :func:`~pyrolite.plot.pyroplot.spider` and
   related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
 * :func:`~pyrolite.plot.color.process_color` has been updated to better deal
