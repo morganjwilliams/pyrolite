@@ -20,6 +20,8 @@ All notable changes to this project will be documented here.
 * Updated instances of redundant :mod:`numpy` types throughout to silence
   depreciation warnings (using base types :class:`float`, :class:`int` except
   where specific :mod:`numpy` types are required).
+* Added a minimum :mod:`sympy` version requirement (v1.7) to avoid potential import
+  errors.
 * A user installation is now recommended by default. This solves some potential issues
   on \*-nix and MacOS systems.
 * Fixed broken links to documentation in the README (thanks to
