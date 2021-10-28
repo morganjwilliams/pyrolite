@@ -12,7 +12,6 @@ implemented features.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 from pyrolite.comp.codata import close
 from pyrolite.plot import pyroplot
 from pyrolite.plot.density import density
@@ -110,11 +109,12 @@ plt.show()
 ########################################################################################
 # You can readily change the styling of these contours by passing `cmap` (for different
 # colormaps), `colors` (for bulk or individually specified colors), `linewidths`
-# and `linestyles` (for bulk or individually specified linestyles). For example,
-# to change the colormap:
+# and `linestyles` (for bulk or individually specified linestyles). You can also
+# use 'label_contours=False` to omit the contour labels. For example,
+# to change the colormap and omit the contour labels:
 #
 ax = df.loc[:, ["SiO2", "CaO"]].pyroplot.density(
-    contours=[0.95, 0.66, 0.33], cmap="tab10"
+    contours=[0.95, 0.66, 0.33], cmap="tab10", label_contours=False
 )
 plt.show()
 ########################################################################################
@@ -135,6 +135,20 @@ ax = df.loc[:, ["SiO2", "CaO"]].pyroplot.density(
     colors=["0.5", "g", "k"],
 )
 plt.show()
+########################################################################################
+# If for some reason the density plot or contours are cut off on the edges, it may be
+# that the span of the underlying grid doesn't cut it (this is often the case for just
+# a small number of points). You can either manually adjust the extent (
+# `extent = (min_x, max_x, min_y, max_y)`) or adjust the coverage scale (
+# e.g.`coverage_scale = 1.5` will increase the buffer from the default 10% to 25%).
+# You can also adjust the number of bins in the underlying grid (either for both axes
+# with e.g. `bins=100` or individually with `bins=(<xbins>, <ybins>)`):
+#
+ax = df.loc[:, ["SiO2", "CaO"]].pyroplot.density(
+    contours=[0.95, 0.66, 0.33], coverage_scale=1.5, bins=100
+)
+plt.show()
+
 ########################################################################################
 # Geochemical data is commonly log-normally distributed and is best analysed
 # and visualised after log-transformation. The density estimation can be conducted
