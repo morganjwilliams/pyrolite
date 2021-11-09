@@ -7,6 +7,7 @@ Todo
 """
 
 from ...util.log import Handle
+from .feldspar import FeldsparTernary
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .QAP import QAP
 from .TAS import TAS
@@ -14,4 +15,11 @@ from .USDA_soil_texture import USDASoilTexture
 
 logger = Handle(__name__)
 
-__all__ = ["pearceThNbYb", "pearceTiNbYb", "TAS", "USDASoilTexture", "QAP"]
+__all__ = [
+    "pearceThNbYb",
+    "pearceTiNbYb",
+    "TAS",
+    "USDASoilTexture",
+    "QAP",
+    "FeldsparTernary",
+]

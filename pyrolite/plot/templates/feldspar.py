@@ -10,7 +10,14 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def FeldsparTernary(ax=None, add_labels=False, which_labels="ID", color="k", **kwargs):
+def FeldsparTernary(
+    ax=None,
+    add_labels=False,
+    which_labels="ID",
+    mode="miscibility-gap",
+    color="k",
+    **kwargs
+):
     """
     Simplified feldspar classifcation diagram, based on a version printed in the
     second edition of 'An Introduction to the Rock Forming Minerals' (Deer,
@@ -24,6 +31,11 @@ def FeldsparTernary(ax=None, add_labels=False, which_labels="ID", color="k", **k
         Whether to add labels at polygon centroids.
     which_labels : :class:`str`
         Which data to use for field labels - field 'name' or 'ID'.
+    mode : :class:`str`
+        Which mode of the diagram to use; the two implemented for the
+        feldspar ternary diagram are 'default' and 'miscibility-gap', the second
+        of which provides a simplified approximation of the miscibility gap
+        between k-feldspar and plagioclase.
     color : :class:`str`
         Color for the polygon edges in the diagram.
 
@@ -33,7 +45,9 @@ def FeldsparTernary(ax=None, add_labels=False, which_labels="ID", color="k", **k
         An introduction to the rock-forming minerals (3rd ed.).
         Mineralogical Society of Great Britain and Ireland.
     """
-    clf = Feldspar()
+    ax = init_axes(ax=ax, projection="ternary", **kwargs)
+
+    clf = Feldspar(mode=mode)
     clf.add_to_axes(
         ax=ax, color=color, add_labels=add_labels, which_labels=which_labels, **kwargs
     )

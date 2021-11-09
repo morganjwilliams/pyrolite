@@ -37,6 +37,8 @@ def QAP(ax=None, add_labels=False, which_labels="ID", color="k", **kwargs):
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
     """
+    ax = init_axes(ax=ax, projection="ternary", **kwargs)
+
     clf = QAPclassifer()
     clf.add_to_axes(
         ax=ax, color=color, add_labels=add_labels, which_labels=which_labels, **kwargs
