@@ -8,30 +8,46 @@ Todo
   gabbroic Pyroxene-Olivine-Plagioclase,
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
-import os
 import json
+import os
 from pathlib import Path
+
+import matplotlib.lines
+import matplotlib.patches
+import matplotlib.pyplot as plt
+import matplotlib.text
 import numpy as np
 import pandas as pd
-import matplotlib.text
-import matplotlib.pyplot as plt
-import matplotlib.patches
-import matplotlib.lines
 from matplotlib.projections import get_projection_class
+
 from ..comp.codata import close
-from .plot.style import patchkwargs
+from .log import Handle
+from .meta import (pyrolite_datafolder, sphinx_doi_link, subkwargs,
+                   update_docstring_references)
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
-from .plot.transform import xy_to_tlr, tlr_to_xy
-from .meta import (
-    pyrolite_datafolder,
-    subkwargs,
-    sphinx_doi_link,
-    update_docstring_references,
-)
-from .log import Handle
+from .plot.style import patchkwargs
+from .plot.transform import tlr_to_xy, xy_to_tlr
 
 logger = Handle(__name__)
+
+
+def _read_poly(poly):
+    """
+    Read points from a polygon, allowing ratio values to be specified.
+    """
+
+    def get_ratio(s):
+        a, b = s.split("/")
+        return float(a) / float(b)
+
+    return [
+        [
+            get_ratio(c) if isinstance(c, str) and c.count("/") == 1 else float(c)
+            for c in pt
+        ]
+        for pt in poly
+    ]
 
 
 class PolygonClassifier(object):
@@ -56,7 +72,14 @@ class PolygonClassifier(object):
     """
 
     def __init__(
-        self, name=None, axes=None, fields=None, scale=1.0, transform=None, **kwargs
+        self,
+        name=None,
+        axes=None,
+        fields=None,
+        scale=1.0,
+        transform=None,
+        mode=None,
+        **kwargs
     ):
         self.default_scale = scale
         self._scale = self.default_scale
@@ -78,6 +101,26 @@ class PolygonClassifier(object):
 
         self.name = name
         self.axes = axes or []
+
+        # addition for multiple modes of one diagram
+        # the diagram itself is assigned at instantiation time, so
+        # to swap modes, another diagram would need to be created
+        valid_modes = kwargs.pop("modes")  # should be a list of valid modes
+        if mode is None:
+            mode = "default"
+        elif valid_modes is not None:
+            if mode not in valid_modes:
+                raise ValueError(
+                    "{} is an invalid mode for {}. Valid modes: {}".format(
+                        mode, self.__class__.__name__, ", ".join(valid_modes)
+                    )
+                )
+        else:
+            pass
+
+        if mode in fields:
+            fields = fields[mode]
+
         # check axes for ratios, adition/subtraction etc
         self.fields = fields or {}
         self.classes = list(self.fields.keys())
@@ -103,7 +146,7 @@ class PolygonClassifier(object):
         # transformed polys
         polys = [
             matplotlib.patches.Polygon(
-                self.transform(self.fields[k]["poly"]), closed=True
+                self.transform(_read_poly(self.fields[k]["poly"])), closed=True
             )
             for k in classes
         ]
@@ -189,8 +232,7 @@ class PolygonClassifier(object):
             poly_config.pop("color", None)
         for (k, cfg) in self.fields.items():
             if cfg["poly"]:
-
-                verts = self.transform(np.array(cfg["poly"])) * rescale_by
+                verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
                     closed=True,
@@ -228,7 +270,7 @@ class PolygonClassifier(object):
         self, ax=None, fill=False, axes_scale=1.0, add_labels=False, **kwargs
     ):
         """
-        Add the TAS fields from the classifier to an axis.
+        Add the fields from the classifier to an axis.
 
         Parameters
         ----------
@@ -350,7 +392,7 @@ class TAS(PolygonClassifier):
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         label = k
-                    verts = np.array(cfg["poly"]) * rescale_by
+                    verts = np.array(_read_poly(cfg["poly"])) * rescale_by
                     _poly = matplotlib.patches.Polygon(verts)
                     x, y = get_centroid(_poly)
                     ax.annotate(
