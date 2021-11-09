@@ -1,9 +1,11 @@
-import numpy as np
-import sympy
-import scipy
 from copy import copy
-from .meta import update_docstring_references
+
+import numpy as np
+import scipy
+import sympy
+
 from .log import Handle
+from .meta import update_docstring_references
 
 logger = Handle(__name__)
 
@@ -596,3 +598,19 @@ def nancov(X):
     # assert Xnanfree.shape[1] > Xnanfree.shape[0]
     # (1/m)X^T*X
     return np.cov(Xnanfree)
+
+
+def solve_ratios(*eqs, evaluate=True):
+    """
+    Solve a ternary system (top-left-right) given two constraints on
+    two ratios, which together describe intersecting lines/a point.
+    """
+    t, l, r = sympy.symbols("t l r")
+
+    def to_sympy(t):  # rearrange to have =0 equvalent expressions
+        return sympy.sympify("-".join(t.split("=")))
+
+    result = sympy.solve(
+        [to_sympy(e) for e in eqs] + [to_sympy("t + l + r = 1")], (t, l, r)
+    )
+    return list(result.values())

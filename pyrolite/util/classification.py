@@ -105,7 +105,7 @@ class PolygonClassifier(object):
         # addition for multiple modes of one diagram
         # the diagram itself is assigned at instantiation time, so
         # to swap modes, another diagram would need to be created
-        valid_modes = kwargs.pop("modes")  # should be a list of valid modes
+        valid_modes = kwargs.pop("modes", None)  # should be a list of valid modes
         if mode is None:
             mode = "default"
         elif valid_modes is not None:
@@ -475,6 +475,47 @@ class QAP(PolygonClassifier):
 
     def __init__(self, **kwargs):
         src = pyrolite_datafolder(subfolder="models") / "QAP" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+
+@update_docstring_references
+class FeldsparTernary(PolygonClassifier):
+    """
+    Simplified feldspar diagram classifier, based on a version printed in the
+    second edition of 'An Introduction to the Rock Forming Minerals' (Deer,
+    Howie and Zussman).
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    mode : :class:`str`
+        Mode of the diagram to use; two are currently available - 'default',
+        which fills the entire ternary space, and 'miscibility-gap' which gives
+        a simplified approximation of the miscibility gap.
+
+    References
+    -----------
+    .. [#ref_1] Deer, W. A., Howie, R. A., & Zussman, J. (2013).
+        An introduction to the rock-forming minerals (3rd ed.).
+        Mineralogical Society of Great Britain and Ireland.
+
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models") / "FeldsparTernary" / "config.json"
+        )
 
         with open(src, "r") as f:
             config = json.load(f)
