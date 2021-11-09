@@ -98,14 +98,25 @@ All notable changes to this project will be documented here.
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Feature**: Added ternary classification models for
-  :class:`~pyrolite.util.classification.USDASoilTexture` and
+  :class:`~pyrolite.util.classification.USDASoilTexture`,
+  :class:`~pyrolite.util.classification.FeldsparTernary` and
   :class:`~pyrolite.util.classification.QAP` (
   `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
-  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
+  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__).
+  The idea for implementing the ternary diagram came from a discussion with
+  Jordan Lubbers and Penny Wieser (of the `Thermobar <https://thermobar.readthedocs.io/>`__
+  team, who are working in similar spaces); they've now implemented a version using
+  :mod:`python-ternary` (rather than :mod:`mpltern`, which pyrolite is currently using).
+* Added some functionality to :mod:`pyrolite.util.classification` to allow classifier
+  fields to be precisely specified by ratios (useful in ternary systems), for multiple
+  'modes' of diagrams to be contained a single configuration file, and fixed some issues
+  with labelling (arguments `add_labels` and `which_labels` can now be used to selectively
+  add either field IDs/abbreviations or field names to classification diagrams).
 * Update default parameterisation to :code:`"full"` for lambdas, using all REE to
   generate orthogonal polynomial functions.
 * Expanded :func:`pyrolite.util.text.int_to_alpha` to handle integers which are
-  greater than 25 by adding multiple alphabetical characters (e.g. `26` > `aa`).
+  greater than 25 by adding multiple alphabetical characters (e.g. `26` > `aa`),
+  and to use the built-in `string.ascii_lowercase`.
 * :func:`~pyrolite.util.plot.export.save_figure` will now create the directory
   it's given if it doesn't exist.
 * Citation information for :mod:`~pyrolite.util.lambdas` updated to include
@@ -122,7 +133,10 @@ All notable changes to this project will be documented here.
   :func:`~pyrolite.util.skl.vis.plot_confusion_matrix` to remove grid and
   provide more useful default colormap normalization options.
 * Moved the `manifold visualisation <https://pyrolite.readthedocs.io/en/develop/examples/util/manifold_vis.html>`__
-  example to utility examples from plotting examples
+  example to utility examples from plotting examples.
+* Added a `fmt_string` argument to :class:`~pyrolite.util.skl.transform.LogTransform`
+  for use in automated naming of transformed columns; this may be expanded to other
+  transformers soon.
 
 `0.3.0`_
 --------------
