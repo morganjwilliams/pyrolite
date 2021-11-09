@@ -7,9 +7,6 @@ be used to create new plots, or add a template to an existing
 :class:`matplotlib.axes.Axes`.
 """
 import matplotlib.pyplot as plt
-from pyrolite.util.plot.axes import share_axes
-
-# sphinx_gallery_thumbnail_number = 2
 
 ########################################################################################
 # Bivariate Templates
@@ -18,8 +15,12 @@ from pyrolite.util.plot.axes import share_axes
 # :func:`~pyrolite.plot.templates.TAS`) diagram:
 #
 from pyrolite.plot.templates import TAS
+from pyrolite.util.plot.axes import share_axes
 
-ax = TAS(linewidth=0.5, labels="ID")
+# sphinx_gallery_thumbnail_number = 2
+
+
+ax = TAS(linewidth=0.5, add_labels=True)
 plt.show()
 ########################################################################################
 # The other templates currently included in :mod:`pyrolite` are the

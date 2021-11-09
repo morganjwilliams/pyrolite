@@ -4,7 +4,7 @@
         "quartzolite": {
             "name": "Quartzolite",
             "poly": [[100, 0, 0], [90, 10, 0], [90, 0, 10]]},
-        "quart-granitoid": {
+        "quartz-granitoid": {
             "name": "Quartz-rich Granitoid",
             "poly": [[90, 10, 0], [90, 0, 10], [60, 0, 40], [60, 40, 0]]},
         "alkali-fspar-granite": {
@@ -46,7 +46,7 @@
         "tonalite": {
             "name": "Tonalite",
             "poly": [[60, 4, 36], [60, 0, 40], [20, 0, 80], [20, 8, 72]]},
-        "quart-diorite": {
+        "quartz-diorite": {
             "name": "Quartz Diorite/Gabbro/Anorthosite",
             "poly": [[20, 8, 72], [20, 0, 80], [5, 0, 95], [5, 9.5, 85.5]]},
         "diorite-gabbro-anorthosite": {
