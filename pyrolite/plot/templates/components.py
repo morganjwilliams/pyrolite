@@ -1,10 +1,13 @@
 import numpy as np
-from pyrolite.util.meta import subkwargs
-from matplotlib.lines import Line2D
 from matplotlib.collections import PathCollection
+from matplotlib.lines import Line2D
+
+from pyrolite.util.meta import subkwargs
+
 from ...util.log import Handle
 
 logger = Handle(__name__)
+
 
 class GeometryCollection(object):
     def __init__(self, *objects, **kwargs):

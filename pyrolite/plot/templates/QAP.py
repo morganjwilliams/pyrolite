@@ -1,28 +1,30 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from ...util.plot.axes import init_axes
+
 from ...util.classification import QAP as QAPclassifer
-from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from ...util.log import Handle
+from ...util.meta import (sphinx_doi_link, subkwargs,
+                          update_docstring_references)
+from ...util.plot.axes import init_axes
 
 logger = Handle(__name__)
 
 
 @update_docstring_references
-def QAP(ax=None, add_labels=False, color="k", **kwargs):
+def QAP(ax=None, add_labels=False, which_labels="ID", color="k", **kwargs):
     """
-    IUGS QAP ternary classification
-    [#ref_1]_ [#ref_2]_.
+    IUGS QAP ternary classification diagram [#ref_1]_ [#ref_2]_.
 
     Parameters
     -----------
-    name : :class:`str`
-        A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
-        Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
-        Dictionary describing indiviudal polygons, with identifiers as keys and
-        dictionaries containing 'name' and 'fields' items.
+    ax : :class:`matplotlib.axes.Axes`
+        Ternary axes to add the diagram to.
+    add_labels : :class:`bool`
+        Whether to add labels at polygon centroids.
+    which_labels : :class:`str`
+        Which data to use for field labels - field 'name' or 'ID'.
+    color : :class:`str`
+        Color for the polygon edges in the diagram.
 
     References
     -----------
@@ -36,7 +38,9 @@ def QAP(ax=None, add_labels=False, color="k", **kwargs):
                 Cambridge University Press, 236pp
     """
     clf = QAPclassifer()
-    clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
+    clf.add_to_axes(
+        ax=ax, color=color, add_labels=add_labels, which_labels=which_labels, **kwargs
+    )
     return ax
 
 

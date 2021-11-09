@@ -188,7 +188,13 @@ class PolygonClassifier(object):
         return list(self.axes.values())
 
     def _add_polygons_to_axes(
-        self, ax=None, fill=False, axes_scale=100.0, add_labels=False, **kwargs
+        self,
+        ax=None,
+        fill=False,
+        axes_scale=100.0,
+        add_labels=False,
+        which_labels="ID",
+        **kwargs
     ):
         """
         Add the polygonal fields from the classifier to an axis.
@@ -203,6 +209,8 @@ class PolygonClassifier(object):
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
         add_labels : :class:`bool`
             Whether to add labels at polygon centroids.
+        which_labels : :class:`str`
+            Which data to use for field labels - field 'name' or 'ID'.
 
         Returns
         --------
@@ -230,6 +238,8 @@ class PolygonClassifier(object):
         if not fill:
             poly_config["facecolor"] = "none"
             poly_config.pop("color", None)
+
+        use_keys = not which_labels.lower().startswith("name")
         for (k, cfg) in self.fields.items():
             if cfg["poly"]:
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
@@ -244,8 +254,8 @@ class PolygonClassifier(object):
                 pgns.append(pg)
                 ax.add_patch(pg)
                 if add_labels:
+                    label = k if use_keys else cfg["name"]
                     x, y = get_centroid(pg)
-                    label = cfg["name"]
                     ax.annotate(
                         "\n".join(label.split()),
                         xy=(x, y),
@@ -267,7 +277,13 @@ class PolygonClassifier(object):
         return ax
 
     def add_to_axes(
-        self, ax=None, fill=False, axes_scale=1.0, add_labels=False, **kwargs
+        self,
+        ax=None,
+        fill=False,
+        axes_scale=1.0,
+        add_labels=False,
+        which_labels="ID",
+        **kwargs
     ):
         """
         Add the fields from the classifier to an axis.
@@ -282,13 +298,20 @@ class PolygonClassifier(object):
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
         add_labels : :class:`bool`
             Whether to add labels for the polygons.
+        which_labels : :class:`str`
+            Which data to use for field labels - field 'name' or 'ID'.
 
         Returns
         --------
         ax : :class:`matplotlib.axes.Axes`
         """
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=add_labels, **kwargs
+            ax=ax,
+            fill=fill,
+            axes_scale=axes_scale,
+            add_labels=add_labels,
+            which_labels=which_labels,
+            **kwargs,
         )
         if self.axes:  # may be none?
             if len(self.axes) == 2 and self.projection is None:
@@ -349,7 +372,7 @@ class TAS(PolygonClassifier):
         fill=False,
         axes_scale=100.0,
         add_labels=False,
-        which_labels="",
+        which_labels="ID",
         **kwargs
     ):
         """
@@ -383,15 +406,22 @@ class TAS(PolygonClassifier):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
+        use_keys = not which_labels.lower().startswith("name")
         if add_labels:
             for k, cfg in self.fields.items():
                 if cfg["poly"]:
-                    if "volc" in which_labels:  # use the volcanic name
+                    if use_keys:
+                        label = k
+                    elif "volc" in which_labels.lower():  # use the volcanic name
                         label = cfg["name"][0]
-                    elif "intr" in which_labels:  # use the intrusive name
+                    elif "intr" in which_labels.lower():  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
-                        label = k
+                        raise NotImplementedError(
+                            "Invalid specification for labels: {}; chose from {}".format(
+                                which_labels, ", ".join("volcanic", "intrusive", "ID")
+                            )
+                        )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
                     _poly = matplotlib.patches.Polygon(verts)
                     x, y = get_centroid(_poly)
@@ -509,7 +539,6 @@ class FeldsparTernary(PolygonClassifier):
     .. [#ref_1] Deer, W. A., Howie, R. A., & Zussman, J. (2013).
         An introduction to the rock-forming minerals (3rd ed.).
         Mineralogical Society of Great Britain and Ireland.
-
     """
 
     def __init__(self, **kwargs):

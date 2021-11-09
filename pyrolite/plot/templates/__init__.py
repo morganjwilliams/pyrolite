@@ -6,11 +6,11 @@ Todo
 * Make use of new ax.axline features (https://matplotlib.org/3.3.1/users/whats_new.html#new-axes-axline-method)
 """
 
+from ...util.log import Handle
 from .pearce import pearceThNbYb, pearceTiNbYb
+from .QAP import QAP
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
-from .QAP import QAP
-from ...util.log import Handle
 
 logger = Handle(__name__)
 

@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from ...util.plot.axes import init_axes
+
 from ...util.classification import USDASoilTexture as USDAclassifier
-from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from ...util.log import Handle
+from ...util.meta import (sphinx_doi_link, subkwargs,
+                          update_docstring_references)
+from ...util.plot.axes import init_axes
 
 logger = Handle(__name__)
 

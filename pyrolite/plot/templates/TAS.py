@@ -1,15 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from ...util.plot.axes import init_axes
+
 from ...util.classification import TAS as TASclassifier
-from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from ...util.log import Handle
+from ...util.meta import (sphinx_doi_link, subkwargs,
+                          update_docstring_references)
+from ...util.plot.axes import init_axes
 
 logger = Handle(__name__)
 
 
 @update_docstring_references
-def TAS(ax=None, relim=True, color="k", **kwargs):
+def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **kwargs):
     """
     Adds the TAS diagram from Le Bas (1992) [#ref_1]_ to an axes.
 
@@ -17,6 +19,11 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         Axes to add the template on to.
+    add_labels : :class:`bool`
+        Whether to add labels at polygon centroids.
+    which_labels : :class:`str`
+        Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
+        or the field 'ID').
     relim : :class:`bool`
         Whether to relimit axes to fit the built in ranges for this diagram.
     color : :class:`str`
@@ -49,7 +56,7 @@ def TAS(ax=None, relim=True, color="k", **kwargs):
     ax = init_axes(ax=ax, **kwargs)
 
     tas = TASclassifier()
-    tas.add_to_axes(ax=ax, **kwargs)
+    tas.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
     if relim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)

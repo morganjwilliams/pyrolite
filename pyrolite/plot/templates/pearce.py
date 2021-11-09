@@ -1,9 +1,11 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
+import numpy as np
+
 from ...geochem.norm import get_reference_composition
-from .components import Linear2D, LogLinear2D, GeometryCollection, Point
 from ...util.log import Handle
+from ...util.meta import (sphinx_doi_link, subkwargs,
+                          update_docstring_references)
+from .components import GeometryCollection, Linear2D, LogLinear2D, Point
 
 logger = Handle(__name__)
 
@@ -47,7 +49,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
         )
 
     CH = get_reference_composition("Chondrite_SM89")
-    CH_ThNb = CH['Th'] / CH['Nb']
+    CH_ThNb = CH["Th"] / CH["Nb"]
 
     geom = GeometryCollection(
         Linear2D(slope=12.5, name="Upper Crustal Limit"),
