@@ -1,6 +1,9 @@
 import re
 import textwrap
+from string import ascii_lowercase
+
 import numpy as np
+
 from .log import Handle
 
 logger = Handle(__name__)
@@ -251,12 +254,11 @@ def int_to_alpha(num):
         Alpha-encoding of a small integer.
 
     """
-    alphas = [chr(i).lower() for i in range(65, 65 + 26)]
     remainder = num
     text = []
     if num >= 26:
         major = remainder // 26
-        text.append(alphas[remainder // 26 - 1])
+        text.append(ascii_lowercase[remainder // 26 - 1])
         remainder -= major * 26
-    text.append(alphas[remainder])
+    text.append(ascii_lowercase[remainder])
     return "".join(text)
