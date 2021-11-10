@@ -58,8 +58,8 @@ class PolygonClassifier(object):
     -----------
     name : :class:`str`
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
-        Names of the axes corresponding to the polygon coordinates.
+    axes : :class:`dict`
+        Mapping from plot axes to variables to be used for labels.
     fields : :class:`dict`
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
@@ -100,7 +100,7 @@ class PolygonClassifier(object):
             self.transform = lambda x: x  # passthrough
 
         self.name = name
-        self.axes = axes or []
+        self.axes = axes or {}
 
         # addition for multiple modes of one diagram
         # the diagram itself is assigned at instantiation time, so
@@ -183,7 +183,7 @@ class PolygonClassifier(object):
         Returns
         -------
         :class:`tuple`
-            Names of the x and y axes for the classifier.
+            Ordered names for axes used by the classifier.
         """
         return list(self.axes.values())
 
