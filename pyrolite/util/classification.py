@@ -318,16 +318,8 @@ class PolygonClassifier(object):
             which_labels=which_labels,
             **kwargs,
         )
-        if self.axes:  # may be none?
-            if len(self.axes) == 2 and self.projection is None:
-                ax.set_ylabel(self.axes[0])
-                ax.set_xlabel(self.axes[1])
-            elif len(self.axes) == 3 and (self.projection == "ternary"):
-                pass
-            else:
-                raise NotImplementedError
-
-        ax.set(**{"{}label".format(a): var for a, var in self.axes.items()})
+        if self.axes is not None:
+            ax.set(**{"{}label".format(a): var for a, var in self.axes.items()})
         return ax
 
 
