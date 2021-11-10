@@ -22,12 +22,8 @@ from matplotlib.projections import get_projection_class
 
 from ..comp.codata import close
 from .log import Handle
-from .meta import (
-    pyrolite_datafolder,
-    sphinx_doi_link,
-    subkwargs,
-    update_docstring_references,
-)
+from .meta import (pyrolite_datafolder, sphinx_doi_link, subkwargs,
+                   update_docstring_references)
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs
@@ -274,10 +270,15 @@ class PolygonClassifier(object):
 
         # if the axis has the default scaling, there's a good chance that it hasn't
         # been rescaled/rendered. We need to rescale to show the polygons.
+        # for the moment we're only doing this for standard projections
+        # todo: automatically find the relevant lim function,
+        # such that e.g. ternary limits might be able to be specified?
         if self.projection is None:
             if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
-                ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
-                ax.set_ylim(np.array(self.lims["ylim"]) * rescale_by)
+                if "xlim" in self.lims:
+                    ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
+                if "ylim" in self.lims:
+                    ax.set_ylim(np.array(self.lims["ylim"]) * rescale_by)
         return ax
 
     def add_to_axes(
