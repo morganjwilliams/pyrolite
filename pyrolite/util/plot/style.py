@@ -10,23 +10,24 @@ DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 """
 import itertools
 from pathlib import Path
-import pandas as pd
-import numpy as np
+
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.colors
-import matplotlib.lines
 import matplotlib.axes
 import matplotlib.collections
+import matplotlib.colors
+import matplotlib.lines
 import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib.legend_handler import HandlerTuple
+
 from ...comp.codata import close
-from ..meta import subkwargs, pyrolite_datafolder
 from ..general import copy_file
 from ..log import Handle
+from ..meta import pyrolite_datafolder, subkwargs
 from .helpers import get_centroid
 from .transform import xy_to_tlr
-
 
 logger = Handle(__name__)
 

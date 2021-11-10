@@ -1,8 +1,10 @@
 import numpy as np
 import scipy.stats as stats
-from pyrolite.util.math import nancov, augmented_covariance_matrix
+
+from pyrolite.comp.codata import ALR, close, inverse_ALR
+from pyrolite.util.math import augmented_covariance_matrix, nancov
 from pyrolite.util.missing import md_pattern
-from pyrolite.comp.codata import ALR, inverse_ALR, close
+
 from ..util.log import Handle
 
 logger = Handle(__name__)

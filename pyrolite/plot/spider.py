@@ -1,30 +1,24 @@
-import matplotlib.pyplot as plt
+import matplotlib.collections
 import matplotlib.lines
 import matplotlib.patches
-import matplotlib.collections
+import matplotlib.pyplot as plt
 import numpy as np
+
 from ..util.log import Handle
 
 logger = Handle(__name__)
 
 
-from .color import process_color
-from ..geochem.ind import get_ionic_radii, REE
-from ..util.types import iscollection
-from ..util.plot.style import (
-    DEFAULT_CONT_COLORMAP,
-    linekwargs,
-    scatterkwargs,
-    patchkwargs,
-)
-from ..util.plot.density import (
-    conditional_prob_density,
-    plot_Z_percentiles,
-    percentile_contour_values_from_meshz,
-)
-from ..util.plot.axes import get_twins, init_axes
-
+from ..geochem.ind import REE, get_ionic_radii
 from ..util.meta import get_additional_params, subkwargs
+from ..util.plot.axes import get_twins, init_axes
+from ..util.plot.density import (conditional_prob_density,
+                                 percentile_contour_values_from_meshz,
+                                 plot_Z_percentiles)
+from ..util.plot.style import (DEFAULT_CONT_COLORMAP, linekwargs, patchkwargs,
+                               scatterkwargs)
+from ..util.types import iscollection
+from .color import process_color
 
 _scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)
 _line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)

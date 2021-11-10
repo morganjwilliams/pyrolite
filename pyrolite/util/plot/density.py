@@ -7,16 +7,17 @@ USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
-import numpy as np
-from numpy.linalg import LinAlgError
-import scipy.interpolate
-from scipy.stats.kde import gaussian_kde
 import matplotlib.pyplot as plt
-from ..meta import subkwargs
-from ..math import flattengrid, linspc_, logspc_, interpolate_line
+import numpy as np
+import scipy.interpolate
+from numpy.linalg import LinAlgError
+from scipy.stats.kde import gaussian_kde
+
 from ..distributions import sample_kde
-from .grid import bin_centres_to_edges
 from ..log import Handle
+from ..math import flattengrid, interpolate_line, linspc_, logspc_
+from ..meta import subkwargs
+from .grid import bin_centres_to_edges
 
 logger = Handle(__name__)
 

@@ -1,8 +1,10 @@
 import numpy as np
-from ...util.math import on_finite, linspc_, logspc_, linrng_, logrng_, flattengrid
-from ...util.plot.grid import bin_centres_to_edges
+
 from ...util.distributions import sample_kde
 from ...util.log import Handle
+from ...util.math import (flattengrid, linrng_, linspc_, logrng_, logspc_,
+                          on_finite)
+from ...util.plot.grid import bin_centres_to_edges
 
 logger = Handle(__name__)
 

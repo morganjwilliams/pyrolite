@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
+
 from ..log import Handle
 
 logger = Handle(__name__)
 
 try:
+    from sklearn.base import BaseEstimator, TransformerMixin
     from sklearn.experimental import enable_iterative_imputer
-    from sklearn.base import TransformerMixin, BaseEstimator
     from sklearn.impute import IterativeImputer
 except ImportError:
     msg = "scikit-learn not installed"

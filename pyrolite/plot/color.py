@@ -1,9 +1,12 @@
 import copy
-import numpy as np
-import pandas as pd
+
 import matplotlib.colors
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
+
 from ..util.log import Handle
 
 logger = Handle(__name__)

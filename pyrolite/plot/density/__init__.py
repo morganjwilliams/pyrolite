@@ -141,7 +141,7 @@ def density(
 
     if (mode in ["hexbin", "hist2d"]) and contours:
         raise NotImplementedError(
-            "Contours are not currently implemented for 'hexbin' or 'hist2' modes."
+            "Contours are not currently implemented for 'hexbin' or 'hist2d' modes."
         )
 
     if (arr.size > 0) and valid_rows.any():

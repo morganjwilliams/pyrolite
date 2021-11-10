@@ -1,7 +1,8 @@
+from collections import defaultdict
+
 import numpy as np
 import pandas as pd
 import scipy.special
-from collections import defaultdict
 
 
 def md_pattern(Y):
@@ -25,10 +26,10 @@ def md_pattern(Y):
         Y = Y.values
     N, D = Y.shape
     # use int64 for higher-D arrays
-    pID = np.zeros(N).astype('int64')
+    pID = np.zeros(N).astype("int64")
     Ymiss = ~np.isfinite(Y)
     rows = np.arange(N)[~np.isfinite(np.sum(Y, axis=1))]
-    max_pats = scipy.special.comb(D, np.arange(0, D + 1)).sum().astype('int64')
+    max_pats = scipy.special.comb(D, np.arange(0, D + 1)).sum().astype("int64")
     pID[rows] = max_pats * 5  # initialise to high value
     pD = defaultdict(dict)
 

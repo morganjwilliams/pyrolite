@@ -22,8 +22,12 @@ from matplotlib.projections import get_projection_class
 
 from ..comp.codata import close
 from .log import Handle
-from .meta import (pyrolite_datafolder, sphinx_doi_link, subkwargs,
-                   update_docstring_references)
+from .meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    subkwargs,
+    update_docstring_references,
+)
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs

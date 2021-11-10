@@ -26,11 +26,6 @@ try:
 except:
     pass
 
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-logger = logging.getLogger(__name__)
-
 
 def _list_tindyb_unique_values(variable, dbpath=None):
     """

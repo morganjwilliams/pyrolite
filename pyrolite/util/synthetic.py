@@ -3,12 +3,13 @@ Utility functions for creating synthetic (geochemical) data.
 """
 import numpy as np
 import pandas as pd
+
 from ..comp.codata import ILR, inverse_ILR
+from ..geochem.ind import REE, get_ionic_radii
 from ..geochem.norm import get_reference_composition
-from ..geochem.ind import get_ionic_radii, REE
 from ..util.lambdas.eval import get_function_components
-from .meta import get_additional_params
 from .log import Handle
+from .meta import get_additional_params
 
 logger = Handle(__name__)
 
@@ -335,8 +336,7 @@ def example_patterns_from_parameters(
     columns=None,
 ):
 
-    """
-    """
+    """ """
     fit_parameters = np.tile(fit_parameters, n).reshape(n, -1)
     if radii is None:
         radii = get_ionic_radii(REE(), coordination=8, charge=3)

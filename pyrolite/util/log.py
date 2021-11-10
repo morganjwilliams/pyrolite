@@ -1,5 +1,5 @@
-import logging
 import io
+import logging
 
 # http://docs.python-guide.org/en/latest/writing/logging/
 

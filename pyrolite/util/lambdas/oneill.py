@@ -4,12 +4,12 @@ REE patterns.
 """
 import numpy as np
 import pandas as pd
-from .eval import lambda_poly
-from ..missing import md_pattern
-from ..meta import update_docstring_references
-from .params import parse_sigmas
-from .eval import get_function_components
+
 from ..log import Handle
+from ..meta import update_docstring_references
+from ..missing import md_pattern
+from .eval import get_function_components, lambda_poly
+from .params import parse_sigmas
 
 logger = Handle(__name__)
 

@@ -1,8 +1,9 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import periodictable as pt
-from ..util.pd import to_frame
+
 from ..util.log import Handle
+from ..util.pd import to_frame
 
 logger = Handle(__name__)
 

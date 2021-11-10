@@ -5,11 +5,12 @@ functions for predicting and accounting for melt evolution.
 import numpy as np
 import pandas as pd
 import periodictable as pt
-from .ind import __common_elements__, __common_oxides__
-from .transform import to_molecular, to_weight
+
+from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.units import scale
-from ..util.log import Handle
+from .ind import __common_elements__, __common_oxides__
+from .transform import to_molecular, to_weight
 
 logger = Handle(__name__)
 

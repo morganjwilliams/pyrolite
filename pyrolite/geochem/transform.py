@@ -1,25 +1,21 @@
 """
 Functions for converting, transforming and parameterizing geochemical data.
 """
-import periodictable as pt
-import pandas as pd
-import numpy as np
 import functools
-from ..comp.codata import renormalise, close
-from ..util.text import titlecase, remove_suffix
-from ..util.types import iscollection
-from ..util.meta import update_docstring_references
+
+import numpy as np
+import pandas as pd
+import periodictable as pt
+
+from ..comp.codata import close, renormalise
 from ..util import lambdas
-from .ind import (
-    REE,
-    get_ionic_radii,
-    simple_oxides,
-    __common_elements__,
-    __common_oxides__,
-    get_cations,
-)
-from .norm import Composition, get_reference_composition
 from ..util.log import Handle
+from ..util.meta import update_docstring_references
+from ..util.text import remove_suffix, titlecase
+from ..util.types import iscollection
+from .ind import (REE, __common_elements__, __common_oxides__, get_cations,
+                  get_ionic_radii, simple_oxides)
+from .norm import Composition, get_reference_composition
 
 logger = Handle(__name__)
 

@@ -1,9 +1,11 @@
 import importlib
 import inspect
+import warnings
 import webbrowser
 from pathlib import Path
+
 import numpydoc.docscrape
-import warnings
+
 from .log import Handle
 
 logger = Handle(__name__)

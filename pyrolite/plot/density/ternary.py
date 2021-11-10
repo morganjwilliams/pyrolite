@@ -1,11 +1,13 @@
 import inspect
-import numpy as np
+
 import matplotlib.tri
-from ...comp.codata import close, inverse_ILR, ILR, ALR, inverse_ALR
-from ...util.math import flattengrid
+import numpy as np
+
+from ...comp.codata import ALR, ILR, close, inverse_ALR, inverse_ILR
 from ...util.distributions import sample_kde
-from ...util.plot.grid import bin_centres_to_edges
 from ...util.log import Handle
+from ...util.math import flattengrid
+from ...util.plot.grid import bin_centres_to_edges
 
 logger = Handle(__name__)
 

@@ -9,11 +9,13 @@ References
        Journal of the International Association for Mathematical Geology 16, 531–564.
        doi: {aitchison1984}
 """
-import pandas as pd
 import logging
+
+import pandas as pd
+
+from ...comp.codata import renormalise
 from ...util.meta import pyrolite_datafolder, sphinx_doi_link
 from ...util.text import titlecase
-from ...comp.codata import renormalise
 
 __doc__ = __doc__.format(aitchison1984=sphinx_doi_link("10.1007/BF01029316"))
 __doc__ = str(__doc__).replace("ref", __name__)

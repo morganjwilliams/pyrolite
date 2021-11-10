@@ -2,12 +2,14 @@
 Submodule for working with compositional data.
 """
 
-import pandas as pd
-import numpy as np
 import functools
 import inspect
-from . import codata
+
+import numpy as np
+import pandas as pd
+
 from ..util.log import Handle
+from . import codata
 
 logger = Handle(__name__)
 

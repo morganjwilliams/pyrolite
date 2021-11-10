@@ -1,11 +1,12 @@
 """
 Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from ..meta import subkwargs
+
 from ..log import Handle
+from ..meta import subkwargs
 
 logger = Handle(__name__)
 

@@ -1,11 +1,12 @@
 import pandas as pd
-from ...geochem.ind import __common_elements__, __common_oxides__, REE
+
+from ...geochem.ind import REE, __common_elements__, __common_oxides__
 from ..log import Handle
 
 logger = Handle(__name__)
 
 try:
-    from sklearn.base import TransformerMixin, BaseEstimator
+    from sklearn.base import BaseEstimator, TransformerMixin
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)

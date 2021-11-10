@@ -3,8 +3,9 @@ Functions for calcuating indexes of chemical alteration.
 """
 import numpy as np
 import pandas as pd
-from ..util.meta import update_docstring_references
+
 from ..util.log import Handle
+from ..util.meta import update_docstring_references
 
 logger = Handle(__name__)
 

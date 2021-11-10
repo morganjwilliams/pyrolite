@@ -1,17 +1,15 @@
 """
 Submodule for working with geochemical data.
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from ..util.meta import update_docstring_references
 from ..util import units
-from . import parse
-from . import transform
-from . import norm
-from .ind import __common_elements__, __common_oxides__, REE, REY
-from .ions import set_default_ionic_charges
 from ..util.log import Handle
+from ..util.meta import update_docstring_references
+from . import norm, parse, transform
+from .ind import REE, REY, __common_elements__, __common_oxides__
+from .ions import set_default_ionic_charges
 
 logger = Handle(__name__)
 

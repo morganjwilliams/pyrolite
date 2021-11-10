@@ -1,10 +1,11 @@
 """
 Line interpolation for matplotlib lines and paths.
 """
+import matplotlib.collections
+import matplotlib.path
 import numpy as np
 import scipy.interpolate
-import matplotlib.path
-import matplotlib.collections
+
 from ..log import Handle
 
 logger = Handle(__name__)

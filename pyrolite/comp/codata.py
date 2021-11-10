@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-import scipy.stats
 import scipy.special
+import scipy.stats
 import sympy
 
+from ..util.log import Handle
 # from .renorm import renormalise, close
 from ..util.math import helmert_basis, symbolic_helmert_basis
-from ..util.log import Handle
 
 logger = Handle(__name__)
 

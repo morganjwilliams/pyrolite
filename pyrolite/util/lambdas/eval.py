@@ -4,9 +4,10 @@ parameters (the sequence of polymomial roots and tetrad centres and widths).
 """
 import numpy as np
 
-from .transform import REE_radii_to_z
-from .params import orthogonal_polynomial_constants, _get_params, _get_tetrad_params
 from ..log import Handle
+from .params import (_get_params, _get_tetrad_params,
+                     orthogonal_polynomial_constants)
+from .transform import REE_radii_to_z
 
 logger = Handle(__name__)
 

@@ -1,18 +1,15 @@
 """
 Functions for parsing, formatting and validating chemical names and formulae.
 """
-import re
 import functools
+import re
+
 import pandas as pd
-from ..util.text import titlecase
-from .ind import (
-    __common_oxides__,
-    __common_elements__,
-    get_cations,
-    common_elements,
-    get_isotopes,
-)
+
 from ..util.log import Handle
+from ..util.text import titlecase
+from .ind import (__common_elements__, __common_oxides__, common_elements,
+                  get_cations, get_isotopes)
 
 logger = Handle(__name__)
 

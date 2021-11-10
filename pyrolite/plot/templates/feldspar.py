@@ -21,7 +21,7 @@ def FeldsparTernary(
     """
     Simplified feldspar classifcation diagram, based on a version printed in the
     second edition of 'An Introduction to the Rock Forming Minerals' (Deer,
-    Howie and Zussman).
+    Howie and Zussman). [#ref_1]
 
     Parameters
     -----------

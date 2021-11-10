@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.special
 import scipy.stats
+
 from pyrolite.util.meta import inargs, subkwargs
 from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 

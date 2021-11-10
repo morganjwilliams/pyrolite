@@ -4,18 +4,17 @@ profiles based on parameterisations using 'lambdas' (and tetrad-equivalent weigh
 'taus').
 """
 import numpy as np
+
 from ... import plot
-from ...geochem.ind import get_ionic_radii, REE
-from .params import orthogonal_polynomial_constants, _get_params
-from .eval import (
-    get_lambda_poly_function,
-    get_tetrads_function,
-    get_function_components,
-)
-from .transform import REE_z_to_radii, REE_radii_to_z
+from ...geochem.ind import REE, get_ionic_radii
 from ..log import Handle
+from .eval import (get_function_components, get_lambda_poly_function,
+                   get_tetrads_function)
+from .params import _get_params, orthogonal_polynomial_constants
+from .transform import REE_radii_to_z, REE_z_to_radii
 
 logger = Handle(__name__)
+
 
 def plot_lambdas_components(lambdas, params=None, ax=None, **kwargs):
     """
@@ -161,14 +160,20 @@ def plot_profiles(
 
     # get the components and y values for the points/element locations
     names, x0, components = get_function_components(
-        radii, params=params, fit_tetrads=tetrads, tetrad_params=tetrad_params,
+        radii,
+        params=params,
+        fit_tetrads=tetrads,
+        tetrad_params=tetrad_params,
     )
     ys = np.exp(coefficients @ components)
     # get the components and y values for the smooth lines
     lineradii = np.linspace(radii[0], radii[-1], 1000)
 
     names, x0, linecomponents = get_function_components(
-        lineradii, params=params, fit_tetrads=tetrads, tetrad_params=tetrad_params,
+        lineradii,
+        params=params,
+        fit_tetrads=tetrads,
+        tetrad_params=tetrad_params,
     )
     liney = np.exp(coefficients @ linecomponents)
     z, linez = REE_radii_to_z(radii), REE_radii_to_z(lineradii)

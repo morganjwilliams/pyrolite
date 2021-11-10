@@ -1,7 +1,9 @@
+from collections import defaultdict
+
 import periodictable as pt
 from periodictable.core import Element
 from periodictable.formulas import Formula
-from collections import defaultdict
+
 from ..util.log import Handle
 
 logger = Handle(__name__)

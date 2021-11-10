@@ -4,13 +4,14 @@ estimation.
 """
 import numpy as np
 import pandas as pd
-import scipy.optimize
 import scipy.linalg
+import scipy.optimize
+
+from ..log import Handle
 from ..meta import update_docstring_references
 from ..missing import md_pattern
 from .eval import get_function_components
 from .params import parse_sigmas
-from ..log import Handle
 
 logger = Handle(__name__)
 

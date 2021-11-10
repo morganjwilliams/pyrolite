@@ -1,13 +1,14 @@
+import matplotlib.colors
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.colors
 from pandas.plotting import parallel_coordinates
-from .color import process_color
-from ..util.meta import subkwargs
-from ..util.plot.style import DEFAULT_CONT_COLORMAP, linekwargs
-from ..util.plot.axes import init_axes
+
 from ..util.log import Handle
+from ..util.meta import subkwargs
+from ..util.plot.axes import init_axes
+from ..util.plot.style import DEFAULT_CONT_COLORMAP, linekwargs
+from .color import process_color
 
 logger = Handle(__name__)
 
@@ -92,13 +93,13 @@ def parallel(
 
     colors = process_color(**kwargs)
 
-    [kwargs.pop(x, None) for x in colors.keys()] # so colors aren't added twice
+    [kwargs.pop(x, None) for x in colors.keys()]  # so colors aren't added twice
 
     parallel_coordinates(
         samples.loc[:, [target] + non_target],
         target,
         ax=ax,
-        color=colors.get('color', None),
+        color=colors.get("color", None),
         **subkwargs(kwargs, parallel_coordinates),
     )
     ax.spines["bottom"].set_color("none")

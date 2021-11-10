@@ -1,12 +1,14 @@
-import pandas as pd
-import numpy as np
-import periodictable as pt
 from collections import OrderedDict
+
+import numpy as np
+import pandas as pd
+import periodictable as pt
 import scipy.optimize
-from .sites import Site, MX, TX, OX
-from .transform import recalc_cations
-from .mindb import get_mineral, parse_composition
+
 from ..util.log import Handle
+from .mindb import get_mineral, parse_composition
+from .sites import MX, OX, TX, Site
+from .transform import recalc_cations
 
 logger = Handle(__name__)
 

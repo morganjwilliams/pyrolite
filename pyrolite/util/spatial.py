@@ -2,13 +2,15 @@
 Baisc spatial utility functions.
 """
 
-import numpy as np
-import pandas as pd
 import functools
 import itertools
+
+import numpy as np
+import pandas as pd
 from psutil import virtual_memory  # memory check
-from .math import on_finite
+
 from .log import Handle
+from .math import on_finite
 
 logger = Handle(__name__)
 

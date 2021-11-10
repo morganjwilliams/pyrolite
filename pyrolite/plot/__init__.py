@@ -1,37 +1,30 @@
 """
 Submodule with various plotting and visualisation functions.
 """
-import numpy as np
-import pandas as pd
+import warnings
 from pathlib import Path
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.style
 import mpltern
-import warnings
+import numpy as np
+import pandas as pd
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot.axes import init_axes, label_axes
-from ..util.plot.style import (
-    linekwargs,
-    scatterkwargs,
-    _export_mplstyle,
-    _export_nonRCstyles,
-)
-from ..util.plot.helpers import plot_cooccurence
-from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs
 from .. import geochem
-from . import density
-from . import spider
-from . import stem
-from . import parallel
-from .color import process_color
-
-from ..comp.codata import close, ILR
-from ..util.distributions import sample_kde, get_scaler
+from ..comp.codata import ILR, close
+from ..util.distributions import get_scaler, sample_kde
 from ..util.log import Handle
+from ..util.meta import get_additional_params, subkwargs
+from ..util.pd import to_frame
+from ..util.plot.axes import init_axes, label_axes
+from ..util.plot.helpers import plot_cooccurence
+from ..util.plot.style import (_export_mplstyle, _export_nonRCstyles,
+                               linekwargs, scatterkwargs)
+from . import density, parallel, spider, stem
+from .color import process_color
 
 logger = Handle(__name__)
 

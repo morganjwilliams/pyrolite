@@ -1,6 +1,7 @@
 import os
-from .types import iscollection
+
 from .log import Handle
+from .types import iscollection
 
 logger = Handle(__name__)
 

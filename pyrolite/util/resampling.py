@@ -3,9 +3,10 @@ Utilities for (weighted) bootstrap resampling applied to geoscientific point-dat
 """
 import numpy as np
 import pandas as pd
-from .meta import subkwargs
-from .spatial import great_circle_distance, _get_sqare_grid_segment_indicies
+
 from .log import Handle
+from .meta import subkwargs
+from .spatial import _get_sqare_grid_segment_indicies, great_circle_distance
 
 logger = Handle(__name__)
 

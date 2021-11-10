@@ -1,9 +1,11 @@
-import pandas as pd
+from collections import ChainMap, defaultdict
+
 import numpy as np
+import pandas as pd
+
+from .log import Handle
 from .meta import pyrolite_datafolder
 from .text import titlecase
-from collections import ChainMap, defaultdict
-from .log import Handle
 
 logger = Handle(__name__)
 

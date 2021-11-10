@@ -2,10 +2,11 @@
 Gridding and binning functions.
 """
 import numpy as np
-from ...comp.codata import close
-from .transform import ABC_to_xy, xy_to_ABC
 import scipy.interpolate
+
+from ...comp.codata import close
 from ..log import Handle
+from .transform import ABC_to_xy, xy_to_ABC
 
 logger = Handle(__name__)
 
