@@ -577,3 +577,61 @@ USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
 QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
+
+@update_docstring_references
+class SpinelTrivalentTernary(PolygonClassifier):
+    """
+    Spinel Trivalent Ternary classification
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1]
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "SpinelTrivalentTernary" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+@update_docstring_references
+class FeSpinel(PolygonClassifier):
+    """
+    Fe-Spinel classification
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1]
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "FeSpinel" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
