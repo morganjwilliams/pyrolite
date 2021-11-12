@@ -4,7 +4,6 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 from ..util.log import Handle
@@ -97,6 +96,7 @@ def process_color(
     cmap=None,
     alpha=None,
     norm=None,
+    bad="0.5",
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
     color_mappings={},
@@ -224,7 +224,7 @@ def process_color(
             C = cmap(norm(_C))
         elif cmode == "categories":
             C = np.array(C, dtype="object")
-            uniqueC = np.unique(C)
+            uniqueC = pd.unique(C)
             # this should now work for 'c' in addition to 'color', where the notation is matching
             cmapper = (
                 color_mappings.get("c")
@@ -232,6 +232,7 @@ def process_color(
                 else color_mappings.get("color")
             )
             if cmapper is None:
+                logger.debug("Using default value-mapping for categories.")
                 _C = np.ones(len(C), dtype="int") * np.nan
 
                 cmap = cmap or DEFAULT_DISC_COLORMAP
@@ -242,11 +243,13 @@ def process_color(
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
             else:
+                logger.debug("Using custom value-mapping for categories.")
                 C = np.array(C)
                 unique_vals = np.array(list(cmapper.values()))
                 _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
-                    val = matplotlib.colors.to_rgba(cmapper.get(cat))
+                    # subsitute in the 'bad' color for colors not in the cmap
+                    val = matplotlib.colors.to_rgba(cmapper.get(cat, bad))
                     _C[C == cat] = val  # get the mapping frome the dict
                 C = _C
         else:
