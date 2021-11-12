@@ -13,7 +13,7 @@ from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.text import remove_suffix, titlecase
 from ..util.types import iscollection
-from .ind import (REE, __common_elements__, __common_oxides__, get_cations,
+from .ind import (REE, _common_elements, _common_oxides, get_cations,
                   get_ionic_radii, simple_oxides)
 from .norm import Composition, get_reference_composition
 
@@ -668,8 +668,8 @@ def convert_chemistry(
     * Subsequent calls to convert_chemistry via normalize_to result in memory leaks
     """
     df = input_df.copy(deep=True)
-    oxides = __common_oxides__
-    elements = __common_elements__
+    oxides = _common_oxides
+    elements = _common_elements
     compositional_components = oxides | elements
     # multi-component dictionaries which are not elements/oxides/ratios
     coupled_sets = [

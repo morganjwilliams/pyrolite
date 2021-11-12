@@ -9,7 +9,7 @@ import periodictable as pt
 from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.units import scale
-from .ind import __common_elements__, __common_oxides__
+from .ind import _common_elements, _common_oxides
 from .transform import to_molecular, to_weight
 
 logger = Handle(__name__)
@@ -189,7 +189,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
         assert all([x == maxdim or x == 1 for x in _dims])
         cc, tt, pp = C, T, P
 
-    comp = set(df.columns) & (__common_elements__ | __common_oxides__)
+    comp = set(df.columns) & (_common_elements | _common_oxides)
     moldf = to_molecular(df.loc[:, comp], renorm=True) / 100.0  # mole-fraction
     molsum = to_molecular(df.loc[:, comp], renorm=False).sum(axis=1)
 

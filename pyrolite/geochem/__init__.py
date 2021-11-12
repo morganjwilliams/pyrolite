@@ -8,7 +8,7 @@ from ..util import units
 from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from . import norm, parse, transform
-from .ind import REE, REY, __common_elements__, __common_oxides__
+from .ind import REE, REY, _common_elements, _common_oxides
 from .ions import set_default_ionic_charges
 
 logger = Handle(__name__)
@@ -43,7 +43,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(__common_elements__)
+        fltr = self._obj.columns.isin(_common_elements)
         return self._obj.columns[fltr].tolist()
 
     @property
@@ -105,7 +105,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(__common_oxides__)
+        fltr = self._obj.columns.isin(_common_oxides)
         return self._obj.columns[fltr].tolist()
 
     @property

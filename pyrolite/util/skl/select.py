@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ...geochem.ind import REE, __common_elements__, __common_oxides__
+from ...geochem.ind import REE, _common_elements, _common_oxides
 from ..log import Handle
 
 logger = Handle(__name__)
@@ -49,7 +49,7 @@ class CompositionalSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None, inverse=False):
         """Select the oxide and element components from a dataframe."""
         if components is None:
-            components = __common_elements__ | __common_oxides__
+            components = _common_elements | _common_oxides
         self.columns = components
         self.inverse = inverse
 
@@ -70,7 +70,7 @@ class MajorsSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None):
         """Select the major element oxides from a dataframe."""
         if components is None:
-            components = __common_oxides__
+            components = _common_oxides
         self.columns = components
 
     def fit(self, X, y=None):
@@ -87,7 +87,7 @@ class ElementSelector(BaseEstimator, TransformerMixin):
     def __init__(self, components=None):
         """Select the (trace) elements from a dataframe."""
         if components is None:
-            components = __common_elements__
+            components = _common_elements
         self.columns = components
 
     def fit(self, X, y=None):

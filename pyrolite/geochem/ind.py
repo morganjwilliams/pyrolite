@@ -211,7 +211,7 @@ def common_oxides(
     * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
     if not elements:
-        elements = __common_elements__ - set(exclude)
+        elements = _common_elements - set(exclude)
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -529,6 +529,6 @@ get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
 __db__ = TinyDB(
     str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"), access_mode="r"
 )
-__common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
-__common_oxides__ = set(__db__.search(Query().name == "oxides")[0]["collection"])
+_common_elements = set(__db__.search(Query().name == "elements")[0]["collection"])
+_common_oxides = set(__db__.search(Query().name == "oxides")[0]["collection"])
 __db__.close()

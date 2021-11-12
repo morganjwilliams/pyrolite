@@ -24,7 +24,6 @@ results.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 import pyrolite.plot
 
 # sphinx_gallery_thumbnail_number = 2
@@ -387,7 +386,7 @@ ls_original = df.pyrochem.lambda_lnREE(params="ONeill2016")
 # this uses a full set of REE
 ls_fullREE_polynomials = df.pyrochem.lambda_lnREE(params="full")
 ########################################################################################
-# Note that as of :mod:`pyrolite` v0.2.8, the oringinal formulation is used by default,
+# Note that as of :mod:`pyrolite` v0.2.8, the original formulation is used by default,
 # but this will cease to be the case as of the following version, where the full set of
 # REE will instead be used to generate the orthogonal polynomials.
 #
