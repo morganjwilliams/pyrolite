@@ -1,5 +1,6 @@
-import versioneer
 from setuptools import find_packages, setup
+
+import versioneer
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
@@ -26,7 +27,7 @@ setup(
     version=versioneer.get_version(),
     url="https://github.com/morganjwilliams/pyrolite",
     project_urls={
-        "Documentation": "https://pyrolite.readthedocs.com/",
+        "Documentation": "https://pyrolite.readthedocs.io/",
         "Code": "https://github.com/morganjwilliams/pyrolite",
         "Issue tracker": "https://github.com/morganjwilliams/pyrolite/issues",
     },
