@@ -37,9 +37,11 @@ def close(X: np.ndarray, sumf=np.sum):
     """
 
     if X.ndim == 2:
-        return np.divide(X, sumf(X, axis=1)[:, np.newaxis])
+        C = sumf(X, axis=1)[:, np.newaxis]
     else:
-        return np.divide(X, sumf(X, axis=0))
+        C = sumf(X, axis=0)
+    C[np.isclose(C, 0)] = np.nan
+    return np.divide(X, C)
 
 
 def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
@@ -599,14 +601,13 @@ def sphere(ys):
             # vector - the product of sin components
             S = np.product(np.sin(θ[:, ix:]), axis=1)
             # where this evaluates to zero, the composition is all in the first component
-            S[np.isclose(S, 0.0)] = 1
+            S[np.isclose(S, 0.0)] = 1.0
 
         ratios = _ys[:, ix] / S
         # where this looks like it could be slightly higher than 1
         # np.arcos will return np.nan, so we can filter these.
-        ratios[np.isclose(ratios, 1.0)] = 1
+        ratios[np.isclose(ratios, 1.0)] = 1.0
         θ[:, ix - 1] = np.arccos(ratios)
-
     return θ
 
 
