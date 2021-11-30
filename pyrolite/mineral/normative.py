@@ -17,15 +17,15 @@ logger = Handle(__name__)
 # minerals for the CIPW Norm
 NORM_MINERALS = minerals = {
     "Q": {"name": "quartz", "formulae": "SiO2"},
-    "Z": {"name": "zircon", "formulae": "ZrO2 SiO2"},
+    "Z": {"name": "zircon", "formulae": "ZrO2 SiO2", "SINCLAS_abbrv": "ZIR"},
     "Ks": {"name": "potassium metasilicate", "formulae": "K2O SiO2"},
     "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2"},
     "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2"},
     "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 4SiO2"},
-    "Tn": {"name": "thenardite", "formulae": "Na2O SO3"},
+    "Th": {"name": "thenardite", "formulae": "Na2O SO3"},
     "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2"},
     "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2"},
-    "Pf": {"name": "perovskite", "formulae": "CaO TiO2"},
+    "Pf": {"name": "perovskite", "formulae": "CaO TiO2", "SINCLAS_abbrv": "PER"},
     "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 2SiO2"},
     "Lc": {"name": "leucite", "formulae": "K2O Al2O3 4SiO2"},
     "Cs": {"name": "dicalcium silicate", "formulae": "2CaO SiO2"},
@@ -33,20 +33,36 @@ NORM_MINERALS = minerals = {
     "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
     "CaF2-Ap": {"name": "fluroapatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
     "Fr": {"name": "fluorite", "formulae": "CaF2"},
-    "Pr": {"name": "pyrite", "formulae": "FeS2"},
-    "Cm": {"name": "chromite", "formulae": "FeO Cr2O3"},
-    "Il": {"name": "ilmenite", "formulae": "FeOTiO2"},
+    "Pr": {"name": "pyrite", "formulae": "FeS2", "SINCLAS_abbrv": "PYR"},
+    "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "SINCLAS_abbrv": "CHR"},
+    "Il": {"name": "ilmenite", "formulae": "FeO TiO2"},
     "Cc": {"name": "calcite", "formulae": "CaO CO2"},
     "C": {"name": "corundum", "formulae": "Al2O3"},
     "Ru": {"name": "rutile", "formulae": "TiO2"},
     "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3"},
-    "Hm": {"name": "hematite", "formulae": "Fe2O3"},
-    "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2"},
-    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2"},
-    "Fe-Di": {"name": "clinoferrosilite", "formulae": "CaO FeO 2SiO2"},
-    "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2"},
-    "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2"},
-    "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2"},
+    "Hm": {"name": "hematite", "formulae": "Fe2O3", "SINCLAsS_abbrv": "HE"},
+    "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "SINCLAS_abbrv": "FO"},
+    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "SINCLAS_abbrv": "FA"},
+    "Fe-Di": {
+        "name": "clinoferrosilite",
+        "formulae": "CaO FeO 2SiO2",
+        "SINCLAS_abbrv": "DIF",
+    },
+    "Mg-Di": {
+        "name": "clinoenstatite",
+        "formulae": "CaO MgO 2SiO2",
+        "SINCLAS_abbrv": "DIM",
+    },
+    "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "SINCLAS_abbrv": "HYF"},
+    "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2", "SINCLAS_abbrv": "HYM"},
+    # additions
+    "Tn": {"name": "titanite", "formulae": "CaO TiO2 SiO2", "SINCLAS_abbrv": "SPH"},
+    "Wo": {"name": "wollastonite", "formulae": "CaO SiO2"},
+    "Di": {"name": "diopside", "formulae": "CaO MgO 2SiO2"},
+    "Hy": {"name": "hypersthene", "formulae": "MgO SiO2"},
+    "Ol": {"name": "olivine", "formulae": "2MgO SiO2"},
+    "Hl": {"name": "halite", "formulae": "NaCl", "SINCLAS_abbrv": "HL"},
+    "Nc": {"name": "cancrinite", "formulae": "Na2O CO2", "SINCLAS_abbrv": "CAN"},
 }
 
 # Add standard masses to minerals
@@ -435,9 +451,11 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         Fe_correction = "LeMaitre"
 
     if adjust_all_Fe:
-        fltr = np.ones(df.index.size, dtype="bool")
+        logger.debug("Adjusting all Fe values.")
+        fltr = np.ones(df.index.size, dtype="bool")  # use all samples
     else:
         # check where the iron speciation is already specified or there is no iron
+        logger.debug("Adjusting Fe values where FeO-Fe2O3 speciation isn't given.")
         iron_specified = (
             (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
         ) | (
@@ -445,7 +463,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
                 df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
             )
         )
-        fltr = iron_specified
+        fltr = ~iron_specified  # Use samples where iron is not specified
 
     if Fe_correction.lower().startswith("lemait"):
         df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(
@@ -636,9 +654,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     # Normative Pyrite
     df["Pr"] = np.where(df["FeO"] >= 2 * df["S"], df["S"] / 2, df["FeO"]).T
 
-    df["FeO"] = np.where(
-        df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], df["FeO"] - df["Pr"] * 2
-    ).T
+    df["FeO"] = np.where(df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], 0).T
 
     df["FREE_S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["FeO"]).T
 
@@ -646,8 +662,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["FREEO_16"] = df["Pr"]
 
-    # Normative sodium carbonate or calcite
-
+    # Normative sodium carbonate (cancrinite) or calcite
     df["Nc"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["Na2O"]).T
 
     df["Na2O"] = np.where(df["Na2O"] >= df["CO2"], df["Na2O"] - df["Nc"], df["Na2O"]).T
@@ -702,7 +717,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     df["Al2O3"] = df["Al2O3_"]
     df["K2O"] = df["K2O_"]
 
-    # Normative Albite
+    # Normative Albite (provisional)
     df["Ab_p"] = np.where(df["Al2O3"] >= df["Na2O"], df["Na2O"], df["Al2O3"]).T
 
     df["Al2O3_"] = np.where(df["Al2O3"] >= df["Na2O"], df["Al2O3"] - df["Ab_p"], 0).T
@@ -714,7 +729,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     df["Al2O3"] = df["Al2O3_"]
     df["Na2O"] = df["Na2O_"]
 
-    # Normative Acmite / sodium metasilicate
+    # Normative Acmite / sodium metasilicate - 2(NaFe3+Si2O6), Na2SiO3
     df["Ac"] = np.where(df["Na2O"] >= df["Fe2O3"], df["Fe2O3"], df["Na2O"]).T
 
     df["Na2O_"] = np.where(df["Na2O"] >= df["Fe2O3"], df["Na2O"] - df["Ac"], 0).T
@@ -764,14 +779,15 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     # Normative Magnetite / Hematite
     df["Mt"] = np.where(df["Fe2O3"] >= df["FeO"], df["FeO"], df["Fe2O3"]).T
 
-    df["Fe2O3_"] = np.where(df["Fe2O3"] >= df["FeO"], df["Fe2O3"] - df["Mt"], 0).T
+    df["Fe2O3_"] = np.where(df["Fe2O3"] >= df["FeO"], df["Fe2O3"] - df["Mt"], 0.0).T
 
-    df["FeO_"] = np.where(df["Fe2O3"] >= df["FeO"], 0, df["FeO"] - df["Mt"]).T
+    df["FeO_"] = np.where(df["Fe2O3"] >= df["FeO"], 0.0, df["FeO"] - df["Mt"]).T
 
     df["Fe2O3"] = df["Fe2O3_"]
 
     df["FeO"] = df["FeO_"]
 
+    # remaining Fe2O3 goes into haematite
     df["Hm"] = df["Fe2O3"]
 
     # Subdivision of some normative minerals
@@ -807,7 +823,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["deficit"] = df["D"] > 0
 
-    # Normative Olivine / Hypersthene
+    # Normative Olivine / Hypersthene - Mg2SiO4, MgSiO3
     df["Ol_"] = np.where((df["D"] < df["Hy_p"] / 2), df["D"], df["Hy_p"] / 2).T
 
     df["Hy"] = np.where((df["D"] < df["Hy_p"] / 2), df["Hy_p"] - 2 * df["D"], 0).T
@@ -820,7 +836,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["deficit"] = df["D1"] > 0
 
-    # Normative Sphene / Perovskite
+    # Normative Sphene / Perovskite - CaTiSiO5 / CaTiO3
     df["Tn"] = np.where((df["D1"] < df["Tn_p"]), df["Tn_p"] - df["D1"], 0).T
 
     df["Pf_"] = np.where((df["D1"] < df["Tn_p"]), df["D1"], df["Tn_p"]).T
@@ -832,7 +848,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["deficit"] = df["D2"] > 0
 
-    # Normative Nepheline / Albite
+    # Normative Nepheline / Albite - 2(NaAlSi3O8) / 2(NaAlSiO8)
     df["Ne_"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["D2"] / 4, df["Ab_p"]).T
 
     df["Ab"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["Ab_p"] - df["D2"] / 4, 0).T
@@ -913,6 +929,9 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     ############################################################################
     # calculate free component molecular abundances
+    #
+    # Note that this accounts for potential differnces between mass used in
+    # Verma's implementation and that of periodictable
     ############################################################################
     FREE = pd.DataFrame()
 
