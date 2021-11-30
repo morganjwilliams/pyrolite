@@ -37,9 +37,10 @@ def close(X: np.ndarray, sumf=np.sum):
     """
 
     if X.ndim == 2:
-        C = sumf(X, axis=1)[:, np.newaxis]
+        C = np.array(sumf(X, axis=1))[:, np.newaxis]
     else:
-        C = sumf(X, axis=0)
+        C = np.array(sumf(X, axis=0))
+
     C[np.isclose(C, 0)] = np.nan
     return np.divide(X, C)
 
