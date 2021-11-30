@@ -92,7 +92,7 @@ def pcov_from_jac(jac):
 
 
 def linear_fit_components(y, x0, func_components, sigmas=None):
-    """
+    r"""
     Fit a weighted sum of function components using linear algebra.
 
     Parameters
@@ -167,7 +167,7 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
 def optimize_fit_components(
     y, x0, func_components, residuals_function=_residuals_func, sigmas=None
 ):
-    """
+    r"""
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
 

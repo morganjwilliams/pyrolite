@@ -126,7 +126,7 @@ def plot_profiles(
     logy=False,
     **kwargs
 ):
-    """
+    r"""
     Plot the reconstructed REE profiles of a 2D dataset of coefficients ($\lambda$s,
     and optionally $\tau$s).
 

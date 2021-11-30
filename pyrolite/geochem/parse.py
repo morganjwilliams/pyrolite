@@ -96,7 +96,7 @@ def ischem(s):
 
 
 def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
-    """
+    r"""
     Converts a list of strings containing come chemical compounds to
     appropriate case.
 
