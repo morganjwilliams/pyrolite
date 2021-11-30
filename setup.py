@@ -1,6 +1,5 @@
-from setuptools import find_packages, setup
-
 import versioneer
+from setuptools import find_packages, setup
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
@@ -55,8 +54,8 @@ setup(
         "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
-        "matplotlib",
-        "mpltern>=0.3.1",
+        "matplotlib>=3.5",  # tying updates between matplotlib and mpltern
+        "mpltern>=0.3.4",  # tying updates between matplotlib and mpltern
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy>=1.7",
