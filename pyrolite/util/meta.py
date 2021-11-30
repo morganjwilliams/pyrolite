@@ -26,8 +26,10 @@ def get_module_datafolder(module="pyrolite", subfolder=None):
     -------
     :class:`pathlib.Path`
     """
-    pth = importlib.machinery.PathFinder().find_module(module).get_filename(module)
-    pth = Path(pth).parent / "data"
+    pth = (
+        Path(importlib.machinery.PathFinder().find_spec("pyrolite").origin).parent
+        / "data"
+    )
     if subfolder:
         pth /= subfolder
     return pth

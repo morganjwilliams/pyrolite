@@ -107,7 +107,7 @@ class Linear2D(object):
         ylim=None,
         **kwargs
     ):
-        """
+        r"""
         Simple container for a 2D line object with basic utility functions.
         Lines can be generated from two points or a point and a slope.
 
