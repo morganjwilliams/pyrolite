@@ -21,13 +21,13 @@ def to_width(multiline_string, width=79, **kwargs):
 
 def normalise_whitespace(strg):
     """Substitutes extra tabs, newlines etc. for a single space."""
-    return re.sub("\s+", " ", strg).strip()
+    return re.sub(r"\s+", " ", strg).strip()
 
 
 def remove_prefix(z, prefix):
     """Remove a specific prefix from the start of a string."""
     if z.startswith(prefix):
-        return re.sub("^{}".format(prefix), "", z)
+        return re.sub(r"^{}".format(prefix), "", z)
     else:
         return z
 
@@ -52,7 +52,7 @@ def titlecase(
     exceptions=["and", "in", "a"],
     abbrv=["ID", "IGSN", "CIA", "CIW", "PIA", "SAR", "SiTiIndex", "WIP"],
     capitalize_first=True,
-    split_on="[\.\s_-]+",
+    split_on=r"[\.\s_-]+",
     delim="",
 ):
     """
@@ -209,7 +209,7 @@ def parse_entry(
             return [entry]
 
 
-def split_records(data, delimiter="\r\n"):
+def split_records(data, delimiter=r"\r\n"):
     """
     Splits records in a csv where quotation marks are used.
     Splits on a delimiter followed by an even number of quotation marks.
@@ -233,8 +233,8 @@ def slugify(value, delim="-"):
     -------
     :class:`str`
     """
-    value = re.sub("[^\w\s-]", "", value).strip()
-    value = re.sub("[-\s]+", delim, value)
+    value = re.sub(r"[^\w\s-]", "", value).strip()
+    value = re.sub(r"[-\s]+", delim, value)
     return value
 
 
