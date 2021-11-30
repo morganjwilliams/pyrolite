@@ -114,8 +114,8 @@ class TestTitlecase(unittest.TestCase):
             "lower case",
             "lower-case",
             "lower_case",
-            r"lower\tcase",
-            r"lower\ncase",
+            "lower\tcase",
+            "lower\ncase",
         ]:
             with self.subTest(string=string):
                 self.assertEqual(titlecase(string).lower(), "lowercase")
