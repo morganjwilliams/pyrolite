@@ -134,10 +134,9 @@ def oxide_conversion(oxin, oxout, molecular=False):
     outatoms = {k: v for (k, v) in oxout.atoms.items() if not str(k) == "O"}
     out_els = outatoms.keys()
     try:
-        assert (len(in_els) == len(out_els)) & (
-            len(in_els) == 1
-        )  # Assertion of simple oxide
-        assert in_els == out_els  # Need to be dealilng with the same element!
+        # Assertion of simple oxide
+        assert (len(in_els) == len(out_els)) & (len(in_els) == 1)
+        assert in_els == out_els  # Need to be dealing with the same element!
     except:
         raise ValueError("Incompatible compounds: {} --> {}".format(in_els, out_els))
     # Moles of product vs. moles of reactant
@@ -276,6 +275,7 @@ def aggregate_element(
     subsum = elemental_sum(
         df, to, total_suffix=total_suffix, logdata=logdata, molecular=molecular
     )
+    # split this elemental sum into different components
     cation = subsum.name
     species = simple_oxides(cation)
     species += [i + total_suffix for i in species]
@@ -665,7 +665,6 @@ def convert_chemistry(
     * Aggregator for ratios
     * Implement generalised redox transformation.
     * Add check for dicitonary components (e.g. Fe) in tests
-    * Subsequent calls to convert_chemistry via normalize_to result in memory leaks
     """
     df = input_df.copy(deep=True)
     oxides = _common_oxides
@@ -675,9 +674,12 @@ def convert_chemistry(
     coupled_sets = [
         i for i in to if not isinstance(i, (str, pt.core.Element, pt.formulas.Formula))
     ]
-    logger.debug(
-        "Found coupled sets: {}".format(", ".join([str(set(s)) for s in coupled_sets]))
-    )
+    if coupled_sets:
+        logger.debug(
+            "Found coupled sets: {}".format(
+                ", ".join([str(set(s)) for s in coupled_sets])
+            )
+        )
     # check that all sets in coupled_sets have the same cation
     coupled_components = [k for s in coupled_sets for k in s.keys()]
     # need to get the additional things from here
