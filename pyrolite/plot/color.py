@@ -81,7 +81,16 @@ def get_cmode(c=None):
                         cmode = "mixed_fmt_color_array"
                 if cmode is None:
                     # default cmode to fall back on - e.g. list of tuples/intervals etc
-                    cmode = "categories"
+                    # where they're all the same type
+                    types = {type(_c) for _c in set(c)}
+                    if len(types) == 1:
+                        cmode = "categories"
+                    else:
+                        raise NotImplementedError(
+                            "Cannot determine color mode from array including types {}.".format(
+                                ",".join([t.__name__ for t in types])
+                            )
+                        )
     if cmode is None:
         logger.debug("Color mode not found for item of type {}".format(type(c)))
         raise NotImplementedError  # single value, mixed numbers, strings etc
