@@ -71,16 +71,15 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
-* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative` (
+* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative`, largely
+  from contributions by both `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+  and `Tom Buckle <https://github.com/bomtuckle>`__ (
   `#53 <https://github.com/morganjwilliams/pyrslite/issues/53>`__).
   Note that the implementation still has a bug or two to be ironed out;
   it will currently raise a warning when used to make sure you're aware of this.
   An `example <https://pyrolite.readthedocs.io/en/develop/examples/geochem/CIPW.html>`__
   has been added demonstrating the intended functionality and demonstrating how
   coherent this is with existing implementations of CIPW (e.g. SINCLAS).
-  This feature comes from contributions by both
-  `Chetan Nathwani <https://github.com/ChetanNathwani>`__
-  and `Tom Buckle <https://github.com/bomtuckle>`__.
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
