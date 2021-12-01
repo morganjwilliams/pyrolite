@@ -13,8 +13,14 @@ from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.text import remove_suffix, titlecase
 from ..util.types import iscollection
-from .ind import (REE, _common_elements, _common_oxides, get_cations,
-                  get_ionic_radii, simple_oxides)
+from .ind import (
+    REE,
+    _common_elements,
+    _common_oxides,
+    get_cations,
+    get_ionic_radii,
+    simple_oxides,
+)
 from .norm import Composition, get_reference_composition
 
 logger = Handle(__name__)
@@ -212,20 +218,26 @@ def elemental_sum(
             subdf = subdf.applymap(np.exp)
 
         logger.debug(
-            "Converting all {} data to metallic {} equiv.".format(
-                cationname, cationname
+            "Converting all {} data ({}) to metallic {} equiv.".format(
+                cationname, ",".join(species), cationname
             )
         )
-        for s in species:
-            form = remove_suffix(s, suffix=total_suffix)
-            subdf[s] = subdf[s].apply(
-                oxide_conversion(form, cationname, molecular=molecular)
-            )
+        conversion_coeff = np.array(
+            [
+                oxide_conversion(
+                    remove_suffix(s, suffix=total_suffix),
+                    cationname,
+                    molecular=molecular,
+                )(1)
+                for s in species
+            ]
+        )
+        subdf *= conversion_coeff
 
         logger.debug("Zeroing non-finite and negative {} values.".format(cationname))
-        subdf[(~np.isfinite(subdf.values)) | (subdf < 0.0)] = 0.0
+        subdf.values[(~np.isfinite(subdf.values)) | (subdf.values < 0.0)] = 0.0
         subsum = subdf.sum(axis=1)
-        subsum[subsum <= 0.0] = np.nan
+        subsum.values[subsum.values <= 0.0] = np.nan
 
     if to is None:
         subsum.name = cationname
@@ -326,13 +338,10 @@ def aggregate_element(
             },
         )
     )
-    if drop:
-        logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
-        df = df.drop(columns=drop)
 
     for t in targetnames:
         if t not in _df:
-            _df[t] = np.nan  # avoid missing column errors
+            _df[t] = 0  # avoid missing column errors
 
     coeff = np.array(coeff)
     if coeff.ndim == 2:
@@ -344,7 +353,11 @@ def aggregate_element(
         logger.debug("Log-transforming {} Data.".format(cation))
         _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
 
-    df[targetnames] = _df.loc[:, targetnames]
+    if drop:
+        logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
+        df = df.drop(columns=drop)
+
+    df.loc[:, targetnames] = _df.loc[:, targetnames].replace(0, np.nan)
     if renorm:
         return renormalise(df)
     else:
