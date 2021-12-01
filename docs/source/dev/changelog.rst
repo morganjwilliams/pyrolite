@@ -71,17 +71,21 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
-* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative`.
+* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative` (
+  `#53 <https://github.com/morganjwilliams/pyrslite/issues/53>`__).
   Note that the implementation still has a bug or two to be ironed out;
   it will currently raise a warning when used to make sure you're aware of this.
   An `example <https://pyrolite.readthedocs.io/en/develop/examples/geochem/CIPW.html>`__
   has been added demonstrating the intended functionality and demonstrating how
   coherent this is with existing implementations of CIPW (e.g. SINCLAS).
+  This feature comes from contributions by both
+  `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+  and `Tom Buckle <https://github.com/bomtuckle>`__.
 
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-* Updated :func:`pyrolite.comp.codta.close` to better deal with zeros (avoiding
+* Updated :func:`pyrolite.comp.codata.close` to better deal with zeros (avoiding
   unnecessary warnings).
 * Added spherical coordinate transformation to :class:`pyrolite.comp.pyrocomp`
   and :mod:`pyrolite.comp.codata` (see :func:`pyrolite.comp.pyrocomp.sphere`).
@@ -91,10 +95,15 @@ All notable changes to this project will be documented here.
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Feature**: Added ternary classification plot templates
-  :class:`~pyrolite.plot.templates.USDASoilTexture` and
+  :class:`~pyrolite.plot.templates.USDASoilTexture`,
+  :class:`~pyrolite.util.templates.FeldsparTernary` and
   :class:`~pyrolite.plot.templates.QAP` (
   `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
   implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
+  The idea for implementing the ternary diagram came from a discussion with
+  Jordan Lubbers and Penny Wieser (of the `Thermobar <https://thermobar.readthedocs.io/>`__
+  team, who are working in similar spaces); they've now implemented a version using
+  :mod:`python-ternary` (rather than :mod:`mpltern`, which pyrolite is currently using).
 * Updated examples and documentation for density and contour plots.
 * Added autoscaling for standard :func:`~pyrolite.plot.pyroplot.spider` and
   related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
@@ -118,10 +127,6 @@ All notable changes to this project will be documented here.
   :class:`~pyrolite.util.classification.QAP` (
   `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
   implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__).
-  The idea for implementing the ternary diagram came from a discussion with
-  Jordan Lubbers and Penny Wieser (of the `Thermobar <https://thermobar.readthedocs.io/>`__
-  team, who are working in similar spaces); they've now implemented a version using
-  :mod:`python-ternary` (rather than :mod:`mpltern`, which pyrolite is currently using).
 * Added some functionality to :mod:`pyrolite.util.classification` to allow classifier
   fields to be precisely specified by ratios (useful in ternary systems), for multiple
   'modes' of diagrams to be contained a single configuration file, and fixed some issues
@@ -138,9 +143,9 @@ All notable changes to this project will be documented here.
   it's given if it doesn't exist.
 * Citation information for :mod:`~pyrolite.util.lambdas` updated to include
   recent publications.
-* Updated :mod:`~pyrolite.util.plot.helpers.plot_pca_vectors` to accept line `colors`
+* Updated :func:`~pyrolite.util.plot.helpers.plot_pca_vectors` to accept line `colors`
   and `linestyles` arguments.
-* Updated :mod:`~pyrolite.util.plot.helpers.init_spherical_octant` to accept
+* Updated :func:`~pyrolite.util.plot.helpers.init_spherical_octant` to accept
   a `fontsize` argument.
 * Added `example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/ternary_color.html>`__
   for coloring ternary diagrams and ternary scatter points based on a ternary color system.
