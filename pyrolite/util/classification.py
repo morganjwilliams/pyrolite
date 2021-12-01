@@ -310,6 +310,7 @@ class PolygonClassifier(object):
         --------
         ax : :class:`matplotlib.axes.Axes`
         """
+        ax = init_axes(ax=ax, projection=self.projection)
         ax = self._add_polygons_to_axes(
             ax=ax,
             fill=fill,
