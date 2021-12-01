@@ -1,15 +1,15 @@
 import numpy as np
 import pandas as pd
-from ...geochem.ind import REE, get_ionic_radii
-from ..meta import update_docstring_references
 
-from .params import orthogonal_polynomial_constants, _get_params
+from ...geochem.ind import REE, get_ionic_radii
+from ..log import Handle
+from ..meta import update_docstring_references
+from .eval import get_function_components
 from .oneill import lambdas_ONeill2016
 from .opt import lambdas_optimize
+from .params import _get_params, orthogonal_polynomial_constants
 from .plot import plot_lambdas_components, plot_profiles
 from .transform import REE_radii_to_z, REE_z_to_radii
-from .eval import get_function_components
-from ..log import Handle
 
 logger = Handle(__name__)
 

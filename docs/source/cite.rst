@@ -35,13 +35,7 @@ If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
 .. code-block:: latex
 
   @article{Williams2020,
-    doi = {10.21105/joss.02314},
-    url = {https://doi.org/10.21105/joss.02314},
-    year = {2020},
-    publisher = {The Open Journal},
-    volume = {5},
-    number = {50},
-    pages = {2314},
+    title = {pyrolite: Python for geochemistry},
     author = {Morgan J. Williams and
               Louise Schoneveld and
               Yajing Mao and
@@ -50,6 +44,37 @@ If you're after a BibTeX citation for :mod:`pyrolite`, I've added one below.
               Hayden Dalton and
               Adam Bath and
               Steve Barnes},
-    title = {pyrolite: Python for geochemistry},
+    year = {2020},
     journal = {Journal of Open Source Software}
+    doi = {10.21105/joss.02314},
+    url = {https://doi.org/10.21105/joss.02314},
+    publisher = {The Open Journal},
+    volume = {5},
+    number = {50},
+    pages = {2314},
+  }
+
+If you're using :mod:`pyrolite`'s implementation of `lambdas`, please consider
+citing a more recent publication directly related to this:
+
+  Anenburg, M., & Williams, M. J. (2021). Quantifying the Tetrad Effect,
+  Shape Components, and Ce–Eu–Gd Anomalies in Rare Earth Element Patterns.
+  Mathematical Geosciences.
+  doi: `10.1007/s11004-021-09959-5 <https://doi.org/10.1007/s11004-021-09959-5>`__
+
+
+Or, if you're using BibTeX:
+
+.. code-block:: latex
+
+  @article{Anenburg_Williams_2021,
+    title={Quantifying the Tetrad Effect, Shape Components,
+          and Ce–Eu–Gd Anomalies in Rare Earth Element Patterns},
+    author={Anenburg, Michael and Williams, Morgan J.},
+    year={2021},
+    journal={Mathematical Geosciences},
+    doi={10.1007/s11004-021-09959-5},
+    url={https://doi.org/10.1007/s11004-021-09959-5},
+    ISSN={1874-8953},
+    month={Jul}
   }

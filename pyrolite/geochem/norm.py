@@ -1,16 +1,18 @@
 """
 Reference compostitions and compositional normalisation.
 """
-import sys
-import pandas as pd
-import numpy as np
 import json
-from tinydb import TinyDB, Query
+import sys
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from tinydb import Query, TinyDB
+
+from ..util.log import Handle
+from ..util.meta import pyrolite_datafolder
 from ..util.text import to_width
 from ..util.units import scale
-from ..util.meta import pyrolite_datafolder
-from ..util.log import Handle
 
 logger = Handle(__name__)
 
@@ -31,12 +33,11 @@ def all_reference_compositions(path=None):
     """
     if path is None:
         path = __dbfile__
-    with TinyDB(str(path)) as db:
+    with TinyDB(str(path), access_mode="r") as db:
         refs = {}
         for r in db.all():  # there should be only one "_default" table
             n, c = r["name"], r["composition"]
             refs[n] = Composition(json.loads(c), name=n)
-        db.close()
     return refs
 
 
@@ -53,9 +54,8 @@ def get_reference_composition(name):
     --------
     :class:`pyrolite.geochem.norm.Composition`
     """
-    with TinyDB(str(__dbfile__)) as db:
+    with TinyDB(str(__dbfile__), access_mode="r") as db:
         res = db.search(Query().name == name)
-        db.close()
     assert len(res) == 1
     res = res[0]
     name, composition = res["name"], res["composition"]
@@ -96,6 +96,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     """
     if path is None:
         path = __dbfile__
+    # require write access
     with TinyDB(str(path)) as db:
         db.truncate()
 
@@ -153,7 +154,7 @@ class Composition(object):
             self._process_imported_frame()
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
             self.comp = pd.DataFrame(
-                src.loc[src.index[0], src.pyrochem.list_compositional].astype(np.float),
+                src.loc[src.index[0], src.pyrochem.list_compositional].astype(float),
                 index=["value"],
             )
         elif isinstance(src, dict):
@@ -212,14 +213,14 @@ class Composition(object):
 
         self.comp = self._df.loc[
             ["value"], self._df.pyrochem.list_compositional
-        ].astype(np.float)
+        ].astype(float)
         self.comp = self.comp.dropna(axis=1)
         if "units" in self._df.index:
             self.units = self._df.loc["units", self.comp.columns]
 
         if "unc_2sigma" in self._df.index:
             self.unc_2sigma = self._df.loc["unc_2sigma", self.comp.columns].astype(
-                np.float
+                float
             )
 
     def set_units(self, to="wt%"):
@@ -230,15 +231,13 @@ class Composition(object):
         ------------
         to : :class:`str`, :code:`"wt%"`
         """
-        scales = self.units.apply(scale, target_unit=to).astype(np.float)
+        scales = self.units.apply(scale, target_unit=to).astype(float)
         self.comp *= scales
         self.units[:] = to
         return self
 
     def describe(self, verbose=True, **kwargs):
-        """
-
-        """
+        """ """
         metadata = self._df.loc[
             "value",
             [

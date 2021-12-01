@@ -1,9 +1,12 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+
 import versioneer
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
     "sphinx_rtd_theme",
+    "docutils<0.17",
+    "sphinx>=4",
     "sphinx-autodoc-annotation",
     "sphinx_gallery>=0.6.0",
     "recommonmark",
@@ -25,7 +28,7 @@ setup(
     version=versioneer.get_version(),
     url="https://github.com/morganjwilliams/pyrolite",
     project_urls={
-        "Documentation": "https://pyrolite.readthedocs.com/",
+        "Documentation": "https://pyrolite.readthedocs.io/",
         "Code": "https://github.com/morganjwilliams/pyrolite",
         "Issue tracker": "https://github.com/morganjwilliams/pyrolite/issues",
     },
@@ -37,9 +40,9 @@ setup(
         "Intended Audience :: Education",
         "Natural Language :: English",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Framework :: Matplotlib",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -49,16 +52,15 @@ setup(
     install_requires=[
         "numpy",
         "numpydoc",
-        "pathlib",
-        "tinydb",
-        "typing-extensions", # required for newer tinydb versions?
+        "tinydb>4.1",  # >4.1 required for read-only access mode for JSON storage
+        "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
-        "matplotlib",
-        "mpltern>=0.3.1",
+        "matplotlib>=3.5",  # tying updates between matplotlib and mpltern
+        "mpltern>=0.3.4",  # tying updates between matplotlib and mpltern
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
-        "sympy",
+        "sympy>=1.7",
         "pandas>=1.0",  # dataframe acccessors, attrs attribute
         "xlrd",  # reading excel from pandas
         "openpyxl",  # writing excel from pandas

@@ -7,17 +7,16 @@ Todo
 * Incompatibility indexes for spider plot ordering.
 """
 import re
+
 import numpy as np
 import pandas as pd
 import periodictable as pt
-from tinydb import TinyDB, Query
-from ..util.text import titlecase, remove_suffix
-from ..util.meta import (
-    pyrolite_datafolder,
-    sphinx_doi_link,
-    update_docstring_references,
-)
+from tinydb import Query, TinyDB
+
 from ..util.log import Handle
+from ..util.meta import (pyrolite_datafolder, sphinx_doi_link,
+                         update_docstring_references)
+from ..util.text import remove_suffix, titlecase
 
 logger = Handle(__name__)
 
@@ -212,7 +211,7 @@ def common_oxides(
     * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
     if not elements:
-        elements = __common_elements__ - set(exclude)
+        elements = _common_elements - set(exclude)
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -527,7 +526,9 @@ get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
     "whittaker_muntus1970", sphinx_doi_link("10.1016/0016-7037(70)90077-3")
 )
 # generate sets
-__db__ = TinyDB(str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"))
-__common_elements__ = set(__db__.search(Query().name == "elements")[0]["collection"])
-__common_oxides__ = set(__db__.search(Query().name == "oxides")[0]["collection"])
+__db__ = TinyDB(
+    str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"), access_mode="r"
+)
+_common_elements = set(__db__.search(Query().name == "elements")[0]["collection"])
+_common_oxides = set(__db__.search(Query().name == "oxides")[0]["collection"])
 __db__.close()

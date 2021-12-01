@@ -25,7 +25,7 @@ via pip directly from GitHub:
 
 .. code-block:: bash
 
-  pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
+  pip install --user git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
 
 
 Tests

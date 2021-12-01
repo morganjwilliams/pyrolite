@@ -2,9 +2,14 @@
 Submodule for working with compositional data.
 """
 
+import functools
+import inspect
+
+import numpy as np
 import pandas as pd
-from . import codata
+
 from ..util.log import Handle
+from . import codata
 
 logger = Handle(__name__)
 
@@ -25,11 +30,14 @@ def attribute_transform(f, *args, **kwargs):
         Object with modified docstring.
     """
 
+    @functools.wraps(f)
     def wrapper(*args, **kwargs):
         output = f(*args, **kwargs)
         output.attrs["transform"] = f.__name__
         return output
 
+    wrapper.__signature__ = inspect.signature(f)
+    wrapper.__doc__ = f.__doc__  # keep the docstring!
     return wrapper
 
 
@@ -177,7 +185,9 @@ class pyrocomp(object):
             colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
 
         tfm_df = pd.DataFrame(
-            codata.CLR(self._obj.values), index=self._obj.index, columns=colnames,
+            codata.CLR(self._obj.values),
+            index=self._obj.index,
+            columns=colnames,
         )
         tfm_df.attrs[
             "inverts_to"
@@ -228,7 +238,9 @@ class pyrocomp(object):
             colnames = codata.get_ILR_labels(self._obj, mode=label_mode)
 
         tfm_df = pd.DataFrame(
-            codata.ILR(self._obj.values), index=self._obj.index, columns=colnames,
+            codata.ILR(self._obj.values),
+            index=self._obj.index,
+            columns=colnames,
         )
         tfm_df.attrs[
             "inverts_to"
@@ -320,6 +332,55 @@ class pyrocomp(object):
             codata.inverse_boxcox(self._obj.values, lmbda=lmbda),
             index=self._obj.index,
             columns=self._obj.columns,
+        )
+        return itfm_df
+
+    @attribute_transform
+    def sphere(self):
+        r"""
+        Spherical coordinate transformation for compositional data.
+
+        Returns
+        -------
+        θ : :class:`pandas.DataFrame`
+            Array of angles in radians (:math:`(0, \pi / 2]`)
+        """
+        arr = codata.sphere(self._obj.values)
+        tfm_df = pd.DataFrame(
+            arr,
+            index=self._obj.index,
+            columns=["θ_" + c for c in self._obj.columns[1:]],
+        )
+        # save column names for inverse_sphere
+        tfm_df.attrs["variables"] = self._obj.columns
+        return tfm_df
+
+    def inverse_sphere(self, variables=None):
+        """
+        Inverse spherical coordinate transformation to revert back to compositional data
+        in the simplex.
+
+        Parameters
+        ----------
+        variables : :class:`list`
+            List of names for the compositional data variables, optionally specified
+            (for when they may not be stored in the dataframe attributes through
+            the :class:`~pyrolite.comp.pyrocomp` functions).
+
+        Returns
+        -------
+        df : :class:`pandas.DataFrame`
+            Dataframe of original compositional (simplex) coordinates, normalised to 1.
+        """
+        if variables is None:
+            variables = self._obj.attrs.get(
+                "variables", np.arange(self._obj.columns.size)
+            )
+
+        itfm_df = pd.DataFrame(
+            codata.inverse_sphere(self._obj.values),
+            index=self._obj.index,
+            columns=variables,
         )
         return itfm_df
 

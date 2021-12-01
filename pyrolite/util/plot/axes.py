@@ -1,11 +1,12 @@
 """
 Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from ..meta import subkwargs
+
 from ..log import Handle
+from ..meta import subkwargs
 
 logger = Handle(__name__)
 
@@ -54,6 +55,16 @@ def replace_with_ternary_axis(ax):
     ------------
     tax : :class:`~mpltern.ternary.TernaryAxes`
     """
+    if ax.name != "ternary":
+        if not check_default_axes(ax):
+            if not check_empty(ax):
+                warnings.warn(
+                    "Non-empty, non-default bivariate axes being replaced with ternary axes."
+                )
+            else:
+                logger.info(
+                    "Non-default bivraite axes being replaced with ternary axes."
+                )
     fig = ax.figure
     axes = get_ordered_axes(fig)
     idx = axes.index(ax)
@@ -114,6 +125,46 @@ def axes_to_ternary(ax):
         fig = ax.figure
         tax = replace_with_ternary_axis(ax)
     return fig.orderedaxes
+
+
+def check_default_axes(ax):
+    """
+    Simple test to check whether an axis is empty of artists and hasn't been
+    rescaled from the default extent.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to check for artists and scaling.
+
+    Returns
+    -------
+    :class:`bool`
+    """
+
+    if np.allclose(ax.axis(), np.array([0, 1, 0, 1])):
+        return check_empty(ax)
+    else:
+        return False
+
+
+def check_empty(ax):
+    """
+    Simple test to check whether an axis is empty of artists.
+
+    Parameters
+    -----------
+    ax : :class:`matplotlib.axes.Axes`
+        Axes to check for artists.
+
+    Returns
+    -------
+    :class:`bool`
+    """
+    if not (ax.lines + ax.collections + ax.patches + ax.artists + ax.texts + ax.images):
+        return True
+    else:
+        return False
 
 
 def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):

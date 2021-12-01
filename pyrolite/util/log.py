@@ -1,12 +1,12 @@
-import logging
 import io
+import logging
 
 # http://docs.python-guide.org/en/latest/writing/logging/
 
 
 def Handle(
     logger,
-    handler=logging.NullHandler(),
+    handler_class=logging.StreamHandler,
     formatter="%(asctime)s %(name)s - %(levelname)s: %(message)s",
     level=None,
 ):
@@ -17,8 +17,8 @@ def Handle(
     -----------
     logger : :class:`logging.Logger` | :class:`str`
         Logger or module name to source a logger from.
-    handler : :class:`logging.Handler`
-        Handler for the logging messages.
+    handler_class : :class:`logging.Handler`
+        Handler class for the logging messages.
     formatter : :class:`str` | :class:`logging.Formatter`
         Formatter for the logging handler. Strings will be passed to
         the :class:`logging.Formatter` constructor.
@@ -36,10 +36,22 @@ def Handle(
         pass
     else:
         raise NotImplementedError
+    logger.propagate = False
     if isinstance(formatter, str):
         formatter = logging.Formatter(formatter)
+
+    active_handlers = [
+        i
+        for i in logger.handlers
+        if isinstance(i, (handler_class))  # not a null handler
+    ]
+    if active_handlers:
+        handler = active_handlers[0]  # use the existing stream handler
+    else:
+        handler = handler_class()
     handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if handler not in active_handlers:
+        logger.addHandler(handler)
     if level is not None:
         logger.setLevel(getattr(logging, level))
     return logger
@@ -107,7 +119,7 @@ def stream_log(logger=None, level="INFO"):
     ]
 
     if active_handlers:
-        handler = active_handlers[0]  # use the existing one
+        handler = active_handlers[0]  # use the existing stream handler
     else:
         handler = logging.StreamHandler()  # make a new one
 

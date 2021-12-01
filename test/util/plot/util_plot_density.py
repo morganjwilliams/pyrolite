@@ -1,14 +1,13 @@
 import unittest
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import multivariate_normal
-from pyrolite.util.plot.density import (
-    percentile_contour_values_from_meshz,
-    plot_Z_percentiles,
-)
-from pyrolite.util.plot.legend import proxy_line
-from matplotlib.lines import _get_dash_pattern, _scale_dashes
+
 import matplotlib.colors
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.lines import _get_dash_pattern, _scale_dashes
+from pyrolite.util.plot.density import (percentile_contour_values_from_meshz,
+                                        plot_Z_percentiles)
+from pyrolite.util.plot.legend import proxy_line
+from scipy.stats import multivariate_normal
 
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):
@@ -81,7 +80,7 @@ class TestPlotZPercentiles(unittest.TestCase):
         for contour, color, ls, lw in zip(
             cs.collections, colors, linestyles, linewidths
         ):
-            self.assertTrue((contour.get_color() == color).all())
+            self.assertTrue((contour.get_edgecolor() == color).all())
             self.assertEqual(contour.get_linestyle(), [_scale_dashes(*ls, lw)])
             self.assertEqual(contour.get_linewidth(), lw)
 

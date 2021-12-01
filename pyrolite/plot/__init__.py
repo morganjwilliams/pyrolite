@@ -1,37 +1,30 @@
 """
 Submodule with various plotting and visualisation functions.
 """
-import numpy as np
-import pandas as pd
+import warnings
 from pathlib import Path
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.style
 import mpltern
-import warnings
+import numpy as np
+import pandas as pd
 
 warnings.filterwarnings("ignore", "Unknown section")
 
-from ..util.plot.axes import init_axes, label_axes
-from ..util.plot.style import (
-    linekwargs,
-    scatterkwargs,
-    _export_mplstyle,
-    _export_nonRCstyles,
-)
-from ..util.plot.helpers import plot_cooccurence
-from ..util.pd import to_frame
-from ..util.meta import get_additional_params, subkwargs
 from .. import geochem
-from . import density
-from . import spider
-from . import stem
-from . import parallel
-from .color import process_color
-
-from ..comp.codata import close, ILR
-from ..util.distributions import sample_kde, get_scaler
+from ..comp.codata import ILR, close
+from ..util.distributions import get_scaler, sample_kde
 from ..util.log import Handle
+from ..util.meta import get_additional_params, subkwargs
+from ..util.pd import to_frame
+from ..util.plot.axes import init_axes, label_axes
+from ..util.plot.helpers import plot_cooccurence
+from ..util.plot.style import (_export_mplstyle, _export_nonRCstyles,
+                               linekwargs, scatterkwargs)
+from . import density, parallel, spider, stem
+from .color import process_color
 
 logger = Handle(__name__)
 
@@ -124,9 +117,7 @@ class pyroplot(object):
         ax.set_yticklabels(obj.columns, minor=False)
         return ax
 
-    def density(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def density(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
         esitimates from point data. Convenience access function to
@@ -154,7 +145,7 @@ class pyroplot(object):
         components = _check_components(obj, components=components)
 
         ax = density.density(
-            obj.reindex(columns=components).astype(np.float).values, ax=ax, **kwargs
+            obj.reindex(columns=components).astype(float).values, ax=ax, **kwargs
         )
         if axlabels:
             label_axes(ax, labels=components)
@@ -216,11 +207,9 @@ class pyroplot(object):
 
     def parallel(
         self,
-        columns=None,
+        components=None,
         rescale=False,
-        color_by=None,
         legend=False,
-        cmap=plt.cm.viridis,
         ax=None,
         **kwargs,
     ):
@@ -229,6 +218,16 @@ class pyroplot(object):
         Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
         the columns of the :class:`~pandas.DataFrame`.
 
+        Parameters
+        -----------
+        components : :class:`list`, :code:`None`
+            Components to use as axes for the plot.
+        rescale : :class:`bool`
+            Whether to rescale values to [-1, 1].
+        legend : :class:`bool`, :code:`False`
+            Whether to include or suppress the legend.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
         {otherparams}
 
         Returns
@@ -245,19 +244,15 @@ class pyroplot(object):
         obj = to_frame(self._obj)
         ax = parallel.parallel(
             obj,
-            columns=columns,
+            components=components,
             rescale=rescale,
-            color_by=color_by,
             legend=legend,
-            cmap=cmap,
             ax=ax,
             **kwargs,
         )
         return ax
 
-    def plot(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def plot(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Convenience method for line plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -334,7 +329,7 @@ class pyroplot(object):
         ree = [i for i in geochem.ind.REE(dropPm=dropPm) if i in obj.columns]
 
         ax = spider.REE_v_radii(
-            obj.reindex(columns=ree).astype(np.float).values,
+            obj.reindex(columns=ree).astype(float).values,
             index=index,
             ree=ree,
             mode=mode,
@@ -343,12 +338,10 @@ class pyroplot(object):
             line_kw=line_kw,
             **kwargs,
         )
-        ax.set_ylabel(" $\mathrm{X / X_{Reference}}$")
+        ax.set_ylabel(r"$\mathrm{X / X_{Reference}}$")
         return ax
 
-    def scatter(
-        self, components: list = None, ax=None, axlabels=True, **kwargs,
-    ):
+    def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
         r"""
         Convenience method for scatter plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
@@ -376,7 +369,7 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
         kw = process_color(size=size, **kwargs)
-        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw),)
+        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
 
         if axlabels:
             label_axes(ax, labels=components)
@@ -393,6 +386,7 @@ class pyroplot(object):
         ax=None,
         mode="plot",
         index_order=None,
+        autoscale=True,
         scatter_kw={},
         line_kw={},
         **kwargs,
@@ -412,6 +406,8 @@ class pyroplot(object):
             The subplot to draw on.
         index_order
             Function to order spider plot indexes (e.g. by incompatibility).
+        autoscale : :class:`bool`
+            Whether to autoscale the y-axis limits for standard spider plots.
         mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
@@ -460,10 +456,11 @@ class pyroplot(object):
             pass
 
         ax = spider.spider(
-            obj.reindex(columns=components).astype(np.float).values,
+            obj.reindex(columns=components).astype(float).values,
             indexes=indexes,
             ax=ax,
             mode=mode,
+            autoscale=autoscale,
             scatter_kw=scatter_kw,
             line_kw=line_kw,
             **kwargs,

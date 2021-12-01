@@ -1,9 +1,10 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from ..comp import codata
-from ..util.plot.axes import init_axes
 from ..util.log import Handle
+from ..util.plot.axes import init_axes
 
 logger = Handle(__name__)
 

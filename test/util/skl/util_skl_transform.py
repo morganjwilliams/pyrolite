@@ -22,7 +22,7 @@ except ImportError:
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
-class TestLogTransformers(unittest.TestCase):
+class TesCompositionalTransformers(unittest.TestCase):
     """Checks the scikit-learn invertible transformer classes."""
 
     def setUp(self):
@@ -92,6 +92,16 @@ class TestLogTransformers(unittest.TestCase):
         """Test the isometric log ratio transfomer."""
         df = self.df
         tmr = BoxCoxTransform()
+        for input in [df, df.values, df.iloc[0, :]]:
+            with self.subTest(input=input):
+                out = tmr.transform(input)
+                inv = tmr.inverse_transform(out)
+                self.assertTrue(np.allclose(np.array(inv), np.array(input)))
+
+    def test_sphere_transformer(self):
+        """Test the spherical coordinate transfomer."""
+        df = self.df
+        tmr = SphericalCoordTransform()
         for input in [df, df.values, df.iloc[0, :]]:
             with self.subTest(input=input):
                 out = tmr.transform(input)

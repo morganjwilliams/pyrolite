@@ -1,12 +1,13 @@
+import datetime
+import operator
 import os
 import re
-import time
 import shutil
-from tempfile import mkdtemp
-import operator
+import time
 from collections.abc import Mapping
 from pathlib import Path
-import datetime
+from tempfile import mkdtemp
+
 from .log import Handle
 
 logger = Handle(__name__)

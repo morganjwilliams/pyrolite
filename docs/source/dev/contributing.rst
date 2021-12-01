@@ -78,7 +78,7 @@ or a relevant feature branch.
 
   * :code:`pyrolite` development roughly follows a
     `gitflow workflow <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>`__.
-    :code:`pyrolite/master` is only used for releases, and large separable features
+    :code:`pyrolite/main` is only used for releases, and large separable features
     should be build on :code:`feature` branches off :code:`develop`.
 
   * Contributions introducing new functions, classes or entire features should

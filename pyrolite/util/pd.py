@@ -1,9 +1,11 @@
-import pandas as pd
 import hashlib
 from pathlib import Path
+
 import numpy as np
-from .meta import subkwargs
+import pandas as pd
+
 from .log import Handle
+from .meta import subkwargs
 
 logger = Handle(__name__)
 
@@ -201,9 +203,7 @@ def zero_to_nan(df, rtol=1e-5, atol=1e-8):
         Censored DataFrame.
     """
     cols = [
-        name
-        for (name, type) in zip(df.columns, df.dtypes)
-        if isinstance(type, np.float)
+        name for (name, type) in zip(df.columns, df.dtypes) if isinstance(type, float)
     ]
     df.loc[:, cols] = np.where(
         np.isclose(df[cols].values, 0.0, rtol=rtol, atol=atol), np.nan, df[cols].values
@@ -222,10 +222,10 @@ def outliers(
     logquantile=False,
     exclude=False,
 ):
-    """"""
+    """ """
     if not cols:
         cols = df.columns
-    colfltr = (df.dtypes == np.float) & ([i in cols for i in df.columns])
+    colfltr = (df.dtypes == float) & ([i in cols for i in df.columns])
     low, high = np.min(quantile_select), np.max(quantile_select)
     if not logquantile:
         quantile = df.loc[:, colfltr].quantile([low, high])

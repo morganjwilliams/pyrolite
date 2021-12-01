@@ -1,16 +1,17 @@
 """
 matplotlib helper functions for commong drawing tasks.
 """
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy.spatial
-from ..math import eigsorted, nancov
-from ..text import int_to_alpha
-from ..missing import cooccurence_pattern
-from .interpolation import interpolated_patch_path
-from .axes import add_colorbar, subaxes
+
 from ..log import Handle
+from ..math import eigsorted, nancov
+from ..missing import cooccurence_pattern
+from ..text import int_to_alpha
+from .axes import add_colorbar, init_axes, subaxes
+from .interpolation import interpolated_patch_path
 
 logger = Handle(__name__)
 
@@ -186,7 +187,16 @@ def plot_stdev_ellipses(
     return ax
 
 
-def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwargs):
+def plot_pca_vectors(
+    comp,
+    nstds=2,
+    scale=100.0,
+    transform=None,
+    ax=None,
+    colors=None,
+    linestyles=None,
+    **kwargs
+):
     """
     Plot vectors corresponding to principal components and their magnitudes.
 
@@ -219,12 +229,28 @@ def plot_pca_vectors(comp, nstds=2, scale=100.0, transform=None, ax=None, **kwar
     if ax is None:
         fig, ax = plt.subplots(1)
 
-    for variance, vector in zip(pca.explained_variance_, pca.components_):
+    iter = [pca.explained_variance_, pca.components_]
+    if linestyles is not None:
+        assert len(linestyles) == 2
+        iter.append(linestyles)
+    else:
+        iter.append([None, None])
+    if colors is not None:
+        assert len(colors) == 2
+        iter.append(colors)
+    else:
+        iter.append([None, None])
+    for variance, vector, linestyle, color in zip(*iter):
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
         line *= scale
-        ax.plot(*line.T, **kwargs)
+        kw = {**kwargs}
+        if color is not None:
+            kw["color"] = color
+        if linestyle is not None:
+            kw["ls"] = linestyle
+        ax.plot(*line.T, **kw)
     return ax
 
 
@@ -332,7 +358,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         10 * np.ones_like(nanydata) + 5 * np.random.randn(len(nanydata)),
         nanydata,
         zorder=-1,
-        **kwargs
+        **kwargs,
     )
 
     # xminmax = np.nanmin(xdata), np.nanmax(xdata)
@@ -345,7 +371,154 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
         nanxdata,
         10 * np.ones_like(nanxdata) + 5 * np.random.randn(len(nanxdata)),
         zorder=-1,
-        **kwargs
+        **kwargs,
     )
+
+    return ax
+
+
+###############################################################################
+# Helpers for pyrolite.comp.codata.sphere and related functions
+from pyrolite.comp.codata import inverse_sphere, sphere
+
+
+def _get_spherical_vector(phis):
+    """
+    Get a line aligned to a unit vector corresponding to a specific combination
+    of angles.
+
+    Parameters
+    ----------
+    phis : :class:`numpy.ndarray`
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+    """
+    start = np.array([0, 0, 0])
+    vector = np.sqrt(inverse_sphere(phis))
+    return np.vstack([np.zeros_like(vector), vector, vector * 1.5])
+
+
+def _plot_spherical_vector(ax, phis, marker="D", markevery=(1, 2), ls="--", **kwargs):
+    """
+    Plot a unit vector corresponding to angles `phis` on a specified axis.
+
+    Parameters
+    ----------
+    ax : :class:`matplotlib.axes.Axes3D`
+    """
+    vector = _get_spherical_vector(phis)
+    ax.plot(*vector.T, marker=marker, markevery=markevery, ls=ls, **kwargs)
+
+
+def _get_spherical_arc(thetas0, thetas1, resolution=100):
+    """
+    Get a 3D arc on a sphere between two points.
+
+    Parameters
+    ----------
+    thetas0 : :class:`numpy.ndarray`
+        Angles corresponding to first unit vector.
+    thetas1 : :class:`numpy.ndarray`
+        Angles corresponding to second unit vector.
+    resolution : :class:`int`
+        Resolution of the line to be used/number of points in the line.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+    """
+    # check that the points are on the sphere?
+    v0, v1 = _get_spherical_vector(thetas0)[1], _get_spherical_vector(thetas1)[1]
+    vs = v0 + np.linspace(0, 1, resolution + 1)[:, None] * (v1 - v0)
+    r = np.sqrt((vs ** 2).sum(axis=1))  # equivalent arc radius
+    vs = vs / r[:, None]
+    return vs
+
+
+def init_spherical_octant(
+    angle_indicated=30, labels=None, view_init=(25, 55), fontsize=10, **kwargs
+):
+    """
+    Initalize a figure with a 3D octant of a unit sphere, appropriately labeled
+    with regard to angles corresponding to the handling of the respective
+    compositional data transformation function (:func:`~pyrolite.comp.codata.sphere`).
+
+    Parameters
+    -----------
+    angle_indicated : :class:`float`
+        Angle relative to axes for indicating the relative positioning, optional.
+    labels : :class:`list`
+        Optional specification of data/axes labels. This will be used for labelling
+        of both the axes and optionally-added arcs specifying which angles are
+        represented.
+
+    Returns
+    -------
+    ax : :class:`matplotlib.axes.Axes3D`
+        Initialized 3D axis.
+    """
+    ax = init_axes(subplot_kw=dict(projection="3d"), **kwargs)
+
+    ax.view_init(*view_init)
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor("w")
+    ax.yaxis.pane.set_edgecolor("w")
+    ax.zaxis.pane.set_edgecolor("w")
+    ax.grid(False)
+
+    if labels is None:
+        labels = ["x", "y", "z"]
+        angle_labels = [r"$\theta_2$", r"$\theta_3$"]
+    else:
+        angle_labels = [
+            r"$\theta_{" + labels[-2] + "}$",
+            r"$\theta_{" + labels[-1] + "}$",
+        ]
+
+    # axes lines
+    lines = np.array([[0, 1, 1.5], [0, 0, 0]])
+
+    ax.plot(*lines[[0, 1, 1]], lw=2, color="k", marker="D", markevery=(1, 2))  # x axis
+    ax.plot(*lines[[1, 0, 1]], lw=2, color="k", marker="D", markevery=(1, 2))  # y axis
+    ax.plot(*lines[[1, 1, 0]], lw=2, color="k", marker="D", markevery=(1, 2))  # z axis
+    # axes labels
+    for ix, row in enumerate(np.eye(3) * 1.6):
+        ax.text(*row, labels[ix], fontsize=fontsize)
+
+    if angle_indicated is not None:
+        _a = np.deg2rad(angle_indicated)
+        # theta 2 ##############################################################
+        _plot_spherical_vector(ax, np.array([[_a, np.pi / 2]]), color="purple")
+        ax.plot(
+            *_get_spherical_arc(
+                np.array([[_a, np.pi / 2]]), np.array([[0, np.pi / 2]])
+            ).T,
+            color="purple",
+        )
+        theta2_pos = (
+            _get_spherical_vector(np.array([[_a, np.pi / 2]]))[1]
+            + np.array([0, 1, 0]) / 2
+        )
+        ax.text(*theta2_pos, angle_labels[0], color="purple", fontsize=fontsize)
+
+        # theta 3 ##############################################################
+        _plot_spherical_vector(ax, np.array([[_a, _a]]), color="g")
+        ax.plot(
+            *_get_spherical_arc(np.array([[np.pi / 2, 0]]), np.array([[_a, _a]])).T,
+            color="green",
+        )
+        theta3_pos = (
+            _get_spherical_vector(np.array([[_a, _a]]))[1] + np.array([0, 0, 1]) / 2
+        )
+        ax.text(
+            *theta3_pos, angle_labels[1], ha="left", color="green", fontsize=fontsize
+        )
 
     return ax

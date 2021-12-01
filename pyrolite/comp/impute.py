@@ -1,8 +1,10 @@
 import numpy as np
 import scipy.stats as stats
-from pyrolite.util.math import nancov, augmented_covariance_matrix
+
+from pyrolite.comp.codata import ALR, close, inverse_ALR
+from pyrolite.util.math import augmented_covariance_matrix, nancov
 from pyrolite.util.missing import md_pattern
-from pyrolite.comp.codata import ALR, inverse_ALR, close
+
 from ..util.log import Handle
 
 logger = Handle(__name__)
@@ -83,7 +85,7 @@ def _multisweep(G, ks):
 
 
 def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
-    """
+    r"""
     Performs multiple sweeps of the augmented covariance matrix and extracts the
     regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
     for the regression of missing variables against observed variables for a given
@@ -153,7 +155,7 @@ def EMCOMP(
     convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
     max_iter=30,
 ):
-    """
+    r"""
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
     thresholds. After Palarea-Albaladejo and Martín-Fernández (2008) [#ref_1]_.
 
@@ -298,7 +300,7 @@ def EMCOMP(
                 # ----------------------------------------------------
                 ϕ = stats.norm.pdf(x, loc=0, scale=1)  # pdf
                 Φ = stats.norm.cdf(x, loc=0, scale=1)  # cdf
-                Φ[np.isclose(Φ, 0)] = np.finfo(np.float).eps * 2
+                Φ[np.isclose(Φ, 0)] = np.finfo(np.float64).eps * 2
                 assert (Φ > 0).all()  # if its not, infinity will be introduced
                 inversemills = ϕ / Φ
                 Ystar[np.ix_(rows, varmiss)] = (
@@ -328,7 +330,7 @@ def EMCOMP(
 
         another_iter = another_iter & (niters < max_iter)
         logger.debug("Iterations Continuing: {}".format(another_iter))
-    #----------------------------
+    # ----------------------------
     # Back to compositional space
     # ---------------------------
     logger.debug("Finished. Inverting to compositional space.")

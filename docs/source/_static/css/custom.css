@@ -71,3 +71,7 @@ table td.data, table th.row_heading table th.col_heading {
     font-family: monospace;
     text-align: right;
 }
+
+a.headerlink {
+  visibility: hidden;
+}

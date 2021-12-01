@@ -14,12 +14,16 @@ and typically smooth function of normalised abundance vs. ionic radii, the REE p
 and their shapes can be effectively parameterised and dimensionally reduced (14 elements
 summarised by 3-4 shape parameters).
 
+.. note:: A publication discussing this implementation of `lambdas` together with fitting
+          tetrads for REE patterns has recently been
+          `published in Mathematical Geosciences <https://doi.org/10.1007/s11004-021-09959-5>`__!
+
 Here we generate some example data, reduce these to lambda values, and visualise the
 results.
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import pyrolite.plot
 
 # sphinx_gallery_thumbnail_number = 2
@@ -148,7 +152,8 @@ ls.columns
 # dataset, given the assumed 10% uncertainties. While the fit appears reasonable for a good
 # fraction of the dataset (~2 and below), for some rows it is notably worse:
 #
-ax = ls["X2"].plot.hist(bins=40, color="0.5")
+fig, ax = plt.subplots(1, figsize=(5, 3))
+ax = ls["X2"].plot.hist(ax=ax, bins=40, color="0.5")
 ax.set(xlabel="$\chi^2$")
 ax.axvline(1, color="k", ls="--")
 plt.show()
@@ -228,14 +233,13 @@ lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 # right of the lambdas within the output:
 #
 lts.head(2)
+from pyrolite.geochem.ind import REE
 ########################################################################################
 # Below we'll look at some of the potential issues of fitting lambdas and tetrads
 # together - by examining the effects of i) fitting tetrads where there are none
 # and ii) not fitting tetrads where they do indeed exist using some synthetic datasets.
 #
 from pyrolite.util.synthetic import example_patterns_from_parameters
-from pyrolite.geochem.ind import REE
-
 
 ls = np.array(
     [
@@ -382,7 +386,7 @@ ls_original = df.pyrochem.lambda_lnREE(params="ONeill2016")
 # this uses a full set of REE
 ls_fullREE_polynomials = df.pyrochem.lambda_lnREE(params="full")
 ########################################################################################
-# Note that as of :mod:`pyrolite` v0.2.8, the oringinal formulation is used by default,
+# Note that as of :mod:`pyrolite` v0.2.8, the original formulation is used by default,
 # but this will cease to be the case as of the following version, where the full set of
 # REE will instead be used to generate the orthogonal polynomials.
 #
@@ -403,11 +407,22 @@ ls_fullREE_polynomials.iloc[:, 1:3].pyroplot.scatter(
 ax.legend()
 plt.show()
 ########################################################################################
+# References & Citation
+# ~~~~~~~~~~~~~~~~~~~~~
 # For more on using orthogonal polynomials to describe geochemical pattern data, dig
 # into the paper which introduced the method to geochemists:
-# O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
-# Element Patterns in Basalts. J Petrology 57, 1463–1508.
-# `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+#
+#   O’Neill, H.S.C., 2016. The Smoothness and Shapes of Chondrite-normalized Rare Earth
+#   Element Patterns in Basalts. J Petrology 57, 1463–1508.
+#   `doi: 10.1093/petrology/egw047 <https://doi.org/10.1093/petrology/egw047>`__.
+#
+# If you're using  :mod:`pyrolite`'s implementation of `lambdas` in your research,
+# please consider citing a recent publication directly related to this:
+#
+#   Anenburg, M., & Williams, M. J. (2021). Quantifying the Tetrad Effect,
+#   Shape Components, and Ce–Eu–Gd Anomalies in Rare Earth Element Patterns.
+#   Mathematical Geosciences.
+#   doi: `10.1007/s11004-021-09959-5 <https://doi.org/10.1007/s11004-021-09959-5>`__
 #
 # .. seealso::
 #

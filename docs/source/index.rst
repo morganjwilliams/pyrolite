@@ -22,8 +22,11 @@ and numerous auxiliary utilities.
 - If you're interested in `contributing to the project <./dev/contributing.html>`__, there are
   many potential avenues, whether you're experienced with python or not.
 
-.. note:: pyrolite has recently been
-          `published in the Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.02314>`__!
+.. note:: pyrolite has been
+          `published in the Journal of Open Source Software <https://joss.theoj.org/papers/10.21105/joss.02314>`__,
+          and a recent publication focusing on using `lambdas` and tetrads to parameterise
+          Rare Earth Element patterns has been
+          `published in Mathematical Geosciences <https://doi.org/10.1007/s11004-021-09959-5>`__!
 
 Why *pyrolite*?
 ..................

@@ -1,18 +1,15 @@
 """
 Functions for parsing, formatting and validating chemical names and formulae.
 """
-import re
 import functools
+import re
+
 import pandas as pd
-from ..util.text import titlecase
-from .ind import (
-    __common_oxides__,
-    __common_elements__,
-    get_cations,
-    common_elements,
-    get_isotopes,
-)
+
 from ..util.log import Handle
+from ..util.text import titlecase
+from .ind import (_common_elements, _common_oxides, common_elements,
+                  get_cations, get_isotopes)
 
 logger = Handle(__name__)
 
@@ -34,7 +31,7 @@ def is_isotoperatio(s):
     -----
         * Validate the isotope masses vs natural isotopes
     """
-    if s not in __common_oxides__:
+    if s not in _common_oxides:
         isotopes = get_isotopes(s)
         return len(isotopes) == 2
     else:
@@ -91,7 +88,7 @@ def ischem(s):
         * Implement checking for other compounds, e.g. carbonates.
 
     """
-    chems = set(map(str.upper, (__common_elements__ | __common_oxides__)))
+    chems = set(map(str.upper, (_common_elements | _common_oxides)))
     if isinstance(s, list):
         return [str(st).upper() in chems for st in s]
     else:
@@ -99,7 +96,7 @@ def ischem(s):
 
 
 def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
-    """
+    r"""
     Converts a list of strings containing come chemical compounds to
     appropriate case.
 
@@ -125,7 +122,7 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     # translate elements and oxides
     # elements second, Co guaranteed to override CO for python 3.6 +
-    chems = __common_oxides__ | __common_elements__
+    chems = _common_oxides | _common_elements
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
 
@@ -157,7 +154,7 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
         * Options for output (string/formula).
 
     """
-    major_components = [i for i in __common_oxides__ if i in df.columns]
+    major_components = [i for i in _common_oxides if i in df.columns]
     elements_as_majors = [
         get_cations(oxide)[0] for oxide in major_components if not oxide in exclude
     ]

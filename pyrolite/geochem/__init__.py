@@ -1,17 +1,15 @@
 """
 Submodule for working with geochemical data.
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from ..util.meta import update_docstring_references
 from ..util import units
-from . import parse
-from . import transform
-from . import norm
-from .ind import __common_elements__, __common_oxides__, REE, REY
-from .ions import set_default_ionic_charges
 from ..util.log import Handle
+from ..util.meta import update_docstring_references
+from . import norm, parse, transform
+from .ind import REE, REY, _common_elements, _common_oxides
+from .ions import set_default_ionic_charges
 
 logger = Handle(__name__)
 
@@ -45,7 +43,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(__common_elements__)
+        fltr = self._obj.columns.isin(_common_elements)
         return self._obj.columns[fltr].tolist()
 
     @property
@@ -107,7 +105,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(__common_oxides__)
+        fltr = self._obj.columns.isin(_common_oxides)
         return self._obj.columns[fltr].tolist()
 
     @property
@@ -256,8 +254,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.to_molecular(self._obj, renorm=renorm)
-        return self._obj
+        return transform.to_molecular(self._obj, renorm=renorm)
 
     def to_weight(self, renorm=True):
         """
@@ -277,8 +274,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.to_weight(self._obj, renorm=renorm)
-        return self._obj
+        return transform.to_weight(self._obj, renorm=renorm)
 
     def devolatilise(
         self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
@@ -298,8 +294,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
-        return self._obj
+        return transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
 
     def elemental_sum(
         self, component=None, to=None, total_suffix="T", logdata=False, molecular=False
@@ -408,7 +403,7 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
-        self._obj = transform.recalculate_Fe(
+        return transform.recalculate_Fe(
             self._obj,
             to,
             total_suffix=total_suffix,
@@ -416,7 +411,6 @@ class pyrochem(object):
             renorm=renorm,
             molecular=molecular,
         )
-        return self._obj
 
     def get_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
         """

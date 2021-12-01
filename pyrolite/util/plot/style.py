@@ -10,19 +10,24 @@ DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 """
 import itertools
 from pathlib import Path
-import pandas as pd
-import numpy as np
+
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.colors
-import matplotlib.lines
 import matplotlib.axes
 import matplotlib.collections
+import matplotlib.colors
+import matplotlib.lines
 import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib.legend_handler import HandlerTuple
-from ..meta import subkwargs, pyrolite_datafolder
+
+from ...comp.codata import close
 from ..general import copy_file
 from ..log import Handle
+from ..meta import pyrolite_datafolder, subkwargs
+from .helpers import get_centroid
+from .transform import xy_to_tlr
 
 logger = Handle(__name__)
 
@@ -84,7 +89,7 @@ def _export_nonRCstyles(**kwargs):
 
 
 _export_mplstyle()
-_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)},)
+_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)})
 matplotlib.style.use("pyrolite")
 
 
@@ -110,7 +115,11 @@ def linekwargs(kwargs):
     )
     # could trim cmap and norm here, in case they get passed accidentally
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
@@ -135,7 +144,11 @@ def scatterkwargs(kwargs):
         matplotlib.collections.Collection,
     )
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
@@ -148,7 +161,11 @@ def patchkwargs(kwargs):
         matplotlib.patches.Patch,
     )
     kw.update(
-        **dict(alpha=kwargs.get("alpha"), label=kwargs.get("label"))
+        **dict(
+            alpha=kwargs.get("alpha"),
+            label=kwargs.get("label"),
+            clip_on=kwargs.get("clip_on", True),
+        )
     )  # issues with introspection for alpha
     return kw
 
@@ -195,3 +212,84 @@ def mappable_from_values(values, cmap=DEFAULT_CONT_COLORMAP, norm=None, **kwargs
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array(values[np.isfinite(values)])
     return sm
+
+
+def ternary_color(
+    tlr,
+    alpha=1.0,
+    colors=([1, 0, 0], [0, 1, 0], [0, 0, 1]),
+    coefficients=(1, 1, 1),
+):
+    """
+    Color a set of points by their ternary combinations of three specified colors.
+
+    Parameters
+    ----------
+    tlr : :class:`numpy.ndarray`
+
+    alpha : :class:`float`
+        Alpha coefficient for the colors; to be applied *multiplicatively* with
+        any existing alpha value (for RGBA colors specified).
+    colors : :class:`tuple`
+        Set of colours corresponding to the top, left and right verticies,
+        respectively.
+    coefficients : :class:`tuple`
+        Coefficients for the ternary data to adjust the centre.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Color array for the ternary points.
+    """
+    colors = np.array([matplotlib.colors.to_rgba(c) for c in colors], dtype=float)
+    _tlr = close(np.array(tlr) * np.array(coefficients))
+    color = np.atleast_2d(_tlr @ colors)
+    color[:, -1] *= alpha * (1 - 10e-7)  # avoid 'greater than 1' issues
+    return color
+
+
+def color_ternary_polygons_by_centroid(
+    ax=None,
+    patches=None,
+    alpha=1.0,
+    colors=([1, 0, 0], [0, 1, 0], [0, 0, 1]),
+    coefficients=(1, 1, 1),
+):
+    """
+    Color a set of polygons within a ternary diagram by their centroid colors.
+
+    Parameters
+    ----------
+    ax : :class:`matplotlib.axes.Axes`
+        Ternary axes to check for patches, if patches is not supplied.
+    patches : :class:`list`
+        List of ternary-hosted patches to apply color to.
+    alpha : :class:`float`
+        Alpha coefficient for the colors; to be applied *multiplicatively* with
+        any existing alpha value (for RGBA colors specified).
+    colors : :class:`tuple`
+        Set of colours corresponding to the top, left and right verticies,
+        respectively.
+    coefficients : :class:`tuple`
+        Coefficients for the ternary data to adjust the centre.
+
+    Returns
+    -------
+    patches : :class:`list`
+        List of patches, with updated facecolors.
+    """
+
+    if patches is None:
+        if ax is None:
+            raise NotImplementedError("Either an axis or patches need to be supplied.")
+        patches = ax.patches
+
+    for poly in patches:
+        xy = get_centroid(poly)
+        tlr = xy_to_tlr(np.array([xy]))[0]
+        color = ternary_color(
+            tlr, alpha=alpha, colors=colors, coefficients=coefficients
+        )
+        poly.set_facecolor(color)
+
+    return patches

@@ -2,6 +2,7 @@
 Transformation utilites for matplotlib.
 """
 import numpy as np
+
 from ...comp.codata import close
 from ..log import Handle
 
@@ -23,6 +24,44 @@ def affine_transform(mtx=np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])):
         return (mtx @ np.vstack((xy.T[:2], np.ones(xy.T.shape[1]))))[:2]
 
     return tfm
+
+
+def tlr_to_xy(tlr):
+    """
+    Transform a ternary coordinate system (top-left-right) to an xy-cartesian
+    coordinate system.
+
+    Parameters
+    ----------
+    tlr : :class:`numpy.ndarray`
+        Array of shape (n, 3) in the t-l-r coordinate system.
+
+    Returns
+    --------
+    xy : :class:`numpy.ndarray`
+        Array of shape (n, 2) in the x-y coordinate system.
+    """
+    shear = affine_transform(np.array([[1, 1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    return shear(close(np.array(tlr)[:, [2, 0, 1]])).T
+
+
+def xy_to_tlr(xy):
+    """
+
+    Parameters
+    -----------
+    xy : :class:`numpy.ndarray`
+        Array of shape (n, 2) in the x-y coordinate system.
+
+    Returns
+    --------
+    tlr : :class:`numpy.ndarray`
+        Array of shape (n, 3) in the t-l-r coordinate system.
+    """
+    shear = affine_transform(np.array([[1, -1 / 2, 0], [0, 1, 0], [0, 0, 1]]))
+    r, t = shear(xy)
+    l = 1.0 - (r + t)
+    return np.vstack([t, l, r]).T
 
 
 def ABC_to_xy(ABC, xscale=1.0, yscale=1.0):

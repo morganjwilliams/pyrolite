@@ -92,6 +92,18 @@ class TestPyroComp(unittest.TestCase):
         self.assertTrue((out.columns == self.cols).all())
         self.assertTrue(np.allclose(out, df))
 
+    def test_sphere_default(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        out = df.pyrocomp.sphere()
+        self.assertTrue("variables" in out.attrs)
+
+    def test_inverse_sphere_default(self):
+        df = self.tridf.copy(deep=True)  # copy df
+        intermediate = df.pyrocomp.sphere()
+        out = intermediate.pyrocomp.inverse_sphere()
+        self.assertTrue((out.columns == self.cols).all())
+        self.assertTrue(np.allclose(out, df))
+
     def test_logratiomean_default(self):
         df = self.tridf.copy(deep=True)  # copy df
         out = df.pyrocomp.logratiomean()

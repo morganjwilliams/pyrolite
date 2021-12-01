@@ -10,6 +10,155 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+`0.3.1`_
+--------------
+
+* **New Contributor**: `Martin Bentley <https://github.com/mtb-za>`__
+* **New Contributor**: `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+* **New Contributor**: `Tom Buckle <https://github.com/bomtuckle>`__
+* **New Contributor**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
+* Removed a redundant :mod:`pathlib` dependency (which is standard library as of
+  Python 3.4). This will fix an issue blocking setting up a `conda-forge`
+  recipe (`#51 <https://github.com/morganjwilliams/pyrolite/issues/51>`__).
+* Updated instances of redundant :mod:`numpy` types throughout to silence
+  depreciation warnings (using base types :class:`float`, :class:`int` except
+  where specific :mod:`numpy` types are required).
+* Added a minimum :mod:`sympy` version requirement (v1.7) to avoid potential import
+  errors.
+* Updated minimum versions for :mod:`matplotlib` and :mod:`mpltern` to address
+  potential version conflicts.
+* A user installation is now recommended by default. This solves some potential issues
+  on \*-nix and MacOS systems.
+* Fixed broken links to documentation in the README (thanks to
+  `Alessandro Gentilini <https://github.com/alessandro-gentilini>`__).
+* Fixed a bad documentation link the PyPI package information.
+* Updated supported Python versions (Python 3.7-3.9).
+* **Bugfix**: Updated use of :mod:`tinydb` databases to default to read-only access except
+  where write access is explicitly needed. This should solve issues with permissions
+  during installation and use of pyrolite on some systems (
+  `#61 <https://github.com/morganjwilliams/pyrslite/issues/61>`__). Thanks to
+  `Antoine Ouellet <https://github.com/antoine-gs>`__ for bringing this to attention,
+  and both Sam Bradley and Alex Hunt for following up with the idea for the
+  current solution.
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Feature**: `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
+  contributed two new functions for :mod:`pyrolite.geochem.alteration`:
+  The chlorite-carbonate-pyrite index of Large et al. (2001;
+  :func:`~pyrolite.geochem.alteration.CCPI`) and the Alteration index of
+  Ishikawa (1976; :func:`~pyrolite.geochem.alteration.IshikawaAltIndex`).
+* **Bugfix**: Fixed a bug where incomplete results where being returned for
+  calls to :func:`~pyrolite.geochem.lambda_lnREE` using the O'Neill algorithm.
+  In this instance only the rows with the least missing data (typically those
+  with no missing data) would return lambda values, other rows would contain
+  null values. Thanks to Mark Pearce for identifying this one!
+  In the meantime, using :code:`df.pyrochem.lambda_lnREE(algorithm='opt')` will
+  allow you to avoid the issue.
+* **Bugfix**: Modified a few of the :class:`pyrolite.geochem.pyrochem` methods
+  to a avoid a bug due to assignment of the dataframe (
+  :func:`~pyrolite.geochem.pyrochem.to_molecular`,
+  :func:`~pyrolite.geochem.pyrochem.to_weight`,
+  :func:`~pyrolite.geochem.pyrochem.recalculate_Fe`
+  ). This bug seems to be contained to the dataframe accessor, the individual
+  functions from :mod:`pyrolite.geochem.transform` appear to work as expected
+  outside of this context.
+  Thanks to `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+  for highlighting this one!
+* Renamed (private) package variables :code:`__common_oxides__` and
+  :code:`__common_elements__` to :code:`_common_oxides` and :code:`_common_elements`
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~
+* **Feature**: CIPW function added to :mod:`pyrolite.mineral.normative`, largely
+  from contributions by both `Chetan Nathwani <https://github.com/ChetanNathwani>`__
+  and `Tom Buckle <https://github.com/bomtuckle>`__ (
+  `#53 <https://github.com/morganjwilliams/pyrslite/issues/53>`__).
+  Note that the implementation still has a bug or two to be ironed out;
+  it will currently raise a warning when used to make sure you're aware of this.
+  An `example <https://pyrolite.readthedocs.io/en/develop/examples/geochem/CIPW.html>`__
+  has been added demonstrating the intended functionality and demonstrating how
+  coherent this is with existing implementations of CIPW (e.g. SINCLAS).
+
+:mod:`pyrolite.comp`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated :func:`pyrolite.comp.codata.close` to better deal with zeros (avoiding
+  unnecessary warnings).
+* Added spherical coordinate transformation to :class:`pyrolite.comp.pyrocomp`
+  and :mod:`pyrolite.comp.codata` (see :func:`pyrolite.comp.pyrocomp.sphere`).
+
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Feature**: Added ternary classification plot templates
+  :class:`~pyrolite.plot.templates.USDASoilTexture`,
+  :class:`~pyrolite.util.templates.FeldsparTernary` and
+  :class:`~pyrolite.plot.templates.QAP` (
+  `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
+  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__ !).
+  The idea for implementing the ternary diagram came from a discussion with
+  Jordan Lubbers and Penny Wieser (of the `Thermobar <https://thermobar.readthedocs.io/>`__
+  team, who are working in similar spaces); they've now implemented a version using
+  :mod:`python-ternary` (rather than :mod:`mpltern`, which pyrolite is currently using).
+* Updated examples and documentation for density and contour plots.
+* Added autoscaling for standard :func:`~pyrolite.plot.pyroplot.spider` and
+  related plots to address (`#55 <https://github.com/morganjwilliams/pyrolite/issues/55>`__)
+* :func:`~pyrolite.plot.color.process_color` has been updated to better deal
+  with data explicitly declared to be of a 'category' data type (as a
+  :class:`pandas.Series`), and also to better handle variation in mapping notations.
+  Ordering of categorical variables will now be preserved during color-mapping.
+* Added the option to have a 'bad' color to be used in categorical color-mapping
+  where a category cannot be found.
+* Inconsistent color specifications (e.g. a list or array of multiple types)
+  will now result in an error when passed to :func:`~pyrolite.plot.color.process_color`.
+* :func:`~pyrolite.plot.pyroplot.parallel` has been updated to align with other
+  plotting functions (taking an optional `components` keyword argument).
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Feature**: Added ternary classification models for
+  :class:`~pyrolite.util.classification.USDASoilTexture`,
+  :class:`~pyrolite.util.classification.FeldsparTernary` and
+  :class:`~pyrolite.util.classification.QAP` (
+  `#49 <https://github.com/morganjwilliams/pyrolite/issues/49>`__; idea and
+  implementation of the latter thanks to `Martin Bentley <https://github.com/mtb-za>`__).
+* Added some functionality to :mod:`pyrolite.util.classification` to allow classifier
+  fields to be precisely specified by ratios (useful in ternary systems), for multiple
+  'modes' of diagrams to be contained a single configuration file, and fixed some issues
+  with labelling (arguments `add_labels` and `which_labels` can now be used to selectively
+  add either field IDs/abbreviations or field names to classification diagrams).
+* Limits are no longer explicitly required for bivariate templates (`xlim`, `ylim`)
+  in :mod:`pyrolite.util.classification`.
+* Update default parameterisation to :code:`"full"` for lambdas, using all REE to
+  generate orthogonal polynomial functions.
+* Expanded :func:`pyrolite.util.text.int_to_alpha` to handle integers which are
+  greater than 25 by adding multiple alphabetical characters (e.g. `26` > `aa`),
+  and to use the built-in `string.ascii_lowercase`.
+* :func:`~pyrolite.util.plot.export.save_figure` will now create the directory
+  it's given if it doesn't exist.
+* Citation information for :mod:`~pyrolite.util.lambdas` updated to include
+  recent publications.
+* Updated :func:`~pyrolite.util.plot.helpers.plot_pca_vectors` to accept line `colors`
+  and `linestyles` arguments.
+* Updated :func:`~pyrolite.util.plot.helpers.init_spherical_octant` to accept
+  a `fontsize` argument.
+* Added `example <https://pyrolite.readthedocs.io/en/develop/examples/plotting/ternary_color.html>`__
+  for coloring ternary diagrams and ternary scatter points based on a ternary color system.
+* Added helper for generating PCA component labels from a `scikit-learn` PCA object
+  (:func:`~pyrolite.util.skl.helpers.get_PCA_component_labels`)
+* Updated confusion matrix visualisation helper
+  :func:`~pyrolite.util.skl.vis.plot_confusion_matrix` to remove grid and
+  provide more useful default colormap normalization options.
+* Moved the `manifold visualisation <https://pyrolite.readthedocs.io/en/develop/examples/util/manifold_vis.html>`__
+  example to utility examples from plotting examples.
+* Added a `fmt_string` argument to :class:`~pyrolite.util.skl.transform.LogTransform`
+  for use in automated naming of transformed columns; this may be expanded to other
+  transformers soon.
+* Fixed some string issues for :mod:`pyrolite.util.text`.
 
 `0.3.0`_
 --------------
@@ -18,7 +167,7 @@ All notable changes to this project will be documented here.
 * Continuous Integration has been migrated from Travis to GitHub Actions.
 * Added an :code:`environment.yml` file for development environment consistency.
 * Removed some tests dependent on :mod:`xlrd` due to external issues with reading
-  :code:`.xls` and :code:`.xlsx` files with somne OS-Python version combinations.
+  :code:`.xls` and :code:`.xlsx` files with some OS-Python version combinations.
 * Fixed some broken documentation links.
 * Added :mod:`psutil` to requirements.
 
@@ -1106,7 +1255,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...develop
+.. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
 .. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7

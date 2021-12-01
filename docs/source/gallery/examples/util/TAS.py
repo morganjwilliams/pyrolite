@@ -5,9 +5,10 @@ TAS Classifier
 Some simple discrimination methods are implemented,
 including the Total Alkali-Silica (TAS) classification.
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from pyrolite.util.classification import TAS
 from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
@@ -35,9 +36,7 @@ df["Na2O + K2O"] = df["Na2O"] + df["K2O"]
 cm = TAS()
 
 fig, ax = plt.subplots(1)
-cm.add_to_axes(
-    ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID",
-)
+cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
 df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
 plt.show()
 ########################################################################################
@@ -56,5 +55,5 @@ df["Rocknames"].sample(10)  # randomly check 10 sample rocknames
 
 fig, ax = plt.subplots(1)
 
-cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, labels="ID")
+cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
 df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7)

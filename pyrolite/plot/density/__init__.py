@@ -2,22 +2,21 @@
 Kernel desnity estimation plots for geochemical data.
 """
 import copy
+
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 import numpy as np
+from matplotlib.ticker import MaxNLocator
 
 from ...comp.codata import close
-from ...util.plot.density import (
-    plot_Z_percentiles,
-    percentile_contour_values_from_meshz,
-    get_axis_density_methods,
-)
-from ...util.plot.style import DEFAULT_CONT_COLORMAP
-from ...util.plot.axes import init_axes, add_colorbar
+from ...util.log import Handle
 from ...util.meta import get_additional_params, subkwargs
+from ...util.plot.axes import add_colorbar, init_axes
+from ...util.plot.density import (get_axis_density_methods,
+                                  percentile_contour_values_from_meshz,
+                                  plot_Z_percentiles)
+from ...util.plot.style import DEFAULT_CONT_COLORMAP
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
-from ...util.log import Handle
 
 logger = Handle(__name__)
 
@@ -99,8 +98,20 @@ def density(
 
     Notes
     -----
-    Could implement an option and filter to 'scatter' points below the minimum threshold
-    or maximum percentile contours.
+    The default density estimates and derived contours are generated based on
+    kernel density estimates. Assumptions around e.g. 95% of points lying within
+    a 95% contour won't necessarily be valid for non-normally distributed data
+    (instead, this represents the approximate 95% percentile on the kernel
+    density estimate). Note that contours are currently only generated; for
+    `mode="density"`; future updates may allow the use of a histogram
+    basis, which would give results closer to 95% data percentiles.
+
+    Todo
+    ----
+    * Allow generation of contours from histogram data, rather than just
+        the kernel density estimate.
+    * Implement an option and filter to 'scatter' points below the minimum threshold
+        or maximum percentile contours.
     """
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
@@ -127,6 +138,12 @@ def density(
         cbarlabel = "Frequency"
 
     valid_rows = np.isfinite(arr).all(axis=-1)
+
+    if (mode in ["hexbin", "hist2d"]) and contours:
+        raise NotImplementedError(
+            "Contours are not currently implemented for 'hexbin' or 'hist2d' modes."
+        )
+
     if (arr.size > 0) and valid_rows.any():
         # Data can't be plotted if there's any nans, so we can exclude these
         arr = arr[valid_rows]
@@ -211,8 +228,8 @@ def density(
             if relim and (extent is not None):
                 ax.axis(extent)
         elif projection == "ternary":  # ternary
-            if shading == 'auto':
-                shading = 'flat' # auto cant' be passed to tripcolor
+            if shading == "auto":
+                shading = "flat"  # auto cant' be passed to tripcolor
             # zeros make nans in this case, due to the heatmap calculations
             arr[~(arr > 0).all(axis=1), :] = np.nan
             arr = close(arr)

@@ -4,12 +4,12 @@ REE patterns.
 """
 import numpy as np
 import pandas as pd
-from .eval import lambda_poly
-from ..missing import md_pattern
-from ..meta import update_docstring_references
-from .params import parse_sigmas
-from .eval import get_function_components
+
 from ..log import Handle
+from ..meta import update_docstring_references
+from ..missing import md_pattern
+from .eval import get_function_components, lambda_poly
+from .params import parse_sigmas
 
 logger = Handle(__name__)
 
@@ -127,14 +127,14 @@ def lambdas_ONeill2016(
             s[row_fltr, :] = _s
             χ2[row_fltr, 0] = reduced_chi_squared
 
-        lambdas = pd.DataFrame(
-            B,
-            index=df.index,
-            columns=names,
-            dtype="float32",
-        )
-        if add_uncertainties:
-            lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
-        if add_X2:
-            lambdas["X2"] = χ2
-        return lambdas
+    lambdas = pd.DataFrame(
+        B,
+        index=df.index,
+        columns=names,
+        dtype="float32",
+    )
+    if add_uncertainties:
+        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
+    if add_X2:
+        lambdas["X2"] = χ2
+    return lambdas

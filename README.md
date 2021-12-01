@@ -16,7 +16,7 @@ geochemical variables (e.g. elements to oxides), functions for common plotting
 tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagrams),
 and numerous auxiliary utilities.
 
-pyrolite's is principally developed for use in geochemical research, but is also
+pyrolite is principally developed for use in geochemical research, but is also
 well suited to being incorporated into university-level geochemistry and petrology
 classes which wish to include a little Python. The documentation is continually
 evolving, and more examples and tutorials will gradually be added (feel free to
@@ -38,26 +38,26 @@ If you want the most up to date *development* version, you can instead install d
 pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
 ```
 
-For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/master/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/master/gettingstarted.html).
+For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/main/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/main/gettingstarted.html).
 
 ## Examples
 
-Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/master/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/master/tutorials/index.html). If you'd rather flip through notebooks here on GitHub, these same examples can be found in the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
+Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/main/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/main/tutorials/index.html). If you'd rather flip through notebooks here on GitHub, these same examples can be found in the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
 
 ## Contributing
 
 The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
-Contributing page](https://pyrolite.readthedocs.io/en/develop/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/develop/conduct.html).
+Contributing page](https://pyrolite.readthedocs.io/en/main/dev/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/main/dev/conduct.html).
 
-For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/develop/dev/contributors.html).
+For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/main/dev/contributors.html).
 
-If you'd like an idea of where the project might be heading in the near future, have a look at [the current roadmap](https://pyrolite.readthedocs.io/en/develop/dev/future.html).
+If you'd like an idea of where the project might be heading in the near future, have a look at [the current roadmap](https://pyrolite.readthedocs.io/en/main/dev/future.html).
 
 ## Citation
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02314/status.svg)](https://doi.org/10.21105/joss.02314)
 [![Archive](https://zenodo.org/badge/137172322.svg?style=flat)](https://zenodo.org/badge/latestdoi/137172322)
 
-If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/develop/cite.html).
+If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/main/cite.html).
 
 ## Development & Build Status
 

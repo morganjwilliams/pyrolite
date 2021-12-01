@@ -13,7 +13,7 @@ dependencies:
   - xlrd
   - openpyxl
   - psutil
-  - matplotlib
+  - matplotlib # note that 3.4+ is incompatible with mpltern <0.3.3
   - pytables
   - scipy>=1.2  # uses scipy.optimize.Bounds, added around 1.2
   - umap-learn
@@ -21,12 +21,14 @@ dependencies:
   - periodictable
   - mpltern>=0.3.1
   - mpmath
-  - sympy
+  - sympy>=1.7 # import changes after sympy 1.6
   - joblib
   - requests
   # Tools
   - jupyter
   - jupyterlab
+  - jupyterlab-spellchecker
+  - jupyterlab_code_formatter
   - ipykernel
   - pip
   - black

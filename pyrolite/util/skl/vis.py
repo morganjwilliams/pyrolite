@@ -1,19 +1,22 @@
 import itertools
-import numpy as np
-import scipy.stats
-import scipy.special
-import matplotlib.pyplot as plt
+
 import matplotlib.colors
-from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.special
+import scipy.stats
+
 from pyrolite.util.meta import inargs, subkwargs
+from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
+
 from ..log import Handle
 
 logger = Handle(__name__)
 
 try:
-    from sklearn.metrics import confusion_matrix
     import sklearn.datasets
     import sklearn.manifold
+    from sklearn.metrics import confusion_matrix
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)
@@ -25,7 +28,7 @@ def plot_confusion_matrix(
     normalize=False,
     title="Confusion Matrix",
     cmap=plt.cm.Blues,
-    norm=matplotlib.colors.Normalize(vmin=0, vmax=1.0),
+    norm=None,
     ax=None
 ):
     """
@@ -48,11 +51,16 @@ def plot_confusion_matrix(
         conf_matrix = (
             conf_matrix.astype("float") / conf_matrix.sum(axis=1)[:, np.newaxis]
         )
+        if norm is None:
+            norm = matplotlib.colors.Normalize(vmin=0, vmax=1.0)
+    else:
+        # the colormap will need to be normalized across the count range
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=np.max(conf_matrix))
 
     if ax is None:
         fig, ax = plt.subplots(1)
 
-    im = ax.imshow(conf_matrix, interpolation="nearest", cmap=cmap, norm=norm)
+    im = ax.imshow(conf_matrix, interpolation="none", cmap=cmap, norm=norm)
     ax.set_title(title)
     plt.colorbar(im, ax=ax)
     tick_marks = np.arange(len(classes))
@@ -78,6 +86,7 @@ def plot_confusion_matrix(
         xticklabels=classes,
         yticklabels=classes,
     )
+    ax.grid(False)
     plt.tight_layout()
     return ax
 
@@ -264,7 +273,7 @@ def plot_mapping(
             ps = Y.predict_proba(X_)
             a = alphas_from_multiclass_prob(ps, method=alpha_method, alpha=alpha)
             c[:, -1] = a
-            cmap=None
+            cmap = None
         else:
             c = Y.predict(X)
             cmap = cmap or DEFAULT_DISC_COLORMAP

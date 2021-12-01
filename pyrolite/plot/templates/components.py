@@ -1,10 +1,13 @@
 import numpy as np
-from pyrolite.util.meta import subkwargs
-from matplotlib.lines import Line2D
 from matplotlib.collections import PathCollection
+from matplotlib.lines import Line2D
+
+from pyrolite.util.meta import subkwargs
+
 from ...util.log import Handle
 
 logger = Handle(__name__)
+
 
 class GeometryCollection(object):
     def __init__(self, *objects, **kwargs):
@@ -104,7 +107,7 @@ class Linear2D(object):
         ylim=None,
         **kwargs
     ):
-        """
+        r"""
         Simple container for a 2D line object with basic utility functions.
         Lines can be generated from two points or a point and a slope.
 

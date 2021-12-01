@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-import scipy.stats
 import scipy.special
+import scipy.stats
 import sympy
 
+from ..util.log import Handle
 # from .renorm import renormalise, close
 from ..util.math import helmert_basis, symbolic_helmert_basis
-from ..util.log import Handle
 
 logger = Handle(__name__)
 
@@ -37,9 +37,12 @@ def close(X: np.ndarray, sumf=np.sum):
     """
 
     if X.ndim == 2:
-        return np.divide(X, sumf(X, axis=1)[:, np.newaxis])
+        C = np.array(sumf(X, axis=1))[:, np.newaxis]
     else:
-        return np.divide(X, sumf(X, axis=0))
+        C = np.array(sumf(X, axis=0))
+
+    C[np.isclose(C, 0)] = np.nan
+    return np.divide(X, C)
 
 
 def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
@@ -168,7 +171,8 @@ def CLR(X: np.ndarray):
     :class:`numpy.ndarray`
         CLR-transformed array, of shape :code:`(N, D)`.
     """
-    X = np.divide(X, np.sum(X, axis=1)[:, np.newaxis])  # Closure operation
+    X = np.array(X)
+    X = np.divide(X, np.sum(X, axis=1).reshape(-1, 1))  # Closure operation
     Y = np.log(X)  # Log operation
     nvars = max(X.shape[1], 1)  # if the array is empty we'd get a div-by-0 error
     G = (1 / nvars) * np.nansum(Y, axis=1)[:, np.newaxis]
@@ -247,108 +251,6 @@ def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, psi=None, **kwargs):
     return X
 
 
-def boxcox(
-    X: np.ndarray,
-    lmbda=None,
-    lmbda_search_space=(-1, 5),
-    search_steps=100,
-    return_lmbda=False,
-):
-    """
-    Box-Cox transformation.
-
-    Parameters
-    ---------------
-    X : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
-    lmbda : :class:`numpy.number`, :code:`None`
-        Lambda value used to forward-transform values. If none, it will be calculated
-        using the mean
-    lmbda_search_space : :class:`tuple`
-        Range tuple (min, max).
-    search_steps : :class:`int`
-        Steps for lambda search range.
-    return_lmbda : :class:`bool`
-        Whether to also return the lambda value.
-
-    Returns
-    -------
-    :class:`numpy.ndarray` | :class:`numpy.ndarray`(:class:`float`)
-        Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
-        lambda value.
-    """
-    if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
-        _X = X.values
-    else:
-        _X = X.copy()
-
-    if lmbda is None:
-        l_search = np.linspace(*lmbda_search_space, search_steps)
-        llf = np.apply_along_axis(scipy.stats.boxcox_llf, 0, np.array([l_search]), _X.T)
-        if llf.shape[0] == 1:
-            mean_llf = llf[0]
-        else:
-            mean_llf = np.nansum(llf, axis=0)
-
-        lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
-    if _X.ndim < 2:
-        out = scipy.stats.boxcox(_X, lmbda)
-    elif _X.shape[0] == 1:
-        out = scipy.stats.boxcox(np.squeeze(_X), lmbda)
-    else:
-        out = np.apply_along_axis(scipy.stats.boxcox, 0, _X, lmbda)
-
-    if isinstance(_X, pd.DataFrame) or isinstance(_X, pd.Series):
-        _out = X.copy()
-        _out.loc[:, :] = out
-        out = _out
-
-    if return_lmbda:
-        return out, lmbda
-    else:
-        return out
-
-
-def inverse_boxcox(Y: np.ndarray, lmbda):
-    """
-    Inverse Box-Cox transformation.
-
-    Parameters
-    ---------------
-    Y : :class:`numpy.ndarray`
-        Array on which to perform the transformation.
-    lmbda : :class:`float`
-        Lambda value used to forward-transform values.
-
-    Returns
-    -------
-    :class:`numpy.ndarray`
-        Inverse Box-Cox transformed array.
-    """
-    return scipy.special.inv_boxcox(Y, lmbda)
-
-
-def get_transforms(name):
-    """
-    Lookup a transform-inverse transform pair by name.
-
-    Parameters
-    ----------
-    name : :class:`str`
-        Name of of the transform pairs (e.g. :code:``'CLR'``).
-
-    Returns
-    -------
-    tfm, inv_tfm : :class:`callable`
-        Transform and inverse transform functions.
-    """
-    if callable(name):  #  callable
-        name = name.__name__
-
-    tfm, inv_tfm = __TRANSFORMS__.get(name)
-    return tfm, inv_tfm
-
-
 def logratiomean(df, transform=CLR):
     """
     Take a mean of log-ratios along the index of a dataframe.
@@ -369,8 +271,14 @@ def logratiomean(df, transform=CLR):
     """
     tfm, inv_tfm = get_transforms(transform)
     return pd.Series(
-        inv_tfm(np.mean(tfm(df.values), axis=0)[np.newaxis, :])[0], index=df.columns,
+        inv_tfm(np.mean(tfm(df.values), axis=0)[np.newaxis, :])[0],
+        index=df.columns,
     )
+
+
+########################################################################################
+# Logratio variable naming
+########################################################################################
 
 
 def _aggregate_sympy_constants(expr):
@@ -558,6 +466,243 @@ def get_ILR_labels(df, mode="latex", **kwargs):
         msg = "Label mode {} not recognised.".format(mode)
         raise NotImplementedError(msg)
     return labels
+
+
+########################################################################################
+# Box-cox transforms
+########################################################################################
+
+
+def boxcox(
+    X: np.ndarray,
+    lmbda=None,
+    lmbda_search_space=(-1, 5),
+    search_steps=100,
+    return_lmbda=False,
+):
+    """
+    Box-Cox transformation.
+
+    Parameters
+    ---------------
+    X : :class:`numpy.ndarray`
+        Array on which to perform the transformation.
+    lmbda : :class:`numpy.number`, :code:`None`
+        Lambda value used to forward-transform values. If none, it will be calculated
+        using the mean
+    lmbda_search_space : :class:`tuple`
+        Range tuple (min, max).
+    search_steps : :class:`int`
+        Steps for lambda search range.
+    return_lmbda : :class:`bool`
+        Whether to also return the lambda value.
+
+    Returns
+    -------
+    :class:`numpy.ndarray` | :class:`numpy.ndarray`(:class:`float`)
+        Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
+        lambda value.
+    """
+    if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+        _X = X.values
+    else:
+        _X = X.copy()
+
+    if lmbda is None:
+        l_search = np.linspace(*lmbda_search_space, search_steps)
+        llf = np.apply_along_axis(scipy.stats.boxcox_llf, 0, np.array([l_search]), _X.T)
+        if llf.shape[0] == 1:
+            mean_llf = llf[0]
+        else:
+            mean_llf = np.nansum(llf, axis=0)
+
+        lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
+    if _X.ndim < 2:
+        out = scipy.stats.boxcox(_X, lmbda)
+    elif _X.shape[0] == 1:
+        out = scipy.stats.boxcox(np.squeeze(_X), lmbda)
+    else:
+        out = np.apply_along_axis(scipy.stats.boxcox, 0, _X, lmbda)
+
+    if isinstance(_X, pd.DataFrame) or isinstance(_X, pd.Series):
+        _out = X.copy()
+        _out.loc[:, :] = out
+        out = _out
+
+    if return_lmbda:
+        return out, lmbda
+    else:
+        return out
+
+
+def inverse_boxcox(Y: np.ndarray, lmbda):
+    """
+    Inverse Box-Cox transformation.
+
+    Parameters
+    ---------------
+    Y : :class:`numpy.ndarray`
+        Array on which to perform the transformation.
+    lmbda : :class:`float`
+        Lambda value used to forward-transform values.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Inverse Box-Cox transformed array.
+    """
+    return scipy.special.inv_boxcox(Y, lmbda)
+
+
+########################################################################################
+# Functions for spherical coordinate transformation of compositional data.
+########################################################################################
+"""
+The functions below were derived from the references below, but should be in line
+with the work which preceeded them.
+
+Neocleous, T., Aitken, C., Zadora, G., 2011. Transformations for compositional data
+with zeros with an application to forensic evidence evaluation. Chemometrics and
+Intelligent Laboratory Systems 109, 77–85. https://doi.org/10.1016/j.chemolab.2011.08.003
+
+Wang, H., Liu, Q., Mok, H.M.K., Fu, L., Tse, W.M., 2007. A hyperspherical transformation
+forecasting model for compositional data. European Journal of Operational Research 179,
+459–468. https://doi.org/10.1016/j.ejor.2006.03.039
+"""
+
+
+def sphere(ys):
+    r"""
+    Spherical coordinate transformation for compositional data.
+
+    Parameters
+    ----------
+    ys : :class:`numpy.ndarray`
+        Compositional data to transform (shape (n, D)).
+
+    Returns
+    -------
+    θ : :class:`numpy.ndarray`
+        Array of angles in radians (:math:`(0, \pi / 2]`)
+
+    Notes
+    -----
+    :func:`numpy.arccos` will return angles in the range :math:`(0, \pi)`. This shouldn't be
+    an issue for this function given that the input values are all positive.
+    """
+    p = ys.shape[1] - 1
+    _ys = np.sqrt(close(ys))  # closure operation
+    θ = np.ones((ys.shape[0], p))
+
+    indicies = np.arange(1, p + 1)[::-1]
+    for ix in indicies:  # we have to recurse from p back down to #2
+        if ix == p:
+            S = 1
+        else:
+            # vector - the product of sin components
+            S = np.product(np.sin(θ[:, ix:]), axis=1)
+            # where this evaluates to zero, the composition is all in the first component
+            S[np.isclose(S, 0.0)] = 1.0
+
+        ratios = _ys[:, ix] / S
+        # where this looks like it could be slightly higher than 1
+        # np.arcos will return np.nan, so we can filter these.
+        ratios[np.isclose(ratios, 1.0)] = 1.0
+        θ[:, ix - 1] = np.arccos(ratios)
+    return θ
+
+
+def inverse_sphere(θ):
+    """
+    Inverse spherical coordinate transformation to revert back to compositional data
+    in the simplex.
+
+    Parameters
+    ----------
+    θ : :class:`numpy.ndarray`
+        Angular coordinates to revert.
+
+    Returns
+    -------
+    ys : :class:`numpy.ndarray`
+        Compositional (simplex) coordinates, normalised to 1.
+    """
+    p = θ.shape[1]
+    n = θ.shape[0]
+    y = np.ones((θ.shape[0], p + 1)) * np.pi / 2
+
+    sinθ, cosθ = np.sin(θ), np.cos(θ)
+
+    indicies = np.arange(0, p + 1)
+    for ix in indicies:
+        if ix == 0:
+            C = 1.0
+        else:
+            C = cosθ[:, ix - 1]
+
+        if ix == p:
+            S = 1.0
+        else:
+            S = np.product(sinθ[:, ix:], axis=1)
+        y[:, ix] = C * S
+
+    ys = y ** 2
+    return ys
+
+
+################################################################################
+
+
+def compositional_cosine_distances(arr):
+    """
+    Calculate a distance matrix corresponding to the angles between a number
+    of compositional vectors.
+
+    Parameters
+    ----------
+    arr: :class:`numpy.ndarray`
+        Array of n-dimensional compositions of shape (n_samples, n).
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Array of angular distances of shape (n_samples, n_samples).
+    """
+    # all vectors are unit vectors where we start with closed compositions
+    _closed = close(arr)
+    # and we can then calculate the cosine similarity
+    cosine_sim = np.dot(
+        np.sqrt(np.expand_dims(_closed, axis=1)),
+        np.sqrt(np.expand_dims(_closed, axis=2)),
+    ).squeeze()
+    # finally, we convert the cosines back to angules
+    return np.arccos(np.clip(cosine_sim, -1.0, 1.0))
+
+
+########################################################################################
+# Meta-functions for accessing transformations.
+########################################################################################
+
+
+def get_transforms(name):
+    """
+    Lookup a transform-inverse transform pair by name.
+
+    Parameters
+    ----------
+    name : :class:`str`
+        Name of of the transform pairs (e.g. :code:``'CLR'``).
+
+    Returns
+    -------
+    tfm, inv_tfm : :class:`callable`
+        Transform and inverse transform functions.
+    """
+    if callable(name):  #  callable
+        name = name.__name__
+
+    tfm, inv_tfm = __TRANSFORMS__.get(name)
+    return tfm, inv_tfm
 
 
 def _load_transforms():

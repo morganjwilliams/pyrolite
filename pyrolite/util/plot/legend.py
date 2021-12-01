@@ -8,9 +8,11 @@ Todo
 
         ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
 """
-import matplotlib.patches
-import matplotlib.lines
 from copy import copy
+
+import matplotlib.lines
+import matplotlib.patches
+
 from ..log import Handle
 
 logger = Handle(__name__)

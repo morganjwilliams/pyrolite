@@ -1,9 +1,11 @@
 import copy
-import numpy as np
-import pandas as pd
+
 import matplotlib.colors
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
+
 from ..util.log import Handle
 
 logger = Handle(__name__)
@@ -44,7 +46,10 @@ def get_cmode(c=None):
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
             logger.debug("Checking array-based color modes.")
             if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
-                c = np.array(c, dtype=getattr(c, "dtype", "object"))
+                dtype = getattr(c, "dtype", np.dtype("O"))
+                if dtype.name == "category":  # convert categories to objects for numpy
+                    dtype = np.dtype("O")
+                c = np.array(c, dtype=dtype)
                 convertible = False
                 try:  # could test all of them, or just a few
                     _ = [matplotlib.colors.to_rgba(_c) for _c in [c[0], c[-1]]]
@@ -76,7 +81,16 @@ def get_cmode(c=None):
                         cmode = "mixed_fmt_color_array"
                 if cmode is None:
                     # default cmode to fall back on - e.g. list of tuples/intervals etc
-                    cmode = "categories"
+                    # where they're all the same type
+                    types = {type(_c) for _c in set(c)}
+                    if len(types) == 1:
+                        cmode = "categories"
+                    else:
+                        raise NotImplementedError(
+                            "Cannot determine color mode from array including types {}.".format(
+                                ",".join([t.__name__ for t in types])
+                            )
+                        )
     if cmode is None:
         logger.debug("Color mode not found for item of type {}".format(type(c)))
         raise NotImplementedError  # single value, mixed numbers, strings etc
@@ -91,6 +105,7 @@ def process_color(
     cmap=None,
     alpha=None,
     norm=None,
+    bad="0.5",
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
     color_mappings={},
@@ -155,9 +170,9 @@ def process_color(
                 alpha=alpha,
                 cmap=cmap,
                 norm=norm,
-                color_mappings={"color": color_mappings.get(kw)},
+                color_mappings={"c": color_mappings.get(kw)},
             )
-            otherkwargs[kw] = _pc.get("color", None)
+            otherkwargs[kw] = _pc.get("c")
     if c is not None:
         C = c
     elif color is not None:
@@ -196,7 +211,6 @@ def process_color(
         if size is not None:
             _c = np.ones((size, 1)) * _c  # turn this into a full array as a fallback
     else:
-        C = np.array(C)
         if cmode in [
             "hex_array",
             "named_array",
@@ -208,21 +222,27 @@ def process_color(
         elif cmode in ["mixed_fmt_color_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["value_array"]:
+            _C = np.array(C)
             cmap = cmap or DEFAULT_CONT_COLORMAP
             if isinstance(cmap, str):
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
-            norm = norm or plt.Normalize(
-                vmin=np.nanmin(np.array(C)), vmax=np.nanmax(np.array(C))
-            )
-            C = cmap(norm(C))
+            norm = norm or plt.Normalize(vmin=np.nanmin(_C), vmax=np.nanmax(_C))
+            C = cmap(norm(_C))
         elif cmode == "categories":
-            uniqueC = np.unique(C)
-            cmapper = color_mappings.get("color")
+            C = np.array(C, dtype="object")
+            uniqueC = pd.unique(C)
+            # this should now work for 'c' in addition to 'color', where the notation is matching
+            cmapper = (
+                color_mappings.get("c")
+                if c is not None
+                else color_mappings.get("color")
+            )
             if cmapper is None:
-                _C = np.ones_like(C, dtype="int") * np.nan
+                logger.debug("Using default value-mapping for categories.")
+                _C = np.ones(len(C), dtype="int") * np.nan
 
                 cmap = cmap or DEFAULT_DISC_COLORMAP
                 if isinstance(cmap, str):
@@ -232,14 +252,17 @@ def process_color(
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
             else:
+                logger.debug("Using custom value-mapping for categories.")
+                C = np.array(C)
                 unique_vals = np.array(list(cmapper.values()))
-                _C = np.ones((len(C), 4), dtype=np.float)
+                _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
-                    val = matplotlib.colors.to_rgba(cmapper.get(cat))
+                    # subsitute in the 'bad' color for colors not in the cmap
+                    val = matplotlib.colors.to_rgba(cmapper.get(cat, bad))
                     _C[C == cat] = val  # get the mapping frome the dict
                 C = _C
         else:
-            pass
+            C = np.array(C)
         if alpha is not None:
             C[:, -1] = alpha
         _c, _color = C, C

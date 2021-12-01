@@ -28,8 +28,9 @@ References
 
 """
 import numpy as np
-from ..util.meta import sphinx_doi_link, update_docstring_references
+
 from ..util.log import Handle
+from ..util.meta import sphinx_doi_link, update_docstring_references
 
 logger = Handle(__name__)
 

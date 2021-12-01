@@ -1,32 +1,26 @@
-import matplotlib.pyplot as plt
+import matplotlib.collections
 import matplotlib.lines
 import matplotlib.patches
-import matplotlib.collections
+import matplotlib.pyplot as plt
 import numpy as np
+
 from ..util.log import Handle
 
 logger = Handle(__name__)
 
 
-from .color import process_color
-from ..geochem.ind import get_ionic_radii, REE
-from ..util.types import iscollection
-from ..util.plot.style import (
-    DEFAULT_CONT_COLORMAP,
-    linekwargs,
-    scatterkwargs,
-    patchkwargs,
-)
-from ..util.plot.density import (
-    conditional_prob_density,
-    plot_Z_percentiles,
-    percentile_contour_values_from_meshz,
-)
-from ..util.plot.axes import get_twins, init_axes
-
+from ..geochem.ind import REE, get_ionic_radii
 from ..util.meta import get_additional_params, subkwargs
+from ..util.plot.axes import get_twins, init_axes
+from ..util.plot.density import (conditional_prob_density,
+                                 percentile_contour_values_from_meshz,
+                                 plot_Z_percentiles)
+from ..util.plot.style import (DEFAULT_CONT_COLORMAP, linekwargs, patchkwargs,
+                               scatterkwargs)
+from ..util.types import iscollection
+from .color import process_color
 
-_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25,)
+_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)
 _line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
 
 # could create a spidercollection?
@@ -42,6 +36,7 @@ def spider(
     scatter_kw={},
     line_kw={},
     set_ticks=True,
+    autoscale=True,
     **kwargs
 ):
     """
@@ -62,7 +57,8 @@ def spider(
     logy : :class:`bool`
         Whether to use a log y-axis.
     yextent : :class:`tuple`
-        Extent in the y direction for conditional probability plots.
+        Extent in the y direction for conditional probability plots, to limit
+        the gridspace over which the kernel density estimates are evaluated.
     mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
@@ -74,6 +70,8 @@ def spider(
         Keyword parameters to be passed to the line plotting function.
     set_ticks : :class:`bool`
         Whether to set the x-axis ticks according to the specified index.
+    autoscale : :class:`bool`
+        Whether to autoscale the y-axis limits for standard spider plots.
     {otherparams}
 
     Returns
@@ -106,11 +104,11 @@ def spider(
 
     ax = init_axes(ax=ax, figsize=figsize, **kwargs)
 
-    if logy:
-        ax.set_yscale("log")
-
     if unity_line:
         ax.axhline(1.0, ls="--", c="k", lw=0.5)
+
+    if logy:
+        ax.set_yscale("log")
 
     if indexes is None:
         indexes = np.arange(ncomponents)
@@ -167,7 +165,6 @@ def spider(
             np.dstack((indexes, arr)), **{"zorder": 1, **l_kw}
         )
         ax.add_collection(lcoll)
-
         ################################################################################
         # load defaults and any specified parameters in scatter_kw / line_kw
         if s_kw.get("cmap") is None:
@@ -175,7 +172,6 @@ def spider(
 
         _sctr_cfg = {**_scatter_defaults, **kwargs, **s_kw}
         s_kw = process_color(**_sctr_cfg)
-
         if s_kw["marker"] is not None:
             # will need to process colours for scatter markers here
 
@@ -205,6 +201,7 @@ def spider(
             s_kw = scatterkwargs(
                 {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
+            # do these need to be ravelled?
             sc = ax.scatter(
                 indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
             )
@@ -247,7 +244,30 @@ def spider(
             "Accepted modes: {plot, fill, binkde, ckde, kde, hist}"
         )
 
-    # consider relimiting here
+    if autoscale and arr.size:
+        # set the y range to lock to the outermost log-increments
+        _ymin, _ymax = np.nanmin(arr), np.nanmax(arr)
+
+        if unity_line:
+            _ymin, _ymax = min(_ymin, 1.0), max(_ymax, 1.0)
+
+        if logy:
+            # at 5% range in log space, and clip to nearest 'minor' tick
+            logmin, logmax = np.log10(_ymin), np.log10(_ymax)
+            logy_rng = logmax - logmin
+
+            low, high = 10 ** np.floor(logmin), 10 ** np.floor(logmax)
+
+            _ymin, _ymax = (
+                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low,
+                np.ceil(10 ** (logmax + 0.05 * logy_rng) / high) * high,
+            )
+        else:
+            # add 10% range either side for linear scale
+            _ymin, _ymax = 0.9 * _ymin, 1.1 * _ymax
+
+        if np.isfinite(_ymax) and np.isfinite(_ymin) and (_ymax - _ymin) > 0:
+            ax.set_ylim(_ymin, _ymax)
     return ax
 
 

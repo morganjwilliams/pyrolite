@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
+from ..util.log import Handle
 from ..util.plot.axes import init_axes
 from ..util.plot.style import linekwargs, scatterkwargs
-from ..util.log import Handle
 
 logger = Handle(__name__)
-
 
 
 def stem(x, y, ax=None, orientation="horizontal", **kwargs):

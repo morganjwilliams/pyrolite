@@ -19,11 +19,11 @@
 
 
 import os
-import sys
 import re
+import sys
+import warnings
 from datetime import date
 from pathlib import Path
-import warnings
 
 warnings.filterwarnings("ignore", "Unknown section")
 
@@ -33,11 +33,12 @@ sys.path.insert(0, os.path.abspath("../.."))
 # pip install git+https://github.com/rtfd/recommonmark.git@master
 import recommonmark
 from recommonmark.transform import AutoStructify
+
 import pyrolite
 
-
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
-release = version
+release = pyrolite.__version__.replace(".dirty", "")
+
 """
 from mock import Mock as MagicMock
 class Mock(MagicMock):
@@ -59,6 +60,7 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",

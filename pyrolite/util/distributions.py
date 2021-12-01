@@ -1,8 +1,10 @@
+from functools import partial
+
 import numpy as np
 import scipy.stats
-from functools import partial
-from ..util.math import flattengrid
+
 from ..comp.codata import ILR, close
+from ..util.math import flattengrid
 from .log import Handle
 
 logger = Handle(__name__)

@@ -1,17 +1,19 @@
+from pathlib import Path
+
+import joblib
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import joblib
-from ..plot import save_figure
-from ..meta import get_additional_params
+
 from ..log import Handle
+from ..meta import get_additional_params
+from ..plot import save_figure
 
 logger = Handle(__name__)
 
 try:
     import sklearn.svm
-    from sklearn.base import TransformerMixin, BaseEstimator
-    from sklearn.model_selection import StratifiedKFold, GridSearchCV
+    from sklearn.base import BaseEstimator, TransformerMixin
+    from sklearn.model_selection import GridSearchCV, StratifiedKFold
 except ImportError:
     msg = "scikit-learn not installed"
     logger.warning(msg)

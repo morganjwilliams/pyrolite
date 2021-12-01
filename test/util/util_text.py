@@ -1,4 +1,5 @@
 import unittest
+
 import numpy as np
 import pandas as pd
 from pyrolite.util.text import *
@@ -122,7 +123,7 @@ class TestTitlecase(unittest.TestCase):
     @unittest.expectedFailure
     def test_invalid_split_delimiters(self):
         """Check split delimiters operate correctly."""
-        for string in ["lower/case", "lower\case", "lower&case"]:
+        for string in ["lower/case", r"lower\case", "lower&case"]:
             with self.subTest(string=string):
                 self.assertEqual(titlecase(string).lower(), "lowercase")
 

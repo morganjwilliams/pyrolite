@@ -4,13 +4,14 @@ estimation.
 """
 import numpy as np
 import pandas as pd
-import scipy.optimize
 import scipy.linalg
+import scipy.optimize
+
+from ..log import Handle
 from ..meta import update_docstring_references
 from ..missing import md_pattern
 from .eval import get_function_components
 from .params import parse_sigmas
-from ..log import Handle
 
 logger = Handle(__name__)
 
@@ -91,7 +92,7 @@ def pcov_from_jac(jac):
 
 
 def linear_fit_components(y, x0, func_components, sigmas=None):
-    """
+    r"""
     Fit a weighted sum of function components using linear algebra.
 
     Parameters
@@ -166,7 +167,7 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
 def optimize_fit_components(
     y, x0, func_components, residuals_function=_residuals_func, sigmas=None
 ):
-    """
+    r"""
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
 

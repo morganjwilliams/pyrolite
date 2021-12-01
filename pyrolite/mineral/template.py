@@ -1,12 +1,14 @@
-import pandas as pd
-import numpy as np
-import periodictable as pt
 from collections import OrderedDict
+
+import numpy as np
+import pandas as pd
+import periodictable as pt
 import scipy.optimize
-from .sites import Site, MX, TX, OX
-from .transform import recalc_cations
-from .mindb import get_mineral, parse_composition
+
 from ..util.log import Handle
+from .mindb import get_mineral, parse_composition
+from .sites import MX, OX, TX, Site
+from .transform import recalc_cations
 
 logger = Handle(__name__)
 
@@ -345,7 +347,7 @@ class Mineral(object):
                     for i in sorted(site.affinities, key=site.affinities.__getitem__)
                     if i in inventory.index
                 ]
-                capacity = np.float(self.template.structure[site])
+                capacity = float(self.template.structure[site])
                 site_balances = [b for b in balances if all([i in accepts for i in b])]
                 direct_assign = [
                     i for i in accepts if not any([i in b for b in site_balances])
@@ -469,9 +471,21 @@ M2 = MX(
         "Mn{2+}": 11,
     },
 )
-OLIVINE = MineralTemplate("olivine", M1, M2, TX(), *[OX()] * 2,)
+OLIVINE = MineralTemplate(
+    "olivine",
+    M1,
+    M2,
+    TX(),
+    *[OX()] * 2,
+)
 
-PYROXENE = MineralTemplate("pyroxene", M1, M2, *[TX()] * 2, *[OX()] * 6,)
+PYROXENE = MineralTemplate(
+    "pyroxene",
+    M1,
+    M2,
+    *[TX()] * 2,
+    *[OX()] * 6,
+)
 
 SPINEL = MineralTemplate(
     "spinel",

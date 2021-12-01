@@ -19,7 +19,7 @@ df.loc[:, ["SiO2", "MgO", "CaO"]].head()
 ax = df.loc[:, ["SiO2", "MgO", "CaO"]].pyroplot.scatter(c="k")
 plt.show()
 ########################################################################################
-# If the data represent some continuting, you could also simply plot them as lines:
+# If the data represent some continuous series, you could also plot them as lines:
 #
 ax = df.loc[:, ["SiO2", "MgO", "CaO"]].pyroplot.plot(color="k", alpha=0.5)
 plt.show()
@@ -36,4 +36,5 @@ plt.tight_layout()
 ########################################################################################
 # .. seealso:: `Heatscatter Plots <heatscatter.html>`__,
 #              `Density Plots <density.html>`__,
-#              `Spider Density Diagrams <spider.html>`__
+#              `Spider Density Diagrams <spider.html>`__,
+#              `Ternary Color Mapping <ternary_color.html>`__

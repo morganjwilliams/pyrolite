@@ -39,7 +39,7 @@ class TestSelectors(unittest.TestCase):
     def test_TypeSelector(self):
         """Test the TypeSelector transfomer."""
         df = self.df
-        tmr = TypeSelector(np.float)
+        tmr = TypeSelector(float)
         for input in [df]:
             with self.subTest(input=input):
                 out = tmr.transform(input)

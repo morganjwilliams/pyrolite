@@ -5,10 +5,17 @@ pyrolite is available on `PyPi <https://pypi.org/project/pyrolite/>`_, and can b
 
 .. code-block:: bash
 
-   pip install pyrolite
+   pip install --user pyrolite
 
 
-.. note:: pyrolite is not yet packaged for Anaconda, and as such :code:`conda install pyrolite` will not work.
+.. note:: With pip, a user-level installation is generally recommended (i.e. using the
+          :code:`--user` flag), especially on systems which have a system-level
+          installation of Python (including `*.nix`, WSL and MacOS systems); this can
+          avoid some permissions issues and other conflicts. For detailed information
+          on other pip options, see the relevant
+          `docs <https://pip.pypa.io/en/stable/user_guide>`__.
+          pyrolite is not yet packaged for Anaconda, and as such
+          :code:`conda install pyrolite` will not work.
 
 
 Upgrading pyrolite
@@ -32,6 +39,6 @@ during `pip` installation. For example:
 
 .. code-block:: bash
 
-   pip install pyrolite[stats]
+   pip install --user pyrolite[stats]
 
-   pip install pyrolite[dev,docs]
+   pip install --user pyrolite[dev,docs]

@@ -5,9 +5,10 @@ are used to fit REE patterns.
 import numpy as np
 import sympy.solvers.solvers
 from sympy import symbols, var
-from ..meta import update_docstring_references
+
 from ...geochem.ind import REE, get_ionic_radii
 from ..log import Handle
+from ..meta import update_docstring_references
 
 logger = Handle(__name__)
 
@@ -87,7 +88,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
             guess = np.linspace(np.nanmin(xs), np.nanmax(xs), d + 2)[1:-1]
             result = sympy.solvers.solvers.nsolve(sums, ps, list(guess), tol=tol)
             if rounding is not None:
-                result = np.around(np.array(result, dtype=np.float), decimals=rounding)
+                result = np.around(np.array(result, dtype=float), decimals=rounding)
             params.append(tuple(result))
         else:
             params.append(())  # first parameter
@@ -122,13 +123,9 @@ def _get_params(params=None, degree=4):
         functions.
     """
     if params is None:
-        # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
-        _ree = [i for i in REE() if i not in ["Eu"]]
-        params = orthogonal_polynomial_constants(
-            get_ionic_radii(_ree, charge=3, coordination=8),
-            degree=degree,
-        )
-    elif isinstance(params, str):
+        params = "full"  # use all the REE to generate the orthogonal polynomials
+
+    if isinstance(params, str):
         name = params.replace("'", "").lower()
         if "full" in name:
             # use ALL the REE for defininng the orthogonal polynomial functions

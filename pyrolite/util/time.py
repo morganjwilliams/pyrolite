@@ -1,9 +1,11 @@
-import pandas as pd
+from collections import ChainMap, defaultdict
+
 import numpy as np
+import pandas as pd
+
+from .log import Handle
 from .meta import pyrolite_datafolder
 from .text import titlecase
-from collections import ChainMap, defaultdict
-from .log import Handle
 
 logger = Handle(__name__)
 
@@ -223,7 +225,7 @@ class Timescale(object):
             Tuple or list of tuples.
         """
         try:
-            entry = np.float(entry)
+            entry = float(entry)
             return (entry, entry)
         except ValueError:
             return self.locate[entry.lower().strip()]

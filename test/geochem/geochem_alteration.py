@@ -3,7 +3,7 @@ import numpy as np
 from pyrolite.geochem.alteration import *
 
 
-class TestCIA(unittest.TestCase):
+class TestAlterationIndicies(unittest.TestCase):
     """Tests the chemical index of alteration measure."""
 
     def setUp(self):
@@ -12,79 +12,45 @@ class TestCIA(unittest.TestCase):
             {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
         )
 
-    def test_CIA(self):
+    def test_CIA_default(self):
+        """Tests the chemical index of alteration measure."""
         df = self.df
-        df.loc[:, "CIA"] = CIA(df)
+        df["CIA"] = CIA(df)
 
-
-class TestCIW(unittest.TestCase):
-    """Tests the chemical index of weathering measure."""
-
-    def setUp(self):
-        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
-        )
-
-    def test_CIW(self):
+    def test_CIW_default(self):
+        """Tests the chemical index of weathering measure."""
         df = self.df
-        df.loc[:, "CIW"] = CIW(df)
+        df["CIW"] = CIW(df)
 
-
-class TestPIA(unittest.TestCase):
-    """Tests the plagioclase index of alteration measure."""
-
-    def setUp(self):
-        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
-        )
-
-    def test_PIA(self):
+    def test_PIA_default(self):
+        """Tests the plagioclase index of alteration measure."""
         df = self.df
-        df.loc[:, "PIA"] = PIA(df)
+        df["PIA"] = PIA(df)
 
-
-class TestSAR(unittest.TestCase):
-    """Tests the silica alumina ratio measure."""
-
-    def setUp(self):
-        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
-        )
-
-    def test_SAR(self):
+    def test_SAR_default(self):
+        """Tests the silica alumina ratio measure."""
         df = self.df
-        df.loc[:, "SAR"] = SAR(df)
+        df["SAR"] = SAR(df)
 
-
-class TestSiTiIndex(unittest.TestCase):
-    """Tests the silica titania ratio measure."""
-
-    def setUp(self):
-        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
-        )
-
-    def test_SiTiIndex(self):
+    def test_SiTiIndex_default(self):
+        """Tests the silica titania ratio measure."""
         df = self.df
-        df.loc[:, "SiTiIndex"] = SiTiIndex(df)
+        df["SiTiIndex"] = SiTiIndex(df)
 
-
-class TestWIP(unittest.TestCase):
-    """Tests the weathering index of parker measure."""
-
-    def setUp(self):
-        self.cols = ["SiO2", "CaO", "MgO", "FeO", "TiO2", "Na2O", "K2O", "Al2O3"]
-        self.df = pd.DataFrame(
-            {k: v for k, v in zip(self.cols, np.random.rand(len(self.cols), 10))}
-        )
-
-    def test_WIP(self):
+    def test_WIP_default(self):
+        """Tests the weathering index of parker measure."""
         df = self.df
-        df.loc[:, "WIP"] = WIP(df)
+        df["WIP"] = WIP(df)
+
+    def test_AI_default(self):
+        """Tests the Alteration index of Ishikawa."""
+        df = self.df
+        df["IshikawaAltIndex"] = IshikawaAltIndex(df)
+
+    def test_CCPI_default(self):
+        """Tests the Chlorite-carbonate-pyrite index."""
+        df = self.df
+        df["CCPI"] = CCPI(df)
 
 
 if __name__ == "__main__":
