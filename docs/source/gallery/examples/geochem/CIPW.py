@@ -119,9 +119,9 @@ plt.show()
 from pyrolite.mineral.normative import NORM_MINERALS
 
 translation = {
-    d["name"]: k.upper() + "_NORM"
+    d["name"]: (d.get("SINCLAS_abbrv", None) or k.upper()) + "_NORM"
     for k, d in NORM_MINERALS.items()
-    if k.upper() + "_NORM" in df.columns
+    if (d.get("SINCLAS_abbrv", None) or k.upper()) + "_NORM" in df.columns
 }
 translation
 ########################################################################################
