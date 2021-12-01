@@ -219,8 +219,8 @@ def LeMaitreOxRatio(df, mode=None):
 
     Notes
     ------
-    This is a  :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
-    molar ratio  :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
+    This is a :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
+    molar ratio :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
     straightfowardly used; data presented should be in mass units. For the
     calculation, SiO2, Na2O and K2O are expected to be present.
 
@@ -245,16 +245,17 @@ def LeMaitreOxRatio(df, mode=None):
         logger.debug("Using LeMaitre Volcanic Fe Correction.")
         ratio = (
             0.93
-            - 0.0042 * df["SiO2"]
-            - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+            - 0.0042 * df["SiO2"].fillna(0)
+            - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1).fillna(0)
         )
     else:
         logger.debug("Using LeMaitre Plutonic Fe Correction.")
         ratio = (
             0.88
-            - 0.0016 * df["SiO2"]
-            - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
+            - 0.0016 * df["SiO2"].fillna(0)
+            - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1).fillna(0)
         )
+    ratio.loc[ratio.values < 0] = 0.0
     ratio.name = "FeO/(FeO+Fe2O3)"
     return ratio
 
@@ -286,17 +287,18 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
-    mass_ratios = LeMaitreOxRatio(df, mode=mode)  # mass ratios
-    # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
-    feo_moles = mass_ratios / pt.formula("FeO").mass
-    fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
-    Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
-
-    to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
-
-    return df.reindex(
-        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
-    ).pyrochem.convert_chemistry(to=[to])
+    mass_ratios = LeMaitreOxRatio(df, mode=mode).values  # mass ratios
+    # get the FeO + Fe2O3 mass sum, which we can multiply by the oxidation
+    # ratio to get FeO, Fe2O3
+    sumFeOxides = (
+        df.reindex(columns=["FeO", "FeOT", "Fe2O3", "Fe2O3T"]).sum(axis=1).values
+    )
+    converted = pd.DataFrame(
+        sumFeOxides[:, None] * np.vstack([mass_ratios, 1.0 - mass_ratios]).T,
+        columns=["FeO", "Fe2O3"],
+        index=df.index,
+    )
+    return converted
 
 
 def _update_molecular_masses(mineral_dict, corrected_mass_df):
@@ -474,6 +476,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
             "Iron correction {} not recognised.".format(Fe_correction)
         )
 
+    # select just the columns we'll use; remove e.g. FeOT, Fe2O3T which have been recalcuated
     df = df.reindex(columns=columns).fillna(0)
 
     majors = [
@@ -525,25 +528,29 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     # Adjust majors wt% to 100% then adjust again to account for trace components
     ############################################################################
     # Rounding to 3 dp
-    df[majors] = df[majors].round(3)
+    df.loc[:, majors] = df.loc[:, majors].round(3)
 
     # First adjustment
-    df["intial_sum"] = df[majors].sum(axis=1)
-    adjustment_factor = 100.0 / df["intial_sum"]
-    df[majors] = df[majors].mul(adjustment_factor, axis=0)
+    df["initial_sum"] = df.loc[:, majors].sum(axis=1)
+    adjustment_factor = 100.0 / df["initial_sum"].values
+    df.loc[:, majors] = df.loc[:, majors].mul(adjustment_factor, axis=0)
 
     # Second adjustment
-    df["major_minor_sum"] = df[majors].sum(axis=1) + df[minors_trace].sum(axis=1)
+    df["major_minor_sum"] = df.loc[:, majors].sum(axis=1) + df.loc[:, minors_trace].sum(
+        axis=1
+    )
     adjustment_factor = 100.0 / df["major_minor_sum"]
 
-    df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
+    df.loc[:, majors + minors_trace] = df.loc[:, majors + minors_trace].mul(
+        adjustment_factor, axis=0
+    )
 
     ############################################################################
     # Mole Calculations
     # TODO: update to use df.pyrochem.to_molecular()
     ############################################################################
     for component in majors + minors_trace:
-        df[component] = df[component] / pt.formula(component).mass
+        df.loc[:, component] /= pt.formula(component).mass
 
     ############################################################################
     # Combine minor components, compute minor component fractions and correct masses
@@ -1006,10 +1013,8 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
                 + (df["CaO-Ap"] * minerals["Ap"]["mass"]),
             )
         else:
-            mineral_proportions[mineral] = df[mineral]
-            mineral_pct_mm[mineral] = (
-                mineral_proportions[mineral] * minerals[mineral]["mass"]
-            )
+            mineral_proportions[mineral] = df.loc[:, mineral]
+            mineral_pct_mm[mineral] = df.loc[:, mineral] * minerals[mineral]["mass"]
 
     # rename columns with proper names rather than abbreviations
     mineral_pct_mm.columns = [
