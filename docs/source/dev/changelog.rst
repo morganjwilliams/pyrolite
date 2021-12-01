@@ -10,6 +10,9 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__.
 
+`0.3.1`_
+--------------
+
 * **New Contributor**: `Martin Bentley <https://github.com/mtb-za>`__
 * **New Contributor**: `Chetan Nathwani <https://github.com/ChetanNathwani>`__
 * **New Contributor**: `Tom Buckle <https://github.com/bomtuckle>`__
@@ -22,10 +25,14 @@ All notable changes to this project will be documented here.
   where specific :mod:`numpy` types are required).
 * Added a minimum :mod:`sympy` version requirement (v1.7) to avoid potential import
   errors.
+* Updated minimum versions for :mod:`matplotlib` and :mod:`mpltern` to address
+  potential version conflicts.
 * A user installation is now recommended by default. This solves some potential issues
   on \*-nix and MacOS systems.
 * Fixed broken links to documentation in the README (thanks to
   `Alessandro Gentilini <https://github.com/alessandro-gentilini>`__).
+* Fixed a bad documentation link the PyPI package information.
+* Updated supported Python versions (Python 3.7-3.9).
 * **Bugfix**: Updated use of :mod:`tinydb` databases to default to read-only access except
   where write access is explicitly needed. This should solve issues with permissions
   during installation and use of pyrolite on some systems (
@@ -59,7 +66,8 @@ All notable changes to this project will be documented here.
   outside of this context.
   Thanks to `Chetan Nathwani <https://github.com/ChetanNathwani>`__
   for highlighting this one!
-
+* Renamed (private) package variables :code:`__common_oxides__` and
+  :code:`__common_elements__` to :code:`_common_oxides` and :code:`_common_elements`
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +81,8 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.comp`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+* Updated :func:`pyrolite.comp.codta.close` to better deal with zeros (avoiding
+  unnecessary warnings).
 * Added spherical coordinate transformation to :class:`pyrolite.comp.pyrocomp`
   and :mod:`pyrolite.comp.codata` (see :func:`pyrolite.comp.pyrocomp.sphere`).
 
@@ -91,6 +101,11 @@ All notable changes to this project will be documented here.
 * :func:`~pyrolite.plot.color.process_color` has been updated to better deal
   with data explicitly declared to be of a 'category' data type (as a
   :class:`pandas.Series`), and also to better handle variation in mapping notations.
+  Ordering of categorical variables will now be preserved during color-mapping.
+* Added the option to have a 'bad' color to be used in categorical color-mapping
+  where a category cannot be found.
+* Inconsistent color specifications (e.g. a list or array of multiple types)
+  will now result in an error when passed to :func:`~pyrolite.plot.color.process_color`.
 * :func:`~pyrolite.plot.pyroplot.parallel` has been updated to align with other
   plotting functions (taking an optional `components` keyword argument).
 
@@ -112,6 +127,8 @@ All notable changes to this project will be documented here.
   'modes' of diagrams to be contained a single configuration file, and fixed some issues
   with labelling (arguments `add_labels` and `which_labels` can now be used to selectively
   add either field IDs/abbreviations or field names to classification diagrams).
+* Limits are no longer explicitly required for bivariate templates (`xlim`, `ylim`)
+  in :mod:`pyrolite.util.classification`.
 * Update default parameterisation to :code:`"full"` for lambdas, using all REE to
   generate orthogonal polynomial functions.
 * Expanded :func:`pyrolite.util.text.int_to_alpha` to handle integers which are
@@ -137,6 +154,7 @@ All notable changes to this project will be documented here.
 * Added a `fmt_string` argument to :class:`~pyrolite.util.skl.transform.LogTransform`
   for use in automated naming of transformed columns; this may be expanded to other
   transformers soon.
+* Fixed some string issues for :mod:`pyrolite.util.text`.
 
 `0.3.0`_
 --------------
@@ -1233,7 +1251,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...develop
+.. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
 .. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
 .. _0.2.7: https://github.com/morganjwilliams/pyrolite/compare/0.2.6...0.2.7
