@@ -80,7 +80,7 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
     ------------
     lambdas: :class:`numpy.ndarray`
         Lambda values to weight combination of polynomials.
-    params: :class:`list`(:class:`tuple`)
+    params: :class:`list` ( :class:`tuple` )
         Parameters for the orthogonal polynomial decomposition.
     radii: :class:`numpy.ndarray`
         Radii values used to construct the lambda values. [#note_1]_
