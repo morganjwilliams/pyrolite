@@ -3,10 +3,11 @@ Geochemical Indexes and Selectors
 ==================================
 
 """
-import pyrolite.geochem
 import pandas as pd
 
-pd.set_option("precision", 3)  # smaller outputs
+import pyrolite.geochem
+
+pd.set_option("display.precision", 3)  # smaller outputs
 ########################################################################################
 from pyrolite.util.synthetic import normal_frame
 
@@ -73,7 +74,7 @@ df.pyrochem.list_isotope_ratios
 ########################################################################################
 # All elements (up to U):
 #
-from pyrolite.geochem.ind import common_elements, common_oxides, REE, REY
+from pyrolite.geochem.ind import REE, REY, common_elements, common_oxides
 
 common_elements()  # string return
 
