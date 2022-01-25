@@ -24,28 +24,83 @@ except ImportError:
 
 def plot_confusion_matrix(
     *args,
+    ax=None,
     classes=[],
+    class_order=None,
     normalize=False,
     title="Confusion Matrix",
     cmap=plt.cm.Blues,
     norm=None,
-    ax=None
+    xlabelrotation=None,
 ):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
+
+    Parameters
+    ------------
+    args : :class:`tuple`
+        Data to evaluate and visualise a confusion matrix:
+
+            * A single confusion matrix (n x n)
+            * A tuple of (y_test, y_predict)
+            * A tuple of (classifier_model, X_test, y_test)
+
+    ax : :class:`matplotlib.axes.Axes`
+        Axis to plot on, if one exists.
+    classes: :class:`list`
+        List of class names to use as labels, and for ordering (see below).
+        This should match the order contained within the model. Where a
+        classifier model is passed, the classes will be directly extracted.
+    class_order : :class:`list`
+        List of classes in the desired order along the axes. Should match
+        the supplied classes where classes are given, or integer indicies
+        for where no named classes are given.
+    normalize : :class:`bool`
+        Whether to normalize the counts for the confusion matrix to the
+        sum of all cases (i.e. be between 0 and 1).
+    title : :class:`str`
+        Title for the axes.
+    cmap : :class:`str` | :class:`matplotlib.color.Colormap`
+        Colormap for the visualisation of the confusion matrix.
+    norm : :class:`bool`
+        Normalization for the colormap visualisation across the confusion matrix.
+    xlabelrotation : :class:`float`
+        Rotation in degrees for the xaxis labels.
+
+    Returns
+    --------
+    ax : :class:`matplotlib.axes.Axes`
     """
     if len(args) == 1:
         conf_matrix = args[0]
+    elif len(args) in [2, 3]:
+        if len(args) == 2:
+            y_test, y_predict = args
+        else:
+            clf, X_test, y_test = args
+            y_predict = clf.predict(X_test)
+            if not classes:
+                if hasattr(args[0], "classes_"):
+                    classes = list(args[0].classes_)
+        conf_matrix = confusion_matrix(y_test, y_predict)
     else:
-        clf, X_test, y_test = args
-        conf_matrix = confusion_matrix(y_test, clf.predict(X_test))
-        if not classes:
-            if hasattr(args[0], "classes_"):
-                classes = list(args[0].classes_)
+        raise NotImplementedError(
+            "Supply either i) a confusion matrix, ii) the test and"
+            " predict arrays or iii) the classifier, X_test and y_test arrays."
+        )
 
     if not classes:
         classes = np.arange(conf_matrix.shape[0])
+
+    if class_order is not None:
+        assert all([c in classes for c in class_order]) and all(
+            [c in class_order for c in classes]
+        )
+        _classes = list(classes)  # for .index
+        class_indexes = np.array([_classes.index(c) for c in class_order])
+        conf_matrix = conf_matrix[np.ix_(class_indexes, class_indexes)]
+        classes = class_order
 
     if normalize:
         conf_matrix = (
@@ -86,6 +141,8 @@ def plot_confusion_matrix(
         xticklabels=classes,
         yticklabels=classes,
     )
+    if xlabelrotation is not None:
+        plt.setp(ax.get_xticklabels(), rotation=xlabelrotation)
     ax.grid(False)
     plt.tight_layout()
     return ax
@@ -183,7 +240,7 @@ def plot_mapping(
     alpha=1.0,
     s=10,
     alpha_method="entropy",
-    **kwargs
+    **kwargs,
 ):
     """
     Parameters
