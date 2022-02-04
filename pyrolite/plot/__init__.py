@@ -93,7 +93,7 @@ class pyroplot(object):
         Plot the co-occurence frequency matrix for a given input.
 
         Parameters
-        -----------
+        ----------
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         normalize : :class:`bool`
@@ -166,7 +166,7 @@ class pyroplot(object):
         for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -258,7 +258,7 @@ class pyroplot(object):
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -301,7 +301,7 @@ class pyroplot(object):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
-        ------------
+        ----------
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         index : :class:`str`
@@ -347,7 +347,7 @@ class pyroplot(object):
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -397,7 +397,7 @@ class pyroplot(object):
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, `None`
             Elements or compositional components to plot.
         indexes :  :class:`list`, `None`
@@ -483,7 +483,7 @@ class pyroplot(object):
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
