@@ -375,8 +375,6 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         "and does not yet return expected results."
     )
 
-    print('test_test')
-
     noncrit = [
         "CO2",
         "SO3",
@@ -638,11 +636,6 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     minerals['Hl']['mass'] = df['MW_Na_corr'] + 35.4527
     minerals['Fr']['mass'] = df['MW_Ca_corr'] + 37.9968064
     minerals['Pr']['mass'] = df['MW_Fe_corr'] + 64.132
-
-
-
-
-    print(minerals['Mg-Ol']['mass'])
 
     df["Y"] = 0
 
@@ -1089,4 +1082,4 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     ]
     mineral_pct_mm.fillna(0, inplace=True)
 
-    return mineral_pct_mm, df["MgO_ratio"], df["FeO_ratio"] 
+    return mineral_pct_mm
