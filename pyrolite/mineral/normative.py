@@ -22,7 +22,7 @@ NORM_MINERALS = minerals = {
     "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2"},
     "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2"},
     "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 4SiO2"},
-    "Tn": {"name": "thenardite", "formulae": "Na2O SO3"},
+    "Th": {"name": "thenardite", "formulae": "Na2O SO3"},
     "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2"},
     "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2"},
     "Pf": {"name": "perovskite", "formulae": "CaO TiO2"},
@@ -48,8 +48,9 @@ NORM_MINERALS = minerals = {
     "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2"},
     "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2"},
     "Wo": {"name": "wollastonite", "formulae": "CaO SiO2"},
-    "Nc": {"name": "sodium carbonate", "formulae": "Na2O CO2"},
-    "Hl": {"name": "halite", "formulae": "NaCl"}
+    "Nc": {"name": "cancrinite", "formulae": "Na2O CO2"},
+    "Hl": {"name": "halite", "formulae": "NaCl"},
+    "Tn": {"name": "titanite", "formulae": "CaO TiO2 SiO2"},
 }
 
 # Add standard masses to minerals
@@ -623,7 +624,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     minerals['Cc']['mass'] = df['MW_CaO_corr'] + 44.0095
     minerals['Ab']['mass'] = df['MW_Na2O_corr'] + 462.467076
     minerals['Ne']['mass'] = df['MW_Na2O_corr'] + 222.129876
-    minerals['Tn']['mass'] = df['MW_Na2O_corr'] + 80.0642
+    minerals['Th']['mass'] = df['MW_Na2O_corr'] + 80.0642
     minerals['Nc']['mass'] = df['MW_Na2O_corr'] + 44.0095
     minerals['Ac']['mass'] = df['MW_Na2O_corr'] + 400.0254
     minerals['Ns']['mass'] = df['MW_Na2O_corr'] + 60.0843
