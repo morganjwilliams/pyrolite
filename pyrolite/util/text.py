@@ -240,8 +240,7 @@ def slugify(value, delim="-"):
 
 def int_to_alpha(num):
     """
-    Encode an integer (0-26) into alpha characters, useful for sequences of
-    axes/figures.
+    Encode an integer into alpha characters, useful for sequences of axes/figures.
 
     Parameters
     ----------
