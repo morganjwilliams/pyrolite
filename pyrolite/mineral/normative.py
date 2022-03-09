@@ -35,7 +35,7 @@ NORM_MINERALS = {
     "Fr": {"name": "fluorite", "formulae": "CaF2"},
     "Pr": {"name": "pyrite", "formulae": "FeS2", "SINCLAS_abbrv": "PYR"},
     "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "SINCLAS_abbrv": "CHR"},
-    "Il": {"name": "ilmenite", "formulae": "FeOTiO2"},
+    "Il": {"name": "ilmenite", "formulae": "FeO TiO2"},
     "Cc": {"name": "calcite", "formulae": "CaO CO2"},
     "C": {"name": "corundum", "formulae": "Al2O3"},
     "Ru": {"name": "rutile", "formulae": "TiO2"},
@@ -73,6 +73,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
     """
     From a composition and endmember components, find a set of weights which best
     approximate the composition as a weighted sum of components.
+
     Parameters
     --------------
     comp : :class:`numpy.ndarray`
@@ -83,6 +84,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
         Order of regularization, defaults to L1 for sparsity.
     det_lim : :class:`float`
         Detection limit, below which minor components will be omitted for sparsity.
+
     Returns
     --------
     :class:`numpy.ndarray`
@@ -118,6 +120,7 @@ def endmember_decompose(
 ):
     """
     Decompose a given mineral composition to given endmembers.
+
     Parameters
     -----------
     composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` | :class:`~periodictable.formulas.Formula` | :class:`str`
@@ -133,6 +136,7 @@ def endmember_decompose(
         Order of regularization passed to :func:`unmix`, defaults to L1 for sparsity.
     det_lim : :class:`float`
         Detection limit, below which minor components will be omitted for sparsity.
+
     Returns
     ---------
     :class:`pandas.DataFrame`
@@ -206,16 +210,19 @@ def LeMaitreOxRatio(df, mode=None):
         Dataframe containing compositions to calibrate against.
     mode : :class:`str`
         Mode for the correction - 'volcanic' or 'plutonic'.
+
     Returns
     -------
     :class:`pandas.Series`
         Series with oxidation ratios.
+
     Notes
     ------
-    This is a  :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
-    molar ratio  :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
+    This is a :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
+    molar ratio :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
     straightfowardly used; data presented should be in mass units. For the
     calculation, SiO2, Na2O and K2O are expected to be present.
+
     References
     ----------
     Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
@@ -237,16 +244,17 @@ def LeMaitreOxRatio(df, mode=None):
         logger.debug("Using LeMaitre Volcanic Fe Correction.")
         ratio = (
             0.93
-            - 0.0042 * df["SiO2"]
+            - 0.0042 * df["SiO2"].fillna(0)
             - 0.022 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
         )
     else:
         logger.debug("Using LeMaitre Plutonic Fe Correction.")
         ratio = (
             0.88
-            - 0.0016 * df["SiO2"]
+            - 0.0016 * df["SiO2"].fillna(0)
             - 0.027 * df.reindex(columns=["Na2O", "K2O"]).sum(axis=1)
         )
+    ratio.loc[ratio.values < 0] = 0.0
     ratio.name = "FeO/(FeO+Fe2O3)"
     return ratio
 
@@ -259,17 +267,20 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
         Dataframe containing compositions to correct iron for.
     mode : :class:`str`
         Mode for the correction - 'volcanic' or 'plutonic'.
+
     Returns
     -------
     :class:`pandas.DataFrame`
         Series with two corrected iron components
         (:math:`\mathrm{FeO, Fe_2O_3}`).
+
     References
     ----------
     Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
     into Mineralogical Classifications.
     Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
     https://doi.org/10.1007/BF00399603.
+
     Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
     Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
@@ -291,6 +302,7 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
     """
     Update a dictionary of mineral molecular masses based on their oxide
     components. Note that this modifies in place and has no return value.
+
     Parameters
     ----------
     mineral_dict : :class:`dict`
@@ -325,6 +337,7 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     Aggregate minor components into major oxides and cacluate associated
     minor component fractions and a corrected molecular weight for the major
     oxide component. Note that this modifies in place and has no return value.
+
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
@@ -355,6 +368,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
     This is the CIPW norm of Verma et al. (2003).  This version only uses major
     elements.
+
     Parameters
     -----------
     df : :class:`pandas.DataFrame`
@@ -366,18 +380,22 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     adjust_all_Fe : :class:`bool`
         Where correcting iron compositions, whether to adjust all iron
         compositions, or only those where singular components are specified.
+
     Returns
     --------
     :class:`pandas.DataFrame`
+
     References
     ----------
     Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
     A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
     Verma, S. P., & Rivera-Gomez, M. A. (2013). Computer Programs for the
     Classification and Nomenclature of Igneous Rocks. Episodes, 36(2), 115–124.
+
     Todo
     ----
     * Note whether data needs to be normalised to 1 or 100?
+
     Notes
     -----
     The function expect oxide components to be in wt% and elemental data to be
@@ -445,9 +463,11 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         Fe_correction = "LeMaitre"
 
     if adjust_all_Fe:
-        fltr = np.ones(df.index.size, dtype="bool")
+        logger.debug("Adjusting all Fe values.")
+        fltr = np.ones(df.index.size, dtype="bool")  # use all samples
     else:
         # check where the iron speciation is already specified or there is no iron
+        logger.debug("Adjusting Fe values where FeO-Fe2O3 speciation isn't given.")
         iron_specified = (
             (df.reindex(columns=["FeO", "Fe2O3"]) > 0).sum(axis=1) == 2
         ) | (
@@ -455,7 +475,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
                 df.reindex(columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]).sum(axis=1), 0
             )
         )
-        fltr = iron_specified
+        fltr = ~iron_specified  # Use samples where iron is not specified
 
     if Fe_correction.lower().startswith("lemait"):
         df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(
@@ -466,6 +486,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
             "Iron correction {} not recognised.".format(Fe_correction)
         )
 
+    # select just the columns we'll use; remove e.g. FeOT, Fe2O3T which have been recalcuated
     df = df.reindex(columns=columns).fillna(0)
 
     # convert ppm traces to wt%
@@ -734,7 +755,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["FREEO_16"] = df["Pr"]
 
-    # Normative sodium carbonate or calcite
+    # Normative sodium carbonate (cancrinite) or calcite
 
     df["Nc"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["Na2O"]).T
 
@@ -860,6 +881,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df["FeO"] = df["FeO_"]
 
+    # remaining Fe2O3 goes into haematite
     df["Hm"] = df["Fe2O3"]
 
     # Subdivision of some normative minerals
@@ -1075,10 +1097,8 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
                 + (df["CaO-Ap"] * minerals["Ap"]["mass"]),
             )
         else:
-            mineral_proportions[mineral] = df[mineral]
-            mineral_pct_mm[mineral] = (
-                mineral_proportions[mineral] * minerals[mineral]["mass"]
-            )
+            mineral_proportions[mineral] = df[mineral]  # molar proportions
+            mineral_pct_mm[mineral] = df[mineral] * minerals[mineral]["mass"]
 
     # rename columns with proper names rather than abbreviations
     mineral_pct_mm.columns = [
