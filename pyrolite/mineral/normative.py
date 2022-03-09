@@ -15,9 +15,9 @@ from .mindb import get_mineral_group, list_minerals, parse_composition
 logger = Handle(__name__)
 
 # minerals for the CIPW Norm
-NORM_MINERALS = minerals = {
+NORM_MINERALS = {
     "Q": {"name": "quartz", "formulae": "SiO2"},
-    "Z": {"name": "zircon", "formulae": "ZrO2 SiO2"},
+    "Z": {"name": "zircon", "formulae": "ZrO2 SiO2", "SINCLAS_abbrv": "ZIR"},
     "Ks": {"name": "potassium metasilicate", "formulae": "K2O SiO2"},
     "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2"},
     "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2"},
@@ -25,7 +25,7 @@ NORM_MINERALS = minerals = {
     "Th": {"name": "thenardite", "formulae": "Na2O SO3"},
     "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2"},
     "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2"},
-    "Pf": {"name": "perovskite", "formulae": "CaO TiO2"},
+    "Pf": {"name": "perovskite", "formulae": "CaO TiO2", "SINCLAS_abbrv": "PER"},
     "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 2SiO2"},
     "Lc": {"name": "leucite", "formulae": "K2O Al2O3 4SiO2"},
     "Cs": {"name": "dicalcium silicate", "formulae": "(2CaO) SiO2"},
@@ -33,29 +33,40 @@ NORM_MINERALS = minerals = {
     "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
     "CaF2-Ap": {"name": "fluroapatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
     "Fr": {"name": "fluorite", "formulae": "CaF2"},
-    "Pr": {"name": "pyrite", "formulae": "FeS2"},
-    "Cm": {"name": "chromite", "formulae": "FeO Cr2O3"},
+    "Pr": {"name": "pyrite", "formulae": "FeS2", "SINCLAS_abbrv": "PYR"},
+    "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "SINCLAS_abbrv": "CHR"},
     "Il": {"name": "ilmenite", "formulae": "FeOTiO2"},
     "Cc": {"name": "calcite", "formulae": "CaO CO2"},
     "C": {"name": "corundum", "formulae": "Al2O3"},
     "Ru": {"name": "rutile", "formulae": "TiO2"},
     "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3"},
-    "Hm": {"name": "hematite", "formulae": "Fe2O3"},
-    "Mg-Ol": {"name": "forsterite", "formulae": "(2MgO) SiO2"},
-    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2"},
-    "Fe-Di": {"name": "clinoferrosilite", "formulae": "CaO FeO 2SiO2"},
-    "Mg-Di": {"name": "clinoenstatite", "formulae": "CaO MgO 2SiO2"},
-    "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2"},
-    "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2"},
+    "Hm": {"name": "hematite", "formulae": "Fe2O3", "SINCLAsS_abbrv": "HE"},
+    "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "SINCLAS_abbrv": "FO"},
+    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "SINCLAS_abbrv": "FA"},
+    "Fe-Di": {
+        "name": "clinoferrosilite",
+        "formulae": "CaO FeO 2SiO2",
+        "SINCLAS_abbrv": "DIF",
+    },
+    "Mg-Di": {
+        "name": "clinoenstatite",
+        "formulae": "CaO MgO 2SiO2",
+        "SINCLAS_abbrv": "DIM",
+    },
+    "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "SINCLAS_abbrv": "HYF"},
+    "Mg-Hy": {"name": "enstatite", "formulae": "MgO SiO2", "SINCLAS_abbrv": "HYM"},
     "Wo": {"name": "wollastonite", "formulae": "CaO SiO2"},
-    "Nc": {"name": "cancrinite", "formulae": "Na2O CO2"},
-    "Hl": {"name": "halite", "formulae": "NaCl"},
-    "Tn": {"name": "titanite", "formulae": "CaO TiO2 SiO2"},
+    "Nc": {"name": "cancrinite", "formulae": "Na2O CO2", "SINCLAS_abbrv": "CAN"},
+    "Hl": {"name": "halite", "formulae": "NaCl", "SINCLAS_abbrv": "HL"},
+    "Tn": {"name": "titanite", "formulae": "CaO TiO2 SiO2", "SINCLAS_abbrv": "SPH"},
+    "Di": {"name": "diopside", "formulae": "CaO MgO 2SiO2"},
+    "Hy": {"name": "hypersthene", "formulae": "MgO SiO2"},
+    "Ol": {"name": "olivine", "formulae": "2MgO SiO2"},
 }
 
 # Add standard masses to minerals
 for mineral in NORM_MINERALS.keys():
-    NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"])
+    NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"]).mass
 
 
 def unmix(comp, parts, ord=1, det_lim=0.0001):
@@ -375,7 +386,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         "The current CIPW Norm implmentation is under continuting development, "
         "and does not yet return expected results."
     )
-
+    minerals = {**NORM_MINERALS}  # copy of NORM_MINERALS
     noncrit = [
         "CO2",
         "SO3",
