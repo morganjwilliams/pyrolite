@@ -19,19 +19,19 @@ NORM_MINERALS = {
     "Q": {"name": "quartz", "formulae": "SiO2"},
     "Z": {"name": "zircon", "formulae": "ZrO2 SiO2", "SINCLAS_abbrv": "ZIR"},
     "Ks": {"name": "potassium metasilicate", "formulae": "K2O SiO2"},
-    "An": {"name": "anorthite", "formulae": "CaO Al2O3 2SiO2"},
+    "An": {"name": "anorthite", "formulae": "CaO Al2O3 (SiO2)2"},
     "Ns": {"name": "sodium metasilicate", "formulae": "Na2O SiO2"},
-    "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 4SiO2"},
+    "Ac": {"name": "acmite", "formulae": "Na2O Fe2O3 (SiO2)4"},
     "Th": {"name": "thenardite", "formulae": "Na2O SO3"},
-    "Ab": {"name": "albite", "formulae": "Na2O Al2O3 6SiO2"},
-    "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 6SiO2"},
+    "Ab": {"name": "albite", "formulae": "Na2O Al2O3 (SiO2)6"},
+    "Or": {"name": "orthoclase", "formulae": "K2O Al2O3 (SiO2)6"},
     "Pf": {"name": "perovskite", "formulae": "CaO TiO2", "SINCLAS_abbrv": "PER"},
-    "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 2SiO2"},
-    "Lc": {"name": "leucite", "formulae": "K2O Al2O3 4SiO2"},
-    "Cs": {"name": "dicalcium silicate", "formulae": "(2CaO) SiO2"},
-    "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 2SiO2"},
-    "Ap": {"name": "apatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
-    "CaF2-Ap": {"name": "fluroapatite", "formulae": "(3CaO) P2O5 (0.33333CaO)"},
+    "Ne": {"name": "nepheline", "formulae": "Na2O Al2O3 (SiO2)2"},
+    "Lc": {"name": "leucite", "formulae": "K2O Al2O3 (SiO2)4"},
+    "Cs": {"name": "dicalcium silicate", "formulae": "(CaO)2 SiO2"},
+    "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 (SiO2)2"},
+    "Ap": {"name": "apatite", "formulae": "(CaO)3 P2O5 (CaO)0.33333"},
+    "CaF2-Ap": {"name": "fluroapatite", "formulae": "(CaO)3 P2O5 (CaO)0.33333"},
     "Fr": {"name": "fluorite", "formulae": "CaF2"},
     "Pr": {"name": "pyrite", "formulae": "FeS2", "SINCLAS_abbrv": "PYR"},
     "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "SINCLAS_abbrv": "CHR"},
@@ -41,16 +41,16 @@ NORM_MINERALS = {
     "Ru": {"name": "rutile", "formulae": "TiO2"},
     "Mt": {"name": "magnetite", "formulae": "FeO Fe2O3"},
     "Hm": {"name": "hematite", "formulae": "Fe2O3", "SINCLAsS_abbrv": "HE"},
-    "Mg-Ol": {"name": "forsterite", "formulae": "2MgO SiO2", "SINCLAS_abbrv": "FO"},
-    "Fe-Ol": {"name": "fayalite", "formulae": "2FeO SiO2", "SINCLAS_abbrv": "FA"},
+    "Mg-Ol": {"name": "forsterite", "formulae": "(MgO)2 SiO2", "SINCLAS_abbrv": "FO"},
+    "Fe-Ol": {"name": "fayalite", "formulae": "(FeO)2 SiO2", "SINCLAS_abbrv": "FA"},
     "Fe-Di": {
         "name": "clinoferrosilite",
-        "formulae": "CaO FeO 2SiO2",
+        "formulae": "CaO FeO (SiO2)2",
         "SINCLAS_abbrv": "DIF",
     },
     "Mg-Di": {
         "name": "clinoenstatite",
-        "formulae": "CaO MgO 2SiO2",
+        "formulae": "CaO MgO (SiO2)2",
         "SINCLAS_abbrv": "DIM",
     },
     "Fe-Hy": {"name": "ferrosilite", "formulae": "FeO SiO2", "SINCLAS_abbrv": "HYF"},
@@ -59,9 +59,9 @@ NORM_MINERALS = {
     "Nc": {"name": "cancrinite", "formulae": "Na2O CO2", "SINCLAS_abbrv": "CAN"},
     "Hl": {"name": "halite", "formulae": "NaCl", "SINCLAS_abbrv": "HL"},
     "Tn": {"name": "titanite", "formulae": "CaO TiO2 SiO2", "SINCLAS_abbrv": "SPH"},
-    "Di": {"name": "diopside", "formulae": "CaO MgO 2SiO2"},
+    "Di": {"name": "diopside", "formulae": "CaO MgO (SiO2)2"},
     "Hy": {"name": "hypersthene", "formulae": "MgO SiO2"},
-    "Ol": {"name": "olivine", "formulae": "2MgO SiO2"},
+    "Ol": {"name": "olivine", "formulae": "(MgO)2 SiO2"},
 }
 
 # Add standard masses to minerals
@@ -304,17 +304,18 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
         masses = 0.0
         for oxide in composition.split():
             count = re.findall(r"(?<![a-zA-Z:])[-+]?\d*\.?\d+", oxide)
+            normalised_oxide_name = re.findall(r"[a-zA-Z\d]+", oxide)[0]
 
             if len(count) > 0:
                 count = float(count[0])
             else:
                 count = 1
 
-            if oxide in corrected_mass_df:
-                mass = count * corrected_mass_df[oxide]
+            if normalised_oxide_name in corrected_mass_df:
+                mass = count * corrected_mass_df[normalised_oxide_name]
             else:
                 # get the components which don't have adjusted molecular weights
-                mass = pt.formula(oxide).mass
+                mass = pt.formula(normalised_oxide_name).mass * count
             masses += mass
         data["mass"] = masses
 
