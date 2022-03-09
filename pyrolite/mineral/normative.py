@@ -578,41 +578,30 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     # Minor oxide combinations
 
-    df["n_FeO_corr"] = df["FeO"] + df["MnO"] + df["NiO"] + df["CoO"]
-    df["n_CaO_corr"] = df["CaO"] + df["SrO"] + df["BaO"]
-    df["n_K2O_corr"] = df["K2O"] + df["Rb2O"] + df["Cs2O"]
-    df["n_Na2O_corr"] = df["Na2O"] + df["Li2O"]
-    df["n_Cr2O3_corr"] = df["Cr2O3"] + df["V2O3"]
+    df["n_FeO_corr"] = df[["FeO", "MnO", "NiO", "CoO"]].sum(axis=1)
+    df["n_CaO_corr"] = df[["CaO", "SrO", "BaO"]].sum(axis=1)
+    df["n_K2O_corr"] = df[["K2O", "Rb2O", "Cs2O"]].sum(axis=1)
+    df["n_Na2O_corr"] = df[["Na2O", "Li2O"]].sum(axis=1)
+    df["n_Cr2O3_corr"] = df[["Cr2O3", "V2O3"]].sum(axis=1)
 
     # Corrected oxide molecular weight computations
-    df["x_MnO"] = df["MnO"] / df["n_FeO_corr"]
-    df["x_FeO"] = df["FeO"] / df["n_FeO_corr"]
 
-    df["x_NiO"] = df["NiO"] / df["n_FeO_corr"]
-    df["x_CoO"] = df["CoO"] / df["n_FeO_corr"]
+    df[["x_MnO", "x_FeO"]] = df[["MnO", "FeO"]] / df[["n_FeO_corr"]].values
+    df[["x_NiO", "x_CoO"]] = df[["NiO", "CoO"]] / df[["n_FeO_corr"]].values
+    df[["x_SrO", "x_BaO", "x_CaO"]] = (
+        df[["SrO", "BaO", "CaO"]] / df[["n_CaO_corr"]].values
+    )
+    df[["x_Rb2O", "x_Cs2O", "x_K2O"]] = (
+        df[["Rb2O", "Cs2O", "K2O"]] / df[["n_K2O_corr"]].values
+    )
+    df[["x_Li2O", "x_Na2O"]] = df[["Li2O", "Na2O"]] / df[["n_Na2O_corr"]].values
+    df[["x_V2O3", "x_Cr2O3"]] = df[["V2O3", "Cr2O3"]] / df[["n_Cr2O3_corr"]].values
 
-    df["x_SrO"] = df["SrO"] / df["n_CaO_corr"]
-    df["x_BaO"] = df["BaO"] / df["n_CaO_corr"]
-    df["x_CaO"] = df["CaO"] / df["n_CaO_corr"]
-
-    df["x_Rb2O"] = df["Rb2O"] / df["n_K2O_corr"]
-    df["x_Cs2O"] = df["Cs2O"] / df["n_K2O_corr"]
-    df["x_K2O"] = df["K2O"] / df["n_K2O_corr"]
-
-    df["x_Li2O"] = df["Li2O"] / df["n_Na2O_corr"]
-    df["x_Na2O"] = df["Na2O"] / df["n_Na2O_corr"]
-
-    df["x_V2O3"] = df["V2O3"] / df["n_Cr2O3_corr"]
-    df["x_Cr2O3"] = df["Cr2O3"] / df["n_Cr2O3_corr"]
-
-    df["FeO"] = df["n_FeO_corr"]
-    df["CaO"] = df["n_CaO_corr"]
-    df["K2O"] = df["n_K2O_corr"]
-    df["Na2O"] = df["n_Na2O_corr"]
-    df["Cr2O3"] = df["n_Cr2O3_corr"]
+    df[["FeO", "CaO", "K2O", "Na2O", "Cr2O3"]] = df[
+        ["n_FeO_corr", "n_CaO_corr", "n_K2O_corr", "n_Na2O_corr", "n_Cr2O3_corr"]
+    ].values
 
     # Corrected normative mineral molecular weight computations
-
     def corr_m_wt(oxide):
         return df["x_" + oxide] * pt.formula(oxide).mass
 
@@ -632,36 +621,41 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     for m in ["Q", "Z", "C", "Ru", "Hm", "Mg-Ol", "Mg-Hy"]:
         minerals[m]["mass"] = pt.formula(minerals[m]["formulae"]).mass
 
-    minerals["Fe-Hy"]["mass"] = df["MW_FeO_corr"] + 60.0843
-    minerals["Fe-Ol"]["mass"] = (2 * df["MW_FeO_corr"]) + 60.0843
-    minerals["Mt"]["mass"] = df["MW_FeO_corr"] + 159.6882
-    minerals["Il"]["mass"] = df["MW_FeO_corr"] + 79.8658
-    minerals["An"]["mass"] = df["MW_CaO_corr"] + 222.129876
-    minerals["Mg-Di"]["mass"] = df["MW_CaO_corr"] + 160.4730
-    minerals["Wo"]["mass"] = df["MW_CaO_corr"] + 60.0843
-    minerals["Cs"]["mass"] = 2 * df["MW_CaO_corr"] + 60.0843
-    minerals["Tn"]["mass"] = df["MW_CaO_corr"] + 139.9501
-    minerals["Pf"]["mass"] = df["MW_CaO_corr"] + 79.8558
+    minerals["Fe-Hy"]["mass"] = df["MW_FeO_corr"] + pt.formula("SiO2").mass
+    minerals["Fe-Ol"]["mass"] = (2 * df["MW_FeO_corr"]) + pt.formula("SiO2").mass
+    minerals["Mt"]["mass"] = df["MW_FeO_corr"] + pt.formula("Fe2O3").mass
+    minerals["Il"]["mass"] = df["MW_FeO_corr"] + pt.formula("TiO2").mass
+    minerals["An"]["mass"] = df["MW_CaO_corr"] + pt.formula("Al2O3 (SiO2)2").mass
+    minerals["Mg-Di"]["mass"] = df["MW_CaO_corr"] + pt.formula("MgO (SiO2)2").mass
+    minerals["Wo"]["mass"] = df["MW_CaO_corr"] + pt.formula("SiO2").mass
+    minerals["Cs"]["mass"] = 2 * df["MW_CaO_corr"] + pt.formula("SiO2").mass
+    minerals["Tn"]["mass"] = df["MW_CaO_corr"] + pt.formula("TiO2 SiO2").mass
+    minerals["Pf"]["mass"] = df["MW_CaO_corr"] + pt.formula("TiO2").mass
     minerals["CaF2-Ap"]["mass"] = (
-        3 * df["MW_CaO_corr"] + (1 / 3) * df["MW_Ca_corr"] + 154.6101241
+        3 * df["MW_CaO_corr"]
+        + (1 / 3) * df["MW_Ca_corr"]
+        + (2 / 3) * pt.F.mass
+        + pt.formula("P2O5").mass
     )
-    minerals["Ap"]["mass"] = (10 / 3) * df["MW_CaO_corr"] + 141.944522
-    minerals["Cc"]["mass"] = df["MW_CaO_corr"] + 44.0095
-    minerals["Ab"]["mass"] = df["MW_Na2O_corr"] + 462.467076
-    minerals["Ne"]["mass"] = df["MW_Na2O_corr"] + 222.129876
-    minerals["Th"]["mass"] = df["MW_Na2O_corr"] + 80.0642
-    minerals["Nc"]["mass"] = df["MW_Na2O_corr"] + 44.0095
-    minerals["Ac"]["mass"] = df["MW_Na2O_corr"] + 400.0254
-    minerals["Ns"]["mass"] = df["MW_Na2O_corr"] + 60.0843
-    minerals["Or"]["mass"] = df["MW_K2O_corr"] + 462.467076
-    minerals["Lc"]["mass"] = df["MW_K2O_corr"] + 342.298476
-    minerals["Kp"]["mass"] = df["MW_K2O_corr"] + 222.129876
-    minerals["Ks"]["mass"] = df["MW_K2O_corr"] + 60.0843
-    minerals["Fe-Di"]["mass"] = df["MW_FeO_corr"] + df["MW_CaO_corr"] + 120.1686
+    minerals["Ap"]["mass"] = (10 / 3) * df["MW_CaO_corr"] + pt.formula("P2O5").mass
+    minerals["Cc"]["mass"] = df["MW_CaO_corr"] + pt.formula("CO2").mass
+    minerals["Ab"]["mass"] = df["MW_Na2O_corr"] + pt.formula("Al2O3 (SiO2)6").mass
+    minerals["Ne"]["mass"] = df["MW_Na2O_corr"] + pt.formula("Al2O3 (SiO2)2").mass
+    minerals["Th"]["mass"] = df["MW_Na2O_corr"] + pt.formula("SO3").mass
+    minerals["Nc"]["mass"] = df["MW_Na2O_corr"] + pt.formula("CO2").mass
+    minerals["Ac"]["mass"] = df["MW_Na2O_corr"] + pt.formula("Fe2O3 (SiO2)4").mass
+    minerals["Ns"]["mass"] = df["MW_Na2O_corr"] + pt.formula("SiO2").mass
+    minerals["Or"]["mass"] = df["MW_K2O_corr"] + pt.formula("Al2O3 (SiO2)6").mass
+    minerals["Lc"]["mass"] = df["MW_K2O_corr"] + pt.formula("Al2O3 (SiO2)4").mass
+    minerals["Kp"]["mass"] = df["MW_K2O_corr"] + pt.formula("Al2O3 (SiO2)2").mass
+    minerals["Ks"]["mass"] = df["MW_K2O_corr"] + pt.formula("SiO2").mass
+    minerals["Fe-Di"]["mass"] = (
+        df["MW_FeO_corr"] + df["MW_CaO_corr"] + pt.formula("(SiO2)2").mass
+    )
     minerals["Cm"]["mass"] = df["MW_FeO_corr"] + df["MW_Cr2O3_corr"]
-    minerals["Hl"]["mass"] = df["MW_Na_corr"] + 35.4527
-    minerals["Fr"]["mass"] = df["MW_Ca_corr"] + 37.9968064
-    minerals["Pr"]["mass"] = df["MW_Fe_corr"] + 64.132
+    minerals["Hl"]["mass"] = df["MW_Na_corr"] + pt.formula("Cl").mass
+    minerals["Fr"]["mass"] = df["MW_Ca_corr"] + pt.formula("F2").mass
+    minerals["Pr"]["mass"] = df["MW_Fe_corr"] + pt.formula("S2").mass
 
     df["Y"] = 0
 
