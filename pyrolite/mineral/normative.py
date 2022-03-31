@@ -337,7 +337,9 @@ def Middlemost_Fe_correction(df):
 
     References
     ----------
-
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    https://doi.org/10.1016/0009-2541(89)90011-9.
     """
     mass_ratios = MiddlemostOxRatio(df)  # mass ratios
     # note, the Fe2O3/FeO ratio instead of e.g. Fe2O3/(FeO + Fe2O3)
