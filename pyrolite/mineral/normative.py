@@ -201,6 +201,69 @@ def endmember_decompose(
 # CIPW Norm and Related functions
 ################################################################################
 
+from ..util.classification import TAS
+
+# fuctions which map <TAS field, [SiO2, Na2O + K2O]> to Fe2O3/FeO ratios.
+_MiddlemostTASRatios = dict(
+    F=lambda t, x: 0.4 if x[1] > 10 else 0.3,
+    Ph=lambda t, x: 0.5,
+    T1=lambda t, x: 0.5,
+    T2=lambda t, x: 0.5,
+    R=lambda t, x: 0.5,
+    O3=lambda t, x: 0.4,
+    S3=lambda t, x: 0.4,
+    U3=lambda t, x: 0.4,
+    O2=lambda t, x: 0.35,
+    S2=lambda t, x: 0.35,
+    U2=lambda t, x: 0.35,
+    O1=lambda t, x: 0.3,
+    S1=lambda t, x: 0.3,
+    U1=lambda t, x: 0.3 if x[1] > 6 else 0.2,
+    Ba=lambda t, x: 0.2,
+    Bs=lambda t, x: 0.2,
+    Pc=lambda t, x: 0.15,
+)
+
+
+def MiddlemostOxRatio(df):
+    """
+    Apply a TAS classification to a dataframe, and get estimated Fe2O3/FeO ratios
+    from Middlemost (1989).
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        Dataframe to get Fe2O3/FeO ratios for, containing the required oxides
+        to calculate TAS diagrams from (i.e. SiO2, Na2O, K2O).
+
+    Returns
+    -------
+    ratios : :class:`pandas.Series`
+        Series of estimated Fe2O3/FeO ratios, based on TAS classification.
+
+    References
+    ----------
+    Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    https://doi.org/10.1016/0009-2541(89)90011-9.
+    """
+    TAS_input = df.apply(
+        lambda x: pd.Series(
+            {"SiO2": x.SiO2, "Na2O + K2O": x.reindex(index=["Na2O", "K2O"]).sum()}
+        ),
+        axis=1,
+    )
+    TAS_fields = TAS().predict(TAS_input)
+    TAS_fields.name = "TAS"
+    ratios = pd.concat([TAS_input, TAS_fields], axis=1).apply(
+        lambda x: _MiddlemostTASRatios.get(x.TAS, lambda t, x: np.nan)(
+            x.TAS, x.values[:2]
+        ),
+        axis=1,
+    )
+    ratios.name = "Fe2O3/FeO"
+    return ratios
+
 
 def LeMaitreOxRatio(df, mode=None):
     r"""
@@ -218,7 +281,7 @@ def LeMaitreOxRatio(df, mode=None):
 
     Notes
     ------
-    This is a :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standar
+    This is a :math:`\mathrm{FeO / (FeO + Fe_2O_3)}` mass ratio, not a standard
     molar ratio :math:`\mathrm{Fe^{2+}/(Fe^{2+} + Fe^{3+})}` which is more
     straightfowardly used; data presented should be in mass units. For the
     calculation, SiO2, Na2O and K2O are expected to be present.
@@ -259,6 +322,34 @@ def LeMaitreOxRatio(df, mode=None):
     return ratio
 
 
+def Middlemost_Fe_correction(df):
+    r"""
+    Parameters
+    -----------
+    df : :class:`pandas.DataFrame`
+        Dataframe containing compositions to calibrate against.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+        Series with two corrected iron components
+        (:math:`\mathrm{FeO, Fe_2O_3}`).
+
+    References
+    ----------
+
+    """
+    mass_ratios = MiddlemostOxRatio(df)  # mass ratios
+    # note, the Fe2O3/FeO ratio instead of e.g. Fe2O3/(FeO + Fe2O3)
+    fe2O3_moles = mass_ratios / pt.formula("Fe2O3").mass * 2
+    feO_moles = (1 / mass_ratios) / pt.formula("FeO").mass
+    Fe_mole_ratios = feO_moles / (feO_moles + fe2O3_moles)
+    to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
+    return df.reindex(
+        columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
+    ).pyrochem.convert_chemistry(to=[to])
+
+
 def LeMaitre_Fe_correction(df, mode="volcanic"):
     r"""
     Parameters
@@ -288,8 +379,8 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     mass_ratios = LeMaitreOxRatio(df, mode=mode)  # mass ratios
     # convert mass ratios to mole (Fe) ratios - moles per unit mass for each
     feo_moles = mass_ratios / pt.formula("FeO").mass
-    fe203_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
-    Fe_mole_ratios = feo_moles / (feo_moles + fe203_moles)
+    fe2O3_moles = (1 - mass_ratios) / pt.formula("Fe2O3").mass * 2
+    Fe_mole_ratios = feo_moles / (feo_moles + fe2O3_moles)
 
     to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
 
@@ -481,6 +572,8 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         df.loc[fltr, ["FeO", "Fe2O3"]] = LeMaitre_Fe_correction(
             df.loc[fltr, :], mode=Fe_correction_mode
         )
+    elif Fe_correction.lower().startswith("middle"):
+        df.loc[fltr, ["FeO", "Fe2O3"]] = Middlemost_Fe_correction(df.loc[fltr, :])
     else:
         raise NotImplementedError(
             "Iron correction {} not recognised.".format(Fe_correction)
