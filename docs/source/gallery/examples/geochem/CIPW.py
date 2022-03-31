@@ -36,7 +36,6 @@ geochemical components so we can work with it in the sections to follow:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
 
@@ -133,37 +132,70 @@ minerals = {
     k: v for (k, v) in translation.items() if (df[v] > 0).sum() and (NORM[k] > 0).sum()
 }
 ########################################################################################
-import matplotlib.pyplot as plt
-
+# To compare SINCLAS and the :mod:`pyrolite` NORM outputs, we'll construct a grid
+# of plots which compare the respective mineralogical norms relative to a 1:1 line,
+# and highlight discrepancies. As we'll do it twice below (once for samples labelled as
+# volanic, and once for everything else), we may as well make a function of it.
+#
+# After that, let's take a look at the volcanic samples in isolation, which are the
+# the key samples for which the NORM should be applied:
+#
 from pyrolite.plot.color import process_color
 
-ncols = 4
-nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
 
-fig, ax = plt.subplots(
-    nrows,
-    ncols,
-    figsize=(ncols * 2.5, nrows * 2),
-)
-fig.suptitle("Comparing pyrolite's CIPW Norm to SINCLAS/IgRoCS", fontsize=16)
-ax = ax.flat
+def compare_NORMs(SINCLAS_outputs, NORM_outputs, name=""):
+    """
+    Create a grid of axes comparing the outputs of SINCLAS and `pyrolite`'s NORM,
+    after translating the column names to the appropriate form.
+    """
+    ncols = 4
+    nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
 
-for ix, (b, a) in enumerate(minerals.items()):
-    ax[ix].set_title("\n".join(b.split()), y=0.9, va="top")
-    if a in df.columns and b in NORM.columns:
-        c = process_color(
-            np.abs((df[a] / NORM[b]) - 1),
-            cmap="RdBu_r",
-            norm=plt.Normalize(vmin=0, vmax=0.1),
-        )["c"]
-        ax[ix].scatter(df[a], NORM[b], c=c)
-    ax[ix].plot([0, df[a].max()], [0, df[a].max()], color="k", ls="--")
+    fig, ax = plt.subplots(nrows, ncols, figsize=(ncols * 2.5, nrows * 2))
+    fig.suptitle(
+        " - ".join(
+            ["Comparing pyrolite's CIPW Norm to SINCLAS/IgRoCS"] + [name]
+            if name
+            else []
+        ),
+        fontsize=16,
+        y=1.01,
+    )
+    ax = ax.flat
+    for ix, (b, a) in enumerate(minerals.items()):
+        ax[ix].set_title("\n".join(b.split()), y=0.9, va="top")
+        if a in SINCLAS_outputs.columns and b in NORM_outputs.columns:
+            # colour by deviation from unity
+            c = process_color(
+                np.abs((SINCLAS_outputs[a] / NORM_outputs[b]) - 1),
+                cmap="RdBu_r",
+                norm=plt.Normalize(vmin=0, vmax=0.1),
+            )["c"]
+            ax[ix].scatter(SINCLAS_outputs[a], NORM_outputs[b], c=c)
+        # add a 1:1 line
+        ax[ix].plot(
+            [0, SINCLAS_outputs[a].max()],
+            [0, SINCLAS_outputs[a].max()],
+            color="k",
+            ls="--",
+        )
 
-for a in ax:
-    a.set(xticks=[], yticks=[])  # turn off the ticks
-    if not a.collections:  # turn off the axis for empty axes
-        a.axis("off")
-plt.tight_layout()
+    for a in ax:
+        a.set(xticks=[], yticks=[])  # turn off the ticks
+        if not a.collections:  # turn off the axis for empty axes
+            a.axis("off")
+    return fig, ax
+
+
+volcanic_filter = df.loc[:, "ROCK_TYPE"].str.lower().str.startswith("volc")
+fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
+
+
+########################################################################################
+# And everything else:
+#
+fig, ax = compare_NORMs(df.loc[~volcanic_filter, :], NORM.loc[~volcanic_filter])
+plt.show()
 ########################################################################################
 # These normative mineralogical components could be input into mineralogical
 # classifiers, as mentioned above. For example, the IUGS QAP classifier:
