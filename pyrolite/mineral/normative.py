@@ -343,10 +343,10 @@ def Middlemost_Fe_correction(df):
     """
     mass_ratios = MiddlemostOxRatio(df)  # mass ratios
     # note, the Fe2O3/FeO ratio instead of e.g. Fe2O3/(FeO + Fe2O3)
-    fe2O3_moles = mass_ratios / pt.formula("Fe2O3").mass * 2
-    feO_moles = (1 / mass_ratios) / pt.formula("FeO").mass
-    Fe_mole_ratios = feO_moles / (feO_moles + fe2O3_moles)
-    to = {"FeO": Fe_mole_ratios, "Fe2O3": 1 - Fe_mole_ratios}
+    mole_ratios = mass_ratios / (pt.formula("Fe2O3").mass * 2 / pt.formula("FeO").mass)
+    Fe2O3_mole_fraction = 1 / (mole_ratios + 1)
+    FeO_mole_fraction = 1 - Fe2O3_mole_fraction
+    to = {"FeO": FeO_mole_fraction, "Fe2O3": Fe2O3_mole_fraction}
     return df.reindex(
         columns=["FeO", "Fe2O3", "FeOT", "Fe2O3T"]
     ).pyrochem.convert_chemistry(to=[to])

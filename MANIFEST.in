@@ -7,5 +7,6 @@ recursive-include pyrolite/data/mineral *
 recursive-include pyrolite/data/models *
 recursive-include pyrolite/data/radii *
 recursive-include pyrolite/data/timescale *
+recursive-include pyrolite/data/testing *
 recursive-include pyrolite/data/_config *
 # global-exclude __pycache__
