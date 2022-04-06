@@ -47,7 +47,7 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
         Transformation used prior to kernel density estimate.
     bw_method : :class:`str`, :class:`float`, callable
         Method used to calculate the estimator bandwidth.
-        See :func:`scipy.stats.kde.gaussian_kde`.
+        See :func:`scipy.stats.gaussian_kde`.
 
     Returns
     ----------
