@@ -1,18 +1,22 @@
 import unittest
+
 import pandas as pd
-from pyrolite.util.general import temp_path, remove_tempdir
+
 from pyrolite.mineral.mindb import (
+    __dbpath__,
+    get_mineral,
+    get_mineral_group,
+    list_formulae,
     list_groups,
     list_minerals,
-    list_formulae,
-    get_mineral,
     parse_composition,
-    get_mineral_group,
     update_database,
-    __dbpath__,
 )
+from pyrolite.util.general import remove_tempdir, temp_path
 
 update_database()
+
+
 class TestDBLists(unittest.TestCase):
     def setUp(self):
         pass
@@ -97,3 +101,7 @@ class TestUpdateDB(unittest.TestCase):
 
     def tearDown(self):
         remove_tempdir(self.dir)
+
+
+if __name__ == "__main__":
+    unittest.main()

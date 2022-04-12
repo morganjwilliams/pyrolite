@@ -343,8 +343,9 @@ def Middlemost_Fe_correction(df):
     """
     mass_ratios = MiddlemostOxRatio(df)  # mass ratios
     # note, the Fe2O3/FeO ratio instead of e.g. Fe2O3/(FeO + Fe2O3)
-    mole_ratios = mass_ratios / (pt.formula("Fe2O3").mass * 2 / pt.formula("FeO").mass)
-    Fe2O3_mole_fraction = 1 / (mole_ratios + 1)
+    mole_ratios = mass_ratios / (pt.formula("Fe2O3").mass / pt.formula("FeO").mass)
+    mole_ratios = mole_ratios * 2  # pyrolite's to_molecular uses moles Fe, not Fe2O3
+    Fe2O3_mole_fraction = mole_ratios / (mole_ratios + 1)
     FeO_mole_fraction = 1 - Fe2O3_mole_fraction
     to = {"FeO": FeO_mole_fraction, "Fe2O3": Fe2O3_mole_fraction}
     return df.reindex(
