@@ -572,6 +572,40 @@ class PeralkalinityClassifier(object):
         out.loc[perkalkaline_where] = "Peralkaline"
         return out
 
+class JensenPlot(PolygonClassifier):
+    """
+    Jensen Plot for classification of subalkaline volcanic rocks 
+    [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Jensen, L. S. (1976) A new cation plot for classifying sub-alkaline volcanic rocks. 
+                Ontario Division Mines. Miscellaneous Paper No. 66.
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models") / "JensenPlot" / "config.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+
+
 
 TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
