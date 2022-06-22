@@ -573,6 +573,60 @@ class PeralkalinityClassifier(object):
         return out
 
 
+@update_docstring_references
+class SpinelTrivalentTernary(PolygonClassifier):
+    """
+    Spinel Trivalent Ternary classification  - designed for data in atoms per formula unit
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "SpinelTrivalentTernary" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+@update_docstring_references
+class SpinelFeBivariate(PolygonClassifier):
+    """
+    Fe-Spinel classification - designed for data in atoms per formula unit
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "FeSpinel" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
+
+
+
 TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")

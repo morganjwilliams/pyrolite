@@ -1,0 +1,31 @@
+{"name":"SpinelFeBivariate","axes":{"x":"Fe2+/(Mg+Fe2+)","y":"Fe3+/(Al+Fe3+)"},
+	"fields":{
+		"Magnesioferrite":{
+			"name":["Magnesioferrite"],
+			"poly":[[0,75],[0,100],[50,100],[50,75]]},
+		"Magnetite":{
+			"name":["Magnetite"],
+			"poly":[[50,75],[50,100],[100,100],[100,75]]},
+		"Ferrian Spinel":{
+			"name":["Ferrian Spinel"],
+			"poly":[[0,25],[0,75],[25,75],[25,25]]},
+		"Ferrian Pleonaste":{
+			"name":["Ferrian Pleonaste"],
+			"poly":[[25,25],[25,75],[75,75],[75,25]]},
+		"Al-magnetite":{
+			"name":["Al-magnetite"],
+			"poly":[[75,75],[100,75],[100,50],[75,50]]},
+		"Ferrian Picotite":{
+			"name":["Ferrian picotite"],
+			"poly":[[75,50],[100,50],[100,25],[75,25]]},
+		"Spinel":{
+			"name":["Spinel"],
+			"poly":[[0,0],[0,25],[25,25],[25,0]]},
+		"Pleonaste":{
+			"name":["Pleonaste"],
+			"poly":[[25,0],[25,25],[75,25],[75,0]]},
+		"Hercynite":{
+			"name":["Hercynite"],
+			"poly":[[75,0],[75,25],[100,25],[100,0]]}
+	}
+}
