@@ -22,8 +22,12 @@ from matplotlib.projections import get_projection_class
 
 from ..comp.codata import close
 from .log import Handle
-from .meta import (pyrolite_datafolder, sphinx_doi_link, subkwargs,
-                   update_docstring_references)
+from .meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    subkwargs,
+    update_docstring_references,
+)
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs
@@ -573,7 +577,6 @@ class PeralkalinityClassifier(object):
         return out
 
 
-@update_docstring_references
 class SpinelTrivalentTernary(PolygonClassifier):
     """
     Spinel Trivalent Ternary classification  - designed for data in atoms per formula unit
@@ -587,11 +590,14 @@ class SpinelTrivalentTernary(PolygonClassifier):
     fields : :class:`dict`
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
-
     """
 
     def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "SpinelTrivalentTernary" / "config.json"
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "SpinelTrivalentTernary"
+            / "config.json"
+        )
 
         with open(src, "r") as f:
             config = json.load(f)
@@ -599,10 +605,10 @@ class SpinelTrivalentTernary(PolygonClassifier):
         poly_config = {**config, **kwargs, "transform": "ternary"}
         super().__init__(**poly_config)
 
-@update_docstring_references
+
 class SpinelFeBivariate(PolygonClassifier):
     """
-    Fe-Spinel classification - designed for data in atoms per formula unit
+    Fe-Spinel classification, designed for data in atoms per formula unit.
 
     Parameters
     -----------
@@ -613,7 +619,6 @@ class SpinelFeBivariate(PolygonClassifier):
     fields : :class:`dict`
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
-
     """
 
     def __init__(self, **kwargs):
@@ -624,7 +629,6 @@ class SpinelFeBivariate(PolygonClassifier):
 
         poly_config = {**config, **kwargs}
         super().__init__(**poly_config)
-
 
 
 TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
