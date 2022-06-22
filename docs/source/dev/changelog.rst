@@ -8,7 +8,32 @@ All notable changes to this project will be documented here.
 
 .. note:: Changes noted in this subsection are to be released in the next version.
         If you're keen to check something out before its released, you can use a
-        `development install <development.html#development-installation>`__.
+        `development install <development.html#development-installation>`__ .
+
+* **Bugfix**: Edited docstrings and added ignore-warning for :mod:`numpydoc` warnings.
+* **Bugfix**: Updated installation instructions and Binder configuration to use
+  secure protocols when installing via `git` (i.e. https://)
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Feature**: Added a TAS-based iron correction following Middlemost (1989).
+* **Bugfix**: Fixed some errors in mineral formulae and handling leading to
+  inaccurate outputs from CIPW Norm.
+* Split out volcanic from intrusive samples in the CIPW Norm volcanic rock comparison.
+* Added SINCLAS abbreviations to the mineral dictionary associated with the CIPW
+  Norm, so alternate mineral naming systems can be compared.
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~~~~
+* **PR Merged**: `Louise Schoneveld <https://github.com/lavender22>`__ submitted
+  a pull request to add bivariate and ternary classifier models for spinel
+  compositions (:class:`~pyrolite.util.classification.SpinelFeBivariate`,
+  :class:`~pyrolite.util.classification.SpinelTrivalentTernary`).
+* Updated :func:`pyrolite.util.skl.vis.plot_confusion_matrix` to be able to plot on
+  existing axes, use an explicit class order and use rotation for e.g. long
+  x-axis class label names.
+* Updated references to :func:`scipy.stats.gaussian_kde` after namespace deprecation.
 
 `0.3.1`_
 --------------
@@ -21,7 +46,7 @@ All notable changes to this project will be documented here.
   Python 3.4). This will fix an issue blocking setting up a `conda-forge`
   recipe (`#51 <https://github.com/morganjwilliams/pyrolite/issues/51>`__).
 * Updated instances of redundant :mod:`numpy` types throughout to silence
-  depreciation warnings (using base types :class:`float`, :class:`int` except
+  deprecation warnings (using base types :class:`float`, :class:`int` except
   where specific :mod:`numpy` types are required).
 * Added a minimum :mod:`sympy` version requirement (v1.7) to avoid potential import
   errors.
@@ -192,7 +217,7 @@ All notable changes to this project will be documented here.
   argument.
 * Updated automated pyrolite :mod:`matplotlib` style export to be more reliable.
 * Changed the default shading for :func:`~pyrolite.plot.pyroplot.density` to suppress
-  error about upcoming :mod:`matplotlib` depreciation.
+  error about upcoming :mod:`matplotlib` deprecation.
 * Ordering for contours, contour names and contour styles is now preserved for
   :func:`~pyrolite.plot.density.density` and related functions.
 * Updated :mod:`pyrolite.plot.templates.pearce` to use ratios from
