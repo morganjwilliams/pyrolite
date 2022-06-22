@@ -572,16 +572,10 @@ class PeralkalinityClassifier(object):
         return out
 
 
-TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
-USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
-    Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
-)
-QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
-
 @update_docstring_references
 class SpinelTrivalentTernary(PolygonClassifier):
     """
-    Spinel Trivalent Ternary classification
+    Spinel Trivalent Ternary classification  - designed for data in atoms per formula unit
 
     Parameters
     -----------
@@ -593,9 +587,6 @@ class SpinelTrivalentTernary(PolygonClassifier):
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
-    References
-    -----------
-    .. [#ref_1]
     """
 
     def __init__(self, **kwargs):
@@ -608,9 +599,9 @@ class SpinelTrivalentTernary(PolygonClassifier):
         super().__init__(**poly_config)
 
 @update_docstring_references
-class FeSpinel(PolygonClassifier):
+class SpinelFeBivariate(PolygonClassifier):
     """
-    Fe-Spinel classification
+    Fe-Spinel classification - designed for data in atoms per formula unit
 
     Parameters
     -----------
@@ -622,9 +613,6 @@ class FeSpinel(PolygonClassifier):
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
-    References
-    -----------
-    .. [#ref_1]
     """
 
     def __init__(self, **kwargs):
@@ -635,3 +623,11 @@ class FeSpinel(PolygonClassifier):
 
         poly_config = {**config, **kwargs}
         super().__init__(**poly_config)
+
+
+
+TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
+    Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
+)
+QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
