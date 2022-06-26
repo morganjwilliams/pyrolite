@@ -590,7 +590,7 @@ class JensenPlot(PolygonClassifier):
     References
     -----------
     .. [#ref_1] Jensen, L. S. (1976) A new cation plot for classifying sub-alkaline volcanic rocks. 
-                Ontario Division Mines. Miscellaneous Paper No. 66.
+                Ontario Division of Mines. Miscellaneous Paper No. 66.
     """
 
     def __init__(self, **kwargs):

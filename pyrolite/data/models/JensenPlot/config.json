@@ -1,17 +1,17 @@
-{"name": "JensenPlot", "axes": {"t": "Ti + Fe(tot) cat %", "l": "Al cat %", "r": "Mg cat %"}, "transform": "ternary", 
+{"name": "JensenPlot", "axes": {"t": "Ti + Fe(tot) mol%", "l": "Al mol%", "r": "Mg mol%"}, "transform": "ternary", 
     "fields": 
-    {"High Ti-Fe Other": {"name": "High Ti Fe Other", "poly": [[100, 0, 0], [85, 0, 15], [70, 15, 15], [85, 15, 0]]}, 
-     "High-Fe Basalt (T)": {"name": "High-Fe Tholeiitic Basalt", "poly": [[85, 15, 0], [70, 15, 15], [35, 31.5, 31.5], [25,50,25], [29, 52, 19], [50,50,0]]}, 
-     "Komatiitic Basalt" : {"name": "Komatiitic Basalt", "poly": [[85, 0, 15], [40, 0, 60], [0, 40, 60], [0, 50, 50], [70, 15, 15]]}, 
-     "Komatiite" : {"name": "Komatiite", "poly":[[40, 0, 60], [0, 0, 100], [0, 40, 60]]}, 
-     "Andesite (T)": {"name" : "tol and", "poly":[[50, 50, 0], [29, 52, 19], [25, 60, 15], [40, 60, 0]]},
-     "Dacite (T)" : {"name": "tol dac", "poly":[[40, 60, 0], [25, 60, 15], [20, 70, 10], [30, 70, 0]]},
-     "Rhyolite (T)" : {"name": "tol rhyol", "poly":[[20, 70, 10], [30, 70, 0], [10, 90, 0]]}, 
-     "Rhyolite (C-A)": {"name":"rhyol", "poly":[[10, 90, 0], [15, 80, 5], [0, 80, 20], [0, 100, 0]]},
-     "Dacite (C-A)": {"name": "dac", "poly":[[0, 80, 20], [15, 80, 5], [20, 70, 10], [0, 70, 30]]}, 
-     "Andesite (C-A)": {"name": "and", "poly":[[0, 70, 30], [20, 70, 10], [25, 60, 15], [0, 60, 40]]}, 
-     "Basalt (C-A)" : {"name": "bas", "poly": [[0, 60, 40], [25, 60, 15], [29, 52, 19], [25,50,25], [12, 52, 36], [0, 50, 50]]}, 
-     "High-Mg Basalt (T)" : {"name": "h mg bas", "poly": [[0, 50, 50], [12, 52, 36], [25,50,25], [35, 31.5, 31.5], [0, 50, 50]]}
+    {"HTiFeOth": {"name": "High Ti Fe Other", "poly": [[100, 0, 0], [85, 0, 15], [70, 15, 15], [85, 15, 0]]}, 
+     "HFeTBas": {"name": "High-Fe Basalt (T)", "poly": [[85, 15, 0], [70, 15, 15], [35, 31.5, 31.5], [25,50,25], [29, 52, 19], [50,50,0]]}, 
+     "KomBas" : {"name": "Komatiitic Basalt", "poly": [[85, 0, 15], [40, 0, 60], [0, 40, 60], [0, 50, 50], [70, 15, 15]]}, 
+     "Komat" : {"name": "Komatiite", "poly":[[40, 0, 60], [0, 0, 100], [0, 40, 60]]}, 
+     "TAnd": {"name" : "Andesite (T)", "poly":[[50, 50, 0], [29, 52, 19], [25, 60, 15], [40, 60, 0]]},
+     "TDac" : {"name": "Dacite (T)", "poly":[[40, 60, 0], [25, 60, 15], [20, 70, 10], [30, 70, 0]]},
+     "TRhyol" : {"name": "Rhyolite (T)", "poly":[[20, 70, 10], [30, 70, 0], [10, 90, 0]]}, 
+     "CARhyol": {"name":"Rhyolite (C-A)", "poly":[[10, 90, 0], [15, 80, 5], [0, 80, 20], [0, 100, 0]]},
+     "CADac": {"name": "Dacite (C-A)", "poly":[[0, 80, 20], [15, 80, 5], [20, 70, 10], [0, 70, 30]]}, 
+     "CAAnd": {"name": "Andesite (C-A)", "poly":[[0, 70, 30], [20, 70, 10], [25, 60, 15], [0, 60, 40]]}, 
+     "CABas" : {"name": "Basalt (C-A)", "poly": [[0, 60, 40], [25, 60, 15], [29, 52, 19], [25,50,25], [12, 52, 36], [0, 50, 50]]}, 
+     "HMgTBas" : {"name": "High-Mg Basalt (T)", "poly": [[0, 50, 50], [12, 52, 36], [25,50,25], [35, 31.5, 31.5], [0, 50, 50]]}
 
     }
 }
