@@ -49,7 +49,7 @@ def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3])
         Component list lengths which are valid for the plot type.
 
     Returns
-    ---------
+    -------
     :class:`list`
         Components for the plot.
     """
@@ -93,7 +93,7 @@ class pyroplot(object):
         Plot the co-occurence frequency matrix for a given input.
 
         Parameters
-        -----------
+        ----------
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         normalize : :class:`bool`
@@ -104,7 +104,7 @@ class pyroplot(object):
             Whether to append a colorbar.
 
         Returns
-        --------
+        -------
         :class:`matplotlib.axes.Axes`
             Axes on which the cooccurence plot is added.
 
@@ -125,7 +125,7 @@ class pyroplot(object):
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -166,7 +166,7 @@ class pyroplot(object):
         for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -219,7 +219,7 @@ class pyroplot(object):
         the columns of the :class:`~pandas.DataFrame`.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Components to use as axes for the plot.
         rescale : :class:`bool`
@@ -258,7 +258,7 @@ class pyroplot(object):
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -301,7 +301,7 @@ class pyroplot(object):
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
-        ------------
+        ----------
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
             The subplot to draw on.
         index : :class:`str`
@@ -347,7 +347,7 @@ class pyroplot(object):
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`
@@ -397,7 +397,7 @@ class pyroplot(object):
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, `None`
             Elements or compositional components to plot.
         indexes :  :class:`list`, `None`
@@ -423,7 +423,7 @@ class pyroplot(object):
             Axes on which the spider diagram is plotted.
 
         Todo
-        -----
+        ----
             * Add 'compositional data' filter for default components if None is given
 
         """
@@ -483,7 +483,7 @@ class pyroplot(object):
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
-        -----------
+        ----------
         components : :class:`list`, :code:`None`
             Elements or compositional components to plot.
         ax : :class:`matplotlib.axes.Axes`, :code:`None`

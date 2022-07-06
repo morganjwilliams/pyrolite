@@ -1,14 +1,18 @@
 import unittest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 from pyrolite.mineral.normative import (
-    unmix,
-    endmember_decompose,
     CIPW_norm,
-    _aggregate_components,
-    _update_molecular_masses,
     LeMaitre_Fe_correction,
     LeMaitreOxRatio,
+    Middlemost_Fe_correction,
+    MiddlemostOxRatio,
+    _aggregate_components,
+    _update_molecular_masses,
+    endmember_decompose,
+    unmix,
 )
 from pyrolite.util.synthetic import normal_frame
 
@@ -75,15 +79,38 @@ class Test_UpdateMolecularMasses(unittest.TestCase):
         pass
 
 
-class TestLeMaitreFeCorrection(unittest.TestCase):
-    """
-    This function uses new updates to convert_chemistry to allow
-    acceptance of paired arrays for iron speciation.
-    """
+class TestMiddlemostFeCorrection(unittest.TestCase):
+    def setUp(self):
+        self.df = pd.DataFrame(
+            [
+                [60, 3, 2, 6, 2],  # Andesite, 0.35
+                [45, 4, 5, 12, 3],  # Tephrite, 0.3
+                [70, 5, 4, 11, 4],  # Rhyolite, 0.5
+                [45, 4, 5, 10, 0],  # Tephrite, 0.3
+                [60, 4, 5, 10, 0],  # Trachy-andesite, 0.4
+            ],
+            columns=["SiO2", "Na2O", "K2O", "FeO", "Fe2O3"],
+            dtype="float",
+        )
 
+    def test_default(self):
+        output = Middlemost_Fe_correction(self.df)
+        self.assertIsInstance(output, pd.DataFrame)
+        self.assertTrue(all(output.columns == ["FeO", "Fe2O3"]))
+        # from a synthetic dataset, no data should be missing or zero
+        self.assertTrue(
+            (~np.isfinite(output.values) | np.isclose(output.values, 0)).sum() == 0
+        )
+        self.assertTrue(
+            np.allclose(
+                output["Fe2O3"] / output["FeO"], np.array([0.35, 0.3, 0.5, 0.3, 0.4])
+            )
+        )
+
+
+class TestLeMaitreFeCorrection(unittest.TestCase):
     def setUp(self):
         self.df = normal_frame(columns=["SiO2", "Fe2O3", "FeO", "MnO"])
-        self.handler = "pyrolite.mineral.normative"
 
     def test_default(self):
         output = LeMaitre_Fe_correction(self.df)
@@ -189,3 +216,7 @@ class TestCIPW(unittest.TestCase):
 
     def test_fe_correction_mode(self):
         pass
+
+
+if __name__ == "__main__":
+    unittest.main()

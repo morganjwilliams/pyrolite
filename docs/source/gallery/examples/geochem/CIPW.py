@@ -68,24 +68,32 @@ NORM.columns
 # The function accepts a few keyword arguments, all to do with the iron compositions
 # and related adjustment/corrections:
 #
-# :code:`Fe_correction = <callable>`
-#   For specifying the Fe-correction method/function. Currently only Le LeMaitre's
-#   correction method is implemented [LeMaitre1976]_ .
+# :code:`Fe_correction = "LeMaitre" | "Middlemost"`
+#   For specifying the Fe-correction method/function. Currently includes LeMaitre's
+#   correction method [LeMaitre1976]_ (the default) and Middlemost's TAS-based
+#   correction [Middlemost1989]_ .
 #
 # :code:`Fe_correction_mode = 'volcanic'`
-#   For specificying the Fe-correction mode where relevant
+#   For specificying the Fe-correction mode, for LeMaitre's correction.
 #
 # :code:`adjust_all_Fe = False`
 #   Specifying whether you want to adjust all iron compositions, or only those
 #   which are partially specified (i.e. only have a singular value for one of
 #   FeO, Fe2O3, FeOT, Fe2O3T).
 #
+NORM = CIPW_norm(df.pyrochem.compositional, Fe_correction="Middlemost")
+########################################################################################
 # For the purpose of establishing the congruency of our algorithm with Verma's,
-# we'll use :code:`adjust_all_Fe = True`. Notably, this won't make too much
-# difference to the format of the output, but it will adjust the estimates of
-# normative mineralogy depending on oxidation state.
+# we'll use :code:`adjust_all_Fe = True` and LeMaitre's correction. Notably, this
+# won't make too much difference to the format of the output, but it will adjust
+# the estimates of normative mineralogy depending on oxidation state.
 #
-NORM = CIPW_norm(df.pyrochem.compositional, adjust_all_Fe=True)
+NORM = CIPW_norm(
+    df.pyrochem.compositional,
+    adjust_all_Fe=True,
+    Fe_correction="LeMaitre",
+    Fe_correction_mode="volcanic",
+)
 ########################################################################################
 # Now we have the normative mineralogical outputs, we can have a look to see how
 # these compare to some relevant geochemical inputs:
@@ -132,36 +140,70 @@ minerals = {
     k: v for (k, v) in translation.items() if (df[v] > 0).sum() and (NORM[k] > 0).sum()
 }
 ########################################################################################
-import matplotlib.pyplot as plt
+# To compare SINCLAS and the :mod:`pyrolite` NORM outputs, we'll construct a grid
+# of plots which compare the respective mineralogical norms relative to a 1:1 line,
+# and highlight discrepancies. As we'll do it twice below (once for samples labelled as
+# volanic, and once for everything else), we may as well make a function of it.
+#
+# After that, let's take a look at the volcanic samples in isolation, which are the
+# the key samples for which the NORM should be applied:
+#
 from pyrolite.plot.color import process_color
 
-ncols = 4
-nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
 
-fig, ax = plt.subplots(
-    nrows,
-    ncols,
-    figsize=(ncols * 2.5, nrows * 2),
-)
-fig.suptitle("Comparing pyrolite's CIPW Norm to SINCLAS/IgRoCS", fontsize=16)
-ax = ax.flat
+def compare_NORMs(SINCLAS_outputs, NORM_outputs, name=""):
+    """
+    Create a grid of axes comparing the outputs of SINCLAS and `pyrolite`'s NORM,
+    after translating the column names to the appropriate form.
+    """
+    ncols = 4
+    nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
 
-for ix, (b, a) in enumerate(minerals.items()):
-    ax[ix].set_title("\n".join(b.split()), y=0.9, va="top")
-    if a in df.columns and b in NORM.columns:
-        c = process_color(
-            np.abs((df[a] / NORM[b]) - 1),
-            cmap="RdBu_r",
-            norm=plt.Normalize(vmin=0, vmax=0.1),
-        )["c"]
-        ax[ix].scatter(df[a], NORM[b], c=c)
-    ax[ix].plot([0, df[a].max()], [0, df[a].max()], color="k", ls="--")
+    fig, ax = plt.subplots(nrows, ncols, figsize=(ncols * 2.5, nrows * 2))
+    fig.suptitle(
+        " - ".join(
+            ["Comparing pyrolite's CIPW Norm to SINCLAS/IgRoCS"] + [name]
+            if name
+            else []
+        ),
+        fontsize=16,
+        y=1.01,
+    )
+    ax = ax.flat
+    for ix, (b, a) in enumerate(minerals.items()):
+        ax[ix].set_title("\n".join(b.split()), y=0.9, va="top")
+        if a in SINCLAS_outputs.columns and b in NORM_outputs.columns:
+            # colour by deviation from unity
+            c = process_color(
+                np.abs((SINCLAS_outputs[a] / NORM_outputs[b]) - 1),
+                cmap="RdBu_r",
+                norm=plt.Normalize(vmin=0, vmax=0.1),
+            )["c"]
+            ax[ix].scatter(SINCLAS_outputs[a], NORM_outputs[b], c=c)
+        # add a 1:1 line
+        ax[ix].plot(
+            [0, SINCLAS_outputs[a].max()],
+            [0, SINCLAS_outputs[a].max()],
+            color="k",
+            ls="--",
+        )
 
-for a in ax:
-    a.set(xticks=[], yticks=[])  # turn off the ticks
-    if not a.collections:  # turn off the axis for empty axes
-        a.axis("off")
-plt.tight_layout()
+    for a in ax:
+        a.set(xticks=[], yticks=[])  # turn off the ticks
+        if not a.collections:  # turn off the axis for empty axes
+            a.axis("off")
+    return fig, ax
+
+
+volcanic_filter = df.loc[:, "ROCK_TYPE"].str.lower().str.startswith("volc")
+fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
+
+
+########################################################################################
+# And everything else:
+#
+fig, ax = compare_NORMs(df.loc[~volcanic_filter, :], NORM.loc[~volcanic_filter])
+plt.show()
 ########################################################################################
 # These normative mineralogical components could be input into mineralogical
 # classifiers, as mentioned above. For example, the IUGS QAP classifier:
@@ -218,4 +260,9 @@ plt.show()
 #     Classifications.
 #     Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
 #     `doi: doi.org/10.1007/BF00399603 <https://doi.org/10.1007/BF00399603>`__
+#
+# .. [Middlemost1989] Middlemost, Eric A. K. (1989). Iron Oxidation Ratios,
+#     Norms and the Classification of Volcanic Rocks.
+#     Chemical Geology 77, 1: 19–26.
+#     `doi: doi.org/10.1016/0009-2541(89)90011-9. <https://doi.org/10.1016/0009-2541(89)90011-9.>`__
 #

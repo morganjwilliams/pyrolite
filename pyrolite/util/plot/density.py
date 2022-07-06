@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate
 from numpy.linalg import LinAlgError
-from scipy.stats.kde import gaussian_kde
+from scipy.stats import gaussian_kde
 
 from ..distributions import sample_kde
 from ..log import Handle

@@ -47,7 +47,7 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
         Transformation used prior to kernel density estimate.
     bw_method : :class:`str`, :class:`float`, callable
         Method used to calculate the estimator bandwidth.
-        See :func:`scipy.stats.kde.gaussian_kde`.
+        See :func:`scipy.stats.gaussian_kde`.
 
     Returns
     ----------
@@ -62,8 +62,6 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     tdata = transform(data)
     tdata = tdata[np.isfinite(tdata).all(axis=1), :]  # filter rows with nans
 
-    K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
-
     if isinstance(samples, list) and isinstance(samples[0], np.ndarray):  # meshgrid
         logger.debug("Sampling with meshgrid.")
         zshape = samples[0].shape
@@ -72,6 +70,10 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
         zshape = samples.shape[0]
         ksamples = transform(samples)
 
+    if not len(tdata):
+        return np.zeros(zshape)
+
+    K = scipy.stats.gaussian_kde(tdata.T, bw_method=bw_method)
     # ensures shape is fine even if row is passed
     ksamples = ksamples.reshape(-1, tdata.shape[1])
 

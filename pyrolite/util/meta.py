@@ -10,8 +10,6 @@ from .log import Handle
 
 logger = Handle(__name__)
 
-warnings.filterwarnings("ignore", "Unknown section")
-
 
 def get_module_datafolder(module="pyrolite", subfolder=None):
     """
@@ -27,8 +25,7 @@ def get_module_datafolder(module="pyrolite", subfolder=None):
     :class:`pathlib.Path`
     """
     pth = (
-        Path(importlib.machinery.PathFinder().find_spec("pyrolite").origin).parent
-        / "data"
+        Path(importlib.machinery.PathFinder().find_spec(module).origin).parent / "data"
     )
     if subfolder:
         pth /= subfolder
@@ -178,7 +175,14 @@ def get_additional_params(
     else:
         sectionheader = []
 
-    docs = [(f, numpydoc.docscrape.FunctionDoc(f)) for f in fs]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Unknown section")
+        warnings.filterwarnings(
+            "ignore",
+            message="potentially wrong underline length...",
+            category=UserWarning,
+        )
+        docs = [(f, numpydoc.docscrape.FunctionDoc(f)) for f in fs]
     pars = []
     subsects = []
     p0 = [i[0] for i in docs[0][1][t]]

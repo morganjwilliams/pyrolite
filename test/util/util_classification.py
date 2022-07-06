@@ -5,7 +5,7 @@ import numpy as np
 
 from pyrolite.comp.codata import renormalise
 from pyrolite.util.classification import *
-from pyrolite.util.synthetic import normal_frame
+from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
 
 class TestTAS(unittest.TestCase):
@@ -123,6 +123,34 @@ class TestFeldsparTernary(unittest.TestCase):
     def test_classifer_predict(self):
         df = self.df
         cm = FeldsparTernary()
+        classes = cm.predict(df)
+        self.assertFalse(pd.isnull(classes).all())
+
+
+class TestJensenPlot(unittest.TestCase):
+    def setUp(self):
+        self.df = normal_frame(
+            columns=["Ti + Fe(tot) mol%", "Al mol%", "Mg mol%"],
+            mean=[0.07, 0.15, 0.12],
+            cov=random_cov_matrix(2, sigmas=[0.5, 0.7]),
+            size=100,
+        )
+
+    def test_classifer_build(self):
+        cm = JensenPlot()
+
+    def test_classifer_add_to_axes(self):
+        cm = JensenPlot()
+        fig, ax = plt.subplots(1)
+        for a in [None, ax]:
+            with self.subTest(a=a):
+                cm.add_to_axes(
+                    ax=a, alpha=0.4, color="k", linewidth=0.5, add_labels=True
+                )
+
+    def test_classifer_predict(self):
+        df = self.df
+        cm = JensenPlot()
         classes = cm.predict(df)
         self.assertFalse(pd.isnull(classes).all())
 

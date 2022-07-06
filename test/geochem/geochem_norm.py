@@ -1,16 +1,14 @@
 import unittest
-import pyrolite
+
 import numpy as np
-from pyrolite.util.synthetic import normal_frame
-from pyrolite.geochem.norm import (
-    get_reference_files,
-    update_database,
-    Composition,
-    get_reference_composition,
-    all_reference_compositions,
-)
-from pyrolite.util.general import temp_path, remove_tempdir
+
+import pyrolite
+from pyrolite.geochem.norm import (Composition, all_reference_compositions,
+                                   get_reference_composition,
+                                   get_reference_files, update_database)
+from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.meta import pyrolite_datafolder
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestComposition(unittest.TestCase):
@@ -28,7 +26,8 @@ class TestComposition(unittest.TestCase):
         desc = C.describe()
         self.assertIsInstance(desc, str)
         self.assertIn(C.name, desc)
-        self.assertIn('doi', desc)
+        if C.doi is not None:
+            self.assertIn("doi", desc)
 
     def test_str(self):
         C = Composition(self.filename)

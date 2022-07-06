@@ -22,8 +22,12 @@ from matplotlib.projections import get_projection_class
 
 from ..comp.codata import close
 from .log import Handle
-from .meta import (pyrolite_datafolder, sphinx_doi_link, subkwargs,
-                   update_docstring_references)
+from .meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    subkwargs,
+    update_docstring_references,
+)
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs
@@ -347,7 +351,7 @@ class TAS(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
@@ -491,11 +495,11 @@ class QAP(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Streckeisen, A. Classification and nomenclature of plutonic rocks
-                recommendations of the IUGS subcommission on the systematics of
-                Igneous Rocks. Geol Rundsch 63, 773–786 (1974).
+    .. [#ref_1] Streckeisen, A. (1974). Classification and nomenclature of plutonic
+                rocks: recommendations of the IUGS subcommission on the systematics
+                of Igneous Rocks. Geol Rundsch 63, 773–786.
                 doi: {Streckeisen1974}
-    .. [#ref_2] Le Maitre,R.W. 2002. Igneous Rocks: A Classification and Glossary
+    .. [#ref_2] Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
@@ -571,6 +575,104 @@ class PeralkalinityClassifier(object):
         out.loc[metaluminous_where] = "Metaluminous"
         out.loc[perkalkaline_where] = "Peralkaline"
         return out
+
+
+@update_docstring_references
+class JensenPlot(PolygonClassifier):
+    """
+    Jensen Plot for classification of subalkaline volcanic rocks  [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Jensen, L. S. (1976). A new cation plot for classifying
+                sub-alkaline volcanic rocks.
+                Ontario Division of Mines. Miscellaneous Paper No. 66.
+
+    Notes
+    -----
+    Diagram used for the classification classification of subalkalic volcanic rocks.
+    The diagram is constructed for molar cation percentages of Al, Fe+Ti and Mg,
+    on account of these elements' stability upon metamorphism.
+    This particular version uses updated labels relative to Jensen (1976),
+    in which the fields have been extended to the full range of the ternary plot.
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "JensenPlot" / "config.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+
+class SpinelTrivalentTernary(PolygonClassifier):
+    """
+    Spinel Trivalent Ternary classification  - designed for data in atoms per formula unit
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "SpinelTrivalentTernary"
+            / "config.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs, "transform": "ternary"}
+        super().__init__(**poly_config)
+
+
+class SpinelFeBivariate(PolygonClassifier):
+    """
+    Fe-Spinel classification, designed for data in atoms per formula unit.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "SpinelFeBivariate"
+            / "config.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
 
 
 TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))

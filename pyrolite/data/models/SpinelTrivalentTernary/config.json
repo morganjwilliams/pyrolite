@@ -1,0 +1,31 @@
+{"name": "SpinelTrivalentTernary", "axes": {"t": "Cr", "l": "Al", "r": "Fe3+"}, "transform": "ternary",
+		"fields": {
+	"chromite": {
+		"name": "Chromite",
+		"poly": [[100,0,0], [75,25,0], [50,25,25], [75,0,25]]},
+	"ferrian-chromite": {
+		"name": "Ferrian chromite",
+		"poly": [[75,0,25], [50,0,50], [25,25,50], [37.5,37.5,25]]},
+	"Cr-magnetite": {
+		"name": "Cr-magnetite",
+		"poly": [[50,0,50], [25,25,50], [12.5,12.5,75], [25,0,75]]},
+	"magnetite": {
+		"name": "Magnetite",
+		"poly": [ [0,25,75],[25,0,75], [0,0,100]]},
+	"Al-magnetite": {
+		"name": "Al-Magnetite",
+		"poly": [[0,25,75], [12.5,12.5,75], [25,25,50], [0,50,50]]},
+	"ferrian-picotite": {
+		"name": "Ferrian-picotite",
+		"poly": [[0,75,25], [37.5,37.5,25], [25,25,50], [0,50,50]]},
+	"hercynite": {
+		"name": "Hercynite",
+		"poly": [[0,100,0], [0,75,25], [25,50,25], [25,75,0]]},
+	"picotite": {
+		"name": "Picotite",
+		"poly": [[25,75,0], [25,50,25], [37.5,37.5,25], [50,50,0]]},
+	"Al-chromite": {
+		"name": "Al-Chromite",
+		"poly": [[50,50,0], [37.5,37.5,25], [50,25,25], [75,25,0]]}
+}
+}

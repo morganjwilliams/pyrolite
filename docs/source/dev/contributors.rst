@@ -17,3 +17,5 @@ comments, testing, bug reports, or feature requests.
 * `Nicolas Piette-Lauziere <https://github.com/NicolasPietteLauziere>`__
 * `Chetan Nathwani <https://github.com/ChetanNathwani>`__
 * `Martin Bentley <https://github.com/mtb-za>`__
+* `Tom Buckle <https://github.com/bomtuckle>`__
+* `Angela Rodrigues <https://github.com/AngRodrigues>`__
