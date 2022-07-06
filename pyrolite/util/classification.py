@@ -662,7 +662,11 @@ class SpinelFeBivariate(PolygonClassifier):
     """
 
     def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "FeSpinel" / "config.json"
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "SpinelFeBivariate"
+            / "config.json"
+        )
 
         with open(src, "r") as f:
             config = json.load(f)

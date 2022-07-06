@@ -11,6 +11,7 @@ from .feldspar import FeldsparTernary
 from .jensen import JensenPlot
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .QAP import QAP
+from .spinel import SpinelFeBivariate, SpinelTrivalentTernary
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
 
@@ -24,4 +25,6 @@ __all__ = [
     "USDASoilTexture",
     "QAP",
     "FeldsparTernary",
+    "SpinelFeBivariate",
+    "SpinelTrivalentTernary",
 ]

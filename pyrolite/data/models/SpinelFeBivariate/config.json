@@ -1,4 +1,6 @@
-{"name":"SpinelFeBivariate","axes":{"x":"Fe2+/(Mg+Fe2+)","y":"Fe3+/(Al+Fe3+)"},
+{"name":"SpinelFeBivariate",
+	"scale": 100,
+	"axes":{"x":"Fe2+/(Mg+Fe2+)","y":"Fe3+/(Al+Fe3+)"},
 	"fields":{
 		"Magnesioferrite":{
 			"name":["Magnesioferrite"],
