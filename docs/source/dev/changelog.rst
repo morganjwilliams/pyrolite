@@ -37,8 +37,7 @@ All notable changes to this project will be documented here.
   :class:`~pyrolite.util.classification.SpinelTrivalentTernary`).
 * **PR Merged**: `Angela Rodrigues <https://github.com/AngRodrigues>`__ submitted
   a pull request to add the Jensen ternary cation classifier model for subalkalic
-  volcanic rocks (:class:`~pyrolite.util.classification.JensenPlot`,
-  :class:`~pyrolite.util.classification.JensenPlot`).
+  volcanic rocks (:class:`~pyrolite.util.classification.JensenPlot`).
 * Updated :func:`pyrolite.util.skl.vis.plot_confusion_matrix` to be able to plot on
   existing axes, use an explicit class order and use rotation for e.g. long
   x-axis class label names.
