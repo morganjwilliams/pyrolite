@@ -10,9 +10,11 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+* **New Contributor**: `Angela Rodrigues <https://github.com/AngRodrigues>`__
 * **Bugfix**: Edited docstrings and added ignore-warning for :mod:`numpydoc` warnings.
 * **Bugfix**: Updated installation instructions and Binder configuration to use
   secure protocols when installing via `git` (i.e. https://)
+* **Bugfix**: Update CI builds so that tests can be run on MacOS.
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,6 +32,10 @@ All notable changes to this project will be documented here.
   a pull request to add bivariate and ternary classifier models for spinel
   compositions (:class:`~pyrolite.util.classification.SpinelFeBivariate`,
   :class:`~pyrolite.util.classification.SpinelTrivalentTernary`).
+* **PR Merged**: `Angela Rodrigues <https://github.com/AngRodrigues>`__ submitted
+  a pull request to add the Jensen ternary cation classifier model for subalkalic
+  volcanic rocks (:class:`~pyrolite.util.classification.JensenPlot`,
+  :class:`~pyrolite.util.classification.JensenPlot`).
 * Updated :func:`pyrolite.util.skl.vis.plot_confusion_matrix` to be able to plot on
   existing axes, use an explicit class order and use rotation for e.g. long
   x-axis class label names.
