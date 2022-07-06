@@ -10,6 +10,9 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.2`_
+--------------
+
 * **New Contributor**: `Angela Rodrigues <https://github.com/AngRodrigues>`__
 * **Bugfix**: Edited docstrings and added ignore-warning for :mod:`numpydoc` warnings.
 * **Bugfix**: Updated installation instructions and Binder configuration to use
@@ -1286,7 +1289,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...develop
+.. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
 .. _0.2.8: https://github.com/morganjwilliams/pyrolite/compare/0.2.7...0.2.8
