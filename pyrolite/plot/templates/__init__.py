@@ -8,6 +8,7 @@ Todo
 
 from ...util.log import Handle
 from .feldspar import FeldsparTernary
+from .jensen import JensenPlot
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .QAP import QAP
 from .TAS import TAS
@@ -18,6 +19,7 @@ logger = Handle(__name__)
 __all__ = [
     "pearceThNbYb",
     "pearceTiNbYb",
+    "JensenPlot",
     "TAS",
     "USDASoilTexture",
     "QAP",

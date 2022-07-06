@@ -2,7 +2,7 @@ import unittest
 
 import matplotlib.pyplot as plt
 
-from pyrolite.plot.templates import (QAP, TAS, FeldsparTernary,
+from pyrolite.plot.templates import (QAP, TAS, FeldsparTernary, JensenPlot,
                                      USDASoilTexture, pearceThNbYb,
                                      pearceTiNbYb)
 
@@ -58,7 +58,7 @@ class TestPearcePlots(unittest.TestCase):
 
 class TestTernaryDiagrams(unittest.TestCase):
     def test_ternary_default(self):
-        for diagram in [QAP, FeldsparTernary, USDASoilTexture]:
+        for diagram in [QAP, FeldsparTernary, USDASoilTexture, JensenPlot]:
             fig, axes = plt.subplots(1)
             for a in [None, axes]:
                 with self.subTest(diagram=diagram, a=a):
