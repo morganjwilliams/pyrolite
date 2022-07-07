@@ -31,7 +31,7 @@ def USDASoilTexture(ax=None, add_labels=False, color="k", **kwargs):
 
     References
     -----------
-    .. [#ref_1] Soil Science Division Staff (2017). Soil survey sand.
+    .. [#ref_1] Soil Science Division Staff (2017). Soil Survey Manual.
                 C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
                 USDA Handbook 18. Government Printing Office, Washington, D.C.
     .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
