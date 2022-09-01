@@ -31,7 +31,7 @@ NORM_MINERALS = {
     "Cs": {"name": "dicalcium silicate", "formulae": "(CaO)2 SiO2"},
     "Kp": {"name": "kaliophilite", "formulae": "K2O Al2O3 (SiO2)2"},
     "Ap": {"name": "apatite", "formulae": "(CaO)3 P2O5 (CaO)0.33333"},
-    "CaF2-Ap": {"name": "fluroapatite", "formulae": "(CaO)3 P2O5 (CaO)0.33333"},
+    "CaF2-Ap": {"name": "fluroapatite", "formulae": "(CaO)3 P2O5 (CaF2)0.33333"},
     "Fr": {"name": "fluorite", "formulae": "CaF2"},
     "Pr": {"name": "pyrite", "formulae": "FeS2", "SINCLAS_abbrv": "PYR"},
     "Cm": {"name": "chromite", "formulae": "FeO Cr2O3", "SINCLAS_abbrv": "CHR"},
@@ -206,6 +206,10 @@ from ..util.classification import TAS
 # fuctions which map <TAS field, [SiO2, Na2O + K2O]> to Fe2O3/FeO ratios.
 _MiddlemostTASRatios = dict(
     F=lambda t, x: 0.4 if x[1] > 10 else 0.3,
+    F1=lambda t, x: 0.1,
+    F2=lambda t, x: 0.2,
+    F3=lambda t, x: 0.3,
+    F4=lambda t, x: 0.4,
     Ph=lambda t, x: 0.5,
     T1=lambda t, x: 0.5,
     T2=lambda t, x: 0.5,
@@ -222,6 +226,7 @@ _MiddlemostTASRatios = dict(
     Ba=lambda t, x: 0.2,
     Bs=lambda t, x: 0.2,
     Pc=lambda t, x: 0.15,
+    none=lambda t, x: 0.15
 )
 
 
@@ -247,6 +252,26 @@ def MiddlemostOxRatio(df):
     Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
+    to_sum = [
+        "SiO2",
+        "TiO2",
+        "Al2O3",
+        "Fe2O3",
+        "FeO",
+        "MnO",
+        "MgO",
+        "CaO",
+        "Na2O",
+        "K2O",
+        "P2O5"
+    ]
+
+    df = df.copy(deep=True)
+
+    df["sum"] = df[to_sum].sum(axis=1)
+    adjustment_factor = 100.0 / df["sum"]
+    df[to_sum] = df[to_sum].mul(adjustment_factor, axis=0)
+
     TAS_input = df.apply(
         lambda x: pd.Series(
             {"SiO2": x.SiO2, "Na2O + K2O": x.reindex(index=["Na2O", "K2O"]).sum()}
@@ -255,6 +280,12 @@ def MiddlemostOxRatio(df):
     )
     TAS_fields = TAS().predict(TAS_input)
     TAS_fields.name = "TAS"
+
+    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] < 3)] = 'F1'
+    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 3)&(TAS_input["Na2O + K2O"] <7)] = 'F2'
+    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 7)&(TAS_input["Na2O + K2O"] <10)] = 'F3'
+    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 10)] = 'F4'
+
     ratios = pd.concat([TAS_input, TAS_fields], axis=1).apply(
         lambda x: _MiddlemostTASRatios.get(x.TAS, lambda t, x: np.nan)(
             x.TAS, x.values[:2]
@@ -456,7 +487,12 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     )
 
 
-def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=False):
+def CIPW_norm(
+    df, Fe_correction=None,
+    Fe_correction_mode=None, 
+    adjust_all_Fe=False,
+    return_adjusted_input=False
+    ):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -537,8 +573,6 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         "P2O5",
     ]
 
-    trace = ["F", "Cl", "S", "Ni", "Co", "Sr", "Ba", "Rb", "Cs", "Li", "Zr", "Cr", "V"]
-
     # Check that all of the columns we'd like are present
     to_impute = []
     if not set(columns).issubset(set(df.columns.values)):
@@ -551,7 +585,10 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     # Reindex columns to be expected and fill missing ones with zeros
     if to_impute:  # Note that we're adding the columns with default values.
         logger.debug("Adding empty (0) columns: {}".format(", ".join(to_impute)))
+        df[to_impute] = 0
 
+    ############################################################################
+    # Fe Correction
     ############################################################################
     if Fe_correction is None:  # default to LeMaitre_Fe_correction
         Fe_correction = "LeMaitre"
@@ -586,7 +623,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     df = df.reindex(columns=columns).fillna(0)
 
     # convert ppm traces to wt%
-    df.loc[:, trace] *= scale("ppm", "wt%")
+    df.loc[:, noncrit] *= scale("ppm", "wt%")
 
     # define the form which we want our minor and trace components to be in
     minors_trace = [
@@ -606,12 +643,15 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         "V2O3",
     ]
 
+    # Keep S and SO3 seperatee
     SO3 = df["SO3"]
+    S = df["S"]
 
     # convert to a single set of oxides and gas traces
     df = df.pyrochem.convert_chemistry(to=majors + minors_trace, renorm=False).fillna(0)
 
     df["SO3"] = SO3
+    df["S"] = S
 
     ############################################################################
     # Normalization
@@ -631,7 +671,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
 
     df[majors + minors_trace] = df[majors + minors_trace].mul(adjustment_factor, axis=0)
 
-    ox_adjusted = df.copy(deep=True)
+    adjusted = df.copy(deep=True)
 
     ############################################################################
     # Mole Calculations
@@ -758,7 +798,7 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     ############################################################################
     # Calculate normative components
     ############################################################################
-
+   
     # Normative Zircon
     df["Z"] = df["ZrO2"]
     df["Y"] = df["Z"]
@@ -773,32 +813,36 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         df["CaO"] >= (3 + 1 / 3) * df["P2O5"], df["CaO"] - (3 + 1 / 3) * df["Ap"], 0
     ).T
 
-    df["P2O5_"] = np.where(
+    df["P2O5"] = np.where(
         df["CaO"] < (3 + 1 / 3) * df["P2O5"], df["P2O5"] - df["Ap"], 0
     ).T
 
     df["CaO"] = df["CaO_"]
-    df["P2O5"] = df["P2O5_"]
-
-    df["FREE_P2O5"] = df["P2O5"]
 
     # apatite options where F in present
 
-    df["ap_option"] = np.where(df["F"] >= (2 / 3) * df["Ap"], 2, 3).T
+    df["ap_option"] = np.where(df["F"] > 0, 3, 1).T
+
+    df["ap_option"] = np.where(df["F"] >= ((2 / 3) * df["Ap"]), 2, df["ap_option"]).T
 
     df["F"] = np.where(
-        (df["ap_option"]) == 2 & (df["F"] > 0), df["F"] - (2 / 3 * df["Ap"]), df["F"]
+        df["ap_option"] == 2, df["F"] - (2 / 3 * df["Ap"]), df["F"]
     ).T
 
-    df["CaF2-Ap"] = np.where((df["ap_option"]) == 3 & (df["F"] > 0), df["F"] * 1.5, 0).T
+    
+    df["CaF2-Ap"] = np.where(df["ap_option"] == 3, df["F"] * 1.5, 0).T
 
     df["CaO-Ap"] = np.where(
-        (df["ap_option"]) == 3 & (df["F"] > 0), df["P2O5"] - (1.5 * df["F"]), 0
+        df["ap_option"] == 3, df["P2O5"] - (1.5 * df["F"]), 0
     ).T
 
     df["Ap"] = np.where(
-        (df["ap_option"]) == 3 & (df["F"] > 0), df["CaF2-Ap"] + df["CaO-Ap"], df["Ap"]
+        df["ap_option"] == 3, df["CaF2-Ap"] + df["CaO-Ap"], df["Ap"].T
     ).T
+
+    df["F"] = np.where(df["ap_option"] == 3, 0, df["F"]).T
+
+    df["FREE_P2O5"] = df["P2O5"]
 
     df["FREEO_12b"] = np.where(df["ap_option"] == 2, 1 / 3 * df["Ap"], 0).T
     df["FREEO_12c"] = np.where(df["ap_option"] == 3, df["F"] / 2, 0).T
@@ -824,26 +868,34 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
     df["FREEO_14"] = df["Hl"] / 2
 
     # Normative thenardite
-    df["Th"] = np.where(df["Na2O"] >= df["SO3"], df["SO3"], df["Na2O"]).T
+    df["Th"] = np.where((df['SO3'] > 0) & (df["Na2O"] >= df["SO3"]), df["SO3"], 0).T
+    df["Th"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), df["Na2O"], df["Th"]).T
 
-    df["Na2O"] = np.where(df["Na2O"] >= df["SO3"], df["Na2O"] - df["Th"], 0).T
 
-    df["SO3"] = np.where(df["Na2O"] >= df["SO3"], df["SO3"], df["SO3"] - df["Th"]).T
+    df["Na2O_"] = np.where((df['SO3'] > 0) & (df["Na2O"] >= df["SO3"]), df["Na2O"] - df["Th"], df["Na2O"]).T
+    
+    df["Na2O"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), 0, df["Na2O_"]).T
+
+    df["SO3"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), df["SO3"] - df["Th"], df["SO3"]).T
 
     df["FREE_SO3"] = df["SO3"]
 
     # Normative Pyrite
-    df["Pr"] = np.where(df["FeO"] >= 2 * df["S"], df["S"] / 2, df["FeO"]).T
+    df["Pr"] = np.where(df["FeO"] >= 2 * df["S"], df["S"] / 2, df["S"]).T
 
-    df["FeO"] = np.where(
-        df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], df["FeO"] - df["Pr"] * 2
+    df["FeO_"] = np.where(
+        df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], 0
     ).T
 
-    df["FREE_S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["FeO"]).T
+    df["FeO"] = np.where(df["S"] > 0 , df["FeO_"], df["FeO"]).T
 
-    df["FeO"] = df["FeO"] - df["FREE_S"]
+
+    df["FREE_S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["S"]).T
+
+
 
     df["FREEO_16"] = df["Pr"]
+    
 
     # Normative sodium carbonate (cancrinite) or calcite
 
@@ -1181,11 +1233,24 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
             # get the abundance weighted total mass of apatite where split
             # otherwise just get the apatite mass
             mineral_pct_mm[mineral] = np.where(
-                df["ap_option"] == 2,
+                df["ap_option"] == 1,
                 df[mineral] * minerals["Ap"]["mass"],
-                (df["CaF2-Ap"] * minerals["CaF2-Ap"]["mass"])
-                + (df["CaO-Ap"] * minerals["Ap"]["mass"]),
+                0,
             )
+
+            mineral_pct_mm[mineral] = np.where(
+                df["ap_option"] == 2,
+                df[mineral] * minerals["CaF2-Ap"]["mass"],                
+                mineral_pct_mm[mineral],
+            )
+
+            mineral_pct_mm[mineral] = np.where(
+                df["ap_option"] == 3,
+                ((df["CaF2-Ap"] * minerals["CaF2-Ap"]["mass"]) + 
+                (df["CaO-Ap"] * minerals["Ap"]["mass"])),                
+                mineral_pct_mm[mineral],
+            )
+
         else:
             mineral_proportions[mineral] = df[mineral]  # molar proportions
             mineral_pct_mm[mineral] = df[mineral] * minerals[mineral]["mass"]
@@ -1195,5 +1260,9 @@ def CIPW_norm(df, Fe_correction=None, Fe_correction_mode=None, adjust_all_Fe=Fal
         minerals[mineral]["name"] for mineral in mineral_pct_mm.columns
     ]
     mineral_pct_mm.fillna(0, inplace=True)
+
+    if return_adjusted_input:
+        mineral_pct_mm = pd.concat([mineral_pct_mm, adjusted.drop(
+            columns=['intial_sum', 'major_minor_sum'])], axis=1)
 
     return mineral_pct_mm
