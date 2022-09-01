@@ -531,10 +531,7 @@ def CIPW_norm(
     The function expect oxide components to be in wt% and elemental data to be
     in ppm.
     """
-    warnings.warn(
-        "The current CIPW Norm implmentation is under continuting development, "
-        "and does not yet return expected results."
-    )
+
     minerals = {**NORM_MINERALS}  # copy of NORM_MINERALS
     noncrit = [
         "CO2",
