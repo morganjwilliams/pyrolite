@@ -792,6 +792,8 @@ def CIPW_norm(
 
     df["Y"] = 0
 
+
+
     ############################################################################
     # Calculate normative components
     ############################################################################
@@ -1251,6 +1253,11 @@ def CIPW_norm(
         else:
             mineral_proportions[mineral] = df[mineral]  # molar proportions
             mineral_pct_mm[mineral] = df[mineral] * minerals[mineral]["mass"]
+
+    mineral_pct_mm['Ol'] = mineral_pct_mm[['Fe-Ol', 'Mg-Ol']].sum(axis=1)
+    mineral_pct_mm['Di'] = mineral_pct_mm[['Fe-Di', 'Mg-Di']].sum(axis=1)
+    mineral_pct_mm['Hy'] = mineral_pct_mm[['Fe-Hy', 'Mg-Hy']].sum(axis=1)
+
 
     # rename columns with proper names rather than abbreviations
     mineral_pct_mm.columns = [
