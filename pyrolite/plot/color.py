@@ -226,10 +226,24 @@ def process_color(
             _C = np.array(C)
             cmap = cmap or DEFAULT_CONT_COLORMAP
             if isinstance(cmap, str):
-                cmap = plt.get_cmap(cmap)
+                cmap = plt.get_cmap(cmap).copy()
+
+            if alpha is not None:
+                from matplotlib.colors import ListedColormap
+
+                cmap = ListedColormap(
+                    np.hstack(
+                        [
+                            cmap(np.linspace(0, 1, cmap.N))[:, :-1],
+                            np.ones(cmap.N)[:, None] * alpha,
+                        ]
+                    ),
+                )
+
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
+
             norm = norm or plt.Normalize(
                 vmin=otherkwargs.get("vmin") or np.nanmin(_C),
                 vmax=otherkwargs.get("vmax") or np.nanmax(_C),
@@ -256,7 +270,8 @@ def process_color(
                 for ix, cat in enumerate(uniqueC):
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
-                collection_data.update({"cmap": cmap, "c": _C})
+                # could add a norm here/configure colourmap to be centred on categories?
+                collection_data.update({"cmap": cmap, "c": _C, "alpha": alpha})
             else:
                 logger.debug("Using custom value-mapping for categories.")
                 C = np.array(C)
