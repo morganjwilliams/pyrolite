@@ -200,6 +200,7 @@ def process_color(
     cmode = get_cmode(C)
 
     _c, _color = None, None
+    collection_data = {"cmap": None, "norm": None}
     if cmode in ["hex", "named", "rgb", "rgba"]:  # single color
         C = matplotlib.colors.to_rgba(C)
         if alpha is not None:
@@ -234,6 +235,7 @@ def process_color(
                 vmax=otherkwargs.get("vmax") or np.nanmax(_C),
             )
             C = cmap(norm(_C))
+            collection_data.update({"cmap": cmap, "norm": norm, "c": _C})
         elif cmode == "categories":
             C = np.array(C, dtype="object")
             uniqueC = pd.unique(C)
@@ -254,6 +256,7 @@ def process_color(
                 for ix, cat in enumerate(uniqueC):
                     _C[C == cat] = ix / len(uniqueC)
                 C = cmap(_C)
+                collection_data.update({"cmap": cmap, "c": _C})
             else:
                 logger.debug("Using custom value-mapping for categories.")
                 C = np.array(C)
@@ -286,4 +289,5 @@ def process_color(
                 d[edge] = _c
             if (edge in d) and not (face in d):
                 d[face] = _c
+    d.update(collection_data)
     return d
