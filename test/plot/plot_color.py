@@ -1,6 +1,8 @@
-import numpy as np
 import unittest
+
 import matplotlib.colors
+import numpy as np
+
 from pyrolite.plot.color import *
 
 
@@ -127,7 +129,9 @@ class TestProcessColor(unittest.TestCase):
         alpha = 0.5
         for c in [np.array([0.1, 0.9])]:
             out = process_color(c=c, alpha=alpha)
-            self.assertTrue(np.allclose(out["c"][:, -1], alpha))
+            # value mapping, c will retain original values (with cmap, norm) but
+            # colour will pertain to colourmapped points
+            self.assertTrue(np.allclose(out["color"][:, -1], alpha))
 
 
 class TestGetCmode(unittest.TestCase):
