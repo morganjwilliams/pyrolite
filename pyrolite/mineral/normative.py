@@ -620,7 +620,7 @@ def CIPW_norm(
     df = df.reindex(columns=columns).fillna(0)
 
     # convert ppm traces to wt%
-    df.loc[:, noncrit] *= scale("ppm", "wt%")
+    df[noncrit] *= scale("ppm", "wt%")
 
     # define the form which we want our minor and trace components to be in
     minors_trace = [
