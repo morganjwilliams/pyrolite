@@ -331,7 +331,8 @@ class PolygonClassifier(object):
 @update_docstring_references
 class TAS(PolygonClassifier):
     """
-    Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+    Total-alkali Silica Diagram classifier from Middlemost (1994) [#ref_1]_,
+    a closed-polygon variant after Le Bas et al (1992) [#ref_2]_.
 
     Parameters
     -----------
@@ -351,11 +352,17 @@ class TAS(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+    .. [#ref_1] Middlemost, E. A. K. (1994).
+                Naming materials in the magma/igneous rock system.
+                Earth-Science Reviews, 37(3), 215–224.
+                doi: {Middlemost1994}
+
+    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
+
     """
 
     def __init__(self, **kwargs):
@@ -675,7 +682,10 @@ class SpinelFeBivariate(PolygonClassifier):
         super().__init__(**poly_config)
 
 
-TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__doc__ = TAS.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
+    Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
+)
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
