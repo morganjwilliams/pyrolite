@@ -115,8 +115,11 @@ def get_contour_paths(ax, resolution=100):
         c
         for c in ax.collections
         # contours/default lines don't have markers - allows distinguishing scatter
-        if isinstance(c, matplotlib.collections.PathCollection)
-        and c.get_sizes().size == 0
+        if (
+            isinstance(c, matplotlib.collections.PathCollection)
+            and c.get_sizes().size == 0
+        )
+        or isinstance(c, matplotlib.collections.LineCollection)
     ]
     rgba = [lc.get_edgecolors() for lc in linecolls]
     styles = [{"color": c} for c in rgba]
