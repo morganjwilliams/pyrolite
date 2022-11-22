@@ -19,3 +19,4 @@ comments, testing, bug reports, or feature requests.
 * `Martin Bentley <https://github.com/mtb-za>`__
 * `Tom Buckle <https://github.com/bomtuckle>`__
 * `Angela Rodrigues <https://github.com/AngRodrigues>`__
+* `Sarah Shi <https://github.com/sarahshi>`__

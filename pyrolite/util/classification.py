@@ -351,15 +351,33 @@ class TAS(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+    .. 
+    .. [#ref_1] Middlemost, Eric A. K. (1989).
+            Iron Oxidation Ratios, Norms and the
+            Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+            https://doi.org/10.1016/0009-2541(89)90011-9.
+
+    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
+
+    .. [#ref_3] Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
+                of Terms : Recommendations of International Union of Geological
+                Sciences Subcommission on the Systematics of Igneous Rocks.
+                Cambridge University Press, 236pp
+
     """
 
-    def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+    def __init__(self, which_model=None, **kwargs):
+
+        if which_model == None: 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+        if which_model == 'LeMaitre': 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
+        if which_model == 'LeMaitreCombined': 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre_combined.json"
 
         with open(src, "r") as f:
             config = json.load(f)
