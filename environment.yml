@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.7
+  - python=3.9
   # pandas and scientific python
   - numpy
   - numpydoc
@@ -13,13 +13,13 @@ dependencies:
   - xlrd
   - openpyxl
   - psutil
-  - matplotlib<3.6 # note that 3.4+ is incompatible with mpltern <0.3.3, 3.6 with mpltern >0.3.5?
+  - matplotlib
   - pytables
   - scipy>=1.2  # uses scipy.optimize.Bounds, added around 1.2
   - umap-learn
   - tinydb
   - periodictable
-  - mpltern>=0.3.1
+  - mpltern>=0.4.0
   - mpmath
   - sympy>=1.7 # import changes after sympy 1.6
   - joblib

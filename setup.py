@@ -56,8 +56,8 @@ setup(
         "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
-        "matplotlib<3.6",  # tying updates between matplotlib and mpltern
-        "mpltern",
+        "matplotlib", 
+        "mpltern>=0.4.0",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy>=1.7",
