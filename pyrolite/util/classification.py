@@ -352,7 +352,6 @@ class TAS(PolygonClassifier):
 
     References
     -----------
-    .. 
     .. [#ref_1] Middlemost, E. A. K. (1994).
                 Naming materials in the magma/igneous rock system.
                 Earth-Science Reviews, 37(3), 215–224.
