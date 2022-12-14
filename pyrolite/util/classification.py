@@ -331,7 +331,8 @@ class PolygonClassifier(object):
 @update_docstring_references
 class TAS(PolygonClassifier):
     """
-    Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+    Total-alkali Silica Diagram classifier from Middlemost (1994) [#ref_1]_,
+    a closed-polygon variant after Le Bas et al (1992) [#ref_2]_.
 
     Parameters
     -----------
@@ -352,22 +353,20 @@ class TAS(PolygonClassifier):
     References
     -----------
     .. 
-    .. [#ref_1] Middlemost, Eric A. K. (1989).
-            Iron Oxidation Ratios, Norms and the
-            Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
-            https://doi.org/10.1016/0009-2541(89)90011-9.
-
+    .. [#ref_1] Middlemost, E. A. K. (1994).
+                Naming materials in the magma/igneous rock system.
+                Earth-Science Reviews, 37(3), 215–224.
+                doi: {Middlemost1994}
     .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
-
     .. [#ref_3] Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
-
+                doi: {LeMaitre2002}
     """
 
     def __init__(self, which_model=None, **kwargs):
@@ -475,7 +474,7 @@ class USDASoilTexture(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Soil Science Division Staff (2017). Soil survey sand.
+    .. [#ref_1] Soil Science Division Staff (2017). Soil Survey Manual.
                 C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
                 USDA Handbook 18. Government Printing Office, Washington, D.C.
     .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
@@ -521,6 +520,7 @@ class QAP(PolygonClassifier):
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
+                doi: {LeMaitre2002}
     """
 
     def __init__(self, **kwargs):
@@ -693,8 +693,15 @@ class SpinelFeBivariate(PolygonClassifier):
         super().__init__(**poly_config)
 
 
-TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__doc__ = TAS.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
+    Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
-QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
+QAP.__doc__ = QAP.__doc__.format(
+    Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"), 
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)

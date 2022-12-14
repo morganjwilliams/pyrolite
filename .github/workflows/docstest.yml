@@ -16,24 +16,14 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, '3.10', '3.11']
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Get pip cache dir
-        id: pip-cache-dir
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-      - name: pip cache
-        id: pip-cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: 'setup.py'
       - name: Python Packages Install
         run: |
           python -m pip install --upgrade pip  # upgrade pip

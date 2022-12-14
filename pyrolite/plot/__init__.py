@@ -369,7 +369,15 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
         kw = process_color(size=size, **kwargs)
-        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
+        with warnings.catch_warnings():
+            # ternary transform where points add to zero will give an unnecessary
+            # warning; here we supress it
+            warnings.filterwarnings(
+                "ignore", message="invalid value encountered in divide"
+            )
+            sc = ax.scatter(
+                *obj.reindex(columns=components).values.T, **scatterkwargs(kw)
+            )
 
         if axlabels:
             label_axes(ax, labels=components)

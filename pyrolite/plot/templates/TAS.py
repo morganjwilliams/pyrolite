@@ -3,8 +3,7 @@ import numpy as np
 
 from ...util.classification import TAS as TASclassifier
 from ...util.log import Handle
-from ...util.meta import (sphinx_doi_link, subkwargs,
-                          update_docstring_references)
+from ...util.meta import sphinx_doi_link, subkwargs, update_docstring_references
 from ...util.plot.axes import init_axes
 
 logger = Handle(__name__)
@@ -13,7 +12,8 @@ logger = Handle(__name__)
 @update_docstring_references
 def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **kwargs):
     """
-    Adds the TAS diagram from Le Bas (1992) [#ref_1]_ to an axes.
+    Adds the TAS diagram to an axes. Diagram from Middlemost (1994) [#ref_1]_,
+    a closed-polygon variant after Le Bas et al (1992) [#ref_2]_.
 
     Parameters
     ----------
@@ -35,7 +35,12 @@ def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **k
 
     References
     -----------
-    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
+    .. [#ref_1] Middlemost, E. A. K. (1994).
+                Naming materials in the magma/igneous rock system.
+                Earth-Science Reviews, 37(3), 215–224.
+                doi: {Middlemost1994}
+
+    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
@@ -63,4 +68,7 @@ def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **k
     return ax
 
 
-TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+TAS.__doc__ = TAS.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
+    Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
+)

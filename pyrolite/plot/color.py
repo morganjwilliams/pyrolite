@@ -4,9 +4,9 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 from ..util.log import Handle
+from ..util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 logger = Handle(__name__)
 
@@ -229,7 +229,10 @@ def process_color(
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
-            norm = norm or plt.Normalize(vmin=np.nanmin(_C), vmax=np.nanmax(_C))
+            norm = norm or plt.Normalize(
+                vmin=otherkwargs.get("vmin") or np.nanmin(_C),
+                vmax=otherkwargs.get("vmax") or np.nanmax(_C),
+            )
             C = cmap(norm(_C))
         elif cmode == "categories":
             C = np.array(C, dtype="object")
