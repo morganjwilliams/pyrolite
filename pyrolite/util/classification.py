@@ -356,17 +356,26 @@ class TAS(PolygonClassifier):
                 Naming materials in the magma/igneous rock system.
                 Earth-Science Reviews, 37(3), 215–224.
                 doi: {Middlemost1994}
-
-    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R., 1992.
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
-
+    .. [#ref_3] Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
+                of Terms : Recommendations of International Union of Geological
+                Sciences Subcommission on the Systematics of Igneous Rocks.
+                Cambridge University Press, 236pp
+                doi: {LeMaitre2002}
     """
 
-    def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+    def __init__(self, which_model=None, **kwargs):
+
+        if which_model == None: 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+        if which_model == 'LeMaitre': 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
+        if which_model == 'LeMaitreCombined': 
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre_combined.json"
 
         with open(src, "r") as f:
             config = json.load(f)
@@ -510,6 +519,7 @@ class QAP(PolygonClassifier):
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
+                doi: {LeMaitre2002}
     """
 
     def __init__(self, **kwargs):
@@ -685,8 +695,12 @@ class SpinelFeBivariate(PolygonClassifier):
 TAS.__doc__ = TAS.__doc__.format(
     LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
     Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
 )
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
-QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
+QAP.__doc__ = QAP.__doc__.format(
+    Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"), 
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)
