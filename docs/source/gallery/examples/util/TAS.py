@@ -78,19 +78,20 @@ plt.show()
 ########################################################################################
 # References & Citation
 # ~~~~~~~~~~~~~~~~~~~~~
+# For a few references on the TAS diagram as used here:
 #
 #   Middlemost, E. A. K. (1994).Naming materials in the magma/igneous rock system.
-#	Earth-Science Reviews, 37(3), 215–224.
-#	`doi: 10.1016/0012-8252(94)90029-9 <https://doi.org/10.1016/0012-8252(94)90029-9>`__.
+#   Earth-Science Reviews, 37(3), 215–224.
+#   `doi: 10.1016/0012-8252(94)90029-9 <https://doi.org/10.1016/0012-8252(94)90029-9>`__.
 #
-#	Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
-#	The construction of the Total Alkali-Silica chemical
+#   Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+#   The construction of the Total Alkali-Silica chemical
 #   classification of volcanic rocks.
 #   Mineralogy and Petrology 46, 1–22.
-#	`doi: 110.1007/BF01160698 <https://doi.org/10.1007/BF01160698>`__.
+#   `doi: 110.1007/BF01160698 <https://doi.org/10.1007/BF01160698>`__.
 #
-#	Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
+#   Le Maitre, R.W. (2002). Igneous Rocks: A Classification and Glossary
 #   of Terms : Recommendations of International Union of Geological
-#	Sciences Subcommission on the Systematics of Igneous Rocks.
+#   ciences Subcommission on the Systematics of Igneous Rocks.
 #   Cambridge University Press, 236pp.
-#	`doi: 10.1017/CBO9780511535581 <https://doi.org/10.1017/CBO9780511535581>`__.
+#   `doi: 10.1017/CBO9780511535581 <https://doi.org/10.1017/CBO9780511535581>`__.
