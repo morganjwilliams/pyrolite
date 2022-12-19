@@ -3,8 +3,7 @@ import numpy as np
 
 from ...geochem.norm import get_reference_composition
 from ...util.log import Handle
-from ...util.meta import (sphinx_doi_link, subkwargs,
-                          update_docstring_references)
+from ...util.meta import sphinx_doi_link, subkwargs, update_docstring_references
 from .components import GeometryCollection, Linear2D, LogLinear2D, Point
 
 logger = Handle(__name__)

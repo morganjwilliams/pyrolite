@@ -57,3 +57,40 @@ fig, ax = plt.subplots(1)
 
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
 df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7)
+
+########################################################################################
+# Variations of the Diagram
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# To use a different variation of the TAS diagram, you can pass the relevant keyword 
+# :code:`which_model` allowing you to access the other available variants.
+#
+# Currently, the Le Bas/Le Maitre alternative and a T1-T2 combined variant of it are 
+# available as alternatives to the Middlemost version. Each of these can be used as a 
+# classifier model as for the default above.
+#
+fig, ax = plt.subplots(1, 3, figsize=(20, 4))
+for a, model in zip(ax, ["Middlemost", "LeMaitre", "LeMaitreCombined"]):
+    a.set_title(model if model is not None else "")
+    cm = TAS(which_model=model)
+    cm.add_to_axes(a, alpha=0.5, linewidth=0.5, add_labels=True)
+plt.show()
+########################################################################################
+# References & Citation
+# ~~~~~~~~~~~~~~~~~~~~~
+#
+#   Middlemost, E. A. K. (1994).Naming materials in the magma/igneous rock system.
+#	Earth-Science Reviews, 37(3), 215–224.
+#	`doi: 10.1016/0012-8252(94)90029-9 <https://doi.org/10.1016/0012-8252(94)90029-9>`__.
+#
+#	Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+#	The construction of the Total Alkali-Silica chemical
+#   classification of volcanic rocks.
+#   Mineralogy and Petrology 46, 1–22.
+#	`doi: 110.1007/BF01160698 <https://doi.org/10.1007/BF01160698>`__.
+#
+#	Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
+#   of Terms : Recommendations of International Union of Geological
+#	Sciences Subcommission on the Systematics of Igneous Rocks.
+#   Cambridge University Press, 236pp.
+#	`doi: 10.1017/CBO9780511535581 <https://doi.org/10.1017/CBO9780511535581>`__.

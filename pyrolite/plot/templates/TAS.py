@@ -10,7 +10,15 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **kwargs):
+def TAS(
+    ax=None,
+    add_labels=False,
+    which_labels="ID",
+    relim=True,
+    color="k",
+    which_model=None,
+    **kwargs
+):
     """
     Adds the TAS diagram to an axes. Diagram from Middlemost (1994) [#ref_1]_,
     a closed-polygon variant after Le Bas et al (1992) [#ref_2]_.
@@ -28,6 +36,8 @@ def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **k
         Whether to relimit axes to fit the built in ranges for this diagram.
     color : :class:`str`
         Line color for the diagram.
+    which_model : :class:`str`
+        The name of the model variant to use, if not Middlemost.
 
     Returns
     -------
@@ -60,7 +70,7 @@ def TAS(ax=None, relim=True, color="k", add_labels=False, which_labels="ID", **k
         )
     ax = init_axes(ax=ax, **kwargs)
 
-    tas = TASclassifier()
+    tas = TASclassifier(which_model=which_model)
     tas.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
     if relim:
         ax.set_xlim(xlim)
