@@ -10,6 +10,8 @@ from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
 from ..util.log import Handle
 from ..util.units import scale
+from ..util.pd import to_frame
+
 from .mindb import get_mineral_group, list_minerals, parse_composition
 
 logger = Handle(__name__)
@@ -226,7 +228,7 @@ _MiddlemostTASRatios = dict(
     Ba=lambda t, x: 0.2,
     Bs=lambda t, x: 0.2,
     Pc=lambda t, x: 0.15,
-    none=lambda t, x: 0.15
+    none=lambda t, x: 0.15,
 )
 
 
@@ -263,7 +265,7 @@ def MiddlemostOxRatio(df):
         "CaO",
         "Na2O",
         "K2O",
-        "P2O5"
+        "P2O5",
     ]
 
     df = df.copy(deep=True)
@@ -281,10 +283,18 @@ def MiddlemostOxRatio(df):
     TAS_fields = TAS().predict(TAS_input)
     TAS_fields.name = "TAS"
 
-    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] < 3)] = 'F1'
-    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 3)&(TAS_input["Na2O + K2O"] <7)] = 'F2'
-    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 7)&(TAS_input["Na2O + K2O"] <10)] = 'F3'
-    TAS_fields[(TAS_fields=='F')&(TAS_input["Na2O + K2O"] >= 10)] = 'F4'
+    TAS_fields[(TAS_fields == "F") & (TAS_input["Na2O + K2O"] < 3)] = "F1"
+    TAS_fields[
+        (TAS_fields == "F")
+        & (TAS_input["Na2O + K2O"] >= 3)
+        & (TAS_input["Na2O + K2O"] < 7)
+    ] = "F2"
+    TAS_fields[
+        (TAS_fields == "F")
+        & (TAS_input["Na2O + K2O"] >= 7)
+        & (TAS_input["Na2O + K2O"] < 10)
+    ] = "F3"
+    TAS_fields[(TAS_fields == "F") & (TAS_input["Na2O + K2O"] >= 10)] = "F4"
 
     ratios = pd.concat([TAS_input, TAS_fields], axis=1).apply(
         lambda x: _MiddlemostTASRatios.get(x.TAS, lambda t, x: np.nan)(
@@ -488,11 +498,14 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
 
 
 def CIPW_norm(
-    df, Fe_correction=None,
-    Fe_correction_mode=None, 
+    df,
+    Fe_correction=None,
+    Fe_correction_mode=None,
     adjust_all_Fe=False,
-    return_adjusted_input=False
-    ):
+    return_adjusted_input=False,
+    return_free_components=False,
+    rounding=3
+):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -510,6 +523,12 @@ def CIPW_norm(
     adjust_all_Fe : :class:`bool`
         Where correcting iron compositions, whether to adjust all iron
         compositions, or only those where singular components are specified.
+    return_adjusted_input  : :class:`bool`
+        Whether to return the adjusted input chemistry with the output.
+    return_free_components  : :class:`bool`
+        Whether to return the free components in the output.
+    rounding : :class:`int`
+        Rounding to be applied to input and output data.
 
     Returns
     --------
@@ -655,7 +674,7 @@ def CIPW_norm(
     # Adjust majors wt% to 100% then adjust again to account for trace components
     ############################################################################
     # Rounding to 3 dp
-    df[majors] = df[majors].round(3)
+    df[majors] = df[majors].round(rounding)
 
     # First adjustment
     df["intial_sum"] = df[majors].sum(axis=1)
@@ -792,12 +811,10 @@ def CIPW_norm(
 
     df["Y"] = 0
 
-
-
     ############################################################################
     # Calculate normative components
     ############################################################################
-   
+
     # Normative Zircon
     df["Z"] = df["ZrO2"]
     df["Y"] = df["Z"]
@@ -824,16 +841,11 @@ def CIPW_norm(
 
     df["ap_option"] = np.where(df["F"] >= ((2 / 3) * df["Ap"]), 2, df["ap_option"]).T
 
-    df["F"] = np.where(
-        df["ap_option"] == 2, df["F"] - (2 / 3 * df["Ap"]), df["F"]
-    ).T
+    df["F"] = np.where(df["ap_option"] == 2, df["F"] - (2 / 3 * df["Ap"]), df["F"]).T
 
-    
     df["CaF2-Ap"] = np.where(df["ap_option"] == 3, df["F"] * 1.5, 0).T
 
-    df["CaO-Ap"] = np.where(
-        df["ap_option"] == 3, df["P2O5"] - (1.5 * df["F"]), 0
-    ).T
+    df["CaO-Ap"] = np.where(df["ap_option"] == 3, df["P2O5"] - (1.5 * df["F"]), 0).T
 
     df["Ap"] = np.where(
         df["ap_option"] == 3, df["CaF2-Ap"] + df["CaO-Ap"], df["Ap"].T
@@ -867,34 +879,33 @@ def CIPW_norm(
     df["FREEO_14"] = df["Hl"] / 2
 
     # Normative thenardite
-    df["Th"] = np.where((df['SO3'] > 0) & (df["Na2O"] >= df["SO3"]), df["SO3"], 0).T
-    df["Th"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), df["Na2O"], df["Th"]).T
+    df["Th"] = np.where((df["SO3"] > 0) & (df["Na2O"] >= df["SO3"]), df["SO3"], 0).T
+    df["Th"] = np.where(
+        (df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), df["Na2O"], df["Th"]
+    ).T
 
+    df["Na2O_"] = np.where(
+        (df["SO3"] > 0) & (df["Na2O"] >= df["SO3"]), df["Na2O"] - df["Th"], df["Na2O"]
+    ).T
 
-    df["Na2O_"] = np.where((df['SO3'] > 0) & (df["Na2O"] >= df["SO3"]), df["Na2O"] - df["Th"], df["Na2O"]).T
-    
-    df["Na2O"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), 0, df["Na2O_"]).T
+    df["Na2O"] = np.where((df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), 0, df["Na2O_"]).T
 
-    df["SO3"] = np.where((df['SO3'] > 0) & (df["Na2O"] < df["SO3"]), df["SO3"] - df["Th"], df["SO3"]).T
+    df["SO3"] = np.where(
+        (df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), df["SO3"] - df["Th"], df["SO3"]
+    ).T
 
     df["FREE_SO3"] = df["SO3"]
 
     # Normative Pyrite
     df["Pr"] = np.where(df["FeO"] >= 2 * df["S"], df["S"] / 2, df["S"]).T
 
-    df["FeO_"] = np.where(
-        df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], 0
-    ).T
+    df["FeO_"] = np.where(df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], 0).T
 
-    df["FeO"] = np.where(df["S"] > 0 , df["FeO_"], df["FeO"]).T
-
+    df["FeO"] = np.where(df["S"] > 0, df["FeO_"], df["FeO"]).T
 
     df["FREE_S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["S"]).T
 
-
-
     df["FREEO_16"] = df["Pr"]
-    
 
     # Normative sodium carbonate (cancrinite) or calcite
 
@@ -1239,14 +1250,16 @@ def CIPW_norm(
 
             mineral_pct_mm[mineral] = np.where(
                 df["ap_option"] == 2,
-                df[mineral] * minerals["CaF2-Ap"]["mass"],                
+                df[mineral] * minerals["CaF2-Ap"]["mass"],
                 mineral_pct_mm[mineral],
             )
 
             mineral_pct_mm[mineral] = np.where(
                 df["ap_option"] == 3,
-                ((df["CaF2-Ap"] * minerals["CaF2-Ap"]["mass"]) + 
-                (df["CaO-Ap"] * minerals["Ap"]["mass"])),                
+                (
+                    (df["CaF2-Ap"] * minerals["CaF2-Ap"]["mass"])
+                    + (df["CaO-Ap"] * minerals["Ap"]["mass"])
+                ),
                 mineral_pct_mm[mineral],
             )
 
@@ -1254,10 +1267,9 @@ def CIPW_norm(
             mineral_proportions[mineral] = df[mineral]  # molar proportions
             mineral_pct_mm[mineral] = df[mineral] * minerals[mineral]["mass"]
 
-    mineral_pct_mm['Ol'] = mineral_pct_mm[['Fe-Ol', 'Mg-Ol']].sum(axis=1)
-    mineral_pct_mm['Di'] = mineral_pct_mm[['Fe-Di', 'Mg-Di']].sum(axis=1)
-    mineral_pct_mm['Hy'] = mineral_pct_mm[['Fe-Hy', 'Mg-Hy']].sum(axis=1)
-
+    mineral_pct_mm["Ol"] = mineral_pct_mm[["Fe-Ol", "Mg-Ol"]].sum(axis=1)
+    mineral_pct_mm["Di"] = mineral_pct_mm[["Fe-Di", "Mg-Di"]].sum(axis=1)
+    mineral_pct_mm["Hy"] = mineral_pct_mm[["Fe-Hy", "Mg-Hy"]].sum(axis=1)
 
     # rename columns with proper names rather than abbreviations
     mineral_pct_mm.columns = [
@@ -1265,8 +1277,11 @@ def CIPW_norm(
     ]
     mineral_pct_mm.fillna(0, inplace=True)
 
+    outputs = [mineral_pct_mm]
     if return_adjusted_input:
-        mineral_pct_mm = pd.concat([mineral_pct_mm, adjusted.drop(
-            columns=['intial_sum', 'major_minor_sum'])], axis=1)
+        outputs.append(adjusted.drop(columns=["intial_sum", "major_minor_sum"]))
+    if return_free_components:
+        # make sure that these column names are distinc
+        outputs.append(FREE.rename(columns={c:'FREE_'+c for c in FREE.columns if 'FREE' not in c.upper()}))
 
-    return mineral_pct_mm
+    return pd.concat(outputs, axis=1).round(rounding)
