@@ -10,7 +10,10 @@ from .text import titlecase
 logger = Handle(__name__)
 
 
-__data__ = pyrolite_datafolder(subfolder="timescale") / "geotimescale_202003.csv"
+# get the latest geotimescale data
+__data__ = sorted(
+    pyrolite_datafolder(subfolder="timescale").glob("geotimescale_*.csv")
+)[-1]
 __colors__ = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
 
 
