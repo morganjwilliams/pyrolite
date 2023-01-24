@@ -261,7 +261,8 @@ def concat_columns(df, columns=None, astype=str, **kwargs):
     """
     if columns is None:
         columns = df.columns
-    out = pd.Series(index=df.index, **kwargs)
+    kwargs = {**dict(dtype="object"), **kwargs}
+    out = pd.Series(index=df.index,  **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:
             out = df.loc[:, c].astype(astype)

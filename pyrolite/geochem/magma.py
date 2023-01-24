@@ -189,7 +189,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
         assert all([x == maxdim or x == 1 for x in _dims])
         cc, tt, pp = C, T, P
 
-    comp = set(df.columns) & (_common_elements | _common_oxides)
+    comp = list(set(df.columns) & (_common_elements | _common_oxides))
     moldf = to_molecular(df.loc[:, comp], renorm=True) / 100.0  # mole-fraction
     molsum = to_molecular(df.loc[:, comp], renorm=False).sum(axis=1)
 
