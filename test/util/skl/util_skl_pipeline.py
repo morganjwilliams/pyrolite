@@ -11,7 +11,7 @@ try:
 
     HAVE_SKLEARN = True
 
-    def test_classifier():
+    def get_classifier():
         param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
         gs = GridSearchCV(SVC(gamma="scale"), param_grid, cv=2)
         return gs
@@ -27,7 +27,7 @@ except ImportError:
 class TestFitSaveClassifier(unittest.TestCase):
     def setUp(self):
         self.X, self.y = sklearn.datasets.load_iris(return_X_y=True)
-        self.classifier = test_classifier()
+        self.classifier = get_classifier()
         self.dir = temp_path()
 
     def test_default(self):
@@ -46,7 +46,7 @@ class TestFitSaveClassifier(unittest.TestCase):
 class TestClassifierPerformanceReport(unittest.TestCase):
     def setUp(self):
         self.X, self.y = sklearn.datasets.load_iris(return_X_y=True)
-        self.classifier = test_classifier()
+        self.classifier = get_classifier()
         self.dir = temp_path()
 
     def test_default(self):
