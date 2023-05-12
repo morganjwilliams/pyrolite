@@ -232,14 +232,12 @@ def share_axes(axes, which="xy"):
         Which axes to link. If :code:`x`, link the x-axes; if :code:`y` link the y-axes,
         otherwise link both.
     """
-    for ax in axes:
-        if which == "x":
-            ax.sharex(axes)
-        elif which == "y":
-            ax.sharey(axes)
-        else:
-            ax.sharex(axes)
-            ax.sharey(axes)
+    if which == "both":
+        which = "xy"
+    if "x" in which:
+        [a.sharex(axes[0]) for a in axes[1:]]
+    if "y" in which:
+        [a.sharey(axes[0]) for a in axes[1:]]
 
 
 def get_twins(ax, which="y"):
