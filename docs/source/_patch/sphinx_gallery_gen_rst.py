@@ -13,12 +13,11 @@ from sphinx_gallery.gen_rst import (
     _replace_md5,
     _exec_once,
     replace_py_ipynb,
-    gen_binder_rst,
-    check_binder_conf,
     TIMING_CONTENT,
     CODE_DOWNLOAD,
-    SPHX_GLR_SIG
+    SPHX_GLR_SIG,
 )
+from sphinx_gallery.interactive_example import gen_binder_rst, check_binder_conf
 import matplotlib.pyplot as plt
 
 _si = """

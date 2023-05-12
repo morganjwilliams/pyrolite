@@ -1,9 +1,12 @@
-from sphinx_gallery import binder
+from sphinx_gallery import interactive_example
+
 
 def alt_gen_binder_rst(
     fpath, binder_conf, gallery_conf, img="https://mybinder.org/badge_logo.svg"
 ):
-    """Generate the RST + link for the Binder badge.
+    """
+    Generate the RST + link for the Binder badge.
+    
     Parameters
     ----------
     fpath: str
@@ -25,11 +28,12 @@ def alt_gen_binder_rst(
     rst : str
         The reStructuredText for the Binder badge that links to this file.
     """
-    binder_conf = binder.check_binder_conf(binder_conf)
-    binder_url = binder.gen_binder_url(fpath, binder_conf, gallery_conf)
+    binder_conf = interactive_example.check_binder_conf(binder_conf)
+    binder_url = interactive_example.gen_binder_url(fpath, binder_conf, gallery_conf)
     rst = (
         "\n" ".. image:: {0}\n" "    :target: {1}\n" "    :alt: Launch Binder\n"
     ).format(img, binder_url)
     return rst
 
-binder.gen_binder_rst = alt_gen_binder_rst
+
+interactive_example.gen_binder_rst = alt_gen_binder_rst
