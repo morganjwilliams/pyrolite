@@ -81,7 +81,6 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
         logger.warn("Dimensions of data and samples do not match.")
 
     kfltr = np.isfinite(ksamples).all(axis=1)
-    print(zshape, ksamples.shape, kfltr.shape)
     zi = np.ones(zshape, dtype=float) * np.nan
     zi.flat[kfltr] = K(ksamples[kfltr, :].T)
 
