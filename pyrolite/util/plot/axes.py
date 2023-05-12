@@ -234,12 +234,12 @@ def share_axes(axes, which="xy"):
     """
     for ax in axes:
         if which == "x":
-            ax.get_shared_x_axes().join(*axes)
+            ax.sharex(axes)
         elif which == "y":
-            ax.get_shared_y_axes().join(*axes)
+            ax.sharey(axes)
         else:
-            ax.get_shared_x_axes().join(*axes)
-            ax.get_shared_y_axes().join(*axes)
+            ax.sharex(axes)
+            ax.sharey(axes)
 
 
 def get_twins(ax, which="y"):
