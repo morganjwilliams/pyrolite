@@ -263,6 +263,7 @@ sphinx_gallery_conf = {
             "gallery/data",
         ]
     ),
+    "show_signature": False,
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
     "backreferences_dir": "_backreferences",
     "doc_module": ("pyrolite"),
