@@ -9,6 +9,8 @@ docs_require = [
     "sphinx-autodoc-annotation",
     "sphinx_gallery>=0.6.0",
     "recommonmark",
+    # "jupyterlite-sphinx",
+    # "jupyterlite-pyodide-kernel",
 ]
 dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
@@ -56,7 +58,7 @@ setup(
         "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
-        "matplotlib", 
+        "matplotlib",
         "mpltern>=0.4.0",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",

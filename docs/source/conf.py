@@ -72,6 +72,7 @@ extensions = [
     "recommonmark",
     "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
     "sphinx_gallery.gen_gallery",  # sphinx gallery
+    # "jupyterlite_sphinx",
 ]
 
 autosummary_generate = True
@@ -283,6 +284,7 @@ sphinx_gallery_conf = {
         "notebooks_dir": "docs/source/",
         "use_jupyter_lab": True,
     },
+    # "jupyterlite": {"use_jupyter_lab": True},
     "first_notebook_cell": "%matplotlib inline\n",
     "reset_modules": (reset_mpl),
 }
