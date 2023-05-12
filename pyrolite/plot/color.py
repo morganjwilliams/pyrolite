@@ -45,7 +45,16 @@ def get_cmode(c=None):
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
             logger.debug("Checking array-based color modes.")
-            if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
+            if isinstance(
+                c,
+                (
+                    np.ndarray,
+                    list,
+                    pd.Series,
+                    pd.Index,
+                    pd.Categorical,
+                ),
+            ):
                 dtype = getattr(c, "dtype", np.dtype("O"))
                 if dtype.name == "category":  # convert categories to objects for numpy
                     dtype = np.dtype("O")
@@ -92,8 +101,9 @@ def get_cmode(c=None):
                             )
                         )
     if cmode is None:
-        logger.debug("Color mode not found for item of type {}".format(type(c)))
-        raise NotImplementedError  # single value, mixed numbers, strings etc
+        msg = "Color mode not found for item of type {}".format(type(c))
+        logger.debug(msg)
+        raise NotImplementedError(msg)  # single value, mixed numbers, strings etc
     else:
         logger.debug("Color mode recognized: {}".format(cmode))
         return cmode
