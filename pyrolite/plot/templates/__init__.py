@@ -14,6 +14,7 @@ from .QAP import QAP
 from .spinel import SpinelFeBivariate, SpinelTrivalentTernary
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
+from .sandstones import Pettijohn, Herron
 
 logger = Handle(__name__)
 
@@ -27,4 +28,5 @@ __all__ = [
     "FeldsparTernary",
     "SpinelFeBivariate",
     "SpinelTrivalentTernary",
+    "sandstones",
 ]
