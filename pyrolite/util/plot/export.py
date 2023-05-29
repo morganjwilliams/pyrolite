@@ -27,7 +27,7 @@ def save_figure(
         logger.debug("Creating save directory at {}".format(str(save_at)))
     save_at.mkdir(parents=True, exist_ok=True)
     for fmt in save_fmts:
-        out_filename = os.path.join(str(save_at), name + "." + fmt)
+        out_filename = (save_at / name).with_suffix("." + fmt)
         if output:
             logger.info("Saving " + out_filename)
         figure.savefig(out_filename, format=fmt, **config)
