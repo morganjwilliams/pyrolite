@@ -59,8 +59,8 @@ def Pettijohn(
         )
     ax = init_axes(ax=ax, **kwargs)
 
-    tas = PJclassifier()
-    tas.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
+    pjc = PJclassifier()
+    pjc.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
     if relim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
@@ -118,8 +118,8 @@ def Herron(
         )
     ax = init_axes(ax=ax, **kwargs)
 
-    tas = Herronclassifier()
-    tas.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
+    hc = Herronclassifier()
+    hc.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
     if relim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)

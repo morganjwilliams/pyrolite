@@ -1,4 +1,4 @@
-{"name": "Herron", "axes":{"x":"log(SiO2/Al2O3)","y":"log(Fe2O3/K2O)"}, 
+{"name": "Herron", "axes":{"x":"log10(SiO2/Al2O3)","y":"log10(Fe2O3/K2O)"}, 
     "fields": 
     {"QA": {"name": "Quartz arenite", "poly": [[1.59, -1.0], [1.81, 1.5], [2.5, 1.5], [2.5, -1.0], [1.59, -1.0]]},
      "FeSh": {"name": "Fe-shale", "poly": [[0.71, 1.5], [0.71, 0.6], [0.0, 0.6], [0.0, 1.5], [0.71, 1.5]]},

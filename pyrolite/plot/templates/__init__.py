@@ -28,5 +28,6 @@ __all__ = [
     "FeldsparTernary",
     "SpinelFeBivariate",
     "SpinelTrivalentTernary",
-    "sandstones",
+    "Pettijohn",
+    "Herron",
 ]
