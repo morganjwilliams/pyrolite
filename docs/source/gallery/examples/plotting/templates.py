@@ -26,7 +26,7 @@ plt.show()
 # A few different variants are now available, with slightly different positioning of
 # field boundaries, and with some fields combined:
 #
-fig, ax = plt.subplots(1, 3, figsize=(12, 4))
+fig, ax = plt.subplots(1, 3, figsize=(12, 3))
 
 TAS(ax=ax[0], linewidth=0.5, add_labels=True, which_model=None)  # Middlemost's TAS
 TAS(ax=ax[1], linewidth=0.5, add_labels=True, which_model="LeMaitre")  # LeMaitre's TAS
