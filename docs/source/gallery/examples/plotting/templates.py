@@ -58,7 +58,7 @@ pearceTiNbYb(ax=ax[1])
 plt.tight_layout()  # nicer spacing for axis labels
 ########################################################################################
 # pyrolite also now includes some diagram templates for discrimination of sandstones
-# based on their whole-rock geochemistry (:func:`~pyrolite.plot.templates.pearceThNbYb`,
+# based on their whole-rock geochemistry (:func:`~pyrolite.plot.templates.Pettijohn`,
 # :func:`~pyrolite.plot.templates.Herron`):
 #
 from pyrolite.plot.templates import Pettijohn, Herron
