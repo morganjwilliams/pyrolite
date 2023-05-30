@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.9
+  - python=3.10
   # pandas and scientific python
   - numpy
   - numpydoc
@@ -35,20 +35,20 @@ dependencies:
   - pip
   - black
   - jedi<0.18.0 # for use on atom/ipython
+  - pyzmq
+  - pytest
+  - pytest-runner
+  - pytest-cov
+  - coverage
+  - codecov
+  - sphinx_rtd_theme
+  - recommonmark
+  - versioneer
+  - twine
   - pip:
-    - pyzmq
-    - pytest
-    - pytest-runner
-    - pytest-cov
-    - coverage
-    - codecov
-    - sphinx_rtd_theme
-    - sphinx-autodoc-annotation
-    - sphinx_gallery>=0.6.0
-    - recommonmark
-    - versioneer
-    - twine
-    - -e . # install the local pyrolite package
+      - sphinx-autodoc-annotation
+      - sphinx_gallery>=0.6.0
+      - -e . # install the local pyrolite package
 
 # conda env create -f environment.yml
 # python -m ipykernel install --user --name pyrolite

@@ -10,6 +10,21 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.3`_
+--------------
+
+*  **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
+*  **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
+* **Bugfix**: Updated docs builds to be compatible with recent versions of `sphinx-gallery`.
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Feature**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
+  variations on the TAS diagram
+* **Feature**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
+  sandstone bulk geochemistry discrimination diagrams
+
 `0.3.2`_
 --------------
 
