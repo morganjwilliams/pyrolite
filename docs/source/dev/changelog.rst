@@ -29,11 +29,11 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~
-* **Feature**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
+* **PR Merged**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
   variations on the TAS diagram from Le Maitre. These can be accessed by providing a 
   :code:`which_model` keyword argument to the :class:`~pyrolite.util.classification.TAS`
   constructor (or plot template).
-* **Feature**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
+* **PR Merged**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
   sandstone bulk geochemistry discrimination diagrams 
   (:class:`~pyrolite.util.classification.Pettijohn`,
   :class:`~pyrolite.util.classification.Herron`).
