@@ -16,14 +16,47 @@ All notable changes to this project will be documented here.
 *  **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
 *  **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
 * **Bugfix**: Updated docs builds to be compatible with recent versions of `sphinx-gallery`.
+* **Bugfix**: Updated some :mod:`pandas` assignment, aggregation and similar operations
+  to be compatible with more recent versions of Pandas.
+* Addedd explict Python 3.10 support.
+
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~
+* **Feature**: Added option to get expanded outputs for the CIPW Norm
+  (PR from `Tom Buckle <https://github.com/bomtuckle>`__ ).
+* **Bugfix**: Fixes and updated tests for CIPW Norm outputs.
 
 :mod:`pyrolite.plot`
-~~~~~~~~~~~~~~~~~~~~~~~
-
+~~~~~~~~~~~~~~~~~~~~
 * **Feature**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
-  variations on the TAS diagram
+  variations on the TAS diagram from Le Maitre. These can be accessed by providing a 
+  :code:`which_model` keyword argument to the :class:`~pyrolite.util.classification.TAS`
+  constructor (or plot template).
 * **Feature**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
-  sandstone bulk geochemistry discrimination diagrams
+  sandstone bulk geochemistry discrimination diagrams 
+  (:class:`~pyrolite.util.classification.Pettijohn`,
+  :class:`~pyrolite.util.classification.Herron`).
+* **Bugfix**: Fixed issue with handling `vmin` and `vmax` for colormapping in 
+  :mod:`pyrolite.plot.color`.
+* Suppressed warnings for 'division by zero'/'invalid value encountered in divide' in
+  ternary diagram scatter plots.
+* Added explicit support for colormapping categorical data in :mod:`pyrolite.plot.color`,
+  such that ordering is preserved/consistent in e.g. legends.
+
+:mod:`pyrolite.util`
+~~~~~~~~~~~~~~~~~~~~
+* **Feature**: Added new version of ICS International Chronostratigraphic Chart 
+  (2022-10; :class:`pyrolite.util.time.Timescale`).
+* **Bugfix**: Corrected TAS diagram references.
+* Updated axes-sharing utility function :func:`~pyrolite.util.plot.axes.share_axes`
+  to reflect more recent versions of :mod:`matplotlib`.
+* Fixed issue in path interpolation for contours
+  (:mod:`pyrolite.util.plot.interpolation.get_contour_paths`) for recent :mod:`matplotlib` 
+  versions.
+* Updated figure export utility function to use :mod:`pathlib` syntax for suffixes, 
+  which should avoid potential for double suffixes (e.g. `figure_name.png.png`).
+
 
 `0.3.2`_
 --------------
@@ -1303,7 +1336,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...develop
+.. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
