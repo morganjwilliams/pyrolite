@@ -695,6 +695,75 @@ class SpinelFeBivariate(PolygonClassifier):
         super().__init__(**poly_config)
 
 
+@update_docstring_references
+class Pettijohn(PolygonClassifier):
+    """
+    Pettijohn (1973) sandstones classification
+    [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Pettijohn, F. J., Potter, P. E. and Siever, R. (1973).
+                Sand  and Sandstone. New York, Springer-Verlag. 618p.
+                doi: {Pettijohn1973}
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "sandstones" / "config_pettijohn.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
+
+
+@update_docstring_references
+class Herron(PolygonClassifier):
+    """
+    Herron (1988) sandstones classification
+    [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Herron, M.M. (1988).
+                Geochemical classification of terrigenous sands and shales
+                from core or log data.
+                Journal of Sedimentary Research, 58(5), pp.820-829.
+                doi: {Herron1988}
+    """
+
+    def __init__(self, **kwargs):
+        src = pyrolite_datafolder(subfolder="models") / "sandstones" / "config_herron.json"
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
+
+
+
 TAS.__doc__ = TAS.__doc__.format(
     LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
     Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
@@ -706,4 +775,10 @@ USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
 QAP.__doc__ = QAP.__doc__.format(
     Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"), 
     LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)
+Pettijohn.__doc__ = Pettijohn.__doc__.format(
+    Pettijohn1973=sphinx_doi_link("10.1007/978-1-4615-9974-6"),
+)
+Herron.__doc__ = Herron.__doc__.format(
+    Herron1988=sphinx_doi_link("10.1306/212F8E77-2B24-11D7-8648000102C1865D"),
 )

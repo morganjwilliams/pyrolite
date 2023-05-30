@@ -20,3 +20,4 @@ comments, testing, bug reports, or feature requests.
 * `Tom Buckle <https://github.com/bomtuckle>`__
 * `Angela Rodrigues <https://github.com/AngRodrigues>`__
 * `Sarah Shi <https://github.com/sarahshi>`__
+* `Ondrej Lexa <https://github.com/ondrolexa>`__
