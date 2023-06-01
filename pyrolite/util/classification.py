@@ -427,15 +427,14 @@ class TAS(PolygonClassifier):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
-        use_keys = not which_labels.lower().startswith("name")
         if add_labels:
             for k, cfg in self.fields.items():
                 if cfg["poly"]:
-                    if use_keys:
+                    if which_labels.lower().startswith("id"):
                         label = k
-                    elif "volc" in which_labels.lower():  # use the volcanic name
+                    elif which_labels.lower().startswith("volc"):  # use the volcanic name
                         label = cfg["name"][0]
-                    elif "intr" in which_labels.lower():  # use the intrusive name
+                    elif which_labels.lower().startswith("intr"):  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         raise NotImplementedError(
