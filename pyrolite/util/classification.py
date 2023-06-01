@@ -439,7 +439,7 @@ class TAS(PolygonClassifier):
                     else:  # use the field identifier
                         raise NotImplementedError(
                             "Invalid specification for labels: {}; chose from {}".format(
-                                which_labels, ", ".join("volcanic", "intrusive", "ID")
+                                which_labels, ", ".join(["volcanic", "intrusive", "ID"])
                             )
                         )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
