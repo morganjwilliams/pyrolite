@@ -23,8 +23,8 @@ All notable changes to this project will be documented here.
 
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
-* **Feature**: Added option to get expanded outputs for the CIPW Norm
-  (PR from `Tom Buckle <https://github.com/bomtuckle>`__ ).
+* **PR Merged**: Added an option to get expanded outputs for the CIPW Norm
+  (from `Tom Buckle <https://github.com/bomtuckle>`__ ).
 * **Bugfix**: Fixes and updated tests for CIPW Norm outputs.
 
 :mod:`pyrolite.plot`
@@ -48,12 +48,13 @@ All notable changes to this project will be documented here.
 ~~~~~~~~~~~~~~~~~~~~
 * **Feature**: Added new version of ICS International Chronostratigraphic Chart 
   (2022-10; :class:`pyrolite.util.time.Timescale`).
-* **Bugfix**: Corrected TAS diagram references.
+* **Bugfix**: Corrected TAS diagram references, and fixed an issue where only the ID 
+  names were able to we added to diagrams.
 * Updated axes-sharing utility function :func:`~pyrolite.util.plot.axes.share_axes`
   to reflect more recent versions of :mod:`matplotlib`.
 * Fixed issue in path interpolation for contours
-  (:mod:`pyrolite.util.plot.interpolation.get_contour_paths`) for recent :mod:`matplotlib` 
-  versions.
+  (:mod:`pyrolite.util.plot.interpolation.get_contour_paths`) 
+  for recent :mod:`matplotlib` versions.
 * Updated figure export utility function to use :mod:`pathlib` syntax for suffixes, 
   which should avoid potential for double suffixes (e.g. `figure_name.png.png`).
 
