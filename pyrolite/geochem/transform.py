@@ -715,6 +715,10 @@ def convert_chemistry(
     agg_present = list(set(agg_present) - set(current_fe))
     get_notpresent = list(set(get_notpresent) - set(get_fe))
 
+    if len(get_fe) > 1:
+        agg_present = list(set(agg_present) - set(current_fe))
+        get_notpresent = list(set(get_notpresent) - set(get_fe))
+
     # Aggregate the columns which are otherwise OK, then get new columns
     for item in agg_present + get_notpresent:
         df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)
