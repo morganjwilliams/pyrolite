@@ -1,18 +1,18 @@
 import unittest
 
 import matplotlib.pyplot as plt
-
 from pyrolite.plot.templates import (
     QAP,
     TAS,
     FeldsparTernary,
+    Herron,
     JensenPlot,
+    Pettijohn,
+    SpinelFeBivariate,
+    SpinelTrivalentTernary,
     USDASoilTexture,
     pearceThNbYb,
     pearceTiNbYb,
-    Pettijohn,
-    Herron,
-    SpinelFeBivariate,
 )
 
 
@@ -82,7 +82,13 @@ class TestDiagramsGeneral(unittest.TestCase):
             plt.close(fig)
 
     def test_ternary_diagrams(self):
-        for diagram in [QAP, FeldsparTernary, USDASoilTexture, JensenPlot]:
+        for diagram in [
+            QAP,
+            FeldsparTernary,
+            USDASoilTexture,
+            JensenPlot,
+            SpinelTrivalentTernary,
+        ]:
             fig, axes = plt.subplots(1)
             for a in [None, axes]:
                 with self.subTest(diagram=diagram, a=a):
