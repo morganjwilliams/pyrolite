@@ -2,9 +2,18 @@ import unittest
 
 import matplotlib.pyplot as plt
 
-from pyrolite.plot.templates import (QAP, TAS, FeldsparTernary, JensenPlot,
-                                     USDASoilTexture, pearceThNbYb,
-                                     pearceTiNbYb)
+from pyrolite.plot.templates import (
+    QAP,
+    TAS,
+    FeldsparTernary,
+    JensenPlot,
+    USDASoilTexture,
+    pearceThNbYb,
+    pearceTiNbYb,
+    Pettijohn,
+    Herron,
+    SpinelFeBivariate,
+)
 
 
 class TestTASPlot(unittest.TestCase):
@@ -12,6 +21,13 @@ class TestTASPlot(unittest.TestCase):
         pass
 
     def test_TAS_default(self):
+        fig, axes = plt.subplots(1)
+        for ax in [None, axes]:
+            for variant in [None, "Middlemost", "LeMaitre", "LeMaitreCombined"]:
+                with self.subTest(ax=ax, variant=variant):
+                    ax = TAS(ax, which_model=variant)
+
+    def test_TAS_variants(self):
         fig, axes = plt.subplots(1)
         for ax in [None, axes]:
             with self.subTest(ax=ax):
@@ -56,8 +72,16 @@ class TestPearcePlots(unittest.TestCase):
         plt.close("all")
 
 
-class TestTernaryDiagrams(unittest.TestCase):
-    def test_ternary_default(self):
+class TestDiagramsGeneral(unittest.TestCase):
+    def test_bivariate_diagrams(self):
+        for diagram in [Pettijohn, Herron, SpinelFeBivariate]:
+            fig, axes = plt.subplots(1)
+            for a in [None, axes]:
+                with self.subTest(diagram=diagram, a=a):
+                    ax = diagram(a)
+            plt.close(fig)
+
+    def test_ternary_diagrams(self):
         for diagram in [QAP, FeldsparTernary, USDASoilTexture, JensenPlot]:
             fig, axes = plt.subplots(1)
             for a in [None, axes]:
