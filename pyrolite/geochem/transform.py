@@ -681,6 +681,9 @@ def convert_chemistry(
     * Add check for dicitonary components (e.g. Fe) in tests
     """
     df = input_df.copy(deep=True)
+    ####################################################################################
+    # Parse what we need to get from the dataframe
+    ####################################################################################
     oxides = _common_oxides
     elements = _common_elements
     compositional_components = oxides | elements
@@ -697,46 +700,48 @@ def convert_chemistry(
     # check that all sets in coupled_sets have the same cation
     coupled_components = [k for s in coupled_sets for k in s.keys()]
     # need to get the additional things from here
-    present_comp = [
-        i for i in df.columns if i in compositional_components
-    ] + coupled_components
+    present_comp = [i for i in df.columns if i in compositional_components]
     noncomp = [i for i in df.columns if (i not in present_comp)]
     new_ratios = [i for i in to if "/" in i and i not in df.columns]
-    get_comp = [i for i in to if i not in coupled_sets + noncomp + new_ratios]
-    agg_present, get_notpresent = (
-        [i for i in get_comp if i in present_comp],
-        [i for i in get_comp if i not in present_comp],
-    )
-    # remove iron components from main getter, we'll deal with them separately
-    # but, if there's only one iron species, we can just get it as usual
-    current_fe = [i for i in present_comp if "Fe" in str(i)]
-    get_fe = [i for i in get_notpresent if "Fe" in str(i)]  # final species
-    
+    ####################################################################################
+    # Deal with individual compositional components
+    # and speciated components
+    ####################################################################################
+    output_compositional = [
+        i for i in to if i not in coupled_sets + noncomp + new_ratios
+    ]
+    # check that these are all unique components
+    assert len(set(output_compositional)) == len(
+        output_compositional
+    ), "All compositional components specified need to be unique."
+    # TODO: Check for any sets of species which have the same principal cation here
+    out_fe_nonspeciated = [i for i in output_compositional if "Fe" in str(i)]
+    if len(out_fe_nonspeciated) > 1:  # e.g. [FeO, Fe2O3]
+        output_compositional = [
+            c for c in output_compositional if c not in out_fe_nonspeciated
+        ]
+        # all of these species must be present in the dataframe already, and we'll take them as-is
+        # at the last step of this function
+        assert all([f in present_comp for f in out_fe_nonspeciated]), (
+            "Where multiple components with the same principal cation are requested"
+            " but a speciation is not specified, they need to already exist in the "
+            "dataframe: {}".format(",".join(out_fe_nonspeciated))
+        )
 
-    if len(get_fe) > 1:
-        agg_present = list(set(agg_present) - set(current_fe))
-        get_notpresent = list(set(get_notpresent) - set(get_fe))
-
-    # Aggregate the columns which are otherwise OK, then get new columns
-    for item in agg_present + get_notpresent:
-        df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)
-
-    # --- Try to get the new columns - iron redox section ------------------------------
-    # check if there's a multicomponent speciation problem
     logger.debug("Checking Iron Redox")
-    c_fe_str = ", ".join(current_fe)
     # check if any of the coupled_sets dictionaries correspond to iron
     coupled_fe = [s for s in coupled_sets if all(["Fe" in k for k in s])]
     if coupled_fe:
-        get_fe = coupled_fe
-
-    if len(get_fe) > 1:
-        raise NotImplementedError("Need to specify speciation for >1 Fe components.")
-
-    if get_fe:
-        get_fe = get_fe[0]
+        assert (
+            not out_fe_nonspeciated
+        )  # can't have both a speciation and a compositional request
+        get_fe = coupled_fe[0]
         try:
-            logger.debug("Transforming {} to {}.".format(c_fe_str, get_fe))
+            logger.debug(
+                "Transforming {} to {}.".format(
+                    ", ".join([i for i in present_comp if "Fe" in str(i)]), get_fe
+                )
+            )
         except TypeError:
             pass  # this is likely because there are arrays etc in get_fe
         df = aggregate_element(
@@ -749,17 +754,33 @@ def convert_chemistry(
             **kwargs
         )
 
-    # Try to get some ratios -----------------------------------------------------------
+    # Aggregate the singular compositional items, then get new columns
+    for item in output_compositional:
+        df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)
+
+    ####################################################################################
+    # Handle Ratios
+    ####################################################################################
     if new_ratios:
         logger.debug("Adding Requested Ratios: {}".format(", ".join(new_ratios)))
         for r in new_ratios:
             r = get_ratio(df, r, molecular=molecular)
             df[r.name] = r
 
-    # Last Minute Checks ---------------------------------------------------------------
-    remaining = [i for i in get_comp if i not in df.columns]
+    ####################################################################################
+    # Checks and output
+    ####################################################################################
+    remaining = [
+        i for i in output_compositional + coupled_components if i not in df.columns
+    ]
     assert not len(remaining), "Columns not attained: {}".format(", ".join(remaining))
-    output_columns = noncomp + get_comp + coupled_components + new_ratios
+    output_columns = (
+        noncomp
+        + output_compositional
+        + (out_fe_nonspeciated if len(out_fe_nonspeciated) > 1 else [])
+        + coupled_components
+        + new_ratios
+    )
     present_comp = [i for i in df.columns if i in compositional_components]
     if renorm:
         logger.debug("Recalculation Done, Renormalising compositional components.")
