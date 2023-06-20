@@ -212,10 +212,10 @@ def elemental_sum(
         # return nulls
         subsum = pd.Series(np.ones(df.index.size) * np.nan, index=df.index)
     else:
-        subdf = df.loc[:, species].copy(deep=True)
+        subset = np.array(df.loc[:, species])
         if logdata:
             logger.debug("Inverse-log-transforming {} data.".format(cationname))
-            subdf = subdf.applymap(np.exp)
+            subset = np.exp(subset)
 
         logger.debug(
             "Converting all {} data ({}) to metallic {} equiv.".format(
@@ -232,19 +232,20 @@ def elemental_sum(
                 for s in species
             ]
         )
-        subdf *= conversion_coeff
-
+        subset *= conversion_coeff
         logger.debug("Zeroing non-finite and negative {} values.".format(cationname))
-        subdf.values[(~np.isfinite(subdf.values)) | (subdf.values < 0.0)] = 0.0
-        subsum = subdf.sum(axis=1)
-        subsum.values[subsum.values <= 0.0] = np.nan
+        subset[(~np.isfinite(subset)) | (subset < 0.0)] = 0.0
+        subsum = subset.sum(axis=1)
+        subsum[subsum <= 0.0] = np.nan
 
     if to is None:
-        subsum.name = cationname
-        return subsum
+        return pd.Series(subsum, index=df.index, name=cationname)
     else:
-        subsum.name = to
-        return subsum.apply(oxide_conversion(cationname, to, molecular=molecular))
+        return pd.Series(
+            oxide_conversion(cationname, to, molecular=molecular)(subsum),
+            index=df.index,
+            name=to,
+        )
 
 
 def aggregate_element(
