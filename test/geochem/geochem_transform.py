@@ -528,13 +528,17 @@ class TestConvertChemistry(unittest.TestCase):
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion to oxide - should be larger
-        print(out_components, self.df.columns, conv_df.columns)
         self.assertTrue((conv_df[_target].values > self.df[_remove].values).all())
 
     def test_ratio(self):
         out_components = self.expect + ["CaO/MgO"]
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
+
+    def test_iron_species_column_already_exists(self):
+        self.df["Fe2O3"] = np.nan
+        conv_df = convert_chemistry(self, to=["Fe2O3"])
+        self.assertTrue((conv_df["Fe2O3"] > 0).all())
 
     def test_logdata(self):
         out_components = self.expect

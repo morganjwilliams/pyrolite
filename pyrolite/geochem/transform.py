@@ -708,12 +708,10 @@ def convert_chemistry(
         [i for i in get_comp if i not in present_comp],
     )
     # remove iron components from main getter, we'll deal with them separately
-    # fe_components = ["Fe", "FeO", "Fe2O3", "Fe2O3T", "FeOT"]
+    # but, if there's only one iron species, we can just get it as usual
     current_fe = [i for i in present_comp if "Fe" in str(i)]
-    get_fe = [i for i in get_notpresent if "Fe" in str(i)]
-
-    agg_present = list(set(agg_present) - set(current_fe))
-    get_notpresent = list(set(get_notpresent) - set(get_fe))
+    get_fe = [i for i in get_notpresent if "Fe" in str(i)]  # final species
+    
 
     if len(get_fe) > 1:
         agg_present = list(set(agg_present) - set(current_fe))

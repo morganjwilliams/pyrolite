@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 from mpltern.ternary import TernaryAxes
-from mpltern.ternary.datasets import get_spiral
+from mpltern.datasets import get_spiral
 from pyrolite.util.plot.axes import (
     replace_with_ternary_axis,
     axes_to_ternary,
