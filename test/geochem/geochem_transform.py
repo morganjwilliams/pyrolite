@@ -537,8 +537,14 @@ class TestConvertChemistry(unittest.TestCase):
 
     def test_iron_species_column_already_exists(self):
         self.df["Fe2O3"] = np.nan
-        conv_df = convert_chemistry(self, to=["Fe2O3"])
+        conv_df = convert_chemistry(self.df, to=["Fe2O3"])
         self.assertTrue((conv_df["Fe2O3"] > 0).all())
+
+    def test_two_iron_species_column_already_exists(self):
+        # where two iron species are already defined in the dataframe
+        self.df["Fe2O3"] = 0.5
+        conv_df = convert_chemistry(self.df, to=["FeO", "Fe2O3"])
+        self.assertTrue((conv_df[["FeO", "Fe2O3"]] > 0).all().all())
 
     def test_logdata(self):
         out_components = self.expect
