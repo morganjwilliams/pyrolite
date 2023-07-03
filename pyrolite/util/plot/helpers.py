@@ -379,7 +379,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
 ###############################################################################
 # Helpers for pyrolite.comp.codata.sphere and related functions
-from pyrolite.comp.codata import inverse_sphere, sphere
+from pyrolite.comp.codata import inverse_sphere
 
 
 def _get_spherical_vector(phis):

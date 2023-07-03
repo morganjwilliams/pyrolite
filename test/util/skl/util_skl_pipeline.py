@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 import pyrolite.comp
 from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.synthetic import normal_frame

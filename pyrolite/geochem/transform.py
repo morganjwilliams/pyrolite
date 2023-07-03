@@ -14,7 +14,6 @@ from ..util.meta import update_docstring_references
 from ..util.text import remove_suffix, titlecase
 from ..util.types import iscollection
 from .ind import (
-    REE,
     _common_elements,
     _common_oxides,
     get_cations,

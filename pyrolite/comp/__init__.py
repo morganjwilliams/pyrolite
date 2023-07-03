@@ -109,7 +109,6 @@ class pyrocomp(object):
             index_col_no = components.index(ind)
         if index_col_no == -1:
             index_col_no += len(components)
-        index_col = components[index_col_no]
 
         if label_mode.lower().startswith("num"):
             colnames = ["ALR{}".format(ix) for ix in range(self._obj.columns.size)]

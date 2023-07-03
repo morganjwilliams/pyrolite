@@ -11,11 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate
 from numpy.linalg import LinAlgError
-from scipy.stats import gaussian_kde
 
 from ..distributions import sample_kde
 from ..log import Handle
-from ..math import flattengrid, interpolate_line, linspc_, logspc_
+from ..math import interpolate_line, linspc_, logspc_
 from ..meta import subkwargs
 from .grid import bin_centres_to_edges
 

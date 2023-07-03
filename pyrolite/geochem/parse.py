@@ -1,7 +1,6 @@
 """
 Functions for parsing, formatting and validating chemical names and formulae.
 """
-import functools
 import re
 
 import pandas as pd

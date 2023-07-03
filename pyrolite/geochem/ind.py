@@ -489,7 +489,7 @@ def get_ionic_radii(
         if charge in df.loc[elfltr, "charge"].unique():
             fltrs *= df.charge == charge
         else:
-            logging.warn("Charge {:d} not in table.".format(int(charge)))
+            logger.warn("Charge {:d} not in table.".format(int(charge)))
             # try to interpolate over charge?..
             # interpolate_charge=True
     else:
@@ -500,7 +500,7 @@ def get_ionic_radii(
         if coordination in df.loc[elfltr, "coordination"].unique():
             fltrs *= df.coordination == coordination
         else:
-            logging.warn("Coordination {:d} not in table.".format(int(coordination)))
+            logger.warn("Coordination {:d} not in table.".format(int(coordination)))
             # try to interpolate over coordination
             # interpolate_coordination=True
 
@@ -508,7 +508,7 @@ def get_ionic_radii(
 
     if variant:  # todo warning for missing variants
         for v in variant:
-            fltrs *= table.variant.apply(lambda x: v in x)
+            fltrs *= df.variant.apply(lambda x: v in x)
 
     result = df.loc[fltrs.astype(bool), target]
 

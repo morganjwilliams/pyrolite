@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 from ...util.classification import SpinelFeBivariate as SpinelBivariate
 from ...util.classification import SpinelTrivalentTernary as SpinelTrivalent

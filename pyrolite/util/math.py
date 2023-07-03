@@ -5,7 +5,6 @@ import scipy
 import sympy
 
 from .log import Handle
-from .meta import update_docstring_references
 
 logger = Handle(__name__)
 

@@ -1,7 +1,6 @@
 import datetime
 import operator
 import os
-import re
 import shutil
 import time
 from collections.abc import Mapping
@@ -41,7 +40,7 @@ class Timewith:
         """Object returned on entry."""
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exittype, value, traceback):
         """Code to execute on exit."""
         self.checkpoint("Finished")
         self.checkpoints.append(("Finished", self.elapsed))

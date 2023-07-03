@@ -179,7 +179,6 @@ def parse_sigmas(y, sigmas=None):
     REE. If no sigmas are provided, 1% uncertainty will be assumed and an array of
     0.01 will be returned.
     """
-    sigma2d = False
     if sigmas is None:
         sigmas = np.ones(y.shape[1]) * 0.01
     else:  # sigmas are passed

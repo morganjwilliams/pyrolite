@@ -14,13 +14,11 @@ from pathlib import Path
 
 import matplotlib.lines
 import matplotlib.patches
-import matplotlib.pyplot as plt
 import matplotlib.text
 import numpy as np
 import pandas as pd
 from matplotlib.projections import get_projection_class
 
-from ..comp.codata import close
 from .log import Handle
 from .meta import (
     pyrolite_datafolder,
@@ -31,7 +29,7 @@ from .meta import (
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs
-from .plot.transform import tlr_to_xy, xy_to_tlr
+from .plot.transform import tlr_to_xy
 
 logger = Handle(__name__)
 

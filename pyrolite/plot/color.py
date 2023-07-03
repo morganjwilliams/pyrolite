@@ -267,7 +267,6 @@ def process_color(
             else:
                 logger.debug("Using custom value-mapping for categories.")
                 C = np.array(C)
-                unique_vals = np.array(list(cmapper.values()))
                 _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
                     # subsitute in the 'bad' color for colors not in the cmap

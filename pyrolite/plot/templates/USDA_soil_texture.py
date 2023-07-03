@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
 from ...util.classification import USDASoilTexture as USDAclassifier

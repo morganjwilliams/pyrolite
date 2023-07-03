@@ -10,15 +10,6 @@ from .spatial import _get_sqare_grid_segment_indicies, great_circle_distance
 
 logger = Handle(__name__)
 
-try:
-    import sklearn
-
-    HAVE_SKLEARN = True
-except ImportError:
-    msg = "scikit-learn not installed"
-    logger.warning(msg)
-    HAVE_SKLEARN = False
-
 
 def _segmented_univariate_distance_matrix(
     A, B, distance_metric, dtype="float32", segs=10
@@ -77,13 +68,11 @@ def univariate_distance_matrix(a, b=None, distance_metric=None):
         distance_metric = lambda a, b: np.abs(a - b)
 
     a = np.atleast_1d(np.array(a).astype(float))
-    full_matrix = False
     if b is not None:
         # a second set of points is specified; the return result will be 1D
         b = np.atleast_1d(np.array(b).astype(float))
     else:
         # generate a full point-to-point matrix for a single set of points
-        full_matrix = True
         b = a.copy()
     return _segmented_univariate_distance_matrix(a, b, distance_metric)
 

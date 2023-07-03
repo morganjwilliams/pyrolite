@@ -23,7 +23,6 @@ from ..util.plot.style import (
     patchkwargs,
     scatterkwargs,
 )
-from ..util.types import iscollection
 from .color import process_color
 
 _scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)

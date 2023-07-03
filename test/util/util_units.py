@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 import pyrolite
 from pyrolite.util.synthetic import normal_frame
 from pyrolite.util.units import *

@@ -7,8 +7,9 @@ import pandas as pd
 
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
-from pyrolite.util.lambdas import calc_lambdas, orthogonal_polynomial_constants
+from pyrolite.util.lambdas import calc_lambdas
 from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
+from pyrolite.util.lambdas.params import orthogonal_polynomial_constants
 from pyrolite.util.synthetic import random_cov_matrix
 
 

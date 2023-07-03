@@ -215,7 +215,9 @@ def great_circle_distance(
             np.isnan(angle).any() and f != _vicenty_GC_distance
         ):  # fallback for cos failure @ 0.
             fltr = np.isnan(angle)
-            angle[fltr] = _vicenty_GC_distance(a[fltr, :], b[fltr, :])
+            angle[fltr] = _vicenty_GC_distance(
+                φ1[fltr], φ2[fltr], λ1[fltr], λ2[fltr]
+            )
 
     if absolute:
         return np.rad2deg(angle) * r

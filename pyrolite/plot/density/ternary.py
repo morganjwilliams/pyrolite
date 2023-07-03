@@ -1,9 +1,8 @@
 import inspect
 
-import matplotlib.tri
 import numpy as np
 
-from ...comp.codata import ALR, ILR, close, inverse_ALR, inverse_ILR
+from ...comp.codata import ILR, close, inverse_ALR, inverse_ILR
 from ...util.distributions import sample_kde
 from ...util.log import Handle
 from ...util.math import flattengrid

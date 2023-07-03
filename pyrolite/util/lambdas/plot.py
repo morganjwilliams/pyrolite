@@ -13,7 +13,7 @@ from .eval import (
     get_lambda_poly_function,
     get_tetrads_function,
 )
-from .params import _get_params, orthogonal_polynomial_constants
+from .params import _get_params
 from .transform import REE_radii_to_z, REE_z_to_radii
 
 logger = Handle(__name__)

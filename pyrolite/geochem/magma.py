@@ -10,7 +10,7 @@ from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.units import scale
 from .ind import _common_elements, _common_oxides
-from .transform import to_molecular, to_weight
+from .transform import to_molecular
 
 logger = Handle(__name__)
 

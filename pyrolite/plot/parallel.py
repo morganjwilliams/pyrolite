@@ -1,45 +1,14 @@
 import matplotlib.colors
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from pandas.plotting import parallel_coordinates
 
 from ..util.log import Handle
 from ..util.meta import subkwargs
 from ..util.plot.axes import init_axes
-from ..util.plot.style import DEFAULT_CONT_COLORMAP, linekwargs
+from ..util.plot.style import linekwargs
 from .color import process_color
 
 logger = Handle(__name__)
-
-
-def plot_across_axes():
-    """
-    Parallel coordinate plots in matplotlib where each variable has its own axis.
-
-    Notes
-    -----
-    This stub is a work-in-progress.
-    From stackoverflow.com/questions/17543359/drawing-lines-between-two-plots-in-matplotlib
-    """
-    transFigure = fig.transFigure.inverted()
-
-    coords = [  # get the figure coordinates for the variables
-        transFigure.transform(
-            ax[i].transData.transform(np.vstack(np.zeros_like(y[i]), y[i]))
-        )
-        for i in range(ax)
-    ]
-    coord1 = transFigure.transform(ax1.transData.transform([x[i], y[i]]))
-    coord2 = transFigure.transform(ax2.transData.transform([x[i], y[i]]))
-
-    line = matplotlib.lines.Line2D(
-        (coord1[0], coord2[0]), (coord1[1], coord2[1]), transform=fig.transFigure
-    )
-    # instead create a collection here
-    LineCollection(segs, linewidths=(0.5, 1, 1.5, 2), colors=colors, linestyle="solid")
-    # can we add the collection to one axis?
-    ax.add_collection(line_segments)
 
 
 def parallel(

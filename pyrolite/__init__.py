@@ -8,7 +8,6 @@ del get_versions
 
 import importlib
 import pkgutil
-from pathlib import Path
 
 import matplotlib.style
 
