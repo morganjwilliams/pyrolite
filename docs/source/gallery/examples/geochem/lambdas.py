@@ -15,7 +15,7 @@ and their shapes can be effectively parameterised and dimensionally reduced (14 
 summarised by 3-4 shape parameters).
 
 .. note:: A publication discussing this implementation of `lambdas` together with fitting
-          tetrads for REE patterns has recently been
+          tetrads for REE patterns has been
           `published in Mathematical Geosciences <https://doi.org/10.1007/s11004-021-09959-5>`__!
 
 Here we generate some example data, reduce these to lambda values, and visualise the
