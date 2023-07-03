@@ -11,10 +11,10 @@ from .feldspar import FeldsparTernary
 from .jensen import JensenPlot
 from .pearce import pearceThNbYb, pearceTiNbYb
 from .QAP import QAP
+from .sandstones import Herron, Pettijohn
 from .spinel import SpinelFeBivariate, SpinelTrivalentTernary
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
-from .sandstones import Pettijohn, Herron
 
 logger = Handle(__name__)
 

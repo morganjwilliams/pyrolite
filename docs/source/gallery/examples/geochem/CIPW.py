@@ -36,6 +36,7 @@ geochemical components so we can work with it in the sections to follow:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
 

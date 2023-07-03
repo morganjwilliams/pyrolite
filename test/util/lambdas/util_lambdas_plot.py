@@ -1,13 +1,14 @@
 import unittest
-import numpy as np
-import pandas as pd
+
 import matplotlib.axes
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 from pyrolite.util.lambdas.plot import (
     plot_lambdas_components,
-    plot_tetrads_components,
     plot_profiles,
+    plot_tetrads_components,
 )
 
 

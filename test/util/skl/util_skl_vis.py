@@ -1,13 +1,15 @@
 import unittest
+
 import numpy as np
-from pyrolite.util.synthetic import normal_frame
+
 from pyrolite.comp.codata import close
+from pyrolite.util.synthetic import normal_frame
 
 try:
     import sklearn
-    from sklearn.svm import SVC
-    from sklearn.model_selection import GridSearchCV, train_test_split
     import sklearn.manifold
+    from sklearn.model_selection import GridSearchCV, train_test_split
+    from sklearn.svm import SVC
 
     HAVE_SKLEARN = True
 
@@ -16,8 +18,8 @@ try:
         gs = GridSearchCV(SVC(gamma="scale"), param_grid, cv=2)
         return gs
 
-    from pyrolite.util.skl.vis import *
     from pyrolite.util.skl.pipeline import SVC_pipeline
+    from pyrolite.util.skl.vis import *
 
 except ImportError:
     HAVE_SKLEARN = False

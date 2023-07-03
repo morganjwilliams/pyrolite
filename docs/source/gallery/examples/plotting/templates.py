@@ -61,7 +61,7 @@ plt.tight_layout()  # nicer spacing for axis labels
 # based on their whole-rock geochemistry (:func:`~pyrolite.plot.templates.Pettijohn`,
 # :func:`~pyrolite.plot.templates.Herron`):
 #
-from pyrolite.plot.templates import Pettijohn, Herron
+from pyrolite.plot.templates import Herron, Pettijohn
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 share_axes(ax, which="x")  # these diagrams have the same x axis

@@ -1,6 +1,7 @@
 import unittest
 
 import matplotlib.pyplot as plt
+
 from pyrolite.plot.templates import (
     QAP,
     TAS,

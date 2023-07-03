@@ -1,12 +1,13 @@
 import unittest
+
 import matplotlib.lines
 
 from pyrolite.util.plot.style import (
-    marker_cycle,
-    linekwargs,
-    scatterkwargs,
-    patchkwargs,
     _mpl_sp_kw_split,
+    linekwargs,
+    marker_cycle,
+    patchkwargs,
+    scatterkwargs,
 )
 
 

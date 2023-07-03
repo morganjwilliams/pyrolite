@@ -34,6 +34,7 @@ dependencies:
   # - jupyterlite-pyodide-kernel
   - pip
   - black
+  - isort
   - jedi<0.18.0 # for use on atom/ipython
   - pyzmq
   - pytest

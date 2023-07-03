@@ -1,17 +1,15 @@
 import unittest
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.axes
 
-from pyrolite.util.lambdas.eval import lambda_poly, get_lambda_poly_function
-from pyrolite.util.lambdas import (
-    calc_lambdas,
-    orthogonal_polynomial_constants,
-)
-from pyrolite.util.synthetic import random_cov_matrix
+import matplotlib.axes
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
+from pyrolite.util.lambdas import calc_lambdas, orthogonal_polynomial_constants
+from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
+from pyrolite.util.synthetic import random_cov_matrix
 
 
 class TestOPConstants(unittest.TestCase):
@@ -83,7 +81,7 @@ class TestOPConstants(unittest.TestCase):
         """
         eps = np.finfo(float).eps
         hightol_result = orthogonal_polynomial_constants(
-            self.xs, degree=self.default_degree, tol=10 ** -16
+            self.xs, degree=self.default_degree, tol=10**-16
         )
         for pow in np.linspace(np.log(eps * 1000.0), -5, 3):
             tol = np.exp(pow)
@@ -163,7 +161,6 @@ class TestCalcLambdas(unittest.TestCase):
                 self.assertTrue(ret.columns.size == self.default_degree)
 
     def test_anomalies(self):
-
         anomalies = ["Eu", "Ce"]
         for alg in ["ONeill", "opt"]:
             for add_uncertainties in [True, False]:

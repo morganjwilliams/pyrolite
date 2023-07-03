@@ -7,8 +7,9 @@ and decompose these into relative proportions of mineral endmember compositions.
 pyrolite includes some utilities to achieve this and a limited mineral database
 for looking up endmember compositions.
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from pyrolite.mineral.mindb import get_mineral
 from pyrolite.mineral.normative import endmember_decompose
 
@@ -58,4 +59,4 @@ recombined
 ########################################################################################
 # To make sure these compositions are within 0.01 percent:
 #
-assert np.allclose(recombined.values, comp.values, rtol=10 ** -4)
+assert np.allclose(recombined.values, comp.values, rtol=10**-4)

@@ -432,7 +432,7 @@ def _get_spherical_arc(thetas0, thetas1, resolution=100):
     # check that the points are on the sphere?
     v0, v1 = _get_spherical_vector(thetas0)[1], _get_spherical_vector(thetas1)[1]
     vs = v0 + np.linspace(0, 1, resolution + 1)[:, None] * (v1 - v0)
-    r = np.sqrt((vs ** 2).sum(axis=1))  # equivalent arc radius
+    r = np.sqrt((vs**2).sum(axis=1))  # equivalent arc radius
     vs = vs / r[:, None]
     return vs
 

@@ -87,7 +87,7 @@ def pcov_from_jac(jac):
     threshold = np.finfo(float).eps * max(jac.shape) * s[0]
     s = s[s > threshold]
     VT = VT[: s.size]
-    pcov = np.dot(VT.T / s ** 2, VT)
+    pcov = np.dot(VT.T / s**2, VT)
     return pcov
 
 
@@ -149,7 +149,7 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
             ############################################################################
             est = (_x @ _B.T).T  # estimated values of y
             residuals = _y - est  # residuals
-            S = (residuals ** 2).sum(axis=1)  # residual sum of squares
+            S = (residuals**2).sum(axis=1)  # residual sum of squares
             # H = X @ invXWX @ X.T @ W  # Hat matrix
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
             # calculate the reduced_chi_squared per row (divided by degrees of freedom)
@@ -216,7 +216,7 @@ def optimize_fit_components(
             pcov.fill(np.inf)
 
         dof = yd - xd  # effective degrees of freedom
-        reduced_chi_squared = (res.fun ** 2 / sigmas ** 2).sum() / dof
+        reduced_chi_squared = (res.fun**2 / sigmas**2).sum() / dof
         B[row, :] = res.x
         s[row, :] = np.sqrt(np.diag(pcov))  # sigmas on parameters
         χ2[row, 0] = reduced_chi_squared

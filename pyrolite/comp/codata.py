@@ -5,6 +5,7 @@ import scipy.stats
 import sympy
 
 from ..util.log import Handle
+
 # from .renorm import renormalise, close
 from ..util.math import helmert_basis, symbolic_helmert_basis
 
@@ -646,7 +647,7 @@ def inverse_sphere(θ):
             S = np.product(sinθ[:, ix:], axis=1)
         y[:, ix] = C * S
 
-    ys = y ** 2
+    ys = y**2
     return ys
 
 

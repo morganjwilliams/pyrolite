@@ -1,5 +1,6 @@
 import unittest
-from pyrolite.util.web import urlify, download_file, internet_connection
+
+from pyrolite.util.web import download_file, internet_connection, urlify
 
 
 class TestUrlify(unittest.TestCase):

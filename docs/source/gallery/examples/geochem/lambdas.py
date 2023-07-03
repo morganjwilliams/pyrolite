@@ -24,6 +24,7 @@ results.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pyrolite.plot
 
 # sphinx_gallery_thumbnail_number = 2
@@ -234,6 +235,7 @@ lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 #
 lts.head(2)
 from pyrolite.geochem.ind import REE
+
 ########################################################################################
 # Below we'll look at some of the potential issues of fitting lambdas and tetrads
 # together - by examining the effects of i) fitting tetrads where there are none

@@ -6,7 +6,7 @@ def alt_gen_binder_rst(
 ):
     """
     Generate the RST + link for the Binder badge.
-    
+
     Parameters
     ----------
     fpath: str

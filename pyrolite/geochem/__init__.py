@@ -15,6 +15,7 @@ logger = Handle(__name__)
 
 set_default_ionic_charges()
 
+
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
 @pd.api.extensions.register_dataframe_accessor("pyrochem")

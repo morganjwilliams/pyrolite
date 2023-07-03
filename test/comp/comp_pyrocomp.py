@@ -1,8 +1,10 @@
 import unittest
+
 import numpy as np
+
 import pyrolite.comp
-from pyrolite.util.synthetic import normal_frame
 from pyrolite.geochem.ind import REE
+from pyrolite.util.synthetic import normal_frame
 
 np.random.seed(81)
 

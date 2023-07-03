@@ -1,9 +1,10 @@
 import unittest
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 from pyrolite.comp.codata import close
-from pyrolite.util.plot.transform import xy_to_ABC, ABC_to_xy
+from pyrolite.util.plot.transform import ABC_to_xy, xy_to_ABC
 
 
 class TestTernaryTransforms(unittest.TestCase):

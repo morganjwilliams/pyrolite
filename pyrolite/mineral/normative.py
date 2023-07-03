@@ -9,9 +9,8 @@ import scipy
 from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
 from ..util.log import Handle
-from ..util.units import scale
 from ..util.pd import to_frame
-
+from ..util.units import scale
 from .mindb import get_mineral_group, list_minerals, parse_composition
 
 logger = Handle(__name__)
@@ -504,7 +503,7 @@ def CIPW_norm(
     adjust_all_Fe=False,
     return_adjusted_input=False,
     return_free_components=False,
-    rounding=3
+    rounding=3,
 ):
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
@@ -1214,7 +1213,11 @@ def CIPW_norm(
         ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"]
     ].sum(axis=1)
 
-    FREE.drop(["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"], axis=1, inplace=True)
+    FREE.drop(
+        ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"],
+        axis=1,
+        inplace=True,
+    )
 
     ############################################################################
     # get masses of free components
@@ -1284,6 +1287,12 @@ def CIPW_norm(
         outputs.append(adjusted.drop(columns=["intial_sum", "major_minor_sum"]))
     if return_free_components:
         # make sure that these column names are distinc
-        outputs.append(FREE.rename(columns={c:'FREE_'+c for c in FREE.columns if 'FREE' not in c.upper()}))
+        outputs.append(
+            FREE.rename(
+                columns={
+                    c: "FREE_" + c for c in FREE.columns if "FREE" not in c.upper()
+                }
+            )
+        )
 
     return pd.concat(outputs, axis=1).round(rounding)

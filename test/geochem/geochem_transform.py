@@ -1,9 +1,11 @@
 import unittest
+
 import numpy as np
-from pyrolite.util.synthetic import normal_frame, normal_series
-from pyrolite.geochem.transform import *
+
 from pyrolite.geochem.norm import get_reference_composition
+from pyrolite.geochem.transform import *
 from pyrolite.util.lambdas import orthogonal_polynomial_constants
+from pyrolite.util.synthetic import normal_frame, normal_series
 
 
 class TestToMolecular(unittest.TestCase):

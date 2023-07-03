@@ -3,13 +3,13 @@ import unittest
 from pathlib import Path
 
 from pyrolite.util.meta import (
-    pyrolite_datafolder,
-    take_me_to_the_docs,
-    sphinx_doi_link,
-    subkwargs,
+    get_additional_params,
     inargs,
     numpydoc_str_param_list,
-    get_additional_params,
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    subkwargs,
+    take_me_to_the_docs,
     update_docstring_references,
 )
 from pyrolite.util.synthetic import normal_frame
@@ -23,7 +23,6 @@ class TestPyroliteDataFolder(unittest.TestCase):
         self.assertTrue(folder.is_dir())
 
     def test_subfolders(self):
-
         for subf in ["Aitchison", "geochem", "models", "radii", "timescale"]:
             with self.subTest(subf=subf):
                 folder = pyrolite_datafolder(subfolder=subf)

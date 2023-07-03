@@ -186,7 +186,7 @@ def get_additional_params(
     pars = []
     subsects = []
     p0 = [i[0] for i in docs[0][1][t]]
-    for (f, d) in docs[1:]:  # add things which haven't already been registered
+    for f, d in docs[1:]:  # add things which haven't already been registered
         new = [o for o in d[t] if not (o[0] in p0 or o[0] in pars)]
         if subsections:
             subsection = numpydoc_str_param_list(new, indent=indent)

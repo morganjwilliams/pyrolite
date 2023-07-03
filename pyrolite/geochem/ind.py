@@ -14,8 +14,11 @@ import periodictable as pt
 from tinydb import Query, TinyDB
 
 from ..util.log import Handle
-from ..util.meta import (pyrolite_datafolder, sphinx_doi_link,
-                         update_docstring_references)
+from ..util.meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    update_docstring_references,
+)
 from ..util.text import remove_suffix, titlecase
 
 logger = Handle(__name__)

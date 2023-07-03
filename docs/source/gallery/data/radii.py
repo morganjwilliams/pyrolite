@@ -9,9 +9,10 @@ the :func:`~pyrolite.geochem.ind.get_ionic_radii` function. The function can be 
 to get radii for individual elements, using a :code:`source` keyword argument to swap
 between the datasets:
 """
-import pandas as pd
 import matplotlib.pyplot as plt
-from pyrolite.geochem.ind import get_ionic_radii, REE
+import pandas as pd
+
+from pyrolite.geochem.ind import REE, get_ionic_radii
 
 REE_radii = pd.Series(
     get_ionic_radii(REE(), coordination=8, charge=3, source="Whittaker"), index=REE()

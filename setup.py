@@ -1,5 +1,6 @@
-import versioneer
 from setuptools import find_packages, setup
+
+import versioneer
 
 tests_require = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 docs_require = [
@@ -12,7 +13,7 @@ docs_require = [
     # "jupyterlite-sphinx",
     # "jupyterlite-pyodide-kernel",
 ]
-dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
+dev_require = ["pytest", "versioneer", "black", "isort", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
 stats_require = ["statsmodels", "scikit-learn"]

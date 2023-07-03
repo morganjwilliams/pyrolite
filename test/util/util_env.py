@@ -1,6 +1,8 @@
-import os, sys
+import os
+import sys
 import unittest
-from pyrolite.util.env import validate_value, validate_update_envvar
+
+from pyrolite.util.env import validate_update_envvar, validate_value
 
 
 class TestValidateValue(unittest.TestCase):
@@ -28,7 +30,10 @@ class TestValidateUpdateEnvvar(unittest.TestCase):
         self.default = 20
         self.prefix = "TestValidateUpdateEnvvar_"
         self.schema = {  # Solution Models
-            "VALUE": dict(default=self.default, validator=lambda x: x > 6,)
+            "VALUE": dict(
+                default=self.default,
+                validator=lambda x: x > 6,
+            )
         }
 
     def test_default(self):

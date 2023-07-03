@@ -8,7 +8,7 @@ by element, ionic charge and coordination. The easiset way to access these is vi
 the :func:`~pyrolite.geochem.ind.get_ionic_radii` function. The function can be used
 to get radii for individual elements:
 """
-from pyrolite.geochem.ind import get_ionic_radii, REE
+from pyrolite.geochem.ind import REE, get_ionic_radii
 
 Cu_radii = get_ionic_radii("Cu")
 print(Cu_radii)

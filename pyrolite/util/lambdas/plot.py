@@ -8,8 +8,11 @@ import numpy as np
 from ... import plot
 from ...geochem.ind import REE, get_ionic_radii
 from ..log import Handle
-from .eval import (get_function_components, get_lambda_poly_function,
-                   get_tetrads_function)
+from .eval import (
+    get_function_components,
+    get_lambda_poly_function,
+    get_tetrads_function,
+)
 from .params import _get_params, orthogonal_polynomial_constants
 from .transform import REE_radii_to_z, REE_z_to_radii
 

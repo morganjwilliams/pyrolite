@@ -1,13 +1,14 @@
 import unittest
+
 import pyrolite.comp
+from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.synthetic import normal_frame
-from pyrolite.util.general import temp_path, remove_tempdir
 
 try:
     import sklearn
-    from sklearn.svm import SVC
-    from sklearn.model_selection import GridSearchCV
     from sklearn.datasets import load_iris
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.svm import SVC
 
     HAVE_SKLEARN = True
 
@@ -74,9 +75,9 @@ class TesSVCPipleline(unittest.TestCase):
 
     def test_pre_transform(self):
         pass
-        #clf = SVC_pipeline(transform=LogTransform())
-        #clf.fit(self.X, self.y)
-        #self.assertIsInstance(clf, sklearn.model_selection.GridSearchCV)
+        # clf = SVC_pipeline(transform=LogTransform())
+        # clf.fit(self.X, self.y)
+        # self.assertIsInstance(clf, sklearn.model_selection.GridSearchCV)
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")

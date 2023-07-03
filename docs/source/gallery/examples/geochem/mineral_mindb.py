@@ -7,8 +7,13 @@ compositions.
 """
 import pandas as pd
 
-from pyrolite.mineral.mindb import (get_mineral, get_mineral_group,
-                                    list_formulae, list_groups, list_minerals)
+from pyrolite.mineral.mindb import (
+    get_mineral,
+    get_mineral_group,
+    list_formulae,
+    list_groups,
+    list_minerals,
+)
 
 pd.set_option("display.precision", 3)  # smaller outputs
 ########################################################################################

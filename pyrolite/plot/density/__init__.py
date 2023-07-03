@@ -11,9 +11,11 @@ from ...comp.codata import close
 from ...util.log import Handle
 from ...util.meta import get_additional_params, subkwargs
 from ...util.plot.axes import add_colorbar, init_axes
-from ...util.plot.density import (get_axis_density_methods,
-                                  percentile_contour_values_from_meshz,
-                                  plot_Z_percentiles)
+from ...util.plot.density import (
+    get_axis_density_methods,
+    percentile_contour_values_from_meshz,
+    plot_Z_percentiles,
+)
 from ...util.plot.style import DEFAULT_CONT_COLORMAP
 from .grid import DensityGrid
 from .ternary import ternary_heatmap

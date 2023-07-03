@@ -1,12 +1,13 @@
 import unittest
 from pathlib import Path
+
 from pyrolite.util.general import (
-    temp_path,
-    flatten_dict,
+    Timewith,
     copy_file,
+    flatten_dict,
     remove_tempdir,
     swap_item,
-    Timewith,
+    temp_path,
 )
 
 
@@ -92,7 +93,6 @@ class TestTimewith(unittest.TestCase):
         pass
 
     def test_default(self):
-
         with Timewith(name="test_timer") as t:
             for i in range(2):
                 print(t.elapsed)

@@ -21,8 +21,12 @@ from ..util.meta import get_additional_params, subkwargs
 from ..util.pd import to_frame
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
-from ..util.plot.style import (_export_mplstyle, _export_nonRCstyles,
-                               linekwargs, scatterkwargs)
+from ..util.plot.style import (
+    _export_mplstyle,
+    _export_nonRCstyles,
+    linekwargs,
+    scatterkwargs,
+)
 from . import density, parallel, spider, stem
 from .color import process_color
 
@@ -213,7 +217,6 @@ class pyroplot(object):
         ax=None,
         **kwargs,
     ):
-
         """
         Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
         the columns of the :class:`~pandas.DataFrame`.

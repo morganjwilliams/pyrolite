@@ -1,9 +1,11 @@
 import unittest
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches
+
 import matplotlib.lines
-from pyrolite.util.plot.legend import proxy_line, proxy_rect, modify_legend_handles
+import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
+
+from pyrolite.util.plot.legend import modify_legend_handles, proxy_line, proxy_rect
 
 
 class TestLegendProxies(unittest.TestCase):

@@ -244,7 +244,7 @@ class PolygonClassifier(object):
             poly_config.pop("color", None)
 
         use_keys = not which_labels.lower().startswith("name")
-        for (k, cfg) in self.fields.items():
+        for k, cfg in self.fields.items():
             if cfg["poly"]:
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
@@ -371,15 +371,20 @@ class TAS(PolygonClassifier):
     """
 
     def __init__(self, which_model=None, **kwargs):
-
-        if which_model == 'LeMaitre': 
-            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
-        elif which_model == 'LeMaitreCombined': 
-            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre_combined.json"
+        if which_model == "LeMaitre":
+            src = (
+                pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
+            )
+        elif which_model == "LeMaitreCombined":
+            src = (
+                pyrolite_datafolder(subfolder="models")
+                / "TAS"
+                / "config_lemaitre_combined.json"
+            )
         else:
             # fallback to Middlemost
             src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
-            
+
         with open(src, "r") as f:
             config = json.load(f)
         kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
@@ -432,9 +437,13 @@ class TAS(PolygonClassifier):
                 if cfg["poly"]:
                     if which_labels.lower().startswith("id"):
                         label = k
-                    elif which_labels.lower().startswith("volc"):  # use the volcanic name
+                    elif which_labels.lower().startswith(
+                        "volc"
+                    ):  # use the volcanic name
                         label = cfg["name"][0]
-                    elif which_labels.lower().startswith("intr"):  # use the intrusive name
+                    elif which_labels.lower().startswith(
+                        "intr"
+                    ):  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         raise NotImplementedError(
@@ -718,7 +727,11 @@ class Pettijohn(PolygonClassifier):
     """
 
     def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "sandstones" / "config_pettijohn.json"
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "sandstones"
+            / "config_pettijohn.json"
+        )
 
         with open(src, "r") as f:
             config = json.load(f)
@@ -753,14 +766,17 @@ class Herron(PolygonClassifier):
     """
 
     def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "sandstones" / "config_herron.json"
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "sandstones"
+            / "config_herron.json"
+        )
 
         with open(src, "r") as f:
             config = json.load(f)
 
         poly_config = {**config, **kwargs}
         super().__init__(**poly_config)
-
 
 
 TAS.__doc__ = TAS.__doc__.format(
@@ -772,7 +788,7 @@ USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
 QAP.__doc__ = QAP.__doc__.format(
-    Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"), 
+    Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"),
     LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
 )
 Pettijohn.__doc__ = Pettijohn.__doc__.format(

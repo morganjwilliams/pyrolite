@@ -47,6 +47,7 @@ coords, H, data = ternary_heatmap(
 # and interpoalted for the ternary heatmap:
 #
 import matplotlib.pyplot as plt
+
 import pyrolite.plot
 from pyrolite.util.math import flattengrid
 from pyrolite.util.plot.axes import axes_to_ternary, share_axes

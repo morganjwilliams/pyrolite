@@ -17,6 +17,7 @@ df = load_boxite()
 df.head()
 ########################################################################################
 import matplotlib.pyplot as plt
+
 import pyrolite.plot
 
 fig, ax = plt.subplots(1)

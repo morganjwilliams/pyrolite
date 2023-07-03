@@ -2,9 +2,9 @@
 Spiderplots & Density Spiderplots
 ==================================
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # sphinx_gallery_thumbnail_number = 4
 

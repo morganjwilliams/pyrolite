@@ -2,17 +2,20 @@
 Log Ratio Means
 -----------------
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pyrolite.comp
-from pyrolite.comp.codata import ILR, inverse_ILR, close
-from pyrolite.util.synthetic import random_cov_matrix
-import matplotlib.pyplot as plt
+from pyrolite.comp.codata import ILR, close, inverse_ILR
 from pyrolite.plot import pyroplot
+from pyrolite.util.synthetic import random_cov_matrix
 
 # sphinx_gallery_thumbnail_number = 3
 
 np.random.seed(82)
+
+
 ########################################################################################
 def random_compositional_trend(m1, m2, c1, c2, resolution=20, size=1000):
     """

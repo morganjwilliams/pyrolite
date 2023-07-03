@@ -8,12 +8,13 @@ spanned by the data. Here we provide an example of visualisation of classificati
 predictions and relative prediction certainty (using entropy across predicted
 probability for each individual class) for a toy :mod:`sklearn` dataset.
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import sklearn.datasets
-import matplotlib.pyplot as plt
+
+from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 from pyrolite.util.skl.pipeline import SVC_pipeline
 from pyrolite.util.skl.vis import plot_mapping
-from pyrolite.util.plot import DEFAULT_DISC_COLORMAP
 
 np.random.seed(82)
 ########################################################################################
@@ -30,9 +31,7 @@ gs = svc.fit(data, target)
 # %% Plot
 fig, ax = plt.subplots(1, 2, figsize=(8, 4))
 
-a, tfm, mapped = plot_mapping(
-    data, gs.best_estimator_, ax=ax[1], s=50, init="pca"
-)
+a, tfm, mapped = plot_mapping(data, gs.best_estimator_, ax=ax[1], s=50, init="pca")
 ax[0].scatter(*mapped.T, c=DEFAULT_DISC_COLORMAP(gs.predict(data)), s=50)
 
 ax[0].set_title("Predicted Classes")

@@ -5,15 +5,13 @@ parameters (the sequence of polymomial roots and tetrad centres and widths).
 import numpy as np
 
 from ..log import Handle
-from .params import (_get_params, _get_tetrad_params,
-                     orthogonal_polynomial_constants)
+from .params import _get_params, _get_tetrad_params, orthogonal_polynomial_constants
 from .transform import REE_radii_to_z
 
 logger = Handle(__name__)
 
 
 def lambda_poly(x, ps):
-
     """
     Evaluate polynomial `lambda_n(x)` given a tuple of parameters `ps` with length
     equal to the polynomial degree.
@@ -52,8 +50,8 @@ def tetrad(x, centre, width):
     --------
     """
     g = (x - centre) / (width / 2)
-    x0 = 1 - g ** 2
-    tet = (x0 + np.sqrt(x0 ** 2)) / 2
+    x0 = 1 - g**2
+    tet = (x0 + np.sqrt(x0**2)) / 2
     tet[tet < 0] = 0
     return tet
 

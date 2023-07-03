@@ -1,6 +1,7 @@
+from sphinx_gallery import gen_rst
+
 from .sphinx_gallery_binder import alt_gen_binder_rst
 from .sphinx_gallery_scrapers import alt_matplotlib_scraper
-from sphinx_gallery import gen_rst
 
 # modify single image arrangement
 gen_rst.SINGLE_IMAGE = """

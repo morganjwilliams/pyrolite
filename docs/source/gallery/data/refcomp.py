@@ -8,7 +8,9 @@ contain extended descriptions and notes for some of the compositions and associa
 references.
 """
 import matplotlib.pyplot as plt
+
 from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
+
 # sphinx_gallery_thumbnail_number = 11
 
 refcomps = all_reference_compositions()

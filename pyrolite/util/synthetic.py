@@ -335,7 +335,6 @@ def example_patterns_from_parameters(
     includes_tetrads=False,
     columns=None,
 ):
-
     """ """
     fit_parameters = np.tile(fit_parameters, n).reshape(n, -1)
     if radii is None:
@@ -350,7 +349,7 @@ def example_patterns_from_parameters(
     cov = np.zeros((sz, sz))
     for offset in np.arange(-sz + 1, sz):
         vals = np.ones(sz - np.abs(offset)) * np.abs((sz - np.abs(offset))) / sz
-        cov += np.diag(vals ** 2, offset)
+        cov += np.diag(vals**2, offset)
     noise = 1 + proportional_noise * np.random.multivariate_normal(
         np.zeros(sz), cov, size=pattern_df.shape[0]
     )

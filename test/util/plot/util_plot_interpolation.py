@@ -1,7 +1,10 @@
 import unittest
-import matplotlib.path
+
 import matplotlib.patches
+import matplotlib.path
+
 from pyrolite.util.plot.interpolation import interpolated_patch_path
+
 
 class InterpolatedPathPatch(unittest.TestCase):
     """

@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ...util.classification import Pettijohn as PJclassifier
 from ...util.classification import Herron as Herronclassifier
+from ...util.classification import Pettijohn as PJclassifier
 from ...util.log import Handle
 from ...util.meta import sphinx_doi_link, subkwargs, update_docstring_references
 from ...util.plot.axes import init_axes
@@ -12,12 +12,7 @@ logger = Handle(__name__)
 
 @update_docstring_references
 def Pettijohn(
-    ax=None,
-    add_labels=False,
-    which_labels="ID",
-    relim=True,
-    color="k",
-    **kwargs
+    ax=None, add_labels=False, which_labels="ID", relim=True, color="k", **kwargs
 ):
     """
     Adds the Pettijohn (1973) [#ref_1] sandstones classification diagram.
@@ -69,12 +64,7 @@ def Pettijohn(
 
 @update_docstring_references
 def Herron(
-    ax=None,
-    add_labels=False,
-    which_labels="ID",
-    relim=True,
-    color="k",
-    **kwargs
+    ax=None, add_labels=False, which_labels="ID", relim=True, color="k", **kwargs
 ):
     """
     Adds the Herron (1988) [#ref_1] sandstones classification diagram.

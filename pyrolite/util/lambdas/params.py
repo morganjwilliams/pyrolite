@@ -14,7 +14,7 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
+def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
     r"""
     Finds the parameters
     :math:`(\beta_0), (\gamma_0, \gamma_1), (\delta_0, \delta_1, \delta_2)` etc.
@@ -74,7 +74,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
             for _deg in range(d):
                 q = 1
                 if _deg:
-                    q = x ** _deg
+                    q = x**_deg
                 for p in ps:
                     q *= x - p
                 eqs.append(q)

@@ -1,9 +1,10 @@
+import logging
 import unittest
+
 import numpy as np
+
 from pyrolite.comp.aggregate import *
 from pyrolite.util.synthetic import normal_frame
-
-import logging
 
 
 class TestCompositionalMean(unittest.TestCase):

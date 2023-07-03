@@ -101,11 +101,11 @@ def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
         The model assumes that the crystal is elastically isotropic.
 
     """
-    n = 6.023 * 10 ** 23
+    n = 6.023 * 10**23
     if r0 is None:
         logger.warn("Use fictive ideal cation radii where possible.")
         r0 = ri
-    ri, rx, r0 = ri / 10 ** 10, rx / 10 ** 10, r0 / 10 ** 10  # convert to meters
+    ri, rx, r0 = ri / 10**10, rx / 10**10, r0 / 10**10  # convert to meters
     E = E or youngs_modulus_approximation(z, r0)  # use E if defined, else try to calc
     coeff = 4.0 * np.pi * E
 
@@ -177,7 +177,7 @@ def youngs_modulus_approximation(z, r):
         r is not None
     ), "Need charge and radii to approximate Young's Modulus"
     d = r + 1.38
-    E = 1.5 * 750 * (z / d ** 3) * 10 ** 9
+    E = 1.5 * 750 * (z / d**3) * 10**9
     return E
 
 

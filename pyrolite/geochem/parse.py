@@ -8,8 +8,13 @@ import pandas as pd
 
 from ..util.log import Handle
 from ..util.text import titlecase
-from .ind import (_common_elements, _common_oxides, common_elements,
-                  get_cations, get_isotopes)
+from .ind import (
+    _common_elements,
+    _common_oxides,
+    common_elements,
+    get_cations,
+    get_isotopes,
+)
 
 logger = Handle(__name__)
 

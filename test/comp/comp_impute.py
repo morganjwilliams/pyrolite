@@ -1,19 +1,16 @@
 import unittest
+
 import numpy as np
 import pandas as pd
+
+from pyrolite.comp.aggregate import np_cross_ratios
+from pyrolite.comp.impute import EMCOMP, _little_sweep, _multisweep, _reg_sweep
 from pyrolite.util.math import augmented_covariance_matrix
 from pyrolite.util.synthetic import (
     normal_frame,
     normal_series,
-    random_cov_matrix,
     random_composition,
-)
-from pyrolite.comp.aggregate import np_cross_ratios
-from pyrolite.comp.impute import (
-    EMCOMP,
-    _little_sweep,
-    _reg_sweep,
-    _multisweep
+    random_cov_matrix,
 )
 
 

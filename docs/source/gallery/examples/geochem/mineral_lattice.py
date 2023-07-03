@@ -25,8 +25,9 @@ Earth Elements). The final section of the example highlights the mechanism which
 generates plagioclase's hallmark 'europium anomaly', and the effects of variable
 europium oxidation state on bulk europium partitioning.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.mineral.lattice import strain_coefficient
 
@@ -40,8 +41,8 @@ D_Na = 1.35  # Partition coefficient Plag-Melt
 D_Ca = 4.1  # Partition coefficient Plag-Melt
 Tc = 900  # Temperature, °C
 Tk = Tc + 273.15  # Temperature, K
-E_2 = 120 * 10 ** 9  # Youngs modulus for 2+ site, Pa
-E_3 = 135 * 10 ** 9  # Youngs modulus for 3+ site, Pa
+E_2 = 120 * 10**9  # Youngs modulus for 2+ site, Pa
+E_3 = 135 * 10**9  # Youngs modulus for 3+ site, Pa
 r02, r03 = 1.196, 1.294  # fictive ideal cation radii for these sites
 rCa = get_ionic_radii("Ca", charge=2, coordination=8)
 rLa = get_ionic_radii("La", charge=3, coordination=8)
@@ -80,7 +81,7 @@ fig
 # Through a handy relationship, we can estimate :math:`D_{La}`
 # based on the easier measured :math:`D_{Ca}`, :math:`D_{Na}` and temperature [#ref_2]_:
 #
-D_La = (D_Ca ** 2 / D_Na) * np.exp((529 / Tk) - 3.705)
+D_La = (D_Ca**2 / D_Na) * np.exp((529 / Tk) - 3.705)
 D_La  # 0.48085
 ########################################################################################
 # Now :math:`D_{La}` is defined, we can use it as a reference for the other REE:

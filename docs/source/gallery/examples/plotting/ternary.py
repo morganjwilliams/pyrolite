@@ -2,9 +2,10 @@
 Ternary Plots
 =============
 """
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.plot import pyroplot
 
 np.random.seed(82)

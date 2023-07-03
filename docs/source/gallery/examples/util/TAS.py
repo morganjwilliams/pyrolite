@@ -62,11 +62,11 @@ df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7)
 # Variations of the Diagram
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# To use a different variation of the TAS diagram, you can pass the relevant keyword 
+# To use a different variation of the TAS diagram, you can pass the relevant keyword
 # :code:`which_model` allowing you to access the other available variants.
 #
-# Currently, the Le Bas/Le Maitre alternative and a T1-T2 combined variant of it are 
-# available as alternatives to the Middlemost version. Each of these can be used as a 
+# Currently, the Le Bas/Le Maitre alternative and a T1-T2 combined variant of it are
+# available as alternatives to the Middlemost version. Each of these can be used as a
 # classifier model as for the default above.
 #
 fig, ax = plt.subplots(1, 3, figsize=(20, 4))

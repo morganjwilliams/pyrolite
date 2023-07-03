@@ -1,7 +1,9 @@
 import unittest
-import numpy as np
-from pyrolite.geochem.magma import *
 from io import StringIO
+
+import numpy as np
+
+from pyrolite.geochem.magma import *
 
 
 class TestFeAt8MgO(unittest.TestCase):

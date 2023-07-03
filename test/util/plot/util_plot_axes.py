@@ -1,16 +1,18 @@
 import unittest
-import numpy as np
+
 import matplotlib.pyplot as plt
-from mpltern.ternary import TernaryAxes
+import numpy as np
 from mpltern.datasets import get_spiral
+from mpltern.ternary import TernaryAxes
+
 from pyrolite.util.plot.axes import (
-    replace_with_ternary_axis,
+    add_colorbar,
     axes_to_ternary,
     get_axes_index,
     get_ordered_axes,
     get_twins,
+    replace_with_ternary_axis,
     share_axes,
-    add_colorbar,
 )
 
 

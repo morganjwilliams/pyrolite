@@ -6,12 +6,14 @@ Parallel coordinate plots are one way to visualise data relationships and cluste
 higher dimensional data. pyrolite now includes an implementation of this which allows
 a handy quick exploratory visualisation.
 """
+import matplotlib.axes
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.axes
-import pyrolite.plot
+
 import pyrolite.data.Aitchison
+import pyrolite.plot
+
 # sphinx_gallery_thumbnail_number = 3
 
 ########################################################################################

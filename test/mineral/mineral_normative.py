@@ -90,18 +90,18 @@ class TestMiddlemostFeCorrection(unittest.TestCase):
                 [60, 4, 5, 10, 0, 0, 0, 0, 0, 0, 21],  # Trachy-andesite, 0.4
             ],
             columns=[
-                "SiO2", 
-                "Na2O", 
-                "K2O", 
-                "FeO", 
+                "SiO2",
+                "Na2O",
+                "K2O",
+                "FeO",
                 "Fe2O3",
                 "Al2O3",
                 "MnO",
                 "MgO",
                 "CaO",
                 "P2O5",
-                "TiO2"
-                ],
+                "TiO2",
+            ],
             dtype="float",
         )
 

@@ -1,6 +1,8 @@
 import unittest
+
 import numpy as np
 import pandas as pd
+
 from pyrolite.geochem.ind import REE
 from pyrolite.geochem.parse import *
 
