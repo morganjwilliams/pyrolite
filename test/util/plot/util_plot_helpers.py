@@ -10,6 +10,7 @@ import pandas as pd
 from pyrolite.comp.codata import close
 from pyrolite.util.plot.helpers import (
     draw_vector,
+    init_spherical_octant,
     nan_scatter,
     plot_2dhull,
     plot_cooccurence,
@@ -220,6 +221,14 @@ class TestNaNScatter(unittest.TestCase):
         ax = nan_scatter(self.xs[:10], self.ys[:10])
         ax = nan_scatter(self.xs[10:], self.ys[10:], ax=ax)
         self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+
+class TestInitSphericalOctant(unittest.TestCase):
+    def test_default(self):
+        ax = init_spherical_octant()
+
+    def test_angle_indicated(self):
+        ax = init_spherical_octant(angle_indicated=30)
 
 
 if __name__ == "__main__":
