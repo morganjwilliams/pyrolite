@@ -1,11 +1,13 @@
 import re
 from pathlib import Path
+
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
+from sphinx_gallery import scrapers
+
 from pyrolite.util.plot import save_figure
 
-from sphinx_gallery import scrapers
 
 def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
     """Patched matplotlib scraper which won't close figures.
@@ -48,5 +50,6 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
             image_paths.append(image_path)
 
     return scrapers.figure_rst(image_paths, gallery_conf["src_dir"])
+
 
 scrapers._scraper_dict.update(dict(altmatplot=alt_matplotlib_scraper))

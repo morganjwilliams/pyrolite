@@ -4,9 +4,9 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pyrolite.util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 from ..util.log import Handle
+from ..util.plot import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 logger = Handle(__name__)
 
@@ -45,7 +45,16 @@ def get_cmode(c=None):
 
         if cmode is None:  # list | ndarray | ndarray(rgb) | ndarray(rgba)
             logger.debug("Checking array-based color modes.")
-            if isinstance(c, (np.ndarray, list, pd.Series, pd.Index)):
+            if isinstance(
+                c,
+                (
+                    np.ndarray,
+                    list,
+                    pd.Series,
+                    pd.Index,
+                    pd.Categorical,
+                ),
+            ):
                 dtype = getattr(c, "dtype", np.dtype("O"))
                 if dtype.name == "category":  # convert categories to objects for numpy
                     dtype = np.dtype("O")
@@ -92,8 +101,9 @@ def get_cmode(c=None):
                             )
                         )
     if cmode is None:
-        logger.debug("Color mode not found for item of type {}".format(type(c)))
-        raise NotImplementedError  # single value, mixed numbers, strings etc
+        msg = "Color mode not found for item of type {}".format(type(c))
+        logger.debug(msg)
+        raise NotImplementedError(msg)  # single value, mixed numbers, strings etc
     else:
         logger.debug("Color mode recognized: {}".format(cmode))
         return cmode
@@ -229,7 +239,10 @@ def process_color(
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
                 cmap.set_under(color=cmap_under)
-            norm = norm or plt.Normalize(vmin=np.nanmin(_C), vmax=np.nanmax(_C))
+            norm = norm or plt.Normalize(
+                vmin=otherkwargs.get("vmin") or np.nanmin(_C),
+                vmax=otherkwargs.get("vmax") or np.nanmax(_C),
+            )
             C = cmap(norm(_C))
         elif cmode == "categories":
             C = np.array(C, dtype="object")
@@ -254,7 +267,6 @@ def process_color(
             else:
                 logger.debug("Using custom value-mapping for categories.")
                 C = np.array(C)
-                unique_vals = np.array(list(cmapper.values()))
                 _C = np.ones((len(C), 4), dtype=float)
                 for cat in uniqueC:
                     # subsitute in the 'bad' color for colors not in the cmap

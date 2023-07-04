@@ -1,9 +1,8 @@
 import inspect
 
-import matplotlib.tri
 import numpy as np
 
-from ...comp.codata import ALR, ILR, close, inverse_ALR, inverse_ILR
+from ...comp.codata import ILR, close, inverse_ILR
 from ...util.distributions import sample_kde
 from ...util.log import Handle
 from ...util.math import flattengrid
@@ -131,7 +130,7 @@ def ternary_heatmap(
         coords = tern_edge_grid
     elif "hist" in mode:
         hgrid = grid or tfm_bin_edges
-        H, hedges = np.histogramdd(tdata, bins=hgrid)
+        H, _ = np.histogramdd(tdata, bins=hgrid)
         H = H.T
         coords = tern_centre_grid
     elif "hex" in mode:

@@ -1,15 +1,16 @@
-import unittest
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-from numpy.random import multivariate_normal
-from pyrolite.plot import spider, density, pyroplot
-from pyrolite.geochem import REE
-from pyrolite.util.synthetic import normal_frame
-import matplotlib.colors
-import mpltern.ternary
-
 import logging
+import unittest
+
+import matplotlib.colors
+import matplotlib.pyplot as plt
+import mpltern.ternary
+import numpy as np
+import pandas as pd
+from numpy.random import multivariate_normal
+
+from pyrolite.geochem import REE
+from pyrolite.plot import density, pyroplot, spider
+from pyrolite.util.synthetic import normal_frame
 
 logger = logging.getLogger(__name__)
 

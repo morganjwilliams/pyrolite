@@ -11,9 +11,11 @@ from ...comp.codata import close
 from ...util.log import Handle
 from ...util.meta import get_additional_params, subkwargs
 from ...util.plot.axes import add_colorbar, init_axes
-from ...util.plot.density import (get_axis_density_methods,
-                                  percentile_contour_values_from_meshz,
-                                  plot_Z_percentiles)
+from ...util.plot.density import (
+    get_axis_density_methods,
+    percentile_contour_values_from_meshz,
+    plot_Z_percentiles,
+)
 from ...util.plot.style import DEFAULT_CONT_COLORMAP
 from .grid import DensityGrid
 from .ternary import ternary_heatmap
@@ -173,7 +175,7 @@ def density(
                 )
 
             elif mode == "hist2d":
-                zi, xe, ye, im = ax.hist2d(
+                _, _, _, im = ax.hist2d(
                     x,
                     y,
                     bins=[grid.grid_xe, grid.grid_ye],
@@ -236,7 +238,7 @@ def density(
             if mode == "hexbin":
                 raise NotImplementedError
             # density, histogram etc parsed here
-            coords, zi, data = ternary_heatmap(arr, bins=bins, mode=mode)
+            coords, zi, _ = ternary_heatmap(arr, bins=bins, mode=mode)
 
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]

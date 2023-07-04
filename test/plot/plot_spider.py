@@ -1,12 +1,14 @@
-import unittest
-import matplotlib.pyplot as plt
-import matplotlib.axes
-import pandas as pd
-import numpy as np
-from pyrolite.geochem import REE
-from pyrolite.plot.spider import spider, REE_v_radii
-from pyrolite.util.synthetic import random_composition
 import logging
+import unittest
+
+import matplotlib.axes
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from pyrolite.geochem import REE
+from pyrolite.plot.spider import REE_v_radii, spider
+from pyrolite.util.synthetic import random_composition
 
 logger = logging.getLogger(__name__)
 

@@ -1,23 +1,26 @@
 import unittest
-import numpy as np
-import pandas as pd
+
 import matplotlib.axes
-import matplotlib.pyplot as plt
 import matplotlib.lines
 import matplotlib.patches
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.comp.codata import close
-from pyrolite.util.synthetic import random_composition
-from pyrolite.util.skl.transform import ILRTransform, ALRTransform
 from pyrolite.util.plot.helpers import (
+    draw_vector,
+    init_spherical_octant,
+    nan_scatter,
     plot_2dhull,
     plot_cooccurence,
     plot_pca_vectors,
     plot_stdev_ellipses,
-    draw_vector,
+    rect_from_centre,
     vector_to_line,
-    nan_scatter,
-    rect_from_centre
 )
+from pyrolite.util.skl.transform import ALRTransform, ILRTransform
+from pyrolite.util.synthetic import random_composition
 
 try:
     from sklearn.decomposition import PCA
@@ -59,7 +62,6 @@ class TestPlotCooccurence(unittest.TestCase):
 
 class TestPlotStDevEllipses(unittest.TestCase):
     def setUp(self):
-
         self.comp3d = random_composition(size=100, D=3)
         self.T = ILRTransform()
         self.comp2d = self.T.transform(self.comp3d)
@@ -219,6 +221,14 @@ class TestNaNScatter(unittest.TestCase):
         ax = nan_scatter(self.xs[:10], self.ys[:10])
         ax = nan_scatter(self.xs[10:], self.ys[10:], ax=ax)
         self.assertIsInstance(ax, matplotlib.axes.Axes)
+
+
+class TestInitSphericalOctant(unittest.TestCase):
+    def test_default(self):
+        ax = init_spherical_octant()
+
+    def test_angle_indicated(self):
+        ax = init_spherical_octant(angle_indicated=30)
 
 
 if __name__ == "__main__":

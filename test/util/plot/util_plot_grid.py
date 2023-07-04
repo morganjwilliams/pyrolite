@@ -1,5 +1,7 @@
 import unittest
+
 import numpy as np
+
 from pyrolite.util.plot.grid import (
     bin_centres_to_edges,
     bin_edges_to_centres,
@@ -39,7 +41,6 @@ class TestBinConversions(unittest.TestCase):
 
 
 class TestTernaryGrid(unittest.TestCase):
-
     def setUp(self):
         self.data = normal_frame(columns=["SiO2", "CaO", "MgO"], size=20).values
 

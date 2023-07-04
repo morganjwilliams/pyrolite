@@ -2,11 +2,9 @@
 Submodule with various plotting and visualisation functions.
 """
 import warnings
-from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.style
 import mpltern
 import numpy as np
 import pandas as pd
@@ -21,8 +19,7 @@ from ..util.meta import get_additional_params, subkwargs
 from ..util.pd import to_frame
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
-from ..util.plot.style import (_export_mplstyle, _export_nonRCstyles,
-                               linekwargs, scatterkwargs)
+from ..util.plot.style import _export_nonRCstyles, linekwargs, scatterkwargs
 from . import density, parallel, spider, stem
 from .color import process_color
 
@@ -213,7 +210,6 @@ class pyroplot(object):
         ax=None,
         **kwargs,
     ):
-
         """
         Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
         the columns of the :class:`~pandas.DataFrame`.
@@ -278,7 +274,7 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         kw = linekwargs(kwargs)
-        lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
+        ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
             label_axes(ax, labels=components)
@@ -369,7 +365,13 @@ class pyroplot(object):
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         size = obj.index.size
         kw = process_color(size=size, **kwargs)
-        sc = ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
+        with warnings.catch_warnings():
+            # ternary transform where points add to zero will give an unnecessary
+            # warning; here we supress it
+            warnings.filterwarnings(
+                "ignore", message="invalid value encountered in divide"
+            )
+            ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
 
         if axlabels:
             label_axes(ax, labels=components)

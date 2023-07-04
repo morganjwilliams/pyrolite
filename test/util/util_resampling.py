@@ -1,15 +1,16 @@
 import unittest
-import pandas as pd
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.util.resampling import (
     _segmented_univariate_distance_matrix,
-    univariate_distance_matrix,
-    get_spatiotemporal_resampling_weights,
     add_age_noise,
+    get_spatiotemporal_resampling_weights,
     spatiotemporal_bootstrap_resample,
+    univariate_distance_matrix,
 )
-
 from pyrolite.util.spatial import great_circle_distance
 from pyrolite.util.synthetic import normal_frame
 
@@ -24,7 +25,14 @@ df.index.intersection(sample.index)
 def _get_spatiotemporal_dataframe(size, geochem_columns=[]):
     df = pd.DataFrame(
         index=range(size),
-        columns=["Latitude", "Longitude", "Age", "AgeUncertainty", "MinAge", "MaxAge",],
+        columns=[
+            "Latitude",
+            "Longitude",
+            "Age",
+            "AgeUncertainty",
+            "MinAge",
+            "MaxAge",
+        ],
     )
     df["Latitude"] = 20 + np.random.randn(size)
     df["Longitude"] = 85 + np.random.randn(size)

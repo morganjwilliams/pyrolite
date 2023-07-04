@@ -3,14 +3,13 @@ Submodule for calculating and modelling melt chemistry. Includes common
 functions for predicting and accounting for melt evolution.
 """
 import numpy as np
-import pandas as pd
 import periodictable as pt
 
 from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.units import scale
 from .ind import _common_elements, _common_oxides
-from .transform import to_molecular, to_weight
+from .transform import to_molecular
 
 logger = Handle(__name__)
 
@@ -49,8 +48,8 @@ def FeAt8MgO(FeOT: float, MgO: float) -> float:
         Earth and Planetary Science Letters 69:107–127.
         doi: `10.1016/0012-821X(84)90077-3 <https://dx.doi.org/10.1016/0012-821X(84)90077-3>`__
     """
-    Fe8 = 1.825 - 1.529 * (FeOT - 0.03261 * MgO ** 2 + 0.2619) / (
-        MgO - 0.04467 * MgO ** 2 - 6.67
+    Fe8 = 1.825 - 1.529 * (FeOT - 0.03261 * MgO**2 + 0.2619) / (
+        MgO - 0.04467 * MgO**2 - 6.67
     )
     return Fe8
 
@@ -89,8 +88,8 @@ def NaAt8MgO(Na2O: float, MgO: float) -> float:
         Earth and Planetary Science Letters 69:107–127.
         doi: `10.1016/0012-821X(84)90077-3 <https://dx.doi.org/10.1016/0012-821X(84)90077-3>`__
     """
-    Na8 = 0.6074 - 3.523 * (Na2O + 0.00529 * MgO ** 2 - 0.9495) / (
-        MgO - 0.05297 * MgO ** 2 - 8.133
+    Na8 = 0.6074 - 3.523 * (Na2O + 0.00529 * MgO**2 - 0.9495) / (
+        MgO - 0.05297 * MgO**2 - 8.133
     )
     return Na8
 
@@ -189,7 +188,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
         assert all([x == maxdim or x == 1 for x in _dims])
         cc, tt, pp = C, T, P
 
-    comp = set(df.columns) & (_common_elements | _common_oxides)
+    comp = list(set(df.columns) & (_common_elements | _common_oxides))
     moldf = to_molecular(df.loc[:, comp], renorm=True) / 100.0  # mole-fraction
     molsum = to_molecular(df.loc[:, comp], renorm=False).sum(axis=1)
 
@@ -206,12 +205,12 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
         elif grid is None:
             return arr
 
-    ln_sulfate = 10.07 * cc - 1.151 * 10 ** 4 / tt + 0.104 * pp
+    ln_sulfate = 10.07 * cc - 1.151 * 10**4 / tt + 0.104 * pp
     for chem, D in [("SiO2", -7.1), ("MgO", -14.02), ("Al2O3", -14.164)]:
         if chem in moldf.columns:
             ln_sulfate += gridify(moldf[chem]) * D * cc
 
-    ln_sulfide = -1.76 * cc - 0.474 * 10 ** 4 / tt + 0.021 * pp
+    ln_sulfide = -1.76 * cc - 0.474 * 10**4 / tt + 0.021 * pp
 
     for chem, D in [
         ("FeO", 5.559),

@@ -1,9 +1,6 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
 from ...util.classification import JensenPlot as _JensenPlot
 from ...util.log import Handle
-from ...util.meta import sphinx_doi_link, subkwargs, update_docstring_references
+from ...util.meta import update_docstring_references
 from ...util.plot.axes import init_axes
 
 logger = Handle(__name__)

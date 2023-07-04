@@ -1,7 +1,8 @@
 import unittest
-import pandas as pd
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 try:
     import cartopy.crs as ccrs
@@ -9,13 +10,12 @@ try:
     HAVE_CARTOPY = True
 except ImportError:
     HAVE_CARTOPY = False
-from pyrolite.util.spatial import *
 from pyrolite.util.math import isclose  # nan-equalling isclose
+from pyrolite.util.spatial import *
 
 
 class TestGreatCircleDistance(unittest.TestCase):
     def setUp(self):
-
         self.ps = zip(
             np.array(
                 [

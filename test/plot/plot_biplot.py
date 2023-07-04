@@ -1,9 +1,11 @@
-import unittest
-import matplotlib.pyplot as plt
-import matplotlib.axes
-import pandas as pd
-import numpy as np
 import logging
+import unittest
+
+import matplotlib.axes
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.data.Aitchison import *
 from pyrolite.plot.biplot import *
 

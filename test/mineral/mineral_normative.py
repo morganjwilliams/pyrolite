@@ -34,9 +34,9 @@ class TestUnmix(unittest.TestCase):
         res = unmix(self.comp, self.parts)
 
     def test_regularization(self):
-        for ord in [1, 2]:
-            with self.subTest(ord=ord):
-                s = unmix(self.comp, self.parts, ord=ord)
+        for order in [1, 2]:
+            with self.subTest(order=order):
+                s = unmix(self.comp, self.parts, order=order)
 
     def test_det_lim(self):
         for det_lim in [0.001, 0.1, 0.5]:
@@ -83,13 +83,25 @@ class TestMiddlemostFeCorrection(unittest.TestCase):
     def setUp(self):
         self.df = pd.DataFrame(
             [
-                [60, 3, 2, 6, 2],  # Andesite, 0.35
-                [45, 4, 5, 12, 3],  # Tephrite, 0.3
-                [70, 5, 4, 11, 4],  # Rhyolite, 0.5
-                [45, 4, 5, 10, 0],  # Tephrite, 0.3
-                [60, 4, 5, 10, 0],  # Trachy-andesite, 0.4
+                [60, 3, 2, 6, 2, 0, 0, 0, 0, 0, 27],  # Andesite, 0.35
+                [45, 4, 5, 12, 3, 0, 0, 0, 0, 0, 31],  # Tephrite, 0.3
+                [70, 5, 4, 11, 4, 0, 0, 0, 0, 0, 6],  # Rhyolite, 0.5
+                [45, 4, 5, 10, 0, 0, 0, 0, 0, 0, 36],  # Tephrite, 0.3
+                [60, 4, 5, 10, 0, 0, 0, 0, 0, 0, 21],  # Trachy-andesite, 0.4
             ],
-            columns=["SiO2", "Na2O", "K2O", "FeO", "Fe2O3"],
+            columns=[
+                "SiO2",
+                "Na2O",
+                "K2O",
+                "FeO",
+                "Fe2O3",
+                "Al2O3",
+                "MnO",
+                "MgO",
+                "CaO",
+                "P2O5",
+                "TiO2",
+            ],
             dtype="float",
         )
 

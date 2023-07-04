@@ -3,9 +3,13 @@ import unittest
 import numpy as np
 
 import pyrolite
-from pyrolite.geochem.norm import (Composition, all_reference_compositions,
-                                   get_reference_composition,
-                                   get_reference_files, update_database)
+from pyrolite.geochem.norm import (
+    Composition,
+    all_reference_compositions,
+    get_reference_composition,
+    get_reference_files,
+    update_database,
+)
 from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.meta import pyrolite_datafolder
 from pyrolite.util.synthetic import normal_frame

@@ -45,7 +45,7 @@ def interpolate_path(
         x = np.append(x, x[0])
         y = np.append(y, y[0])
     # s=0 forces the interpolation to go through every point
-    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
+    tck, _ = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
     xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
     # could get control points for path and construct codes here
     codes = None
@@ -114,15 +114,20 @@ def get_contour_paths(ax, resolution=100):
     linecolls = [
         c
         for c in ax.collections
-        if isinstance(c, matplotlib.collections.LineCollection)
+        # contours/default lines don't have markers - allows distinguishing scatter
+        if (
+            isinstance(c, matplotlib.collections.PathCollection)
+            and c.get_sizes().size == 0
+        )
+        or isinstance(c, matplotlib.collections.LineCollection)
     ]
-    rgba = [[int(c) for c in lc.get_edgecolors().flatten() * 255] for lc in linecolls]
+    rgba = [lc.get_edgecolors() for lc in linecolls]
     styles = [{"color": c} for c in rgba]
     names = [None for lc in linecolls]
-    if (len(ax.artists) == len(linecolls)) and all(
-        [a.get_text() != "" for a in ax.artists]
+    if (len(ax.texts) == len(linecolls)) and all(
+        [a.get_text() != "" for a in ax.texts]
     ):
-        names = [a.get_text() for a in ax.artists]
+        names = [a.get_text() for a in ax.texts]
     return (
         [
             [

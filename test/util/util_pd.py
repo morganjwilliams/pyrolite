@@ -1,12 +1,15 @@
-import os, time
+import os
+import time
 import unittest
-import pandas as pd
-import numpy as np
 from pathlib import Path
-from pyrolite.util.synthetic import normal_frame, normal_series
-from pyrolite.util.general import temp_path, remove_tempdir
+
+import numpy as np
+import pandas as pd
+
+from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.meta import subkwargs
 from pyrolite.util.pd import *
+from pyrolite.util.synthetic import normal_frame, normal_series
 
 
 class TestColumnOrderedAppend(unittest.TestCase):
@@ -37,7 +40,6 @@ class TestReadTable(unittest.TestCase):
         df = read_table(f, index=0)
         self.assertTrue((df.values == self.expect.values).all())
         self.assertTrue((df.columns == np.array(["C1", "C2"])).all())
-
 
 
 class TestAccumulate(unittest.TestCase):

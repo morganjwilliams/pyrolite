@@ -1,6 +1,8 @@
 """
 Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
+import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -123,7 +125,7 @@ def axes_to_ternary(ax):
             replace_with_ternary_axis(a)
     else:  # a single Axes is passed
         fig = ax.figure
-        tax = replace_with_ternary_axis(ax)
+        replace_with_ternary_axis(ax)
     return fig.orderedaxes
 
 
@@ -230,14 +232,12 @@ def share_axes(axes, which="xy"):
         Which axes to link. If :code:`x`, link the x-axes; if :code:`y` link the y-axes,
         otherwise link both.
     """
-    for ax in axes:
-        if which == "x":
-            ax.get_shared_x_axes().join(*axes)
-        elif which == "y":
-            ax.get_shared_y_axes().join(*axes)
-        else:
-            ax.get_shared_x_axes().join(*axes)
-            ax.get_shared_y_axes().join(*axes)
+    if which == "both":
+        which = "xy"
+    if "x" in which:
+        [a.sharex(axes[0]) for a in axes[1:]]
+    if "y" in which:
+        [a.sharey(axes[0]) for a in axes[1:]]
 
 
 def get_twins(ax, which="y"):

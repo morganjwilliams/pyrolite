@@ -5,7 +5,7 @@ import pandas as pd
 
 from ...comp import codata
 from ...geochem import ind, parse, transform
-from ..lambdas import orthogonal_polynomial_constants
+from ..lambdas.params import orthogonal_polynomial_constants
 from ..log import Handle
 
 logger = Handle(__name__)
@@ -316,7 +316,7 @@ class BoxCoxTransform(BaseEstimator, TransformerMixin):
         return self.inverse(Y, *args, **kwargs)
 
     def fit(self, X, *args, **kwargs):
-        bc_data, lmbda = boxcox(X, *args, **kwargs)
+        bc_data, lmbda = self.forward(X, *args, **kwargs)
         self.lmbda = lmbda
 
 

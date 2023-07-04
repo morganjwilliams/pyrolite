@@ -46,11 +46,11 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 
 class CompositionalSelector(BaseEstimator, TransformerMixin):
-    def __init__(self, components=None, inverse=False):
+    def __init__(self, columns=None, inverse=False):
         """Select the oxide and element components from a dataframe."""
-        if components is None:
-            components = _common_elements | _common_oxides
-        self.columns = components
+        if columns is None:
+            columns = _common_elements | _common_oxides
+        self.columns = columns
         self.inverse = inverse
 
     def fit(self, X, y=None):

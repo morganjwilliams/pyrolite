@@ -9,18 +9,14 @@ Todo
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
 import json
-import os
-from pathlib import Path
 
 import matplotlib.lines
 import matplotlib.patches
-import matplotlib.pyplot as plt
 import matplotlib.text
 import numpy as np
 import pandas as pd
 from matplotlib.projections import get_projection_class
 
-from ..comp.codata import close
 from .log import Handle
 from .meta import (
     pyrolite_datafolder,
@@ -31,7 +27,7 @@ from .meta import (
 from .plot.axes import init_axes
 from .plot.helpers import get_centroid
 from .plot.style import patchkwargs
-from .plot.transform import tlr_to_xy, xy_to_tlr
+from .plot.transform import tlr_to_xy
 
 logger = Handle(__name__)
 
@@ -244,7 +240,7 @@ class PolygonClassifier(object):
             poly_config.pop("color", None)
 
         use_keys = not which_labels.lower().startswith("name")
-        for (k, cfg) in self.fields.items():
+        for k, cfg in self.fields.items():
             if cfg["poly"]:
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
@@ -331,7 +327,8 @@ class PolygonClassifier(object):
 @update_docstring_references
 class TAS(PolygonClassifier):
     """
-    Total-alkali Silica Diagram classifier from Le Bas (1992) [#ref_1]_.
+    Total-alkali Silica Diagram classifier from Middlemost (1994) [#ref_1]_,
+    a closed-polygon variant after Le Bas et al. (1992) [#ref_2]_.
 
     Parameters
     -----------
@@ -348,18 +345,41 @@ class TAS(PolygonClassifier):
         Default x-limits for this classifier for plotting.
     ylim : :class:`tuple`
         Default y-limits for this classifier for plotting.
+    which_model : :class:`str`
+        The name of the model variant to use, if not Middlemost.
 
     References
     -----------
-    .. [#ref_1] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
+    .. [#ref_1] Middlemost, E. A. K. (1994).
+                Naming materials in the magma/igneous rock system.
+                Earth-Science Reviews, 37(3), 215–224.
+                doi: {Middlemost1994}
+    .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
                 Mineralogy and Petrology 46, 1–22.
                 doi: {LeBas1992}
+    .. [#ref_3] Le Maitre, R.W. (2002). Igneous Rocks: A Classification and Glossary
+                of Terms : Recommendations of International Union of Geological
+                Sciences Subcommission on the Systematics of Igneous Rocks.
+                Cambridge University Press, 236pp.
+                doi: {LeMaitre2002}
     """
 
-    def __init__(self, **kwargs):
-        src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
+    def __init__(self, which_model=None, **kwargs):
+        if which_model == "LeMaitre":
+            src = (
+                pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
+            )
+        elif which_model == "LeMaitreCombined":
+            src = (
+                pyrolite_datafolder(subfolder="models")
+                / "TAS"
+                / "config_lemaitre_combined.json"
+            )
+        else:
+            # fallback to Middlemost
+            src = pyrolite_datafolder(subfolder="models") / "TAS" / "config.json"
 
         with open(src, "r") as f:
             config = json.load(f)
@@ -408,20 +428,23 @@ class TAS(PolygonClassifier):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
-        use_keys = not which_labels.lower().startswith("name")
         if add_labels:
             for k, cfg in self.fields.items():
                 if cfg["poly"]:
-                    if use_keys:
+                    if which_labels.lower().startswith("id"):
                         label = k
-                    elif "volc" in which_labels.lower():  # use the volcanic name
+                    elif which_labels.lower().startswith(
+                        "volc"
+                    ):  # use the volcanic name
                         label = cfg["name"][0]
-                    elif "intr" in which_labels.lower():  # use the intrusive name
+                    elif which_labels.lower().startswith(
+                        "intr"
+                    ):  # use the intrusive name
                         label = cfg["name"][-1]
                     else:  # use the field identifier
                         raise NotImplementedError(
                             "Invalid specification for labels: {}; chose from {}".format(
-                                which_labels, ", ".join("volcanic", "intrusive", "ID")
+                                which_labels, ", ".join(["volcanic", "intrusive", "ID"])
                             )
                         )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
@@ -457,7 +480,7 @@ class USDASoilTexture(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Soil Science Division Staff (2017). Soil survey sand.
+    .. [#ref_1] Soil Science Division Staff (2017). Soil Survey Manual.
                 C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
                 USDA Handbook 18. Government Printing Office, Washington, D.C.
     .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
@@ -503,6 +526,7 @@ class QAP(PolygonClassifier):
                 of Terms : Recommendations of International Union of Geological
                 Sciences Subcommission on the Systematics of Igneous Rocks.
                 Cambridge University Press, 236pp
+                doi: {LeMaitre2002}
     """
 
     def __init__(self, **kwargs):
@@ -675,8 +699,97 @@ class SpinelFeBivariate(PolygonClassifier):
         super().__init__(**poly_config)
 
 
-TAS.__doc__ = TAS.__doc__.format(LeBas1992=sphinx_doi_link("10.1007/BF01160698"))
+@update_docstring_references
+class Pettijohn(PolygonClassifier):
+    """
+    Pettijohn (1973) sandstones classification
+    [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Pettijohn, F. J., Potter, P. E. and Siever, R. (1973).
+                Sand  and Sandstone. New York, Springer-Verlag. 618p.
+                doi: {Pettijohn1973}
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "sandstones"
+            / "config_pettijohn.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
+
+
+@update_docstring_references
+class Herron(PolygonClassifier):
+    """
+    Herron (1988) sandstones classification
+    [#ref_1]_.
+
+    Parameters
+    -----------
+    name : :class:`str`
+        A name for the classifier model.
+    axes : :class:`list` | :class:`tuple`
+        Names of the axes corresponding to the polygon coordinates.
+    fields : :class:`dict`
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+
+    References
+    -----------
+    .. [#ref_1] Herron, M.M. (1988).
+                Geochemical classification of terrigenous sands and shales
+                from core or log data.
+                Journal of Sedimentary Research, 58(5), pp.820-829.
+                doi: {Herron1988}
+    """
+
+    def __init__(self, **kwargs):
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "sandstones"
+            / "config_herron.json"
+        )
+
+        with open(src, "r") as f:
+            config = json.load(f)
+
+        poly_config = {**config, **kwargs}
+        super().__init__(**poly_config)
+
+
+TAS.__doc__ = TAS.__doc__.format(
+    LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
+    Middlemost1994=sphinx_doi_link("10.1016/0012-8252(94)90029-9"),
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)
 USDASoilTexture.__doc__ = USDASoilTexture.__doc__.format(
     Thien1979=sphinx_doi_link("10.2134/jae.1979.0054")
 )
-QAP.__doc__ = QAP.__doc__.format(Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"))
+QAP.__doc__ = QAP.__doc__.format(
+    Streckeisen1974=sphinx_doi_link("10.1007/BF01820841"),
+    LeMaitre2002=sphinx_doi_link("10.1017/CBO9780511535581"),
+)
+Pettijohn.__doc__ = Pettijohn.__doc__.format(
+    Pettijohn1973=sphinx_doi_link("10.1007/978-1-4615-9974-6"),
+)
+Herron.__doc__ = Herron.__doc__.format(
+    Herron1988=sphinx_doi_link("10.1306/212F8E77-2B24-11D7-8648000102C1865D"),
+)

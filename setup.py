@@ -10,8 +10,10 @@ docs_require = [
     "sphinx-autodoc-annotation",
     "sphinx_gallery>=0.6.0",
     "recommonmark",
+    # "jupyterlite-sphinx",
+    # "jupyterlite-pyodide-kernel",
 ]
-dev_require = ["pytest", "versioneer", "black", "twine"] + tests_require + docs_require
+dev_require = ["pytest", "versioneer", "black", "isort", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
 skl_require = ["scikit-learn"]
 stats_require = ["statsmodels", "scikit-learn"]
@@ -40,9 +42,10 @@ setup(
         "Intended Audience :: Education",
         "Natural Language :: English",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Framework :: Matplotlib",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -56,8 +59,8 @@ setup(
         "typing-extensions",  # required for newer tinydb versions?
         "psutil",
         "periodictable",
-        "matplotlib>=3.5",  # tying updates between matplotlib and mpltern
-        "mpltern>=0.3.4",  # tying updates between matplotlib and mpltern
+        "matplotlib",
+        "mpltern>=0.4.0",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
         "mpmath",
         "sympy>=1.7",

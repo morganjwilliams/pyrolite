@@ -7,8 +7,9 @@ and decompose these into relative proportions of mineral endmember compositions.
 pyrolite includes some utilities to achieve this and a limited mineral database
 for looking up endmember compositions.
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from pyrolite.mineral.mindb import get_mineral
 from pyrolite.mineral.normative import endmember_decompose
 
@@ -21,7 +22,7 @@ comp = pd.Series({"MgO": 42.06, "SiO2": 39.19, "FeO": 18.75})
 # :func:`~pyrolite.mineral.transform.endmember_decompose` function:
 #
 ed = endmember_decompose(
-    pd.DataFrame(comp).T, endmembers="olivine", ord=1, molecular=True
+    pd.DataFrame(comp).T, endmembers="olivine", order=1, molecular=True
 )
 ed
 ########################################################################################
@@ -29,7 +30,7 @@ ed
 # endmembers:
 #
 ed = endmember_decompose(
-    pd.DataFrame(comp).T, endmembers=["forsterite", "fayalite"], ord=1, molecular=True
+    pd.DataFrame(comp).T, endmembers=["forsterite", "fayalite"], order=1, molecular=True
 )
 ed
 ########################################################################################
@@ -58,4 +59,4 @@ recombined
 ########################################################################################
 # To make sure these compositions are within 0.01 percent:
 #
-assert np.allclose(recombined.values, comp.values, rtol=10 ** -4)
+assert np.allclose(recombined.values, comp.values, rtol=10**-4)

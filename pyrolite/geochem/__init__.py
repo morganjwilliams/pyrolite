@@ -15,6 +15,7 @@ logger = Handle(__name__)
 
 set_default_ionic_charges()
 
+
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
 @pd.api.extensions.register_dataframe_accessor("pyrochem")
@@ -125,7 +126,7 @@ class pyrochem(object):
 
     @elements.setter
     def elements(self, df):
-        self._obj.loc[:, self.list_elements] = df
+        self._obj[self.list_elements] = df
 
     @property
     def REE(self):
@@ -140,7 +141,7 @@ class pyrochem(object):
 
     @REE.setter
     def REE(self, df):
-        self._obj.loc[:, self.list_REE] = df
+        self._obj[self.list_REE] = df
 
     @property
     def REY(self):
@@ -155,7 +156,7 @@ class pyrochem(object):
 
     @REY.setter
     def REY(self, df):
-        self._obj.loc[:, self.list_REY] = df
+        self._obj[self.list_REY] = df
 
     @property
     def oxides(self):
@@ -170,7 +171,7 @@ class pyrochem(object):
 
     @oxides.setter
     def oxides(self, df):
-        self._obj.loc[:, self.list_oxides] = df
+        self._obj[self.list_oxides] = df
 
     @property
     def isotope_ratios(self):
@@ -185,7 +186,7 @@ class pyrochem(object):
 
     @isotope_ratios.setter
     def isotope_ratios(self, df):
-        self._obj.loc[:, self.list_isotope_ratios] = df
+        self._obj[self.list_isotope_ratios] = df
 
     @property
     def compositional(self):
@@ -204,7 +205,7 @@ class pyrochem(object):
 
     @compositional.setter
     def compositional(self, df):
-        self._obj.loc[:, self.list_compositional] = df
+        self._obj[self.list_compositional] = df
 
     # pyrolite.geochem.parse functions
 

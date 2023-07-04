@@ -77,6 +77,7 @@ np.allclose(
 # `label_mode` parameter, for example to get nice labels for plotting:
 #
 import matplotlib.pyplot as plt
+
 df.pyrocomp.ILR(label_mode="latex").iloc[:, 0:2].pyroplot.scatter()
 plt.show()
 ########################################################################################

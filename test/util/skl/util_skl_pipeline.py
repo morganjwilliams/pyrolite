@@ -1,17 +1,20 @@
 import unittest
+
+import numpy as np
+
 import pyrolite.comp
+from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.synthetic import normal_frame
-from pyrolite.util.general import temp_path, remove_tempdir
 
 try:
     import sklearn
-    from sklearn.svm import SVC
-    from sklearn.model_selection import GridSearchCV
     from sklearn.datasets import load_iris
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.svm import SVC
 
     HAVE_SKLEARN = True
 
-    def test_classifier():
+    def get_classifier():
         param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
         gs = GridSearchCV(SVC(gamma="scale"), param_grid, cv=2)
         return gs
@@ -27,15 +30,15 @@ except ImportError:
 class TestFitSaveClassifier(unittest.TestCase):
     def setUp(self):
         self.X, self.y = sklearn.datasets.load_iris(return_X_y=True)
-        self.classifier = test_classifier()
+        self.classifier = get_classifier()
         self.dir = temp_path()
 
     def test_default(self):
-        clf = fit_save_classifier(self.classifier, self.X, self.y, dir=self.dir)
+        clf = fit_save_classifier(self.classifier, self.X, self.y, directory=self.dir)
 
     def test_dataframe_X(self):
         clf = fit_save_classifier(
-            self.classifier, pd.DataFrame(self.X), self.y, dir=self.dir
+            self.classifier, pd.DataFrame(self.X), self.y, directory=self.dir
         )
 
     def tearDown(self):
@@ -46,12 +49,12 @@ class TestFitSaveClassifier(unittest.TestCase):
 class TestClassifierPerformanceReport(unittest.TestCase):
     def setUp(self):
         self.X, self.y = sklearn.datasets.load_iris(return_X_y=True)
-        self.classifier = test_classifier()
+        self.classifier = get_classifier()
         self.dir = temp_path()
 
     def test_default(self):
         self.classifier.fit(self.X, self.y)
-        classifier_performance_report(self.classifier, self.X, self.y, dir=self.dir)
+        classifier_performance_report(self.classifier, self.X, self.y, directory=self.dir)
 
     def tearDown(self):
         remove_tempdir(self.dir)
@@ -74,9 +77,9 @@ class TesSVCPipleline(unittest.TestCase):
 
     def test_pre_transform(self):
         pass
-        #clf = SVC_pipeline(transform=LogTransform())
-        #clf.fit(self.X, self.y)
-        #self.assertIsInstance(clf, sklearn.model_selection.GridSearchCV)
+        # clf = SVC_pipeline(transform=LogTransform())
+        # clf.fit(self.X, self.y)
+        # self.assertIsInstance(clf, sklearn.model_selection.GridSearchCV)
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")

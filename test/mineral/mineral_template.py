@@ -1,6 +1,7 @@
 import unittest
-from pyrolite.mineral.template import *
+
 from pyrolite.mineral.sites import *
+from pyrolite.mineral.template import *
 
 
 class TestMineralTemplate(unittest.TestCase):

@@ -112,7 +112,7 @@ def lambdas_ONeill2016(
             ############################################################################
             _sigmas = sigmas[missing_fltr]
             _x = X[missing_fltr, :]
-            W = np.eye(_sigmas.shape[0]) * 1 / _sigmas ** 2  # weights
+            W = np.eye(_sigmas.shape[0]) * 1 / _sigmas**2  # weights
             invXWX = np.linalg.inv(_x.T @ W @ _x)
 
             est = (X[missing_fltr, :] @ _B.T).T  # modelled values
@@ -120,7 +120,7 @@ def lambdas_ONeill2016(
             residuals = (df.loc[row_fltr, missing_fltr] - est).values
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
             # chi-sqared as SSQ / sigmas / residual degrees of freedom
-            reduced_chi_squared = (residuals ** 2 / _sigmas ** 2).sum(axis=1) / dof
+            reduced_chi_squared = (residuals**2 / _sigmas**2).sum(axis=1) / dof
             _s = np.sqrt(reduced_chi_squared.reshape(-1, 1) * np.diag(invXWX))
 
             B[row_fltr, :] = _B

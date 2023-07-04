@@ -229,18 +229,18 @@ def plot_pca_vectors(
     if ax is None:
         fig, ax = plt.subplots(1)
 
-    iter = [pca.explained_variance_, pca.components_]
+    items = [pca.explained_variance_, pca.components_]
     if linestyles is not None:
         assert len(linestyles) == 2
-        iter.append(linestyles)
+        items.append(linestyles)
     else:
-        iter.append([None, None])
+        items.append([None, None])
     if colors is not None:
         assert len(colors) == 2
-        iter.append(colors)
+        items.append(colors)
     else:
-        iter.append([None, None])
-    for variance, vector, linestyle, color in zip(*iter):
+        items.append([None, None])
+    for variance, vector, linestyle, color in zip(*items):
         line = vector_to_line(pca.mean_, vector, variance, spans=nstds)
         if callable(transform) and (transform is not None):
             line = transform(line)
@@ -379,7 +379,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
 ###############################################################################
 # Helpers for pyrolite.comp.codata.sphere and related functions
-from pyrolite.comp.codata import inverse_sphere, sphere
+from pyrolite.comp.codata import inverse_sphere
 
 
 def _get_spherical_vector(phis):
@@ -395,7 +395,6 @@ def _get_spherical_vector(phis):
     -------
     :class:`numpy.ndarray`
     """
-    start = np.array([0, 0, 0])
     vector = np.sqrt(inverse_sphere(phis))
     return np.vstack([np.zeros_like(vector), vector, vector * 1.5])
 
@@ -432,7 +431,7 @@ def _get_spherical_arc(thetas0, thetas1, resolution=100):
     # check that the points are on the sphere?
     v0, v1 = _get_spherical_vector(thetas0)[1], _get_spherical_vector(thetas1)[1]
     vs = v0 + np.linspace(0, 1, resolution + 1)[:, None] * (v1 - v0)
-    r = np.sqrt((vs ** 2).sum(axis=1))  # equivalent arc radius
+    r = np.sqrt((vs**2).sum(axis=1))  # equivalent arc radius
     vs = vs / r[:, None]
     return vs
 

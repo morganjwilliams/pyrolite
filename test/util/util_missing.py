@@ -1,7 +1,9 @@
 import unittest
+
 import numpy as np
+
+from pyrolite.util.missing import cooccurence_pattern, md_pattern
 from pyrolite.util.synthetic import random_composition
-from pyrolite.util.missing import md_pattern, cooccurence_pattern
 
 
 class TestMDPattern(unittest.TestCase):

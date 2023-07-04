@@ -6,11 +6,12 @@ A selection of reference compositions are included in pyrolite, and can be easil
 accessed with :func:`pyrolite.geochem.norm.get_reference_composition` (see the list
 at the bottom of the page for a complete list):
 """
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+
 import pyrolite.plot
 from pyrolite.geochem.ind import REE
-from pyrolite.geochem.norm import get_reference_composition, all_reference_compositions
+from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
 
 ########################################################################################
 chondrite = get_reference_composition("Chondrite_PON")

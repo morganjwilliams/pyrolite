@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
+
 from pyrolite.util.text import *
 
 
@@ -65,9 +66,7 @@ class TestQuotedString(unittest.TestCase):
             """double phrase""",
             """tri ple phrase""",
         ]:
-
             with self.subTest(string=string):
-
                 quotes = ["'", '"']
                 stringcontent = "".join(
                     i for i in quoted_string(string) if i not in quotes

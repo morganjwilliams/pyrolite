@@ -72,6 +72,7 @@ extensions = [
     "recommonmark",
     "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
     "sphinx_gallery.gen_gallery",  # sphinx gallery
+    # "jupyterlite_sphinx",
 ]
 
 autosummary_generate = True
@@ -100,7 +101,7 @@ author = "Morgan Williams"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -262,6 +263,7 @@ sphinx_gallery_conf = {
             "gallery/data",
         ]
     ),
+    "show_signature": False,
     "capture_repr": ("_repr_html_", "__repr__", "__str__"),
     "backreferences_dir": "_backreferences",
     "doc_module": ("pyrolite"),
@@ -281,7 +283,9 @@ sphinx_gallery_conf = {
         # Optional keys
         # "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
         "notebooks_dir": "docs/source/",
+        "use_jupyter_lab": True,
     },
+    # "jupyterlite": {"use_jupyter_lab": True},
     "first_notebook_cell": "%matplotlib inline\n",
     "reset_modules": (reset_mpl),
 }

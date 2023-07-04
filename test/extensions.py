@@ -1,6 +1,7 @@
-import unittest
 import importlib
 import pkgutil
+import unittest
+
 import pyrolite.extensions
 from pyrolite import load_extensions
 

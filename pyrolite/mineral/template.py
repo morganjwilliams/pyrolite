@@ -331,7 +331,7 @@ class Mineral(object):
             ].index.values
 
             if len(unknown_site_ions):
-                logging.warn("Unknown site for: {}".format(unknown_site_ions))
+                logger.warn("Unknown site for: {}".format(unknown_site_ions))
 
             occupancy.loc[:, :] = 0.0
 

@@ -1,14 +1,16 @@
-import unittest
-import matplotlib.pyplot as plt
-import matplotlib.axes
-import pandas as pd
-import numpy as np
-from numpy.random import multivariate_normal
 import logging
+import unittest
+
+import matplotlib.axes
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from numpy.random import multivariate_normal
+
+from pyrolite.comp.codata import ALR, ILR, close, inverse_ALR, inverse_ILR
 from pyrolite.plot.density import density
 from pyrolite.plot.density.ternary import ternary_heatmap
-from pyrolite.comp.codata import close, ILR, ALR, inverse_ILR, inverse_ALR
-from pyrolite.util.skl.transform import ILRTransform, ALRTransform
+from pyrolite.util.skl.transform import ALRTransform, ILRTransform
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +83,7 @@ class TestDensityplot(unittest.TestCase):
 
     def test_colorbar(self):
         for arr in [self.biarr, self.triarr]:
-            for mode in ["density", "hist2d"]: # hexbin won't work for triarr
+            for mode in ["density", "hist2d"]:  # hexbin won't work for triarr
                 with self.subTest(mode=mode):
                     out = density(arr, mode=mode, colorbar=True)
                     self.assertTrue(isinstance(out, matplotlib.axes.Axes))

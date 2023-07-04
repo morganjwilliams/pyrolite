@@ -1,8 +1,11 @@
 import unittest
+
+import numpy as np
+
 import pyrolite
 from pyrolite.util.synthetic import normal_frame
 from pyrolite.util.units import *
-from pyrolite.util.units import scale, __UNITS__
+from pyrolite.util.units import __UNITS__, scale
 
 
 class TestScaleFunction(unittest.TestCase):

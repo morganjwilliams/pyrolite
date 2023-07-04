@@ -21,7 +21,7 @@ def deadtime_correction(data, deadtime):
     :class:`numpy.ndarray`
         Corrected count data.
     """
-    dt = deadtime / 10 ** 9  # nanoseconds
+    dt = deadtime / 10**9  # nanoseconds
     # Need to check for overflow and divide by zero errors
     if np.mean(data) < 10000000:
         data = data * np.exp(

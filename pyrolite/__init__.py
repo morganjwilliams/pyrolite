@@ -8,12 +8,11 @@ del get_versions
 
 import importlib
 import pkgutil
-from pathlib import Path
 
 import matplotlib.style
 
-from .plot import _export_mplstyle
 from .util.log import Handle
+from .util.plot.style import _export_mplstyle  # this import adds the style used below
 
 logger = Handle(__name__)
 

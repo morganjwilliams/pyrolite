@@ -1,6 +1,8 @@
 import unittest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 import pyrolite.util.time as pyrotime
 
 
@@ -39,7 +41,7 @@ class TestTimescale(unittest.TestCase):
                 self.ts.named_age(a)
 
     def test_named_age_levels(self):
-        """"Check ages can be summarised at various levels of specificiity."""
+        """ "Check ages can be summarised at various levels of specificiity."""
         age = self.test_ages[1]
         levels = ["Eon", "Era", "Period", "Age", "Specific"]
         for l in levels:

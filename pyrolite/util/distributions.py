@@ -77,13 +77,13 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     # ensures shape is fine even if row is passed
     ksamples = ksamples.reshape(-1, tdata.shape[1])
 
-    # samples shouldnt typically contain nans
-    # ksamples = ksamples[np.isfinite(ksamples).all(axis=1), :]
     if not tdata.shape[1] == ksamples.shape[1]:
         logger.warn("Dimensions of data and samples do not match.")
 
-    zi = K(ksamples.T)
-    zi = zi.reshape(zshape)
+    kfltr = np.isfinite(ksamples).all(axis=1)
+    zi = np.ones(zshape, dtype=float) * np.nan
+    zi.flat[kfltr] = K(ksamples[kfltr, :].T)
+
     if renorm:
         logger.debug("Normalising KDE sample.")
         zi = zi / np.nanmax(zi)
@@ -130,8 +130,8 @@ def lognorm_to_norm(mu, s):
     sigma : :class:`float`
         Variance of the normal distribution.
     """
-    mean = np.exp(mu + 0.5 * s ** 2)
-    variance = (np.exp(s ** 2) - 1) * np.exp(2 * mu + s ** 2)
+    mean = np.exp(mu + 0.5 * s**2)
+    variance = (np.exp(s**2) - 1) * np.exp(2 * mu + s**2)
     return mean, np.sqrt(variance)
 
 
@@ -158,8 +158,8 @@ def norm_to_lognorm(mean, sigma, exp=True):
     s : :class:`float`
         :code:`sigma` of the lognormal distribution.
     """
-    mu = np.log(mean / np.sqrt(1 + sigma ** 2 / (mean ** 2)))
-    v = np.log(1 + sigma ** 2 / (mean ** 2))
+    mu = np.log(mean / np.sqrt(1 + sigma**2 / (mean**2)))
+    v = np.log(1 + sigma**2 / (mean**2))
     if exp:  # scipy parameterisation of lognormal uses scale = np.exp(mu) !
         mu = np.exp(mu)
     return mu, np.sqrt(v)

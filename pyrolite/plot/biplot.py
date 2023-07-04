@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from ..comp import codata
 from ..util.log import Handle

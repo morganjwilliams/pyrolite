@@ -1,6 +1,8 @@
 import unittest
 from pathlib import Path
+
 import matplotlib.pyplot as plt
+
 from pyrolite.util.general import remove_tempdir
 from pyrolite.util.plot.export import get_full_extent, save_axes, save_figure
 

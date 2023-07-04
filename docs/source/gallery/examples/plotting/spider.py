@@ -2,9 +2,9 @@
 Spiderplots & Density Spiderplots
 ==================================
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # sphinx_gallery_thumbnail_number = 4
 
@@ -119,7 +119,7 @@ plt.show()
 labels = pd.cut(
     np.log(normdf["Cs"]), bins=4, labels=["Low", "Mid. Low", "Mid High", "High"]
 )
-np.unique(labels)
+pd.unique(labels)
 ########################################################################################
 # Below we'll use :func:`~pyrolite.plot.color.process_color` and
 # :func:`~pyrolite.util.plot.legend.proxy_line` to construct a set of legend proxies.
@@ -141,7 +141,7 @@ ax = normdf.pyroplot.spider(
     figsize=(11, 4),
 )
 
-legend_labels = np.unique(labels)  # process_color uses this behind the scenes
+legend_labels = pd.unique(labels)  # process_color uses this behind the scenes
 
 proxy_colors = process_color(color=legend_labels, cmap="Paired", alpha=0.5)["c"]
 

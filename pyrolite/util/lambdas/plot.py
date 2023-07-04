@@ -8,9 +8,12 @@ import numpy as np
 from ... import plot
 from ...geochem.ind import REE, get_ionic_radii
 from ..log import Handle
-from .eval import (get_function_components, get_lambda_poly_function,
-                   get_tetrads_function)
-from .params import _get_params, orthogonal_polynomial_constants
+from .eval import (
+    get_function_components,
+    get_lambda_poly_function,
+    get_tetrads_function,
+)
+from .params import _get_params
 from .transform import REE_radii_to_z, REE_z_to_radii
 
 logger = Handle(__name__)
@@ -88,8 +91,8 @@ def plot_tetrads_components(
     linez = np.linspace(57, 71, 1000)  # line
 
     taus = taus.reshape(-1, 1)
-    ys = (taus * f(z, sum=False)).squeeze()
-    liney = (taus * f(linez, sum=False)).squeeze()
+    ys = (taus * f(z, sum_tetrads=False)).squeeze()
+    liney = (taus * f(linez, sum_tetrads=False)).squeeze()
 
     xs = REE_z_to_radii(z)
     linex = REE_z_to_radii(linez)
@@ -102,8 +105,8 @@ def plot_tetrads_components(
             np.array([np.nan] * len(z)), indexes=z, logy=logy, ax=ax, **kwargs
         )
         ax.set_xticklabels(REE(dropPm=False))
-        xs = z
-        linex = linez
+        # xs = z
+        # linex = linez
 
     if drop0:
         yfltr = np.isclose(ys, 0)
@@ -159,7 +162,7 @@ def plot_profiles(
     params = _get_params(params or "full", degree=lambda_degree)
 
     # get the components and y values for the points/element locations
-    names, x0, components = get_function_components(
+    _, x0, components = get_function_components(
         radii,
         params=params,
         fit_tetrads=tetrads,
@@ -169,7 +172,7 @@ def plot_profiles(
     # get the components and y values for the smooth lines
     lineradii = np.linspace(radii[0], radii[-1], 1000)
 
-    names, x0, linecomponents = get_function_components(
+    _, x0, linecomponents = get_function_components(
         lineradii,
         params=params,
         fit_tetrads=tetrads,

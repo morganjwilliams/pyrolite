@@ -71,7 +71,7 @@ def column_ordered_append(df1, df2, **kwargs):
     :class:`pandas.DataFrame`
     """
     outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
-    return df1.append(df2, sort=False, **kwargs).reindex(columns=outcols)
+    return pd.concat([df1, df2], axis=0, **kwargs).reindex(columns=outcols)
 
 
 def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
@@ -261,6 +261,7 @@ def concat_columns(df, columns=None, astype=str, **kwargs):
     """
     if columns is None:
         columns = df.columns
+    kwargs = {**dict(dtype="object"), **kwargs}
     out = pd.Series(index=df.index, **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:

@@ -1,12 +1,13 @@
 import unittest
-from pyrolite.util.synthetic import normal_frame
+
 from pyrolite.comp.codata import close
 from pyrolite.geochem.ind import REE
+from pyrolite.util.synthetic import normal_frame
 
 try:
     import sklearn
-    from sklearn.svm import SVC
     from sklearn.model_selection import GridSearchCV
+    from sklearn.svm import SVC
 
     HAVE_SKLEARN = True
 

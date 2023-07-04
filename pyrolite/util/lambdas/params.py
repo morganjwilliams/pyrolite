@@ -14,7 +14,7 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
+def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
     r"""
     Finds the parameters
     :math:`(\beta_0), (\gamma_0, \gamma_1), (\delta_0, \delta_1, \delta_2)` etc.
@@ -74,7 +74,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10 ** -14):
             for _deg in range(d):
                 q = 1
                 if _deg:
-                    q = x ** _deg
+                    q = x**_deg
                 for p in ps:
                     q *= x - p
                 eqs.append(q)
@@ -179,7 +179,6 @@ def parse_sigmas(y, sigmas=None):
     REE. If no sigmas are provided, 1% uncertainty will be assumed and an array of
     0.01 will be returned.
     """
-    sigma2d = False
     if sigmas is None:
         sigmas = np.ones(y.shape[1]) * 0.01
     else:  # sigmas are passed

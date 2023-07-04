@@ -4,10 +4,13 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import _get_dash_pattern, _scale_dashes
-from pyrolite.util.plot.density import (percentile_contour_values_from_meshz,
-                                        plot_Z_percentiles)
-from pyrolite.util.plot.legend import proxy_line
 from scipy.stats import multivariate_normal
+
+from pyrolite.util.plot.density import (
+    percentile_contour_values_from_meshz,
+    plot_Z_percentiles,
+)
+from pyrolite.util.plot.legend import proxy_line
 
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):

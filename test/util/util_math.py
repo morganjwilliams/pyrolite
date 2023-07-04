@@ -1,9 +1,11 @@
 import unittest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+from sympy import tensorcontraction
+
 from pyrolite.util.math import *
 from pyrolite.util.synthetic import random_cov_matrix
-from sympy import tensorcontraction
 
 
 class TestAugmentedCovarianceMatrix(unittest.TestCase):
@@ -69,7 +71,7 @@ class TestGridFromRanges(unittest.TestCase):
     def test_default(self):
         out = grid_from_ranges(self.x)
         # default bins = 100
-        self.assertTrue(out[0].size == 100 ** 2)
+        self.assertTrue(out[0].size == 100**2)
 
     def test_bins(self):
         for bins in [2, 10, 50]:
@@ -334,7 +336,7 @@ class TestSignifyDigit(unittest.TestCase):
 
     def test_int(self):
         """Checks operations on inf values."""
-        for digit in [0] + [10 ** n for n in range(5)]:
+        for digit in [0] + [10**n for n in range(5)]:
             with self.subTest(digit=digit):
                 self.assertEqual(signify_digit(digit), digit)
 

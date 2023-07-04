@@ -12,16 +12,22 @@ logger = Handle(__name__)
 from ..geochem.ind import REE, get_ionic_radii
 from ..util.meta import get_additional_params, subkwargs
 from ..util.plot.axes import get_twins, init_axes
-from ..util.plot.density import (conditional_prob_density,
-                                 percentile_contour_values_from_meshz,
-                                 plot_Z_percentiles)
-from ..util.plot.style import (DEFAULT_CONT_COLORMAP, linekwargs, patchkwargs,
-                               scatterkwargs)
-from ..util.types import iscollection
+from ..util.plot.density import (
+    conditional_prob_density,
+    percentile_contour_values_from_meshz,
+    plot_Z_percentiles,
+)
+from ..util.plot.style import (
+    DEFAULT_CONT_COLORMAP,
+    linekwargs,
+    patchkwargs,
+    scatterkwargs,
+)
 from .color import process_color
 
 _scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)
 _line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
+
 
 # could create a spidercollection?
 def spider(
@@ -135,7 +141,7 @@ def spider(
     if "fill" in mode.lower():
         mins = np.nanmin(arr, axis=0)
         maxs = np.nanmax(arr, axis=0)
-        plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
+        ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
     elif "plot" in mode.lower():
         # copy params
         l_kw, s_kw = {**line_kw}, {**scatter_kw}
@@ -202,7 +208,7 @@ def spider(
                 {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
             # do these need to be ravelled?
-            sc = ax.scatter(
+            ax.scatter(
                 indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
             )
 

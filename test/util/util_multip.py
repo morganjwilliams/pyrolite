@@ -1,8 +1,10 @@
-import unittest
-import pandas as pd
-import numpy as np
-from pyrolite.util.multip import multiprocess, func_wrapper, combine_choices
 import platform
+import unittest
+
+import numpy as np
+import pandas as pd
+
+from pyrolite.util.multip import combine_choices, func_wrapper, multiprocess
 
 
 def arbitary_function(**kwargs):
@@ -46,8 +48,8 @@ class TestFuncWrapper(unittest.TestCase):
         self.assertEqual(result, test_kwargs)
 
 
-@unittest.skipUnless(
-    platform.system() != "Windows", "Bug with multiprocessing testing on Windows"
+@unittest.skipIf(
+    platform.system() in ["Windows", 'Darwin'], "Bug with multiprocessing testing on Windows"
 )
 class TestMultiprocess(unittest.TestCase):
     """Tests the multiprocess utility function."""

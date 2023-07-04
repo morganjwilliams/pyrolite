@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
 from ...util.classification import FeldsparTernary as Feldspar
 from ...util.log import Handle
 from ...util.meta import update_docstring_references

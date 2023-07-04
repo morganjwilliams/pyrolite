@@ -38,7 +38,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
         assert isinstance(X, pd.DataFrame)
         df = pd.DataFrame(columns=X.columns, index=X.index)
         if isinstance(self.imputers, dict):
-            for cls, content in self.imputers.items():
+            for _, content in self.imputers.items():
                 mask = content["mask"]
                 imputers = content["impute"]
                 imputed_data = np.array(
@@ -104,7 +104,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
             )
             logger.info(msg)
 
-            for cls, content in self.imputers.items():
+            for _, content in self.imputers.items():
                 for imp in content["impute"]:
                     imp.fit(X.loc[content["mask"], :])
 

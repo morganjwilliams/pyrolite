@@ -1,9 +1,12 @@
 import unittest
+
 import numpy as np
-from pyrolite.util.synthetic import normal_frame, normal_series
-from pyrolite.geochem.transform import *
+
+from pyrolite.geochem.ind import REE
 from pyrolite.geochem.norm import get_reference_composition
+from pyrolite.geochem.transform import *
 from pyrolite.util.lambdas import orthogonal_polynomial_constants
+from pyrolite.util.synthetic import normal_frame, normal_series
 
 
 class TestToMolecular(unittest.TestCase):
@@ -528,13 +531,23 @@ class TestConvertChemistry(unittest.TestCase):
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
         # conversion to oxide - should be larger
-        print(out_components, self.df.columns, conv_df.columns)
         self.assertTrue((conv_df[_target].values > self.df[_remove].values).all())
 
     def test_ratio(self):
         out_components = self.expect + ["CaO/MgO"]
         conv_df = convert_chemistry(self.df, to=out_components, renorm=False)
         self.assertTrue(all([a == b for a, b in zip(conv_df.columns, out_components)]))
+
+    def test_iron_species_column_already_exists(self):
+        self.df["Fe2O3"] = np.nan
+        conv_df = convert_chemistry(self.df, to=["Fe2O3"])
+        self.assertTrue((conv_df["Fe2O3"] > 0).all())
+
+    def test_two_iron_species_column_already_exists(self):
+        # where two iron species are already defined in the dataframe
+        self.df["Fe2O3"] = 0.5
+        conv_df = convert_chemistry(self.df, to=["FeO", "Fe2O3"])
+        self.assertTrue((conv_df[["FeO", "Fe2O3"]] > 0).all().all())
 
     def test_logdata(self):
         out_components = self.expect

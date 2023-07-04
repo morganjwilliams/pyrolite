@@ -12,6 +12,7 @@ logger = Handle(__name__)
 __backend__ = None
 try:
     import psycopg2
+    from pysycopg2.errors import DatabaseError, OperationalError, ProgrammingError
 
     __backend__ = psycopg2
 except:
@@ -19,9 +20,7 @@ except:
 
 try:
     import pyodbc
-    from pyodbc import DatabaseError as PyODBCDatabaseError
-    from pyodbc import ProgrammingError as PyODBCProgrammingError
-
+    from pyodbc import DatabaseError, OperationalError, ProgrammingError
     __backend__ = pyodbc
 except:
     pass
@@ -93,14 +92,14 @@ def open_db_connection(
         try:
             try:
                 crsr.execute("ROLLBACK;")
-            except SQLOperationalError:
+            except OperationalError:
                 logger.info("No transaction to rollback.")
-        except PyODBCProgrammingError as err:
+        except ProgrammingError:
             logger.error("ROLLBACK not supported.")
 
     try:
         yield connection, cursor
-    except PyODBCDatabaseError as err:
+    except DatabaseError as err:
         (error,) = err.args
         sys.stderr.write(error.message)
         rollback(cursor)
@@ -109,7 +108,7 @@ def open_db_connection(
         if commit:
             try:
                 cursor.execute("COMMIT;")
-            except SQLOperationalError:
+            except OperationalError:
                 logger.info("No active transaction to commit.")
         else:
             rollback(cursor)

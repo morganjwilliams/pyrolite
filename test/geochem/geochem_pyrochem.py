@@ -1,10 +1,12 @@
 import unittest
+
 import numpy as np
 import pandas as pd
+
 import pyrolite.geochem
 from pyrolite.comp.codata import renormalise
-from pyrolite.util.synthetic import normal_frame, normal_series
 from pyrolite.geochem.norm import get_reference_composition
+from pyrolite.util.synthetic import normal_frame, normal_series
 
 # [print("# " + i) for i in dir(df.pyrochem) if "__" not in i and not i.startswith("_")]
 

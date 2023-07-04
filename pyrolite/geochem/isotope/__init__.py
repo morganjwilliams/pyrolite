@@ -57,7 +57,6 @@ from ...util.log import Handle
 
 logger = Handle(__name__)
 
-from .count import deadtime_correction
-
+# from .count import deadtime_correction
 # from .background import *
 # from .isobaric import *

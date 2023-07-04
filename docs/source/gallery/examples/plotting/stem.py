@@ -8,9 +8,10 @@ one axis is high (e.g. an independent spatial measure like depth) and the other 
 so (such that the sampling frequency along this axis is important, which is not
 emphasised by a scatter plot).
 """
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pyrolite.plot import pyroplot
 from pyrolite.plot.stem import stem
 

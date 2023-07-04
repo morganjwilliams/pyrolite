@@ -1,5 +1,7 @@
 import unittest
+
 import numpy as np
+
 from pyrolite.geochem.alteration import *
 
 

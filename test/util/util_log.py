@@ -1,13 +1,10 @@
-import unittest
-import sys
 import logging
+import sys
+import unittest
 from io import StringIO
-from pyrolite.util.log import (
-    stream_log,
-    ToLogger,
-    Handle
-)
+
 import pyrolite.plot  # for logging checks
+from pyrolite.util.log import Handle, ToLogger, stream_log
 
 
 class Capturing(list):
@@ -69,8 +66,7 @@ class TestHandle(unittest.TestCase):
         self.assertIsInstance(logger, logging.Logger)
 
     def test_set_level(self):
-
-        for level, val in zip(['DEBUG', 'INFO', 'WARNING', 'ERROR'], [10, 20, 30, 40]):
+        for level, val in zip(["DEBUG", "INFO", "WARNING", "ERROR"], [10, 20, 30, 40]):
             with self.subTest(level=level, val=val):
                 logger = Handle("pyrolite", level=level)
                 self.assertTrue(logger.level == val)

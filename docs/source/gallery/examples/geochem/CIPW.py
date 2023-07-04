@@ -36,6 +36,7 @@ geochemical components so we can work with it in the sections to follow:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
 
@@ -157,7 +158,7 @@ def compare_NORMs(SINCLAS_outputs, NORM_outputs, name=""):
     after translating the column names to the appropriate form.
     """
     ncols = 4
-    nrows = len(minerals.keys()) // ncols + 1 if len(minerals.keys()) % ncols else 0
+    nrows = len(minerals.keys()) // ncols + (1 if len(minerals.keys()) % ncols else 0)
 
     fig, ax = plt.subplots(nrows, ncols, figsize=(ncols * 2.5, nrows * 2))
     fig.suptitle(

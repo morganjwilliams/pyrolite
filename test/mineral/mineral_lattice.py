@@ -1,6 +1,7 @@
 import unittest
-from pyrolite.mineral.lattice import strain_coefficient
+
 from pyrolite.geochem.ind import get_ionic_radii
+from pyrolite.mineral.lattice import strain_coefficient
 
 
 class TestStrainCoefficient(unittest.TestCase):
@@ -8,7 +9,7 @@ class TestStrainCoefficient(unittest.TestCase):
         self.r0 = get_ionic_radii("Ca", charge=2, coordination=8)  # angstroms
         self.ri = get_ionic_radii("Ca", charge=2, coordination=8)
         self.D0 = 4.1
-        self.E = 120 * 10 ** 9  # Pa
+        self.E = 120 * 10**9  # Pa
         self.Tk = 1200.0  #  kelvin
 
     def test_default(self):

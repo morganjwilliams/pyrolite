@@ -16,6 +16,7 @@ and to access a reference table for all of these.
 # First we'll create a timescale:
 #
 from pyrolite.util.time import Timescale
+
 # sphinx_gallery_thumbnail_number = 2
 ts = Timescale()
 

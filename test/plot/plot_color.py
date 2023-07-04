@@ -1,6 +1,8 @@
-import numpy as np
 import unittest
+
 import matplotlib.colors
+import numpy as np
+
 from pyrolite.plot.color import *
 
 

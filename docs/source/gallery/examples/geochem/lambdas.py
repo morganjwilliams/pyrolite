@@ -15,7 +15,7 @@ and their shapes can be effectively parameterised and dimensionally reduced (14 
 summarised by 3-4 shape parameters).
 
 .. note:: A publication discussing this implementation of `lambdas` together with fitting
-          tetrads for REE patterns has recently been
+          tetrads for REE patterns has been
           `published in Mathematical Geosciences <https://doi.org/10.1007/s11004-021-09959-5>`__!
 
 Here we generate some example data, reduce these to lambda values, and visualise the
@@ -24,6 +24,7 @@ results.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
 import pyrolite.plot
 
 # sphinx_gallery_thumbnail_number = 2
@@ -234,6 +235,7 @@ lts = df.pyrochem.lambda_lnREE(degree=4, fit_tetrads=True)
 #
 lts.head(2)
 from pyrolite.geochem.ind import REE
+
 ########################################################################################
 # Below we'll look at some of the potential issues of fitting lambdas and tetrads
 # together - by examining the effects of i) fitting tetrads where there are none

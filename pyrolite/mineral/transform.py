@@ -100,7 +100,7 @@ def recalc_cations(
     ref.columns = ref.columns.map(str)
     ref.index = components
 
-    cation_masses = {c: pt.formula(c).mass for c in ref.columns}
+    # cation_masses = {c: pt.formula(c).mass for c in ref.columns}
     oxygen_index = [i for i in ref.columns if "O" in i][0]
     ref = ref.loc[:, [i for i in ref.columns if not i == oxygen_index] + [oxygen_index]]
     moles_ref = ref.copy(deep=True)

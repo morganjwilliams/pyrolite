@@ -14,8 +14,11 @@ import periodictable as pt
 from tinydb import Query, TinyDB
 
 from ..util.log import Handle
-from ..util.meta import (pyrolite_datafolder, sphinx_doi_link,
-                         update_docstring_references)
+from ..util.meta import (
+    pyrolite_datafolder,
+    sphinx_doi_link,
+    update_docstring_references,
+)
 from ..util.text import remove_suffix, titlecase
 
 logger = Handle(__name__)
@@ -25,7 +28,6 @@ __radii__ = {}
 
 def _load_radii():
     """Import radii tables to a module-level dictionary indexed by reference."""
-    global __radii__
     for name in ["shannon", "whittaker_muntus"]:
         pth = (pyrolite_datafolder(subfolder="radii") / "{}.csv".format(name)).resolve()
         assert pth.exists() and pth.is_file()
@@ -486,7 +488,7 @@ def get_ionic_radii(
         if charge in df.loc[elfltr, "charge"].unique():
             fltrs *= df.charge == charge
         else:
-            logging.warn("Charge {:d} not in table.".format(int(charge)))
+            logger.warn("Charge {:d} not in table.".format(int(charge)))
             # try to interpolate over charge?..
             # interpolate_charge=True
     else:
@@ -497,7 +499,7 @@ def get_ionic_radii(
         if coordination in df.loc[elfltr, "coordination"].unique():
             fltrs *= df.coordination == coordination
         else:
-            logging.warn("Coordination {:d} not in table.".format(int(coordination)))
+            logger.warn("Coordination {:d} not in table.".format(int(coordination)))
             # try to interpolate over coordination
             # interpolate_coordination=True
 
@@ -505,7 +507,7 @@ def get_ionic_radii(
 
     if variant:  # todo warning for missing variants
         for v in variant:
-            fltrs *= table.variant.apply(lambda x: v in x)
+            fltrs *= df.variant.apply(lambda x: v in x)
 
     result = df.loc[fltrs.astype(bool), target]
 

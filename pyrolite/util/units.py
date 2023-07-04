@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from .log import Handle
@@ -7,13 +6,13 @@ logger = Handle(__name__)
 
 
 __massunits__ = {
-    "%": 10 ** -2,
-    "pct": 10 ** -2,
-    "wt%": 10 ** -2,
-    "ppm": 10 ** -6,
-    "ppb": 10 ** -9,
-    "ppt": 10 ** -12,
-    "ppq": 10 ** -15,
+    "%": 10**-2,
+    "pct": 10**-2,
+    "wt%": 10**-2,
+    "ppm": 10**-6,
+    "ppb": 10**-9,
+    "ppt": 10**-12,
+    "ppq": 10**-15,
 }
 
 __UNITS__ = {**__massunits__}

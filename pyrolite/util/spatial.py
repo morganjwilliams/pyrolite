@@ -1,16 +1,12 @@
 """
 Baisc spatial utility functions.
 """
-
-import functools
 import itertools
 
 import numpy as np
-import pandas as pd
 from psutil import virtual_memory  # memory check
 
 from .log import Handle
-from .math import on_finite
 
 logger = Handle(__name__)
 
@@ -181,10 +177,10 @@ def great_circle_distance(
         # so instead we can try to build it numerically
         size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
         mem = virtual_memory().total  # total physical memory available
-        estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size ** 2
+        estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size**2
         logger.debug(
             "Attempting to build {}x{} array of size {:.2f} Gb.".format(
-                size, size, estimated_matrix_size / 1024 ** 3
+                size, size, estimated_matrix_size / 1024**3
             )
         )
         if estimated_matrix_size > (mem * max_memory_fraction):
@@ -215,7 +211,7 @@ def great_circle_distance(
             np.isnan(angle).any() and f != _vicenty_GC_distance
         ):  # fallback for cos failure @ 0.
             fltr = np.isnan(angle)
-            angle[fltr] = _vicenty_GC_distance(a[fltr, :], b[fltr, :])
+            angle[fltr] = _vicenty_GC_distance(φ1[fltr], φ2[fltr], λ1[fltr], λ2[fltr])
 
     if absolute:
         return np.rad2deg(angle) * r
@@ -366,7 +362,6 @@ def levenshtein_distance(seq_one, seq_two):
 
     for j in np.arange(1, n + 1):  # n along columns
         for i in np.arange(1, m + 1):  # m along rows
-
             if seq_one[i - 1] == seq_two[j - 1]:
                 substitutionCost = 0
             else:

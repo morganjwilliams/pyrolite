@@ -9,7 +9,6 @@ Accessing and modifying the database across multiple with multiple threads/proce
 import functools
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import periodictable as pt
 from tinydb import Query, TinyDB

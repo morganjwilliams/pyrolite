@@ -17,11 +17,23 @@ import matplotlib.pyplot as plt
 from pyrolite.plot.templates import TAS, SpinelFeBivariate
 from pyrolite.util.plot.axes import share_axes
 
-# sphinx_gallery_thumbnail_number = 3
+# sphinx_gallery_thumbnail_number = 4
 
 
 ax = TAS(linewidth=0.5, add_labels=True)
 plt.show()
+########################################################################################
+# A few different variants are now available, with slightly different positioning of
+# field boundaries, and with some fields combined:
+#
+fig, ax = plt.subplots(1, 3, figsize=(12, 3))
+
+TAS(ax=ax[0], linewidth=0.5, add_labels=True, which_model=None)  # Middlemost's TAS
+TAS(ax=ax[1], linewidth=0.5, add_labels=True, which_model="LeMaitre")  # LeMaitre's TAS
+TAS(ax=ax[2], linewidth=0.5, add_labels=True, which_model="LeMaitreCombined")
+
+for a in ax[1:]:
+    a.set(yticks=[], ylabel=None)
 ########################################################################################
 # For distinguishing Fe-rich variants of spinel phases, the bivariate spinel
 # diagram can be useful:
@@ -29,9 +41,10 @@ plt.show()
 ax = SpinelFeBivariate(linewidth=0.5, add_labels=True)
 plt.show()
 ########################################################################################
-# The other bivariate templates currently included in :mod:`pyrolite` are the
-# :func:`~pyrolite.plot.templates.pearceThNbYb` and
-# :func:`~pyrolite.plot.templates.pearceTiNbYb` diagrams.
+# pyrolite contains templates for the Pearce diagrams, used to discriminate mafic rocks
+# (and particularly basalts) based on their whole-rock geochemistry. Two templates are
+# included: :func:`~pyrolite.plot.templates.pearceThNbYb` and
+# :func:`~pyrolite.plot.templates.pearceTiNbYb`.
 # We can create some axes and add these templates to them:
 #
 from pyrolite.plot.templates import pearceThNbYb, pearceTiNbYb
@@ -43,6 +56,20 @@ pearceThNbYb(ax=ax[0])
 pearceTiNbYb(ax=ax[1])
 
 plt.tight_layout()  # nicer spacing for axis labels
+########################################################################################
+# pyrolite also now includes some diagram templates for discrimination of sandstones
+# based on their whole-rock geochemistry (:func:`~pyrolite.plot.templates.Pettijohn`,
+# :func:`~pyrolite.plot.templates.Herron`):
+#
+from pyrolite.plot.templates import Herron, Pettijohn
+
+fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+share_axes(ax, which="x")  # these diagrams have the same x axis
+
+Pettijohn(ax=ax[0], add_labels=True)
+Herron(ax=ax[1], add_labels=True)
+
+plt.tight_layout()
 ########################################################################################
 # Ternary Templates
 # ~~~~~~~~~~~~~~~~~~

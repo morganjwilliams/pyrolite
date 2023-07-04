@@ -1,9 +1,10 @@
+import logging
 import unittest
+
 import numpy as np
+
 from pyrolite.comp.aggregate import *
 from pyrolite.util.synthetic import normal_frame
-
-import logging
 
 
 class TestCompositionalMean(unittest.TestCase):
@@ -297,7 +298,7 @@ class TestStandardiseAggregate(unittest.TestCase):
             {k: v for k, v in zip(self.tcols, np.random.rand(len(self.tcols), 10))}
         )
 
-        self.df = self.mdf.append(self.tdf, ignore_index=True, sort=False)
+        self.df = pd.concat([self.mdf, self.tdf], ignore_index=True, sort=False)
 
     def test_single(self):
         """Checks results on single records."""
