@@ -125,7 +125,7 @@ def axes_to_ternary(ax):
             replace_with_ternary_axis(a)
     else:  # a single Axes is passed
         fig = ax.figure
-        tax = replace_with_ternary_axis(ax)
+        replace_with_ternary_axis(ax)
     return fig.orderedaxes
 
 

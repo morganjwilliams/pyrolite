@@ -230,7 +230,7 @@ def spatiotemporal_bootstrap_resample(
     niter=100,
     categories=None,
     transform=None,
-    boostrap_method="smooth",
+    bootstrap_method="smooth",
     add_gaussian_age_noise=True,
     metrics=["mean", "var"],
     default_uncertainty=0.02,
@@ -264,7 +264,7 @@ def spatiotemporal_bootstrap_resample(
     transform
         Callable function to transform input data prior to aggregation functions. Note
         that the outputs will need to be inverse-transformed.
-    boostrap_method : :class:`str`
+    bootstrap_method : :class:`str`
         Which method to use to add gaussian noise to the input dataset parameters.
     add_gaussian_age_noise : :class:`bool`
         Whether to add gassian noise to the input dataset ages, where present.
@@ -367,9 +367,9 @@ def spatiotemporal_bootstrap_resample(
 
         # whether to add parameter noise, and if so which method to use?
         # TODO: Update the naming of this? this is only one part of the bootstrap process
-        if boostrap_method is not None:
+        if bootstrap_method is not None:
             # try to get uncertainties for the data, otherwise use standard deviations?
-            if boostrap_method.lower() == "smooth":
+            if bootstrap_method.lower() == "smooth":
                 # add random noise within uncertainty bounds
                 # this is essentially smoothing
                 # consider modulating the noise model using the covariance structure?
@@ -396,7 +396,7 @@ def spatiotemporal_bootstrap_resample(
                         noise *= smpl[subset].values
 
                 smpl[subset] += noise
-            elif (boostrap_method.upper() == "GP") or (
+            elif (bootstrap_method.upper() == "GP") or (
                 "process" in bootstrap_method.lower()
             ):
                 # gaussian process regression to adapt to covariance matrix

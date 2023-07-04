@@ -34,9 +34,9 @@ class TestUnmix(unittest.TestCase):
         res = unmix(self.comp, self.parts)
 
     def test_regularization(self):
-        for ord in [1, 2]:
-            with self.subTest(ord=ord):
-                s = unmix(self.comp, self.parts, ord=ord)
+        for order in [1, 2]:
+            with self.subTest(order=order):
+                s = unmix(self.comp, self.parts, order=order)
 
     def test_det_lim(self):
         for det_lim in [0.001, 0.1, 0.5]:

@@ -192,7 +192,7 @@ def optimize_fit_components(
         Arrays for the optimized parameter values (B; (n, d)), parameter
         uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
-    m, n = y.shape[0], x0.size  # shape of output
+    m, _ = y.shape[0], x0.size  # shape of output
     sigmas = parse_sigmas(y, sigmas=sigmas)
     B = np.ones((y.shape[0], len(func_components))) * np.nan
     s = np.ones((y.shape[0], len(func_components))) * np.nan
@@ -280,8 +280,8 @@ def lambdas_optimize(
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
-    assert params is not None
-    degree = len(params)
+    assert params is not None # degree = len(params)
+    
     # arrays representing the unweighted individual polynomial components
     names, x0, func_components = get_function_components(
         radii, params=params, fit_tetrads=fit_tetrads, tetrad_params=tetrad_params

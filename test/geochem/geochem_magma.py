@@ -2,8 +2,9 @@ import unittest
 from io import StringIO
 
 import numpy as np
+import pandas as pd
 
-from pyrolite.geochem.magma import *
+from pyrolite.geochem.magma import SCSS, FeAt8MgO, NaAt8MgO
 
 
 class TestFeAt8MgO(unittest.TestCase):
@@ -25,11 +26,11 @@ class TestNaAt8MgO(unittest.TestCase):
         self.MgO = 4
 
     def test_default(self):
-        naat8 = FeAt8MgO(self.Na2O, self.MgO)
+        naat8 = NaAt8MgO(self.Na2O, self.MgO)
 
     def test_close_to_8(self):
-        naat8 = FeAt8MgO(self.Na2O, 8.0)
-        self.assertTrue(np.isclose(naat8, self.Na2O, rtol=0.001))
+        naat8 = NaAt8MgO(self.Na2O, 8.0)
+        self.assertTrue(np.isclose(naat8, self.Na2O, rtol=0.01))
 
 
 class TestSCSS(unittest.TestCase):

@@ -1,8 +1,6 @@
 """
 Functions for converting, transforming and parameterizing geochemical data.
 """
-import functools
-
 import numpy as np
 import pandas as pd
 import periodictable as pt
@@ -487,8 +485,8 @@ def add_MgNo(
         speciation = {"FeO": 1.0 - approx_Fe203_frac, "Fe2O3": approx_Fe203_frac}
         fe = aggregate_element(df, to=speciation, molecular=molecular)["FeO"]
     else:
-        filter = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
-        fe = elemental_sum(df.loc[:, filter], "Fe", molecular=molecular)
+        fltr = [i for i in df.columns if "Fe2O3" not in i]  # exclude ferric iron
+        fe = elemental_sum(df.loc[:, fltr], "Fe", molecular=molecular)
     if not molecular:  # convert these outputs to molecular, unless already so
         mg, fe = (
             to_molecular(mg.to_frame(), renorm=False),

@@ -34,11 +34,11 @@ class TestFitSaveClassifier(unittest.TestCase):
         self.dir = temp_path()
 
     def test_default(self):
-        clf = fit_save_classifier(self.classifier, self.X, self.y, dir=self.dir)
+        clf = fit_save_classifier(self.classifier, self.X, self.y, directory=self.dir)
 
     def test_dataframe_X(self):
         clf = fit_save_classifier(
-            self.classifier, pd.DataFrame(self.X), self.y, dir=self.dir
+            self.classifier, pd.DataFrame(self.X), self.y, directory=self.dir
         )
 
     def tearDown(self):
@@ -54,7 +54,7 @@ class TestClassifierPerformanceReport(unittest.TestCase):
 
     def test_default(self):
         self.classifier.fit(self.X, self.y)
-        classifier_performance_report(self.classifier, self.X, self.y, dir=self.dir)
+        classifier_performance_report(self.classifier, self.X, self.y, directory=self.dir)
 
     def tearDown(self):
         remove_tempdir(self.dir)

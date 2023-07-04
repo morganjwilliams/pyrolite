@@ -340,7 +340,7 @@ def example_patterns_from_parameters(
     if radii is None:
         radii = get_ionic_radii(REE(), coordination=8, charge=3)
 
-    names, _, components = get_function_components(radii, fit_tetrads=includes_tetrads)
+    _, _, components = get_function_components(radii, fit_tetrads=includes_tetrads)
     pattern_df = pd.DataFrame(
         np.exp(fit_parameters @ np.array(components)), columns=columns
     )

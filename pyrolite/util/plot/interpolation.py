@@ -45,7 +45,7 @@ def interpolate_path(
         x = np.append(x, x[0])
         y = np.append(y, y[0])
     # s=0 forces the interpolation to go through every point
-    tck, u = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
+    tck, _ = scipy.interpolate.splprep([x[:-1], y[:-1]], s=0, per=periodic, **kwargs)
     xi, yi = scipy.interpolate.splev(np.linspace(0.0, 1.0, resolution), tck)
     # could get control points for path and construct codes here
     codes = None

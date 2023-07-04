@@ -1,5 +1,4 @@
 import re
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -70,7 +69,7 @@ for mineral in NORM_MINERALS.keys():
     NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"]).mass
 
 
-def unmix(comp, parts, ord=1, det_lim=0.0001):
+def unmix(comp, parts, order=1, det_lim=0.0001):
     """
     From a composition and endmember components, find a set of weights which best
     approximate the composition as a weighted sum of components.
@@ -81,7 +80,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
         Array of compositions (shape :math:`n_S, n_C`).
     parts : :class:`numpy.ndarray`
         Array of endmembers (shape :math:`n_E, n_C`).
-    ord : :class:`int`
+    order : :class:`int`
         Order of regularization, defaults to L1 for sparsity.
     det_lim : :class:`float`
         Detection limit, below which minor components will be omitted for sparsity.
@@ -100,7 +99,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
 
     def fn(x, comp, parts):
         x = x.reshape(nsamples, nparts)
-        return np.linalg.norm(x.dot(parts) - comp, ord=ord)
+        return np.linalg.norm(x.dot(parts) - comp, ord=order)
 
     res = scipy.optimize.minimize(
         fn,
@@ -117,7 +116,7 @@ def unmix(comp, parts, ord=1, det_lim=0.0001):
 
 
 def endmember_decompose(
-    composition, endmembers=[], drop_zeros=True, molecular=True, ord=1, det_lim=0.0001
+    composition, endmembers=[], drop_zeros=True, molecular=True, order=1, det_lim=0.0001
 ):
     """
     Decompose a given mineral composition to given endmembers.
@@ -133,7 +132,7 @@ def endmember_decompose(
     molecular : :class:`bool`, :code:`True`
         Whether to *convert* the chemistry to molecular before calculating the
         decomposition.
-    ord : :class:`int`
+    order : :class:`int`
         Order of regularization passed to :func:`unmix`, defaults to L1 for sparsity.
     det_lim : :class:`float`
         Detection limit, below which minor components will be omitted for sparsity.
@@ -187,7 +186,7 @@ def endmember_decompose(
         X, Y = to_molecular(X), to_molecular(Y)
     # optimise decomposition into endmember components
     modal = pd.DataFrame(
-        unmix(X.fillna(0).values, Y.fillna(0).values, ord=ord, det_lim=det_lim),
+        unmix(X.fillna(0).values, Y.fillna(0).values, order=order, det_lim=det_lim),
         index=X.index,
         columns=Y.index,
     )

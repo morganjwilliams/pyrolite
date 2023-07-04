@@ -9,8 +9,6 @@ Todo
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
 import json
-import os
-from pathlib import Path
 
 import matplotlib.lines
 import matplotlib.patches

@@ -28,7 +28,7 @@ from .vis import plot_confusion_matrix, plot_gs_results
 
 
 def fit_save_classifier(
-    clf, X_train, y_train, dir=".", name="clf", extension=".joblib"
+    clf, X_train, y_train, directory=".", name="clf", extension=".joblib"
 ):
     """
     Fit and save a classifier model. Also save relevant metadata where possible.
@@ -41,7 +41,7 @@ def fit_save_classifier(
         Training data.
     y_train : :class:`numpy.ndarray` | :class:`pandas.Series`
         Training true classes.
-    dir : :class:`str` | :class:`pathlib.Path`
+    directory : :class:`str` | :class:`pathlib.Path`
         Path to the save directory.
     name : :class:`str`
         Name of the classifier.
@@ -53,7 +53,7 @@ def fit_save_classifier(
     clf : :class:`sklearn.base.BaseEstimator`
         Fitted classifier.
     """
-    clf_dir = Path(dir) / name
+    clf_dir = Path(directory) / name
     if not clf_dir.exists():
         clf_dir.mkdir(parents=True)
 
@@ -70,7 +70,7 @@ def fit_save_classifier(
     return clf
 
 
-def classifier_performance_report(clf, X_test, y_test, classes=[], dir=".", name="clf"):
+def classifier_performance_report(clf, X_test, y_test, classes=[], directory=".", name="clf"):
     """
     Output a performance report for a classifier. Currently outputs the overall
     classification score, a confusion matrix and where relevant an indication of
@@ -80,10 +80,23 @@ def classifier_performance_report(clf, X_test, y_test, classes=[], dir=".", name
     ----------
     clf : :class:`sklearn.base.BaseEstimator` | `sklearn.model_selection.GridSearchCV`
         Classifer or gridsearch.
-    X_test:
-
+    X_test : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+        Input data for testing.
+    y_test : :class:`numpy.ndarray` | :class:`pandas.Series`
+        Labelled/target data for testing.
+    classes : list 
+        Names of classes.
+     directory : :class:`str` | :class:`pathlib.Path`
+        Path to the save directory.
+    name : :class:`str`
+        Name of the classifier.
+    
+    Returns
+    --------
+    clf : :class:`sklearn.base.BaseEstimator`
+        Fitted classifier.
     """
-    clf_dir = Path(dir) / name
+    clf_dir = Path(directory) / name
     if not clf_dir.exists():
         clf_dir.mkdir(parents=True)
 

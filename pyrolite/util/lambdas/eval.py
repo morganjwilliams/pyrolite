@@ -59,9 +59,9 @@ def tetrad(x, centre, width):
 def get_tetrads_function(params=None):
     params = _get_tetrad_params(params=params)
 
-    def tetrads(x, sum=True):
+    def tetrads(x, sum_tetrads=True):
         ts = np.array([tetrad(x, centre, width) for centre, width in params])
-        if sum:
+        if sum_tetrads:
             ts = np.sum(ts, axis=0)
         return ts
 
@@ -131,7 +131,7 @@ def get_function_components(
         if tetrad_params is None:
             tetrad_params = [(c, 3.5) for c in [58.75, 62.25, 65.75, 69.25]]
         func_components += list(
-            get_tetrads_function(params=tetrad_params)(zs, sum=False)
+            get_tetrads_function(params=tetrad_params)(zs, sum_tetrads=False)
         )
 
         names += [chr(964) + str(d) for d in range(4)]

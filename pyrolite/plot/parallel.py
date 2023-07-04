@@ -1,11 +1,8 @@
-import matplotlib.colors
-import numpy as np
 from pandas.plotting import parallel_coordinates
 
 from ..util.log import Handle
 from ..util.meta import subkwargs
 from ..util.plot.axes import init_axes
-from ..util.plot.style import linekwargs
 from .color import process_color
 
 logger = Handle(__name__)

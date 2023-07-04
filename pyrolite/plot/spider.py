@@ -141,7 +141,7 @@ def spider(
     if "fill" in mode.lower():
         mins = np.nanmin(arr, axis=0)
         maxs = np.nanmax(arr, axis=0)
-        plycol = ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
+        ax.fill_between(indexes0, mins, maxs, **patchkwargs(kwargs))
     elif "plot" in mode.lower():
         # copy params
         l_kw, s_kw = {**line_kw}, {**scatter_kw}
@@ -208,7 +208,7 @@ def spider(
                 {k: v for k, v in s_kw.items() if k not in ["c", "color"]}
             )
             # do these need to be ravelled?
-            sc = ax.scatter(
+            ax.scatter(
                 indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
             )
 

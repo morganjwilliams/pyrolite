@@ -1,6 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
 from ...util.classification import QAP as QAPclassifer
 from ...util.log import Handle
 from ...util.meta import sphinx_doi_link, update_docstring_references

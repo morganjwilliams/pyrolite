@@ -175,7 +175,7 @@ def density(
                 )
 
             elif mode == "hist2d":
-                zi, xe, ye, im = ax.hist2d(
+                _, _, _, im = ax.hist2d(
                     x,
                     y,
                     bins=[grid.grid_xe, grid.grid_ye],
@@ -238,7 +238,7 @@ def density(
             if mode == "hexbin":
                 raise NotImplementedError
             # density, histogram etc parsed here
-            coords, zi, data = ternary_heatmap(arr, bins=bins, mode=mode)
+            coords, zi, _ = ternary_heatmap(arr, bins=bins, mode=mode)
 
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]

@@ -28,7 +28,6 @@ __radii__ = {}
 
 def _load_radii():
     """Import radii tables to a module-level dictionary indexed by reference."""
-    global __radii__
     for name in ["shannon", "whittaker_muntus"]:
         pth = (pyrolite_datafolder(subfolder="radii") / "{}.csv".format(name)).resolve()
         assert pth.exists() and pth.is_file()

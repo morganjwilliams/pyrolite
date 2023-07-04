@@ -1,16 +1,12 @@
 """
 Baisc spatial utility functions.
 """
-
-import functools
 import itertools
 
 import numpy as np
-import pandas as pd
 from psutil import virtual_memory  # memory check
 
 from .log import Handle
-from .math import on_finite
 
 logger = Handle(__name__)
 
@@ -215,9 +211,7 @@ def great_circle_distance(
             np.isnan(angle).any() and f != _vicenty_GC_distance
         ):  # fallback for cos failure @ 0.
             fltr = np.isnan(angle)
-            angle[fltr] = _vicenty_GC_distance(
-                φ1[fltr], φ2[fltr], λ1[fltr], λ2[fltr]
-            )
+            angle[fltr] = _vicenty_GC_distance(φ1[fltr], φ2[fltr], λ1[fltr], λ2[fltr])
 
     if absolute:
         return np.rad2deg(angle) * r

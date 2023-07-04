@@ -5,7 +5,6 @@ import warnings
 
 import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.style
 import mpltern
 import numpy as np
 import pandas as pd
@@ -20,12 +19,7 @@ from ..util.meta import get_additional_params, subkwargs
 from ..util.pd import to_frame
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
-from ..util.plot.style import (
-    _export_mplstyle,
-    _export_nonRCstyles,
-    linekwargs,
-    scatterkwargs,
-)
+from ..util.plot.style import _export_nonRCstyles, linekwargs, scatterkwargs
 from . import density, parallel, spider, stem
 from .color import process_color
 
@@ -280,7 +274,7 @@ class pyroplot(object):
         projection = [None, "ternary"][len(components) == 3]
         ax = init_axes(ax=ax, projection=projection, **kwargs)
         kw = linekwargs(kwargs)
-        lines = ax.plot(*obj.reindex(columns=components).values.T, **kw)
+        ax.plot(*obj.reindex(columns=components).values.T, **kw)
         # if color is multi, could update line colors here
         if axlabels:
             label_axes(ax, labels=components)
@@ -377,9 +371,7 @@ class pyroplot(object):
             warnings.filterwarnings(
                 "ignore", message="invalid value encountered in divide"
             )
-            sc = ax.scatter(
-                *obj.reindex(columns=components).values.T, **scatterkwargs(kw)
-            )
+            ax.scatter(*obj.reindex(columns=components).values.T, **scatterkwargs(kw))
 
         if axlabels:
             label_axes(ax, labels=components)
