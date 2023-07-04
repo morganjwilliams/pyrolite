@@ -13,12 +13,13 @@ All notable changes to this project will be documented here.
 `0.3.3`_
 --------------
 
-*  **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
-*  **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
+* **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
+* **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
 * **Bugfix**: Updated docs builds to be compatible with recent versions of `sphinx-gallery`.
 * **Bugfix**: Updated some :mod:`pandas` assignment, aggregation and similar operations
   to be compatible with more recent versions of Pandas.
-* Addedd explict Python 3.10 support.
+* Added explicit Python 3.10 and 3.11 support.
+* Removed Python 3.7 support (now end of life).
 
 
 :mod:`pyrolite.mineral`
