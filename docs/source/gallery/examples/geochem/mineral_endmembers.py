@@ -22,7 +22,7 @@ comp = pd.Series({"MgO": 42.06, "SiO2": 39.19, "FeO": 18.75})
 # :func:`~pyrolite.mineral.transform.endmember_decompose` function:
 #
 ed = endmember_decompose(
-    pd.DataFrame(comp).T, endmembers="olivine", ord=1, molecular=True
+    pd.DataFrame(comp).T, endmembers="olivine", order=1, molecular=True
 )
 ed
 ########################################################################################
@@ -30,7 +30,7 @@ ed
 # endmembers:
 #
 ed = endmember_decompose(
-    pd.DataFrame(comp).T, endmembers=["forsterite", "fayalite"], ord=1, molecular=True
+    pd.DataFrame(comp).T, endmembers=["forsterite", "fayalite"], order=1, molecular=True
 )
 ed
 ########################################################################################
