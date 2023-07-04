@@ -1338,7 +1338,7 @@ All notable changes to this project will be documented here.
     but were :code:`alpha` versions which were never considered stable.
 
 .. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...develop
-.. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
+.. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0
