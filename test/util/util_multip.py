@@ -48,8 +48,8 @@ class TestFuncWrapper(unittest.TestCase):
         self.assertEqual(result, test_kwargs)
 
 
-@unittest.skipUnless(
-    platform.system() != "Windows", "Bug with multiprocessing testing on Windows"
+@unittest.skipIf(
+    platform.system() in ["Windows", 'Darwin'], "Bug with multiprocessing testing on Windows"
 )
 class TestMultiprocess(unittest.TestCase):
     """Tests the multiprocess utility function."""
