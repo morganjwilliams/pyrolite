@@ -206,7 +206,7 @@ def elemental_sum(
         # return nulls
         subsum = pd.Series(np.ones(df.index.size) * np.nan, index=df.index)
     else:
-        subset = np.array(df.loc[:, species])
+        subset = df.loc[:, species].copy(deep=True)
         if logdata:
             logger.debug("Inverse-log-transforming {} data.".format(cationname))
             subset = np.exp(subset)
@@ -228,18 +228,17 @@ def elemental_sum(
         )
         subset *= conversion_coeff
         logger.debug("Zeroing non-finite and negative {} values.".format(cationname))
-        subset[(~np.isfinite(subset)) | (subset < 0.0)] = 0.0
-        subsum = subset.sum(axis=1)
+        subset[(pd.isna(subset)) | (subset < 0.0)] = 0.0
+        subsum = subset.iloc[:, 0]
+        for ix in range(1, subset.shape[1]):
+            subsum += subset.iloc[:, ix]
+        # subset.sum(axis=1)
         subsum[subsum <= 0.0] = np.nan
 
     if to is None:
-        return pd.Series(subsum, index=df.index, name=cationname)
+        return subsum.rename(cationname)
     else:
-        return pd.Series(
-            oxide_conversion(cationname, to, molecular=molecular)(subsum),
-            index=df.index,
-            name=to,
-        )
+        return oxide_conversion(cationname, to, molecular=molecular)(subsum).rename(to)
 
 
 def aggregate_element(
@@ -440,7 +439,7 @@ def get_ratio(
         logger.debug("Normalizing Ratio: {}".format(name))
         ratio /= norm_ratio
 
-    ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
+    ratio[pd.isna(ratio.values)] = np.nan  # avoid inf
     ratio.name = name
     return ratio
 
