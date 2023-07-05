@@ -22,6 +22,8 @@ dependencies:
   - mpltern>=0.4.0
   - sympy>=1.7 # import changes after sympy 1.6
   - joblib
+  - pint
+  - pint-pandas
   - requests
   # Tools
   - jupyter
