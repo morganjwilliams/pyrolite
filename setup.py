@@ -15,9 +15,10 @@ docs_require = [
 ]
 dev_require = ["pytest", "versioneer", "black", "isort", "twine"] + tests_require + docs_require
 db_require = ["pyodbc", "psycopg2"]
-skl_require = ["scikit-learn"]
+skl_require = ["scikit-learn",        "joblib"]
 stats_require = ["statsmodels", "scikit-learn"]
-spatial_require = ["owslib", "geojson"]  # this needs pyproj -> C compiler
+spatial_require = ["owslib", "geojson", "psutil"]  # this needs pyproj -> C compiler
+excel_require = ["xlrd", "openpyxl"]  # reading excel from pandas, writing excel from pandas
 
 with open("README.md", "r") as src:
     LONG_DESCRIPTION = src.read()
@@ -56,18 +57,12 @@ setup(
         "numpy",
         "numpydoc",
         "tinydb>4.1",  # >4.1 required for read-only access mode for JSON storage
-        "typing-extensions",  # required for newer tinydb versions?
-        "psutil",
         "periodictable",
         "matplotlib",
         "mpltern>=0.4.0",
         "scipy>=1.2",  # uses scipy.optimize.Bounds, added around 1.2
-        "mpmath",
         "sympy>=1.7",
         "pandas>=1.0",  # dataframe acccessors, attrs attribute
-        "xlrd",  # reading excel from pandas
-        "openpyxl",  # writing excel from pandas
-        "joblib",
         "requests",  # used by alphaMELTS utilities,  util.web
     ],
     extras_require={
@@ -77,6 +72,7 @@ setup(
         "spatial": spatial_require,
         "db": db_require,
         "stats": stats_require,
+        "excel": excel_require
     },
     tests_require=tests_require,
     test_suite="test",

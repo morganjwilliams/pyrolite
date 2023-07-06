@@ -4,7 +4,11 @@ Baisc spatial utility functions.
 import itertools
 
 import numpy as np
-from psutil import virtual_memory  # memory check
+
+try:
+    from psutil import virtual_memory  # memory check
+except ImportError:
+    virtual_memory = None
 
 from .log import Handle
 
@@ -176,14 +180,16 @@ def great_circle_distance(
         # but, with large arrays it'll spit out a memory error
         # so instead we can try to build it numerically
         size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
-        mem = virtual_memory().total  # total physical memory available
         estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size**2
         logger.debug(
             "Attempting to build {}x{} array of size {:.2f} Gb.".format(
                 size, size, estimated_matrix_size / 1024**3
             )
         )
-        if estimated_matrix_size > (mem * max_memory_fraction):
+
+        infeasible = estimated_matrix_size > (virtual_memory().total * max_memory_fraction) if virtual_memory is not None else False
+
+        if infeasible:
             logger.warn(
                 "Angle array for segmented distance matrix larger than maximum memory "
                 "fraction, computing mean global distances instead."
