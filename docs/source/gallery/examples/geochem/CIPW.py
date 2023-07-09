@@ -21,17 +21,12 @@ A version of this algorithm has now been implemented in
 :mod:`pyrolite` (:func:`~pyrolite.mineral.normative.CIPW_norm`), and an overview
 of the implementation and the currently available options is given below.
 
-.. warning:: The current implementation of CIPW in pyrolite produces results
-    which are inconsistent with SINCLAS/IgRoCS; we're working on addressing this.
-    There's a warning implemented in the function so that you should be notified
-    of this.
-
 For the purposes of testing, pyrolite includes a file containing the outputs from
 Verma's SINCLAS/IgRoCS program. Here we can use this file to demonstrate the use
 of the CIPW Norm and verify that the results should generally be comparable
 between Verma's original implementation and the :mod:`pyrolite` implementation.
-Here we import this file and do a little cleaning and registration of
-geochemical components so we can work with it in the sections to follow:
+We import this file and do a little cleaning and registration of geochemical 
+components so we can work with it in the sections to follow:
 """
 import matplotlib.pyplot as plt
 import numpy as np
