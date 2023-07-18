@@ -7,8 +7,5 @@ channels:
 dependencies:
   - python=3.10
   - pip
-  - matplotlib
-  - scipy>=1.2
-  - pandas>=0.23
   - pip:
-      - -e git+https://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite[dev,skl]
+      - -e git+https://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite[dev,skl,excel]
