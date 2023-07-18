@@ -10,6 +10,9 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+* **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
+  some minor bugfixes for the CIPW Norm.
+
 `0.3.3`_
 --------------
 
