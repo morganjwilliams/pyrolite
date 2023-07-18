@@ -778,7 +778,7 @@ def CIPW_norm(
     minerals["An"]["mass"] = df["MW_CaO_corr"] + pt.formula("Al2O3 (SiO2)2").mass
     minerals["Mg-Di"]["mass"] = df["MW_CaO_corr"] + pt.formula("MgO (SiO2)2").mass
     minerals["Wo"]["mass"] = df["MW_CaO_corr"] + pt.formula("SiO2").mass
-    minerals["Cs"]["mass"] = 2 * df["MW_CaO_corr"] + pt.formula("SiO2").mass
+    minerals["Cs"]["mass"] = (2 * df["MW_CaO_corr"]) + pt.formula("SiO2").mass
     minerals["Tn"]["mass"] = df["MW_CaO_corr"] + pt.formula("TiO2 SiO2").mass
     minerals["Pf"]["mass"] = df["MW_CaO_corr"] + pt.formula("TiO2").mass
     minerals["CaF2-Ap"]["mass"] = (
@@ -859,19 +859,22 @@ def CIPW_norm(
     # Normative Fluorite
     df["Fr"] = np.where(df["CaO"] >= df["F"] / 2, df["F"] / 2, df["CaO"]).T
 
-    df["CaO"] = np.where(df["CaO"] >= df["F"] / 2, df["CaO"] - df["Fr"], 0).T
+    df["CaO_"] = np.where(df["CaO"] >= df["F"] / 2, df["CaO"] - df["Fr"], 0).T
 
-    df["F"] = np.where(df["CaO"] >= df["F"] / 2, df["F"], df["F"] - (2 * df["Fr"])).T
+    df["F"] = np.where(df["CaO"] >= df["F"] / 2, 0, df["F"] - (2 * df["Fr"])).T
 
+    df["CaO"] = df["CaO_"]
     df["FREEO_13"] = df["Fr"]
     df["FREE_F"] = df["F"]
 
     # Normative halite
-    df["Hl"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Cl"], df["Na2O"] / 2).T
+    df["Hl"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Cl"], df["Na2O"] / 2).T
 
-    df["Na2O"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Na2O"] - df["Hl"] / 2, 0).T
+    df["Na2O_"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Na2O"] - (df["Hl"]) / 2, 0).T
 
-    df["Cl"] = np.where(df["Na2O"] >= 2 * df["Cl"], df["Cl"], df["Cl"] - df["Hl"]).T
+    df["Cl"] = np.where(df["Na2O"] >= (2 * df["Cl"]), 0, df["Cl"] - df["Hl"]/2).T
+
+    df["Na2O"] = df["Na2O_"]
 
     df["FREE_Cl"] = df["Cl"]
     df["FREEO_14"] = df["Hl"] / 2
@@ -909,27 +912,34 @@ def CIPW_norm(
 
     df["Nc"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["Na2O"]).T
 
-    df["Na2O"] = np.where(df["Na2O"] >= df["CO2"], df["Na2O"] - df["Nc"], df["Na2O"]).T
+    df["Na2O_"] = np.where(df["Na2O"] >= df["CO2"], df["Na2O"] - df["Nc"], 0).T
 
-    df["CO2"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["CO2"] - df["Nc"]).T
+    df["CO2"] = np.where(df["Na2O"] >= df["CO2"], 0, df["CO2"] - df["Nc"]).T
+
+    df['Na2O'] = df['Na2O_']
 
     df["Cc"] = np.where(df["CaO"] >= df["CO2"], df["CO2"], df["CaO"]).T
 
-    df["CaO"] = np.where(df["Na2O"] >= df["CO2"], df["CaO"] - df["Cc"], df["CaO"]).T
+    df["CaO_"] = np.where(df["CaO"] >= df["CO2"], df["CaO"] - df["Cc"], 0).T
 
-    df["CO2"] = np.where(df["Na2O"] >= df["CO2"], df["CO2"], df["CO2"] - df["Cc"]).T
+    df["CO2"] = np.where(df["CaO"] >= df["CO2"], 0, df["CO2"] - df["Cc"]).T
+
+    df['CaO'] = df['CaO_']
 
     df["FREECO2"] = df["CO2"]
 
     # Normative Chromite
     df["Cm"] = np.where(df["FeO"] >= df["Cr2O3"], df["Cr2O3"], df["FeO"]).T
 
-    df["FeO"] = np.where(df["FeO"] >= df["Cr2O3"], df["FeO"] - df["Cm"], 0).T
+    df["FeO_"] = np.where(df["FeO"] >= df["Cr2O3"], df["FeO"] - df["Cm"], 0).T
+    
     df["Cr2O3"] = np.where(
         df["FeO"] >= df["Cr2O3"], df["Cr2O3"] - df["Cm"], df["Cr2O3"]
     ).T
 
-    df["FREE_CR2O3"] = df["Cm"]
+    df["FeO"] = df["FeO_"]
+
+    df["FREE_CR2O3"] = df["Cr2O3"]
 
     # Normative Ilmenite
     df["Il"] = np.where(df["FeO"] >= df["TiO2"], df["TiO2"], df["FeO"]).T
@@ -1072,7 +1082,7 @@ def CIPW_norm(
 
     df["Hy"] = np.where((df["D"] < df["Hy_p"] / 2), df["Hy_p"] - 2 * df["D"], 0).T
 
-    df["D1"] = df["D"] - df["Hy_p"] / 2
+    df["D1"] = df["D"] - (df["Hy_p"] / 2)
 
     df["Ol"] = np.where((df["deficit"]), df["Ol_"], 0).T
 
@@ -1093,9 +1103,9 @@ def CIPW_norm(
     df["deficit"] = df["D2"] > 0
 
     # Normative Nepheline / Albite
-    df["Ne_"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["D2"] / 4, df["Ab_p"]).T
+    df["Ne_"] = np.where(df["D2"] < 4 * df["Ab_p"], df["D2"] / 4, df["Ab_p"]).T
 
-    df["Ab"] = np.where((df["D2"] < 4 * df["Ab_p"]), df["Ab_p"] - df["D2"] / 4, 0).T
+    df["Ab"] = np.where(df["D2"] < 4 * df["Ab_p"], df["Ab_p"] - df["D2"] / 4, 0).T
 
     df["D3"] = df["D2"] - 4 * df["Ab_p"]
 
