@@ -884,21 +884,6 @@ def CIPW_norm(
     df["FREEO_14"] = df["Hl"] / 2
 
     # Normative thenardite
-    # df["Th"] = np.where((df["SO3"] > 0) & (df["Na2O"] >= df["SO3"]), df["SO3"], 0).T
-    # df["Th"] = np.where(
-    #     (df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), df["Na2O"], df["Th"]
-    # ).T
-
-    # df["Na2O_"] = np.where(
-    #     (df["SO3"] > 0) & (df["Na2O"] >= df["SO3"]), df["Na2O"] - df["Th"], df["Na2O"]
-    # ).T
-
-    # df["Na2O"] = np.where((df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), 0, df["Na2O_"]).T
-
-    # df["SO3"] = np.where(
-    #     (df["SO3"] > 0) & (df["Na2O"] < df["SO3"]), df["SO3"] - df["Th"], df["SO3"]
-    # ).T
-
     df["Th"] = np.where(
         df["Na2O"] >= df["SO3"], df["SO3"], df["Na2O"]
     ).T
