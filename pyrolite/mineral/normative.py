@@ -1226,7 +1226,7 @@ def CIPW_norm(
         ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"]
     ].sum(axis=1)
 
-    # FREE.drop(["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"], axis=1, inplace=True)
+    FREE.drop(["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"], axis=1, inplace=True)
 
     ############################################################################
     # get masses of free components
