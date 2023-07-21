@@ -15,7 +15,7 @@ All notable changes to this project will be documented here.
 
 * **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
   some minor bugfixes for the CIPW Norm.
-* Various maintainence updates, including migrating the pacakge to use `pyproject.toml`.
+* Various maintenance updates, including migrating the package to use `pyproject.toml`.
 
 `0.3.3`_
 --------------
