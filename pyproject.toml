@@ -38,8 +38,8 @@ dependencies = [
     "requests",       # used by alphaMELTS utilities,  util.web
 ]
 
-[tool.setuptools]
-packages = ["pyrolite"]
+[tool.setuptools.packages]
+find = {}
 
 [tool.setuptools.dynamic]
 readme = { file = "README.md" }
@@ -73,6 +73,7 @@ dev = [
     "isort",
     "twine",
     "pyrolite[test,docs,skl]",
+    "build",
 ]
 
 [metadata]
