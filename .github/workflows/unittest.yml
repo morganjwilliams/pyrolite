@@ -36,10 +36,10 @@ jobs:
         if: runner.os == 'Windows'
         env:
           MPLBACKEND: Agg
-        run: python setup.py test
+        run: pytest
       - name: Test MacOS
         if: runner.os == 'macOS'
-        run: python setup.py test
+        run: pytest
       - name: Prep Linux
         if: runner.os == 'Linux'
         run: |
@@ -48,7 +48,7 @@ jobs:
       - name: Test Linux
         if: runner.os == 'Linux'
         run: |
-          xvfb-run python setup.py test
+          xvfb-run pytest
       - name: Coveralls
         env:
           COVERALLS_SERVICE_NAME: github
