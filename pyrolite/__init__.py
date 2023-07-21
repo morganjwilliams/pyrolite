@@ -44,3 +44,6 @@ def load_extensions(base="pyrolite_", replace=["util"]):
 
 # _export_pyrolite_mplstyle() should be called in .plot import regardless
 matplotlib.style.use("pyrolite")
+
+from . import _version
+__version__ = _version.get_versions()['version']

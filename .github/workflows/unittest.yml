@@ -29,26 +29,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip  # upgrade pip
           pip install wheel
-          pip install -q pytest pytest-runner pytest-cov coverage codacy-coverage
-          pip install coveralls
-          pip install .[skl,stats]
+          pip install .[skl,stats,test] codacy-coverage
       - name: Test Windows
         if: runner.os == 'Windows'
         env:
           MPLBACKEND: Agg
-        run: python setup.py test
+        run: pytest
       - name: Test MacOS
         if: runner.os == 'macOS'
-        run: python setup.py test
+        run: pytest
       - name: Prep Linux
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install jq curl    # codacy requirement
+          sudo apt-get install jq curl  # codacy requirement
           sudo apt-get install xvfb
       - name: Test Linux
         if: runner.os == 'Linux'
         run: |
-          xvfb-run python setup.py test
+          xvfb-run pytest
       - name: Coveralls
         env:
           COVERALLS_SERVICE_NAME: github
