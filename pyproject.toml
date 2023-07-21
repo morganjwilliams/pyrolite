@@ -43,7 +43,7 @@ find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
 #  include = ["Aitchison/*.py"],
 
 [tool.setuptools.dynamic]
-readme = { file = "README.md" }
+readme = { file = "README.md", content-type = "text/markdown" }
 
 [project.urls]
 "Issue tracker" = "https://github.com/morganjwilliams/pyrolite/issues"
@@ -79,8 +79,6 @@ dev = [
 
 [metadata]
 url = "https://github.com/morganjwilliams/pyrolite"
-long_description = "file:README.md"
-long_description_content_type = "text/markdown"
 
 [tool.coverage.run]
 relative_files = true
