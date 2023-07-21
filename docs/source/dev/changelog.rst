@@ -10,8 +10,12 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.4`_
+--------------
+
 * **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
   some minor bugfixes for the CIPW Norm.
+* Various maintainence updates, including migrating the pacakge to use `pyproject.toml`.
 
 `0.3.3`_
 --------------
@@ -1341,7 +1345,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...develop
+.. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
