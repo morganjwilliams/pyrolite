@@ -10,15 +10,23 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.4`_
+--------------
+
+* **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
+  some minor bugfixes for the CIPW Norm.
+* Various maintainence updates, including migrating the pacakge to use `pyproject.toml`.
+
 `0.3.3`_
 --------------
 
-*  **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
-*  **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
+* **New Contributor**: `Sarah Shi <https://github.com/sarahshi>`__
+* **New Contributor**: `Ondrej Lexa <https://github.com/ondrolexa>`__
 * **Bugfix**: Updated docs builds to be compatible with recent versions of `sphinx-gallery`.
 * **Bugfix**: Updated some :mod:`pandas` assignment, aggregation and similar operations
   to be compatible with more recent versions of Pandas.
-* Addedd explict Python 3.10 support.
+* Added explicit Python 3.10 and 3.11 support.
+* Removed Python 3.7 support (now end of life).
 
 
 :mod:`pyrolite.mineral`
@@ -1337,8 +1345,9 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...develop
-.. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...develop
+.. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
+.. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
 .. _0.3.1: https://github.com/morganjwilliams/pyrolite/compare/0.3.0...0.3.1
 .. _0.3.0: https://github.com/morganjwilliams/pyrolite/compare/0.2.8...0.3.0

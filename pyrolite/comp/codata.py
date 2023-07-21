@@ -601,7 +601,7 @@ def sphere(ys):
             S = 1
         else:
             # vector - the product of sin components
-            S = np.product(np.sin(θ[:, ix:]), axis=1)
+            S = np.prod(np.sin(θ[:, ix:]), axis=1)
             # where this evaluates to zero, the composition is all in the first component
             S[np.isclose(S, 0.0)] = 1.0
 
