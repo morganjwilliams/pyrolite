@@ -39,7 +39,8 @@ dependencies = [
 ]
 
 [tool.setuptools.packages]
-find = {}
+find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
+#  include = ["Aitchison/*.py"],
 
 [tool.setuptools.dynamic]
 readme = { file = "README.md" }
