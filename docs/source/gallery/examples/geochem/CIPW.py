@@ -28,6 +28,8 @@ between Verma's original implementation and the :mod:`pyrolite` implementation.
 We import this file and do a little cleaning and registration of geochemical 
 components so we can work with it in the sections to follow:
 """
+import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -36,6 +38,8 @@ import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
 
 # sphinx_gallery_thumbnail_number = 2
+# silence a pandas warning
+warnings.simplefilter("ignore", category=pd.errors.PerformanceWarning)
 
 df = (
     pd.read_csv(pyrolite_datafolder() / "testing" / "CIPW_Verma_Test.csv")
