@@ -43,7 +43,8 @@ For more information, see the documentation's [installation page](https://pyroli
 
 ## Examples
 
-Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/main/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/main/tutorials/index.html). If you'd rather flip through notebooks here on GitHub, these same examples can be found in the folders [`docs/source/examples`](./docs/source/examples/) and [`docs/source/tutorials`](./docs/source/examples/).
+Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/main/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/main/tutorials/index.html).
+The corresponding sources of these examples exist as marked-up `.py` files in this repository (which get converted to Jupyter notebooks on ReadTheDocs); you can find them under the folders [`docs/source/gallery/examples`](./docs/source/gallery/examples/) and [`docs/source/gallery/tutorials`](./docs/source/gallery/tutorials/).
 
 ## Contributing
 
