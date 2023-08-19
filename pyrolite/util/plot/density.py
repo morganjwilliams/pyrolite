@@ -7,14 +7,10 @@ USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
-from functools import wraps 
-
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate
 from numpy.linalg import LinAlgError
-import mpltern
-from mpltern.ternary_parsers import _parse_ternary_single
 
 from ..distributions import sample_kde
 from ..log import Handle
@@ -32,32 +28,6 @@ except ImportError:
     HAVE_SM = False
 
 USE_PCOLOR = False
-
-
-@_parse_ternary_single
-def _tripcolor(self,
-    *args,
-    alpha=1.0,
-    norm=None,
-    cmap=None,
-    vmin=None,
-    vmax=None,
-    shading='flat',
-    facecolors=None,
-    **kwargs,
-):
-	return super(mpltern.ternary._axes.TernaryAxes, self).tripcolor(*args, 
-                      alpha=alpha,
-                      norm=norm,
-                      cmap=cmap,
-                      vmin=vmin,
-                      vmax=vmax,
-                      shading=shading,
-                      facecolors=facecolors,
-                      **kwargs,
-                      )
-
-mpltern.ternary._axes.TernaryAxes.tripcolor = _tripcolor
 
 
 def get_axis_density_methods(ax):
