@@ -7,8 +7,8 @@
     "fields": {
         "Ba": {
             "name": [
-                "Basalt",
-                "Gabbro"
+                "Alkalic \nBasalt",
+                "Alkalic \nGabbro"
             ],
             "poly": [
                 [
@@ -27,8 +27,8 @@
         },
         "Bs": {
             "name": [
-                "Basalt",
-                "Gabbro"
+                "Subalkalic \nBasalt",
+                "Subalkalic \nGabbro"
             ],
             "poly": [
                 [
@@ -178,7 +178,7 @@
         "Pc": {
             "name": [
                 "Picrite",
-                "Peridotitgabbro"
+                "Peridot-\ngabbro"
             ],
             "poly": [
                 [
@@ -265,8 +265,8 @@
         },
         "S1": {
             "name": [
-                "Trachybasalt",
-                "Foidolite"
+                "Trachy-\nbasalt",
+                "Monzo-\ngabbro"
             ],
             "poly": [
                 [
@@ -285,8 +285,8 @@
         },
         "S2": {
             "name": [
-                "Basaltic Trachyandesite",
-                "Foidolite"
+                "Basaltic \nTrachy-\nandesite",
+                "Monzo-\ndiorite"
             ],
             "poly": [
                 [
@@ -309,8 +309,8 @@
         },
         "S3": {
             "name": [
-                "Trachyandesite",
-                "Foidolite"
+                "Trachy-\nandesite",
+                "Monzonite"
             ],
             "poly": [
                 [
@@ -366,7 +366,7 @@
         "T2": {
             "name": [
                 "Trachydacite",
-                "Quartz-Monzonite"
+                "Quartz \nMonzonite"
             ],
             "poly": [
                 [

@@ -5,7 +5,7 @@
         "y": "Na2O + K2O"
     },
     "fields": {
-        "Bs": {
+        "B": {
             "name": [
                 "Basalt",
                 "Gabbro"
@@ -158,7 +158,7 @@
         "Pc": {
             "name": [
                 "Picrite",
-                "Peridotitgabbro"
+                "Peridot-\ngabbro"
             ],
             "poly": [
                 [
@@ -245,8 +245,8 @@
         },
         "S1": {
             "name": [
-                "Trachybasalt",
-                "Foidolite"
+                "Trachy-\nbasalt",
+                "Monzo-\ngabbro"
             ],
             "poly": [
                 [
@@ -265,8 +265,8 @@
         },
         "S2": {
             "name": [
-                "Basaltic Trachyandesite",
-                "Foidolite"
+                "Basaltic \nTrachy-\nandesite",
+                "Monzo-\ndiorite"
             ],
             "poly": [
                 [
@@ -289,8 +289,8 @@
         },
         "S3": {
             "name": [
-                "Trachyandesite",
-                "Foidolite"
+                "Trachy-\nandesite",
+                "Monzonite"
             ],
             "poly": [
                 [
@@ -318,7 +318,7 @@
         "T1T2": {
             "name": [
                 "Trachyte-Trachydacite",
-                "Syenite"
+                "Syenite-\nQuartz Monzonite"
             ],
             "poly": [
                 [
