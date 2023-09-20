@@ -383,7 +383,7 @@ class TAS(PolygonClassifier):
 
         with open(src, "r") as f:
             config = json.load(f)
-        kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
+        kw = dict(scale=100.0, xlim=[30, 90], ylim=[0, 20])
         kw.update(kwargs)
         poly_config = {**config, **kw}
         super().__init__(**poly_config)
@@ -455,10 +455,11 @@ class TAS(PolygonClassifier):
                         xy=(x, y),
                         ha="center",
                         va="center",
+                        fontsize=kwargs.get("fontsize", 8),
                         **subkwargs(kwargs, ax.annotate),
                     )
 
-        ax.set(xlabel="$SiO_2$", ylabel="$Na_2O + K_2O$")
+        ax.set(xlabel="SiO$_2$", ylabel="Na$_2$O + K$_2$O")
         return ax
 
 
