@@ -30,14 +30,13 @@ df.head(3)
 ########################################################################################
 # We can visualise how this chemistry corresponds to the TAS diagram:
 #
-import pyrolite.plot
 
 df["Na2O + K2O"] = df["Na2O"] + df["K2O"]
 cm = TAS()
 
 fig, ax = plt.subplots(1)
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
-df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2)
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2, axlabels=False)
 plt.show()
 ########################################################################################
 # We can now classify this data according to the fields of the TAS diagram, and
@@ -56,7 +55,7 @@ df["Rocknames"].sample(10)  # randomly check 10 sample rocknames
 fig, ax = plt.subplots(1)
 
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
-df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7)
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7, axlabels=False)
 
 ########################################################################################
 # Variations of the Diagram
