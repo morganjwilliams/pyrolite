@@ -194,6 +194,7 @@ class PolygonClassifier(object):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
         **kwargs
     ):
         """
@@ -211,6 +212,10 @@ class PolygonClassifier(object):
             Whether to add labels at polygon centroids.
         which_labels : :class:`str`
             Which data to use for field labels - field 'name' or 'ID'.
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
@@ -241,7 +246,7 @@ class PolygonClassifier(object):
 
         use_keys = not which_labels.lower().startswith("name")
         for k, cfg in self.fields.items():
-            if cfg["poly"]:
+            if cfg["poly"] and ((k in which_ids) or (which_ids == [])):
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
@@ -288,6 +293,7 @@ class PolygonClassifier(object):
         axes_scale=1.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
         **kwargs
     ):
         """
@@ -305,6 +311,10 @@ class PolygonClassifier(object):
             Whether to add labels for the polygons.
         which_labels : :class:`str`
             Which data to use for field labels - field 'name' or 'ID'.
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
@@ -317,6 +327,7 @@ class PolygonClassifier(object):
             axes_scale=axes_scale,
             add_labels=add_labels,
             which_labels=which_labels,
+            which_ids=which_ids,
             **kwargs,
         )
         if self.axes is not None:
@@ -395,6 +406,7 @@ class TAS(PolygonClassifier):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
         label_at_centroid=True,
         **kwargs
     ):
@@ -414,6 +426,10 @@ class TAS(PolygonClassifier):
         which_labels : :class:`str`
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
         label_at_centroid : :class:`bool`
             Whether to label the fields at the centroid (True) or at the visual
             center of the field (False).
@@ -426,7 +442,8 @@ class TAS(PolygonClassifier):
         # here we don't want to add the labels in the normal way, because there
         # are two sets - one for volcanic rocks and one for plutonic rocks
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False, **kwargs
+            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False,
+            which_ids=which_ids, **kwargs
         )
 
         if not label_at_centroid:
@@ -446,7 +463,7 @@ class TAS(PolygonClassifier):
                 rescale_by = axes_scale / self.default_scale
         if add_labels:
             for k, cfg in self.fields.items():
-                if cfg["poly"]:
+                if cfg["poly"] and ((k in which_ids) or (which_ids == [])):
                     if which_labels.lower().startswith("id"):
                         label = k
                     elif which_labels.lower().startswith(
