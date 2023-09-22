@@ -78,7 +78,10 @@ class ExpTransform(BaseEstimator, TransformerMixin):
 
     def transform(self, X, *args, **kwargs):
         if isinstance(X, pd.DataFrame):
-            out = X.map(self.forward)
+            try:
+                out = X.map(self.forward)
+            except AttributeError:  # can remove when Python 3.8 is no longer supported
+                out = X.applymap(self.forward)
         elif isinstance(X, pd.Series):
             out = X.apply(self.forward)
         else:
@@ -87,7 +90,10 @@ class ExpTransform(BaseEstimator, TransformerMixin):
 
     def inverse_transform(self, Y, *args, **kwargs):
         if isinstance(Y, pd.DataFrame):
-            out = Y.map(self.inverse)
+            try:
+                out = Y.map(self.inverse)
+            except AttributeError:  # can remove when Python 3.8 is no longer supported
+                out = Y.applymap(self.inverse)
         elif isinstance(Y, pd.Series):
             out = Y.apply(self.inverse)
         else:

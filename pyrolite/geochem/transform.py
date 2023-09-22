@@ -349,8 +349,10 @@ def aggregate_element(
 
     if logdata:
         logger.debug("Log-transforming {} Data.".format(cation))
-        _df.loc[:, targetnames] = _df.loc[:, targetnames].map(np.log)
-
+        try:
+            _df.loc[:, targetnames] = _df.loc[:, targetnames].map(np.log)
+        except AttributeError:  # can remove when Python 3.8 is no longer supported
+            _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
     if drop:
         logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
         df = df.drop(columns=drop)

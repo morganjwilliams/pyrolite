@@ -218,7 +218,7 @@ def spider(
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
         cmap = kwargs.pop("cmap", None)
         if "contours" in kwargs and "vmin" in kwargs:
-            msg = "Combining `contours` and `vmin` arugments for density plots should be avoided."
+            msg = "Combining `contours` and `vmin` arguments for density plots should be avoided."
             logger.warn(msg)
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,
