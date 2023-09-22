@@ -8,6 +8,7 @@ a handy quick exploratory visualisation.
 """
 import matplotlib.axes
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import pandas as pd
 
@@ -42,15 +43,19 @@ cmap = "inferno"
 compdata = df.copy()
 compdata[comp] = CLRTransform().transform(compdata[comp])
 ax = compdata.loc[:, comp].pyroplot.parallel(color_by=compdata.Depth.values, cmap=cmap)
+divider = make_axes_locatable(ax)
+cax = divider.append_axes('right', size='5%', pad=0.05)
 
 # we can add a meaningful colorbar to indicate one variable also, here Depth
 sm = plt.cm.ScalarMappable(cmap=cmap)
 sm.set_array(df.Depth)
-plt.colorbar(sm)
+plt.colorbar(sm, cax=cax, orientation='vertical')
 plt.show()
 ########################################################################################
 ax = compdata.loc[:, comp].pyroplot.parallel(
     rescale=True, color_by=compdata.Depth.values, cmap=cmap
 )
-plt.colorbar(sm)
+divider = make_axes_locatable(ax)
+cax = divider.append_axes('right', size='5%', pad=0.05)
+plt.colorbar(sm, cax=cax, orientation='vertical')
 plt.show()

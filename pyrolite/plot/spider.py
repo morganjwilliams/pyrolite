@@ -160,7 +160,7 @@ def spider(
         # if a color option is not specified, get the next cycled color
         if l_kw.get("color") is None:
             # add cycler color as array to suppress singular color warning
-            l_kw["color"] = np.array([next(ax._get_lines.prop_cycler)["color"]])
+            l_kw["color"] = ax._get_lines.get_next_color()
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
         # marker explictly dealt with by scatter
@@ -209,7 +209,7 @@ def spider(
             )
             # do these need to be ravelled?
             ax.scatter(
-                indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
+                indexes.ravel(), arr.ravel(), color=scattercolor, **{"zorder": 2, **s_kw}
             )
 
         # should create a custom legend handle here
