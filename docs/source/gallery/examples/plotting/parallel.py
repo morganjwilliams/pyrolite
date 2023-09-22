@@ -42,7 +42,7 @@ from pyrolite.util.skl.transform import CLRTransform
 cmap = "inferno"
 compdata = df.copy()
 compdata[comp] = CLRTransform().transform(compdata[comp])
-ax = compdata.loc[:, comp].pyroplot.parallel(color_by=compdata.Depth.values, cmap=cmap)
+ax = compdata.loc[:, comp].pyroplot.parallel(color=compdata.Depth.values, cmap=cmap)
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='5%', pad=0.05)
 
@@ -53,7 +53,7 @@ plt.colorbar(sm, cax=cax, orientation='vertical')
 plt.show()
 ########################################################################################
 ax = compdata.loc[:, comp].pyroplot.parallel(
-    rescale=True, color_by=compdata.Depth.values, cmap=cmap
+    rescale=True, color=compdata.Depth.values, cmap=cmap
 )
 divider = make_axes_locatable(ax)
 cax = divider.append_axes('right', size='5%', pad=0.05)
