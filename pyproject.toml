@@ -36,7 +36,6 @@ dependencies = [
     "sympy>=1.7",
     "pandas>=1.0",    # dataframe acccessors, attrs attribute
     "requests",       # used by alphaMELTS utilities,  util.web
-    "python-polylabel", # used to find visual center of polygons
 ]
 
 [tool.setuptools.packages]

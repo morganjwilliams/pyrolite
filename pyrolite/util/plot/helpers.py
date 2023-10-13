@@ -5,7 +5,7 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial
-from polylabel import polylabel
+from .center import visual_center
 
 from ..log import Handle
 from ..math import eigsorted, nancov
@@ -81,7 +81,7 @@ def get_centroid(poly):
 
 def get_visual_center(poly, vertical_exaggeration=1):
     """
-    Visual center of a closed polygon using the polylabel python module.
+    Visual center of a closed polygon.
 
     Parameters
     ----------
@@ -99,7 +99,7 @@ def get_visual_center(poly, vertical_exaggeration=1):
         Centroid coordinates.
     """
     poly_scaled = np.array([poly.get_xy() * [1., vertical_exaggeration]])
-    x, y = polylabel(poly_scaled)
+    x, y = visual_center(poly_scaled)
     return tuple([x, y/vertical_exaggeration])
 
 
