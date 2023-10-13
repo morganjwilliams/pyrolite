@@ -312,10 +312,7 @@ def example_spider_data(
     df = ref.comp.pyrochem.compositional
     if norm_to is not None:
         df = df.pyrochem.normalize_to(norm_to, units=units)
-    try:
-        start = df.map(np.log)
-    except AttributeError:  # can remove when Python 3.8 is no longer supported
-        start = df.applymap(np.log)
+    start = np.log(df)
     nindex = df.columns.size
 
     y = np.tile(start.values, size).reshape(size, nindex)
@@ -326,10 +323,7 @@ def example_spider_data(
     if offsets is not None:
         for element, offset in offsets.items():
             syn_df[element] += offset  # significant offset for e.g. Eu anomaly
-    try:
-        syn_df = syn_df.map(np.exp)
-    except AttributeError:  # can remove when Python 3.8 is no longer supported
-        syn_df = syn_df.applymap(np.exp)
+    syn_df = np.exp(syn_df)
     return syn_df
 
 
