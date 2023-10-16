@@ -21,3 +21,4 @@ comments, testing, bug reports, or feature requests.
 * `Angela Rodrigues <https://github.com/AngRodrigues>`__
 * `Sarah Shi <https://github.com/sarahshi>`__
 * `Ondrej Lexa <https://github.com/ondrolexa>`__
+* `Bob Myhill <https://github.com/bobmyhill>`__

@@ -349,8 +349,7 @@ def aggregate_element(
 
     if logdata:
         logger.debug("Log-transforming {} Data.".format(cation))
-        _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
-
+        _df.loc[:, targetnames] = np.log(_df.loc[:, targetnames])
     if drop:
         logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
         df = df.drop(columns=drop)
