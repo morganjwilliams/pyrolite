@@ -246,7 +246,7 @@ class PolygonClassifier(object):
 
         use_keys = not which_labels.lower().startswith("name")
         for k, cfg in self.fields.items():
-            if cfg["poly"] and ((k in which_ids) or (which_ids == [])):
+            if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
@@ -463,7 +463,7 @@ class TAS(PolygonClassifier):
                 rescale_by = axes_scale / self.default_scale
         if add_labels:
             for k, cfg in self.fields.items():
-                if cfg["poly"] and ((k in which_ids) or (which_ids == [])):
+                if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
                     if which_labels.lower().startswith("id"):
                         label = k
                     elif which_labels.lower().startswith(
