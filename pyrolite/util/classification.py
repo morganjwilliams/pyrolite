@@ -25,7 +25,7 @@ from .meta import (
     update_docstring_references,
 )
 from .plot.axes import init_axes
-from .plot.helpers import get_centroid
+from .plot.helpers import get_centroid, get_visual_center
 from .plot.style import patchkwargs
 from .plot.transform import tlr_to_xy
 
@@ -395,6 +395,7 @@ class TAS(PolygonClassifier):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
+        label_at_centroid=True,
         **kwargs
     ):
         """
@@ -413,6 +414,9 @@ class TAS(PolygonClassifier):
         which_labels : :class:`str`
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
+        label_at_centroid : :class:`bool`
+            Whether to label the fields at the centroid (True) or at the visual
+            center of the field (False).
 
         Returns
         --------
@@ -424,6 +428,18 @@ class TAS(PolygonClassifier):
         ax = self._add_polygons_to_axes(
             ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False, **kwargs
         )
+
+        if not label_at_centroid:
+            # Calculate the effective vertical exaggeration that
+            # produces nice positioning of labels. The true vertical
+            # exaggeration is increased by a scale_factor because
+            # the text labels are typically wider than they are long,
+            # so we want to promote the labels
+            # being placed at the widest part of the field.
+            scale_factor = 1.5
+            p = ax.transData.transform([[0., 0.], [1., 1.]])
+            yx_scaling = (p[1][1] - p[0][1])/(p[1][0] - p[0][0])*scale_factor
+
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
@@ -449,7 +465,10 @@ class TAS(PolygonClassifier):
                         )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
                     _poly = matplotlib.patches.Polygon(verts)
-                    x, y = get_centroid(_poly)
+                    if label_at_centroid:
+                        x, y = get_centroid(_poly)
+                    else:
+                        x, y = get_visual_center(_poly, yx_scaling)
                     ax.annotate(
                         "\n".join(label.split()),
                         xy=(x, y),

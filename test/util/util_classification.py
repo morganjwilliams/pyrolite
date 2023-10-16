@@ -1,10 +1,13 @@
 import unittest
-
 import matplotlib.pyplot as plt
-import numpy as np
+import pandas as pd
 
-from pyrolite.comp.codata import renormalise
-from pyrolite.util.classification import *
+from pyrolite.util.classification import (TAS,
+                                          USDASoilTexture,
+                                          QAP,
+                                          FeldsparTernary,
+                                          JensenPlot,
+                                          PeralkalinityClassifier)
 from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
 
@@ -20,29 +23,31 @@ class TestTAS(unittest.TestCase):
         self.df.loc[:, "Na2O + K2O"] = self.df.Na2O + self.df.K2O
 
     def test_classifer_build(self):
-        cm = TAS()
+        _ = TAS()
 
     def test_classifer_add_to_axes(self):
         cm = TAS()
-        fig, ax = plt.subplots(1)
+        _, ax = plt.subplots(1)
         for a in [None, ax]:
-            with self.subTest(a=a):
-                cm.add_to_axes(
-                    ax=a,
-                    alpha=0.4,
-                    color="k",
-                    axes_scale=100,
-                    linewidth=0.5,
-                    which_labels="ID",
-                    add_labels=True,
-                )
+            for label_at_centroid in [True, False]:
+                with self.subTest(a=a):
+                    cm.add_to_axes(
+                        ax=a,
+                        alpha=0.4,
+                        color="k",
+                        axes_scale=100,
+                        linewidth=0.5,
+                        which_labels="ID",
+                        add_labels=True,
+                        label_at_centroid=label_at_centroid,
+                    )
 
     def test_classifer_predict(self):
         df = self.df
         cm = TAS()
         classes = cm.predict(df, data_scale=1.0)
-        # precitions will be ID's
-        rocknames = classes.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
+        # rocknames will be IDs
+        _ = classes.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
         self.assertFalse(pd.isnull(classes).all())
 
 
@@ -55,7 +60,7 @@ class TestUSDASoilTexture(unittest.TestCase):
         )
 
     def test_classifer_build(self):
-        cm = USDASoilTexture()
+        _ = USDASoilTexture()
 
     def test_classifer_add_to_axes(self):
         cm = USDASoilTexture()
@@ -82,7 +87,7 @@ class TestQAP(unittest.TestCase):
         )
 
     def test_classifer_build(self):
-        cm = QAP()
+        _ = QAP()
 
     def test_classifer_add_to_axes(self):
         cm = QAP()
@@ -109,11 +114,11 @@ class TestFeldsparTernary(unittest.TestCase):
         )
 
     def test_classifer_build(self):
-        cm = FeldsparTernary()
+        _ = FeldsparTernary()
 
     def test_classifer_add_to_axes(self):
         cm = FeldsparTernary()
-        fig, ax = plt.subplots(1)
+        _, ax = plt.subplots(1)
         for a in [None, ax]:
             with self.subTest(a=a):
                 cm.add_to_axes(
@@ -137,11 +142,11 @@ class TestJensenPlot(unittest.TestCase):
         )
 
     def test_classifer_build(self):
-        cm = JensenPlot()
+        _ = JensenPlot()
 
     def test_classifer_add_to_axes(self):
         cm = JensenPlot()
-        fig, ax = plt.subplots(1)
+        _, ax = plt.subplots(1)
         for a in [None, ax]:
             with self.subTest(a=a):
                 cm.add_to_axes(
@@ -159,7 +164,7 @@ class TestPeralkalinity(unittest.TestCase):
     """Test the peralkalinity classifier."""
 
     def setUp(self):
-        self.df = df = normal_frame(
+        self.df = normal_frame(
             columns=["SiO2", "Na2O", "K2O", "Al2O3", "CaO"],
             mean=[0.5, 0.04, 0.05, 0.2, 0.3],
             size=100,

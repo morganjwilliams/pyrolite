@@ -5,6 +5,7 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial
+from .center import visual_center
 
 from ..log import Handle
 from ..math import eigsorted, nancov
@@ -76,6 +77,30 @@ def get_centroid(poly):
     cx /= 6 * A
     cy /= 6 * A
     return cx, cy
+
+
+def get_visual_center(poly, vertical_exaggeration=1):
+    """
+    Visual center of a closed polygon.
+
+    Parameters
+    ----------
+    poly : :class:`matplotlib.patches.Polygon`
+        Polygon for which to obtain the visual center.
+
+    vertical_exaggeration : :class:`float`
+        Apparent vertical exaggeration of the plot
+        (pixels per unit in y direction divided by pixels 
+        per unit in the x direction).
+
+    Returns
+    -------
+    cx, cy : :class:`tuple`
+        Centroid coordinates.
+    """
+    poly_scaled = np.array([poly.get_xy() * [1., vertical_exaggeration]])
+    x, y = visual_center(poly_scaled)
+    return tuple([x, y/vertical_exaggeration])
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
