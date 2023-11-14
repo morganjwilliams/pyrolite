@@ -49,11 +49,13 @@ df["Rocknames"].sample(10)  # randomly check 10 sample rocknames
 ########################################################################################
 # We could now take the TAS classes and use them to colorize our points for plotting
 # on the TAS diagram, or more likely, on another plot. Here the relationship to the
-# TAS diagram is illustrated:
+# TAS diagram is illustrated, coloring also the populated fields:
 #
 
 fig, ax = plt.subplots(1)
 
+cm.add_to_axes(ax, alpha=0.5, linewidth=0.0, zorder=-2, add_labels=False,
+               which_ids=np.unique(df["TAS"]), fill=True, facecolor=[0.9, 0.8, 1.0])
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
 df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7, axlabels=False)
 
