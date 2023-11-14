@@ -45,7 +45,7 @@ dependencies:
   - twine
   - pip:
       - sphinx-autodoc-annotation
-      - sphinx_gallery>=0.6.0
+      - sphinx-gallery>=0.6.0
       - -e . # install the local pyrolite package
 
 # conda env create -f environment.yml

@@ -288,6 +288,7 @@ sphinx_gallery_conf = {
     # "jupyterlite": {"use_jupyter_lab": True},
     "first_notebook_cell": "%matplotlib inline\n",
     "reset_modules": (reset_mpl),
+    "nested_sections": False
 }
 # Remove matplotlib agg warnings from generated doc when using plt.show
 warnings.filterwarnings(
