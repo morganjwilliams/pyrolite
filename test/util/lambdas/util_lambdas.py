@@ -9,10 +9,11 @@ from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.util.lambdas import calc_lambdas
 from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
-from pyrolite.util.lambdas.params import orthogonal_polynomial_constants
+from pyrolite.util.lambdas.params import orthogonal_polynomial_constants, _get_params
 from pyrolite.util.synthetic import random_cov_matrix
+from pyrolite.util.lambdas import oneill, opt
 
-
+from pandas.testing import assert_frame_equal
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthogonal polynomial parameters."""
 
@@ -263,6 +264,68 @@ class TestCalcLambdas(unittest.TestCase):
         # all of the second row should be nan
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
 
+
+class TestCalcLambdasSeries(unittest.TestCase):
+    def setUp(self):
+        self.C = get_reference_composition("PM_PON")
+        self.C.set_units("ppm")
+        els = [i for i in REE() if not i == "Pm"]
+        vals = self.C[els]
+        self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
+
+        self.df = self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
+        self.df.loc[1, :] = self.df.loc[0, :]
+        self.default_degree = 3
+
+    def test_oneil_series(self):
+        df_REE = self.df.pyrochem.REE
+        df_REE = np.log(df_REE)
+        degree = self.default_degree
+        params = _get_params(None, degree)
+        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
+        result_oneil = calc_lambdas(df_REE, algorithm="oneill", degree=degree, LTE=False)
+        result_oneil_series = df_REE.apply(lambda x: oneill.lambdas_ONeill2016_series(x, radii, params=params,LTE=False, degree=degree), axis=1)
+        assert_frame_equal(result_oneil, result_oneil_series, rtol=3e-3, atol=3e-3)
+
+    def test_opt_series(self):
+        df_REE = self.df.pyrochem.REE
+        df_REE = np.log(df_REE)
+        degree = self.default_degree
+        params = _get_params(None, degree)
+        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
+        result_opt = calc_lambdas(df_REE, algorithm="opt", degree=degree)
+        result_opt_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="opt",degree=degree), axis=1)
+        assert_frame_equal(result_opt, result_opt_series, rtol=3e-3, atol=3e-3)
+
+    def test_lin_series(self):
+        df_REE = self.df.pyrochem.REE
+        df_REE = np.log(df_REE)
+        degree = self.default_degree
+        params = _get_params(None, degree)
+        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
+        result_lin = calc_lambdas(df_REE, algorithm="lin", degree=degree)
+        result_lin_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="lin",degree=degree), axis=1)
+        assert_frame_equal(result_lin, result_lin_series, rtol=3e-3, atol=3e-3)
+
+    def test_opt_series_LTE(self):
+        df_REE = self.df.pyrochem.REE
+        df_REE = np.log(df_REE)
+        degree = self.default_degree
+        params = _get_params(None, degree)
+        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
+        result_opt = calc_lambdas(df_REE, algorithm="opt", degree=degree, fit_tetrads=True)
+        result_opt_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="opt", degree=degree, fit_tetrads=True), axis=1)
+        assert_frame_equal(result_opt, result_opt_series, rtol=3e-3, atol=3e-3)
+
+    def test_lin_series_LTE(self):
+        df_REE = self.df.pyrochem.REE
+        df_REE = np.log(df_REE)
+        degree = self.default_degree
+        params = _get_params(None, degree)
+        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
+        result_lin = calc_lambdas(df_REE, algorithm="lin", degree=degree, fit_tetrads=True)
+        result_lin_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="lin", degree=degree, fit_tetrads=True), axis=1)
+        assert_frame_equal(result_lin, result_lin_series, rtol=3e-3, atol=3e-3)
 
 if __name__ == "__main__":
     unittest.main()
