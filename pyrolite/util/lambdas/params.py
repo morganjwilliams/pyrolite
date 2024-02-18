@@ -152,7 +152,7 @@ def _get_params(params=None, degree=4):
     return params
 
 
-def parse_sigmas(y, sigmas=None):
+def parse_sigmas(size, sigmas=None):
     r"""
     Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
     algorithms.
@@ -180,10 +180,10 @@ def parse_sigmas(y, sigmas=None):
     0.01 will be returned.
     """
     if sigmas is None:
-        sigmas = np.ones(y.shape[1]) * 0.01
+        sigmas = np.ones(size) * 0.01
     else:  # sigmas are passed
         if isinstance(sigmas, float):
-            sigmas = sigmas * np.ones(y.shape[1])
+            sigmas = sigmas * np.ones(size)
         elif sigmas.ndim > 1:
             if any(ix == 1 for ix in sigmas.shape):
                 sigmas = sigmas.flatten()

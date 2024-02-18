@@ -24,6 +24,7 @@ class pyrochem(object):
         """Custom dataframe accessor for pyrolite geochemistry."""
         self._validate(obj)
         self._obj = obj
+        self._selection_index = self._obj.columns if isinstance(self._obj, pd.DataFrame) else self._obj.index
 
     @staticmethod
     def _validate(obj):
@@ -44,8 +45,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(_common_elements)
-        return self._obj.columns[fltr].tolist()
+        return [i for i in self._selection_index if i in _common_elements]
 
     @property
     def list_isotope_ratios(self):
@@ -60,8 +60,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = [parse.is_isotoperatio(c) for c in self._obj.columns]
-        return self._obj.columns[fltr].tolist()
+        return [c for c in self._selection_index if parse.is_isotoperatio(c)]
 
     @property
     def list_REE(self):
@@ -76,7 +75,7 @@ class pyrochem(object):
         -------
         The returned list will reorder REE based on atomic number.
         """
-        return [i for i in REE() if i in self._obj.columns]
+        return [i for i in REE(dropPm=("Pm" not in self._selection_index)) if i in self._selection_index]
 
     @property
     def list_REY(self):
@@ -91,7 +90,7 @@ class pyrochem(object):
         -------
         The returned list will reorder REE based on atomic number.
         """
-        return [i for i in REY() if i in self._obj.columns]
+        return [i for i in REY(dropPm=("Pm" not in self._selection_index)) if i in self._selection_index]
 
     @property
     def list_oxides(self):
@@ -106,8 +105,8 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(_common_oxides)
-        return self._obj.columns[fltr].tolist()
+        fltr = self._selection_index.isin(_common_oxides)
+        return self._selection_index[fltr].tolist()
 
     @property
     def list_compositional(self):
