@@ -13,7 +13,7 @@ try:
 
     HAVE_SKLEARN = True
 
-    def test_classifier():
+    def get_classifier():
         param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
         gs = GridSearchCV(SVC(gamma="scale"), param_grid, cv=2)
         return gs
@@ -31,7 +31,7 @@ class TestPlotConfusionMatrix(unittest.TestCase):
 
     def setUp(self):
         self.X = normal_frame(size=20).apply(close, axis=1)
-        self.gs = test_classifier()
+        self.gs = get_classifier()
         self.y = np.ones(self.X.index.size)
         self.y[4:] += 1
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
@@ -50,7 +50,7 @@ class TestPlotGSResults(unittest.TestCase):
 
     def setUp(self):
         self.X = normal_frame(size=20).apply(close, axis=1)
-        self.gs = test_classifier()
+        self.gs = get_classifier()
         self.y = np.ones(self.X.index.size)
         self.y[4:] += 1
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(

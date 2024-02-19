@@ -7,21 +7,12 @@ from pyrolite.util.synthetic import normal_frame
 
 try:
     import sklearn
-    from sklearn.model_selection import GridSearchCV
-    from sklearn.svm import SVC
 
     HAVE_SKLEARN = True
 
-    def test_classifier():
-        param_grid = dict(gamma=np.array([0.001, 0.01]), C=np.array([1, 10]))
-        gs = GridSearchCV(SVC(gamma="scale"), param_grid, cv=2)
-        return gs
-
+    from pyrolite.util.skl.impute import MultipleImputer
 except ImportError:
     HAVE_SKLEARN = False
-
-if HAVE_SKLEARN:
-    from pyrolite.util.skl.impute import MultipleImputer
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
