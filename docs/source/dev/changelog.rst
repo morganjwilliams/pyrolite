@@ -10,6 +10,23 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+* **New Contributor**: `Malte Mues <https://github.com/mmuesly>`__
+
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **PR Merged**: `Malte Mues <https://github.com/mmuesly>`__ contributed a PR to 
+  allow series and dataframes with `Pm` data to be used with the `pyrolite.pyrochem`
+  REE accessors (i.e., the column will not be dropped if it exists). This PR 
+  aslo included an update for the `pyrolite.util.lambdas` functions to be more 
+  flexible in terms of access, including as indvidual series (allowing performant 
+  usage with `pandarallel <https://github.com/nalepae/pandarallel>`__).
+* Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
+  usage with both DataFrame and Series objects (e.g. `df.pyrochem.REE`, 
+  `ser.pyrochem.REE`).
+
+
 `0.3.4`_
 --------------
 
