@@ -1,19 +1,19 @@
 import unittest
 
-import matplotlib.axes
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.util.lambdas import calc_lambdas
 from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
-from pyrolite.util.lambdas.params import orthogonal_polynomial_constants, _get_params
+from pyrolite.util.lambdas.oneill import lambdas_ONeill2016
+from pyrolite.util.lambdas.opt import lambdas_optimize
+from pyrolite.util.lambdas.params import _get_params, orthogonal_polynomial_constants
 from pyrolite.util.synthetic import random_cov_matrix
-from pyrolite.util.lambdas import oneill, opt
 
-from pandas.testing import assert_frame_equal
+
 class TestOPConstants(unittest.TestCase):
     """Checks the generation of orthogonal polynomial parameters."""
 
@@ -276,56 +276,38 @@ class TestCalcLambdasSeries(unittest.TestCase):
         self.df = self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
         self.df.loc[1, :] = self.df.loc[0, :]
         self.default_degree = 3
+        self.params = _get_params(None, self.default_degree)
+        self.radii = get_ionic_radii(els, 3, 8)
 
-    def test_oneil_series(self):
-        df_REE = self.df.pyrochem.REE
-        df_REE = np.log(df_REE)
-        degree = self.default_degree
-        params = _get_params(None, degree)
-        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
-        result_oneil = calc_lambdas(df_REE, algorithm="oneill", degree=degree, LTE=False)
-        result_oneil_series = df_REE.apply(lambda x: oneill.lambdas_ONeill2016_series(x, radii, params=params,LTE=False, degree=degree), axis=1)
-        assert_frame_equal(result_oneil, result_oneil_series, rtol=3e-3, atol=3e-3)
+    def test_series_lambdas(self):
+        for algorithm in ["oneill", "opt", "lin"]:
+            _lambdas_method = (
+                lambdas_ONeill2016 if algorithm == "oneill" else lambdas_optimize
+            )
+            for tetrads in [False] + ([True] if algorithm != "oneill" else []):
+                with self.subTest(
+                    _lambdas_method=_lambdas_method,
+                    algorithm=algorithm,
+                    tetrads=tetrads,
+                ):
+                    result_df = calc_lambdas(
+                        np.log(self.df.pyrochem.REE),
+                        params=self.params,
+                        algorithm=algorithm,
+                        fit_tetrads=tetrads,
+                    )
+                    result_series = np.log(self.df.pyrochem.REE).apply(
+                        lambda x: _lambdas_method(
+                            x,
+                            self.radii,
+                            params=self.params,
+                            fit_method=algorithm,
+                            fit_tetrads=tetrads,
+                        ),
+                        axis=1,
+                    )
+                    assert_frame_equal(result_df, result_series, rtol=3e-3, atol=3e-3)
 
-    def test_opt_series(self):
-        df_REE = self.df.pyrochem.REE
-        df_REE = np.log(df_REE)
-        degree = self.default_degree
-        params = _get_params(None, degree)
-        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
-        result_opt = calc_lambdas(df_REE, algorithm="opt", degree=degree)
-        result_opt_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="opt",degree=degree), axis=1)
-        assert_frame_equal(result_opt, result_opt_series, rtol=3e-3, atol=3e-3)
-
-    def test_lin_series(self):
-        df_REE = self.df.pyrochem.REE
-        df_REE = np.log(df_REE)
-        degree = self.default_degree
-        params = _get_params(None, degree)
-        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
-        result_lin = calc_lambdas(df_REE, algorithm="lin", degree=degree)
-        result_lin_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="lin",degree=degree), axis=1)
-        assert_frame_equal(result_lin, result_lin_series, rtol=3e-3, atol=3e-3)
-
-    def test_opt_series_LTE(self):
-        df_REE = self.df.pyrochem.REE
-        df_REE = np.log(df_REE)
-        degree = self.default_degree
-        params = _get_params(None, degree)
-        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
-        result_opt = calc_lambdas(df_REE, algorithm="opt", degree=degree, fit_tetrads=True)
-        result_opt_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="opt", degree=degree, fit_tetrads=True), axis=1)
-        assert_frame_equal(result_opt, result_opt_series, rtol=3e-3, atol=3e-3)
-
-    def test_lin_series_LTE(self):
-        df_REE = self.df.pyrochem.REE
-        df_REE = np.log(df_REE)
-        degree = self.default_degree
-        params = _get_params(None, degree)
-        radii = get_ionic_radii(list(df_REE.columns), 3, 8)
-        result_lin = calc_lambdas(df_REE, algorithm="lin", degree=degree, fit_tetrads=True)
-        result_lin_series = df_REE.apply(lambda x: opt.lambdas_optimize_series(x, radii, fit_method="lin", degree=degree, fit_tetrads=True), axis=1)
-        assert_frame_equal(result_lin, result_lin_series, rtol=3e-3, atol=3e-3)
 
 if __name__ == "__main__":
     unittest.main()
