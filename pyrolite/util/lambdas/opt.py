@@ -55,7 +55,7 @@ def _residuals_func(ls, ys, func_components):
     ys : :class:`numpy.ndarray`
         Target y values.
     func_components : :class:`numpy.ndarray`
-        Arrays representing the individual unweighted unweighted function components.
+        Arrays representing the individual unweighted function components.
         E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
 
     Returns

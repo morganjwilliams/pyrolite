@@ -1,6 +1,7 @@
 """
 Functions for export of figures and figure elements from matplolib.
 """
+
 import os
 from pathlib import Path
 
@@ -13,9 +14,7 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-def save_figure(
-    figure, name="fig", save_at="", save_fmts=["png"], output=False, **kwargs
-):
+def save_figure(figure, name="fig", save_at="", save_fmts=["png"], **kwargs):
     """
     Save a figure at a specified location in a number of formats.
     """
@@ -24,12 +23,11 @@ def save_figure(
     config.update(kwargs)
     save_at = Path(save_at)
     if not save_at.exists():
-        logger.debug("Creating save directory at {}".format(str(save_at)))
+        logger.debug("Creating save directory at {}".format(save_at))
     save_at.mkdir(parents=True, exist_ok=True)
     for fmt in save_fmts:
         out_filename = (save_at / name).with_suffix("." + fmt)
-        if output:
-            logger.info("Saving " + out_filename)
+        logger.debug("Saving {}".format(out_filename))
         figure.savefig(out_filename, format=fmt, **config)
 
 
@@ -60,7 +58,7 @@ def save_axes(ax, name="fig", save_at="", save_fmts=["png"], pad=0.0, **kwargs):
         save_at=save_at,
         name=name,
         save_fmts=save_fmts,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -112,7 +110,7 @@ def get_full_extent(ax, pad=0.0):
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
 
 
-def path_to_csv(path, xname="x", yname="y", delim=", ", linesep=os.linesep):
+def path_to_csv(path, xname="x", yname="y", delim=",", linesep=os.linesep):
     """
     Extract the verticies from a path and write them to csv.
 
