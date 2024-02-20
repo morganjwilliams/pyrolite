@@ -26,16 +26,16 @@ def md_pattern(Y):
         Y = Y.values
     N, D = Y.shape
     # use int64 for higher-D arrays
-    pID = np.zeros(N).astype("int64")
+    pID = np.zeros(N)
     Ymiss = ~np.isfinite(Y)
     rows = np.arange(N)[~np.isfinite(np.sum(Y, axis=1))]
-    max_pats = scipy.special.comb(D, np.arange(0, D + 1)).sum().astype("int64")
+    max_pats = scipy.special.comb(D, np.arange(0, D + 1)).sum()
     pID[rows] = max_pats * 5  # initialise to high value
     pD = defaultdict(dict)
 
     pindex = 0  # 0 = no missing data
     pD[int(0)] = {"pattern": np.zeros(D).astype(bool), "freq": np.sum(pID == 0)}
-    indexes = np.arange(N).astype(int)
+    indexes = np.arange(N)
     indexes = indexes[pID[indexes] > pindex]  # only look at md rows
     for idx in indexes:
         if pID[idx] > pindex:  # has missing data
@@ -48,7 +48,7 @@ def md_pattern(Y):
                 to_compare = _rix[pID[_rix] > pindex]
                 where_same = to_compare[(Ymiss[to_compare, :] == pattern).all(axis=1)]
                 pID[where_same] = pindex
-    for ID in np.unique(pID).astype(int):
+    for ID in np.unique(pID):
         pD[ID]["freq"] = np.sum(pID == ID)
     return pID, pD
 
