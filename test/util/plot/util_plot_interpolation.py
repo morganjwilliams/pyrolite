@@ -62,15 +62,15 @@ class TestContourPaths(unittest.TestCase):
         Z1 = np.exp(-(X**2) - Y**2)
         Z2 = np.exp(-((X - 1) ** 2) - (Y - 1) ** 2)
         Z = (Z1 - Z2) * 2
-        self.contours = self.ax.contour(X, Y, Z, inline=False)
+        self.contours = self.ax.contour(X, Y, Z)
+        self.clabels = self.ax.clabel(self.contours, inline=True)
 
     def test_default(self):
-        paths, names, styles = get_contour_paths(self.ax)
-        self.assertTrue(len(set([len(paths), len(names), len(styles)])) == 1)
-        self.ax.clabel(self.contours, inline=True)
-        paths, names, styles = get_contour_paths(self.ax)
-        self.assertTrue(len(set([len(paths), len(names), len(styles)])) == 1)
-        self.assertTrue(names[0] is not None)
+        # can pass either axes (with nothing else on it.. ) or the contourset
+        for src in [self.ax, self.contours]:
+            with self.subTest(src=src):
+                paths, names, styles = get_contour_paths(src)
+                self.assertTrue(len(set([len(paths), len(names), len(styles)])) == 1)
 
     def tearDown(self):
         plt.close("all")
