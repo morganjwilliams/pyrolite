@@ -24,10 +24,15 @@ class TestStreamLog(unittest.TestCase):
         self.key = "pyrolite.plot"
 
     def test_default(self):
-        logger = stream_log(self.key)
-        # check that the logger has a single stream handler
-        handlers = [i for i in logger.handlers if isinstance(i, logging.StreamHandler)]
-        self.assertTrue(len(handlers) == 1)
+        for src in [self.key, None, logging.getLogger(__name__)]:
+            with self.subTest(src=src):
+                logger = stream_log(src)
+                # check that the logger has a single stream handler
+                handlers = [
+                    i for i in logger.handlers if isinstance(i, logging.StreamHandler)
+                ]
+                if src is not None:
+                    self.assertTrue(len(handlers) == 1)
 
     def test_INFO(self):
         level = "INFO"
@@ -62,8 +67,9 @@ class TestStreamLog(unittest.TestCase):
 class TestHandle(unittest.TestCase):
     def test_default(self):
         # get the root pyrolite logger
-        logger = Handle("pyrolite")
-        self.assertIsInstance(logger, logging.Logger)
+        for src in ["pyrolite", logging.getLogger(__name__)]:
+            logger = Handle(src)
+            self.assertIsInstance(logger, logging.Logger)
 
     def test_set_level(self):
         for level, val in zip(["DEBUG", "INFO", "WARNING", "ERROR"], [10, 20, 30, 40]):
@@ -71,6 +77,14 @@ class TestHandle(unittest.TestCase):
                 logger = Handle("pyrolite", level=level)
                 self.assertTrue(logger.level == val)
 
+class TestToLogger(unittest.TestCase):
+
+    def test_default(self):
+        logger= Handle(__name__, level='DEBUG')
+
+        with ToLogger(logger, 'INFO') as f:
+            f.write('Logging output from stream.')
+            f.flush()
 
 if __name__ == "__main__":
     unittest.main()
