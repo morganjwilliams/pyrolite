@@ -1,6 +1,7 @@
 """
 Line interpolation for matplotlib lines and paths.
 """
+
 import matplotlib.collections
 import matplotlib.path
 import numpy as np
@@ -111,27 +112,33 @@ def get_contour_paths(ax, resolution=100):
         :code:`matplotlib.collections.LineCollection` objects within an axes;
         and when this is not the case, additional non-contour objects will be returned.
     """
-    linecolls = [
-        c
-        for c in ax.collections
+
+    def _iscontour(c):
         # contours/default lines don't have markers - allows distinguishing scatter
-        if (
+        return (
             isinstance(c, matplotlib.collections.PathCollection)
             and c.get_sizes().size == 0
-        )
-        or isinstance(c, matplotlib.collections.LineCollection)
-    ]
+        ) or isinstance(c, matplotlib.collections.LineCollection)
+
+    linecolls = [c for c in ax.collections if (_iscontour(c) and len(c.get_paths()))]
     rgba = [lc.get_edgecolors() for lc in linecolls]
     styles = [{"color": c} for c in rgba]
     names = [None for lc in linecolls]
-    if (len(ax.texts) == len(linecolls)) and all(
-        [a.get_text() != "" for a in ax.texts]
-    ):
-        names = [a.get_text() for a in ax.texts]
+
+    if all([len(a.get_text()) for a in ax.texts]):
+        if len(ax.texts) == len(linecolls):
+            names = [a.get_text() for a in ax.texts]
+        else:
+            logger.debug("Can't line up labels/text with contours.")
     return (
         [
             [
-                interpolate_path(p, resolution=resolution, periodic=True, aspath=False)
+                interpolate_path(
+                    p,
+                    resolution=resolution,
+                    periodic=True,
+                    aspath=False,
+                )
                 for p in lc.get_paths()
             ]
             for lc in linecolls
