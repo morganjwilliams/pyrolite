@@ -11,7 +11,9 @@ All notable changes to this project will be documented here.
         `development install <development.html#development-installation>`__ .
 
 * **New Contributor**: `Malte Mues <https://github.com/mmuesly>`__
-
+* **New Contributor**: `Bob Myhill <https://github.com/bobmyhill>`__
+* **Bugfix**: Fixed a bug with the index structure for the documentation example galleries.
+* Expanded test suite for a text coverage bump.
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,6 +27,24 @@ All notable changes to this project will be documented here.
 * Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
   usage with both DataFrame and Series objects (e.g. `df.pyrochem.REE`, 
   `ser.pyrochem.REE`).
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* **PR Merged**: `Bob Myhill <https://github.com/bobmyhill>`__ contributed a series of 
+  pull requests to fix formatting of TAS diagram labels
+  (`#91 <https://github.com/morganjwilliams/pyrolite/pull/91>`__), 
+  update the TAS field names in the JSON template 
+  (`#92 <https://github.com/morganjwilliams/pyrolite/pull/92>`__), 
+  improve the formatting and scaling of TAS diagrams.
+  (`#93 <https://github.com/morganjwilliams/pyrolite/pull/93>`__), 
+  add an option to add field labels in the visual centre of polygons (rather than the 
+  'centroid'; `#94 <https://github.com/morganjwilliams/pyrolite/pull/94>`__),
+  update some usage of :mod:`matplotlib` 
+  (`#96 <https://github.com/morganjwilliams/pyrolite/pull/96>`__),
+  and allow selective plotting of indiviudal fields when adding a classification 
+  diagram to axes (`#98 <https://github.com/morganjwilliams/pyrolite/pull/98>`__).
+  
 
 
 `0.3.4`_
