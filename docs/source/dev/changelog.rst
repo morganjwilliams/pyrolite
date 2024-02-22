@@ -14,14 +14,16 @@ All notable changes to this project will be documented here.
 * **New Contributor**: `Bob Myhill <https://github.com/bobmyhill>`__
 * **Bugfix**: Fixed a bug with the index structure for the documentation example galleries.
 * Expanded test suite for a text coverage bump.
+* Started testing against Python 3.12.
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * **PR Merged**: `Malte Mues <https://github.com/mmuesly>`__ contributed a PR to 
   allow series and dataframes with `Pm` data to be used with the `pyrolite.pyrochem`
-  REE accessors (i.e., the column will not be dropped if it exists). This PR 
-  aslo included an update for the `pyrolite.util.lambdas` functions to be more 
+  REE accessors (i.e., the column will not be dropped if it exists; 
+  `#100 <https://github.com/morganjwilliams/pyrolite/pull/100>`__). 
+  This PR aslo included an update for the `pyrolite.util.lambdas` functions to be more 
   flexible in terms of access, including as indvidual series (allowing performant 
   usage with `pandarallel <https://github.com/nalepae/pandarallel>`__).
 * Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
@@ -46,12 +48,18 @@ All notable changes to this project will be documented here.
   diagram to axes (`#98 <https://github.com/morganjwilliams/pyrolite/pull/98>`__).
   
 
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~
+
+* Suppressed :mod:`pandas` performance warnings related to sequential construction of 
+  :class:`pandas.DataFrame`s in :func:`pyrolite.mineral.normative.CIPW`.
 
 `0.3.4`_
 --------------
 
 * **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
-  some minor bugfixes for the CIPW Norm.
+  some minor bugfixes for the CIPW Norm
+  (`#87 <https://github.com/morganjwilliams/pyrolite/pull/87>`__).
 * Various maintenance updates, including migrating the package to use `pyproject.toml`.
 
 `0.3.3`_
@@ -69,19 +77,23 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
 * **PR Merged**: Added an option to get expanded outputs for the CIPW Norm
-  (from `Tom Buckle <https://github.com/bomtuckle>`__ ).
+  (from `Tom Buckle <https://github.com/bomtuckle>`__; 
+  `#80 <https://github.com/morganjwilliams/pyrolite/pull/80>`__).
 * **Bugfix**: Fixes and updated tests for CIPW Norm outputs.
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~
 * **PR Merged**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
-  variations on the TAS diagram from Le Maitre. These can be accessed by providing a 
+  variations on the TAS diagram from Le Maitre (
+  `#79 <https://github.com/morganjwilliams/pyrolite/pull/79>`__).
+  These can be accessed by providing a 
   :code:`which_model` keyword argument to the :class:`~pyrolite.util.classification.TAS`
   constructor (or plot template).
 * **PR Merged**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
   sandstone bulk geochemistry discrimination diagrams 
   (:class:`~pyrolite.util.classification.Pettijohn`,
-  :class:`~pyrolite.util.classification.Herron`).
+  :class:`~pyrolite.util.classification.Herron`; 
+  `#82 <https://github.com/morganjwilliams/pyrolite/pull/82>`__).
 * **Bugfix**: Fixed issue with handling `vmin` and `vmax` for colormapping in 
   :mod:`pyrolite.plot.color`.
 * Suppressed warnings for 'division by zero'/'invalid value encountered in divide' in
