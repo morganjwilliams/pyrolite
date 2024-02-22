@@ -49,10 +49,10 @@ All notable changes to this project will be documented here.
   
 
 :mod:`pyrolite.mineral`
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 * Suppressed :mod:`pandas` performance warnings related to sequential construction of 
-  :class:`pandas.DataFrame`s in :func:`pyrolite.mineral.normative.CIPW`.
+  :class:`pandas.DataFrame`s in :func:`pyrolite.mineral.normative.CIPW_norm`.
 
 `0.3.4`_
 --------------
@@ -80,6 +80,7 @@ All notable changes to this project will be documented here.
   (from `Tom Buckle <https://github.com/bomtuckle>`__; 
   `#80 <https://github.com/morganjwilliams/pyrolite/pull/80>`__).
 * **Bugfix**: Fixes and updated tests for CIPW Norm outputs.
+
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~
