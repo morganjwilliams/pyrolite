@@ -450,7 +450,6 @@ def get_ILR_labels(df, mode="latex", **kwargs):
         )
         for c in df.columns
     ]
-    named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
     named_expr = expr.subs({k: v for (k, v) in zip(sym_vars, names)})
     # format latex labels
     if mode.lower() == "latex":
