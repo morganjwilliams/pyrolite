@@ -432,8 +432,8 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     """
     D = df.columns.size
     # encode symbolic variables
-    vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
-    arr = sympy.Matrix([[sympy.ln(v) for v in vars]])
+    sym_vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+    arr = sympy.Matrix([[sympy.ln(v) for v in sym_vars]])
 
     # this is the CLR --> ILR transform
     helmert = symbolic_helmert_basis(D, **kwargs)
@@ -451,6 +451,7 @@ def get_ILR_labels(df, mode="latex", **kwargs):
         for c in df.columns
     ]
     named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
+    named_expr = expr.subs({k: v for (k, v) in zip(sym_vars, names)})
     # format latex labels
     if mode.lower() == "latex":
         labels = [
