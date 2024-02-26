@@ -60,7 +60,7 @@ class TestPlotZPercentiles(unittest.TestCase):
         cs = plot_Z_percentiles(
             self.xi, self.yi, zi=self.zi, contour_labels=contour_labels
         )
-        for contour_label, label in zip(contour_labels, cs.labelTextsList):
+        for contour_label, label in zip(contour_labels, cs.labelTexts):
             label = label.get_text()
             self.assertTrue(contour_label == label)
 
@@ -80,12 +80,17 @@ class TestPlotZPercentiles(unittest.TestCase):
             linestyles=linestyles,
             linewidths=linewidths,
         )
-        for contour, color, ls, lw in zip(
-            cs.collections, colors, linestyles, linewidths
-        ):
-            self.assertTrue((contour.get_edgecolor() == color).all())
-            self.assertEqual(contour.get_linestyle(), [_scale_dashes(*ls, lw)])
-            self.assertEqual(contour.get_linewidth(), lw)
+        try:
+            self.assertTrue(cs.colors == colors)
+            self.assertTrue(cs.linestyles == linestyles)
+            self.assertTrue((cs._us_lw == linewidths).all())
+        except AttributeError:  # matplotlib version < 3.8
+            for contour, color, ls, lw in zip(
+                cs.collections, colors, linestyles, linewidths
+            ):
+                self.assertTrue((contour.get_edgecolor() == color).all())
+                self.assertEqual(contour.get_linestyle(), [_scale_dashes(*ls, lw)])
+                self.assertEqual(contour.get_linewidth(), lw)
 
     def test_linestyles_specified(self):
         plot_Z_percentiles(

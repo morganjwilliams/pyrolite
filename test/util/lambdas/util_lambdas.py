@@ -1,15 +1,16 @@
 import unittest
 
-import matplotlib.axes
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal
 
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.util.lambdas import calc_lambdas
 from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
-from pyrolite.util.lambdas.params import orthogonal_polynomial_constants
+from pyrolite.util.lambdas.oneill import lambdas_ONeill2016
+from pyrolite.util.lambdas.opt import lambdas_optimize
+from pyrolite.util.lambdas.params import _get_params, orthogonal_polynomial_constants
 from pyrolite.util.synthetic import random_cov_matrix
 
 
@@ -262,6 +263,50 @@ class TestCalcLambdas(unittest.TestCase):
         ret = calc_lambdas(df)
         # all of the second row should be nan
         self.assertTrue((~np.isfinite(ret.iloc[1, :])).values.flatten().all())
+
+
+class TestCalcLambdasSeries(unittest.TestCase):
+    def setUp(self):
+        self.C = get_reference_composition("PM_PON")
+        self.C.set_units("ppm")
+        els = [i for i in REE() if not i == "Pm"]
+        vals = self.C[els]
+        self.df = pd.DataFrame({k: v for (k, v) in zip(els, vals)}, index=[0])
+
+        self.df = self.df.pyrochem.normalize_to("Chondrite_PON", units="ppm")
+        self.df.loc[1, :] = self.df.loc[0, :]
+        self.default_degree = 3
+        self.params = _get_params(None, self.default_degree)
+        self.radii = get_ionic_radii(els, 3, 8)
+
+    def test_series_lambdas(self):
+        for algorithm in ["oneill", "opt", "lin"]:
+            _lambdas_method = (
+                lambdas_ONeill2016 if algorithm == "oneill" else lambdas_optimize
+            )
+            for tetrads in [False] + ([True] if algorithm != "oneill" else []):
+                with self.subTest(
+                    _lambdas_method=_lambdas_method,
+                    algorithm=algorithm,
+                    tetrads=tetrads,
+                ):
+                    result_df = calc_lambdas(
+                        np.log(self.df.pyrochem.REE),
+                        params=self.params,
+                        algorithm=algorithm,
+                        fit_tetrads=tetrads,
+                    )
+                    result_series = np.log(self.df.pyrochem.REE).apply(
+                        lambda x: _lambdas_method(
+                            x,
+                            self.radii,
+                            params=self.params,
+                            fit_method=algorithm,
+                            fit_tetrads=tetrads,
+                        ),
+                        axis=1,
+                    )
+                    assert_frame_equal(result_df, result_series, rtol=3e-3, atol=3e-3)
 
 
 if __name__ == "__main__":

@@ -12,6 +12,26 @@ Under Development
 These features are either under development or planned to be implemented
 and should be released in the near future.
 
+
+* **Interactive Plotting Backend Options**: :mod:`pyrolite` visualisation is currently
+  based entirely on static plot generation via :mod:`matplotlib`. While this works
+  well for publication-style figures, it may be possible to leverage :mod:`pandas`-based
+  frameworks to provide options for alternative backends, some of which are more
+  interactive and amendable to data exploration (e.g. :mod:`hvplot`, :mod:`plotly`).
+  See the :mod:`pandas` extension docs for one option for implementing this
+  (`plotting-backends <https://pandas.pydata.org/pandas-docs/stable/development/extending.html#plotting-backends>`__).
+
+* **Units and Uncertainty Aware Geochemistry DataFrames**:
+  Work has started on a prototype implementation to bring in native data types related to units, 
+  and incorporate uncertainties which can be propogated through calculations. This is principally
+  based around :mod:`pint`, :mod:`pint_pandas` and :mod:`uncertainties`.
+
+On the Horizon, Potential Future Updates
+----------------------------------------
+
+These are a number of features which are in various stages of development, which are
+planned be integrated over the longer term.
+
 :mod:`pyrolite.mineral`
 
   There are a few components which will make better use of mineral chemistry data,
@@ -31,30 +51,6 @@ and should be released in the near future.
   Expansion of compositional data imputation algorithms beyond EMCOMP
   (`Issue #6 <https://github.com/morganjwilliams/pyrolite/issues/6>`__).
 
-:mod:`pyrolite.util.spatial`
-
-  Expansion of current minor utilities to a broader suite.
-  Spatial in the 'from here to there' sense, but also the geometric sense.
-  Questions along the lines of 'how similar or different are these things', central to
-  many applications of geochemistry, fall into this spatial category.
-  A few key components and applications include:
-
-    * Angular distance (spherical geometry) for incorporating lat-long distances,
-      including for (distance-) weighted bootstrap resampling
-    * Compositional distances
-    * Probability density distribution/histogram comparison
-
-  .. note:: This project isn't intended as a geospatial framework; for that there are
-            many great offerings already! As such you won't see much in the way of
-            geospatial or geostatistical functionality here.
-
-
-On the Horizon, Potential Future Updates
-----------------------------------------
-
-These are a number of features which are in various stages of development, which are
-planned be integrated over the longer term.
-
 :mod:`pyrolite.geochem.magma`
 
   Utilities for simple melting and fractionation models.
@@ -66,14 +62,6 @@ planned be integrated over the longer term.
     * identifying potential analytical artefacts
     * assessing uncertainties
 
-* **Interactive Plotting Backend Options**: :mod:`pyrolite` visualisation is currently
-  based entirely on static plot generation via :mod:`matplotlib`. While this works
-  well for publication-style figures, it may be possible to leverage :mod:`pandas`-based
-  frameworks to provide options for alternative backends, some of which are more
-  interactive and amendable to data exploration (e.g. :mod:`hvplot`). We'll look into
-  the feasibility of this in the near future. See the :mod:`pandas` extension docs for
-  one option for implementing this
-  (`plotting-backends <https://pandas.pydata.org/pandas-docs/stable/development/extending.html#plotting-backends>`__).
 
 
 Governance and Documentation
@@ -81,7 +69,7 @@ Governance and Documentation
 
 * Depending on how the community grows, and whether :mod:`pyrolite` brings with it
   a series of related tools, the project and related tools may be migrated to an
-  umbrella organization on GitHub (e.g. pyrolite/pyrolite) so they can be
+  umbrella organization on GitHub (e.g. `pyrolite/pyrolite``) so they can be
   collectively managed by a community.
 
 * **Internationalization**: While the pyrolite source is documented in English,

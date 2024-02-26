@@ -2,6 +2,7 @@
 Linear algebra methods for fitting a series of orthogonal polynomial functions to
 REE patterns.
 """
+
 import numpy as np
 import pandas as pd
 
@@ -9,6 +10,7 @@ from ..log import Handle
 from ..meta import update_docstring_references
 from ..missing import md_pattern
 from .eval import get_function_components, lambda_poly
+from .helpers import _collect_lambda_outputs
 from .params import parse_sigmas
 
 logger = Handle(__name__)
@@ -52,7 +54,7 @@ def lambdas_ONeill2016(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
         Dataframe of REE data, with sample analyses organised by row.
     radii : :class:`list`, :class:`numpy.ndarray`
         Radii at which to evaluate the orthogonal polynomial.
@@ -61,8 +63,10 @@ def lambdas_ONeill2016(
     sigmas : :class:`float` | :class:`numpy.ndarray`
         Single value or 1D array of normalised observed value uncertainties
         (:math:`\sigma_{REE} / REE`).
+    add_X2 : :class:`bool`
+        Whether to append the chi-squared values (χ2) to the dataframe/series.
     add_uncertainties : :class:`bool`
-        Append parameter standard errors to the dataframe.
+        Append parameter standard errors to the dataframe/series.
 
     Returns
     --------
@@ -83,8 +87,12 @@ def lambdas_ONeill2016(
     assert params is not None
     names, x0, func_components = get_function_components(radii, params=params)
     X = np.array(func_components).T
-    y = df.values
-    sigmas = parse_sigmas(y, sigmas=sigmas)
+    y = np.array(df)  # make sure it's an array
+
+    if df.ndim < 2:  # if the input is actually a series
+        y = y[None, :]
+
+    sigmas = parse_sigmas(y.shape[1], sigmas=sigmas)
 
     xd = len(func_components)
     rad = np.array(radii)  # so we can use a boolean index
@@ -92,8 +100,7 @@ def lambdas_ONeill2016(
     B = np.ones((y.shape[0], xd)) * np.nan
     s = np.ones((y.shape[0], xd)) * np.nan
     χ2 = np.ones((y.shape[0], 1)) * np.nan
-
-    md_inds, patterns = md_pattern(df)
+    md_inds, patterns = md_pattern(y)
     # for each missing data pattern, we create the matrix A - rather than each row
     for ind in np.unique(md_inds):
         row_fltr = md_inds == ind  # rows with this pattern
@@ -117,7 +124,7 @@ def lambdas_ONeill2016(
 
             est = (X[missing_fltr, :] @ _B.T).T  # modelled values
             # residuals over all rows
-            residuals = (df.loc[row_fltr, missing_fltr] - est).values
+            residuals = y[np.ix_(row_fltr, missing_fltr)] - est
             dof = yd - xd  # effective degrees of freedom (for this mising filter)
             # chi-sqared as SSQ / sigmas / residual degrees of freedom
             reduced_chi_squared = (residuals**2 / _sigmas**2).sum(axis=1) / dof
@@ -127,14 +134,6 @@ def lambdas_ONeill2016(
             s[row_fltr, :] = _s
             χ2[row_fltr, 0] = reduced_chi_squared
 
-    lambdas = pd.DataFrame(
-        B,
-        index=df.index,
-        columns=names,
-        dtype="float32",
+    return _collect_lambda_outputs(
+        B, s, χ2, df, names, add_uncertainties=add_uncertainties, add_X2=add_X2
     )
-    if add_uncertainties:
-        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
-    if add_X2:
-        lambdas["X2"] = χ2
-    return lambdas

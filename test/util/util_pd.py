@@ -123,7 +123,7 @@ class TestToSer(unittest.TestCase):
 
 class TestToNumeric(unittest.TestCase):
     def setUp(self):
-        self.df = normal_frame().applymap(str)
+        self.df = normal_frame().astype(str)
 
     def test_numeric(self):
         df = self.df

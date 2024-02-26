@@ -160,7 +160,7 @@ def spider(
         # if a color option is not specified, get the next cycled color
         if l_kw.get("color") is None:
             # add cycler color as array to suppress singular color warning
-            l_kw["color"] = np.array([next(ax._get_lines.prop_cycler)["color"]])
+            l_kw["color"] = ax._get_lines.get_next_color()
 
         l_kw = linekwargs(process_color(**{**_line_defaults, **l_kw}))
         # marker explictly dealt with by scatter
@@ -209,7 +209,7 @@ def spider(
             )
             # do these need to be ravelled?
             ax.scatter(
-                indexes.ravel(), arr.ravel(), c=scattercolor, **{"zorder": 2, **s_kw}
+                indexes.ravel(), arr.ravel(), color=scattercolor, **{"zorder": 2, **s_kw}
             )
 
         # should create a custom legend handle here
@@ -218,7 +218,7 @@ def spider(
     elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
         cmap = kwargs.pop("cmap", None)
         if "contours" in kwargs and "vmin" in kwargs:
-            msg = "Combining `contours` and `vmin` arugments for density plots should be avoided."
+            msg = "Combining `contours` and `vmin` arguments for density plots should be avoided."
             logger.warn(msg)
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,

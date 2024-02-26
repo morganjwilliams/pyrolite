@@ -25,7 +25,7 @@ from .meta import (
     update_docstring_references,
 )
 from .plot.axes import init_axes
-from .plot.helpers import get_centroid
+from .plot.helpers import get_centroid, get_visual_center
 from .plot.style import patchkwargs
 from .plot.transform import tlr_to_xy
 
@@ -194,6 +194,7 @@ class PolygonClassifier(object):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
         **kwargs
     ):
         """
@@ -211,6 +212,10 @@ class PolygonClassifier(object):
             Whether to add labels at polygon centroids.
         which_labels : :class:`str`
             Which data to use for field labels - field 'name' or 'ID'.
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
@@ -241,7 +246,7 @@ class PolygonClassifier(object):
 
         use_keys = not which_labels.lower().startswith("name")
         for k, cfg in self.fields.items():
-            if cfg["poly"]:
+            if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
@@ -288,6 +293,7 @@ class PolygonClassifier(object):
         axes_scale=1.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
         **kwargs
     ):
         """
@@ -305,6 +311,10 @@ class PolygonClassifier(object):
             Whether to add labels for the polygons.
         which_labels : :class:`str`
             Which data to use for field labels - field 'name' or 'ID'.
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
@@ -317,6 +327,7 @@ class PolygonClassifier(object):
             axes_scale=axes_scale,
             add_labels=add_labels,
             which_labels=which_labels,
+            which_ids=which_ids,
             **kwargs,
         )
         if self.axes is not None:
@@ -383,7 +394,7 @@ class TAS(PolygonClassifier):
 
         with open(src, "r") as f:
             config = json.load(f)
-        kw = dict(scale=100.0, xlim=[35, 85], ylim=[0, 20])
+        kw = dict(scale=100.0, xlim=[30, 90], ylim=[0, 20])
         kw.update(kwargs)
         poly_config = {**config, **kw}
         super().__init__(**poly_config)
@@ -395,6 +406,8 @@ class TAS(PolygonClassifier):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
+        which_ids=[],
+        label_at_centroid=True,
         **kwargs
     ):
         """
@@ -413,6 +426,13 @@ class TAS(PolygonClassifier):
         which_labels : :class:`str`
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
+        which_ids : :class:`list`
+            List of field IDs corresponding to the polygons to add to the axes object.
+            (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
+            An empty list corresponds to plotting all the polygons.
+        label_at_centroid : :class:`bool`
+            Whether to label the fields at the centroid (True) or at the visual
+            center of the field (False).
 
         Returns
         --------
@@ -422,15 +442,28 @@ class TAS(PolygonClassifier):
         # here we don't want to add the labels in the normal way, because there
         # are two sets - one for volcanic rocks and one for plutonic rocks
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False, **kwargs
+            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False,
+            which_ids=which_ids, **kwargs
         )
+
+        if not label_at_centroid:
+            # Calculate the effective vertical exaggeration that
+            # produces nice positioning of labels. The true vertical
+            # exaggeration is increased by a scale_factor because
+            # the text labels are typically wider than they are long,
+            # so we want to promote the labels
+            # being placed at the widest part of the field.
+            scale_factor = 1.5
+            p = ax.transData.transform([[0., 0.], [1., 1.]])
+            yx_scaling = (p[1][1] - p[0][1])/(p[1][0] - p[0][0])*scale_factor
+
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
         if add_labels:
             for k, cfg in self.fields.items():
-                if cfg["poly"]:
+                if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
                     if which_labels.lower().startswith("id"):
                         label = k
                     elif which_labels.lower().startswith(
@@ -449,16 +482,20 @@ class TAS(PolygonClassifier):
                         )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
                     _poly = matplotlib.patches.Polygon(verts)
-                    x, y = get_centroid(_poly)
+                    if label_at_centroid:
+                        x, y = get_centroid(_poly)
+                    else:
+                        x, y = get_visual_center(_poly, yx_scaling)
                     ax.annotate(
                         "\n".join(label.split()),
                         xy=(x, y),
                         ha="center",
                         va="center",
+                        fontsize=kwargs.get("fontsize", 8),
                         **subkwargs(kwargs, ax.annotate),
                     )
 
-        ax.set(xlabel="$SiO_2$", ylabel="$Na_2O + K_2O$")
+        ax.set(xlabel="SiO$_2$", ylabel="Na$_2$O + K$_2$O")
         return ax
 
 

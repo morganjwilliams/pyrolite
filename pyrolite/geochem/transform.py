@@ -1,6 +1,7 @@
 """
 Functions for converting, transforming and parameterizing geochemical data.
 """
+
 import numpy as np
 import pandas as pd
 import periodictable as pt
@@ -150,7 +151,7 @@ def oxide_conversion(oxin, oxout, molecular=False):
             factor = cation_coefficient
         else:
             factor = cation_coefficient * oxout.mass / oxin.mass
-        converted = dfser * factor
+        converted = dfser * float(factor)
         return converted
 
     doc = "Convert series from " + str(oxin) + " to " + str(oxout)
@@ -225,7 +226,7 @@ def elemental_sum(
                     remove_suffix(s, suffix=total_suffix),
                     cationname,
                     molecular=molecular,
-                )(1)
+                )(1.0)
                 for s in species
             ]
         )
@@ -329,9 +330,11 @@ def aggregate_element(
         "Transforming {} to: {}".format(
             cation,
             {
-                k: "{:2.1f}%".format(v * 100)
-                if not isinstance(v, np.ndarray)
-                else ",".join(list((v * 100).astype(str)))
+                k: (
+                    "{:2.1f}%".format(v * 100)
+                    if not isinstance(v, np.ndarray)
+                    else ",".join(list((v * 100).astype(str)))
+                )
                 for (k, v) in zip(targetnames, props)
             },
         )
@@ -349,8 +352,7 @@ def aggregate_element(
 
     if logdata:
         logger.debug("Log-transforming {} Data.".format(cation))
-        _df.loc[:, targetnames] = _df.loc[:, targetnames].applymap(np.log)
-
+        _df.loc[:, targetnames] = np.log(_df.loc[:, targetnames])
     if drop:
         logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
         df = df.drop(columns=drop)
@@ -512,7 +514,7 @@ def lambda_lnREE(
     min_elements=7,
     algorithm="ONeill",
     sigmas=None,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,
@@ -625,7 +627,7 @@ def lambda_lnREE(
         degree=degree,
         algorithm=algorithm,
         sigmas=sigmas,
-        **kwargs
+        **kwargs,
     )
     lambdadf.loc[row_filter, ls.columns] = ls
     assert lambdadf.index.size == df.index.size
@@ -642,7 +644,7 @@ def convert_chemistry(
     renorm=False,
     molecular=False,
     logdata=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Attempts to convert a dataframe with one set of components to another.
@@ -748,7 +750,7 @@ def convert_chemistry(
             logdata=logdata,
             molecular=molecular,
             total_suffix=total_suffix,
-            **kwargs
+            **kwargs,
         )
 
     # Aggregate the singular compositional items, then get new columns

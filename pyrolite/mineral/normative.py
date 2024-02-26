@@ -870,9 +870,9 @@ def CIPW_norm(
     df["FREE_F"] = df["F"]
 
     # Normative halite
-    df["Hl"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Cl"], df["Na2O"]/2).T
+    df["Hl"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Cl"], df["Na2O"] / 2).T
 
-    df["Na2O_"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Na2O"] - df["Hl"]/2, 0).T
+    df["Na2O_"] = np.where(df["Na2O"] >= (2 * df["Cl"]), df["Na2O"] - df["Hl"] / 2, 0).T
 
     df["Cl"] = np.where(df["Na2O"] >= (2 * df["Cl"]), 0, df["Cl"] - df["Hl"]).T
 
@@ -882,17 +882,11 @@ def CIPW_norm(
     df["FREEO_14"] = df["Hl"] / 2
 
     # Normative thenardite
-    df["Th"] = np.where(
-        df["Na2O"] >= df["SO3"], df["SO3"], df["Na2O"]
-    ).T
+    df["Th"] = np.where(df["Na2O"] >= df["SO3"], df["SO3"], df["Na2O"]).T
 
-    df["Na2O_"] = np.where(
-        df["Na2O"] >= df["SO3"], df["Na2O"] - df["Th"], 0
-    ).T
+    df["Na2O_"] = np.where(df["Na2O"] >= df["SO3"], df["Na2O"] - df["Th"], 0).T
 
-    df["SO3"] = np.where(
-        df["Na2O"] >= df["SO3"], 0, df["SO3"] - df["Th"]
-    ).T
+    df["SO3"] = np.where(df["Na2O"] >= df["SO3"], 0, df["SO3"] - df["Th"]).T
 
     df["Na2O"] = df["Na2O_"]
 
@@ -903,11 +897,11 @@ def CIPW_norm(
 
     df["FeO_"] = np.where(df["FeO"] >= 2 * df["S"], df["FeO"] - df["Pr"], 0).T
 
-    df["S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["S"] - 2*df['Pr']).T
+    df["S"] = np.where(df["FeO"] >= 2 * df["S"], 0, df["S"] - 2 * df["Pr"]).T
 
     df["FeO"] = df["FeO_"]
 
-    df['FREE_S'] = df['S']
+    df["FREE_S"] = df["S"]
     df["FREEO_16"] = df["Pr"]
 
     # Normative sodium carbonate (cancrinite) or calcite
@@ -918,7 +912,7 @@ def CIPW_norm(
 
     df["CO2"] = np.where(df["Na2O"] >= df["CO2"], 0, df["CO2"] - df["Nc"]).T
 
-    df['Na2O'] = df['Na2O_']
+    df["Na2O"] = df["Na2O_"]
 
     df["Cc"] = np.where(df["CaO"] >= df["CO2"], df["CO2"], df["CaO"]).T
 
@@ -926,7 +920,7 @@ def CIPW_norm(
 
     df["CO2"] = np.where(df["CaO"] >= df["CO2"], 0, df["CO2"] - df["Cc"]).T
 
-    df['CaO'] = df['CaO_']
+    df["CaO"] = df["CaO_"]
 
     df["FREECO2"] = df["CO2"]
 
@@ -934,7 +928,7 @@ def CIPW_norm(
     df["Cm"] = np.where(df["FeO"] >= df["Cr2O3"], df["Cr2O3"], df["FeO"]).T
 
     df["FeO_"] = np.where(df["FeO"] >= df["Cr2O3"], df["FeO"] - df["Cm"], 0).T
-    
+
     df["Cr2O3"] = np.where(
         df["FeO"] >= df["Cr2O3"], df["Cr2O3"] - df["Cm"], df["Cr2O3"]
     ).T

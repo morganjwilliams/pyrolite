@@ -1,6 +1,7 @@
 """
 Submodule for working with geochemical data.
 """
+
 import numpy as np
 import pandas as pd
 
@@ -25,6 +26,21 @@ class pyrochem(object):
         self._validate(obj)
         self._obj = obj
 
+    @property
+    def _selection_index(self):
+        """
+        Get the seleciton index of the current object.
+
+        Best used as a property, generated on demand,
+        otherwise will have memory from initial
+        object instantiation.
+        """
+        return (
+            self._obj.columns
+            if isinstance(self._obj, pd.DataFrame)
+            else self._obj.index
+        )
+
     @staticmethod
     def _validate(obj):
         pass
@@ -44,8 +60,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(_common_elements)
-        return self._obj.columns[fltr].tolist()
+        return [i for i in self._selection_index if i in _common_elements]
 
     @property
     def list_isotope_ratios(self):
@@ -60,8 +75,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = [parse.is_isotoperatio(c) for c in self._obj.columns]
-        return self._obj.columns[fltr].tolist()
+        return [c for c in self._selection_index if parse.is_isotoperatio(c)]
 
     @property
     def list_REE(self):
@@ -76,7 +90,11 @@ class pyrochem(object):
         -------
         The returned list will reorder REE based on atomic number.
         """
-        return [i for i in REE() if i in self._obj.columns]
+        return [
+            i
+            for i in REE(dropPm=("Pm" not in self._selection_index))
+            if i in self._selection_index
+        ]
 
     @property
     def list_REY(self):
@@ -91,7 +109,11 @@ class pyrochem(object):
         -------
         The returned list will reorder REE based on atomic number.
         """
-        return [i for i in REY() if i in self._obj.columns]
+        return [
+            i
+            for i in REY(dropPm=("Pm" not in self._selection_index))
+            if i in self._selection_index
+        ]
 
     @property
     def list_oxides(self):
@@ -106,8 +128,7 @@ class pyrochem(object):
         -------
         The list will have the same ordering as the source DataFrame.
         """
-        fltr = self._obj.columns.isin(_common_oxides)
-        return self._obj.columns[fltr].tolist()
+        return [i for i in self._selection_index if i in _common_oxides]
 
     @property
     def list_compositional(self):
@@ -167,7 +188,7 @@ class pyrochem(object):
         --------
         :class:`pandas.Dataframe`
         """
-        return self._obj.loc[:, self.list_oxides]
+        return self._obj[self.list_oxides]
 
     @oxides.setter
     def oxides(self, df):
@@ -514,7 +535,7 @@ class pyrochem(object):
         degree=4,
         scale="ppm",
         sigmas=None,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Calculates orthogonal polynomial coefficients (lambdas) for a given set of REE data,

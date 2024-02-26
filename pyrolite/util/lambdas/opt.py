@@ -2,6 +2,7 @@
 Functions for optimization-based REE profile fitting and parameter uncertainty
 estimation.
 """
+
 import numpy as np
 import pandas as pd
 import scipy.linalg
@@ -11,6 +12,7 @@ from ..log import Handle
 from ..meta import update_docstring_references
 from ..missing import md_pattern
 from .eval import get_function_components
+from .helpers import _collect_lambda_outputs
 from .params import parse_sigmas
 
 logger = Handle(__name__)
@@ -53,7 +55,7 @@ def _residuals_func(ls, ys, func_components):
     ys : :class:`numpy.ndarray`
         Target y values.
     func_components : :class:`numpy.ndarray`
-        Arrays representing the individual unweighted unweighted function components.
+        Arrays representing the individual unweighted function components.
         E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
 
     Returns
@@ -116,7 +118,7 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
     X = np.array(func_components).T  # components as vectors [1 f0 f1 f2]
     xd = len(func_components)  # number of parameters
 
-    sigmas = parse_sigmas(y, sigmas=sigmas)
+    sigmas = parse_sigmas(y.shape[1], sigmas=sigmas)
 
     B = np.ones((y.shape[0], len(func_components))) * np.nan
     s = np.ones((y.shape[0], len(func_components))) * np.nan
@@ -193,7 +195,7 @@ def optimize_fit_components(
         uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
     m, _ = y.shape[0], x0.size  # shape of output
-    sigmas = parse_sigmas(y, sigmas=sigmas)
+    sigmas = parse_sigmas(y.shape[1], sigmas=sigmas)
     B = np.ones((y.shape[0], len(func_components))) * np.nan
     s = np.ones((y.shape[0], len(func_components))) * np.nan
     χ2 = np.ones((y.shape[0], 1)) * np.nan
@@ -225,17 +227,16 @@ def optimize_fit_components(
 
 @update_docstring_references
 def lambdas_optimize(
-    df: pd.DataFrame,
+    df,
     radii,
     params=None,
-    guess=None,
     fit_tetrads=False,
     tetrad_params=None,
     fit_method="opt",
     sigmas=None,
     add_uncertainties=False,
     add_X2=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -243,7 +244,7 @@ def lambdas_optimize(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : :class:`pandas.DataFrame` | :class:`pandas.Series
         Target data to fit. For geochemical data, this is typically normalised
         so we can fit a smooth function.
     radii : :class:`list`, :class:`numpy.ndarray`
@@ -260,9 +261,9 @@ def lambdas_optimize(
     sigmas : :class:`float` | :class:`numpy.ndarray`
         Single value or 1D array of observed value uncertainties.
     add_uncertainties : :class:`bool`
-        Whether to append estimated parameter uncertainties to the dataframe.
+        Whether to append estimated parameter uncertainties to the dataframe/series.
     add_X2 : :class:`bool`
-        Whether to append the chi-squared values (χ2) to the dataframe.
+        Whether to append the chi-squared values (χ2) to the dataframe/series.
 
     Returns
     --------
@@ -280,8 +281,8 @@ def lambdas_optimize(
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
-    assert params is not None # degree = len(params)
-    
+    assert params is not None  # degree = len(params)
+
     # arrays representing the unweighted individual polynomial components
     names, x0, func_components = get_function_components(
         radii, params=params, fit_tetrads=fit_tetrads, tetrad_params=tetrad_params
@@ -291,18 +292,17 @@ def lambdas_optimize(
     else:
         fit = linear_fit_components
 
-    B, s, χ2 = fit(
-        df.pyrochem.REE.values, np.array(x0), func_components, sigmas=sigmas, **kwargs
-    )
+    inpt = df.pyrochem.REE.values
+    if df.ndim < 2:  # i.e., if the input is a series
+        inpt = inpt[None, :]
+    B, s, χ2 = fit(inpt, np.array(x0), func_components, sigmas=sigmas, **kwargs)
 
-    lambdas = pd.DataFrame(
+    return _collect_lambda_outputs(
         B,
-        index=df.index,
-        columns=names,
-        dtype="float32",
+        s,
+        χ2,
+        df,
+        names,
+        add_uncertainties=add_uncertainties,
+        add_X2=add_X2,
     )
-    if add_uncertainties:
-        lambdas.loc[:, [n + "_" + chr(963) for n in names]] = s
-    if add_X2:
-        lambdas["X2"] = χ2
-    return lambdas

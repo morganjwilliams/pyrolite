@@ -10,12 +10,60 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.5`_
+----------
+
+* **New Contributor**: `Malte Mues <https://github.com/mmuesly>`__
+* **New Contributor**: `Bob Myhill <https://github.com/bobmyhill>`__
+* **Bugfix**: Fixed a bug with the index structure for the documentation example galleries.
+* Expanded test suite for a text coverage bump.
+* Started testing against and supporting Python 3.12.
+
+:mod:`pyrolite.geochem`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* **PR Merged**: `Malte Mues <https://github.com/mmuesly>`__ contributed a PR to 
+  allow series and dataframes with `Pm` data to be used with the `pyrolite.pyrochem`
+  REE accessors (i.e., the column will not be dropped if it exists; 
+  `#100 <https://github.com/morganjwilliams/pyrolite/pull/100>`__). 
+  This PR aslo included an update for the `pyrolite.util.lambdas` functions to be more 
+  flexible in terms of access, including as indvidual series (allowing performant 
+  usage with `pandarallel <https://github.com/nalepae/pandarallel>`__).
+* Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
+  usage with both DataFrame and Series objects (e.g. `df.pyrochem.REE`, 
+  `ser.pyrochem.REE`).
+
+:mod:`pyrolite.plot`
+~~~~~~~~~~~~~~~~~~~~~
+
+* **PR Merged**: `Bob Myhill <https://github.com/bobmyhill>`__ contributed a series of 
+  pull requests to fix formatting of TAS diagram labels
+  (`#91 <https://github.com/morganjwilliams/pyrolite/pull/91>`__), 
+  update the TAS field names in the JSON template 
+  (`#92 <https://github.com/morganjwilliams/pyrolite/pull/92>`__), 
+  improve the formatting and scaling of TAS diagrams.
+  (`#93 <https://github.com/morganjwilliams/pyrolite/pull/93>`__), 
+  add an option to add field labels in the visual centre of polygons (rather than the 
+  'centroid'; `#94 <https://github.com/morganjwilliams/pyrolite/pull/94>`__),
+  update some usage of :mod:`matplotlib` 
+  (`#96 <https://github.com/morganjwilliams/pyrolite/pull/96>`__),
+  and allow selective plotting of indiviudal fields when adding a classification 
+  diagram to axes (`#98 <https://github.com/morganjwilliams/pyrolite/pull/98>`__).
+  
+
+:mod:`pyrolite.mineral`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Suppressed :mod:`pandas` performance warnings related to sequential construction of 
+  :class:`pandas.DataFrame`s in :func:`pyrolite.mineral.normative.CIPW_norm`.
+
 `0.3.4`_
 --------------
 
 * **Bugfix**: `Tom Buckle <https://github.com/bomtuckle>`__ contributed a PR with 
-  some minor bugfixes for the CIPW Norm.
-* Various maintainence updates, including migrating the pacakge to use `pyproject.toml`.
+  some minor bugfixes for the CIPW Norm
+  (`#87 <https://github.com/morganjwilliams/pyrolite/pull/87>`__).
+* Various maintenance updates, including migrating the package to use `pyproject.toml`.
 
 `0.3.3`_
 --------------
@@ -32,19 +80,24 @@ All notable changes to this project will be documented here.
 :mod:`pyrolite.mineral`
 ~~~~~~~~~~~~~~~~~~~~~~~
 * **PR Merged**: Added an option to get expanded outputs for the CIPW Norm
-  (from `Tom Buckle <https://github.com/bomtuckle>`__ ).
+  (from `Tom Buckle <https://github.com/bomtuckle>`__; 
+  `#80 <https://github.com/morganjwilliams/pyrolite/pull/80>`__).
 * **Bugfix**: Fixes and updated tests for CIPW Norm outputs.
+
 
 :mod:`pyrolite.plot`
 ~~~~~~~~~~~~~~~~~~~~
 * **PR Merged**: `Sarah Shi <https://github.com/sarahshi>`__ contributed a PR to add 
-  variations on the TAS diagram from Le Maitre. These can be accessed by providing a 
+  variations on the TAS diagram from Le Maitre (
+  `#79 <https://github.com/morganjwilliams/pyrolite/pull/79>`__).
+  These can be accessed by providing a 
   :code:`which_model` keyword argument to the :class:`~pyrolite.util.classification.TAS`
   constructor (or plot template).
 * **PR Merged**: `Ondrej Lexa <https://github.com/ondrolexa>`__ contributed a PR to add 
   sandstone bulk geochemistry discrimination diagrams 
   (:class:`~pyrolite.util.classification.Pettijohn`,
-  :class:`~pyrolite.util.classification.Herron`).
+  :class:`~pyrolite.util.classification.Herron`; 
+  `#82 <https://github.com/morganjwilliams/pyrolite/pull/82>`__).
 * **Bugfix**: Fixed issue with handling `vmin` and `vmax` for colormapping in 
   :mod:`pyrolite.plot.color`.
 * Suppressed warnings for 'division by zero'/'invalid value encountered in divide' in
@@ -1345,7 +1398,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.5...develop
+.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5
 .. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
