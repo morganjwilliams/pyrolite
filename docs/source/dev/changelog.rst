@@ -10,6 +10,9 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.5`_
+----------
+
 * **New Contributor**: `Malte Mues <https://github.com/mmuesly>`__
 * **New Contributor**: `Bob Myhill <https://github.com/bobmyhill>`__
 * **Bugfix**: Fixed a bug with the index structure for the documentation example galleries.
@@ -1395,7 +1398,8 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...develop
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.5...develop
+.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5
 .. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
