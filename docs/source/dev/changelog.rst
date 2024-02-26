@@ -14,7 +14,7 @@ All notable changes to this project will be documented here.
 * **New Contributor**: `Bob Myhill <https://github.com/bobmyhill>`__
 * **Bugfix**: Fixed a bug with the index structure for the documentation example galleries.
 * Expanded test suite for a text coverage bump.
-* Started testing against Python 3.12.
+* Started testing against and supporting Python 3.12.
 
 :mod:`pyrolite.geochem`
 ~~~~~~~~~~~~~~~~~~~~~~~
