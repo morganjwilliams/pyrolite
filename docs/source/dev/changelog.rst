@@ -26,8 +26,8 @@ All notable changes to this project will be documented here.
   allow series and dataframes with `Pm` data to be used with the `pyrolite.pyrochem`
   REE accessors (i.e., the column will not be dropped if it exists; 
   `#100 <https://github.com/morganjwilliams/pyrolite/pull/100>`__). 
-  This PR aslo included an update for the `pyrolite.util.lambdas` functions to be more 
-  flexible in terms of access, including as indvidual series (allowing performant 
+  This PR also included an update for the `pyrolite.util.lambdas` functions to be more 
+  flexible in terms of access, including as individual series (allowing performant 
   usage with `pandarallel <https://github.com/nalepae/pandarallel>`__).
 * Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
   usage with both DataFrame and Series objects (e.g. `df.pyrochem.REE`, 
@@ -41,13 +41,13 @@ All notable changes to this project will be documented here.
   (`#91 <https://github.com/morganjwilliams/pyrolite/pull/91>`__), 
   update the TAS field names in the JSON template 
   (`#92 <https://github.com/morganjwilliams/pyrolite/pull/92>`__), 
-  improve the formatting and scaling of TAS diagrams.
+  improve the formatting and scaling of TAS diagrams
   (`#93 <https://github.com/morganjwilliams/pyrolite/pull/93>`__), 
   add an option to add field labels in the visual centre of polygons (rather than the 
   'centroid'; `#94 <https://github.com/morganjwilliams/pyrolite/pull/94>`__),
   update some usage of :mod:`matplotlib` 
   (`#96 <https://github.com/morganjwilliams/pyrolite/pull/96>`__),
-  and allow selective plotting of indiviudal fields when adding a classification 
+  and allow selective plotting of individual  fields when adding a classification 
   diagram to axes (`#98 <https://github.com/morganjwilliams/pyrolite/pull/98>`__).
   
 
