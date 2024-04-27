@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pandas as pd
 import scipy.special
@@ -16,10 +17,8 @@ __TRANSFORMS__ = {}
 __sympy_protected_variables__ = {"S": "Ss"}
 
 
-def close(X: np.ndarray, sumf=np.sum):
+def close(X, sumf=np.sum):
     """
-    Closure operator for compositional data.
-
     Parameters
     -----------
     X : :class:`numpy.ndarray`
@@ -34,15 +33,21 @@ def close(X: np.ndarray, sumf=np.sum):
 
     Notes
     ------
-        * Does not check for non-positive entries.
+    Checks for non-positive entries and replaces zeros with NaN values.
     """
 
-    if X.ndim == 2:
-        C = np.array(sumf(X, axis=1))[:, np.newaxis]
-    else:
-        C = np.array(sumf(X, axis=0))
+    if np.any(X <= 0):
+        warnings.warn("Non-positive entries found. Closure operation assumes all positive entries.", UserWarning)
 
+    if X.ndim == 2:
+        C = np.array(sumf(X, axis=1), dtype=float)[:, np.newaxis]
+    else:
+        C = np.array(sumf(X), dtype=float)
+
+    # Replace zero sums with NaN to prevent division by zero
     C[np.isclose(C, 0)] = np.nan
+
+    # Return the array closed to sum to 1
     return np.divide(X, C)
 
 
@@ -66,16 +71,32 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     :class:`pandas.DataFrame`
         Renormalized dataframe.
     """
+
     dfc = df.copy(deep=True)
     if components:
-        cmpnts = [c for c in components if c in dfc.columns]
-        dfc.loc[:, cmpnts] = scale * dfc.loc[:, cmpnts].divide(
-            dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan), axis=0
-        )
-        return dfc
+        # Ensure specified components are in DataFrame columns
+        if not all(col in dfc.columns for col in components):
+            raise ValueError("Not all specified components exist in the DataFrame.")
+        # Check for non-positive entries in specified components and warn if found
+        if (dfc[components] <= 0).any().any():
+            warnings.warn("Non-positive entries found in specified components. "
+                          "Renormalisation assumes all positive entries.", UserWarning)
+        # Renormalise specified components
+        sum_rows = dfc[components].sum(axis=1)
+        sum_rows.replace(0, np.nan, inplace=True)  # Handle division by zero by replacing zeros with NaN
+        dfc.loc[:, components] = dfc.loc[:, components].divide(sum_rows, axis=0) * scale
     else:
-        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.0), axis=0) * scale
-        return dfc
+        # Check for non-positive entries in all columns and warn if found
+        if (dfc <= 0).any().any():
+            warnings.warn("Non-positive entries found in specified components. "
+                          "Renormalisation assumes all positive entries.", UserWarning)
+
+        # Renormalise all columns if no components are specified
+        sum_rows = dfc.sum(axis=1)
+        sum_rows.replace(0, np.nan, inplace=True)  # Handle division by zero by replacing zeros with NaN
+        dfc = dfc.divide(sum_rows, axis=0) * scale
+
+    return dfc
 
 
 def ALR(X: np.ndarray, ind: int = -1, null_col=False):
