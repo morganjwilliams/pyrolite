@@ -17,8 +17,10 @@ __TRANSFORMS__ = {}
 __sympy_protected_variables__ = {"S": "Ss"}
 
 
-def close(X, sumf=np.sum):
+def close(X: np.ndarray, sumf=np.sum):
     """
+    Closure operator for compositional data.
+
     Parameters
     -----------
     X : :class:`numpy.ndarray`
@@ -74,27 +76,22 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
 
     dfc = df.copy(deep=True)
     if components:
-        # Ensure specified components are in DataFrame columns
         if not all(col in dfc.columns for col in components):
             raise ValueError("Not all specified components exist in the DataFrame.")
-        # Check for non-positive entries in specified components and warn if found
-        if (dfc[components] <= 0).any().any():
-            warnings.warn("Non-positive entries found in specified components. "
-                          "Renormalisation assumes all positive entries.", UserWarning)
-        # Renormalise specified components
-        sum_rows = dfc[components].sum(axis=1)
-        sum_rows.replace(0, np.nan, inplace=True)  # Handle division by zero by replacing zeros with NaN
-        dfc.loc[:, components] = dfc.loc[:, components].divide(sum_rows, axis=0) * scale
-    else:
-        # Check for non-positive entries in all columns and warn if found
-        if (dfc <= 0).any().any():
-            warnings.warn("Non-positive entries found in specified components. "
-                          "Renormalisation assumes all positive entries.", UserWarning)
+        dfc = dfc[components]
 
-        # Renormalise all columns if no components are specified
-        sum_rows = dfc.sum(axis=1)
-        sum_rows.replace(0, np.nan, inplace=True)  # Handle division by zero by replacing zeros with NaN
-        dfc = dfc.divide(sum_rows, axis=0) * scale
+    # Replace negative values with NaN
+    dfc[dfc < 0] = np.nan
+
+    if (dfc <= 0).any().any():
+        warnings.warn("Non-positive entries found in specified components. "
+                      "Negative values have been replaced with NaN. "
+                      "Renormalisation assumes all positive entries.", UserWarning)
+
+    # Renormalise all columns if no components are specified
+    sum_rows = dfc.sum(axis=1)
+    sum_rows.replace(0, np.nan, inplace=True)  # Handle division by zero by replacing zeros with NaN
+    dfc = dfc.divide(sum_rows, axis=0) * scale
 
     return dfc
 
