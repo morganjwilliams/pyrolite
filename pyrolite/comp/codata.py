@@ -80,13 +80,13 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
             raise ValueError("Not all specified components exist in the DataFrame.")
         dfc = dfc[components]
 
-    # Replace negative values with NaN
-    dfc[dfc < 0] = np.nan
-
     if (dfc <= 0).any().any():
         warnings.warn("Non-positive entries found in specified components. "
                       "Negative values have been replaced with NaN. "
                       "Renormalisation assumes all positive entries.", UserWarning)
+
+    # Replace negative values with NaN
+    dfc[dfc < 0] = np.nan
 
     # Renormalise all columns if no components are specified
     sum_rows = dfc.sum(axis=1)
