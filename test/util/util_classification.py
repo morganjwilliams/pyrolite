@@ -1,13 +1,16 @@
 import unittest
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from pyrolite.util.classification import (TAS,
-                                          USDASoilTexture,
-                                          QAP,
-                                          FeldsparTernary,
-                                          JensenPlot,
-                                          PeralkalinityClassifier)
+from pyrolite.util.classification import (
+    QAP,
+    TAS,
+    FeldsparTernary,
+    JensenPlot,
+    PeralkalinityClassifier,
+    USDASoilTexture,
+)
 from pyrolite.util.synthetic import normal_frame, random_cov_matrix
 
 
@@ -50,6 +53,9 @@ class TestTAS(unittest.TestCase):
         _ = classes.apply(lambda x: cm.fields.get(x, {"name": None})["name"])
         self.assertFalse(pd.isnull(classes).all())
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestUSDASoilTexture(unittest.TestCase):
     def setUp(self):
@@ -76,6 +82,9 @@ class TestUSDASoilTexture(unittest.TestCase):
         cm = USDASoilTexture()
         classes = cm.predict(df, data_scale=1.0)
         self.assertFalse(pd.isnull(classes).all())
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestQAP(unittest.TestCase):
@@ -104,6 +113,9 @@ class TestQAP(unittest.TestCase):
         classes = cm.predict(df)
         self.assertFalse(pd.isnull(classes).all())
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestFeldsparTernary(unittest.TestCase):
     def setUp(self):
@@ -130,6 +142,9 @@ class TestFeldsparTernary(unittest.TestCase):
         cm = FeldsparTernary()
         classes = cm.predict(df)
         self.assertFalse(pd.isnull(classes).all())
+
+    def tearDown(self):
+        plt.close("all")
 
 
 class TestJensenPlot(unittest.TestCase):
@@ -159,6 +174,9 @@ class TestJensenPlot(unittest.TestCase):
         classes = cm.predict(df)
         self.assertFalse(pd.isnull(classes).all())
 
+    def tearDown(self):
+        plt.close("all")
+
 
 class TestPeralkalinity(unittest.TestCase):
     """Test the peralkalinity classifier."""
@@ -174,6 +192,9 @@ class TestPeralkalinity(unittest.TestCase):
         df = self.df
         cm = PeralkalinityClassifier()
         df.loc[:, "Peralk"] = cm.predict(df)
+
+    def tearDown(self):
+        plt.close("all")
 
 
 if __name__ == "__main__":
