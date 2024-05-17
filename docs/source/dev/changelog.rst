@@ -10,6 +10,14 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+
+* **PR Merged**: `Sarah Shi <https://github.com/sarashi>`__ contributed a PR to 
+  better handle values below zero during compositional renormalisation (to 1 or 100%; 
+  `#104 <https://github.com/morganjwilliams/pyrolite/pull/104>`__).
+  The functions :func:`pyrolite.comp.codata.close` and :func:`pyrolite.comp.codata.renormalise`
+  will now warn where values below zero exist, and replace these with `numpy.nan`.
+
+
 `0.3.5`_
 ----------
 
