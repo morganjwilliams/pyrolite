@@ -46,6 +46,13 @@ class DensityGrid(object):
             self.xmin, self.xmax, self.ymin, self.ymax = self.extent_from_xy(x, y)
         else:
             self.xmin, self.xmax, self.ymin, self.ymax = extent
+            # validation
+            self.xmin, self.xmax = min([self.xmin, self.xmax]), max(
+                [self.xmin, self.xmax]
+            )
+            self.ymin, self.ymax = min([self.ymin, self.ymax]), max(
+                [self.ymin, self.ymax]
+            )
 
         self.xstep = self.get_xstep()
         self.ystep = self.get_ystep()
