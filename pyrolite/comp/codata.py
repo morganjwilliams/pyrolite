@@ -662,7 +662,7 @@ def inverse_sphere(θ):
         if ix == p:
             S = 1.0
         else:
-            S = np.product(sinθ[:, ix:], axis=1)
+            S = np.prod(sinθ[:, ix:], axis=1)
         y[:, ix] = C * S
 
     ys = y**2
