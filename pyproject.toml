@@ -31,7 +31,7 @@ dependencies = [
     "numpydoc",
     "tinydb>4.1",     # >4.1 required for read-only access mode for JSON storage
     "periodictable",
-    "matplotlib",
+    "matplotlib<3.9",
     "mpltern>=0.4.0",
     "scipy>=1.2",     # uses scipy.optimize.Bounds, added around 1.2
     "sympy>=1.7",
