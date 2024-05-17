@@ -225,21 +225,19 @@ def outliers(
     """ """
     if not cols:
         cols = df.columns
-    colfltr = (df.dtypes == float) & ([i in cols for i in df.columns])
+    _df = df.select_dtypes(include=[np.number])
+    _df = _df.loc[:, [i in cols for i in _df.columns]]
     low, high = np.min(quantile_select), np.max(quantile_select)
     if not logquantile:
-        quantile = df.loc[:, colfltr].quantile([low, high])
+        quantile = _df.quantile([low, high])
     else:
-        quantile = df.loc[:, colfltr].apply(np.log).quantile([low, high])
+        quantile = _df.apply(np.log).quantile([low, high])
     whereout = (
-        df.loc[:, colfltr]
-        .apply(detect, args=(quantile, quantile_select), axis=0)
-        .sum(axis=1)
-        > 0
+        _df.apply(detect, args=(quantile, quantile_select), axis=0).sum(axis=1) > 0
     )
     if not exclude:
         whereout = np.logical_not(whereout)
-    return df.loc[whereout, colfltr]
+    return _df.loc[whereout, :]
 
 
 def concat_columns(df, columns=None, astype=str, **kwargs):

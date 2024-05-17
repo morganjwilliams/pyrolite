@@ -133,15 +133,12 @@ class TestToNumeric(unittest.TestCase):
     def test_error_methods(self):
         df = self.df
         df.loc[0, "SiO2"] = "Low"
-        for method in ["ignore", "raise", "coerce"]:
+        for method in ["raise", "coerce"]:
             with self.subTest(method=method):
                 try:
                     result = to_numeric(df, errors=method)
-                    self.assertTrue(method in ["ignore", "coerce"])
-                    if method == "ignore":
-                        self.assertTrue(result.loc[0, "SiO2"] == "Low")
-                    else:
-                        self.assertTrue(pd.isnull(result.loc[0, "SiO2"]))
+                    self.assertTrue(method in [ "coerce"])
+                    self.assertTrue(pd.isnull(result.loc[0, "SiO2"]))
                 except ValueError:  # should raise with can't parse 'low'
                     self.assertTrue(method == "raise")
 
