@@ -342,7 +342,7 @@ def aggregate_element(
 
     for t in targetnames:
         if t not in _df:
-            _df[t] = 0  # avoid missing column errors
+            _df[t] = 0.  # avoid missing column errors
 
     coeff = np.array(coeff)
     if coeff.ndim == 2:
