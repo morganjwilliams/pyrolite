@@ -1,8 +1,23 @@
 import unittest
 
 import numpy as np
+import pandas as pd
 
-from pyrolite.comp.codata import *
+from pyrolite.comp.codata import (
+    ALR,
+    CLR,
+    ILR,
+    boxcox,
+    close,
+    get_ILR_labels,
+    inverse_ALR,
+    inverse_boxcox,
+    inverse_CLR,
+    inverse_ILR,
+    inverse_sphere,
+    renormalise,
+    sphere,
+)
 from pyrolite.util.synthetic import normal_frame
 
 

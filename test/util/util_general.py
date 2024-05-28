@@ -1,11 +1,8 @@
 import unittest
-from pathlib import Path
 
-from pyrolite.util.general import (
+from pyrolite.util.general import (  # copy_file, remove_tempdir
     Timewith,
-    copy_file,
     flatten_dict,
-    remove_tempdir,
     swap_item,
     temp_path,
 )

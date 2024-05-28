@@ -1,6 +1,13 @@
 import unittest
 
-from pyrolite.mineral.transform import *
+import pandas as pd
+import periodictable as pt
+
+from pyrolite.mineral.transform import (
+    formula_to_elemental,
+    merge_formulae,
+    recalc_cations,
+)
 
 
 class TestFormula2Elemental(unittest.TestCase):

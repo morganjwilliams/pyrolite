@@ -1,6 +1,7 @@
 """
 Functions for calcuating indexes of chemical alteration.
 """
+
 import pandas as pd
 
 from ..util.log import Handle

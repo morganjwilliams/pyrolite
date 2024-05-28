@@ -1,6 +1,18 @@
 import unittest
 
-from pyrolite.geochem.ind import *
+import periodictable as pt
+
+from pyrolite.geochem.ind import (
+    REE,
+    REY,
+    by_incompatibility,
+    by_number,
+    common_elements,
+    common_oxides,
+    get_cations,
+    get_ionic_radii,
+    simple_oxides,
+)
 
 
 class TestGetCations(unittest.TestCase):

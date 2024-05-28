@@ -1,5 +1,4 @@
 import os
-import sys
 import unittest
 
 from pyrolite.util.env import validate_update_envvar, validate_value
@@ -10,7 +9,8 @@ class TestValidateValue(unittest.TestCase):
         self.value = 10
 
     def test_single_validator(self):
-        v = lambda x: x > 0
+        def v(x):
+            return x > 0
         expect = True
         self.assertTrue(validate_value(self.value, v) is expect)
 

@@ -403,7 +403,7 @@ def spatiotemporal_bootstrap_resample(
                 msg = "Gaussian Process boostrapping not yet implemented."
                 raise NotImplementedError(msg)
             else:
-                msg = "Bootstrap method {} not recognised.".format(boostrap_method)
+                msg = "Bootstrap method {} not recognised.".format(bootstrap_method)
                 raise NotImplementedError(msg)
 
         # whether to independently estimate metric values for individual categories?

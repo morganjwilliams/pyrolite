@@ -4,7 +4,12 @@ import numpy as np
 import pandas as pd
 
 from pyrolite.geochem.ind import REE
-from pyrolite.geochem.parse import *
+from pyrolite.geochem.parse import (
+    check_multiple_cation_inclusion,
+    ischem,
+    repr_isotope_ratio,
+    tochem,
+)
 
 
 class TestIsChem(unittest.TestCase):

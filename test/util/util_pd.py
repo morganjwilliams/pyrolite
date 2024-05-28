@@ -1,14 +1,21 @@
-import os
-import time
 import unittest
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from pyrolite.util.general import remove_tempdir, temp_path
 from pyrolite.util.meta import subkwargs
-from pyrolite.util.pd import *
+from pyrolite.util.pd import (
+    accumulate,
+    concat_columns,
+    df_from_csvs,
+    outliers,
+    read_table,
+    to_frame,
+    to_numeric,
+    to_ser,
+    uniques_from_concat,
+)
 from pyrolite.util.synthetic import normal_frame, normal_series
 
 
@@ -137,7 +144,7 @@ class TestToNumeric(unittest.TestCase):
             with self.subTest(method=method):
                 try:
                     result = to_numeric(df, errors=method)
-                    self.assertTrue(method in [ "coerce"])
+                    self.assertTrue(method in ["coerce"])
                     self.assertTrue(pd.isnull(result.loc[0, "SiO2"]))
                 except ValueError:  # should raise with can't parse 'low'
                     self.assertTrue(method == "raise")

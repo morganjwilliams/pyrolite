@@ -1,17 +1,10 @@
 import unittest
 
 import numpy as np
-import pandas as pd
 
-from pyrolite.comp.aggregate import np_cross_ratios
-from pyrolite.comp.impute import EMCOMP, _little_sweep, _multisweep, _reg_sweep
+from pyrolite.comp.impute import EMCOMP, _little_sweep, _multisweep
 from pyrolite.util.math import augmented_covariance_matrix
-from pyrolite.util.synthetic import (
-    normal_frame,
-    normal_series,
-    random_composition,
-    random_cov_matrix,
-)
+from pyrolite.util.synthetic import random_composition, random_cov_matrix
 
 
 class TestRegSweep(unittest.TestCase):

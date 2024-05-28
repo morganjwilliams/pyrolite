@@ -1,13 +1,8 @@
 import logging
 import unittest
 
-import matplotlib.axes
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-from pyrolite.data.Aitchison import *
-from pyrolite.plot.biplot import *
+from pyrolite.data.Aitchison import load_hongite
+from pyrolite.plot.biplot import compositional_biplot
 
 logger = logging.getLogger(__name__)
 

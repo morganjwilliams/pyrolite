@@ -1,17 +1,21 @@
 import unittest
 
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
-try:
-    import cartopy.crs as ccrs
-
-    HAVE_CARTOPY = True
-except ImportError:
-    HAVE_CARTOPY = False
 from pyrolite.util.math import isclose  # nan-equalling isclose
-from pyrolite.util.spatial import *
+from pyrolite.util.spatial import (
+    NSEW_2_bounds,
+    great_circle_distance,
+    levenshtein_distance,
+    piecewise,
+    spatiotemporal_split,
+)
+
+# try:
+#     import cartopy.crs as ccrs
+#     HAVE_CARTOPY = True
+# except ImportError:
+#     HAVE_CARTOPY = False
 
 
 class TestGreatCircleDistance(unittest.TestCase):

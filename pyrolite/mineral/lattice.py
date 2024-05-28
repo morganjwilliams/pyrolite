@@ -27,6 +27,7 @@ References
             doi: {hazen1979}
 
 """
+
 import numpy as np
 
 from ..util.log import Handle

@@ -7,6 +7,7 @@ import scipy
 
 from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
+from ..util.classification import TAS
 from ..util.log import Handle
 from ..util.pd import to_frame
 from ..util.units import scale
@@ -200,8 +201,6 @@ def endmember_decompose(
 ################################################################################
 # CIPW Norm and Related functions
 ################################################################################
-
-from ..util.classification import TAS
 
 # fuctions which map <TAS field, [SiO2, Na2O + K2O]> to Fe2O3/FeO ratios.
 _MiddlemostTASRatios = dict(

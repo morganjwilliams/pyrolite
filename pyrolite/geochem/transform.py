@@ -2,6 +2,8 @@
 Functions for converting, transforming and parameterizing geochemical data.
 """
 
+from collections import Counter
+
 import numpy as np
 import pandas as pd
 import periodictable as pt
@@ -12,13 +14,7 @@ from ..util.log import Handle
 from ..util.meta import update_docstring_references
 from ..util.text import remove_suffix, titlecase
 from ..util.types import iscollection
-from .ind import (
-    _common_elements,
-    _common_oxides,
-    get_cations,
-    get_ionic_radii,
-    simple_oxides,
-)
+from .ind import _common_elements, _common_oxides, get_cations, simple_oxides
 from .norm import Composition, get_reference_composition
 
 logger = Handle(__name__)
@@ -102,7 +98,7 @@ def devolatilise(
     :class:`pandas.DataFrame`
         Transformed dataframe.
     """
-    keep = [i for i in df.columns if not i in exclude]
+    keep = [i for i in df.columns if i not in exclude]
     if renorm:
         return renormalise(df.loc[:, keep])
     else:
@@ -141,7 +137,7 @@ def oxide_conversion(oxin, oxout, molecular=False):
         # Assertion of simple oxide
         assert (len(in_els) == len(out_els)) & (len(in_els) == 1)
         assert in_els == out_els  # Need to be dealing with the same element!
-    except:
+    except AssertionError:
         raise ValueError("Incompatible compounds: {} --> {}".format(in_els, out_els))
     # Moles of product vs. moles of reactant
     cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
@@ -342,7 +338,7 @@ def aggregate_element(
 
     for t in targetnames:
         if t not in _df:
-            _df[t] = 0.  # avoid missing column errors
+            _df[t] = 0.0  # avoid missing column errors
 
     coeff = np.array(coeff)
     if coeff.ndim == 2:
@@ -603,7 +599,7 @@ def lambda_lnREE(
     norm_df.loc[(norm_df <= 0.0).any(axis=1), :] = np.nan  # remove zero or below
     norm_df.loc[:, ree] = np.log(norm_df.loc[:, ree])
 
-    if not (sigmas is None):
+    if sigmas is not None:
         if isinstance(sigmas, pd.Series):  # convert this to an array
             sigmas = sigmas[ree].values
 
@@ -707,7 +703,7 @@ def convert_chemistry(
     # and speciated components
     ####################################################################################
     output_compositional = [
-        i for i in to if i not in coupled_sets + noncomp + new_ratios
+        i for i in to if i not in (coupled_sets + noncomp + new_ratios)
     ]
     # check that these are all unique components
     assert len(set(output_compositional)) == len(
@@ -753,6 +749,16 @@ def convert_chemistry(
             **kwargs,
         )
 
+    # TODO: warning for duplication should also be crossed over into speciated components above.. 
+    _duplicated_cations = [
+        str(k)
+        for k, v in Counter(  # get the first cation in each component, and count duplicates
+            [get_cations(t, total_suffix=total_suffix)[0] for t in output_compositional]
+        ).items()
+        if v > 1
+    ]
+    if _duplicated_cations:
+        logger.warning("Cations duplicated in compositional components: {}. The output retains this duplication!".format(','.join(_duplicated_cations)))
     # Aggregate the singular compositional items, then get new columns
     for item in output_compositional:
         df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)
@@ -786,5 +792,7 @@ def convert_chemistry(
         df.loc[:, present_comp] = renormalise(df.loc[:, present_comp])
         return df.loc[:, output_columns]
     else:
+        logger.debug("Recalculation Done. Data not renormalised.")
+        return df.loc[:, output_columns]
         logger.debug("Recalculation Done. Data not renormalised.")
         return df.loc[:, output_columns]
