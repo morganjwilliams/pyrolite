@@ -56,6 +56,7 @@ docs = [
     # "jupyterlite-sphinx",
     # "jupyterlite-pyodide-kernel",
 ]
+units = ["pint", "pint-pandas", "uncertainties"]
 db = ["pyodbc", "psycopg2"]
 test = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 skl = ["scikit-learn", "joblib"]
@@ -68,7 +69,7 @@ dev = [
     "black",
     "isort",
     "twine",
-    "pyrolite[test,docs,skl]",
+    "pyrolite[test,docs,skl,units]",
     "build",
 ]
 

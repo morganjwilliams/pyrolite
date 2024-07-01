@@ -24,6 +24,7 @@ dependencies:
   - joblib
   - pint
   - pint-pandas
+  - uncertainties
   - requests
   # Tools
   - jupyter
