@@ -233,7 +233,7 @@ def np_cross_ratios(X: np.ndarray, debug=False):
             diags = ratios[:, np.arange(dims), np.arange(dims)]
             # check all diags are 1.
             assert np.allclose(diags, 1.0)
-        except:
+        except AssertionError:
             # check all diags are 1. or nan
             assert np.allclose(diags[~np.isnan(diags)], 1.0)
 
