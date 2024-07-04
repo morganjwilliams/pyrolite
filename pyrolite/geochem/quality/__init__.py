@@ -2,7 +2,7 @@
 Submodule for data quality checking and assurance.
 
 Todo
-------
+----
     * Identifying interval data by identifying dominant low-end periodicity at scales similar to the lowest values
 
         This is largely a metadata thing for single points, but a tractable problem for

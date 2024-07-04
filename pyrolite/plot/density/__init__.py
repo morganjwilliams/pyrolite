@@ -91,6 +91,7 @@ def density(
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
 
+
     .. seealso::
 
         Functions:

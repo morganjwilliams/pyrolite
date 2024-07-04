@@ -17,7 +17,7 @@ and numerous auxiliary utilities.
 
 - There's also a quick `installation guide <./installation.html>`__, a list of
   `recent changes <./dev/changelog.html>`__ and some notes on
-  where the project is heading in the near `future <./dev/future.html>`__.
+  where the project is heading in the `roadmap <./dev/roadmap.html>`__.
 
 - If you're interested in `contributing to the project <./dev/contributing.html>`__, there are
   many potential avenues, whether you're experienced with python or not.
@@ -73,7 +73,7 @@ make use of your geochemical data to build and test geological models.
 
     dev/development
     dev/changelog
-    dev/future
+    dev/roadmap
     dev/conduct
     dev/contributing
     dev/contributors
