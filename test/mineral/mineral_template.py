@@ -1,7 +1,11 @@
 import unittest
 
-from pyrolite.mineral.sites import *
-from pyrolite.mineral.template import *
+import numpy as np
+import pandas as pd
+import periodictable as pt
+
+from pyrolite.mineral.sites import MX, OX, TX
+from pyrolite.mineral.template import OLIVINE, PYROXENE, Mineral, MineralTemplate
 
 
 class TestMineralTemplate(unittest.TestCase):

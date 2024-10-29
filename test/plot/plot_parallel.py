@@ -1,9 +1,6 @@
 import unittest
 
 import matplotlib.axes
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 import pyrolite.data.Aitchison
 from pyrolite.plot.parallel import parallel

@@ -3,7 +3,7 @@ import unittest
 import matplotlib.colors
 import numpy as np
 
-from pyrolite.plot.color import *
+from pyrolite.plot.color import get_cmode, process_color
 
 
 class TestProcessColor(unittest.TestCase):

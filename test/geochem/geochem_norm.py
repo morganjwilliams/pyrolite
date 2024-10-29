@@ -1,8 +1,5 @@
 import unittest
 
-import numpy as np
-
-import pyrolite
 from pyrolite.geochem.norm import (
     Composition,
     all_reference_compositions,
@@ -11,8 +8,6 @@ from pyrolite.geochem.norm import (
     update_database,
 )
 from pyrolite.util.general import remove_tempdir, temp_path
-from pyrolite.util.meta import pyrolite_datafolder
-from pyrolite.util.synthetic import normal_frame
 
 
 class TestComposition(unittest.TestCase):

@@ -85,7 +85,7 @@ class TX(Site):
         affinities={"Si{4+}": 0, "Al{3+}": 1, "Fe{3+}": 2},
         *args,
         mode="cation",
-        **kwargs
+        **kwargs,
     ):
         super().__init__(name, coordination, *args, affinities=affinities, **kwargs)
 

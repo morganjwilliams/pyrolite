@@ -5,11 +5,9 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import mpltern.ternary
 import numpy as np
-import pandas as pd
-from numpy.random import multivariate_normal
 
 from pyrolite.geochem import REE
-from pyrolite.plot import density, pyroplot, spider
+from pyrolite.plot import pyroplot
 from pyrolite.util.synthetic import normal_frame
 
 logger = logging.getLogger(__name__)

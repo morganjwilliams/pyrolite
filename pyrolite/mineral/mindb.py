@@ -6,6 +6,7 @@ Notes
 Accessing and modifying the database across multiple with multiple threads/processes
 *could* result in database corruption (e.g. through repeated truncation etc).
 """
+
 import functools
 from pathlib import Path
 

@@ -1,9 +1,8 @@
 import unittest
 
 import numpy as np
-import pandas as pd
 
-from pyrolite.util.types import *
+from pyrolite.util.types import iscollection
 
 
 class TestIscollection(unittest.TestCase):

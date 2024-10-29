@@ -424,7 +424,8 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
             if round_to <= 0:
                 fmt = int
             else:
-                fmt = lambda x: x
+                def fmt(x):
+                    return x
             sig_n = round(n, round_to)
             if low_filter and sig_n == 0.0:
                 return np.nan
@@ -604,12 +605,12 @@ def solve_ratios(*eqs, evaluate=True):
     Solve a ternary system (top-left-right) given two constraints on
     two ratios, which together describe intersecting lines/a point.
     """
-    t, l, r = sympy.symbols("t l r")
+    t, L, r = sympy.symbols("t l r")
 
     def to_sympy(t):  # rearrange to have =0 equvalent expressions
         return sympy.sympify("-".join(t.split("=")))
 
     result = sympy.solve(
-        [to_sympy(e) for e in eqs] + [to_sympy("t + l + r = 1")], (t, l, r)
+        [to_sympy(e) for e in eqs] + [to_sympy("t + l + r = 1")], (t, L, r)
     )
     return list(result.values())

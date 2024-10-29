@@ -1,9 +1,19 @@
 import unittest
 
 import numpy as np
-import pandas as pd
 
-from pyrolite.util.text import *
+from pyrolite.util.text import (
+    int_to_alpha,
+    normalise_whitespace,
+    parse_entry,
+    quoted_string,
+    remove_prefix,
+    slugify,
+    split_records,
+    string_variations,
+    titlecase,
+    to_width,
+)
 
 
 class TestRemovePrefix(unittest.TestCase):

@@ -4,7 +4,26 @@ import numpy as np
 import pandas as pd
 from sympy import tensorcontraction
 
-from pyrolite.util.math import *
+from pyrolite.util.math import (
+    augmented_covariance_matrix,
+    equal_within_significance,
+    grid_from_ranges,
+    helmert_basis,
+    interpolate_line,
+    is_numeric,
+    isclose,
+    linrng_,
+    linspc_,
+    logrng_,
+    logspc_,
+    most_precise,
+    nancov,
+    on_finite,
+    round_sig,
+    significant_figures,
+    signify_digit,
+    symbolic_helmert_basis,
+)
 from pyrolite.util.synthetic import random_cov_matrix
 
 

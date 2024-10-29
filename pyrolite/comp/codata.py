@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 import scipy.special
@@ -34,15 +36,24 @@ def close(X: np.ndarray, sumf=np.sum):
 
     Notes
     ------
-        * Does not check for non-positive entries.
+    Checks for non-positive entries and replaces zeros with NaN values.
     """
 
-    if X.ndim == 2:
-        C = np.array(sumf(X, axis=1))[:, np.newaxis]
-    else:
-        C = np.array(sumf(X, axis=0))
+    if np.any(X <= 0):
+        warnings.warn(
+            "Non-positive entries found. Closure operation assumes all positive entries.",
+            UserWarning,
+        )
 
+    if X.ndim == 2:
+        C = np.array(sumf(X, axis=1), dtype=float)[:, np.newaxis]
+    else:
+        C = np.array(sumf(X), dtype=float)
+
+    # Replace zero sums with NaN to prevent division by zero
     C[np.isclose(C, 0)] = np.nan
+
+    # Return the array closed to sum to 1
     return np.divide(X, C)
 
 
@@ -66,16 +77,31 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
     :class:`pandas.DataFrame`
         Renormalized dataframe.
     """
+
     dfc = df.copy(deep=True)
     if components:
-        cmpnts = [c for c in components if c in dfc.columns]
-        dfc.loc[:, cmpnts] = scale * dfc.loc[:, cmpnts].divide(
-            dfc.loc[:, cmpnts].sum(axis=1).replace(0, np.nan), axis=0
+        if not all(col in dfc.columns for col in components):
+            raise ValueError("Not all specified components exist in the DataFrame.")
+        dfc = dfc[components]
+
+    if (dfc <= 0).any().any():
+        warnings.warn(
+            "Non-positive entries found in specified components. "
+            "Negative values have been replaced with NaN. "
+            "Renormalisation assumes all positive entries.",
+            UserWarning,
         )
-        return dfc
-    else:
-        dfc = dfc.divide(dfc.sum(axis=1).replace(0, 100.0), axis=0) * scale
-        return dfc
+
+    # Replace negative values with NaN
+    dfc[dfc < 0] = np.nan
+
+    # Renormalise all columns if no components are specified
+    sum_rows = dfc.sum(axis=1)
+    # Handle division by zero by replacing zeros with NaN
+    sum_rows.replace(0, np.nan, inplace=True)
+    dfc = dfc.divide(sum_rows, axis=0) * scale
+
+    return dfc
 
 
 def ALR(X: np.ndarray, ind: int = -1, null_col=False):
@@ -329,9 +355,11 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
 
     names = [
         r"{} / {}".format(
-            c
-            if c not in __sympy_protected_variables__
-            else __sympy_protected_variables__[c],
+            (
+                c
+                if c not in __sympy_protected_variables__
+                else __sympy_protected_variables__[c]
+            ),
             df.columns[ind],
         )
         for c in df.columns
@@ -381,9 +409,11 @@ def get_CLR_labels(df, mode="simple", **kwargs):
 
     names = [
         r"{} / γ".format(
-            c
-            if c not in __sympy_protected_variables__
-            else __sympy_protected_variables__[c],
+            (
+                c
+                if c not in __sympy_protected_variables__
+                else __sympy_protected_variables__[c]
+            ),
         )
         for c in df.columns
     ]
@@ -444,9 +474,11 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     # sub in Phi (the CLR normalisation variable)
     names = [
         r"{} / γ".format(
-            c
-            if c not in __sympy_protected_variables__
-            else __sympy_protected_variables__[c],
+            (
+                c
+                if c not in __sympy_protected_variables__
+                else __sympy_protected_variables__[c]
+            ),
         )
         for c in df.columns
     ]
@@ -644,7 +676,7 @@ def inverse_sphere(θ):
         if ix == p:
             S = 1.0
         else:
-            S = np.product(sinθ[:, ix:], axis=1)
+            S = np.prod(sinθ[:, ix:], axis=1)
         y[:, ix] = C * S
 
     ys = y**2

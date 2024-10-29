@@ -1,6 +1,6 @@
 import unittest
 
-from pyrolite.mineral.sites import *
+from pyrolite.mineral.sites import AX, IX, MX, OX, TX, VX, Site
 
 
 class TestSites(unittest.TestCase):

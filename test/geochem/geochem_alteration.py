@@ -1,8 +1,18 @@
 import unittest
 
 import numpy as np
+import pandas as pd
 
-from pyrolite.geochem.alteration import *
+from pyrolite.geochem.alteration import (
+    CCPI,
+    CIA,
+    CIW,
+    PIA,
+    SAR,
+    WIP,
+    IshikawaAltIndex,
+    SiTiIndex,
+)
 
 
 class TestAlterationIndicies(unittest.TestCase):

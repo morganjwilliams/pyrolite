@@ -46,7 +46,7 @@ class TestGetMineralGroup(unittest.TestCase):
         self.assertIsInstance(out, pd.DataFrame)
 
     @unittest.expectedFailure
-    def test_get_olivine(self):
+    def test_get_tourmaline(self):
         out = get_mineral_group("tourmaline")
         self.assertIsInstance(out, pd.DataFrame)
 

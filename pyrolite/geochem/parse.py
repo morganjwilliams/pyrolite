@@ -18,7 +18,7 @@ from .ind import (
 logger = Handle(__name__)
 
 
-def is_isotoperatio(s):
+def is_isotoperatio(s, require_split=False, split_on=r"[\s_]+"):
     """
     Check if text is plausibly an isotope ratio.
 
@@ -42,7 +42,7 @@ def is_isotoperatio(s):
         return False
 
 
-def repr_isotope_ratio(isotope_ratio):
+def repr_isotope_ratio(text):
     """
     Format an isotope ratio pair as a string.
 
@@ -60,12 +60,12 @@ def repr_isotope_ratio(isotope_ratio):
     Consider returning additional text outside of the match (e.g. 87Sr/86Sri should
     include the 'i').
     """
-    if not is_isotoperatio(isotope_ratio):
-        return isotope_ratio
+    if not is_isotoperatio(text):
+        return text
     else:
-        if isinstance(isotope_ratio, str):
-            isotope_ratio = get_isotopes(isotope_ratio)
-        num, den = isotope_ratio
+        if isinstance(text, str):
+            text = get_isotopes(text)
+        num, den = text
         isomatch = r"([0-9][0-9]?[0-9]?)"
         elmatch = r"([a-zA-Z][a-zA-Z]?)"
         num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
@@ -126,12 +126,14 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     # translate elements and oxides
     # elements second, Co guaranteed to override CO for python 3.6 +
+    
     chems = _common_oxides | _common_elements
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
 
     # translate potential isotope ratios
-    strings = [h if (h in chems) else repr_isotope_ratio(h) for h in strings]
+    split_pattern = re.compile(split_on)
+    strings = [h if (h in chems) else (repr_isotope_ratio(h) if split_pattern.match(h) is not None else h) for h in strings]
     if listified:
         strings = strings[0]
     return strings

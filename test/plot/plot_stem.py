@@ -4,7 +4,6 @@ import unittest
 import matplotlib.axes
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from pyrolite.plot.stem import stem
 

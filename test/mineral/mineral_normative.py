@@ -3,14 +3,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from pyrolite.mineral.normative import (
+from pyrolite.mineral.normative import (  # MiddlemostOxRatio, _aggregate_components, _update_molecular_masses,
     CIPW_norm,
     LeMaitre_Fe_correction,
     LeMaitreOxRatio,
     Middlemost_Fe_correction,
-    MiddlemostOxRatio,
-    _aggregate_components,
-    _update_molecular_masses,
     endmember_decompose,
     unmix,
 )

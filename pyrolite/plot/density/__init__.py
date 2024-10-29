@@ -1,6 +1,7 @@
 """
 Kernel desnity estimation plots for geochemical data.
 """
+
 import copy
 
 import matplotlib.pyplot as plt
@@ -38,7 +39,7 @@ def density(
     shading="auto",
     vmin=0.0,
     colorbar=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Creates diagramatic representation of data density and/or frequency for either
@@ -89,6 +90,7 @@ def density(
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
+
 
     .. seealso::
 
@@ -159,7 +161,7 @@ def density(
                 logx=logx,
                 logy=logy,
                 extent=extent,
-                **subkwargs(kwargs, DensityGrid)
+                **subkwargs(kwargs, DensityGrid),
             )
             if mode == "hexbin":
                 # extent values are exponents (i.e. 3 -> 10**3)
@@ -171,7 +173,7 @@ def density(
                     extent=grid.get_hex_extent(),
                     xscale=["linear", "log"][logx],
                     yscale=["linear", "log"][logy],
-                    **subkwargs(kwargs, ax.hexbin)
+                    **subkwargs(kwargs, ax.hexbin),
                 )
 
             elif mode == "hist2d":
@@ -182,7 +184,7 @@ def density(
                     range=grid.get_range(),
                     cmap=cmap,
                     cmin=[0, 1][vmin > 0],
-                    **subkwargs(kwargs, ax.hist2d)
+                    **subkwargs(kwargs, ax.hist2d),
                 )
                 mappable = im
 
@@ -192,7 +194,7 @@ def density(
                     xtransform=[lambda x: x, np.log][logx],
                     ytransform=[lambda y: y, np.log][logy],
                     mode="edges",
-                    **subkwargs(kwargs, grid.kdefrom)
+                    **subkwargs(kwargs, grid.kdefrom),
                 )
 
                 if percentiles:  # 98th percentile
@@ -210,7 +212,7 @@ def density(
                         cmap=cmap,
                         vmin=vmin,
                         shading=shading,
-                        **subkwargs(kwargs, pcolor)
+                        **subkwargs(kwargs, pcolor),
                     )
                     mappable.set_edgecolor(background_color)
                     mappable.set_linestyle("None")
@@ -225,7 +227,7 @@ def density(
                         percentiles=percentiles,
                         cmap=cmap,
                         vmin=vmin,
-                        **kwargs
+                        **kwargs,
                     )
             if relim and (extent is not None):
                 ax.axis(extent)
@@ -256,7 +258,7 @@ def density(
                     cmap=cmap,
                     vmin=vmin,
                     shading=shading,
-                    **subkwargs(kwargs, pcolor)
+                    **subkwargs(kwargs, pcolor),
                 )
 
                 mappable = tri_poly_collection
@@ -269,7 +271,7 @@ def density(
                     percentiles=percentiles,
                     cmap=cmap,
                     vmin=vmin,
-                    **kwargs
+                    **kwargs,
                 )
             ax.set_aspect("equal")
         else:
@@ -292,7 +294,7 @@ def _add_contours(
     cmap=DEFAULT_CONT_COLORMAP,
     vmin=0.0,
     extent=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Add density-based contours to a plot.
@@ -310,7 +312,7 @@ def _add_contours(
             percentiles=levels,
             extent=extent,
             cmap=cmap,
-            **kwargs
+            **kwargs,
         )
         mappable = _cs
     else:

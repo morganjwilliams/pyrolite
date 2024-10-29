@@ -251,19 +251,22 @@ class Timescale(object):
         """
 
         level = titlecase(level)
-        wthn_rng = lambda x: (age <= x.Start) & (age >= x.End)
+
+        def wthn_rng(x):
+            return (age <= x.Start) & (age >= x.End)
+
         relevant = self.data.loc[self.data.apply(wthn_rng, axis=1).values, :]
         if level == "Specific":  # take the rightmost grouping
             relevant = relevant.loc[:, self.levels]
             counts = (~pd.isnull(relevant)).count(axis=1)
             if sum(counts == counts.max()) > 1:
                 idx_rel_row = counts.index[
-                    max([ix for (ix, r) in enumerate(counts) if r == counts[0]])
+                    max([ix for (ix, r) in enumerate(counts) if r == counts.iloc[0]])
                 ]
             else:
                 idx_rel_row = counts.idxmax()
             rel_row = relevant.loc[idx_rel_row, :]
-            return age_name(rel_row[~pd.isnull(rel_row)], **kwargs)
+            return age_name(rel_row[~pd.isnull(rel_row)].to_list(), **kwargs)
         else:
             unique_values = relevant.loc[:, level].unique()
             return unique_values[~pd.isnull(unique_values)][0]

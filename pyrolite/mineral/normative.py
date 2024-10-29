@@ -7,6 +7,7 @@ import scipy
 
 from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
+from ..util.classification import TAS
 from ..util.log import Handle
 from ..util.pd import to_frame
 from ..util.units import scale
@@ -200,8 +201,6 @@ def endmember_decompose(
 ################################################################################
 # CIPW Norm and Related functions
 ################################################################################
-
-from ..util.classification import TAS
 
 # fuctions which map <TAS field, [SiO2, Na2O + K2O]> to Fe2O3/FeO ratios.
 _MiddlemostTASRatios = dict(
@@ -814,7 +813,8 @@ def CIPW_norm(
     ############################################################################
     # Calculate normative components
     ############################################################################
-
+    _index = df.index
+    df = {c: df[c] for c in df.columns}
     # Normative Zircon
     df["Z"] = df["ZrO2"]
     df["Y"] = df["Z"]
@@ -1041,7 +1041,7 @@ def CIPW_norm(
     df["Hm"] = df["Fe2O3"]
 
     # Subdivision of some normative minerals
-    df["MgFe_O"] = df[["FeO", "MgO"]].sum(axis=1)
+    df["MgFe_O"] = df["FeO"] + df["MgO"]
 
     df["MgO_ratio"] = df["MgO"] / df["MgFe_O"]
     df["FeO_ratio"] = df["FeO"] / df["MgFe_O"]
@@ -1177,6 +1177,7 @@ def CIPW_norm(
     df["Mg-Di"] = df["Di"] * df["MgO_ratio"]
     df["Mg-Ol"] = df["Ol"] * df["MgO_ratio"]
 
+    df = pd.DataFrame(df, index=_index)  # reconstruct df as a dataframe
     ############################################################################
     # calculate free component molecular abundances
     ############################################################################

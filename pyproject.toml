@@ -31,7 +31,7 @@ dependencies = [
     "numpydoc",
     "tinydb>4.1",     # >4.1 required for read-only access mode for JSON storage
     "periodictable",
-    "matplotlib",
+    "matplotlib<3.9",
     "mpltern>=0.4.0",
     "scipy>=1.2",     # uses scipy.optimize.Bounds, added around 1.2
     "sympy>=1.7",
@@ -39,17 +39,11 @@ dependencies = [
     "requests",       # used by alphaMELTS utilities,  util.web
 ]
 
-[tool.setuptools.packages]
-find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
-#  include = ["Aitchison/*.py"],
-
-[tool.setuptools.dynamic]
-readme = { file = "README.md", content-type = "text/markdown" }
-
 [project.urls]
-"Issue tracker" = "https://github.com/morganjwilliams/pyrolite/issues"
-"Documentation" = "https://pyrolite.readthedocs.io/"
-"Code" = "https://github.com/morganjwilliams/pyrolite"
+Issues = "https://github.com/morganjwilliams/pyrolite/issues"
+Documentation = "https://pyrolite.readthedocs.io/"
+Repository = "https://github.com/morganjwilliams/pyrolite"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 docs = [
@@ -78,8 +72,12 @@ dev = [
     "build",
 ]
 
-[metadata]
-url = "https://github.com/morganjwilliams/pyrolite"
+[tool.setuptools.packages]
+find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
+#  include = ["Aitchison/*.py"],
+
+[tool.setuptools.dynamic]
+readme = { file = "README.md", content-type = "text/markdown" }
 
 [tool.coverage.run]
 relative_files = true
@@ -103,6 +101,6 @@ parentdir_prefix = "pyrolite-"
 
 [tool.pytest.ini_options]
 python_files = "*.py"
-addopts = "--cov=pyrolite --cov-report html --cov-report xml --cov-report term-missing --cov-config .coveragerc"
+addopts = "--cov=pyrolite --cov-report html --cov-report xml --cov-report term-missing"
 testpaths = ["test"]
 pythonpath = ["."]

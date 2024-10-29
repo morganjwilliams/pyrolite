@@ -10,6 +10,18 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.6`_
+----------
+
+* **PR Merged**: `Sarah Shi <https://github.com/sarashi>`__ contributed a PR to 
+  better handle values below zero during compositional renormalisation (to 1 or 100%; 
+  `#104 <https://github.com/morganjwilliams/pyrolite/pull/104>`__).
+  The functions :func:`pyrolite.comp.codata.close` and :func:`pyrolite.comp.codata.renormalise`
+  will now warn where values below zero exist, and replace these with `numpy.nan`.
+* Added a `CITATION.cff` file to the repository.
+* Various administrative changes (formatting, linting, meta-file management), minor bugfixes 
+  and addressing various deprecation/other warnings.
+
 `0.3.5`_
 ----------
 
@@ -26,8 +38,8 @@ All notable changes to this project will be documented here.
   allow series and dataframes with `Pm` data to be used with the `pyrolite.pyrochem`
   REE accessors (i.e., the column will not be dropped if it exists; 
   `#100 <https://github.com/morganjwilliams/pyrolite/pull/100>`__). 
-  This PR aslo included an update for the `pyrolite.util.lambdas` functions to be more 
-  flexible in terms of access, including as indvidual series (allowing performant 
+  This PR also included an update for the `pyrolite.util.lambdas` functions to be more 
+  flexible in terms of access, including as individual series (allowing performant 
   usage with `pandarallel <https://github.com/nalepae/pandarallel>`__).
 * Updates to `pyrolite.pyrochem` accessors to be more flexible, generally allowing 
   usage with both DataFrame and Series objects (e.g. `df.pyrochem.REE`, 
@@ -41,13 +53,13 @@ All notable changes to this project will be documented here.
   (`#91 <https://github.com/morganjwilliams/pyrolite/pull/91>`__), 
   update the TAS field names in the JSON template 
   (`#92 <https://github.com/morganjwilliams/pyrolite/pull/92>`__), 
-  improve the formatting and scaling of TAS diagrams.
+  improve the formatting and scaling of TAS diagrams
   (`#93 <https://github.com/morganjwilliams/pyrolite/pull/93>`__), 
   add an option to add field labels in the visual centre of polygons (rather than the 
   'centroid'; `#94 <https://github.com/morganjwilliams/pyrolite/pull/94>`__),
   update some usage of :mod:`matplotlib` 
   (`#96 <https://github.com/morganjwilliams/pyrolite/pull/96>`__),
-  and allow selective plotting of indiviudal fields when adding a classification 
+  and allow selective plotting of individual  fields when adding a classification 
   diagram to axes (`#98 <https://github.com/morganjwilliams/pyrolite/pull/98>`__).
   
 
@@ -1398,8 +1410,9 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.5...develop
-.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.6...develop
+.. _0.3.6: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...0.3.6
+.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5.post0
 .. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2

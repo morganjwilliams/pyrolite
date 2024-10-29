@@ -1,6 +1,7 @@
 """
 Submodule with various plotting and visualisation functions.
 """
+
 import warnings
 
 import matplotlib
@@ -56,7 +57,7 @@ def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3])
 
         if components is None:
             components = obj.columns.values
-    except:
+    except AssertionError:
         msg = "Suggest components or provide a slice of the dataframe."
         raise AssertionError(msg)
     return components
@@ -455,6 +456,7 @@ class pyroplot(object):
         ax = init_axes(ax=ax, **kwargs)
 
         if hasattr(ax, "_pyrolite_components"):
+            # TODO: handle spider diagrams which have specified components
             pass
 
         ax = spider.spider(

@@ -1,9 +1,6 @@
 import platform
 import unittest
 
-import numpy as np
-import pandas as pd
-
 from pyrolite.util.multip import combine_choices, func_wrapper, multiprocess
 
 
@@ -49,7 +46,8 @@ class TestFuncWrapper(unittest.TestCase):
 
 
 @unittest.skipIf(
-    platform.system() in ["Windows", 'Darwin'], "Bug with multiprocessing testing on Windows"
+    platform.system() in ["Windows", "Darwin"],
+    "Bug with multiprocessing testing on Windows",
 )
 class TestMultiprocess(unittest.TestCase):
     """Tests the multiprocess utility function."""

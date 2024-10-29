@@ -1,9 +1,18 @@
-import logging
 import unittest
 
 import numpy as np
+import pandas as pd
 
-from pyrolite.comp.aggregate import *
+from pyrolite.comp.aggregate import (
+    compositional_mean,
+    cross_ratios,
+    get_full_column,
+    nan_weighted_compositional_mean,
+    nan_weighted_mean,
+    np_cross_ratios,
+    standardise_aggregate,
+    weights_from_array,
+)
 from pyrolite.util.synthetic import normal_frame
 
 

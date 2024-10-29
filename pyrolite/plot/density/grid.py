@@ -46,6 +46,15 @@ class DensityGrid(object):
             self.xmin, self.xmax, self.ymin, self.ymax = self.extent_from_xy(x, y)
         else:
             self.xmin, self.xmax, self.ymin, self.ymax = extent
+            # validation
+            self.xmin, self.xmax = (
+                min([self.xmin, self.xmax]),
+                max([self.xmin, self.xmax]),
+            )
+            self.ymin, self.ymax = (
+                min([self.ymin, self.ymax]),
+                max([self.ymin, self.ymax]),
+            )
 
         self.xstep = self.get_xstep()
         self.ystep = self.get_ystep()
@@ -65,15 +74,17 @@ class DensityGrid(object):
 
     def get_ystep(self):
         if self.logy:
-            return (self.ymax / self.ymin) / self.ybins
+            step = (self.ymax / self.ymin) / self.ybins
         else:
-            return (self.ymax - self.ymin) / self.ybins
+            step = (self.ymax - self.ymin) / self.ybins
+        return step
 
     def get_xstep(self):
         if self.logx:
-            return (self.xmax / self.xmin) / self.xbins
+            step = (self.xmax / self.xmin) / self.xbins
         else:
-            return (self.xmax - self.xmin) / self.xbins
+            step = (self.xmax - self.xmin) / self.xbins
+        return step
 
     def extent_from_xy(self, x, y, coverage_scale=None):
         cov = coverage_scale or self.coverage_scale

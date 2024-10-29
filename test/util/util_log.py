@@ -3,7 +3,7 @@ import sys
 import unittest
 from io import StringIO
 
-import pyrolite.plot  # for logging checks
+import pyrolite.plot  # for logging checks  # noqa: F401
 from pyrolite.util.log import Handle, ToLogger, stream_log
 
 
@@ -77,14 +77,16 @@ class TestHandle(unittest.TestCase):
                 logger = Handle("pyrolite", level=level)
                 self.assertTrue(logger.level == val)
 
+
 class TestToLogger(unittest.TestCase):
 
     def test_default(self):
-        logger= Handle(__name__, level='DEBUG')
+        logger = Handle(__name__, level="DEBUG")
 
-        with ToLogger(logger, 'INFO') as f:
-            f.write('Logging output from stream.')
+        with ToLogger(logger, "INFO") as f:
+            f.write("Logging output from stream.")
             f.flush()
+
 
 if __name__ == "__main__":
     unittest.main()

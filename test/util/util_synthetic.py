@@ -3,7 +3,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from pyrolite.util.synthetic import *
+from pyrolite.util.synthetic import (
+    example_spider_data,
+    random_composition,
+    random_cov_matrix,
+)
 
 
 class TestExampleSpiderData(unittest.TestCase):

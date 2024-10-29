@@ -1,0 +1,97 @@
+cff-version: 1.2.0
+title: 'morganjwilliams/pyrolite: 0.3.5.post0'
+message: Please cite the following works when using this software.
+type: software
+authors:
+  - family-names: Williams 
+    given-names: Morgan
+    orcid: 'https://orcid.org/0000-0003-4764-9555'
+  - family-names: Buckle
+    given-names: Tom
+  - family-names: Myhill
+    given-names: Bob
+    orcid: 'https://orcid.org/0000-0001-9489-5236'
+  - family-names: Shi
+    given-names: Sarah
+    orcid: 'https://orcid.org/0009-0004-8997-7287'
+  - family-names: Nathwani
+    given-names: Chetan
+    orcid: 'https://orcid.org/0000-0003-1208-9041'
+  - family-names: Piette Lauziere
+    given-names: Nicolas
+    orcid: 'https://orcid.org/0000-0003-2812-0357'
+  - family-names: Lexa
+    given-names: Ondrej
+    orcid: 'https://orcid.org/0000-0003-4616-9154'
+  - family-names: Schoneveld
+    given-names: Louise
+    orcid: 'https://orcid.org/0000-0002-9324-1676'
+  - family-names: Afonso Rodrigues
+    given-names: Angela
+    orcid: 'https://orcid.org/0000-0003-3402-9621'
+  - family-names: Mues
+    given-names: Malte
+    orcid: 'https://orcid.org/0000-0002-6291-9886'
+  - family-names: Bentley
+    given-names: Martin
+  - family-names: Gentilini
+    given-names: Alessandro
+  - family-names: Scott
+    given-names: Richard
+identifiers:
+  - type: doi
+    value: 10.5281/ZENODO.2545106
+  - type: url
+    value: 'https://zenodo.org/doi/10.5281/zenodo.2545106'
+url: 'https://zenodo.org/doi/10.5281/zenodo.2545106'
+version: 0.3.5.post0
+date-released: '2024-02-28'
+doi: 10.5281/ZENODO.2545106
+preferred-citation:
+  authors:
+    - family-names: Williams
+      given-names: Morgan
+      orcid: 'https://orcid.org/0000-0003-4764-9555'
+    - family-names: Schoneveld
+      given-names: Louise
+      orcid: 'https://orcid.org/0000-0002-9324-1676'
+    - family-names: Mao
+      given-names: Ya-Jing
+      orcid: 'https://orcid.org/0000-0002-2725-2158'
+    - family-names: Klump
+      given-names: Jens
+      occid: 'https://orcid.org/0000-0001-5911-6022'
+    - family-names: Gosses
+      given-names: Justin
+      orcid: 'https://orcid.org/0000-0002-5351-7295'
+    - family-names: Dalton
+      given-names: Hayden
+      orcid: 'https://orcid.org/0000-0003-2114-9894'
+    - family-names: Bath
+      given-names: Adam
+      orcid: 'https://orcid.org/0000-0003-0882-0807'
+    - family-names: Barnes
+      given-names: Steve
+      orcid: 'https://orcid.org/0000-0002-4912-9177'
+  doi: 10.21105/joss.02314
+  identifiers:
+    - type: doi
+      value: 10.21105/joss.02314
+    - type: url
+      value: 'http://dx.doi.org/10.21105/joss.02314'
+    - type: other
+      value: 'urn:issn:2475-9066'
+  title: 'pyrolite: Python for geochemistry'
+  url: 'http://dx.doi.org/10.21105/joss.02314'
+  database: Crossref
+  date-published: '2020-06-09'
+  year: 2020
+  month: 6
+  issn: 2475-9066
+  issue: '50'
+  journal: Journal of Open Source Software
+  publisher:
+    name: The Open Journal
+  start: '2314'
+  type: article
+  volume: '5'

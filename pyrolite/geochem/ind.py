@@ -6,6 +6,7 @@ Todo
 ------
 * Incompatibility indexes for spider plot ordering.
 """
+
 import re
 
 import numpy as np
@@ -254,9 +255,11 @@ def simple_oxides(cation, output="string"):
 
     # for 3.6+, could use f'{cation}{1}O{c//2}',  f'{cation}{2}O{c}'
     oxides = [
-        str(cation) + str(1) + "O" + str(c // 2)
-        if not c % 2
-        else str(cation) + str(2) + "O" + str(c)
+        (
+            str(cation) + str(1) + "O" + str(c // 2)
+            if not c % 2
+            else str(cation) + str(2) + "O" + str(c)
+        )
         for c in ions
     ]
     oxides = [pt.formula(ox) for ox in oxides]
@@ -291,7 +294,7 @@ def get_cations(component: str, exclude=[], total_suffix="T"):
 
     exclude += ["O"]
     atms = pt.formula(component).atoms
-    cations = [el for el in atms.keys() if not el.__str__() in exclude]
+    cations = [el for el in atms.keys() if el.__str__() not in exclude]
     return cations
 
 
@@ -398,7 +401,7 @@ def get_ionic_radii(
     variant=[],
     source="shannon",
     pauling=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Function to obtain ionic radii for a given ion and coordination [#ref_1]_
@@ -464,7 +467,7 @@ def get_ionic_radii(
                 variant=variant,
                 source=source,
                 pauling=pauling,
-                **kwargs
+                **kwargs,
             )
             for e in element
         ]
