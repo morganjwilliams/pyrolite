@@ -205,27 +205,6 @@ fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
 fig, ax = compare_NORMs(df.loc[~volcanic_filter, :], NORM.loc[~volcanic_filter])
 plt.show()
 ########################################################################################
-# These normative mineralogical components could be input into mineralogical
-# classifiers, as mentioned above. For example, the IUGS QAP classifier:
-#
-from pyrolite.util.classification import QAP
-
-clf = QAP()  # build a QAP classifier
-
-qap_data = NORM.loc[:, ["quartz", "orthoclase"]]  #
-qap_data["plagioclase"] = NORM.loc[:, ["albite", "anorthite"]].sum(axis=1)
-# predict which lithological class each mineralogical composiiton belongs in
-# we add a small value to zeros here to ensure points fit in polygons
-predicted_classes = clf.predict(qap_data.replace(0, 10e-6).values)
-predicted_classes.head()
-########################################################################################
-# We can use these predicted classes as a color index also, within the QAP diagram
-# or elsewhere:
-#
-ax = clf.add_to_axes()
-qap_data.pyroplot.scatter(ax=ax, c=predicted_classes, axlabels=False, cmap="tab20c")
-plt.show()
-########################################################################################
 # We could also compare how these mineralogical distinctions map into chemical ones
 # like the TAS diagram:
 #
