@@ -204,18 +204,7 @@ fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
 #
 fig, ax = compare_NORMs(df.loc[~volcanic_filter, :], NORM.loc[~volcanic_filter])
 plt.show()
-########################################################################################
-# We could also compare how these mineralogical distinctions map into chemical ones
-# like the TAS diagram:
-#
-from pyrolite.plot.templates import TAS
 
-ax = TAS()
-components = df.loc[:, ["SiO2"]]
-components["alkali"] = df.loc[:, ["Na2O", "K2O"]].sum(axis=1)
-# add the predictions from normative mineralogy to the TAS diagram
-components.pyroplot.scatter(ax=ax, c=predicted_classes, cmap="tab20c", axlabels=False)
-plt.show()
 ########################################################################################
 # References
 # ~~~~~~~~~~
