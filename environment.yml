@@ -32,7 +32,7 @@ dependencies:
   # - jupyterlite-sphinx
   # - jupyterlite-pyodide-kernel
   - pip
-  - black
+  - ruff
   - isort
   - pytest
   - pytest-runner

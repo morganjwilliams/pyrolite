@@ -62,12 +62,12 @@ If you use pyrolite extensively for your research, citation of the software woul
 
 ## Development & Build Status
 
-[![Formatted with Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Formatted with Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Code Quality](https://api.codacy.com/project/badge/Grade/fd9912a3faae43bf84a47e3da685d84c)](https://app.codacy.com/gh/morganjwilliams/pyrolite/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=morganjwilliams/pyrolite&amp;utm_campaign=Badge_Grade)
 
 |                                                                                  **main**                                                                                  |                                                                                  **develop**                                                                                   |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                               [![Unit Tests on main](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=main)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:main)                                |                               [![Unit Tests on Develop](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=develop)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:develop)                                |
+|                               [![Unit Tests on main](https://github.com/morganjwilliams/pyrolite/actions/workflows/unittest.yml/badge.svg?branch=main)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:main)                                |                               [![Unit Tests on Develop](https://github.com/morganjwilliams/pyrolite/actions/workflows/unittest.yml/badge.svg?branch=develop)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:develop)                                |
 | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=main)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=main) | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=develop)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=develop) |
 
 **Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)

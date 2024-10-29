@@ -65,7 +65,7 @@ excel = ["xlrd", "openpyxl"]
 dev = [
     "pytest",
     "versioneer",
-    "black",
+    "ruff",
     "isort",
     "twine",
     "pyrolite[test,docs,skl]",
