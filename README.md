@@ -44,12 +44,11 @@ For more information, see the documentation's [installation page](https://pyroli
 ## Examples
 
 Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/main/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/main/tutorials/index.html).
-The corresponding sources of these examples exist as marked-up `.py` files in this repository (which get converted to Jupyter notebooks on ReadTheDocs); you can find them under the folders [`docs/source/gallery/examples`](./docs/source/gallery/examples/) and [`docs/source/gallery/tutorials`](./docs/source/gallery/tutorials/).
+The corresponding sources of these examples exist as marked-up `.py` files in this repository (which get converted to Jupyter notebooks on ReadTheDocs); you can find them under the folders [`docs/source/gallery/examples`](./docs/source/gallery/examples/) and [`docs/source/gallery/tutorials`](https://github.com/morganjwilliams/pyrolite/tree/main/docs/source/gallery/tutorials/).
 
 ## Contributing
 
-The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
-Contributing page](https://pyrolite.readthedocs.io/en/main/dev/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/main/dev/conduct.html).
+The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [Contributing page](https://pyrolite.readthedocs.io/en/main/dev/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/main/dev/conduct.html).
 
 For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/main/dev/contributors.html).
 
@@ -59,7 +58,7 @@ If you'd like an idea of where the project might be heading in the near future, 
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02314/status.svg)](https://doi.org/10.21105/joss.02314)
 [![Archive](https://zenodo.org/badge/137172322.svg?style=flat)](https://zenodo.org/badge/latestdoi/137172322)
 
-If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/main/cite.html).
+If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/main/cite.html). A [`CITATION.cff` file](https://github.com/morganjwilliams/pyrolite/blob/main/CITATION.cff) is also provided for reference.
 
 ## Development & Build Status
 
