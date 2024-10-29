@@ -69,7 +69,7 @@ class ToLogger(io.StringIO):
     def __init__(self, logger, level=None):
         super(ToLogger, self).__init__()
         self.logger = logger
-        if isinstance(level,str):
+        if isinstance(level, str):
             level = getattr(logging, level.upper())
         self.level = level or logging.INFO
 

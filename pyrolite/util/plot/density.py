@@ -7,6 +7,7 @@ USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate
@@ -121,7 +122,7 @@ def plot_Z_percentiles(
     linestyles=None,
     contour_labels=None,
     label_contours=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Plot percentile contours onto a 2D  (scaled or unscaled) probability density
@@ -204,7 +205,7 @@ def plot_Z_percentiles(
         zi,
         levels=contour_values[ordering],  # must increase
         cmap=cmap,
-        **{**cntr_config, **kwargs}
+        **{**cntr_config, **kwargs},
     )
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
@@ -239,7 +240,7 @@ def conditional_prob_density(
     rescale=True,
     mode="binkde",
     ret_centres=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Estimate the conditional probability density of one dependent variable.

@@ -6,6 +6,7 @@ Plot Templates
 be used to create new plots, or add a template to an existing
 :class:`matplotlib.axes.Axes`.
 """
+
 import matplotlib.pyplot as plt
 
 ########################################################################################

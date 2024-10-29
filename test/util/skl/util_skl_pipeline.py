@@ -54,7 +54,9 @@ class TestClassifierPerformanceReport(unittest.TestCase):
 
     def test_default(self):
         self.classifier.fit(self.X, self.y)
-        classifier_performance_report(self.classifier, self.X, self.y, directory=self.dir)
+        classifier_performance_report(
+            self.classifier, self.X, self.y, directory=self.dir
+        )
 
     def tearDown(self):
         remove_tempdir(self.dir)

@@ -8,6 +8,7 @@ spanned by the data. Here we provide an example of visualisation of classificati
 predictions and relative prediction certainty (using entropy across predicted
 probability for each individual class) for a toy :mod:`sklearn` dataset.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn.datasets

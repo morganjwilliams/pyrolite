@@ -11,6 +11,7 @@ USE_PCOLOR : :class:`bool`
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
+
 from ..log import Handle
 
 logger = Handle(__name__)

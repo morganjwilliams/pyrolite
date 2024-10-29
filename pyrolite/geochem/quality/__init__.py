@@ -23,6 +23,7 @@ Todo
         offset from a zero-offset to 0+n, 0+2n, 0+3n.. etc peaks with decreasing
         magnitude (which occur at lower value)
 """
+
 from ...util.log import Handle
 
 logger = Handle(__name__)

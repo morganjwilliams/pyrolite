@@ -45,7 +45,7 @@ def alt_matplotlib_scraper(block, block_vars, gallery_conf, **kwargs):
                 save_at=Path(image_path).parent,
                 name=Path(image_path).stem,
                 save_fmts=["png"],
-                **kwargs.copy()
+                **kwargs.copy(),
             )
             image_paths.append(image_path)
 

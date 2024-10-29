@@ -8,6 +8,7 @@ DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default discrete colormap.
 """
+
 import itertools
 from pathlib import Path
 

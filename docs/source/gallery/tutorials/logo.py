@@ -2,6 +2,7 @@
 Making the Logo
 ==================================
 """
+
 #######################################################################################
 # Having some funky ellipses in a simplex inspired some interest when I put the logo
 # together for pyrolite, so I put together a cleaned-up example of how you can create

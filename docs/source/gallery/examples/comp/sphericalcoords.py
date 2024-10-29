@@ -24,6 +24,7 @@ See below for an example of this demonstrated graphically.
 First let's create some example mineralogical abundance data, where at least
 one of the minerals might occasionally have zero abundance:
 """
+
 import numpy as np
 
 from pyrolite.util.synthetic import normal_frame

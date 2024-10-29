@@ -249,7 +249,6 @@ class TestSplitRecords(unittest.TestCase):
 
 
 class TestSlugify(unittest.TestCase):
-
     def test_default(self):
         self.assertEqual(slugify("a b"), "a-b")
         self.assertEqual(slugify("a@b"), "ab")
@@ -258,7 +257,6 @@ class TestSlugify(unittest.TestCase):
 
 
 class TestInt2Alpha(unittest.TestCase):
-
     def test_default(self):
         self.assertEqual(int_to_alpha(0), "a")
         self.assertEqual(int_to_alpha(26), "aa")

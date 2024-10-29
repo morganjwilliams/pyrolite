@@ -5,6 +5,7 @@ TAS Classifier
 Some simple discrimination methods are implemented,
 including the Total Alkali-Silica (TAS) classification.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -54,10 +55,20 @@ df["Rocknames"].sample(10)  # randomly check 10 sample rocknames
 
 fig, ax = plt.subplots(1)
 
-cm.add_to_axes(ax, alpha=0.5, linewidth=0.0, zorder=-2, add_labels=False,
-               which_ids=np.unique(df["TAS"]), fill=True, facecolor=[0.9, 0.8, 1.0])
+cm.add_to_axes(
+    ax,
+    alpha=0.5,
+    linewidth=0.0,
+    zorder=-2,
+    add_labels=False,
+    which_ids=np.unique(df["TAS"]),
+    fill=True,
+    facecolor=[0.9, 0.8, 1.0],
+)
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
-df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(ax=ax, c=df["TAS"], alpha=0.7, axlabels=False)
+df[["SiO2", "Na2O + K2O"]].pyroplot.scatter(
+    ax=ax, c=df["TAS"], alpha=0.7, axlabels=False
+)
 
 ########################################################################################
 # Variations of the Diagram

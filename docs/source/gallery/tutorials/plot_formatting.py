@@ -10,6 +10,7 @@ and exposes the API of :mod:`matplotlib` for the visualisation components
 (and also :mod:`mpltern` for ternary diagrams), you should also check out their
 documentation pages for more in-depth guides, examples and API documentation.
 """
+
 #######################################################################################
 # First let's pull in a simple dataset to use throughout these examples:
 #
@@ -209,6 +210,11 @@ import matplotlib.pyplot as plt
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_ternary_lim(
-    0.1, 0.5, 0.2, 0.6, 0.3, 0.7  # tmin  # tmax  # lmin  # lmax  # rmin  # rmax
+    0.1,
+    0.5,
+    0.2,
+    0.6,
+    0.3,
+    0.7,  # tmin  # tmax  # lmin  # lmax  # rmin  # rmax
 )
 plt.show()

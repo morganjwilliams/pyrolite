@@ -43,7 +43,7 @@ def spider(
     line_kw={},
     set_ticks=True,
     autoscale=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Plots spidergrams for trace elements data. Additional arguments are typically forwarded
@@ -209,7 +209,10 @@ def spider(
             )
             # do these need to be ravelled?
             ax.scatter(
-                indexes.ravel(), arr.ravel(), color=scattercolor, **{"zorder": 2, **s_kw}
+                indexes.ravel(),
+                arr.ravel(),
+                color=scattercolor,
+                **{"zorder": 2, **s_kw},
             )
 
         # should create a custom legend handle here
@@ -227,7 +230,7 @@ def spider(
             yextent=yextent,
             mode=mode,
             ret_centres=True,
-            **kwargs
+            **kwargs,
         )
         # can have issues with nans here?
         vmin = kwargs.pop("vmin", 0)
@@ -290,7 +293,7 @@ def REE_v_radii(
     line_kw={},
     set_labels=True,
     set_ticks=True,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Creates an axis for a REE diagram with ionic radii along the x axis.
@@ -374,7 +377,7 @@ def REE_v_radii(
             indexes=indexes,
             scatter_kw=scatter_kw,
             line_kw=line_kw,
-            **kwargs
+            **kwargs,
         )
 
     twinys = get_twins(ax, which="y")

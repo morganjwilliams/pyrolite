@@ -21,6 +21,7 @@ except:
 try:
     import pyodbc
     from pyodbc import DatabaseError, OperationalError, ProgrammingError
+
     __backend__ = pyodbc
 except:
     pass

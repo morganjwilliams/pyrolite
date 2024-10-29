@@ -16,7 +16,7 @@ def TAS(
     relim=True,
     color="k",
     which_model=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Adds the TAS diagram to an axes. Diagram from Middlemost (1994) [#ref_1]_,

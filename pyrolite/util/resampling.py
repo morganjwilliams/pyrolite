@@ -1,6 +1,7 @@
 """
 Utilities for (weighted) bootstrap resampling applied to geoscientific point-data.
 """
+
 import numpy as np
 import pandas as pd
 
@@ -85,7 +86,7 @@ def get_spatiotemporal_resampling_weights(
     age_name="Age",
     max_memory_fraction=0.25,
     normalized_weights=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Takes a dataframe with lat, long and age and returns a sampling weight for each
@@ -132,7 +133,7 @@ def get_spatiotemporal_resampling_weights(
         df[[*latlong_names]],
         absolute=False,
         max_memory_fraction=max_memory_fraction,
-        **subkwargs(kwargs, great_circle_distance)
+        **subkwargs(kwargs, great_circle_distance),
     )  # angular distances
 
     _invnormdistances = np.zeros_like(z)
@@ -211,9 +212,9 @@ def add_age_noise(
         age_uncertainty = (
             np.abs(df[max_age_name] - df[min_age_name]) / 2
         )  # half bin width
-    age_uncertainty[
-        ~np.isfinite(age_uncertainty) | age_uncertainty < min_sigma
-    ] = min_sigma
+    age_uncertainty[~np.isfinite(age_uncertainty) | age_uncertainty < min_sigma] = (
+        min_sigma
+    )
     # generate gaussian age noise
     age_noise = np.random.randn(df.index.size) * age_uncertainty.values
     age_noise *= noise_level  # scale the noise
@@ -238,7 +239,7 @@ def spatiotemporal_bootstrap_resample(
     noise_level=1,
     age_name="Age",
     latlong_names=["Latitude", "Longitude"],
-    **kwargs
+    **kwargs,
 ):
     """
     Resample and aggregate metrics from a dataframe, optionally aggregating by a given
@@ -316,7 +317,7 @@ def spatiotemporal_bootstrap_resample(
             df,
             age_name=age_name,
             latlong_names=latlong_names,
-            **subkwargs(kwargs, get_spatiotemporal_resampling_weights)
+            **subkwargs(kwargs, get_spatiotemporal_resampling_weights),
         )
 
     # to efficiently manage categories we can make sure we have an iterable here
@@ -358,7 +359,7 @@ def spatiotemporal_bootstrap_resample(
                 min_sigma=50,
                 age_name=age_name,
                 noise_level=noise_level,
-                **subkwargs(kwargs, add_age_noise)
+                **subkwargs(kwargs, add_age_noise),
             )
 
         # transform the parameters to be estimated before adding parameter noise?

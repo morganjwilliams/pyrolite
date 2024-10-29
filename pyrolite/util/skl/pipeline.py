@@ -70,7 +70,9 @@ def fit_save_classifier(
     return clf
 
 
-def classifier_performance_report(clf, X_test, y_test, classes=[], directory=".", name="clf"):
+def classifier_performance_report(
+    clf, X_test, y_test, classes=[], directory=".", name="clf"
+):
     """
     Output a performance report for a classifier. Currently outputs the overall
     classification score, a confusion matrix and where relevant an indication of
@@ -84,13 +86,13 @@ def classifier_performance_report(clf, X_test, y_test, classes=[], directory="."
         Input data for testing.
     y_test : :class:`numpy.ndarray` | :class:`pandas.Series`
         Labelled/target data for testing.
-    classes : list 
+    classes : list
         Names of classes.
      directory : :class:`str` | :class:`pathlib.Path`
         Path to the save directory.
     name : :class:`str`
         Name of the classifier.
-    
+
     Returns
     --------
     clf : :class:`sklearn.base.BaseEstimator`
@@ -140,7 +142,7 @@ def SVC_pipeline(
     n_jobs=4,
     verbose=10,
     cache_size=500,
-    **kwargs
+    **kwargs,
 ):
     """
     A convenience function for constructing a Support Vector Classifier pipeline.

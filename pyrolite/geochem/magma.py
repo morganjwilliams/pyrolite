@@ -2,6 +2,7 @@
 Submodule for calculating and modelling melt chemistry. Includes common
 functions for predicting and accounting for melt evolution.
 """
+
 import numpy as np
 import periodictable as pt
 

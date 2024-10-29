@@ -749,7 +749,7 @@ def convert_chemistry(
             **kwargs,
         )
 
-    # TODO: warning for duplication should also be crossed over into speciated components above.. 
+    # TODO: warning for duplication should also be crossed over into speciated components above..
     _duplicated_cations = [
         str(k)
         for k, v in Counter(  # get the first cation in each component, and count duplicates
@@ -758,7 +758,11 @@ def convert_chemistry(
         if v > 1
     ]
     if _duplicated_cations:
-        logger.warning("Cations duplicated in compositional components: {}. The output retains this duplication!".format(','.join(_duplicated_cations)))
+        logger.warning(
+            "Cations duplicated in compositional components: {}. The output retains this duplication!".format(
+                ",".join(_duplicated_cations)
+            )
+        )
     # Aggregate the singular compositional items, then get new columns
     for item in output_compositional:
         df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)

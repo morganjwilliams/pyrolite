@@ -1,6 +1,7 @@
 """
 Baisc spatial utility functions.
 """
+
 import itertools
 
 import numpy as np
@@ -187,7 +188,11 @@ def great_circle_distance(
             )
         )
 
-        infeasible = estimated_matrix_size > (virtual_memory().total * max_memory_fraction) if virtual_memory is not None else False
+        infeasible = (
+            estimated_matrix_size > (virtual_memory().total * max_memory_fraction)
+            if virtual_memory is not None
+            else False
+        )
 
         if infeasible:
             logger.warn(
@@ -264,7 +269,7 @@ def spatiotemporal_split(
     nan_lims=[np.nan, np.nan],
     # usebounds=False,
     # order=['minx', 'miny', 'maxx', 'maxy'],
-    **kwargs
+    **kwargs,
 ):
     """
     Creates spatiotemporal grid using piecewise function and arbitrary

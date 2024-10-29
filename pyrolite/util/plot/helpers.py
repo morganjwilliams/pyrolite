@@ -1,6 +1,7 @@
 """
 matplotlib helper functions for commong drawing tasks.
 """
+
 import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -90,7 +91,7 @@ def get_visual_center(poly, vertical_exaggeration=1):
 
     vertical_exaggeration : :class:`float`
         Apparent vertical exaggeration of the plot
-        (pixels per unit in y direction divided by pixels 
+        (pixels per unit in y direction divided by pixels
         per unit in the x direction).
 
     Returns
@@ -98,9 +99,9 @@ def get_visual_center(poly, vertical_exaggeration=1):
     cx, cy : :class:`tuple`
         Centroid coordinates.
     """
-    poly_scaled = np.array([poly.get_xy() * [1., vertical_exaggeration]])
+    poly_scaled = np.array([poly.get_xy() * [1.0, vertical_exaggeration]])
     x, y = visual_center(poly_scaled)
-    return tuple([x, y/vertical_exaggeration])
+    return tuple([x, y / vertical_exaggeration])
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
@@ -220,7 +221,7 @@ def plot_pca_vectors(
     ax=None,
     colors=None,
     linestyles=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Plot vectors corresponding to principal components and their magnitudes.

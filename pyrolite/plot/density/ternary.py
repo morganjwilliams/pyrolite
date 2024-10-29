@@ -20,7 +20,7 @@ def ternary_heatmap(
     ternary_min_value=0.0001,  # 0.01%
     grid_border_frac=0.1,  # 110% range for grid
     grid=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Heatmap for ternary diagrams. This invokes a 3D to 2D transform such as a

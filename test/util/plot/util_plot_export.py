@@ -57,7 +57,6 @@ class TestSaveFunctions(unittest.TestCase):
 
 
 class TestPath2CSV(unittest.TestCase):
-
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
         self.ax.plot([0, 1, 2, 3], [0, 0, 0, 0])

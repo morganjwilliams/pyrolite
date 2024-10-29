@@ -2,6 +2,7 @@
 Spiderplots & Density Spiderplots
 ==================================
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -265,7 +266,7 @@ for mix, (m, name, args, kwargs) in enumerate(modes):
         unity_line=True,
         index_order="incompatibility",
         *args,
-        **kwargs
+        **kwargs,
     )
 
 plt.tight_layout()

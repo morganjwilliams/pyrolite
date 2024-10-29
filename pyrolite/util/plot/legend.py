@@ -8,6 +8,7 @@ Todo
 
         ax.lines + ax.patches + ax.collections + ax.containers, handle ax.parasites
 """
+
 from copy import copy
 
 import matplotlib.lines

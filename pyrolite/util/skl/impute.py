@@ -90,7 +90,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
                             max_iter=self.max_iter,
                             sample_posterior=True,
                             random_state=ix,
-                            **self.kwargs
+                            **self.kwargs,
                         )
                         for ix in range(self.multiple)
                     ],
@@ -115,7 +115,7 @@ class MultipleImputer(BaseEstimator, TransformerMixin):
                         max_iter=self.max_iter,
                         sample_posterior=True,
                         random_state=ix,
-                        **self.kwargs
+                        **self.kwargs,
                     )
                 )
             msg = """Imputation transformer: {} imputers""".format(self.multiple)

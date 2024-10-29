@@ -7,6 +7,7 @@ and decompose these into relative proportions of mineral endmember compositions.
 pyrolite includes some utilities to achieve this and a limited mineral database
 for looking up endmember compositions.
 """
+
 import numpy as np
 import pandas as pd
 

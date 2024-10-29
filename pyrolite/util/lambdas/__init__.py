@@ -26,7 +26,7 @@ def calc_lambdas(
     sigmas=None,
     add_uncertainties=False,
     add_X2=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Parameterises values based on linear combination of orthogonal polynomials
@@ -120,7 +120,7 @@ def calc_lambdas(
             add_uncertainties=add_uncertainties,
             add_X2=add_X2,
             sigmas=sigmas,
-            **kwargs
+            **kwargs,
         )
     else:
         logger.debug("Using optimization algorithm.")
@@ -132,7 +132,7 @@ def calc_lambdas(
             add_uncertainties=add_uncertainties,
             add_X2=add_X2,
             sigmas=sigmas,
-            **kwargs
+            **kwargs,
         )
     if anomalies:
         logger.debug("Calculating anomalies.")
@@ -142,7 +142,7 @@ def calc_lambdas(
             get_ionic_radii(ree, charge=3, coordination=8),
             params=params,
             fit_tetrads=fit_tetrads,
-            **kwargs
+            **kwargs,
         )
         npars = ls.columns.size - int(add_X2)  # exclude chi_squared if included
         npars -= int(add_uncertainties) * npars // 2  # remove parameter uncertainties

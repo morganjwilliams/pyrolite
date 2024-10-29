@@ -1,6 +1,7 @@
 """
 Gridding and binning functions.
 """
+
 import numpy as np
 import scipy.interpolate
 

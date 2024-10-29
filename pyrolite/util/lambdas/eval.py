@@ -2,6 +2,7 @@
 Generation and evalutation of orthogonal polynomial and tetrad functions from sets of
 parameters (the sequence of polymomial roots and tetrad centres and widths).
 """
+
 import numpy as np
 
 from ..log import Handle

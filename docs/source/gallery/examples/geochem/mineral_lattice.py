@@ -25,6 +25,7 @@ Earth Elements). The final section of the example highlights the mechanism which
 generates plagioclase's hallmark 'europium anomaly', and the effects of variable
 europium oxidation state on bulk europium partitioning.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

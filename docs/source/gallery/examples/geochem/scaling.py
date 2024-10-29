@@ -2,6 +2,7 @@
 Unit Scaling
 =============
 """
+
 import numpy as np
 import pandas as pd
 
@@ -88,9 +89,9 @@ converted_wt_pct = df.pyrochem.convert_chemistry(
 )
 converted_wt_pct.head(2)
 ########################################################################################
-# Here we rename the columns before we export them, just so we know explicitly 
+# Here we rename the columns before we export them, just so we know explicitly
 # what the units are:
-converted_wt_pct = converted_wt_pct.rename(  
+converted_wt_pct = converted_wt_pct.rename(
     columns={c: c + "_wt%" for c in converted_wt_pct.pyrochem.list_oxides}
 )
 converted_wt_pct.head(2)

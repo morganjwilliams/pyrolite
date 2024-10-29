@@ -7,6 +7,7 @@ accessible within :mod:`pyrolite`. It's currently a work in progress, but will s
 contain extended descriptions and notes for some of the compositions and associated
 references.
 """
+
 import matplotlib.pyplot as plt
 
 from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition

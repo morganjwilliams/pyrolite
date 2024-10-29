@@ -11,6 +11,7 @@ class TestValidateValue(unittest.TestCase):
     def test_single_validator(self):
         def v(x):
             return x > 0
+
         expect = True
         self.assertTrue(validate_value(self.value, v) is expect)
 

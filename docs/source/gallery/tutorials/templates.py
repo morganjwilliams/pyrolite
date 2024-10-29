@@ -7,6 +7,7 @@ Creating Classification Diagrams
 * Add plot.templates file
 
 """
+
 #######################################################################################
 # First let's pull in a simple dataset to use throughout these examples:
 #

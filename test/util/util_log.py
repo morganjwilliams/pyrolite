@@ -79,7 +79,6 @@ class TestHandle(unittest.TestCase):
 
 
 class TestToLogger(unittest.TestCase):
-
     def test_default(self):
         logger = Handle(__name__, level="DEBUG")
 

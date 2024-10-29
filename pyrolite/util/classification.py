@@ -8,6 +8,7 @@ Todo
   gabbroic Pyroxene-Olivine-Plagioclase,
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
+
 import json
 
 import matplotlib.lines
@@ -79,7 +80,7 @@ class PolygonClassifier(object):
         scale=1.0,
         transform=None,
         mode=None,
-        **kwargs
+        **kwargs,
     ):
         self.default_scale = scale
         self._scale = self.default_scale
@@ -195,7 +196,7 @@ class PolygonClassifier(object):
         add_labels=False,
         which_labels="ID",
         which_ids=[],
-        **kwargs
+        **kwargs,
     ):
         """
         Add the polygonal fields from the classifier to an axis.
@@ -294,7 +295,7 @@ class PolygonClassifier(object):
         add_labels=False,
         which_labels="ID",
         which_ids=[],
-        **kwargs
+        **kwargs,
     ):
         """
         Add the fields from the classifier to an axis.
@@ -408,7 +409,7 @@ class TAS(PolygonClassifier):
         which_labels="ID",
         which_ids=[],
         label_at_centroid=True,
-        **kwargs
+        **kwargs,
     ):
         """
         Add the TAS fields from the classifier to an axis.
@@ -442,8 +443,12 @@ class TAS(PolygonClassifier):
         # here we don't want to add the labels in the normal way, because there
         # are two sets - one for volcanic rocks and one for plutonic rocks
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False,
-            which_ids=which_ids, **kwargs
+            ax=ax,
+            fill=fill,
+            axes_scale=axes_scale,
+            add_labels=False,
+            which_ids=which_ids,
+            **kwargs,
         )
 
         if not label_at_centroid:
@@ -454,8 +459,8 @@ class TAS(PolygonClassifier):
             # so we want to promote the labels
             # being placed at the widest part of the field.
             scale_factor = 1.5
-            p = ax.transData.transform([[0., 0.], [1., 1.]])
-            yx_scaling = (p[1][1] - p[0][1])/(p[1][0] - p[0][0])*scale_factor
+            p = ax.transData.transform([[0.0, 0.0], [1.0, 1.0]])
+            yx_scaling = (p[1][1] - p[0][1]) / (p[1][0] - p[0][0]) * scale_factor
 
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax

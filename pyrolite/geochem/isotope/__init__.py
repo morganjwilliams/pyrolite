@@ -42,6 +42,7 @@ References
             Associated Equipment 301, 543–551.
             doi: {muller1991}
 """
+
 from ...util.meta import sphinx_doi_link
 
 __doc__ = __doc__.format(

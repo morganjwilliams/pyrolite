@@ -12,6 +12,7 @@ and to access a reference table for all of these.
     `The ICS International Chronostratigraphic Chart <https://stratigraphy.org/chart>`__.
     Episodes 36, 199–204.
 """
+
 ########################################################################################
 # First we'll create a timescale:
 #

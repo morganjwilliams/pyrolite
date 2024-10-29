@@ -25,9 +25,10 @@ For the purposes of testing, pyrolite includes a file containing the outputs fro
 Verma's SINCLAS/IgRoCS program. Here we can use this file to demonstrate the use
 of the CIPW Norm and verify that the results should generally be comparable
 between Verma's original implementation and the :mod:`pyrolite` implementation.
-We import this file and do a little cleaning and registration of geochemical 
+We import this file and do a little cleaning and registration of geochemical
 components so we can work with it in the sections to follow:
 """
+
 import warnings
 
 import matplotlib.pyplot as plt
@@ -197,7 +198,6 @@ def compare_NORMs(SINCLAS_outputs, NORM_outputs, name=""):
 
 volcanic_filter = df.loc[:, "ROCK_TYPE"].str.lower().str.startswith("volc")
 fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
-
 
 ########################################################################################
 # And everything else:

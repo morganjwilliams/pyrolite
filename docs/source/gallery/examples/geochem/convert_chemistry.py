@@ -7,6 +7,7 @@ form. The simplest way to perform this is by using the
 :func:`~pyrolite.geochem.transform.convert_chemistry` function. Note that by default
 pyrolite assumes that data are in the same units.
 """
+
 import pandas as pd
 
 import pyrolite.geochem

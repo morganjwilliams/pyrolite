@@ -37,7 +37,7 @@ def plot_origin_to_points(
     color="k",
     marker="o",
     pad=0.05,
-    **kwargs
+    **kwargs,
 ):
     """
     Plot lines radiating from a specific origin. Fornulated for creation of
