@@ -1,0 +1,67 @@
+cff-version: 1.2.0
+message: Please cite the following works when using this software.
+type: software
+authors:
+  - family-names: Morgan Williams
+  - family-names: Tom Buckle
+  - family-names: Bob Myhill
+  - family-names: Sarah Shi
+  - family-names: ChetanNathwani
+  - family-names: NicolasPietteLauziere
+  - family-names: Ondrej Lexa
+  - family-names: Louise Schoneveld
+  - family-names: AngRodrigues
+  - family-names: Malte Mues
+  - family-names: Martin Bentley
+  - family-names: Alessandro Gentilini
+  - family-names: RichardScottOZ
+date-released: 2024-02-28
+doi: 10.5281/ZENODO.2545106
+identifiers:
+  - type: doi
+    value: 10.5281/ZENODO.2545106
+  - type: url
+    value: https://zenodo.org/doi/10.5281/zenodo.2545106
+title: 'morganjwilliams/pyrolite: 0.3.5.post0'
+url: https://zenodo.org/doi/10.5281/zenodo.2545106
+version: 0.3.5.post0
+preferred-citation:
+  authors:
+    - family-names: Williams
+      given-names: Morgan
+    - family-names: Schoneveld
+      given-names: Louise
+    - family-names: Mao
+      given-names: Yajing
+    - family-names: Klump
+      given-names: Jens
+    - family-names: Gosses
+      given-names: Justin
+    - family-names: Dalton
+      given-names: Hayden
+    - family-names: Bath
+      given-names: Adam
+    - family-names: Barnes
+      given-names: Steve
+  doi: 10.21105/joss.02314
+  identifiers:
+    - type: doi
+      value: 10.21105/joss.02314
+    - type: url
+      value: http://dx.doi.org/10.21105/joss.02314
+    - type: other
+      value: urn:issn:2475-9066
+  title: 'pyrolite: Python for geochemistry'
+  url: http://dx.doi.org/10.21105/joss.02314
+  database: Crossref
+  date-published: 2020-06-09
+  year: 2020
+  month: 6
+  issn: 2475-9066
+  issue: '50'
+  journal: Journal of Open Source Software
+  publisher:
+    name: The Open Journal
+  start: '2314'
+  type: article
+  volume: '5'
