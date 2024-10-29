@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: 'morganjwilliams/pyrolite: 0.3.5.post0'
+title: 'morganjwilliams/pyrolite: 0.3.6'
 message: Please cite the following works when using this software.
 type: software
 authors:
@@ -44,8 +44,8 @@ identifiers:
   - type: url
     value: 'https://zenodo.org/doi/10.5281/zenodo.2545106'
 url: 'https://zenodo.org/doi/10.5281/zenodo.2545106'
-version: 0.3.5.post0
-date-released: '2024-02-28'
+version: 0.3.6
+date-released: '2024-10-39'
 doi: 10.5281/ZENODO.2545106
 preferred-citation:
   authors:
