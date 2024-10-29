@@ -10,13 +10,17 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+`0.3.6`_
+----------
 
 * **PR Merged**: `Sarah Shi <https://github.com/sarashi>`__ contributed a PR to 
   better handle values below zero during compositional renormalisation (to 1 or 100%; 
   `#104 <https://github.com/morganjwilliams/pyrolite/pull/104>`__).
   The functions :func:`pyrolite.comp.codata.close` and :func:`pyrolite.comp.codata.renormalise`
   will now warn where values below zero exist, and replace these with `numpy.nan`.
-
+* Added a `CITATION.cff` file to the repository.
+* Various administrative changes (formatting, linting, meta-file management), minor bugfixes 
+  and addressing various deprecation/other warnings.
 
 `0.3.5`_
 ----------
@@ -1406,8 +1410,9 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.5...develop
-.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.6...develop
+.. _0.3.6: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...0.3.6
+.. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5.post0
 .. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 .. _0.3.2: https://github.com/morganjwilliams/pyrolite/compare/0.3.1...0.3.2
