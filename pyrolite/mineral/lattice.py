@@ -227,6 +227,11 @@ def fit_lattice_strain(
     ri, tk, D : :class:`float`
         Radius, temperature and partition coefficeint describing the
         lattice strain fit.
+
+    Notes
+    -----
+    * Uses the youngs modulus approximation where `E` not provided.
+    * Passes keyword arguments to :func:`scipy.optimize_curve_fit`.
     """
 
     popt, pcov = curve_fit(
