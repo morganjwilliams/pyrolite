@@ -195,7 +195,7 @@ class PolygonClassifier(object):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
+        which_ids=None,
         **kwargs,
     ):
         """
@@ -247,7 +247,7 @@ class PolygonClassifier(object):
 
         use_keys = not which_labels.lower().startswith("name")
 
-        if not which_ids:
+        if which_ids is None:
             which_ids = list(self.fields.keys())
 
         for k, cfg in self.fields.items():
@@ -412,7 +412,7 @@ class TAS(PolygonClassifier):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
+        which_ids=None,
         label_at_centroid=True,
         **kwargs,
     ):
@@ -472,7 +472,7 @@ class TAS(PolygonClassifier):
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
 
-        if not which_ids:
+        if which_ids is None:
             which_ids = list(self.fields.keys())
 
         if add_labels:
