@@ -246,8 +246,12 @@ class PolygonClassifier(object):
             poly_config.pop("color", None)
 
         use_keys = not which_labels.lower().startswith("name")
+
+        if not which_ids:
+            which_ids = list(self.fields.keys())
+
         for k, cfg in self.fields.items():
-            if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
+            if cfg["poly"] and (k in which_ids):
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
@@ -322,6 +326,7 @@ class PolygonClassifier(object):
         ax : :class:`matplotlib.axes.Axes`
         """
         ax = init_axes(ax=ax, projection=self.projection)
+
         ax = self._add_polygons_to_axes(
             ax=ax,
             fill=fill,
@@ -466,9 +471,13 @@ class TAS(PolygonClassifier):
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
+
+        if not which_ids:
+            which_ids = list(self.fields.keys())
+
         if add_labels:
             for k, cfg in self.fields.items():
-                if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
+                if cfg["poly"] and (k in which_ids):
                     if which_labels.lower().startswith("id"):
                         label = k
                     elif which_labels.lower().startswith(

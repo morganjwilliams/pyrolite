@@ -46,13 +46,13 @@ def TAS(
     -----------
     .. [#ref_1] Middlemost, E. A. K. (1994).
                 Naming materials in the magma/igneous rock system.
-                Earth-Science Reviews, 37(3), 215–224.
+                Earth-Science Reviews, 37(3), 215-224.
                 doi: {Middlemost1994}
 
     .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
-                Mineralogy and Petrology 46, 1–22.
+                Mineralogy and Petrology 46, 1-22.
                 doi: {LeBas1992}
 
     """
