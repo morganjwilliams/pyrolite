@@ -343,7 +343,6 @@ refcomps = (
     )
     + "</dl>"
 )
-print(refcomps)
 rst_prolog = """
 .. |br| raw:: html
 
