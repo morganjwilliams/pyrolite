@@ -134,6 +134,45 @@ ax.plot(radii, ds, ls="--", color="0.9", label="Effective $D_{Eu}$", zorder=-1)
 ax.legend(bbox_to_anchor=(1.05, 1))
 fig
 ########################################################################################
+# Given the lattice strain model and a partitioning profile (for e.g. REE data),
+# we can also fit a model to a given curve; here we fit to our REE data above,
+# for which we have some known parameters to compare to:
+#
+from pyrolite.mineral.lattice import fit_lattice_strain, _lattice_opt_function
+
+_ri, _tk, _D = fit_lattice_strain(np.array(site3radii), site3Ds, z=3)
+########################################################################################
+# We can compare the results of this fit to our source parameters - the ionic radius of
+# La, 900°C and estimated :math:`D_{La}`:
+#
+import pandas as pd
+
+pd.DataFrame(
+    [(_ri, rLa), (Tk, _tk), (D_La, _D)],
+    index=["radii", "T", "D"],
+    columns=["Source Parameters", "Fit Parameters"],
+).T
+
+########################################################################################
+# We can also compare the curves visually:
+#
+from pyrolite.plot.spider import REE_v_radii
+
+ax = REE_v_radii()
+
+ax.plot(site3radii, site3Ds, label="True", color="k")
+ax.plot(
+    site3radii,
+    _lattice_opt_function(site3radii, site3radii.mean(), 298 + 1000, 1, z=3),
+    label="Starting Guess",
+    ls="--",
+    color="0.5",
+)
+
+ax.plot(site3radii, fit_lattice_strain._opt(site3radii, _ri, _tk, _D, z=3), label="Fit")
+
+ax.figure
+########################################################################################
 # .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
 #             from elastic moduli. Nature 372, 452.
 #             doi: `10.1038/372452A0 <https://doi.org/10.1038/372452A0>`__

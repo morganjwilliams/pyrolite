@@ -28,7 +28,11 @@ References
 
 """
 
+from functools import partial
+
 import numpy as np
+import pandas as pd
+from scipy.optimize import curve_fit
 
 from ..util.log import Handle
 from ..util.meta import sphinx_doi_link, update_docstring_references
@@ -104,7 +108,7 @@ def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
     """
     n = 6.023 * 10**23
     if r0 is None:
-        logger.warn("Use fictive ideal cation radii where possible.")
+        logger.warning("Use fictive ideal cation radii where possible.")
         r0 = ri
     ri, rx, r0 = ri / 10**10, rx / 10**10, r0 / 10**10  # convert to meters
     E = E or youngs_modulus_approximation(z, r0)  # use E if defined, else try to calc
@@ -180,6 +184,60 @@ def youngs_modulus_approximation(z, r):
     d = r + 1.38
     E = 1.5 * 750 * (z / d**3) * 10**9
     return E
+
+
+def _lattice_opt_function(xs, ri, Tk, D, z=3, E=None):
+    return D * strain_coefficient(
+        ri, xs, r0=ri, E=E or youngs_modulus_approximation(z, ri), T=Tk
+    )
+
+
+def fit_lattice_strain(
+    radii,
+    ys,
+    E=None,
+    z=3,
+    bounds=[(0.1, 2.2), (273.15, 273.15 + 2700), (0, np.inf)],
+    r0=None,
+    t0=273.15 + 500,
+    d0=1.0,
+    **kwargs,
+):
+    """
+    Fit a lattice strain model to a given set of abundances.
+
+    Parameters
+    ----------
+    radii : :class:`numpy.ndarray`
+        Radii to fit against.
+    ys : :class:`numpy.ndarray`
+        Partition coefficients for given elemental data.
+    E : :class:`float`, :code:`None`
+        Young's modulus (stiffness) for the site, in pascals (Pa). Will be estimated using
+        :func:`youngs_modulus_approximation` if none is given.
+    z : :class:`int`
+        Optional specification of cationic valence, for calcuation of approximate
+        Young's modulus using :func:`youngs_modulus_approximation`,
+        where the modulus is not specified.
+    bounds : :class:`list`
+        List of tuples specifying bounds on parameters `ri`, `T` and `D`.
+
+    Returns
+    -------
+    ri, tk, D : :class:`float`
+        Radius, temperature and partition coefficeint describing the
+        lattice strain fit.
+    """
+
+    popt, pcov = curve_fit(
+        partial(_lattice_opt_function, z=z, E=E),
+        radii,
+        ys,
+        p0=[r0 if r0 is not None else radii.mean(), t0, d0],
+        bounds=pd.DataFrame(bounds).T.values,
+        **kwargs,
+    )
+    return popt
 
 
 __doc__ = __doc__.format(
