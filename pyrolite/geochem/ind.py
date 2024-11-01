@@ -429,7 +429,7 @@ def get_ionic_radii(
 
     Returns
     --------
-    :class:`pandas.Series` | :class:`float`
+    :class:`pandas.Series` | :class:`numpy.ndarray` | :class:`float`
         Series with viable ion charge and coordination, with associated radii in
         angstroms. If the ion charge and coordiation are completely specified and
         found in the table, a single value will be returned instead.
