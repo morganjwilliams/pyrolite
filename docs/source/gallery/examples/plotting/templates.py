@@ -113,7 +113,7 @@ plt.show()
 # The Jensen plot is another cationic ternary discrimination diagram (Jensen, 1976),
 # for subalkaline volcanic rocks:
 #
-JensenPlot(linewidth=0.4, add_labels=True, figsize=(7, 7))
+JensenPlot(linewidth=0.4, add_labels=True, figsize=(6,6))
 plt.show()
 ########################################################################################
 # Customization - Labelling Schemes and Field Subsets
