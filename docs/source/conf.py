@@ -313,11 +313,37 @@ reservoirs = set(
 comps = []
 for r in reservoirs:
     comps += [n for n in refs if refs[n].reservoir == r]
+
 refcomps = (
     "    <dl>"
-    + "\n    ".join(["<dt>{}</dt><dd>{}</dd>".format(n, refs[n]) for n in comps])
+    + "\n    ".join(
+        [
+            "<dt>{}</dt><dd>{}</dd>".format(
+                n,
+                " ".join(
+                    [str(refs[n])]
+                    + (
+                        ["<br><b>Citation</b>: " + refs[n].citation]
+                        if refs[n].citation
+                        else []
+                    )
+                    + (
+                        [
+                            "<br><b>doi</b>: <a href='https://dx.doi.org/{}'>{}</a>".format(
+                                refs[n].doi, refs[n].doi
+                            )
+                        ]
+                        if refs[n].doi
+                        else []
+                    )
+                ),
+            )
+            for n in comps
+        ]
+    )
     + "</dl>"
 )
+print(refcomps)
 rst_prolog = """
 .. |br| raw:: html
 
