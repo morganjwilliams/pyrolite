@@ -10,6 +10,18 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+* Added handling for limit values below zero for spider plots with log scaled y axes. This 
+  should avoid unnecessary error messages.
+* Reinstated imports of submodules so pandas accessors should be available immediately after 
+  :code:`import pyrolite` (`df.pyrochem`,  `df.pyrocomp`, `df.pyroplot`).
+* Added citations and DOIs for reference composition descriptions 
+  `in the documentation <https://pyrolite.readthedocs.io/en/develop/data/refcomp.html#composition-list>`__.
+* Expanded the lattice strain example to include an 
+  `example of fitting a profile <https://pyrolite.readthedocs.io/en/develop/examples/geochem/mineral_lattice.html#fitting-lattice-strain-models>`__, 
+  with a function added to the relevant module (:func:`pyrolite.mineral.lattice.fit_lattice_strain`).
+* Expanded documentation around labelling schemes and selection of regions to plot for plot templates with an 
+  `additional section on the relevant page <https://pyrolite.readthedocs.io/en/develop/examples/plotting/templates.html#customization-labelling-schemes-and-field-subsets>`__.
+
 `0.3.6`_
 ----------
 
