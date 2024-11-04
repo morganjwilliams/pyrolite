@@ -12,16 +12,14 @@ import pkgutil
 
 import matplotlib.style
 
-from .util.log import Handle
-from .util.plot.style import _export_mplstyle  # this import adds the style used below
-
-logger = Handle(__name__)
-
 # initialise pandas accessors
 from .comp import pyrocomp  # noqa: E402
 from .geochem import pyrochem  # noqa: E402
 from .plot import pyroplot  # noqa: E402
+from .util.log import Handle
+from .util.plot.style import _export_mplstyle  # this import adds the style used below
 
+logger = Handle(__name__)
 
 def load_extensions(base="pyrolite_", replace=["util"]):
     """

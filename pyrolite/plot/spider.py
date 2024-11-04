@@ -257,18 +257,22 @@ def spider(
         # set the y range to lock to the outermost log-increments
         _ymin, _ymax = np.nanmin(arr), np.nanmax(arr)
 
-        if unity_line:
+        if unity_line:  # unity line is added at 1 - so may alter the total range
             _ymin, _ymax = min(_ymin, 1.0), max(_ymax, 1.0)
 
         if logy:
             # at 5% range in log space, and clip to nearest 'minor' tick
+            # except in the case where (logmin - 0.05 * logy_rng) <= 0
+            # (to avoid errors on log-scaled plots)
             logmin, logmax = np.log10(_ymin), np.log10(_ymax)
             logy_rng = logmax - logmin
 
             low, high = 10 ** np.floor(logmin), 10 ** np.floor(logmax)
-
+           
             _ymin, _ymax = (
-                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low,
+                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low
+                if (logmin - 0.05 * logy_rng) > 0
+                else low,
                 np.ceil(10 ** (logmax + 0.05 * logy_rng) / high) * high,
             )
         else:
