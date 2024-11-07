@@ -221,6 +221,11 @@ class PolygonClassifier(object):
         Returns
         --------
         ax : :class:`matplotlib.axes.Axes`
+
+        Notes
+        -----
+        * Will rescale to the extent of the fields if limits not specified.
+        * Will use IDs/keys for fields as labels if names not specified.
         """
         if ax is None:
             ax = init_axes(projection=self.projection, **kwargs)
@@ -264,7 +269,8 @@ class PolygonClassifier(object):
                 pgns.append(pg)
                 ax.add_patch(pg)
                 if add_labels:
-                    label = k if use_keys else cfg["name"]
+                    # try and get name, otherwise use ID
+                    label = k if use_keys else cfg.get("name", k)
                     x, y = get_centroid(pg)
                     ax.annotate(
                         "\n".join(label.split()),
