@@ -285,10 +285,17 @@ class PolygonClassifier(object):
         # such that e.g. ternary limits might be able to be specified?
         if self.projection is None:
             if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
-                if "xlim" in self.lims:
-                    ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
-                if "ylim" in self.lims:
-                    ax.set_ylim(np.array(self.lims["ylim"]) * rescale_by)
+                # collect verts from polygons
+                _verts = np.vstack([p.get_path().vertices for p in pgns])
+                ax.set(
+                    xlim=np.array(self.lims["xlim"]) * rescale_by
+                    if "xlim" in self.lims
+                    else (np.nanmin(_verts[:, 0]), np.nanmax(_verts[:, 0])),
+                    ylim=np.array(self.lims["ylim"]) * rescale_by
+                    if "ylim" in self.lims
+                    else (np.nanmin(_verts[:, 1]), np.nanmax(_verts[:, 1])),
+                )
+
         return ax
 
     def add_to_axes(
