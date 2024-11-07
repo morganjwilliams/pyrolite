@@ -119,11 +119,11 @@ class PolygonClassifier(object):
         else:
             pass
 
-        if mode in fields:
-            fields = fields[mode]
-
-        # check axes for ratios, adition/subtraction etc
+        # check axes for ratios, addition/subtraction etc
         self.fields = fields or {}
+
+        if mode in self.fields:
+            self.fields = self.fields[mode]
         self.classes = list(self.fields.keys())
 
     def predict(self, X, data_scale=None):
