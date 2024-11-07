@@ -298,7 +298,7 @@ class PolygonClassifier(object):
         axes_scale=1.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
+        which_ids=None,
         **kwargs,
     ):
         """
