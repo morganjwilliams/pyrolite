@@ -14,6 +14,7 @@ dependencies:
   - openpyxl
   - psutil
   - matplotlib
+  - plotly
   - pytables
   - scipy>=1.2 # uses scipy.optimize.Bounds, added around 1.2
   - umap-learn
