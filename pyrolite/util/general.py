@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import operator
 import os
@@ -51,6 +52,14 @@ def temp_path(suffix=""):
     directory = mkdtemp(suffix=suffix)
     return Path(directory)
 
+
+@contextlib.contextmanager
+def tempdir(**kwargs):
+    tmp_dir = Path(mkdtemp(**kwargs))
+    try:
+        yield tmp_dir
+    finally:
+        remove_tempdir(tmp_dir)
 
 def flatten_dict(d, climb=False, safemode=False):
     """
