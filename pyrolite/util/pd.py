@@ -10,6 +10,39 @@ from .meta import subkwargs
 logger = Handle(__name__)
 
 
+def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
+    """
+    Check that the components provided within a dataframe are consistent with the
+    form of plot being used.
+
+    Parameters
+    ----------
+    obj : :class:`pandas.DataFrame`
+        Object to check.
+    components : :class:`list`
+        List of components, optionally specified.
+    check_size : :class:`bool`
+        Whether to verify the size of the column index.
+    valid_sizes : :class:`list`
+        Component list lengths which are valid for the plot type.
+
+    Returns
+    -------
+    :class:`list`
+        Components for the plot.
+    """
+    try:
+        if check_size and (obj.columns.size not in valid_sizes):
+            assert len(components) in valid_sizes
+
+        if components is None:
+            components = obj.columns.values
+    except AssertionError:
+        msg = "Suggest components or provide a slice of the dataframe."
+        raise AssertionError(msg)
+    return components
+
+
 def drop_where_all_empty(df):
     """
     Drop rows and columns which are completely empty.
