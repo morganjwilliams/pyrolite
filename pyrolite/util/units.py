@@ -37,16 +37,20 @@ def scale(in_unit, target_unit="ppm"):
     --------
     :class:`float`
     """
-    in_unit = str(in_unit).lower()
-    target_unit = str(target_unit).lower()
-    if (
-        not pd.isna(in_unit)
-        and (in_unit in __UNITS__.keys())
-        and (target_unit in __UNITS__.keys())
-    ):
-        scale = __UNITS__[in_unit] / __UNITS__[target_unit]
-    else:
-        unkn = [i for i in [in_unit, target_unit] if i not in __UNITS__]
-        logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
+    if (in_unit is None) or (target_unit is None):
+        logger.debug("Input or target unit is None, no scale applied.")
         scale = 1.0
+    else:
+        in_unit = str(in_unit).lower()
+        target_unit = str(target_unit).lower()
+        if (
+            not pd.isna(in_unit)
+            and (in_unit in __UNITS__.keys())
+            and (target_unit in __UNITS__.keys())
+        ):
+            scale = __UNITS__[in_unit] / __UNITS__[target_unit]
+        else:
+            unkn = [i for i in [in_unit, target_unit] if i not in __UNITS__]
+            logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
+            scale = 1.0
     return scale
