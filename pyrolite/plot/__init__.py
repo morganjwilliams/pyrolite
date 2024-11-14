@@ -17,7 +17,7 @@ from ..comp.codata import ILR, close
 from ..util.distributions import get_scaler, sample_kde
 from ..util.log import Handle
 from ..util.meta import get_additional_params, subkwargs
-from ..util.pd import to_frame
+from ..util.pd import to_frame, _check_components
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
 from ..util.plot.style import _export_nonRCstyles, linekwargs, scatterkwargs
@@ -30,43 +30,7 @@ logger = Handle(__name__)
 __all__ = ["density", "spider", "pyroplot"]
 
 
-def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
-    """
-    Check that the components provided within a dataframe are consistent with the
-    form of plot being used.
-
-    Parameters
-    ----------
-    obj : :class:`pandas.DataFrame`
-        Object to check.
-    components : :class:`list`
-        List of components, optionally specified.
-    check_size : :class:`bool`
-        Whether to verify the size of the column index.
-    valid_sizes : :class:`list`
-        Component list lengths which are valid for the plot type.
-
-    Returns
-    -------
-    :class:`list`
-        Components for the plot.
-    """
-    try:
-        if check_size and (obj.columns.size not in valid_sizes):
-            assert len(components) in valid_sizes
-
-        if components is None:
-            components = obj.columns.values
-    except AssertionError:
-        msg = "Suggest components or provide a slice of the dataframe."
-        raise AssertionError(msg)
-    return components
-
-
-# note that only some of these methods will be valid for series
-@pd.api.extensions.register_series_accessor("pyroplot")
-@pd.api.extensions.register_dataframe_accessor("pyroplot")
-class pyroplot(object):
+class pyroplot_matplotlib(object):
     def __init__(self, obj):
         """
         Custom dataframe accessor for pyrolite plotting.
@@ -519,6 +483,14 @@ class pyroplot(object):
             label_axes(ax, labels=components)
 
         return ax
+
+
+pyroplot = pyroplot_matplotlib
+
+
+# note that only some of these methods will be valid for series
+pd.api.extensions.register_series_accessor("pyroplot")(pyroplot)
+pd.api.extensions.register_dataframe_accessor("pyroplot")(pyroplot)
 
 
 # ideally we would i) check for the same params and ii) aggregate all others across
