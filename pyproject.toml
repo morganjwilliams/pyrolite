@@ -61,6 +61,7 @@ test = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 skl = ["scikit-learn", "joblib"]
 spatial = ["owslib", "geojson", "psutil"]
 stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
+plotly = ["plotly"]
 excel = ["xlrd", "openpyxl"]
 dev = [
     "pytest",
@@ -68,12 +69,12 @@ dev = [
     "ruff",
     "isort",
     "twine",
-    "pyrolite[test,docs,skl]",
+    "pyrolite[test,docs,skl,plotly]",
     "build",
 ]
 
 [tool.setuptools.packages]
-find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
+find = { exclude = ['test*', "docs*"] }
 #  include = ["Aitchison/*.py"],
 
 [tool.setuptools.dynamic]
