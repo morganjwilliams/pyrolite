@@ -50,30 +50,33 @@ class pyroplot_plotly(object):
         pass
 
     def scatter(self, color="black", alpha=1, **kwargs):
-        layout = dict(width=600, plot_bgcolor="white")
-        fig = go.Figure()
-        marker = dict(color=to_plotly_color(color, alpha=alpha))
-        traces = [
-            go.Scatter(
-                x=self._obj.iloc[:, 0],
-                y=self._obj.iloc[:, 1],
-                mode="markers",
-                marker=marker,
-                showlegend=False,
-                text=self._obj.index.map("Sample {}".format),
-            )
-        ]
-        fig.add_traces(traces)
-        fig.update_layout(layout)
-        fig.update_xaxes(
-            linecolor="black", mirror=True, title=self._obj.columns[0]
-        )  # todo: add this to layout
-        fig.update_yaxes(
-            linecolor="black", mirror=True, title=self._obj.columns[1]
-        )  # todo: add this to layout
-        return fig
+        if self._obj.columns.size == 3:
+            return self._ternary(color=color, alpha=alpha, **kwargs)
+        else:
+            layout = dict(width=600, plot_bgcolor="white")
+            fig = go.Figure()
+            marker = dict(color=to_plotly_color(color, alpha=alpha))
+            traces = [
+                go.Scatter(
+                    x=self._obj.iloc[:, 0],
+                    y=self._obj.iloc[:, 1],
+                    mode="markers",
+                    marker=marker,
+                    showlegend=False,
+                    text=self._obj.index.map("Sample {}".format),
+                )
+            ]
+            fig.add_traces(traces)
+            fig.update_layout(layout)
+            fig.update_xaxes(
+                linecolor="black", mirror=True, title=self._obj.columns[0]
+            )  # todo: add this to layout
+            fig.update_yaxes(
+                linecolor="black", mirror=True, title=self._obj.columns[1]
+            )  # todo: add this to layout
+            return fig
 
-    def ternary(self, color="black", alpha=1, **kwargs):
+    def _ternary(self, color="black", alpha=1, **kwargs):
         layout = dict(
             width=600,
             plot_bgcolor="white",
