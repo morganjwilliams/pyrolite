@@ -101,6 +101,6 @@ parentdir_prefix = "pyrolite-"
 
 [tool.pytest.ini_options]
 python_files = "*.py"
-addopts = "--cov=pyrolite --cov-report html --cov-report xml --cov-report term-missing"
+addopts = "--assert=plain --cov=pyrolite --cov-report html --cov-report xml --cov-report term-missing"
 testpaths = ["test"]
 pythonpath = ["."]
