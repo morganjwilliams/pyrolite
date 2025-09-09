@@ -24,6 +24,7 @@ legend.frameon        : False
 legend.facecolor      : None
 legend.loc            : upper left
 legend.fontsize       : 10.0
+legend.bbox_to_anchor : (1, 1)
 
 # Scatter ###########################################
 scatter.marker     : D # scatter s determined by lines.markersize **2

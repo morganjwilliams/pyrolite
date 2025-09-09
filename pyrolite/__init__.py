@@ -21,6 +21,7 @@ from .util.plot.style import _export_mplstyle  # this import adds the style used
 
 logger = Handle(__name__)
 
+
 def load_extensions(base="pyrolite_", replace=["util"]):
     """
     Automatically load any extensions associated with pyrolite
