@@ -241,7 +241,7 @@ class Timescale(object):
         ----------
         age : :class:`float`
             Numeric age in Ma.
-        level : :class:`str`, :code:`{'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
+        level : :class:`str`, :code:`{'Supereon', 'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
             Level of specificity.
 
         Returns
@@ -268,5 +268,11 @@ class Timescale(object):
             rel_row = relevant.loc[idx_rel_row, :]
             return age_name(rel_row[~pd.isnull(rel_row)].to_list(), **kwargs)
         else:
-            unique_values = relevant.loc[:, level].unique()
-            return unique_values[~pd.isnull(unique_values)][0]
+            try:
+                unique_values = relevant.loc[:, level].unique()
+                return unique_values[~pd.isnull(unique_values)][0]
+            except IndexError:
+                # likely no relevant level name.
+                logger.warning(
+                    "No name found at level {} for age {} Ma.".format(level, age)
+                )
