@@ -273,6 +273,6 @@ class Timescale(object):
                 return unique_values[~pd.isnull(unique_values)][0]
             except IndexError:
                 # likely no relevant level name.
-                logger.warning(
+                logger.debug(
                     "No name found at level {} for age {} Ma.".format(level, age)
                 )
