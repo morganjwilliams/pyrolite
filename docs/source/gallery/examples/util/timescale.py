@@ -90,34 +90,37 @@ xlims = {
 fig, ax = plt.subplots(1, figsize=(4, 10))
 
 for ix, level in enumerate(ts.levels[::-1]):
-    ldf = ts.data.loc[ts.data.Level == level, :]
-    for pix, period in ldf.iterrows():
-        left, right = xlims[level]
-        if ix != len(ts.levels) - 1:
+    if level in xlims:
+        ldf = ts.data.loc[ts.data.Level == level, :]
+        for pix, period in ldf.iterrows():
+            left, right = xlims[level]
             time = np.mean(ts.text2age(period.Name))
-            general = None
-            _ix = ix
-            while general is None:
-                try:
-                    general = ts.named_age(time, level=ts.levels[::-1][_ix + 1])
-                except:
-                    pass
-                _ix += 1
-            _l, _r = xlims[ts.levels[::-1][_ix]]
-            if _r > left:
-                left = _r
+            if ix != len(ts.levels) - 1:
+                general_bound = None
+                _ix = ix
+                while general_bound is None:
+                    try:
+                        _ix += 1
+                        bound_level = ts.levels[::-1][_ix]
+                        general_bound = ts.named_age(time, level=bound_level)
+                    except IndexError:
+                        break
+                if bound_level in xlims:
+                    _l, _r = xlims[bound_level]
+                    if _r > left:
+                        left = _r
 
-        rect = Rectangle(
-            (left, period.End),
-            right - left,
-            period.Start - period.End,
-            facecolor=period.Color,
-            edgecolor="k",
-        )
-        ax.add_artist(rect)
+            rect = Rectangle(
+                (left, period.End),
+                right - left,
+                period.Start - period.End,
+                facecolor=period.Color,
+                edgecolor="k",
+            )
+            ax.add_artist(rect)
 
-ax.set_xticks([np.mean(xlims[lvl]) for lvl in ts.levels])
-ax.set_xticklabels(ts.levels, rotation=60)
+ax.set_xticks([np.mean(xlims[lvl]) for lvl in xlims.keys()])
+ax.set_xticklabels(xlims.keys(), rotation=60)
 ax.xaxis.set_ticks_position("top")
 ax.set_xlim(0, 7)
 ax.set_ylabel("Age (Ma)")
