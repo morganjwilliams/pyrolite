@@ -55,6 +55,7 @@ docs = [
 ]
 db = ["pyodbc", "psycopg2"]
 test = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
+notebook = ["ipykernel", "ipywidgets"]
 skl = ["scikit-learn", "joblib"]
 spatial = ["owslib", "geojson", "psutil"]
 stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
@@ -63,7 +64,7 @@ dev = [
     "pytest",
     "ruff",
     "twine",
-    "pyrolite[test,docs,skl]",
+    "pyrolite[test,docs,skl,notebook]",
     "build",
 ]
 
