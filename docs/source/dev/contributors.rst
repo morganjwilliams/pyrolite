@@ -23,3 +23,4 @@ comments, testing, bug reports, or feature requests.
 * `Ondrej Lexa <https://github.com/ondrolexa>`__
 * `Bob Myhill <https://github.com/bobmyhill>`__
 * `Malte Mues <https://github.com/mmuesly>`__
+* `Jiawei Yun <https://github.com/louisyuncc>`__
