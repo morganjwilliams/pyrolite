@@ -30,7 +30,7 @@ jobs:
                 **/pyproject.toml
       - name: Python Packages Install
         run: |
-          uv sync --extra docs
+          uv sync --extra docs --extra skl
       - name: Build
         run: |
           cd docs && uv run make html
