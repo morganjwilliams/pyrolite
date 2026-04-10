@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "versioneer[toml]"]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
 build-backend = "setuptools.build_meta"
 
 
@@ -8,18 +8,16 @@ name = "pyrolite"
 authors = [{ name = "Morgan Williams", email = "morgan.williams@csiro.au" }]
 description = "Tools for geochemical data analysis."
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
     "Natural Language :: English",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Framework :: Matplotlib",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -31,7 +29,7 @@ dependencies = [
     "numpydoc",
     "tinydb>4.1",     # >4.1 required for read-only access mode for JSON storage
     "periodictable",
-    "matplotlib<3.9",
+    "matplotlib!=3.8.4",
     "mpltern>=0.4.0",
     "scipy>=1.2",     # uses scipy.optimize.Bounds, added around 1.2
     "sympy>=1.7",
@@ -48,33 +46,29 @@ Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 [project.optional-dependencies]
 docs = [
     "sphinx_rtd_theme",
-    "docutils<0.17",
+    # "docutils<0.17",
     "sphinx>=4",
     "sphinx-autodoc-annotation",
     "sphinx_gallery>=0.6.0",
     "recommonmark",
-    # "jupyterlite-sphinx",
-    # "jupyterlite-pyodide-kernel",
 ]
 db = ["pyodbc", "psycopg2"]
 test = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
+notebook = ["ipykernel", "ipywidgets"]
 skl = ["scikit-learn", "joblib"]
 spatial = ["owslib", "geojson", "psutil"]
 stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
 excel = ["xlrd", "openpyxl"]
 dev = [
     "pytest",
-    "versioneer",
     "ruff",
-    "isort",
     "twine",
-    "pyrolite[test,docs,skl]",
+    "pyrolite[test,docs,skl,notebook]",
     "build",
 ]
 
 [tool.setuptools.packages]
-find = { exclude = ['test*', "docs*"] } # "**/__pycache__/*"
-#  include = ["Aitchison/*.py"],
+find = { exclude = ['test*', "docs*"] }
 
 [tool.setuptools.dynamic]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -90,14 +84,6 @@ omit = [
     "pyrolite/util/database.py", # Omit extensions with extra dependencies
     "*/_version.py",             # Ignore _version.py
 ]
-
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "pyrolite/_version.py"
-versionfile_build = "pyrolite/_version.py"
-tag_prefix = ""
-parentdir_prefix = "pyrolite-"
 
 [tool.pytest.ini_options]
 python_files = "*.py"

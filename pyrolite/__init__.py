@@ -2,10 +2,8 @@
 pyrolite: A set of tools for getting the most from your geochemical data.
 """
 
-from ._version import get_versions
+from ._version import __version__
 
-__version__ = get_versions()["version"]
-del get_versions
 
 import importlib
 import pkgutil
