@@ -156,7 +156,13 @@ def vector_to_line(
 
 
 def plot_stdev_ellipses(
-    comp, nstds=4, scale=100, resolution=1000, transform=None, ax=None, **kwargs
+    comp,
+    nstds=4,
+    scale=100,
+    resolution=1000,
+    transform=None,
+    ax=None,
+    **kwargs,
 ):
     """
     Plot covariance ellipses at a number of standard deviations from the mean.
@@ -180,7 +186,7 @@ def plot_stdev_ellipses(
     """
     mean, cov = np.nanmean(comp, axis=0), nancov(comp)
     vals, vecs = eigsorted(cov)
-    theta = np.degrees(np.arctan2(*vecs[::-1]))
+    theta = np.degrees(np.arctan2(*vecs[::-1]))[0]
 
     if ax is None:
         projection = None
@@ -194,7 +200,10 @@ def plot_stdev_ellipses(
         # here we use the absolute eigenvalues
         xsig, ysig = nstd * np.sqrt(np.abs(vals))  # n sigmas
         ell = matplotlib.patches.Ellipse(
-            xy=mean.flatten(), width=2 * xsig, height=2 * ysig, angle=theta[:1]
+            xy=mean.flatten(),
+            width=2 * xsig,
+            height=2 * ysig,
+            angle=theta,
         )
         points = interpolated_patch_path(ell, resolution=resolution).vertices
 
