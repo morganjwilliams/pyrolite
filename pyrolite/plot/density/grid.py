@@ -142,12 +142,12 @@ class DensityGrid(object):
             xex = [np.log(self.xmin / self.xstep), np.log(self.xmax * self.xstep)]
         else:
             xex = [self.xmin - self.xstep, self.xmax + self.xstep]
-
+        print(self.ystep, self.ymin, self.ymax)
         if self.logy:
             yex = [np.log(self.ymin / self.ystep), np.log(self.ymax * self.ystep)]
         else:
             yex = [self.ymin - self.ystep, self.ymax + self.ystep]
-        return xex + yex
+        return sorted(list(xex)) + sorted(list(yex))
 
     def kdefrom(
         self,
