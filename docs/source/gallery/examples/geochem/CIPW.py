@@ -50,8 +50,8 @@ df = (
 df.pyrochem.compositional = df.pyrochem.compositional.apply(
     pd.to_numeric, errors="coerce"
 ).fillna(0)
-df.loc[:, [c for c in df.columns if "NORM" in c]] = df.loc[
-    :, [c for c in df.columns if "NORM" in c]
+df[[c for c in df.columns if "NORM" in c]] = df[
+    [c for c in df.columns if "NORM" in c]
 ].apply(pd.to_numeric, errors="coerce")
 ########################################################################################
 # The CIPW Norm can be accessed via :func:`pyrolite.mineral.normative.CIPW_norm`,
