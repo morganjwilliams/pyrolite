@@ -10,6 +10,12 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
+
+
+
+`0.3.7`_
+----------
+
 * **New Contributor**: `Jiawei Yun <https://github.com/louisyuncc>`__.
 * **PR Merged**: `Jiawei Yun <https://github.com/louisyuncc>`__ contributed a PR to 
   correct the FeO column label to Fe2O3T in the reference composition MUQ_Kabener2005; 
@@ -37,7 +43,6 @@ All notable changes to this project will be documented here.
   values in the confusion matrix.
 * Switched formatter to `ruff` from `black`.
 * Moved to using `uv` as an environment management tool.
-
 
 `0.3.6`_
 ----------
@@ -1439,8 +1444,9 @@ All notable changes to this project will be documented here.
     `GitHub <https://github.com/morganjwilliams/pyrolite/releases>`__ for reference,
     but were :code:`alpha` versions which were never considered stable.
 
-.. _Development: https://github.com/morganjwilliams/pyrolite/compare/0.3.6...develop
-.. _0.3.6: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...0.3.6
+.. _Development: https://github.com/morganjwilliams/pyrolite/compare/v0.3.7...develop
+.. _0.3.7: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.7
+.. _0.3.6: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...v0.3.6
 .. _0.3.5: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5.post0
 .. _0.3.4: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 .. _0.3.3: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
