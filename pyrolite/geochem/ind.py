@@ -429,7 +429,7 @@ def get_ionic_radii(
 
     Returns
     --------
-    :class:`pandas.Series` | :class:`float`
+    :class:`pandas.Series` | :class:`numpy.ndarray` | :class:`float`
         Series with viable ion charge and coordination, with associated radii in
         angstroms. If the ion charge and coordiation are completely specified and
         found in the table, a single value will be returned instead.
@@ -459,18 +459,20 @@ def get_ionic_radii(
     * Implement interpolation for coordination +/- charge.
     """
     if isinstance(element, list):
-        return [
-            get_ionic_radii(
-                e,
-                charge=charge,
-                coordination=coordination,
-                variant=variant,
-                source=source,
-                pauling=pauling,
-                **kwargs,
-            )
-            for e in element
-        ]
+        return np.array(
+            [
+                get_ionic_radii(
+                    e,
+                    charge=charge,
+                    coordination=coordination,
+                    variant=variant,
+                    source=source,
+                    pauling=pauling,
+                    **kwargs,
+                )
+                for e in element
+            ]
+        )
 
     if "shannon" in source.lower():
         df = __radii__["shannon"]
@@ -491,7 +493,7 @@ def get_ionic_radii(
         if charge in df.loc[elfltr, "charge"].unique():
             fltrs *= df.charge == charge
         else:
-            logger.warn("Charge {:d} not in table.".format(int(charge)))
+            logger.warning("Charge {:d} not in table.".format(int(charge)))
             # try to interpolate over charge?..
             # interpolate_charge=True
     else:
@@ -502,7 +504,7 @@ def get_ionic_radii(
         if coordination in df.loc[elfltr, "coordination"].unique():
             fltrs *= df.coordination == coordination
         else:
-            logger.warn("Coordination {:d} not in table.".format(int(coordination)))
+            logger.warning("Coordination {:d} not in table.".format(int(coordination)))
             # try to interpolate over coordination
             # interpolate_coordination=True
 

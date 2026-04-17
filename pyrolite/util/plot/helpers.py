@@ -1,6 +1,7 @@
 """
 matplotlib helper functions for commong drawing tasks.
 """
+
 import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -90,7 +91,7 @@ def get_visual_center(poly, vertical_exaggeration=1):
 
     vertical_exaggeration : :class:`float`
         Apparent vertical exaggeration of the plot
-        (pixels per unit in y direction divided by pixels 
+        (pixels per unit in y direction divided by pixels
         per unit in the x direction).
 
     Returns
@@ -98,9 +99,9 @@ def get_visual_center(poly, vertical_exaggeration=1):
     cx, cy : :class:`tuple`
         Centroid coordinates.
     """
-    poly_scaled = np.array([poly.get_xy() * [1., vertical_exaggeration]])
+    poly_scaled = np.array([poly.get_xy() * [1.0, vertical_exaggeration]])
     x, y = visual_center(poly_scaled)
-    return tuple([x, y/vertical_exaggeration])
+    return tuple([x, y / vertical_exaggeration])
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
@@ -155,7 +156,13 @@ def vector_to_line(
 
 
 def plot_stdev_ellipses(
-    comp, nstds=4, scale=100, resolution=1000, transform=None, ax=None, **kwargs
+    comp,
+    nstds=4,
+    scale=100,
+    resolution=1000,
+    transform=None,
+    ax=None,
+    **kwargs,
 ):
     """
     Plot covariance ellipses at a number of standard deviations from the mean.
@@ -179,7 +186,7 @@ def plot_stdev_ellipses(
     """
     mean, cov = np.nanmean(comp, axis=0), nancov(comp)
     vals, vecs = eigsorted(cov)
-    theta = np.degrees(np.arctan2(*vecs[::-1]))
+    theta = np.degrees(np.arctan2(*vecs[::-1]))[0]
 
     if ax is None:
         projection = None
@@ -193,7 +200,10 @@ def plot_stdev_ellipses(
         # here we use the absolute eigenvalues
         xsig, ysig = nstd * np.sqrt(np.abs(vals))  # n sigmas
         ell = matplotlib.patches.Ellipse(
-            xy=mean.flatten(), width=2 * xsig, height=2 * ysig, angle=theta[:1]
+            xy=mean.flatten(),
+            width=2 * xsig,
+            height=2 * ysig,
+            angle=theta,
         )
         points = interpolated_patch_path(ell, resolution=resolution).vertices
 
@@ -220,7 +230,7 @@ def plot_pca_vectors(
     ax=None,
     colors=None,
     linestyles=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Plot vectors corresponding to principal components and their magnitudes.

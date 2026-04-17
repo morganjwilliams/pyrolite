@@ -49,7 +49,6 @@ class TestSplitKwargs(unittest.TestCase):
 
 
 class TestMappableFromValues(unittest.TestCase):
-
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
 

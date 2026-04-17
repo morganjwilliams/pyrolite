@@ -285,7 +285,7 @@ def EMCOMP(
                 )
 
                 Ystar[np.ix_(rows, varmiss)] = np.ones((rows.size, 1)) * B[0, :] + (
-                    (Y[np.ix_(rows, varobs)] @ B[1 : (varobs.size + 1), :])
+                    Y[np.ix_(rows, varobs)] @ B[1 : (varobs.size + 1), :]
                 )
                 sigmas[varmiss] = np.sqrt(np.diag(σ2_res))
                 assert np.isfinite(sigmas[varmiss]).all()

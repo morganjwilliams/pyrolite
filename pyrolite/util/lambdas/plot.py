@@ -3,6 +3,7 @@ Functions for the visualisation of reconstructed and deconstructed parameterised
 profiles based on parameterisations using 'lambdas' (and tetrad-equivalent weights
 'taus').
 """
+
 import numpy as np
 
 from ... import plot
@@ -127,7 +128,7 @@ def plot_profiles(
     ax=None,
     index="radii",
     logy=False,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Plot the reconstructed REE profiles of a 2D dataset of coefficients ($\lambda$s,
@@ -206,7 +207,7 @@ def plot_profiles(
         indexes=linex,
         logy=logy,
         set_ticks=False,
-        **{**kwargs, "marker": ""}
+        **{**kwargs, "marker": ""},
     )
 
     return ax

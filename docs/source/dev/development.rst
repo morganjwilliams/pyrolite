@@ -19,13 +19,15 @@ Contributing
 Development Installation
 ----------------------------
 
-To access and use the development version, you can either
-`clone the repository <https://github.com/morganjwilliams/pyrolite>`__ or install
-via pip directly from GitHub:
+To access and use the development version, you can 
+`clone the repository <https://github.com/morganjwilliams/pyrolite>`__ and 
+set up the environment:
 
 .. code-block:: bash
 
-  pip install --user git+https://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
+  git clone https://github.com/morganjwilliams/pyrolite.git
+  git checkout develop
+  uv sync --extra dev
 
 
 Tests
@@ -37,7 +39,7 @@ directory after installation with development dependencies
 
 .. code-block:: bash
 
-   python setup.py test
+   uv run pytest
 
 
 If instead you only want to test a subset, you can call :mod:`pytest` directly from
@@ -45,4 +47,4 @@ within the pyrolite repository:
 
 .. code-block:: bash
 
-   pytest ./test/<path to test or test folder>
+   uv run pytest ./test/<path to test or test folder>

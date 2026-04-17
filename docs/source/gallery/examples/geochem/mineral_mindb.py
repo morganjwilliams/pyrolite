@@ -5,6 +5,7 @@ Mineral Database
 pyrolite includes a limited mineral database which is useful for looking up endmember
 compositions.
 """
+
 import pandas as pd
 
 from pyrolite.mineral.mindb import (

@@ -13,7 +13,6 @@ from pyrolite.util.plot.interpolation import (
 
 
 class TestInterpolatePath(unittest.TestCase):
-
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
         self.ax.plot([0, 1, 2, 3, 0], [0, 0.1, 1, 2, 0])  # a closed path
@@ -51,7 +50,6 @@ class InterpolatedPathPatch(unittest.TestCase):
 
 
 class TestContourPaths(unittest.TestCase):
-
     def setUp(self):
         self.fig, self.ax = plt.subplots(1)
         # this is the contour demo data from matplotlib, for refrence

@@ -89,16 +89,18 @@ def interpolated_patch_path(patch, resolution=100, **kwargs):
     )
 
 
-def get_contour_paths(src, resolution=100, minsize=3):
+def get_contour_paths(src, resolution=100, minsize=3, filter=True):
     """
     Extract the paths of contours from a contour plot.
 
     Parameters
     ------------
-    ax : :class:`matplotlib.axes.Axes` |
+    ax : :class:`matplotlib.axes.Axes` | `matplotlib.contour.QuadContourSet`
         Axes to extract contours from.
     resolution : :class:`int`
         Resolution of interpolated splines to return.
+    filter : bool
+        Whether to filter out paths which have no length.
 
     Returns
     --------
@@ -112,50 +114,43 @@ def get_contour_paths(src, resolution=100, minsize=3):
     contourstyles : :class:`list`
         List of styles for contours.
 
-    Notes
-    ------
-        This method assumes that contours are the only
-        :code:`matplotlib.collections.LineCollection` objects within an axes;
-        and when this is not the case, additional non-contour objects will be returned.
     """
     if isinstance(src, matplotlib.axes.Axes):
 
         def _iscontour(c):
             # contours/default lines don't have markers - allows distinguishing scatter
-            return (
-                isinstance(c, matplotlib.collections.PathCollection)
-                and c.get_sizes().size == 0
-            ) or isinstance(c, matplotlib.collections.LineCollection)
+            return isinstance(c, matplotlib.contour.QuadContourSet)
 
-        linecolls = [
-            c for c in src.collections if (_iscontour(c) and len(c.get_paths()))
+        collections = [
+            c
+            for c in src.collections
+            if (_iscontour(c) and (len(c.get_paths()) if filter else True))
         ]
-        names = [None for lc in linecolls]
-        if all([len(a.get_text()) for a in src.texts]):
-            if len(src.texts) == len(linecolls):
-                names = [a.get_text() for a in src.texts]
-            else:
-                logger.debug("Can't line up labels/text with contours.")
+        if len(collections) == 1:
+            src = collections[0]
+        else:
+            raise NotImplementedError("Multiple contour sets found on axes.")
     elif isinstance(src, matplotlib.contour.ContourSet):
-        names = src.labelTexts
-        linecolls = src.collections
-        linecolls = [c for c in src.collections if len(c.get_paths())]
+        pass
+    names = src.levels
+    paths = [c for c in src._paths]  #
 
-    rgba = [lc.get_edgecolors() for lc in linecolls]
-    styles = [{"color": c} for c in rgba]
-    return (
-        [
-            [
-                interpolate_path(
-                    p,
-                    resolution=resolution,
-                    periodic=True,
-                    aspath=False,
-                )
-                for p in lc.get_paths()
-            ]
-            for lc in linecolls
-        ],
-        names,
-        styles,
-    )
+    interp_paths = [
+        interpolate_path(
+            p,
+            resolution=resolution,
+            periodic=True,
+            aspath=False,
+        )
+        for p in paths
+    ]
+    edgecolors = [{"color": c} for c in src.get_edgecolor()]
+    names
+    if not filter:
+        return interp_paths, names, edgecolors
+    else:
+        return (
+            [p for p in interp_paths if p.size],
+            [n for p, n in zip(interp_paths, names) if p.size],
+            [c for p, c in zip(interp_paths, edgecolors) if p.size],
+        )

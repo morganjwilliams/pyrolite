@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 import periodictable as pt
 
 from pyrolite.geochem.ind import (
@@ -258,11 +259,11 @@ class TestGetIonicRadii(unittest.TestCase):
 
     def test_ree_radii_list(self):
         radii = get_ionic_radii(self.ree, charge=3, coordination=8)
-        self.assertTrue(isinstance(radii, list))
+        self.assertTrue(isinstance(radii, np.ndarray))
 
     def test_ree_radii_list_whittaker_muntus(self):
         radii = get_ionic_radii(self.ree, charge=3, coordination=8, source="whittaker")
-        self.assertTrue(isinstance(radii, list))
+        self.assertTrue(isinstance(radii, np.ndarray))
 
 
 class TestByIncompatibility(unittest.TestCase):

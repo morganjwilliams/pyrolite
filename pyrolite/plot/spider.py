@@ -43,7 +43,7 @@ def spider(
     line_kw={},
     set_ticks=True,
     autoscale=True,
-    **kwargs
+    **kwargs,
 ):
     """
     Plots spidergrams for trace elements data. Additional arguments are typically forwarded
@@ -209,7 +209,10 @@ def spider(
             )
             # do these need to be ravelled?
             ax.scatter(
-                indexes.ravel(), arr.ravel(), color=scattercolor, **{"zorder": 2, **s_kw}
+                indexes.ravel(),
+                arr.ravel(),
+                color=scattercolor,
+                **{"zorder": 2, **s_kw},
             )
 
         # should create a custom legend handle here
@@ -227,7 +230,7 @@ def spider(
             yextent=yextent,
             mode=mode,
             ret_centres=True,
-            **kwargs
+            **kwargs,
         )
         # can have issues with nans here?
         vmin = kwargs.pop("vmin", 0)
@@ -254,18 +257,22 @@ def spider(
         # set the y range to lock to the outermost log-increments
         _ymin, _ymax = np.nanmin(arr), np.nanmax(arr)
 
-        if unity_line:
+        if unity_line:  # unity line is added at 1 - so may alter the total range
             _ymin, _ymax = min(_ymin, 1.0), max(_ymax, 1.0)
 
         if logy:
             # at 5% range in log space, and clip to nearest 'minor' tick
+            # except in the case where (logmin - 0.05 * logy_rng) <= 0
+            # (to avoid errors on log-scaled plots)
             logmin, logmax = np.log10(_ymin), np.log10(_ymax)
             logy_rng = logmax - logmin
 
             low, high = 10 ** np.floor(logmin), 10 ** np.floor(logmax)
-
+           
             _ymin, _ymax = (
-                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low,
+                np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low
+                if (logmin - 0.05 * logy_rng) > 0
+                else low,
                 np.ceil(10 ** (logmax + 0.05 * logy_rng) / high) * high,
             )
         else:
@@ -290,7 +297,7 @@ def REE_v_radii(
     line_kw={},
     set_labels=True,
     set_ticks=True,
-    **kwargs
+    **kwargs,
 ):
     r"""
     Creates an axis for a REE diagram with ionic radii along the x axis.
@@ -374,7 +381,7 @@ def REE_v_radii(
             indexes=indexes,
             scatter_kw=scatter_kw,
             line_kw=line_kw,
-            **kwargs
+            **kwargs,
         )
 
     twinys = get_twins(ax, which="y")

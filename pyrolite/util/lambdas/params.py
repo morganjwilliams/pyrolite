@@ -2,6 +2,7 @@
 Functions to generate parameters for the construction of orthogonal polynomials which
 are used to fit REE patterns.
 """
+
 import numpy as np
 import sympy.solvers.solvers
 from sympy import symbols, var

@@ -9,6 +9,7 @@ visualising data density, most based on Gaussian kernel density estimation
 and evaluation over a grid. The below examples highlight some of the currently
 implemented features.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

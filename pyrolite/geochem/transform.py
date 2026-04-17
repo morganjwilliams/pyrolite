@@ -204,7 +204,9 @@ def elemental_sum(
             "No relevant species ({}) found to aggregate.".format(poss_specs)
         )
         # return nulls
-        subsum = pd.Series(np.ones(df.index.size) * np.nan, index=df.index)
+        subsum = pd.Series(
+            np.ones(df.index.size, dtype="float32") * np.nan, index=df.index
+        )
     else:
         subset = np.array(df.loc[:, species])
         if logdata:
@@ -706,9 +708,9 @@ def convert_chemistry(
         i for i in to if i not in (coupled_sets + noncomp + new_ratios)
     ]
     # check that these are all unique components
-    assert len(set(output_compositional)) == len(
-        output_compositional
-    ), "All compositional components specified need to be unique."
+    assert len(set(output_compositional)) == len(output_compositional), (
+        "All compositional components specified need to be unique."
+    )
     # TODO: Check for any sets of species which have the same principal cation here
     out_fe_nonspeciated = [i for i in output_compositional if "Fe" in str(i)]
     if len(out_fe_nonspeciated) > 1:  # e.g. [FeO, Fe2O3]
@@ -749,7 +751,7 @@ def convert_chemistry(
             **kwargs,
         )
 
-    # TODO: warning for duplication should also be crossed over into speciated components above.. 
+    # TODO: warning for duplication should also be crossed over into speciated components above..
     _duplicated_cations = [
         str(k)
         for k, v in Counter(  # get the first cation in each component, and count duplicates
@@ -758,7 +760,11 @@ def convert_chemistry(
         if v > 1
     ]
     if _duplicated_cations:
-        logger.warning("Cations duplicated in compositional components: {}. The output retains this duplication!".format(','.join(_duplicated_cations)))
+        logger.warning(
+            "Cations duplicated in compositional components: {}. The output retains this duplication!".format(
+                ",".join(_duplicated_cations)
+            )
+        )
     # Aggregate the singular compositional items, then get new columns
     for item in output_compositional:
         df = aggregate_element(df, to=item, logdata=logdata, molecular=molecular)

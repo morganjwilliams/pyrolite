@@ -32,6 +32,7 @@ def plot_confusion_matrix(
     cmap=plt.cm.Blues,
     norm=None,
     xlabelrotation=None,
+    fmt=None,
 ):
     """
     This function prints and plots the confusion matrix.
@@ -67,6 +68,8 @@ def plot_confusion_matrix(
         Normalization for the colormap visualisation across the confusion matrix.
     xlabelrotation : :class:`float`
         Rotation in degrees for the xaxis labels.
+    fmt : str
+        Format to use for filling values.
 
     Returns
     --------
@@ -120,7 +123,7 @@ def plot_confusion_matrix(
     plt.colorbar(im, ax=ax)
     tick_marks = np.arange(len(classes))
 
-    fmt = ".2f" if normalize else "d"
+    fmt = fmt if fmt is not None else (".2f" if normalize else "d")
     threshold = conf_matrix.max() / 2.0
     for i, j in itertools.product(
         range(conf_matrix.shape[0]), range(conf_matrix.shape[1])

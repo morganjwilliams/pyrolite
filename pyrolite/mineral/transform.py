@@ -103,9 +103,10 @@ def recalc_cations(
     # cation_masses = {c: pt.formula(c).mass for c in ref.columns}
     oxygen_index = [i for i in ref.columns if "O" in i][0]
     ref = ref.loc[:, [i for i in ref.columns if not i == oxygen_index] + [oxygen_index]]
-    moles_ref = ref.copy(deep=True)
-    moles_ref.loc[:, :] = (
-        ref.values * moles.T.values
+    moles_ref = pd.DataFrame(
+        ref.values * moles.T.values,
+        columns=ref.columns,
+        index=ref.index,
     )  # this works for series, not for frame
 
     moles_O = moles_ref[oxygen_index].sum()

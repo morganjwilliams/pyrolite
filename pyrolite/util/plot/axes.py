@@ -1,6 +1,7 @@
 """
 Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
+
 import warnings
 
 import matplotlib.pyplot as plt
@@ -197,7 +198,7 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
             fig, ax = plt.subplots(
                 1,
                 subplot_kw=dict(projection=projection),
-                **subkwargs(kwargs, plt.subplots, plt.figure)
+                **subkwargs(kwargs, plt.subplots, plt.figure),
             )
         else:  # axes passed
             if ax.name != "ternary":

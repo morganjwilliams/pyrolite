@@ -8,6 +8,7 @@ Todo
   gabbroic Pyroxene-Olivine-Plagioclase,
   ultramafic Olivine-Orthopyroxene-Clinopyroxene
 """
+
 import json
 
 import matplotlib.lines
@@ -79,7 +80,7 @@ class PolygonClassifier(object):
         scale=1.0,
         transform=None,
         mode=None,
-        **kwargs
+        **kwargs,
     ):
         self.default_scale = scale
         self._scale = self.default_scale
@@ -118,11 +119,11 @@ class PolygonClassifier(object):
         else:
             pass
 
-        if mode in fields:
-            fields = fields[mode]
-
-        # check axes for ratios, adition/subtraction etc
+        # check axes for ratios, addition/subtraction etc
         self.fields = fields or {}
+
+        if mode in self.fields:
+            self.fields = self.fields[mode]
         self.classes = list(self.fields.keys())
 
     def predict(self, X, data_scale=None):
@@ -194,8 +195,8 @@ class PolygonClassifier(object):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
-        **kwargs
+        which_ids=None,
+        **kwargs,
     ):
         """
         Add the polygonal fields from the classifier to an axis.
@@ -220,6 +221,11 @@ class PolygonClassifier(object):
         Returns
         --------
         ax : :class:`matplotlib.axes.Axes`
+
+        Notes
+        -----
+        * Will rescale to the extent of the fields if limits not specified.
+        * Will use IDs/keys for fields as labels if names not specified.
         """
         if ax is None:
             ax = init_axes(projection=self.projection, **kwargs)
@@ -245,8 +251,12 @@ class PolygonClassifier(object):
             poly_config.pop("color", None)
 
         use_keys = not which_labels.lower().startswith("name")
+
+        if which_ids is None:
+            which_ids = list(self.fields.keys())
+
         for k, cfg in self.fields.items():
-            if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
+            if cfg["poly"] and (k in which_ids):
                 verts = self.transform(np.array(_read_poly(cfg["poly"]))) * rescale_by
                 pg = matplotlib.patches.Polygon(
                     verts,
@@ -259,7 +269,8 @@ class PolygonClassifier(object):
                 pgns.append(pg)
                 ax.add_patch(pg)
                 if add_labels:
-                    label = k if use_keys else cfg["name"]
+                    # try and get name, otherwise use ID
+                    label = k if use_keys else cfg.get("name", k)
                     x, y = get_centroid(pg)
                     ax.annotate(
                         "\n".join(label.split()),
@@ -280,10 +291,17 @@ class PolygonClassifier(object):
         # such that e.g. ternary limits might be able to be specified?
         if self.projection is None:
             if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
-                if "xlim" in self.lims:
-                    ax.set_xlim(np.array(self.lims["xlim"]) * rescale_by)
-                if "ylim" in self.lims:
-                    ax.set_ylim(np.array(self.lims["ylim"]) * rescale_by)
+                # collect verts from polygons
+                _verts = np.vstack([p.get_path().vertices for p in pgns])
+                ax.set(
+                    xlim=np.array(self.lims["xlim"]) * rescale_by
+                    if "xlim" in self.lims
+                    else (np.nanmin(_verts[:, 0]), np.nanmax(_verts[:, 0])),
+                    ylim=np.array(self.lims["ylim"]) * rescale_by
+                    if "ylim" in self.lims
+                    else (np.nanmin(_verts[:, 1]), np.nanmax(_verts[:, 1])),
+                )
+
         return ax
 
     def add_to_axes(
@@ -293,8 +311,8 @@ class PolygonClassifier(object):
         axes_scale=1.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
-        **kwargs
+        which_ids=None,
+        **kwargs,
     ):
         """
         Add the fields from the classifier to an axis.
@@ -321,6 +339,7 @@ class PolygonClassifier(object):
         ax : :class:`matplotlib.axes.Axes`
         """
         ax = init_axes(ax=ax, projection=self.projection)
+
         ax = self._add_polygons_to_axes(
             ax=ax,
             fill=fill,
@@ -406,9 +425,9 @@ class TAS(PolygonClassifier):
         axes_scale=100.0,
         add_labels=False,
         which_labels="ID",
-        which_ids=[],
+        which_ids=None,
         label_at_centroid=True,
-        **kwargs
+        **kwargs,
     ):
         """
         Add the TAS fields from the classifier to an axis.
@@ -442,8 +461,12 @@ class TAS(PolygonClassifier):
         # here we don't want to add the labels in the normal way, because there
         # are two sets - one for volcanic rocks and one for plutonic rocks
         ax = self._add_polygons_to_axes(
-            ax=ax, fill=fill, axes_scale=axes_scale, add_labels=False,
-            which_ids=which_ids, **kwargs
+            ax=ax,
+            fill=fill,
+            axes_scale=axes_scale,
+            add_labels=False,
+            which_ids=which_ids,
+            **kwargs,
         )
 
         if not label_at_centroid:
@@ -454,16 +477,20 @@ class TAS(PolygonClassifier):
             # so we want to promote the labels
             # being placed at the widest part of the field.
             scale_factor = 1.5
-            p = ax.transData.transform([[0., 0.], [1., 1.]])
-            yx_scaling = (p[1][1] - p[0][1])/(p[1][0] - p[0][0])*scale_factor
+            p = ax.transData.transform([[0.0, 0.0], [1.0, 1.0]])
+            yx_scaling = (p[1][1] - p[0][1]) / (p[1][0] - p[0][0]) * scale_factor
 
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
             if not np.isclose(self.default_scale, axes_scale):
                 rescale_by = axes_scale / self.default_scale
+
+        if which_ids is None:
+            which_ids = list(self.fields.keys())
+
         if add_labels:
             for k, cfg in self.fields.items():
-                if cfg["poly"] and ((k in which_ids) or (len(which_ids) == 0)):
+                if cfg["poly"] and (k in which_ids):
                     if which_labels.lower().startswith("id"):
                         label = k
                     elif which_labels.lower().startswith(

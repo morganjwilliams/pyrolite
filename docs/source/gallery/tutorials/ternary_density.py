@@ -10,6 +10,7 @@ Here we illustrate how the ternary heatmaps for pyrolite are constructed using a
 irregualr triangulated grid and log transforms, and how this avoids some of the
 potential issues of the methods mentioned above.
 """
+
 #######################################################################################
 # Let's first get some data to deal with. :mod:`mpltern` has a conventient dataset
 # which we can use here:

@@ -424,8 +424,10 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
             if round_to <= 0:
                 fmt = int
             else:
+
                 def fmt(x):
                     return x
+
             sig_n = round(n, round_to)
             if low_filter and sig_n == 0.0:
                 return np.nan

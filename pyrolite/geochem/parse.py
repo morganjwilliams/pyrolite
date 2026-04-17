@@ -1,6 +1,7 @@
 """
 Functions for parsing, formatting and validating chemical names and formulae.
 """
+
 import re
 
 import pandas as pd
@@ -126,14 +127,19 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     # translate elements and oxides
     # elements second, Co guaranteed to override CO for python 3.6 +
-    
+
     chems = _common_oxides | _common_elements
     trans = {str(e).upper(): str(e) for e in chems}
     strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
 
     # translate potential isotope ratios
     split_pattern = re.compile(split_on)
-    strings = [h if (h in chems) else (repr_isotope_ratio(h) if split_pattern.match(h) is not None else h) for h in strings]
+    strings = [
+        h
+        if (h in chems)
+        else (repr_isotope_ratio(h) if split_pattern.match(h) is not None else h)
+        for h in strings
+    ]
     if listified:
         strings = strings[0]
     return strings

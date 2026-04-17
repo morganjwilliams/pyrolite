@@ -5,10 +5,10 @@ This list includes people who have contributed to the project in the form of cod
 comments, testing, bug reports, or feature requests.
 
 * `Morgan Williams <https://github.com/morganjwilliams>`__
-* Hayden Dalton
+* `Hayden Dalton <https://github.com/HaydenDalton>`__
 * `Louise Schoneveld <https://github.com/lavender22>`__
 * Adam Bath
-* Yajing Mao
+* `Yajing Mao <https://github.com/maoyajing>`__
 * `Justin Gosses <https://github.com/JustinGOSSES>`__
 * `Kaarel Mand <https://github.com/kaarelmand>`__
 * `Laura Miller <https://github.com/Lauraanme>`__
@@ -23,3 +23,4 @@ comments, testing, bug reports, or feature requests.
 * `Ondrej Lexa <https://github.com/ondrolexa>`__
 * `Bob Myhill <https://github.com/bobmyhill>`__
 * `Malte Mues <https://github.com/mmuesly>`__
+* `Jiawei Yun <https://github.com/louisyuncc>`__

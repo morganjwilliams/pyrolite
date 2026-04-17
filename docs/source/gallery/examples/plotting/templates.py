@@ -6,6 +6,7 @@ Plot Templates
 be used to create new plots, or add a template to an existing
 :class:`matplotlib.axes.Axes`.
 """
+
 import matplotlib.pyplot as plt
 
 ########################################################################################
@@ -112,8 +113,26 @@ plt.show()
 # The Jensen plot is another cationic ternary discrimination diagram (Jensen, 1976),
 # for subalkaline volcanic rocks:
 #
-JensenPlot(linewidth=0.4, add_labels=True, figsize=(7, 7))
+JensenPlot(linewidth=0.4, add_labels=True, figsize=(6,6))
 plt.show()
+########################################################################################
+# Customization - Labelling Schemes and Field Subsets
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# For most templates, you're able to customize which labels are applied to each field.
+# This includes swapping between the 'ID' and the 'name'  (and for TAS, swapping between
+# intrusive and volcanic equivalents), as well as specifing that only fields with specific
+# IDs are added to the diagram. For example, here we add volcanic labels for a subset of
+# fields in a TAS diagram (in this case, the LeMaitre version):
+#
+ax = TAS(
+    linewidth=0.5,
+    add_labels=True,
+    which_model="LeMaitre",
+    which_labels="volcanic",
+    which_ids=["Pc", "Ba", "Bs", "O1", "O2", "U1", "U2", "U3", "S1", "S2", "S3"],
+    figsize=(10, 5),
+)
+ax.figure
 ########################################################################################
 # References and other notes for diagram templates can be found within the docstrings
 # and within the pyrolite documentation:

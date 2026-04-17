@@ -522,7 +522,7 @@ def boxcox(
         Array on which to perform the transformation.
     lmbda : :class:`numpy.number`, :code:`None`
         Lambda value used to forward-transform values. If none, it will be calculated
-        using the mean
+        using the mean.
     lmbda_search_space : :class:`tuple`
         Range tuple (min, max).
     search_steps : :class:`int`
@@ -543,13 +543,16 @@ def boxcox(
 
     if lmbda is None:
         l_search = np.linspace(*lmbda_search_space, search_steps)
-        llf = np.apply_along_axis(scipy.stats.boxcox_llf, 0, np.array([l_search]), _X.T)
+        llf = np.vstack(
+            [scipy.stats.boxcox_llf(ix, _X.T) for ix in l_search]
+        ).T  # nsamples, n_search_steps
         if llf.shape[0] == 1:
             mean_llf = llf[0]
         else:
             mean_llf = np.nansum(llf, axis=0)
 
         lmbda = l_search[mean_llf == np.nanmax(mean_llf)]
+
     if _X.ndim < 2:
         out = scipy.stats.boxcox(_X, lmbda)
     elif _X.shape[0] == 1:

@@ -188,9 +188,9 @@ class pyrocomp(object):
             index=self._obj.index,
             columns=colnames,
         )
-        tfm_df.attrs[
-            "inverts_to"
-        ] = self._obj.columns.to_list()  # save parameter for inverse_transform
+        tfm_df.attrs["inverts_to"] = (
+            self._obj.columns.to_list()
+        )  # save parameter for inverse_transform
         return tfm_df
 
     def inverse_CLR(self):
@@ -241,9 +241,9 @@ class pyrocomp(object):
             index=self._obj.index,
             columns=colnames,
         )
-        tfm_df.attrs[
-            "inverts_to"
-        ] = self._obj.columns.to_list()  # save parameter for inverse_transform
+        tfm_df.attrs["inverts_to"] = (
+            self._obj.columns.to_list()
+        )  # save parameter for inverse_transform
         return tfm_df
 
     def inverse_ILR(self, X=None):

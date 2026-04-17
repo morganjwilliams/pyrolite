@@ -9,6 +9,7 @@ References
        Journal of the International Association for Mathematical Geology 16, 531–564.
        doi: {aitchison1984}
 """
+
 import logging
 
 import pandas as pd

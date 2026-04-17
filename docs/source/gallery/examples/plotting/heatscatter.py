@@ -10,6 +10,7 @@ A scatter plot where individual points are coloured by data density in some resp
 represents the best of both worlds. A version inspired by similar existing
 visualisations is implemented with :func:`~pyrolite.plot.pyroplot.heatscatter`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

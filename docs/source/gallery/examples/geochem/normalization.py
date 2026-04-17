@@ -6,6 +6,7 @@ A selection of reference compositions are included in pyrolite, and can be easil
 accessed with :func:`pyrolite.geochem.norm.get_reference_composition` (see the list
 at the bottom of the page for a complete list):
 """
+
 import matplotlib.pyplot as plt
 import pandas as pd
 

@@ -3,6 +3,7 @@ Functions for calculating the visual center of a polygon.
 Taken from https://github.com/Twista/python-polylabel,
 Originally released under an MIT licence.
 """
+
 from math import sqrt, inf
 import time
 from queue import PriorityQueue
@@ -15,9 +16,9 @@ def _point_to_polygon_distance(x, y, polygon):
     for ring in polygon:
         b = ring[-1]
         for a in ring:
-
-            if ((a[1] > y) != (b[1] > y) and
-                    (x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0])):
+            if (a[1] > y) != (b[1] > y) and (
+                x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]
+            ):
                 inside = not inside
 
             min_dist_sq = min(min_dist_sq, _get_seg_dist_sq(x, y, a, b))
@@ -149,8 +150,11 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
             best_cell = cell
 
             if debug:
-                print('found best {} after {} probes'.format(
-                    round(1e4 * cell.d) / 1e4, num_of_probes))
+                print(
+                    "found best {} after {} probes".format(
+                        round(1e4 * cell.d) / 1e4, num_of_probes
+                    )
+                )
 
         if cell.max - best_cell.d <= precision:
             continue
@@ -167,8 +171,8 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
         num_of_probes += 4
 
     if debug:
-        print('num probes: {}'.format(num_of_probes))
-        print('best distance: {}'.format(best_cell.d))
+        print("num probes: {}".format(num_of_probes))
+        print("best distance: {}".format(best_cell.d))
     if with_distance:
         return [best_cell.x, best_cell.y], best_cell.d
     else:

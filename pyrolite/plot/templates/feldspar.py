@@ -13,7 +13,7 @@ def FeldsparTernary(
     which_labels="ID",
     mode="miscibility-gap",
     color="k",
-    **kwargs
+    **kwargs,
 ):
     """
     Simplified feldspar classifcation diagram, based on a version printed in the

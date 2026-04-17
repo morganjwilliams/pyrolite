@@ -8,6 +8,7 @@ DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
 DEFAULT_DISC_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
     Default discrete colormap.
 """
+
 import itertools
 from pathlib import Path
 
@@ -62,34 +63,7 @@ def _export_mplstyle(
     matplotlib.style.reload_library()  # needed to load in pyrolite style NOW
 
 
-def _restyle(f, **_style):
-    """
-    A decorator to set the default keyword arguments for :mod:`matplotlib`
-    functions and classes which are not contained in the `matplotlibrc` file.
-    """
-
-    def wrapped(*args, **kwargs):
-        return f(*args, **{**_style, **kwargs})
-
-    wrapped.__name__ = f.__name__
-    wrapped.__doc__ = f.__doc__
-    return wrapped
-
-
-def _export_nonRCstyles(**kwargs):
-    """
-    Export default options for parameters not in rcParams using :func:`_restyle`.
-    """
-    matplotlib.axes.Axes.legend = _restyle(
-        matplotlib.axes.Axes.legend, **{"bbox_to_anchor": (1, 1), **kwargs}
-    )
-    matplotlib.figure.Figure.legend = _restyle(
-        matplotlib.figure.Figure.legend, bbox_to_anchor=(1, 1)
-    )
-
-
 _export_mplstyle()
-_export_nonRCstyles(handler_map={tuple: HandlerTuple(ndivide=None)})
 matplotlib.style.use("pyrolite")
 
 

@@ -25,9 +25,10 @@ For the purposes of testing, pyrolite includes a file containing the outputs fro
 Verma's SINCLAS/IgRoCS program. Here we can use this file to demonstrate the use
 of the CIPW Norm and verify that the results should generally be comparable
 between Verma's original implementation and the :mod:`pyrolite` implementation.
-We import this file and do a little cleaning and registration of geochemical 
+We import this file and do a little cleaning and registration of geochemical
 components so we can work with it in the sections to follow:
 """
+
 import warnings
 
 import matplotlib.pyplot as plt
@@ -49,8 +50,8 @@ df = (
 df.pyrochem.compositional = df.pyrochem.compositional.apply(
     pd.to_numeric, errors="coerce"
 ).fillna(0)
-df.loc[:, [c for c in df.columns if "NORM" in c]] = df.loc[
-    :, [c for c in df.columns if "NORM" in c]
+df[[c for c in df.columns if "NORM" in c]] = df[
+    [c for c in df.columns if "NORM" in c]
 ].apply(pd.to_numeric, errors="coerce")
 ########################################################################################
 # The CIPW Norm can be accessed via :func:`pyrolite.mineral.normative.CIPW_norm`,
@@ -198,45 +199,12 @@ def compare_NORMs(SINCLAS_outputs, NORM_outputs, name=""):
 volcanic_filter = df.loc[:, "ROCK_TYPE"].str.lower().str.startswith("volc")
 fig, ax = compare_NORMs(df.loc[volcanic_filter, :], NORM.loc[volcanic_filter])
 
-
 ########################################################################################
 # And everything else:
 #
 fig, ax = compare_NORMs(df.loc[~volcanic_filter, :], NORM.loc[~volcanic_filter])
 plt.show()
-########################################################################################
-# These normative mineralogical components could be input into mineralogical
-# classifiers, as mentioned above. For example, the IUGS QAP classifier:
-#
-from pyrolite.util.classification import QAP
 
-clf = QAP()  # build a QAP classifier
-
-qap_data = NORM.loc[:, ["quartz", "orthoclase"]]  #
-qap_data["plagioclase"] = NORM.loc[:, ["albite", "anorthite"]].sum(axis=1)
-# predict which lithological class each mineralogical composiiton belongs in
-# we add a small value to zeros here to ensure points fit in polygons
-predicted_classes = clf.predict(qap_data.replace(0, 10e-6).values)
-predicted_classes.head()
-########################################################################################
-# We can use these predicted classes as a color index also, within the QAP diagram
-# or elsewhere:
-#
-ax = clf.add_to_axes()
-qap_data.pyroplot.scatter(ax=ax, c=predicted_classes, axlabels=False, cmap="tab20c")
-plt.show()
-########################################################################################
-# We could also compare how these mineralogical distinctions map into chemical ones
-# like the TAS diagram:
-#
-from pyrolite.plot.templates import TAS
-
-ax = TAS()
-components = df.loc[:, ["SiO2"]]
-components["alkali"] = df.loc[:, ["Na2O", "K2O"]].sum(axis=1)
-# add the predictions from normative mineralogy to the TAS diagram
-components.pyroplot.scatter(ax=ax, c=predicted_classes, cmap="tab20c", axlabels=False)
-plt.show()
 ########################################################################################
 # References
 # ~~~~~~~~~~

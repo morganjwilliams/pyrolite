@@ -1,16 +1,19 @@
 """
 pyrolite: A set of tools for getting the most from your geochemical data.
 """
-from ._version import get_versions
 
-__version__ = get_versions()["version"]
-del get_versions
+from ._version import __version__
+
 
 import importlib
 import pkgutil
 
 import matplotlib.style
 
+# initialise pandas accessors
+from .comp import pyrocomp  # noqa: E402
+from .geochem import pyrochem  # noqa: E402
+from .plot import pyroplot  # noqa: E402
 from .util.log import Handle
 from .util.plot.style import _export_mplstyle  # this import adds the style used below
 
@@ -44,6 +47,3 @@ def load_extensions(base="pyrolite_", replace=["util"]):
 
 # _export_pyrolite_mplstyle() should be called in .plot import regardless
 matplotlib.style.use("pyrolite")
-
-from . import _version
-__version__ = _version.get_versions()['version']

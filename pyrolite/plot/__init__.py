@@ -20,7 +20,7 @@ from ..util.meta import get_additional_params, subkwargs
 from ..util.pd import to_frame
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
-from ..util.plot.style import _export_nonRCstyles, linekwargs, scatterkwargs
+from ..util.plot.style import linekwargs, scatterkwargs
 from . import density, parallel, spider, stem
 from .color import process_color
 
@@ -78,9 +78,6 @@ class pyroplot(object):
         """
         self._validate(obj)
         self._obj = obj
-
-        # refresh custom styling on creation?
-        _export_nonRCstyles()
 
     @staticmethod
     def _validate(obj):

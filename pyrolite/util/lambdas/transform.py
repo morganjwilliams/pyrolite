@@ -2,6 +2,7 @@
 Functions for transforming ionic radii to and from atomic number for the visualisation
 of REE patterns.
 """
+
 import numpy as np
 
 from ...geochem.ind import REE, get_ionic_radii

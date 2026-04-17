@@ -21,6 +21,7 @@ summarised by 3-4 shape parameters).
 Here we generate some example data, reduce these to lambda values, and visualise the
 results.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

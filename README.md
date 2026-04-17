@@ -33,10 +33,13 @@ request features or examples; see [Contributing](#contributing) below).
 pip install pyrolite
 ```
 
-If you want the most up to date *development* version, you can instead install directly from the GitHub repo. Note that breaking changes occur on this branch, and is not guaranteed to remain stable (check the [Development and Build Status](#development--build-status) below). If you still want to try out the most recent bugfixes and yet-to-be-released features, you can install this version with:
+If you want the most up to date *development* version, you can instead install directly from the GitHub repo. Note that breaking changes occur on this branch, and is not guaranteed to remain stable (check the [Development and Build Status](#development--build-status) below). If you still want to try out the most recent bugfixes and yet-to-be-released features, you can
+setup an enviroinment using [`uv`](https://docs.astral.sh/uv/getting-started/installation/) with:
 
 ```bash
-pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
+git clone git://github.com/morganjwilliams/pyrolite.git@develop
+git checkout develop
+uv sync --extra dev
 ```
 
 For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/main/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/main/gettingstarted.html).
@@ -44,12 +47,11 @@ For more information, see the documentation's [installation page](https://pyroli
 ## Examples
 
 Check out the documentation for galleries of [examples](https://pyrolite.readthedocs.io/en/main/examples/index.html) and [tutorials](https://pyrolite.readthedocs.io/en/main/tutorials/index.html).
-The corresponding sources of these examples exist as marked-up `.py` files in this repository (which get converted to Jupyter notebooks on ReadTheDocs); you can find them under the folders [`docs/source/gallery/examples`](./docs/source/gallery/examples/) and [`docs/source/gallery/tutorials`](./docs/source/gallery/tutorials/).
+The corresponding sources of these examples exist as marked-up `.py` files in this repository (which get converted to Jupyter notebooks on ReadTheDocs); you can find them under the folders [`docs/source/gallery/examples`](./docs/source/gallery/examples/) and [`docs/source/gallery/tutorials`](https://github.com/morganjwilliams/pyrolite/tree/main/docs/source/gallery/tutorials/).
 
 ## Contributing
 
-The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [
-Contributing page](https://pyrolite.readthedocs.io/en/main/dev/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/main/dev/conduct.html).
+The long-term aim of this project is to be designed, built and supported by (and for) the geochemistry community. The project welcomes feature requests, bug reports and contributions to the code base, documentation and test suite. We're happy to help onboard new contributors and walk you through the process. Check out the [Issues Board](https://github.com/morganjwilliams/pyrolite/issues) to get an idea of some of the some of the currently identified bugs and things we're looking to work on. For more information, see the [documentation](https://pyrolite.readthedocs.io/), particularly the [Contributing page](https://pyrolite.readthedocs.io/en/main/dev/contributing.html) and [Code of Conduct](https://pyrolite.readthedocs.io/en/main/dev/conduct.html).
 
 For a list of people who have helped build and improve pyrolite, check out the [Contributors page](https://pyrolite.readthedocs.io/en/main/dev/contributors.html).
 
@@ -59,16 +61,16 @@ If you'd like an idea of where the project might be heading in the near future, 
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02314/status.svg)](https://doi.org/10.21105/joss.02314)
 [![Archive](https://zenodo.org/badge/137172322.svg?style=flat)](https://zenodo.org/badge/latestdoi/137172322)
 
-If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/main/cite.html).
+If you use pyrolite extensively for your research, citation of the software would be particularly appreciated. It helps quantify the impact of the project (assisting those contributing through paid and volunteer work), and is one way to get the message out and help build the pyrolite community. For information on citing pyrolite, [see the relevant docs page](https://pyrolite.readthedocs.io/en/main/cite.html). A [`CITATION.cff` file](https://github.com/morganjwilliams/pyrolite/blob/main/CITATION.cff) is also provided for reference.
 
 ## Development & Build Status
 
-[![Formatted with Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Formatted with Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Code Quality](https://api.codacy.com/project/badge/Grade/fd9912a3faae43bf84a47e3da685d84c)](https://app.codacy.com/gh/morganjwilliams/pyrolite/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=morganjwilliams/pyrolite&amp;utm_campaign=Badge_Grade)
 
 |                                                                                  **main**                                                                                  |                                                                                  **develop**                                                                                   |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                               [![Unit Tests on main](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=main)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:main)                                |                               [![Unit Tests on Develop](https://github.com/morganjwilliams/pyrolite/workflows/Unittest/badge.svg?branch=develop)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:develop)                                |
+|                               [![Unit Tests on main](https://github.com/morganjwilliams/pyrolite/actions/workflows/unittest.yml/badge.svg?branch=main)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:main)                                |                               [![Unit Tests on Develop](https://github.com/morganjwilliams/pyrolite/actions/workflows/unittest.yml/badge.svg?branch=develop)](https://github.com/morganjwilliams/pyrolite/actions?query=workflow:Unittest+branch:develop)                                |
 | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=main)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=main) | [![Coverage Status](https://coveralls.io/repos/github/morganjwilliams/pyrolite/badge.svg?branch=develop)](https://coveralls.io/github/morganjwilliams/pyrolite?branch=develop) |
 
 **Maintainer**: Morgan Williams (morgan.williams _at_ csiro.au)

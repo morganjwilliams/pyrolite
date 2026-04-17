@@ -86,7 +86,7 @@ class Point(object):
             self.x,
             self.y,
             label=[None, self.name][label],
-            **{**self.kwargs, **subkwargs(kwargs, ax.scatter, PathCollection)}
+            **{**self.kwargs, **subkwargs(kwargs, ax.scatter, PathCollection)},
         )
 
 
@@ -105,7 +105,7 @@ class Linear2D(object):
         name=None,
         xlim=None,
         ylim=None,
-        **kwargs
+        **kwargs,
     ):
         r"""
         Simple container for a 2D line object with basic utility functions.
@@ -300,7 +300,7 @@ class Linear2D(object):
                 linexs,
                 lineys,
                 label=[None, self.name][label],
-                **{**self.kwargs, **subkwargs(kwargs, ax.plot, Line2D)}
+                **{**self.kwargs, **subkwargs(kwargs, ax.plot, Line2D)},
             )
 
     def __add__(self, obj):

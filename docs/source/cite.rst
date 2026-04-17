@@ -3,15 +3,17 @@ Citation
 
 |doibadages|
 
-.. note:: :mod:`pyrolite` began as a personal project, but as the project develops
-          there are likely to be other contributors. Check the
-          `Contributors list <./contributors.html>`__ and add major contributors as
-          authors.
-
 If you use :mod:`pyrolite` extensively for your research, citation of the software
 would be particularly appreciated. It helps quantify the impact of the project
 (assisting those contributing through paid and volunteer work), and is one way to get
 the message out and help build the pyrolite community.
+
+.. note:: :mod:`pyrolite` began as a personal project, but as the project develops
+          there are likely to be other contributors. Check the
+          `Contributors list <./contributors.html>`__ and add major contributors as
+          authors. A `CITATION.cff file <https://github.com/morganjwilliams/pyrolite/blob/main/CITATION.cff>`__  
+          has also been added to the repository, providing automated citation via GitHub.
+
 
 :mod:`pyrolite` has been published in the Journal of Open Source Software (JOSS),
 and generally this paper is what you should cite. This paper was published in reference

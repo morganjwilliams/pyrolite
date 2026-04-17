@@ -25,6 +25,7 @@ Earth Elements). The final section of the example highlights the mechanism which
 generates plagioclase's hallmark 'europium anomaly', and the effects of variable
 europium oxidation state on bulk europium partitioning.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -52,12 +53,12 @@ rLa = get_ionic_radii("La", charge=3, coordination=8)
 #
 fontsize = 8
 fig, ax = plt.subplots(1)
-
+ax.set(ylabel="$D_X$", xlabel="Radii ($\AA$)", yscale="log")
 site2labels = ["Na", "Ca", "Eu", "Sr"]
 # get the Shannon ionic radii for the elements in the 2+ site
 site2radii = [
     get_ionic_radii("Na", charge=1, coordination=8),
-    *[get_ionic_radii(el, charge=2, coordination=8) for el in ["Ca", "Eu", "Sr"]],
+    *get_ionic_radii(["Ca", "Eu", "Sr"], charge=2, coordination=8),
 ]
 # plot the relative paritioning curve for cations in the 2+ site
 site2Ds = D_Ca * np.array(
@@ -88,7 +89,7 @@ D_La  # 0.48085
 #
 site3labels = REE(dropPm=True)
 # get the Shannon ionic radii for the elements in the 3+ site
-site3radii = [get_ionic_radii(x, charge=3, coordination=8) for x in REE(dropPm=True)]
+site3radii = get_ionic_radii([x for x in REE(dropPm=True)], charge=3, coordination=8)
 site3Ds = D_La * np.array(
     [strain_coefficient(rLa, rx, r0=r03, E=E_3, T=Tk) for rx in site3radii]
 )
@@ -102,9 +103,6 @@ for l, r, d in zip(site3labels, site3radii, site3Ds):
     ax.annotate(
         l, xy=(r, d), xycoords="data", ha="right", va="bottom", fontsize=fontsize
     )
-ax.set_yscale("log")
-ax.set_ylabel("$D_X$")
-ax.set_xlabel("Radii ($\AA$)")
 fig
 ########################################################################################
 # As europium is commonly present as a mixture of both :math:`Eu^{2+}`
@@ -133,14 +131,54 @@ ax.plot(radii, ds, ls="--", color="0.9", label="Effective $D_{Eu}$", zorder=-1)
 ax.legend(bbox_to_anchor=(1.05, 1))
 fig
 ########################################################################################
-# .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
-#             from elastic moduli. Nature 372, 452.
-#             doi: `10.1038/372452A0 <https://doi.org/10.1038/372452A0>`__
+# Fitting Lattice Strain Models
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Given the lattice strain model and a partitioning profile (for e.g. REE data),
+# we can also fit a model to a given curve; here we fit to our REE data above,
+# for which we have some known parameters to compare to. Note that this uses
+# the youngs modulus approximation behind the scenes where it isn't provided:
 #
-# .. [#ref_2] Dohmen, R., Blundy, J., 2014. A predictive thermodynamic model for element partitioning
-#             between plagioclase and melt as a function of pressure, temperature and composition.
-#             American Journal of Science 314, 1319–1372.
-#             doi: `10.2475/09.2014.04 <https://doi.org/10.2475/09.2014.04>`__
+from pyrolite.mineral.lattice import fit_lattice_strain, youngs_modulus_approximation
+
+t0 = 273.15 + 700  # estimated temperature
+_ri, _tk, _D = fit_lattice_strain(site3radii, site3Ds, z=3, t0=t0)
+########################################################################################
+# We can compare the results of this fit to our source parameters - the ionic radius of
+# La, 900°C and estimated :math:`D_{La}` - note that the temperature isn't being fit
+# well here, but the other parameters are recovered reasonably well:
+#
+import pandas as pd
+
+pd.DataFrame(
+    [(_ri, rLa), (Tk, _tk), (D_La, _D)],
+    index=["radii", "T", "D"],
+    columns=["Source Parameters", "Fit Parameters"],
+).T
+
+########################################################################################
+# From this point, we could We can also compare the curves visually:
+#
+from pyrolite.plot.spider import REE_v_radii
+
+ax = REE_v_radii(index="radii")
+ax.set(ylabel="$D_X$", xlabel="Radii ($\AA$)")
+
+ax.plot(site3radii, site3Ds, label="True", color="k")
+
+r0 = site3radii.mean()
+starting_guess = strain_coefficient(
+    r0, site3radii, r0=r0, z=3, T=t0, E=youngs_modulus_approximation(3, r0)
+)
+ax.plot(site3radii, starting_guess, label="Starting Guess", ls="--", color="0.5")
+
+fit_curve = _D * strain_coefficient(
+    _ri, site3radii, r0=_ri, T=_tk, z=3, E=youngs_modulus_approximation(3, _ri)
+)
+ax.plot(site3radii, fit_curve, color="r", ls="--", label="Fit")
+
+ax.legend()
+ax.figure
+########################################################################################
 #
 # .. seealso::
 #
@@ -151,4 +189,17 @@ fig
 #   Functions:
 #     :func:`~pyrolite.mineral.lattice.strain_coefficient`,
 #     :func:`~pyrolite.mineral.lattice.youngs_modulus_approximation`,
+#     :func:`~pyrolite.mineral.lattice.fit_lattice_strain`
 #     :func:`~pyrolite.geochem.get_ionic_radii`
+#
+# References
+# ~~~~~~~~~~~
+# .. [#ref_1] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients
+#             from elastic moduli. Nature 372, 452.
+#             doi: `10.1038/372452A0 <https://doi.org/10.1038/372452A0>`__
+#
+# .. [#ref_2] Dohmen, R., Blundy, J., 2014. A predictive thermodynamic model for element partitioning
+#             between plagioclase and melt as a function of pressure, temperature and composition.
+#             American Journal of Science 314, 1319–1372.
+#             doi: `10.2475/09.2014.04 <https://doi.org/10.2475/09.2014.04>`__
+#
