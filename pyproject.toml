@@ -73,6 +73,9 @@ find = { exclude = ['test*', "docs*"] }
 [tool.setuptools.dynamic]
 readme = { file = "README.md", content-type = "text/markdown" }
 
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
+
 [tool.coverage.run]
 relative_files = true
 source = ["pyrolite"]
