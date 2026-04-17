@@ -71,12 +71,13 @@ make use of your geochemical data to build and test geological models.
     :hidden:
     :caption: Development
 
-    dev/development
     dev/changelog
     dev/roadmap
     dev/conduct
     dev/contributing
     dev/contributors
+    dev/development
+    dev/release
 
 .. raw:: latex
 
