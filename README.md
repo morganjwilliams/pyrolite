@@ -33,10 +33,13 @@ request features or examples; see [Contributing](#contributing) below).
 pip install pyrolite
 ```
 
-If you want the most up to date *development* version, you can instead install directly from the GitHub repo. Note that breaking changes occur on this branch, and is not guaranteed to remain stable (check the [Development and Build Status](#development--build-status) below). If you still want to try out the most recent bugfixes and yet-to-be-released features, you can install this version with:
+If you want the most up to date *development* version, you can instead install directly from the GitHub repo. Note that breaking changes occur on this branch, and is not guaranteed to remain stable (check the [Development and Build Status](#development--build-status) below). If you still want to try out the most recent bugfixes and yet-to-be-released features, you can
+setup an enviroinment using [`uv`](https://docs.astral.sh/uv/getting-started/installation/) with:
 
 ```bash
-pip install git+git://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite
+git clone git://github.com/morganjwilliams/pyrolite.git@develop
+git checkout develop
+uv sync --extra dev
 ```
 
 For more information, see the documentation's [installation page](https://pyrolite.readthedocs.io/en/main/installation.html), and the [Getting Started Guide](https://pyrolite.readthedocs.io/en/main/gettingstarted.html).

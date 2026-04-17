@@ -32,10 +32,11 @@ All notable changes to this project will be documented here.
   :code:`import pyrolite` (`df.pyrochem`,  `df.pyrocomp`, `df.pyroplot`).
 * **Feature**: Added new version of ICS International Chronostratigraphic Chart 
   (2024-12; :class:`pyrolite.util.time.Timescale`), and added the supereon level.
-* Updated the feldspar ternary diagram orientation to fit convention as per DHZ ((`#108 <https://github.com/morganjwilliams/pyrolite/issues/108>`__))
+* Updated the feldspar ternary diagram orientation to fit convention as per DHZ (`#108 <https://github.com/morganjwilliams/pyrolite/issues/108>`__).
 * Added a `fmt` kwarg to :func:`pyrolite.util.skl.vis.plot_confusion_matrix` to format 
   values in the confusion matrix.
 * Switched formatter to `ruff` from `black`.
+* Moved to using `uv` as an environment management tool.
 
 
 `0.3.6`_
