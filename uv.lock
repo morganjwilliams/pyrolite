@@ -1995,7 +1995,7 @@ requires-dist = [
     { name = "ipykernel", marker = "extra == 'notebook'" },
     { name = "ipywidgets", marker = "extra == 'notebook'" },
     { name = "joblib", marker = "extra == 'skl'" },
-    { name = "matplotlib", specifier = "!=3.8.4" },
+    { name = "matplotlib", specifier = ">=3.9" },
     { name = "mpltern", specifier = ">=0.4.0" },
     { name = "numpy" },
     { name = "numpydoc" },
