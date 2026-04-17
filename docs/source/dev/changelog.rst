@@ -10,17 +10,33 @@ All notable changes to this project will be documented here.
         If you're keen to check something out before its released, you can use a
         `development install <development.html#development-installation>`__ .
 
-* Added handling for limit values below zero for spider plots with log scaled y axes. This 
-  should avoid unnecessary error messages.
-* Reinstated imports of submodules so pandas accessors should be available immediately after 
-  :code:`import pyrolite` (`df.pyrochem`,  `df.pyrocomp`, `df.pyroplot`).
-* Added citations and DOIs for reference composition descriptions 
+* **New Contributor**: `Jiawei Yun <https://github.com/louisyuncc>`__.
+* **PR Merged**: `Jiawei Yun <https://github.com/louisyuncc>`__ contributed a PR to 
+  correct the FeO column label to Fe2O3T in the reference composition MUQ_Kabener2005; 
+  `#109 <https://github.com/morganjwilliams/pyrolite/pull/109>`__.
+* **Docs**: Expanded the tutorial on creating plot templates `in the documentation <https://pyrolite.readthedocs.io/en/develop/tutorials/templates.html>`__..
+* **Docs**: Added citations and DOIs for reference composition descriptions 
   `in the documentation <https://pyrolite.readthedocs.io/en/develop/data/refcomp.html#composition-list>`__.
-* Expanded the lattice strain example to include an 
+* **Docs**: Expanded the lattice strain example to include an 
   `example of fitting a profile <https://pyrolite.readthedocs.io/en/develop/examples/geochem/mineral_lattice.html#fitting-lattice-strain-models>`__, 
   with a function added to the relevant module (:func:`pyrolite.mineral.lattice.fit_lattice_strain`).
-* Expanded documentation around labelling schemes and selection of regions to plot for plot templates with an 
+* **Docs**: Expanded documentation around labelling schemes and selection of regions to plot for plot templates with an 
   `additional section on the relevant page <https://pyrolite.readthedocs.io/en/develop/examples/plotting/templates.html#customization-labelling-schemes-and-field-subsets>`__.
+* **Docs**: Removed QAP diagram from CIPW example (wt% vs vol% was a bit misleading, would need transformation to be accurate).a
+* **Bugfix**: Updated :func:`pyrolite.util.plot.interpolation.get_contour_paths` to handle 
+  :class:`matplotlib.contour.QuadContourSet`, and hence more recent :mod:`matplotlib` versions.
+* **Bugfix**: Updated use of style file and built-in defaults to avoid hardcoding style (`#107 <https://github.com/morganjwilliams/pyrolite/issues/107>`__).
+* **Bugfix**: Added handling for limit values below zero for spider plots with log scaled y axes. This 
+  should avoid unnecessary error messages.
+* **Bugfix**: Reinstated imports of submodules so pandas accessors should be available immediately after 
+  :code:`import pyrolite` (`df.pyrochem`,  `df.pyrocomp`, `df.pyroplot`).
+* **Feature**: Added new version of ICS International Chronostratigraphic Chart 
+  (2024-12; :class:`pyrolite.util.time.Timescale`), and added the supereon level.
+* Updated the feldspar ternary diagram orientation to fit convention as per DHZ ((`#108 <https://github.com/morganjwilliams/pyrolite/issues/108>`__))
+* Added a `fmt` kwarg to :func:`pyrolite.util.skl.vis.plot_confusion_matrix` to format 
+  values in the confusion matrix.
+* Switched formatter to `ruff` from `black`.
+
 
 `0.3.6`_
 ----------
