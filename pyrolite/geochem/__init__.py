@@ -597,7 +597,9 @@ class pyrochem:
             **kwargs,
         )
 
-    def convert_chemistry(self, to=[], logdata=False, renorm=False, molecular=False):
+    def convert_chemistry(
+        self, to: list | None = None, logdata=False, renorm=False, molecular=False
+    ):
         """
         Attempts to convert a dataframe with one set of components to another.
 
@@ -623,11 +625,13 @@ class pyrochem:
 
         Todo
         ----
-            * Check for conflicts between oxides and elements
-            * Aggregator for ratios
-            * Implement generalised redox transformation.
-            * Add check for dicitonary components (e.g. Fe) in tests
+        * Check for conflicts between oxides and elements
+        * Aggregator for ratios
+        * Implement generalised redox transformation.
+        * Add check for dicitonary components (e.g. Fe) in tests
         """
+        if to is None:
+            to = []
         return transform.convert_chemistry(
             self._obj, to=to, logdata=logdata, renorm=renorm, molecular=molecular
         )  # can't update the source nicely here, need to assign output

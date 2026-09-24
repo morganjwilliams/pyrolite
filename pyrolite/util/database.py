@@ -2,8 +2,6 @@ import struct
 import sys
 from contextlib import contextmanager
 
-from tinydb import TinyDB
-
 from .log import Handle
 
 logger = Handle(__name__)
@@ -27,34 +25,13 @@ except:
     pass
 
 
-def _list_tindyb_unique_values(variable, dbpath=None):
-    """
-    List unique values from a column of a :mod:`TinyDB` json database.
-
-    Parameters
-    -----------
-    variable : :class:`str`
-        Name of the variable to check for unique values.
-    dbpath : :class:`pathlib.Path` | :class:`str`
-        Path to the relevant database.
-
-    Returns
-    ----------
-    :class:`list`
-    """
-
-    with TinyDB(str(dbpath), access_mode="r") as db:
-        out = list(set([a.get(variable, None) for a in db.all()]))
-    return out
-
-
 def check_access_driver():
     return [x for x in pyodbc.drivers() if x.startswith("Microsoft Access Driver")]
 
 
 def bitness():
     bitness = struct.calcsize("P") * 8
-    return "{} bit".format(bitness)
+    return f"{bitness} bit"
 
 
 @contextmanager

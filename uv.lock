@@ -2296,7 +2296,6 @@ dependencies = [
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "sympy" },
-    { name = "tinydb" },
 ]
 
 [package.optional-dependencies]
@@ -2392,7 +2391,6 @@ requires-dist = [
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'" },
     { name = "statsmodels", marker = "extra == 'stats'" },
     { name = "sympy", specifier = ">=1.7" },
-    { name = "tinydb", specifier = ">4.1" },
     { name = "twine", marker = "extra == 'dev'" },
     { name = "xlrd", marker = "extra == 'excel'" },
 ]
@@ -3205,15 +3203,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/00/dc/6c58154c1c65f758ea979e7139cb76993a9cfc662d14e9be3c4a667cfb77/threadpoolctl-3.7.0.tar.gz", hash = "sha256:61348cfb77d53b9242e0017029244b559b810c142ced65b4e21eeca1843959a7", size = 31961, upload-time = "2026-09-15T15:46:20.263Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/3f/f88a53f60a472b46f4023f56d204dd7de33d34c5d2acbfa0d70a674e639e/threadpoolctl-3.7.0-py3-none-any.whl", hash = "sha256:cd8b60b5641b45c67bbf73c64c843235fc2d8a480c87389f52f5dbee893b86be", size = 26362, upload-time = "2026-09-15T15:46:19.168Z" },
-]
-
-[[package]]
-name = "tinydb"
-version = "4.9.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/e9/d30dd8b1b88a75ec3e464eb81feee514ccf97f50bd306d198959e6733210/tinydb-4.9.0.tar.gz", hash = "sha256:6928b1fa785186bda7952a0ba05aaeedc883ede565ca9c7d608de44e5e75de70", size = 31987, upload-time = "2026-08-06T15:03:44.78Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/ef/321cb77b49bc26f36ed1c85d55cd8e80f8f81e5e183b769abf67386c257a/tinydb-4.9.0-py3-none-any.whl", hash = "sha256:111f1f680978a1b7c534d698dd1d76739ff31c74c27fd26a111140b51d8b35d6", size = 25731, upload-time = "2026-08-06T15:03:43.582Z" },
 ]
 
 [[package]]

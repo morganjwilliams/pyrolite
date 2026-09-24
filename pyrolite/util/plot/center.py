@@ -8,6 +8,10 @@ import time
 from math import inf, sqrt
 from queue import PriorityQueue
 
+from ..log import Handle
+
+logger = Handle(__name__)
+
 
 def _point_to_polygon_distance(x, y, polygon):
     inside = False
@@ -53,7 +57,7 @@ def _get_seg_dist_sq(px, py, a, b):
     return dx * dx + dy * dy
 
 
-class Cell(object):
+class Cell:
     def __init__(self, x, y, h, polygon):
         self.h = h
         self.y = y
@@ -93,8 +97,6 @@ def _get_centroid_cell(polygon):
         return Cell(points[0][0], points[0][1], 0, polygon)
     return Cell(x / area, y / area, 0, polygon)
 
-    pass
-
 
 def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
     # find bounding box
@@ -104,14 +106,10 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
     max_x = first_item[0]
     max_y = first_item[1]
     for p in polygon[0]:
-        if p[0] < min_x:
-            min_x = p[0]
-        if p[1] < min_y:
-            min_y = p[1]
-        if p[0] > max_x:
-            max_x = p[0]
-        if p[1] > max_y:
-            max_y = p[1]
+        min_x = min(min_x, p[0])
+        min_y = min(min_y, p[1])
+        max_x = max(max_x, p[0])
+        max_y = max(max_y, p[1])
 
     width = max_x - min_x
     height = max_y - min_y
@@ -150,10 +148,8 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
             best_cell = cell
 
             if debug:
-                print(
-                    "found best {} after {} probes".format(
-                        round(1e4 * cell.d) / 1e4, num_of_probes
-                    )
+                logger.debug(
+                    f"found best {round(1e4 * cell.d) / 1e4} after {num_of_probes} probes"
                 )
 
         if cell.max - best_cell.d <= precision:
@@ -171,8 +167,8 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
         num_of_probes += 4
 
     if debug:
-        print("num probes: {}".format(num_of_probes))
-        print("best distance: {}".format(best_cell.d))
+        logger.debug(f"num probes: {num_of_probes}")
+        logger.debug(f"best distance: {best_cell.d}")
     if with_distance:
         return [best_cell.x, best_cell.y], best_cell.d
     else:

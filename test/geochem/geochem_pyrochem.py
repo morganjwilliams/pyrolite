@@ -86,7 +86,7 @@ class TestPyrochem(unittest.TestCase):
         out = obj.pyrochem.parse_chem()
         self.assertTrue(len(out.columns) == len(start_cols))
         self.assertTrue(
-            all([a == b for (a, b) in zip(out.columns, start_cols) if "/" not in a])
+            all(a == b for (a, b) in zip(out.columns, start_cols) if "/" not in a)
         )
 
     # pyrolite.geochem.transform functions
@@ -142,7 +142,7 @@ class TestPyrochem(unittest.TestCase):
     def test_pyrochem_convert_chemistry(self):
         obj = self.df.copy(deep=True)
         obj = obj.pyrochem.convert_chemistry(
-            to=["MgO", "Si", "Ti", "HfO2", "La2O3", dict(FeO=0.9, Fe2O3=0.1)]
+            to=["MgO", "Si", "Ti", "HfO2", "La2O3", {"FeO": 0.9, "Fe2O3": 0.1}]
         )
         self.assertIn("Fe2O3", obj.columns)
         self.assertIn("Si", obj.columns)

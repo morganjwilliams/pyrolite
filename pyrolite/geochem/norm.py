@@ -7,7 +7,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from tinydb import Query, TinyDB
 
 from ..util.log import Handle
 from ..util.meta import pyrolite_datafolder
@@ -19,26 +18,27 @@ logger = Handle(__name__)
 __dbfile__ = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
 
 
-def all_reference_compositions(path=None):
+def set_DB(path):
+    """
+    Assign the database used for reference compositions, as per a given path.
+    """
+    with open(__dbfile__, "r") as f:
+        global NORMDB
+        NORMDB = pd.DataFrame(json.loads(f.read()))
+
+
+set_DB(__dbfile__)
+
+
+def all_reference_compositions():
     """
     Get a dictionary of all reference compositions indexed by name.
-
-    Parameters
-    -----------
-    path : :class:`str` | :class:`pathlib.Path`
 
     Returns
     --------
     :class:`dict`
     """
-    if path is None:
-        path = __dbfile__
-    with TinyDB(str(path), access_mode="r") as db:
-        refs = {}
-        for r in db.all():  # there should be only one "_default" table
-            n, c = r["name"], r["composition"]
-            refs[n] = Composition(json.loads(c), name=n)
-    return refs
+    return {r["name"]: r["composition"] for ix, r in NORMDB.iterrows()}
 
 
 def get_reference_composition(name):
@@ -54,15 +54,14 @@ def get_reference_composition(name):
     --------
     :class:`pyrolite.geochem.norm.Composition`
     """
-    with TinyDB(str(__dbfile__), access_mode="r") as db:
-        res = db.search(Query().name == name)
+    res = NORMDB.query(f"name=='{name}'")
     assert len(res) == 1
-    res = res[0]
+    res = res.iloc[0]
     name, composition = res["name"], res["composition"]
     return Composition(json.loads(composition), name=name)
 
 
-def get_reference_files(directory=None, formats=["csv"]):
+def get_reference_files(directory=None, formats=None):
     """
     Get a list of the reference composition files.
 
@@ -77,6 +76,8 @@ def get_reference_files(directory=None, formats=["csv"]):
     --------
     :class:`list`
     """
+    if formats is None:
+        formats = ["csv"]
     directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
     assert directory.exists() and directory.is_dir()
     files = []
@@ -85,7 +86,7 @@ def get_reference_files(directory=None, formats=["csv"]):
     return files
 
 
-def update_database(path=None, encoding="cp1252", **kwargs):
+def update_database(encoding="cp1252", **kwargs):
     """
     Update the reference composition database.
 
@@ -94,23 +95,26 @@ def update_database(path=None, encoding="cp1252", **kwargs):
     This will take all csv files from the geochem/refcomp pyrolite data folder
     and construct a document-based JSON database.
     """
-    if path is None:
-        path = __dbfile__
-    # require write access
-    with TinyDB(str(path)) as db:
-        db.truncate()
-
-        for f in get_reference_files():
-            C = Composition(f, encoding=encoding, **kwargs)
-            db.insert(
-                {"name": C.name, "composition": C._df.T.to_json(force_ascii=False)}
-            )
-        db.close()
+    pd.DataFrame(
+        [
+            {"name": C.name, "composition": C._df.T.to_json(force_ascii=False)}
+            for C in [
+                Composition(f, encoding=encoding, **kwargs)
+                for f in get_reference_files()
+            ]
+        ]
+    ).to_json(__dbfile__, indent=4)
 
 
 class Composition:
     def __init__(
-        self, src, name=None, reference=None, reservoir=None, source=None, **kwargs
+        self,
+        src,
+        name=None,
+        reference=None,
+        reservoir=None,
+        source=None,
+        **kwargs,
     ):
         """A composition with units and uncertainties for each compositional
         variable.
@@ -150,7 +154,7 @@ class Composition:
 
         if isinstance(src, (str, Path)):
             self.filename = str(src)
-            self._import_file(self.filename, **kwargs)
+            self._import_file(self.filename)
             self._process_imported_frame()
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
             self.comp = pd.DataFrame(

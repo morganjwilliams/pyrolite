@@ -31,7 +31,7 @@ class TestIsChem(unittest.TestCase):
     def test_ischem_list(self):
         ret = ischem(self.ree)
         self.assertTrue(isinstance(ret, list))
-        self.assertTrue(all([isinstance(i, bool) for i in ret]))
+        self.assertTrue(all(isinstance(i, bool) for i in ret))
 
 
 class TestToChem(unittest.TestCase):
@@ -69,10 +69,7 @@ class TestMultipleCationInclusion(unittest.TestCase):
         self.assertTrue(len(check_multiple_cation_inclusion(df)) > 0)
         self.assertTrue(
             all(
-                [
-                    i.__str__() in ["Mg", "Fe"]
-                    for i in check_multiple_cation_inclusion(df)
-                ]
+                i.__str__() in ["Mg", "Fe"] for i in check_multiple_cation_inclusion(df)
             )
         )
 
@@ -82,10 +79,7 @@ class TestMultipleCationInclusion(unittest.TestCase):
         self.assertTrue(len(check_multiple_cation_inclusion(df)) > 0)
         self.assertTrue(
             all(
-                [
-                    i.__str__() in ["Mg", "Fe"]
-                    for i in check_multiple_cation_inclusion(df)
-                ]
+                i.__str__() in ["Mg", "Fe"] for i in check_multiple_cation_inclusion(df)
             )
         )
 
@@ -95,10 +89,7 @@ class TestMultipleCationInclusion(unittest.TestCase):
         self.assertTrue(len(check_multiple_cation_inclusion(df)) > 0)
         self.assertTrue(
             all(
-                [
-                    i.__str__() in ["Mg", "Fe"]
-                    for i in check_multiple_cation_inclusion(df)
-                ]
+                i.__str__() in ["Mg", "Fe"] for i in check_multiple_cation_inclusion(df)
             )
         )
 

@@ -8,23 +8,26 @@ Accessing and modifying the database across multiple with multiple threads/proce
 """
 
 import functools
+import json
 from pathlib import Path
 
 import pandas as pd
 import periodictable as pt
-from tinydb import Query, TinyDB
 
-from ..util.database import _list_tindyb_unique_values
 from ..util.log import Handle
 from ..util.meta import pyrolite_datafolder
 from .transform import formula_to_elemental, merge_formulae
 
 logger = Handle(__name__)
 
-__dbpath__ = pyrolite_datafolder(subfolder="mineral") / "mindb.json"
+__dbpath__ = pyrolite_datafolder(subfolder="mineral") / "mins.json"
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+with open(__dbpath__, "r") as f:
+    MINDB = pd.DataFrame(json.loads(f.read()))
+
+
+@functools.cache  # cache outputs for speed
 def list_groups():
     """
     List the mineral groups present in the mineral database.
@@ -33,10 +36,10 @@ def list_groups():
     ----------
     :class:`list`
     """
-    return _list_tindyb_unique_values("group", dbpath=__dbpath__)
+    return MINDB.group.unique()
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+@functools.cache  # cache outputs for speed
 def list_minerals():
     """
     List the minerals present in the mineral database.
@@ -45,10 +48,10 @@ def list_minerals():
     ----------
     :class:`list`
     """
-    return _list_tindyb_unique_values("name", dbpath=__dbpath__)
+    return MINDB.name.unique()
 
 
-@functools.lru_cache(maxsize=None)  # cache outputs for speed
+@functools.cache  # cache outputs for speed
 def list_formulae():
     """
     List the mineral formulae present in the mineral database.
@@ -57,10 +60,10 @@ def list_formulae():
     ----------
     :class:`list`
     """
-    return _list_tindyb_unique_values("formula", dbpath=__dbpath__)
+    return MINDB.formula.unique()
 
 
-def get_mineral(name="", dbpath=None):
+def get_mineral(name=""):
     """
     Get a specific mineral from the database.
 
@@ -68,21 +71,16 @@ def get_mineral(name="", dbpath=None):
     ------------
     name : :class:`str`
         Name of the desired mineral.
-    dbpath : :class:`pathlib.Path`, :class:`str`
-        Optional overriding of the default database path.
 
     Returns
     --------
     :class:`pd.Series`
     """
-    if dbpath is None:
-        dbpath = __dbpath__
-
     assert name in list_minerals()
-    with TinyDB(str(dbpath), access_mode="r") as db:
-        out = db.get(Query().name == name)
-
-    return pd.Series(out)
+    res = MINDB.query(f"name=='{name}'")
+    assert len(res) == 1
+    res = res.iloc[0]
+    return res
 
 
 def parse_composition(composition, drop_zeros=True):
@@ -150,10 +148,7 @@ def get_mineral_group(group=""):
         Dataframe of group members and compositions.
     """
     assert group in list_groups()
-    with TinyDB(str(__dbpath__), access_mode="r") as db:
-        grp = db.search(Query().group == group)
-
-    df = pd.DataFrame(grp)
+    df = MINDB.query(f"group=='{group}'")
     meta, chem = (
         ["name", "formula"],
         [i for i in df.columns if i not in ["name", "formula", "group"]],
@@ -196,7 +191,4 @@ def update_database(path=None, **kwargs):
 
     # name group formula composition
     # needs write access
-    with TinyDB(str(path)) as db:
-        db.truncate()
-        for k, v in mindf.T.to_dict().items():
-            db.insert(v)
+    mindf.to_json(__dbpath__, indent=4)
