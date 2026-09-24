@@ -90,7 +90,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pyrolite"
-copyright = "2018-%s, Morgan Williams" % date.today().year
+copyright = f"2018-{date.today().year}, Morgan Williams"
 
 author = "Morgan Williams"
 
@@ -305,9 +305,8 @@ github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs
 from pyrolite.geochem.norm import all_reference_compositions
 
 refs = all_reference_compositions()
-reservoirs = set(
-    [refs[n].reservoir for n in refs.keys() if refs[n].reservoir is not None]
-)
+
+reservoirs = {refs[n].reservoir for n in refs if refs[n].reservoir is not None}
 comps = []
 for r in reservoirs:
     comps += [n for n in refs if refs[n].reservoir == r]

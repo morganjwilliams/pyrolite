@@ -64,7 +64,7 @@ dev = [
     "ruff",
     "twine",
     "build",
-     "pyrolite[test,docs,skl,notebook]",
+     "pyrolite[skl,notebook]",
     { include-group = "test" },
     { include-group = "docs" },
 ]

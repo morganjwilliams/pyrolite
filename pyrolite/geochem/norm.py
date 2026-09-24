@@ -25,6 +25,7 @@ def set_DB(path):
     with open(__dbfile__, "r") as f:
         global NORMDB
         NORMDB = pd.DataFrame(json.loads(f.read()))
+        NORMDB["composition"] = NORMDB["composition"].map(json.loads)
 
 
 set_DB(__dbfile__)
@@ -38,7 +39,7 @@ def all_reference_compositions():
     --------
     :class:`dict`
     """
-    return {r["name"]: r["composition"] for ix, r in NORMDB.iterrows()}
+    return {r["name"]: Composition(r["composition"]) for ix, r in NORMDB.iterrows()}
 
 
 def get_reference_composition(name):
@@ -58,7 +59,7 @@ def get_reference_composition(name):
     assert len(res) == 1
     res = res.iloc[0]
     name, composition = res["name"], res["composition"]
-    return Composition(json.loads(composition), name=name)
+    return Composition(composition, name=name)
 
 
 def get_reference_files(directory=None, formats=None):
@@ -97,11 +98,11 @@ def update_database(encoding="cp1252", **kwargs):
     """
     pd.DataFrame(
         [
-            {"name": C.name, "composition": C._df.T.to_json(force_ascii=False)}
-            for C in [
-                Composition(f, encoding=encoding, **kwargs)
-                for f in get_reference_files()
-            ]
+            {
+                "name": C.name,
+                "composition": json.dumps(C._df.query("~value.isnull()").to_dict()),
+            }
+            for C in [Composition(f, encoding=encoding) for f in get_reference_files()]
         ]
     ).to_json(__dbfile__, indent=4)
 
@@ -162,7 +163,7 @@ class Composition:
                 index=["value"],
             )
         elif isinstance(src, dict):
-            self._df = pd.DataFrame.from_dict(src).T
+            self._df = pd.DataFrame.from_dict(src)
             self._process_imported_frame()
         else:
             raise NotImplementedError(
@@ -174,15 +175,14 @@ class Composition:
 
     def _import_file(self, filename, **kwargs):
         if filename.endswith(".csv"):
-            self._df = pd.read_csv(filename, **kwargs).set_index("var").T
+            self._df = pd.read_csv(filename, **kwargs).set_index("var")
         elif filename.endswith("json"):
-            self._df = pd.read_json(filename, **kwargs).set_index("var").T
+            self._df = pd.read_json(filename, **kwargs).set_index("var")
 
     def _process_imported_frame(self):
         assert self._df is not None
-        metadata = self._df.loc[
-            "value",
-            [
+        metadata = self._df.reindex(
+            index=[
                 "ModelName",
                 "Reservoir",
                 "ModelType",
@@ -191,7 +191,8 @@ class Composition:
                 "DOI",
                 "Description",
             ],
-        ]
+            columns=["value"],
+        ).iloc[:, 0]
         metadata[pd.isnull(metadata)] = None
         for src, dest in zip(
             [
@@ -216,16 +217,15 @@ class Composition:
             setattr(self, dest, metadata.get(src, None))
 
         self.comp = self._df.loc[
-            ["value"], self._df.pyrochem.list_compositional
+            self._df.pyrochem.list_compositional,
+            "value",
         ].astype(float)
-        self.comp = self.comp.dropna(axis=1)
+        self.comp = self.comp.dropna()
         if "units" in self._df.index:
-            self.units = self._df.loc["units", self.comp.columns]
+            self.units = self._df.loc[self.comp.index, "units"]
 
         if "unc_2sigma" in self._df.index:
-            self.unc_2sigma = self._df.loc["unc_2sigma", self.comp.columns].astype(
-                float
-            )
+            self.unc_2sigma = self._df.loc[self.comp.index, "unc_2sigma"].astype(float)
 
     def set_units(self, to="wt%"):
         """
@@ -241,10 +241,8 @@ class Composition:
         return self
 
     def describe(self, verbose=True, **kwargs):
-        """ """
-        metadata = self._df.loc[
-            "value",
-            [
+        metadata = self._df.reindex(
+            index=[
                 "ModelName",
                 "Reservoir",
                 "ModelType",
@@ -252,20 +250,19 @@ class Composition:
                 "Citation",
                 "DOI",
                 "Description",
-            ],
-        ]
-        metadata[pd.isnull(metadata)] = None
+            ]
+        )["value"].dropna()
         desc = ""
         if verbose:
             desc += str(self)
             desc += "\n"
 
-        if metadata["Description"] is not None:
+        if "Description" in metadata:
             desc += metadata["Description"]
             desc += "\n"
-        if metadata["Citation"] is not None:
+        if "Citation" in metadata:
             desc += metadata["Citation"]
-            if metadata["DOI"] is not None:
+            if "DOI" in metadata:
                 desc += " "
                 desc += "doi: {}".format(metadata["DOI"])
         return to_width(desc, **kwargs)
