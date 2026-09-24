@@ -19,8 +19,6 @@ df.head()
 ########################################################################################
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
-
 fig, ax = plt.subplots(1)
 for loader in [load_boxite, load_coxite, load_hongite, load_kongite]:
     df = loader()

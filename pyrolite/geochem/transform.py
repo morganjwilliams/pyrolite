@@ -414,7 +414,7 @@ def get_ratio(
         _to_norm = True
 
     name = [ratio if ((not alias) or (alias is None)) else alias][0]
-    logger.debug("Calculating Ratio: {}".format(name))
+    logger.debug(f"Calculating Ratio: {name}")
     numsum, densum = (
         elemental_sum(df, num, to=num, molecular=molecular),
         elemental_sum(df, den, to=den, molecular=molecular),
@@ -442,8 +442,8 @@ def get_ratio(
             norm_ratio = num_n / den_n
 
         if not np.isfinite(norm_ratio):  # could be NaN
-            logger.warn("Invalid ratio for normalisation from: {}".format(norm_to))
-        logger.debug("Normalizing Ratio: {}".format(name))
+            logger.warning(f"Invalid ratio for normalisation from: {norm_to}")
+        logger.debug(f"Normalizing Ratio: {name}")
         ratio /= norm_ratio
 
     ratio[~np.isfinite(ratio.values)] = np.nan  # avoid inf
@@ -508,7 +508,7 @@ def add_MgNo(
 def lambda_lnREE(
     df,
     norm_to="ChondriteREE_ON",
-    exclude=["Pm", "Eu"],
+    exclude=None,
     params=None,
     degree=4,
     scale="ppm",
@@ -572,6 +572,8 @@ def lambda_lnREE(
     :func:`~pyrolite.plot.REE_radii_plot`
     """
     # if there are no supplied params, they will be calculated in calc_lambdas
+    if exclude is None:
+        exclude = ["Pm", "Eu"]
     ree = df.pyrochem.list_REE  # this excludes Pm
     # initialize normdf
     norm_df = df.loc[:, ree].copy()
@@ -613,7 +615,7 @@ def lambda_lnREE(
         # nullify rows with missing data
         missing = pd.isnull(df.loc[:, ree]).any(axis=1)
         if missing.any():
-            logger.debug("Ignoring {} rows with missing data.".format(missing.sum()))
+            logger.debug(f"Ignoring {missing.sum()} rows with missing data.")
             norm_df.loc[missing, :] = np.nan
 
     row_filter = norm_df.count(axis=1) >= min_elements
@@ -641,7 +643,7 @@ lambda_lnREE = update_docstring_references(lambda_lnREE, ref="localref")
 
 def convert_chemistry(
     input_df,
-    to=[],
+    to=None,
     total_suffix="T",
     renorm=False,
     molecular=False,
@@ -681,6 +683,8 @@ def convert_chemistry(
     * Implement generalised redox transformation.
     * Add check for dicitonary components (e.g. Fe) in tests
     """
+    if to is None:
+        to = []
     df = input_df.copy(deep=True)
     ####################################################################################
     # Parse what we need to get from the dataframe
@@ -699,7 +703,7 @@ def convert_chemistry(
             )
         )
     # check that all sets in coupled_sets have the same cation
-    coupled_components = [k for s in coupled_sets for k in s.keys()]
+    coupled_components = [k for s in coupled_sets for k in s]
     # need to get the additional things from here
     present_comp = [i for i in df.columns if i in compositional_components]
     noncomp = [i for i in df.columns if (i not in present_comp)]
@@ -723,7 +727,7 @@ def convert_chemistry(
         ]
         # all of these species must be present in the dataframe already, and we'll take them as-is
         # at the last step of this function
-        assert all([f in present_comp for f in out_fe_nonspeciated]), (
+        assert all(f in present_comp for f in out_fe_nonspeciated), (
             "Where multiple components with the same principal cation are requested"
             " but a speciation is not specified, they need to already exist in the "
             "dataframe: {}".format(",".join(out_fe_nonspeciated))
@@ -731,7 +735,7 @@ def convert_chemistry(
 
     logger.debug("Checking Iron Redox")
     # check if any of the coupled_sets dictionaries correspond to iron
-    coupled_fe = [s for s in coupled_sets if all(["Fe" in k for k in s])]
+    coupled_fe = [s for s in coupled_sets if all("Fe" in k for k in s)]
     if coupled_fe:
         assert (
             not out_fe_nonspeciated

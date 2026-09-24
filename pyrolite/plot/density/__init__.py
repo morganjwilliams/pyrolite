@@ -287,7 +287,7 @@ def _add_contours(
     *coords,
     zi=None,
     ax=None,
-    contours=[],
+    contours=None,
     cmap=DEFAULT_CONT_COLORMAP,
     vmin=0.0,
     extent=None,
@@ -297,6 +297,8 @@ def _add_contours(
     Add density-based contours to a plot.
     """
     # get the contour levels
+    if contours is None:
+        contours = []
     percentiles = kwargs.pop("percentiles", True)
     levels = contours or kwargs.get("levels", None)
     _pcolor, contour, contourf = get_axis_density_methods(ax)

@@ -38,8 +38,8 @@ def spider(
     yextent=None,
     mode="plot",
     unity_line=False,
-    scatter_kw={},
-    line_kw={},
+    scatter_kw=None,
+    line_kw=None,
     set_ticks=True,
     autoscale=True,
     **kwargs,
@@ -100,6 +100,10 @@ def spider(
     """
 
     # ---------------------------------------------------------------------
+    if line_kw is None:
+        line_kw = {}
+    if scatter_kw is None:
+        scatter_kw = {}
     ncomponents = arr.shape[-1]
     figsize = kwargs.pop("figsize", None) or (ncomponents * 0.3, 4)
 
@@ -216,7 +220,7 @@ def spider(
         cmap = kwargs.pop("cmap", None)
         if "contours" in kwargs and "vmin" in kwargs:
             msg = "Combining `contours` and `vmin` arguments for density plots should be avoided."
-            logger.warn(msg)
+            logger.warning(msg)
         xe, ye, zi, xi, yi = conditional_prob_density(
             arr,
             x=indexes0,
@@ -287,8 +291,8 @@ def REE_v_radii(
     logy=True,
     tl_rotation=60,
     unity_line=False,
-    scatter_kw={},
-    line_kw={},
+    scatter_kw=None,
+    line_kw=None,
     set_labels=True,
     set_ticks=True,
     **kwargs,
@@ -342,6 +346,10 @@ def REE_v_radii(
     * :func:`~pyrolite.plot.spider.spider`
     * :func:`pyrolite.geochem.transform.lambda_lnREE`
     """
+    if line_kw is None:
+        line_kw = {}
+    if scatter_kw is None:
+        scatter_kw = {}
     if ree is None:
         ree = REE()
     ax = init_axes(ax=ax, **kwargs)

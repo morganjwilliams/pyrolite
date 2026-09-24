@@ -34,7 +34,7 @@ def md_pattern(Y):
     pD = defaultdict(dict)
 
     pindex = 0  # 0 = no missing data
-    pD[int(0)] = {"pattern": np.zeros(D).astype(bool), "freq": np.sum(pID == 0)}
+    pD[0] = {"pattern": np.zeros(D).astype(bool), "freq": np.sum(pID == 0)}
     indexes = np.arange(N)
     indexes = indexes[pID[indexes] > pindex]  # only look at md rows
     for idx in indexes:

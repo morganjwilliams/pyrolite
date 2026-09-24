@@ -79,7 +79,7 @@ def nan_weighted_mean(X: np.ndarray, weights=None):
         return np.ma.average(np.ma.array(X, mask=mask), weights=weights, axis=0)
 
 
-def compositional_mean(df, weights=[], **kwargs):
+def compositional_mean(df, weights=None, **kwargs):
     """
     Implements an aggregation using a compositional weighted mean.
 
@@ -95,6 +95,8 @@ def compositional_mean(df, weights=[], **kwargs):
     :class:`pandas.Series`
         Mean values along index of dataframe.
     """
+    if weights is None:
+        weights = []
     non_nan_cols = df.dropna(axis=1, how="all").columns
     assert not df.loc[:, non_nan_cols].isna().values.any()
     mean = df.iloc[0, :].copy()

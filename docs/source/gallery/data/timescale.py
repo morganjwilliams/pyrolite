@@ -9,7 +9,7 @@ specific geological ages, to look up times for known geological age names
 and to access a reference table for all of these.
 """
 
-from pyrolite.util.time import Timescale, age_name
+from pyrolite.util.time import Timescale
 
 ts = Timescale()
 

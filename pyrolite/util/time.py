@@ -11,9 +11,7 @@ logger = Handle(__name__)
 
 
 # get the latest geotimescale data
-__data__ = sorted(
-    pyrolite_datafolder(subfolder="timescale").glob("geotimescale_*.csv")
-)[-1]
+__data__ = max(pyrolite_datafolder(subfolder="timescale").glob("geotimescale_*.csv"))
 __colors__ = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
 
 
@@ -32,7 +30,7 @@ def listify(df, axis=1):
 
 
 def age_name(
-    agenamelist, prefixes=["Lower", "Middle", "Upper"], suffixes=["Stage", "Series"]
+    agenamelist, prefixes=None, suffixes=None
 ):
     """
     Condenses an agename list to a specific agename, given a subset of
@@ -49,6 +47,10 @@ def age_name(
         Name components which occur after the higher order classification
         (e.g. :code:`"Cambrian Series 2"`).
     """
+    if suffixes is None:
+        suffixes = ["Stage", "Series"]
+    if prefixes is None:
+        prefixes = ["Lower", "Middle", "Upper"]
     ambiguous_names = prefixes + suffixes
     ambig_vars = [s.lower().strip() for s in ambiguous_names]
     nameguess = agenamelist[-1]
@@ -108,7 +110,7 @@ def import_colors(filename=__colors__, delim="/"):
 
 
 def timescale_reference_frame(
-    filename=__data__, info_cols=["Start", "End", "Aliases"], color_info=None
+    filename=__data__, info_cols=None, color_info=None
 ):
     """
     Rearrange the text-based timescale dataframe. Utility function for
@@ -127,6 +129,8 @@ def timescale_reference_frame(
         Dataframe containing timescale information.
     """
 
+    if info_cols is None:
+        info_cols = ["Start", "End", "Aliases"]
     df = pd.read_csv(filename)
     df[["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(
         pd.to_numeric, errors="coerce"
@@ -143,7 +147,7 @@ def timescale_reference_frame(
     _df["Name"] = condensed.apply(age_name)
     _df["Ident"] = condensed.apply("-".join)
     _df["MeanAge"] = _df.apply(lambda x: (x.Start + x.End) / 2, axis=1)
-    _df["Unc"] = _df.apply(lambda x: np.abs((x.Start - x.End)) / 2, axis=1)
+    _df["Unc"] = _df.apply(lambda x: np.abs(x.Start - x.End) / 2, axis=1)
 
     # Aliases
     _df.Aliases = _df.Aliases.apply(lambda x: [] if pd.isnull(x) else x.split(";"))
@@ -161,7 +165,7 @@ def timescale_reference_frame(
     return _df.loc[:, col_order]
 
 
-class Timescale(object):
+class Timescale:
     def __init__(self, filename=None):
         """
         Geological Timescale class to provide time-focused utility functions.
@@ -210,7 +214,7 @@ class Timescale(object):
         self.locate.update(dict(ChainMap(*dicts)))
         self.data = self.data.set_index("Ident")
 
-    def text2age(self, entry, nulls=[None, "None", "none", np.nan, "NaN"]):
+    def text2age(self, entry, nulls=None):
         """
         Converts a text-based age to the corresponding age range (in Ma).
 
@@ -227,6 +231,8 @@ class Timescale(object):
         :class:`tuple` | :class:`list` (:class:`tuple`)
             Tuple or list of tuples.
         """
+        if nulls is None:
+            nulls = [None, "None", "none", np.nan, "NaN"]
         try:
             entry = float(entry)
             return (entry, entry)
@@ -274,5 +280,5 @@ class Timescale(object):
             except IndexError:
                 # likely no relevant level name.
                 logger.debug(
-                    "No name found at level {} for age {} Ma.".format(level, age)
+                    f"No name found at level {level} for age {age} Ma."
                 )

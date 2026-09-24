@@ -7,10 +7,7 @@ higher dimensional data. pyrolite now includes an implementation of this which a
 a handy quick exploratory visualisation.
 """
 
-import matplotlib.axes
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import pyrolite.data.Aitchison

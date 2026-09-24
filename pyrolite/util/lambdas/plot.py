@@ -54,8 +54,8 @@ def plot_lambdas_components(lambdas, params=None, ax=None, **kwargs):
             [w], [p]
         )  # pasing singluar vaules and one tuple
         label = (
-            r"$r^{}: \lambda_{}".format(len(p), len(p))
-            + [r"\cdot f_{}".format(len(p)), ""][int(len(p) == 0)]
+            rf"$r^{len(p)}: \lambda_{len(p)}"
+            + [rf"\cdot f_{len(p)}", ""][int(len(p) == 0)]
             + "$"
         )
         ax.plot(xs, l_func(xs), label=label, ls="--", **kwargs)  # plot the polynomials
@@ -95,8 +95,8 @@ def plot_tetrads_components(
     ys = (taus * f(z, sum_tetrads=False)).squeeze()
     liney = (taus * f(linez, sum_tetrads=False)).squeeze()
 
-    xs = REE_z_to_radii(z)
-    linex = REE_z_to_radii(linez)
+    REE_z_to_radii(z)
+    REE_z_to_radii(linez)
     ####################################################################################
     if index in ["radii", "elements"]:
         ax = plot.spider.REE_v_radii(logy=logy, index=index, ax=ax, **kwargs)
@@ -173,7 +173,7 @@ def plot_profiles(
     # get the components and y values for the smooth lines
     lineradii = np.linspace(radii[0], radii[-1], 1000)
 
-    _, x0, linecomponents = get_function_components(
+    _, _x0, linecomponents = get_function_components(
         lineradii,
         params=params,
         fit_tetrads=tetrads,

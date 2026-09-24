@@ -138,15 +138,15 @@ def ternary_heatmap(
     else:
         raise NotImplementedError
 
-    data = dict(
-        tfm_centres=tfm_centregrid,
-        tfm_edges=tfm_edgegrid,
-        tern_edges=tern_edge_grid,
-        tern_centres=tern_centre_grid,
-        tern_bound_points=ternbound_points,
-        tfm_tern_bound_points=ternbound_points_tfmd,
-        grid_transform=tfm,
-        grid_inverse_transform=itfm,
-    )
+    data = {
+        "tfm_centres": tfm_centregrid,
+        "tfm_edges": tfm_edgegrid,
+        "tern_edges": tern_edge_grid,
+        "tern_centres": tern_centre_grid,
+        "tern_bound_points": ternbound_points,
+        "tfm_tern_bound_points": ternbound_points_tfmd,
+        "grid_transform": tfm,
+        "grid_inverse_transform": itfm,
+    }
     H[~np.isfinite(H)] = 0
     return coords, H, data

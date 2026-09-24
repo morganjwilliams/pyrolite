@@ -133,7 +133,7 @@ def get_contour_paths(src, resolution=100, minsize=3, filter=True):
     elif isinstance(src, matplotlib.contour.ContourSet):
         pass
     names = src.levels
-    paths = [c for c in src._paths]  #
+    paths = [c for c in src._paths]
 
     interp_paths = [
         interpolate_path(

@@ -405,7 +405,7 @@ def get_ionic_radii(
     element,
     charge=None,
     coordination=None,
-    variant=[],
+    variant=None,
     source="shannon",
     pauling=True,
     **kwargs,
@@ -465,6 +465,8 @@ def get_ionic_radii(
     -----
     * Implement interpolation for coordination +/- charge.
     """
+    if variant is None:
+        variant = []
     if isinstance(element, list):
         return np.array(
             [

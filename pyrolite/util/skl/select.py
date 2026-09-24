@@ -41,7 +41,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
         except KeyError:
             cols_error = list(set(self.columns) - set(X.columns))
             raise KeyError(
-                "The DataFrame does not include the columns: %s" % cols_error
+                f"The DataFrame does not include the columns: {cols_error}"
             )
 
 
@@ -105,7 +105,7 @@ class REESelector(BaseEstimator, TransformerMixin):
         """Select the Rare Earth Elements (REE) from a dataframe."""
         if components is None:
             components = REE()
-        components = [i for i in components if not i == "Pm"]
+        components = [i for i in components if i != "Pm"]
         self.columns = components
 
     def fit(self, X, y=None):

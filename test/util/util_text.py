@@ -155,7 +155,6 @@ class TestTitlecase(unittest.TestCase):
 
     def test_original_camelcase(self):
         """Check whether original camelcase is preserved."""
-        pass
 
 
 class TestParseEntry(unittest.TestCase):

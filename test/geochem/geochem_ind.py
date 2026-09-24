@@ -235,7 +235,6 @@ class TestCommonOxides(unittest.TestCase):
 
     def test_addition(self):
         """Checks the addition functionality."""
-        pass
 
     # As stands, unless addition == [], for string output extras are returned
     def test_precise(self):

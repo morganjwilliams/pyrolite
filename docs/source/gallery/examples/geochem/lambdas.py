@@ -26,8 +26,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import pyrolite.plot
-
 # sphinx_gallery_thumbnail_number = 2
 
 np.random.seed(82)
@@ -156,7 +154,7 @@ ls.columns
 #
 fig, ax = plt.subplots(1, figsize=(5, 3))
 ax = ls["X2"].plot.hist(ax=ax, bins=40, color="0.5")
-ax.set(xlabel="$\chi^2$")
+ax.set(xlabel=r"$\chi^2$")
 ax.axvline(1, color="k", ls="--")
 plt.show()
 ########################################################################################
@@ -369,7 +367,7 @@ np.allclose(ls_linear, ls_opt, rtol=10e-5)
 # Or simply plot the results from both:
 #
 fig, ax = plt.subplots(1, figsize=(5, 5))
-ax.set_title("Comparing $\lambda$ Estimation Algorithms", y=1.1)
+ax.set_title(r"Comparing $\lambda$ Estimation Algorithms", y=1.1)
 ls_linear.iloc[:, 1:3].pyroplot.scatter(
     ax=ax, marker="s", c="k", facecolors="none", s=50, label="Linear Algebra"
 )

@@ -106,10 +106,7 @@ def flatten_dict(d, climb=False, safemode=False):
     else:
         pick_key = lambda keys: keys[-1]
 
-    sort = map(
-        lambda x: x[:2],
-        sorted([(pick_key(k), v, len(k)) for k, v in results], key=lambda x: x[-1]),
-    )  # sorted by depth
+    sort = (x[:2] for x in sorted([(pick_key(k), v, len(k)) for k, v in results], key=lambda x: x[-1]))  # sorted by depth
 
     if not climb:
         # We go down the tree, and prioritise the trunk values
@@ -164,10 +161,9 @@ def copy_file(src, dst, ext=None, permissions=None):
         src = src.with_suffix(ext)
         dst = dst.with_suffix(ext)
 
-    logger.debug("Copying from {} to {}".format(src, dst))
-    with open(str(src), "rb") as fin:
-        with open(str(dst), "wb") as fout:
-            shutil.copyfileobj(fin, fout)
+    logger.debug(f"Copying from {src} to {dst}")
+    with open(str(src), "rb") as fin, open(str(dst), "wb") as fout:
+        shutil.copyfileobj(fin, fout)
 
     if permissions is not None:
         os.chmod(str(dst), permissions)

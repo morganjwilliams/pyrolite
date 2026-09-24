@@ -1,6 +1,5 @@
 import unittest
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -146,7 +145,6 @@ class TestAddAgeNoise(unittest.TestCase):
         """
         Ages shouldn't go into the future...?
         """
-        pass
 
 
 if __name__ == "__main__":

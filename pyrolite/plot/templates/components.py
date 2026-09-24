@@ -9,7 +9,7 @@ from ...util.log import Handle
 logger = Handle(__name__)
 
 
-class GeometryCollection(object):
+class GeometryCollection:
     def __init__(self, *objects, **kwargs):
         """Container for geometry objects."""
         self.objects = []
@@ -50,7 +50,7 @@ class GeometryCollection(object):
         return (i for i in self.objects)
 
 
-class Point(object):
+class Point:
     def __init__(self, point, name=None, **kwargs):
         """
         Simple container for a 2D point object with basic utility functions.
@@ -90,7 +90,7 @@ class Point(object):
         )
 
 
-class Linear2D(object):
+class Linear2D:
     def in_tfm(self, x):
         return np.array(x)
 
@@ -185,7 +185,7 @@ class Linear2D(object):
 
     @property
     def equation(self):
-        return " y = {slope} x + {c}".format(slope=self.slope, c=self.intercept)
+        return f" y = {self.slope} x + {self.intercept}"
 
     def invert_axes(self):
         """Reflect the line through the plane x==y."""

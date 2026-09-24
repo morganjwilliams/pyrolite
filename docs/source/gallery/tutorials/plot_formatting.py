@@ -68,8 +68,6 @@ plt.show()
 # after you've made them. For example:
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
-
 fig, ax = plt.subplots(2, 1)
 df[["Al2O3", "TiO2"]].pyroplot.scatter(ax=ax[0])
 ax[0].set_xlabel("Al$_2$O$_3$")
@@ -77,7 +75,7 @@ ax[0].set_ylabel("TiO$_2$")
 
 df[["27Al", "d11B"]].pyroplot.scatter(ax=ax[1])
 ax[1].set_xlabel("$^{27}$Al")
-ax[1].set_ylabel("$\delta^{11}$B")
+ax[1].set_ylabel(r"$\delta^{11}$B")
 
 plt.tight_layout()  # rearrange the plots to fit nicely together
 plt.show()
@@ -122,12 +120,10 @@ plt.show()
 # synthetic datasets, add them to a figure and create the default legend:
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
-
 fig, ax = plt.subplots(1)
 for i in range(3):
     sample_data = normal_frame(columns=["CaO", "MgO", "FeO"])  # a new random sample
-    sample_data[["CaO", "MgO"]].pyroplot.scatter(ax=ax, label="Sample {:d}".format(i))
+    sample_data[["CaO", "MgO"]].pyroplot.scatter(ax=ax, label=f"Sample {i:d}")
 ax.legend()
 plt.show()
 #######################################################################################
@@ -168,8 +164,6 @@ plt.show()
 #
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
-
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_tlabel("Top")
 ax.set_llabel("Left")
@@ -184,8 +178,6 @@ plt.show()
 #
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
-
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.grid()
 plt.show()
@@ -194,8 +186,6 @@ plt.show()
 # for the grid ('major', 'minor' or 'both') and a `linestyle`:
 #
 import matplotlib.pyplot as plt
-
-import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.grid(axis="r", which="both", linestyle="--")
@@ -212,8 +202,6 @@ plt.show()
 # if you're after ways to focus on specific regions.
 #
 import matplotlib.pyplot as plt
-
-import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_ternary_lim(

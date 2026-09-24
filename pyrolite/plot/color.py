@@ -65,7 +65,7 @@ def get_cmode(c=None):
                     convertible = True
                 except (ValueError, TypeError):  # string cannot be converted to color
                     pass
-                if all([isinstance(_c, (np.ndarray, list, tuple)) for _c in c]):
+                if all(isinstance(_c, (np.ndarray, list, tuple)) for _c in c):
                     # could have an error if you put in mixed rgb/rgba
                     if len(c[0]) == 3:
                         cmode = "rgb_array"
@@ -73,17 +73,17 @@ def get_cmode(c=None):
                         cmode = "rgba_array"
                     else:
                         pass
-                elif all([isinstance(_c, str) for _c in c]):
+                elif all(isinstance(_c, str) for _c in c):
                     if convertible:
-                        if all([_c.startswith("#") for _c in c]):
+                        if all(_c.startswith("#") for _c in c):
                             cmode = "hex_array"
-                        elif not any([_c.startswith("#") for _c in c]):
+                        elif not any(_c.startswith("#") for _c in c):
                             cmode = "named_array"
                         else:
                             cmode = "mixed_str_array"
                     else:
                         cmode = "categories"
-                elif all([isinstance(_c, np.number) for _c in np.array(c).flatten()]):
+                elif all(isinstance(_c, np.number) for _c in np.array(c).flatten()):
                     cmode = "value_array"
                 else:
                     if convertible:
@@ -101,11 +101,11 @@ def get_cmode(c=None):
                             )
                         )
     if cmode is None:
-        msg = "Color mode not found for item of type {}".format(type(c))
+        msg = f"Color mode not found for item of type {type(c)}"
         logger.debug(msg)
         raise NotImplementedError(msg)  # single value, mixed numbers, strings etc
     else:
-        logger.debug("Color mode recognized: {}".format(cmode))
+        logger.debug(f"Color mode recognized: {cmode}")
         return cmode
 
 
@@ -118,7 +118,7 @@ def process_color(
     bad="0.5",
     cmap_under=(1, 1, 1, 0.0),
     color_converter=matplotlib.colors.to_rgba,
-    color_mappings={},
+    color_mappings=None,
     size=None,
     **otherkwargs,
 ):
@@ -160,6 +160,8 @@ def process_color(
     This might be mitigated if the context could be checked - e.g. via checking
     keyword argument membership of :func:`~pyrolite.util.plot.style.scatterkwargs` etc.
     """
+    if color_mappings is None:
+        color_mappings = {}
     assert not ((c is not None) and (color is not None))
     for kw in [  # extra color kwargs
         "facecolors",
@@ -203,7 +205,7 @@ def process_color(
             **otherkwargs,
         }
         # the parameter 'c' will override 'facecolor' and related
-        if any([k in d for k in _face_edge_equivalents.keys()]):
+        if any(k in d for k in _face_edge_equivalents):
             d.pop("c", None)
         return d
 
@@ -225,11 +227,7 @@ def process_color(
             "hex_array",
             "named_array",
             "mixed_str_array",
-        ]:
-            C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
-        elif cmode in ["rgb_array", "rgba_array"]:
-            C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
-        elif cmode in ["mixed_fmt_color_array"]:
+        ] or cmode in ["rgb_array", "rgba_array"] or cmode in ["mixed_fmt_color_array"]:
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["value_array"]:
             _C = np.array(C)
@@ -282,10 +280,8 @@ def process_color(
     d = {"color": _color, **otherkwargs}
     # the parameter 'c' will override 'facecolors' and related for markers
     if not any(
-        [
-            k in d
+        k in d
             for k in [item for args in _face_edge_equivalents.items() for item in args]
-        ]
     ):
         d["c"] = _c
     else:

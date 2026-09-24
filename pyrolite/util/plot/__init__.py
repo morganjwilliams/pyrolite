@@ -22,4 +22,4 @@ FONTSIZE = 12
 
 from .export import save_axes, save_figure
 
-__all__ = ["save_figure", "save_axes", "DEFAULT_CONT_COLORMAP", "DEFAULT_DISC_COLORMAP"]
+__all__ = ["DEFAULT_CONT_COLORMAP", "DEFAULT_DISC_COLORMAP", "save_axes", "save_figure"]

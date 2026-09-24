@@ -27,7 +27,7 @@ def normalise_whitespace(strg):
 def remove_prefix(z, prefix):
     """Remove a specific prefix from the start of a string."""
     if z.startswith(prefix):
-        return re.sub(r"^{}".format(prefix), "", z)
+        return re.sub(rf"^{prefix}", "", z)
     else:
         return z
 
@@ -36,21 +36,20 @@ def remove_suffix(x, suffix=" "):
     """
     Remove a specific suffix from the end of a string.
     """
-    if x.endswith(suffix):
-        x = x[: -len(suffix)]
+    x = x.removesuffix(suffix)
     return x
 
 
 def quoted_string(s):
     # if " " in s or '-' in s or '_' in s:
-    s = '''"{}"'''.format(s)
+    s = f'''"{s}"'''
     return s
 
 
 def titlecase(
     s,
-    exceptions=["and", "in", "a"],
-    abbrv=["ID", "IGSN", "CIA", "CIW", "PIA", "SAR", "SiTiIndex", "WIP"],
+    exceptions=None,
+    abbrv=None,
     capitalize_first=True,
     split_on=r"[\.\s_-]+",
     delim="",
@@ -64,6 +63,10 @@ def titlecase(
         * Option for retaining original CamelCase.
     """
     # Check if abbrv in string, in which case it'll need to be split first?
+    if abbrv is None:
+        abbrv = ["ID", "IGSN", "CIA", "CIW", "PIA", "SAR", "SiTiIndex", "WIP"]
+    if exceptions is None:
+        exceptions = ["and", "in", "a"]
     words = re.split(split_on, s)
     out = []
     first = words[0]
@@ -84,8 +87,8 @@ def titlecase(
 
 def string_variations(
     names,
-    preprocess=["lower", "strip"],
-    swaps=[(" ", "_"), (" ", "_"), ("-", " "), ("_", " "), ("-", ""), ("_", "")],
+    preprocess=None,
+    swaps=None,
 ):
     """
     Returns equilvaent string variations based on an input set of strings.
@@ -106,6 +109,10 @@ def string_variations(
         Set (or SortedSet, if sortedcontainers installed) of unique string
         variations.
     """
+    if swaps is None:
+        swaps = [(" ", "_"), (" ", "_"), ("-", " "), ("_", " "), ("-", ""), ("_", "")]
+    if preprocess is None:
+        preprocess = ["lower", "strip"]
     vars = set()
     # convert input to list if singular
     if isinstance(names, str):
@@ -117,7 +124,7 @@ def string_variations(
         for p in preprocess:
             n = getattr(n, p)()
         vars.add(n)
-        if any([s in n for s in swapout]):
+        if any(s in n for s in swapout):
             vars = vars.union([n.replace(*s) for s in swaps])
     return vars
 
@@ -168,24 +175,24 @@ def parse_entry(
         for _l in subparts:
             _m = pattern.match(_l)
             if _m:
-                _d = dict(value=_m.group("value"))
+                _d = {"value": _m.group("value")}
                 # Add other groups
                 _d.update(
                     {
                         k: _m.group(k)
                         for (k, ind) in pattern.groupindex.items()
-                        if not k == "value"
+                        if k != "value"
                     }
                 )
 
             else:
-                _d = dict(value=replace_nan)
+                _d = {"value": replace_nan}
                 # Add other groups
                 _d.update(
                     {
                         k: replace_nan
                         for (k, ind) in pattern.groupindex.items()
-                        if not k == "value"
+                        if k != "value"
                     }
                 )
             matches.append(_d)
@@ -198,11 +205,8 @@ def parse_entry(
 
         return matches
     else:
-        if entry is None:
+        if entry is None or isinstance(entry, float) and np.isnan(entry):
             entry = replace_nan
-        elif isinstance(entry, float):
-            if np.isnan(entry):
-                entry = replace_nan
         if first_only:
             return entry
         else:

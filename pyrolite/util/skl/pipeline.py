@@ -62,7 +62,7 @@ def fit_save_classifier(
     if isinstance(X_train, pd.DataFrame):  # save the features used in the model for ref
         components = [str(i) for i in X_train.columns]
         with open(
-            str(clf_dir / "{}_features.txt".format(name)), "w", encoding="utf-8"
+            str(clf_dir / f"{name}_features.txt"), "w", encoding="utf-8"
         ) as fp:
             fp.write(",".join(components))
     _ = joblib.dump(clf, str(fpath), compress=9)
@@ -70,7 +70,7 @@ def fit_save_classifier(
 
 
 def classifier_performance_report(
-    clf, X_test, y_test, classes=[], directory=".", name="clf"
+    clf, X_test, y_test, classes=None, directory=".", name="clf"
 ):
     """
     Output a performance report for a classifier. Currently outputs the overall
@@ -97,6 +97,8 @@ def classifier_performance_report(
     clf : :class:`sklearn.base.BaseEstimator`
         Fitted classifier.
     """
+    if classes is None:
+        classes = []
     clf_dir = Path(directory) / name
     if not clf_dir.exists():
         clf_dir.mkdir(parents=True)
@@ -107,21 +109,21 @@ def classifier_performance_report(
         params = gs.best_params_
         clf = gs.best_estimator_
     score = clf.score(X_test, y_test)
-    with open(str(clf_dir / "scores_{}.txt".format(name)), "a") as fp:
-        line = "Score: {:01.3g}".format(score)
+    with open(str(clf_dir / f"scores_{name}.txt"), "a") as fp:
+        line = f"Score: {score:01.3g}"
         if gs:  # add the gridsearch parameters
             line += "\t{}\n".format(
-                "\t".join(["{}:{:01.2g}".format(k, v) for k, v in params.items()])
+                "\t".join([f"{k}:{v:01.2g}" for k, v in params.items()])
             )
         fp.write(line)
 
     cmax = plot_confusion_matrix(clf, X_test, y_test, normalize=True, classes=classes)
-    save_figure(cmax.figure, save_at=clf_dir, name="confusion_matrix_{}".format(name))
+    save_figure(cmax.figure, save_at=clf_dir, name=f"confusion_matrix_{name}")
 
     try:
         gsax = plot_gs_results(gs)
         save_figure(
-            gsax.figure, save_at=clf_dir, name="gridsearchresults_{}".format(name)
+            gsax.figure, save_at=clf_dir, name=f"gridsearchresults_{name}"
         )
     except ValueError:  # only one param changed in gridsearch
         pass
@@ -137,7 +139,7 @@ def SVC_pipeline(
     decision_function_shape="ovo",
     probability=False,
     cv=StratifiedKFold(n_splits=10, shuffle=True),
-    param_grid={},
+    param_grid=None,
     n_jobs=4,
     verbose=10,
     cache_size=500,
@@ -198,6 +200,8 @@ def SVC_pipeline(
     -----
     See also: :class:`sklearn.svm.SVC`
     """
+    if param_grid is None:
+        param_grid = {}
     classifier_kwargs = {
         "kernel": kernel,
         "probability": probability,
@@ -229,7 +233,9 @@ def SVC_pipeline(
 
 
 class PdUnion(BaseEstimator, TransformerMixin):
-    def __init__(self, estimators: list = []):
+    def __init__(self, estimators: list | None = None):
+        if estimators is None:
+            estimators = []
         self.estimators = estimators
 
     def fit(self, X, y=None):

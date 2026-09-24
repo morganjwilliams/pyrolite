@@ -84,7 +84,7 @@ def lambdas_ONeill2016(
 
     """
     assert params is not None
-    names, x0, func_components = get_function_components(radii, params=params)
+    names, _x0, func_components = get_function_components(radii, params=params)
     X = np.array(func_components).T
     y = np.array(df)  # make sure it's an array
 

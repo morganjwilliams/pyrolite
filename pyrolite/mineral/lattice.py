@@ -197,7 +197,7 @@ def fit_lattice_strain(
     ys,
     E=None,
     z=3,
-    bounds=[(0.1, 2.2), (273.15, 273.15 + 2700), (0, np.inf)],
+    bounds=None,
     r0=None,
     t0=273.15 + 500,
     d0=1.0,
@@ -234,7 +234,9 @@ def fit_lattice_strain(
     * Passes keyword arguments to :func:`scipy.optimize_curve_fit`.
     """
 
-    popt, pcov = curve_fit(
+    if bounds is None:
+        bounds = [(0.1, 2.2), (273.15, 273.15 + 2700), (0, np.inf)]
+    popt, _pcov = curve_fit(
         partial(_lattice_opt_function, z=z, E=E),
         radii,
         ys,

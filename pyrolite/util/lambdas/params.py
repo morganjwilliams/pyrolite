@@ -68,8 +68,8 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
     x = var("x")
     params = []
     for d in range(degree):
-        ps = symbols("{}0:{}".format(chr(945 + d), d))
-        logger.debug("Generating {} DIM {} equations for {}.".format(d, d, ps))
+        ps = symbols(f"{chr(945 + d)}0:{d}")
+        logger.debug(f"Generating {d} DIM {d} equations for {ps}.")
         if d:
             eqs = []
             for _deg in range(d):
@@ -83,7 +83,7 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
             for q in eqs:
                 sumq = 0.0
                 for xi in xs:
-                    sumq += q.subs(dict(x=xi))
+                    sumq += q.subs({"x": xi})
                 sums.append(sumq)
 
             guess = np.linspace(np.nanmin(xs), np.nanmax(xs), d + 2)[1:-1]
@@ -136,7 +136,7 @@ def _get_params(params=None, degree=4):
             # use standard parameters as used in O'Neill 2016 paper (exclude Eu)
             _ree = [i for i in REE() if i not in ["Eu"]]
         else:
-            msg = "Parameter specification {} not recognised.".format(params)
+            msg = f"Parameter specification {params} not recognised."
             raise NotImplementedError(msg)
         params = orthogonal_polynomial_constants(
             get_ionic_radii(_ree, charge=3, coordination=8),
@@ -145,9 +145,7 @@ def _get_params(params=None, degree=4):
     else:
         # check that params is a tuple or list
         if not isinstance(params, (list, tuple)):
-            msg = "Type {} parameter specification {} not recognised.".format(
-                type(params), params
-            )
+            msg = f"Type {type(params)} parameter specification {params} not recognised."
             raise NotImplementedError(msg)
 
     return params

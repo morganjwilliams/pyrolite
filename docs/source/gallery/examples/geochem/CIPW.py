@@ -35,7 +35,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import pyrolite.geochem
 from pyrolite.util.meta import pyrolite_datafolder
 
 # sphinx_gallery_thumbnail_number = 2

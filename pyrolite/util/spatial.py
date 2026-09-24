@@ -183,9 +183,7 @@ def great_circle_distance(
         size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
         estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size**2
         logger.debug(
-            "Attempting to build {}x{} array of size {:.2f} Gb.".format(
-                size, size, estimated_matrix_size / 1024**3
-            )
+            f"Attempting to build {size}x{size} array of size {estimated_matrix_size / 1024**3:.2f} Gb."
         )
 
         infeasible = (
@@ -195,7 +193,7 @@ def great_circle_distance(
         )
 
         if infeasible:
-            logger.warn(
+            logger.warning(
                 "Angle array for segmented distance matrix larger than maximum memory "
                 "fraction, computing mean global distances instead."
             )
@@ -209,7 +207,7 @@ def great_circle_distance(
                     f(φ1[:, None], φ2[None, :], λ1[:, None], λ2[None, :])
                 )
             except (MemoryError, ValueError):
-                logger.warn(
+                logger.warning(
                     "Cannot directly compute distance matrix, attempting segmented distance"
                     " matrix instead."
                 )
@@ -266,7 +264,7 @@ def piecewise(segment_ranges: list, segments=2, output_fmt=np.float64):
 
 def spatiotemporal_split(
     segments=4,
-    nan_lims=[np.nan, np.nan],
+    nan_lims=None,
     # usebounds=False,
     # order=['minx', 'miny', 'maxx', 'maxy'],
     **kwargs,
@@ -288,6 +286,8 @@ def spatiotemporal_split(
     :class:`dict`
         Iteration through parameter sets for each cell of the grid.
     """
+    if nan_lims is None:
+        nan_lims = [np.nan, np.nan]
     part = 0
     for item in piecewise(kwargs.values(), segments=segments):
         x1s, x2s = item
@@ -297,18 +297,18 @@ def spatiotemporal_split(
             vx1, vx2 = x1s[vix], x2s[vix]
             params[var] = (vx1, vx2)
 
-        items = dict(
-            south=params.get("lat", nan_lims)[0],
-            north=params.get("lat", nan_lims)[1],
-            west=params.get("long", nan_lims)[0],
-            east=params.get("long", nan_lims)[1],
-        )
+        items = {
+            "south": params.get("lat", nan_lims)[0],
+            "north": params.get("lat", nan_lims)[1],
+            "west": params.get("long", nan_lims)[0],
+            "east": params.get("long", nan_lims)[1],
+        }
         if "age" in params:
             items.update(
-                dict(
-                    minage=params.get("age", nan_lims)[0],
-                    maxage=params.get("age", nan_lims)[1],
-                )
+                {
+                    "minage": params.get("age", nan_lims)[0],
+                    "maxage": params.get("age", nan_lims)[1],
+                }
             )
 
         items = {k: v for (k, v) in items.items() if not np.isnan(v)}
@@ -319,7 +319,7 @@ def spatiotemporal_split(
         yield items
 
 
-def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
+def NSEW_2_bounds(cardinal, order=None):
     """
     Translates cardinal points to xy points in the form of bounds.
     Useful for converting to the format required for WFS from REST
@@ -338,6 +338,8 @@ def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
         x-y indexed extent values in the specified order.
 
     """
+    if order is None:
+        order = ["minx", "miny", "maxx", "maxy"]
     tnsltr = {
         xy: c
         for xy, c in zip(

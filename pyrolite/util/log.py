@@ -67,7 +67,7 @@ class ToLogger(io.StringIO):
     buf = ""
 
     def __init__(self, logger, level=None):
-        super(ToLogger, self).__init__()
+        super().__init__()
         self.logger = logger
         if isinstance(level, str):
             level = getattr(logging, level.upper())

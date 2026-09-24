@@ -3,8 +3,8 @@ from ..util.log import Handle
 logger = Handle(__name__)
 
 
-class Site(object):
-    def __init__(self, name=None, coordination=0, affinities={}, mode="cation"):
+class Site:
+    def __init__(self, name=None, coordination=0, affinities=None, mode="cation"):
         """
         Class for specifying mineral sites, including coordination information.
 
@@ -12,6 +12,8 @@ class Site(object):
         site chemistry.
         """
 
+        if affinities is None:
+            affinities = {}
         if name is None:
             name = self.__class__.__name__
         assert mode in ["cation", "anion", "oxygen"]
@@ -26,18 +28,16 @@ class Site(object):
     def __str__(self):
         """Get a string representation of the site."""
         if self.coordination:
-            return """[{}]{}""".format(self.name, self.coordination)
+            return f"""[{self.name}]{self.coordination}"""
         else:
-            return """{}""".format(self.name)
+            return f"""{self.name}"""
 
     def __repr__(self):
         """Get a signature of the site."""
         if self.coordination:
-            return """{}("{}", {})""".format(
-                self.__class__.__name__, self.name, self.coordination
-            )
+            return f"""{self.__class__.__name__}("{self.name}", {self.coordination})"""
         else:
-            return """{}("{}")""".format(self.__class__.__name__, self.name)
+            return f"""{self.__class__.__name__}("{self.name}")"""
 
     def __eq__(self, other):
         """Check for equality between two sites."""
@@ -82,11 +82,13 @@ class TX(Site):
         self,
         name="T",
         coordination=4,
-        affinities={"Si{4+}": 0, "Al{3+}": 1, "Fe{3+}": 2},
+        affinities=None,
         *args,
         mode="cation",
         **kwargs,
     ):
+        if affinities is None:
+            affinities = {"Si{4+}": 0, "Al{3+}": 1, "Fe{3+}": 2}
         super().__init__(name, coordination, *args, affinities=affinities, **kwargs)
 
 
@@ -114,8 +116,10 @@ class OX(Site):
     """
 
     def __init__(
-        self, name="O", coordination=0, affinities={"O{2-}": 0}, *args, **kwargs
+        self, name="O", coordination=0, affinities=None, *args, **kwargs
     ):
+        if affinities is None:
+            affinities = {"O{2-}": 0}
         super().__init__(
             name, coordination, *args, affinities=affinities, mode="oxygen", **kwargs
         )

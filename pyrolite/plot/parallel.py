@@ -59,7 +59,7 @@ def parallel(
 
     colors = process_color(**kwargs)
 
-    [kwargs.pop(x, None) for x in colors.keys()]  # so colors aren't added twice
+    [kwargs.pop(x, None) for x in colors]  # so colors aren't added twice
 
     parallel_coordinates(
         samples.loc[:, [target] + non_target],

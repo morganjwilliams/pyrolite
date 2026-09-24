@@ -2,7 +2,6 @@ import unittest
 
 import numpy as np
 
-import pyrolite.comp
 from pyrolite.geochem.ind import REE
 from pyrolite.util.synthetic import normal_frame
 
@@ -24,13 +23,13 @@ class TestPyroComp(unittest.TestCase):
         dfval = df["SiO2"].values[0]
         out = df.pyrocomp.renormalise()  # renorm
         self.assertTrue(df["SiO2"].values[0] == dfval)  # check original hasn't changed
-        self.assertTrue((np.allclose(out.sum(axis=1), 100.0)))  # check output
+        self.assertTrue(np.allclose(out.sum(axis=1), 100.0))  # check output
 
     def test_renormalise_components(self):
         df = self.tridf.copy(deep=True) * 100  # copy df
         out = df.pyrocomp.renormalise(components=self.cols[:2])  # renorm
         self.assertTrue(
-            (np.allclose(out[self.cols[:2]].sum(axis=1), 100.0))
+            np.allclose(out[self.cols[:2]].sum(axis=1), 100.0)
         )  # check output
 
     def test_ALR_default(self):

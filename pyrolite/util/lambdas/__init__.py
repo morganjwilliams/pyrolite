@@ -19,9 +19,9 @@ def calc_lambdas(
     df,
     params=None,
     degree=4,
-    exclude=[],
+    exclude=None,
     algorithm="ONeill",
-    anomalies=[],
+    anomalies=None,
     fit_tetrads=False,
     sigmas=None,
     add_uncertainties=False,
@@ -80,6 +80,10 @@ def calc_lambdas(
 
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
+    if anomalies is None:
+        anomalies = []
+    if exclude is None:
+        exclude = []
     params = _get_params(params=params, degree=degree)
     if fit_tetrads and ("oneill" in algorithm.lower()):
         logger.warning(
@@ -138,7 +142,7 @@ def calc_lambdas(
         logger.debug("Calculating anomalies.")
         # radii here use all the REE columns in df, including those excluded
         ree = df.pyrochem.list_REE
-        names, x0, func_components = get_function_components(
+        _names, _x0, func_components = get_function_components(
             get_ionic_radii(ree, charge=3, coordination=8),
             params=params,
             fit_tetrads=fit_tetrads,
@@ -158,5 +162,5 @@ def calc_lambdas(
         for anomaly in anomalies:  # add anomalies in linear (not log) space
             assert anomaly in rdiff.columns
             # log residuals are linear ratios, can back-transform
-            ls["{}/{}*".format(anomaly, anomaly)] = np.exp(rdiff[anomaly])
+            ls[f"{anomaly}/{anomaly}*"] = np.exp(rdiff[anomaly])
     return ls

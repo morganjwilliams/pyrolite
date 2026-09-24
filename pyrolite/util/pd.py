@@ -41,7 +41,7 @@ def read_table(filepath, index_col=0, **kwargs):
     ext = filepath.suffix.replace(".", "")
     assert ext in ["xls", "xlsx", "csv"]
     if ext in ["xls", "xlsx"]:
-        reader, kw = pd.read_excel, dict(engine="openpyxl")
+        reader, kw = pd.read_excel, {"engine": "openpyxl"}
     elif ext in ["csv"]:
         reader, kw = pd.read_csv, {}
     else:
@@ -74,7 +74,7 @@ def column_ordered_append(df1, df2, **kwargs):
     return pd.concat([df1, df2], axis=0, **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
+def accumulate(dfs, ignore_index=False, trace_source=False, names=None):
     """
     Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single
     frame.
@@ -95,6 +95,8 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     :class:`pandas.DataFrame`
         Accumulated dataframe.
     """
+    if names is None:
+        names = []
     acc = None
     for ix, df in enumerate(dfs):
         if trace_source:
@@ -131,7 +133,7 @@ def to_frame(ser):
         else:
             df = ser
     else:
-        msg = "Conversion from {} to dataframe not yet implemented".format(type(ser))
+        msg = f"Conversion from {type(ser)} to dataframe not yet implemented"
         raise NotImplementedError(msg)
 
     return df
@@ -163,13 +165,13 @@ def to_ser(df):
         else:
             ser = df.iloc[0, :]
     else:
-        msg = "Conversion from {} to series not yet implemented".format(type(df))
+        msg = f"Conversion from {type(df)} to series not yet implemented"
         raise NotImplementedError(msg)
 
     return ser
 
 
-def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
+def to_numeric(df, errors: str = "coerce", exclude=None):
     """
     Converts non-numeric columns to numeric type where possible.
 
@@ -179,6 +181,8 @@ def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
     Avoid using .loc or .iloc on the LHS to make sure that data dtypes
     are propagated.
     """
+    if exclude is None:
+        exclude = ["float", "int"]
     cols = df.select_dtypes(exclude=exclude).columns
     df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)
     return df
@@ -214,7 +218,7 @@ def zero_to_nan(df, rtol=1e-5, atol=1e-8):
 
 def outliers(
     df,
-    cols=[],
+    cols=None,
     detect=lambda x, quantile, qntls: (
         (x > quantile.loc[qntls[0], x.name]) & (x < quantile.loc[qntls[1], x.name])
     ),
@@ -223,6 +227,8 @@ def outliers(
     exclude=False,
 ):
     """ """
+    if cols is None:
+        cols = []
     if not cols:
         cols = df.columns
     _df = df.select_dtypes(include=[np.number])
@@ -259,7 +265,7 @@ def concat_columns(df, columns=None, astype=str, **kwargs):
     """
     if columns is None:
         columns = df.columns
-    kwargs = {**dict(dtype="object"), **kwargs}
+    kwargs = {"dtype": "object", **kwargs}
     out = pd.Series(index=df.index, **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:

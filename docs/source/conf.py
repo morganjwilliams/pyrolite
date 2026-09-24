@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # pyrolite documentation build configuration file, created by
 # sphinx-quickstart on Tue Sep 18 13:48:13 2018.
@@ -31,7 +30,6 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../."))
 sys.path.insert(0, os.path.abspath("../.."))
 # pip install git+https://github.com/rtfd/recommonmark.git@master
-import recommonmark
 from recommonmark.transform import AutoStructify
 
 import pyrolite
@@ -329,9 +327,7 @@ refcomps = (
                     )
                     + (
                         [
-                            "<br><b>doi</b>: <a href='https://dx.doi.org/{}'>{}</a>".format(
-                                refs[n].doi, refs[n].doi
-                            )
+                            f"<br><b>doi</b>: <a href='https://dx.doi.org/{refs[n].doi}'>{refs[n].doi}</a>"
                         ]
                         if refs[n].doi
                         else []
@@ -343,14 +339,14 @@ refcomps = (
     )
     + "</dl>"
 )
-rst_prolog = """
+rst_prolog = f"""
 .. |br| raw:: html
 
    <br />
 
 .. |year| raw:: html
 
-    {year}
+    {date.today().year!s}
 
 .. |version| raw:: html
 
@@ -358,7 +354,7 @@ rst_prolog = """
 
 .. |refcomps| raw:: html
 
-    {rc}
+    {refcomps}
 
 .. |doibadages| raw:: html
 
@@ -370,7 +366,7 @@ rst_prolog = """
     <img src="https://zenodo.org/badge/137172322.svg" alt="Archive">
     </a>
 
-""".format(rc=refcomps, year=str(date.today().year), version=version)
+"""
 
 rst_prolog += """
 
@@ -424,7 +420,7 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     """
     Role for matplotlib's rcparams, which are referred to in the documentation via links.
     """
-    rendered = nodes.Text('rcParams["{}"]'.format(text))
+    rendered = nodes.Text(f'rcParams["{text}"]')
     refuri = "https://matplotlib.org/api/matplotlib_configuration_api.html#matplotlib.rcParams"
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
     return [nodes.literal("", "", ref)], []

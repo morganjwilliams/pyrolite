@@ -25,9 +25,9 @@ class TestClose(unittest.TestCase):
     """Tests array closure operator."""
 
     def setUp(self):
-        self.X1_1R = np.ones((1)) * 0.2
+        self.X1_1R = np.ones(1) * 0.2
         self.X1_10R = np.ones((10, 1)) * 0.2
-        self.X10_1R = np.ones((10)) * 0.2
+        self.X10_1R = np.ones(10) * 0.2
         self.X10_10R = np.ones((10, 10)) * 0.2
 
     def test_closure_1D(self):
@@ -67,7 +67,6 @@ class TestRenormalise(unittest.TestCase):
 
     def test_components_selection(self):
         """Checks partial closure for different sets of components."""
-        pass
 
 
 class TestALR(unittest.TestCase):

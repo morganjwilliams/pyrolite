@@ -79,7 +79,7 @@ def replace_with_ternary_axis(ax):
     return tax
 
 
-def label_axes(ax, labels=[], **kwargs):
+def label_axes(ax, labels=None, **kwargs):
     """
     Convenience function for labelling rectilinear and ternary axes.
 
@@ -90,6 +90,8 @@ def label_axes(ax, labels=[], **kwargs):
     labels : :class:`list`
         List of labels: [x, y] | or [t, l, r]
     """
+    if labels is None:
+        labels = []
     if (ax.name == "ternary") and (len(labels) == 3):
         tvar, lvar, rvar = labels
         ax.set_tlabel(tvar, **kwargs)
@@ -164,10 +166,7 @@ def check_empty(ax):
     -------
     :class:`bool`
     """
-    if not (ax.lines + ax.collections + ax.patches + ax.artists + ax.texts + ax.images):
-        return True
-    else:
-        return False
+    return bool(not ax.lines + ax.collections + ax.patches + ax.artists + ax.texts + ax.images)
 
 
 def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
@@ -187,7 +186,7 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
     --------
     ax : :class:`~matplotlib.axes.Axes`
     """
-    if "figsize" in kwargs.keys():
+    if "figsize" in kwargs:
         fs = kwargs["figsize"]
         kwargs["figsize"] = (
             max(fs[0], minsize),
@@ -197,7 +196,7 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
         if ax is None:
             fig, ax = plt.subplots(
                 1,
-                subplot_kw=dict(projection=projection),
+                subplot_kw={"projection": projection},
                 **subkwargs(kwargs, plt.subplots, plt.figure),
             )
         else:  # axes passed
@@ -212,12 +211,12 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
                 except ValueError:  # ax is not in list
                     # ASSUMPTION due to mis-referencing:
                     # take the first ternary one
-                    ax = [a for a in current_axes if a.name == "ternary"][0]
+                    ax = next(a for a in current_axes if a.name == "ternary")
             else:
                 pass
     else:
         if ax is None:
-            fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+            _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
     return ax
 
 
@@ -269,7 +268,7 @@ def get_twins(ax, which="y"):
     if "x" in which:
         s += ax.get_shared_x_axes().get_siblings(ax)
     return list(
-        set([a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)])
+        {a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)}
     )
 
 

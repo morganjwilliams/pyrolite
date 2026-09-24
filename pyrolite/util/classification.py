@@ -51,7 +51,7 @@ def _read_poly(poly):
     ]
 
 
-class PolygonClassifier(object):
+class PolygonClassifier:
     """
     A classifier model built form a series of polygons defining specific classes.
 
@@ -169,7 +169,7 @@ class PolygonClassifier(object):
         X = self.transform(X) * rescale_by  # transformed X
         indexes = np.array([p.contains_points(X) for p in polys]).T
         notfound = np.logical_not(indexes.sum(axis=-1))
-        outlist = list(map(lambda ix: classes[ix], np.argmax(indexes, axis=-1)))
+        outlist = [classes[ix] for ix in np.argmax(indexes, axis=-1)]
         out.loc[:] = outlist
         out.loc[(notfound)] = "none"
         # for those which are none, we could check if they're on polygon boundaries
@@ -233,9 +233,7 @@ class PolygonClassifier(object):
             if self.projection:
                 if not isinstance(ax, get_projection_class(self.projection)):
                     logger.warning(
-                        "Projection of axis for {} should be {}.".format(
-                            self.name or self.__class.__name__, self.projection
-                        )
+                        f"Projection of axis for {self.name or self.__class.__name__} should be {self.projection}."
                     )
         rescale_by = 1.0
         if axes_scale is not None:  # rescale polygons to fit ax
@@ -350,7 +348,7 @@ class PolygonClassifier(object):
             **kwargs,
         )
         if self.axes is not None:
-            ax.set(**{"{}label".format(a): var for a, var in self.axes.items()})
+            ax.set(**{f"{a}label": var for a, var in self.axes.items()})
         return ax
 
 
@@ -413,7 +411,7 @@ class TAS(PolygonClassifier):
 
         with open(src, "r") as f:
             config = json.load(f)
-        kw = dict(scale=100.0, xlim=[30, 90], ylim=[0, 20])
+        kw = {"scale": 100.0, "xlim": [30, 90], "ylim": [0, 20]}
         kw.update(kwargs)
         poly_config = {**config, **kw}
         super().__init__(**poly_config)
@@ -504,7 +502,7 @@ class TAS(PolygonClassifier):
                     else:  # use the field identifier
                         raise NotImplementedError(
                             "Invalid specification for labels: {}; chose from {}".format(
-                                which_labels, ", ".join(["volcanic", "intrusive", "ID"])
+                                which_labels, "volcanic, intrusive, ID"
                             )
                         )
                     verts = np.array(_read_poly(cfg["poly"])) * rescale_by
@@ -643,7 +641,7 @@ class FeldsparTernary(PolygonClassifier):
         super().__init__(**poly_config)
 
 
-class PeralkalinityClassifier(object):
+class PeralkalinityClassifier:
     def __init__(self):
         self.fields = None
 

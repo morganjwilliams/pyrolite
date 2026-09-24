@@ -6,7 +6,7 @@ from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.geochem.transform import *
 from pyrolite.util.lambdas import orthogonal_polynomial_constants
-from pyrolite.util.synthetic import normal_frame, normal_series
+from pyrolite.util.synthetic import normal_frame
 
 
 class TestToMolecular(unittest.TestCase):
@@ -184,7 +184,7 @@ class TestOxideConversion(unittest.TestCase):
                 f = oxide_conversion(oxin, oxout)
                 doc = f.__doc__
                 self.assertTrue((str(oxin) in doc) and (str(oxin) in doc))
-                self.assertTrue("{} to {}".format(oxin, oxout) in doc)
+                self.assertTrue(f"{oxin} to {oxout}" in doc)
 
     def test_same(self):
         """Check the function retains unit for the same in-out."""
@@ -310,7 +310,7 @@ class TestAggregateElement(unittest.TestCase):
         df = self.df
         to = {"FeO": 0.9, "Fe2O3": 0.1}
         outdf = aggregate_element(df, to=to)
-        self.assertTrue(all([t in outdf.columns for t in to.keys()]))
+        self.assertTrue(all([t in outdf.columns for t in to]))
 
     def test_renorm(self):
         """Checks closure is achieved when renorm is used with a dict."""
@@ -413,23 +413,18 @@ class TestAddMgNo(unittest.TestCase):
 
     def test_weight_oxides(self):
         """Check accuracy of weight oxide data."""
-        pass
 
     def test_molecular_oxides(self):
         """Check accuracy of molecular oxide data."""
-        pass
 
     def test_weight_elemental(self):
         """Check accuracy of weight elemental data."""
-        pass
 
     def test_molecular_elemental(self):
         """Check accuracy of molecular elemental data."""
-        pass
 
     def test_Fe_components(self):
         """Check that the function works for multiple component Fe."""
-        pass
 
 
 class TestLambdaLnREE(unittest.TestCase):
@@ -496,7 +491,6 @@ class TestLambdaLnREE(unittest.TestCase):
         Test the boolean toggle for allowing lambda calculations for rows with missing
         data.
         """
-        pass
 
     def test_min_elements(self):
         """

@@ -41,12 +41,12 @@ def scale(in_unit, target_unit="ppm"):
     target_unit = str(target_unit).lower()
     if (
         not pd.isna(in_unit)
-        and (in_unit in __UNITS__.keys())
-        and (target_unit in __UNITS__.keys())
+        and (in_unit in __UNITS__)
+        and (target_unit in __UNITS__)
     ):
         scale = __UNITS__[in_unit] / __UNITS__[target_unit]
     else:
         unkn = [i for i in [in_unit, target_unit] if i not in __UNITS__]
-        logger.info("Units not known: {}. Defaulting to unity.".format(unkn))
+        logger.info(f"Units not known: {unkn}. Defaulting to unity.")
         scale = 1.0
     return scale

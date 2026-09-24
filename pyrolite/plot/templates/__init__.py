@@ -19,15 +19,15 @@ from .USDA_soil_texture import USDASoilTexture
 logger = Handle(__name__)
 
 __all__ = [
-    "pearceThNbYb",
-    "pearceTiNbYb",
-    "JensenPlot",
-    "TAS",
-    "USDASoilTexture",
     "QAP",
+    "TAS",
     "FeldsparTernary",
+    "Herron",
+    "JensenPlot",
+    "Pettijohn",
     "SpinelFeBivariate",
     "SpinelTrivalentTernary",
-    "Pettijohn",
-    "Herron",
+    "USDASoilTexture",
+    "pearceThNbYb",
+    "pearceTiNbYb",
 ]

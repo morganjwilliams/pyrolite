@@ -66,7 +66,7 @@ NORM_MINERALS = {
 }
 
 # Add standard masses to minerals
-for mineral in NORM_MINERALS.keys():
+for mineral in NORM_MINERALS:
     NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"]).mass
 
 
@@ -117,7 +117,12 @@ def unmix(comp, parts, order=1, det_lim=0.0001):
 
 
 def endmember_decompose(
-    composition, endmembers=[], drop_zeros=True, molecular=True, order=1, det_lim=0.0001
+    composition,
+    endmembers=None,
+    drop_zeros=True,
+    molecular=True,
+    order=1,
+    det_lim=0.0001,
 ):
     """
     Decompose a given mineral composition to given endmembers.
@@ -143,6 +148,8 @@ def endmember_decompose(
     :class:`pandas.DataFrame`
     """
     # parse composition ----------------------------------------------------------------
+    if endmembers is None:
+        endmembers = []
     assert isinstance(composition, (pd.DataFrame, pd.Series, pt.formulas.Formula, str))
     if not isinstance(
         composition, pd.DataFrame
@@ -203,30 +210,30 @@ def endmember_decompose(
 ################################################################################
 
 # fuctions which map <TAS field, [SiO2, Na2O + K2O]> to Fe2O3/FeO ratios.
-_MiddlemostTASRatios = dict(
-    F=lambda t, x: 0.4 if x[1] > 10 else 0.3,
-    F1=lambda t, x: 0.1,
-    F2=lambda t, x: 0.2,
-    F3=lambda t, x: 0.3,
-    F4=lambda t, x: 0.4,
-    Ph=lambda t, x: 0.5,
-    T1=lambda t, x: 0.5,
-    T2=lambda t, x: 0.5,
-    R=lambda t, x: 0.5,
-    O3=lambda t, x: 0.4,
-    S3=lambda t, x: 0.4,
-    U3=lambda t, x: 0.4,
-    O2=lambda t, x: 0.35,
-    S2=lambda t, x: 0.35,
-    U2=lambda t, x: 0.35,
-    O1=lambda t, x: 0.3,
-    S1=lambda t, x: 0.3,
-    U1=lambda t, x: 0.3 if x[1] > 6 else 0.2,
-    Ba=lambda t, x: 0.2,
-    Bs=lambda t, x: 0.2,
-    Pc=lambda t, x: 0.15,
-    none=lambda t, x: 0.15,
-)
+_MiddlemostTASRatios = {
+    "F": lambda t, x: 0.4 if x[1] > 10 else 0.3,
+    "F1": lambda t, x: 0.1,
+    "F2": lambda t, x: 0.2,
+    "F3": lambda t, x: 0.3,
+    "F4": lambda t, x: 0.4,
+    "Ph": lambda t, x: 0.5,
+    "T1": lambda t, x: 0.5,
+    "T2": lambda t, x: 0.5,
+    "R": lambda t, x: 0.5,
+    "O3": lambda t, x: 0.4,
+    "S3": lambda t, x: 0.4,
+    "U3": lambda t, x: 0.4,
+    "O2": lambda t, x: 0.35,
+    "S2": lambda t, x: 0.35,
+    "U2": lambda t, x: 0.35,
+    "O1": lambda t, x: 0.3,
+    "S1": lambda t, x: 0.3,
+    "U1": lambda t, x: 0.3 if x[1] > 6 else 0.2,
+    "Ba": lambda t, x: 0.2,
+    "Bs": lambda t, x: 0.2,
+    "Pc": lambda t, x: 0.15,
+    "none": lambda t, x: 0.15,
+}
 
 
 def MiddlemostOxRatio(df):
@@ -443,7 +450,7 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
         Dataframe containing columns which include corrected molecular masses
         for specific oxide components.
     """
-    for mineral, data in mineral_dict.items():
+    for data in mineral_dict.values():
         composition = data["formulae"]
         masses = 0.0
         for oxide in composition.split():
@@ -481,11 +488,11 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
     corrected_mass : :class:`pandas.DataFrame`
         Dataframe to put corrected masses.
     """
-    target = "n_{}_corr".format(to_component)
+    target = f"n_{to_component}_corr"
     # ensure the main component is included..
     from_components = list(set([to_component] + from_components))
-    n_components = ["{}".format(f) for f in from_components]
-    x_components = ["x_{}".format(f) for f in from_components]
+    n_components = [f"{f}" for f in from_components]
+    x_components = [f"x_{f}" for f in from_components]
     df[target] = df[n_components].sum(axis=1)
     logger.debug("Aggregating {} to {}.".format(",".join(n_components), target))
     df[x_components] = df[n_components].div(df[target], axis=0)
@@ -629,7 +636,7 @@ def CIPW_norm(
         df.loc[fltr, ["FeO", "Fe2O3"]] = Middlemost_Fe_correction(df.loc[fltr, :])
     else:
         raise NotImplementedError(
-            "Iron correction {} not recognised.".format(Fe_correction)
+            f"Iron correction {Fe_correction} not recognised."
         )
 
     # select just the columns we'll use; remove e.g. FeOT, Fe2O3T which have been recalcuated
@@ -1248,7 +1255,7 @@ def CIPW_norm(
     mineral_proportions = pd.DataFrame()
     mineral_pct_mm = pd.DataFrame()
 
-    for mineral in minerals.keys():
+    for mineral in minerals:
         if mineral == ["Ap"]:
             # deal with the results of apatite options
             # get the abundance weighted total mass of apatite where split

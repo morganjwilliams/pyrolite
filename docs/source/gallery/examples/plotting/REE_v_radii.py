@@ -4,10 +4,6 @@ REE Radii Plots
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-from pyrolite.plot import pyroplot
 
 # sphinx_gallery_thumbnail_number = 3
 ########################################################################################

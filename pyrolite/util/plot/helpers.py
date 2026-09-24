@@ -101,7 +101,7 @@ def get_visual_center(poly, vertical_exaggeration=1):
     """
     poly_scaled = np.array([poly.get_xy() * [1.0, vertical_exaggeration]])
     x, y = visual_center(poly_scaled)
-    return tuple([x, y / vertical_exaggeration])
+    return (x, y / vertical_exaggeration)
 
 
 def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
@@ -109,7 +109,7 @@ def rect_from_centre(x, y, dx=0, dy=0, **kwargs):
     Takes an xy point, and creates a rectangular patch centred about it.
     """
     # If either x or y is nan
-    if any([np.isnan(i) for i in [x, y]]):
+    if any(np.isnan(i) for i in [x, y]):
         return None
     if np.isnan(dx):
         dx = 0
@@ -134,7 +134,7 @@ def draw_vector(v0, v1, ax=None, **kwargs):
 
     """
     ax = ax
-    arrowprops = dict(arrowstyle="->", linewidth=2, shrinkA=0, shrinkB=0)
+    arrowprops = {"arrowstyle": "->", "linewidth": 2, "shrinkA": 0, "shrinkB": 0}
     arrowprops.update(kwargs)
     ax.annotate("", v1, v0, arrowprops=arrowprops)
 
@@ -194,7 +194,7 @@ def plot_stdev_ellipses(
             if transform(comp).shape[1] == 3:
                 projection = "ternary"
 
-        fig, ax = plt.subplots(1, subplot_kw=dict(projection=projection))
+        _fig, ax = plt.subplots(1, subplot_kw={"projection": projection})
 
     for nstd in np.arange(1, nstds + 1)[::-1]:  # backwards for svg construction
         # here we use the absolute eigenvalues
@@ -262,7 +262,7 @@ def plot_pca_vectors(
     pca.fit(comp)
 
     if ax is None:
-        fig, ax = plt.subplots(1)
+        _fig, ax = plt.subplots(1)
 
     items = [pca.explained_variance_, pca.components_]
     if linestyles is not None:
@@ -294,14 +294,14 @@ def plot_2dhull(data, ax=None, splines=False, s=0, **plotkwargs):
     Plots a 2D convex hull around an array of xy data points.
     """
     if ax is None:
-        fig, ax = plt.subplots(1)
+        _fig, ax = plt.subplots(1)
     chull = scipy.spatial.ConvexHull(data, incremental=True)
     x, y = data[chull.vertices].T
     if not splines:
         lines = ax.plot(np.append(x, [x[0]]), np.append(y, [y[0]]), **plotkwargs)
     else:
         # https://stackoverflow.com/questions/33962717/interpolating-a-closed-curve-using-scipy
-        tck, u = scipy.interpolate.splprep([x, y], per=True, s=s)
+        tck, _u = scipy.interpolate.splprep([x, y], per=True, s=s)
         xi, yi = scipy.interpolate.splev(np.linspace(0, 1, 1000), tck)
         lines = ax.plot(xi, yi, **plotkwargs)
     return lines
@@ -329,7 +329,7 @@ def plot_cooccurence(arr, ax=None, normalize=True, log=False, colorbar=False, **
     """
     arr = np.array(arr)
     if ax is None:
-        fig, ax = plt.subplots(1, figsize=(4 + [0.0, 0.2][colorbar], 4))
+        _fig, ax = plt.subplots(1, figsize=(4 + [0.0, 0.2][colorbar], 4))
     co_occur = cooccurence_pattern(arr, normalize=normalize, log=log)
     heatmap = ax.pcolor(co_occur, **kwargs)
     ax.set_yticks(np.arange(co_occur.shape[0]) + 0.5, minor=False)
@@ -364,7 +364,7 @@ def nan_scatter(xdata, ydata, ax=None, axes_width=0.2, **kwargs):
 
     """
     if ax is None:
-        fig, ax = plt.subplots(1)
+        _fig, ax = plt.subplots(1)
 
     ax.scatter(xdata, ydata, **kwargs)
 
@@ -493,7 +493,7 @@ def init_spherical_octant(
     ax : :class:`matplotlib.axes.Axes3D`
         Initialized 3D axis.
     """
-    ax = init_axes(subplot_kw=dict(projection="3d"), **kwargs)
+    ax = init_axes(subplot_kw={"projection": "3d"}, **kwargs)
 
     ax.view_init(*view_init)
     ax.set_xlabel("x")

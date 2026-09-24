@@ -77,8 +77,8 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     # ensures shape is fine even if row is passed
     ksamples = ksamples.reshape(-1, tdata.shape[1])
 
-    if not tdata.shape[1] == ksamples.shape[1]:
-        logger.warn("Dimensions of data and samples do not match.")
+    if tdata.shape[1] != ksamples.shape[1]:
+        logger.warning("Dimensions of data and samples do not match.")
 
     kfltr = np.isfinite(ksamples).all(axis=1)
     zi = np.ones(zshape, dtype=float) * np.nan

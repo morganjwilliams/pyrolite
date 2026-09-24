@@ -96,7 +96,6 @@ class TestMultipleCationInclusion(unittest.TestCase):
     def test_exclusion(self):
         """Checks that exclusions are properly handled."""
         # Check that excluded components aren't considered
-        pass
 
     def test_output(self):
         """Checks that the list returned is complete."""
@@ -105,7 +104,6 @@ class TestMultipleCationInclusion(unittest.TestCase):
 
         # Check precise
 
-        pass
 
 
 class TestReprIsotopeRatio(unittest.TestCase):

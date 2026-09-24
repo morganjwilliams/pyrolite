@@ -217,10 +217,10 @@ class TestDFFromCSVs(unittest.TestCase):
     def setUp(self):
         self.dir = temp_path()
         names = ["a", "b", "c"]
-        self.files = [self.dir / "{}.csv".format(n) for n in names]
+        self.files = [self.dir / f"{n}.csv" for n in names]
         for n, fn in zip(names, self.files):  # make some csvs
             with open(str(fn), "w") as f:
-                f.write("C1,C{}\n{},{}\n{},{}".format(n, n, n, n, n))
+                f.write(f"C1,C{n}\n{n},{n}\n{n},{n}")
 
     def normal_frame_generation(self):
         df = df_from_csvs(self.files)

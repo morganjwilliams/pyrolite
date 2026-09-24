@@ -3,10 +3,7 @@ Unit Scaling
 =============
 """
 
-import numpy as np
 import pandas as pd
-
-import pyrolite.geochem
 
 pd.set_option("display.precision", 3)  # smaller outputs
 ########################################################################################

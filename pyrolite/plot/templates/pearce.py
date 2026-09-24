@@ -37,7 +37,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
     """
     xlim, ylim = (0.1, 100), (0.01, 10)
     if ax is None:
-        fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+        _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
     else:
         # if the axes limits are not defaults, update to reflect the axes
         defaults = (0, 1)
@@ -98,7 +98,7 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
     # Nb/Yb < 1.45 (CI Chondrite) = NMORB, Nb/Yb > 1.45 (CI Chondrite) EMORB
     xlim, ylim = (0.1, 100), (0.1, 10)
     if ax is None:
-        fig, ax = plt.subplots(1)
+        _fig, ax = plt.subplots(1)
     else:
         # if the axes limits are not defaults, update to reflect the axes
         defaults = (0, 1)

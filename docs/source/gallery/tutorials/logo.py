@@ -10,17 +10,13 @@ Making the Logo
 # show distribution of (homogeneous, or near so) compositional data for exploratory
 # analysis.
 #
-import matplotlib
-import matplotlib.cm
-import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import pyrolite.plot
 from pyrolite.comp.codata import *
 from pyrolite.util.plot.helpers import plot_pca_vectors, plot_stdev_ellipses
-from pyrolite.util.skl.transform import ALRTransform, ILRTransform
+from pyrolite.util.skl.transform import ILRTransform
 from pyrolite.util.synthetic import random_composition
 
 # sphinx_gallery_thumbnail_number = 6
@@ -91,7 +87,7 @@ _ = [[x.set_ticks([]) for x in [a.taxis, a.laxis, a.raxis]] for a in ax]
 #
 kwargs = dict(alpha=0.2, s=3, no_ticks=True, axlabels=False)
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample))
+    comp = df.query(f"Sample == {sample}")
     comp.loc[:, chem].pyroplot.scatter(ax=ax[0], c=t10b3[ix], **kwargs)
 plt.show()
 #######################################################################################
@@ -101,7 +97,7 @@ plt.show()
 kwargs = dict(ax=ax[1], transform=from_log, nstds=3)
 ax[1].set_title("Covariance Ellipses and PCA Vectors")
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample))
+    comp = df.query(f"Sample == {sample}")
     tcomp = to_log(comp.loc[:, chem])
     plot_stdev_ellipses(tcomp.values, color=t10b3[ix], resolution=1000, **kwargs)
     plot_pca_vectors(tcomp.values, ls="-", lw=0.5, color="k", **kwargs)
@@ -114,7 +110,7 @@ kwargs = dict(ax=ax[-2], bins=100, axlabels=False)
 ax[-2].set_title("Individual Density, with Contours")
 
 for ix, sample in enumerate(df.Sample.unique()):
-    comp = df.query("Sample == {}".format(sample))
+    comp = df.query(f"Sample == {sample}")
     comp.loc[:, chem].pyroplot.density(cmap="Blues", vmin=0.05, **kwargs)
     comp.loc[:, chem].pyroplot.density(
         contours=[0.68, 0.95],

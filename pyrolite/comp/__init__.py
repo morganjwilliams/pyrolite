@@ -44,7 +44,7 @@ def attribute_transform(f, *args, **kwargs):
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrocomp")
 @pd.api.extensions.register_dataframe_accessor("pyrocomp")
-class pyrocomp(object):
+class pyrocomp:
     def __init__(self, obj):
         """
         Custom dataframe accessor for pyrolite compositional transforms.
@@ -56,7 +56,7 @@ class pyrocomp(object):
     def _validate(obj):
         pass
 
-    def renormalise(self, components: list = [], scale=100.0):
+    def renormalise(self, components: list | None = None, scale=100.0):
         """
         Renormalises compositional data to ensure closure.
 
@@ -80,11 +80,13 @@ class pyrocomp(object):
         If you specify components, those components will be summed to 100%,
         and others remain unchanged.
         """
+        if components is None:
+            components = []
         obj = self._obj
         return codata.renormalise(obj, components=components, scale=scale)
 
     @attribute_transform
-    def ALR(self, components=[], ind=-1, null_col=False, label_mode="simple"):
+    def ALR(self, components=None, ind=-1, null_col=False, label_mode="simple"):
         """
         Additive Log Ratio transformation.
 
@@ -100,6 +102,8 @@ class pyrocomp(object):
         :class:`pandas.DataFrame`
             ALR-transformed array, of shape :code:`(N, D-1)`.
         """
+        if components is None:
+            components = []
         components = self._obj.columns.values.tolist()
 
         if isinstance(ind, int):

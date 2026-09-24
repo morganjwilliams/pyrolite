@@ -45,7 +45,6 @@ ts.text2age("Holocene")
 # We can use this to create a simple template to visualise the geological timescale:
 #
 import matplotlib.pyplot as plt
-import pandas as pd
 
 fig, ax = plt.subplots(1, figsize=(5, 10))
 
@@ -107,8 +106,7 @@ for ix, level in enumerate(ts.levels[::-1]):
                         break
                 if bound_level in xlims:
                     _l, _r = xlims[bound_level]
-                    if _r > left:
-                        left = _r
+                    left = max(left, _r)
 
             rect = Rectangle(
                 (left, period.End),
@@ -119,7 +117,7 @@ for ix, level in enumerate(ts.levels[::-1]):
             )
             ax.add_artist(rect)
 
-ax.set_xticks([np.mean(xlims[lvl]) for lvl in xlims.keys()])
+ax.set_xticks([np.mean(xlims[lvl]) for lvl in xlims])
 ax.set_xticklabels(xlims.keys(), rotation=60)
 ax.xaxis.set_ticks_position("top")
 ax.set_xlim(0, 7)

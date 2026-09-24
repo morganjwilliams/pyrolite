@@ -1,4 +1,4 @@
-"""
+r"""
 Spherical Coordinate Transformations
 ------------------------------------
 
@@ -53,7 +53,6 @@ plt.show()
 # :mod:`pyrolite.comp.codata`, but can also be accessed from the
 # :class:`~pyrolite.comp.pyrocomp` dataframe accessor:
 #
-import pyrolite.comp
 
 angles = comp.pyrocomp.sphere()
 angles.head()

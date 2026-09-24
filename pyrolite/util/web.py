@@ -59,7 +59,7 @@ def download_file(url: str, encoding="UTF-8", postprocess=None):
         try:
             response = s.get(url)
             if response.status_code == requests.codes.ok:
-                logger.debug("Response recieved from {}.".format(url))
+                logger.debug(f"Response recieved from {url}.")
                 out = response.content
 
                 if out is not None and encoding is not None:
@@ -67,11 +67,11 @@ def download_file(url: str, encoding="UTF-8", postprocess=None):
                 if postprocess is not None:
                     out = postprocess(out)
             else:
-                msg = "Failed download - bad status code at {}".format(url)
+                msg = f"Failed download - bad status code at {url}"
                 logger.warning(msg)
                 response.raise_for_status()
                 out = None
         except requests.exceptions.ConnectionError:
-            logger.warning("Failed Connection to {}".format(url))
+            logger.warning(f"Failed Connection to {url}")
             out = None
     return out

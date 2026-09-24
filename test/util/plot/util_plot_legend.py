@@ -39,7 +39,7 @@ class TestModifyLegendHandles(unittest.TestCase):
         self.ax.plot(np.random.random(10), np.random.random(10), color="g", label="a")
 
     def test_modify_legend_handles(self):
-        _hndls, labls = modify_legend_handles(self.ax, **{"color": "k"})
+        _hndls, labls = modify_legend_handles(self.ax, color="k")
         self.assertTrue(_hndls[0].get_color() == "k")
 
     def tearDown(self):

@@ -9,10 +9,8 @@ Compositional Data?
 #
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from pyrolite.data.Aitchison import load_kongite
-from pyrolite.plot import pyroplot
 
 df = load_kongite()
 ########################################################################################
@@ -131,11 +129,11 @@ plt.tight_layout()
 # ratio is well approximated by a lognormal distribution (note this doesn't consider
 # inherent covariance):
 #
-from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
+from pyrolite.util.distributions import norm_to_lognorm
 from pyrolite.util.plot.axes import share_axes, subaxes
 
 # starting from a normal distribution, then creating similar non-normal distributions
-mean, sd = 2.5, 1.5  #
+mean, sd = 2.5, 1.5
 logmu, logs = norm_to_lognorm(mean, sd)  # parameters for equival
 normrv = norm(loc=mean, scale=sd)
 lognormrv = lognorm(s=logs, scale=logmu)
@@ -165,7 +163,7 @@ for ix, dist in enumerate([normrv, lognormrv, poissonrv]):
     _ys = -0.05 + np.random.randn(10000) / 100  # random offsets for visualisation
     for a in [ax[ix], ax[ix + 3]]:
         a.annotate(
-            "mean={:.2f}, var={:.2f}".format(np.mean(_xs), np.var(_xs)),
+            f"mean={np.mean(_xs):.2f}, var={np.var(_xs):.2f}",
             xy=(0.05, 1.05),
             ha="left",
             va="bottom",

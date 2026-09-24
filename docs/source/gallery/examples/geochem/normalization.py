@@ -8,10 +8,7 @@ at the bottom of the page for a complete list):
 """
 
 import matplotlib.pyplot as plt
-import pandas as pd
 
-import pyrolite.plot
-from pyrolite.geochem.ind import REE
 from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
 
 ########################################################################################

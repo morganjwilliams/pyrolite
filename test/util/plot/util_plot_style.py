@@ -9,11 +9,8 @@ from pyrolite.util.classification import USDASoilTexture
 from pyrolite.util.plot.style import (
     _mpl_sp_kw_split,
     color_ternary_polygons_by_centroid,
-    linekwargs,
     mappable_from_values,
     marker_cycle,
-    patchkwargs,
-    scatterkwargs,
     ternary_color,
 )
 from pyrolite.util.synthetic import normal_frame

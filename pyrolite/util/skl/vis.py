@@ -25,7 +25,7 @@ except ImportError:
 def plot_confusion_matrix(
     *args,
     ax=None,
-    classes=[],
+    classes=None,
     class_order=None,
     normalize=False,
     title="Confusion Matrix",
@@ -75,6 +75,8 @@ def plot_confusion_matrix(
     --------
     ax : :class:`matplotlib.axes.Axes`
     """
+    if classes is None:
+        classes = []
     if len(args) == 1:
         conf_matrix = args[0]
     elif len(args) in [2, 3]:
@@ -83,9 +85,8 @@ def plot_confusion_matrix(
         else:
             clf, X_test, y_test = args
             y_predict = clf.predict(X_test)
-            if not classes:
-                if hasattr(args[0], "classes_"):
-                    classes = list(args[0].classes_)
+            if not classes and hasattr(args[0], "classes_"):
+                classes = list(args[0].classes_)
         conf_matrix = confusion_matrix(y_test, y_predict)
     else:
         raise NotImplementedError(
@@ -97,8 +98,8 @@ def plot_confusion_matrix(
         classes = np.arange(conf_matrix.shape[0])
 
     if class_order is not None:
-        assert all([c in classes for c in class_order]) and all(
-            [c in class_order for c in classes]
+        assert all(c in classes for c in class_order) and all(
+            c in class_order for c in classes
         )
         _classes = list(classes)  # for .index
         class_indexes = np.array([_classes.index(c) for c in class_order])
@@ -116,7 +117,7 @@ def plot_confusion_matrix(
         norm = matplotlib.colors.Normalize(vmin=0, vmax=np.max(conf_matrix))
 
     if ax is None:
-        fig, ax = plt.subplots(1)
+        _fig, ax = plt.subplots(1)
 
     im = ax.imshow(conf_matrix, interpolation="none", cmap=cmap, norm=norm)
     ax.set_title(title)
@@ -168,17 +169,17 @@ def plot_gs_results(gs, xvar=None, yvar=None):
         else:
             if xvar is not None:
                 xx = gs.param_grid[xvar]
-                (yvar, yy) = [(k, v) for (k, v) in grid_items if not k == xvar][0]
+                (yvar, yy) = next((k, v) for (k, v) in grid_items if k != xvar)
             else:
                 yy = gs.param_grid[yvar]
-                (xvar, xx) = [(k, v) for (k, v) in grid_items if not k == yvar][0]
+                (xvar, xx) = next((k, v) for (k, v) in grid_items if k != yvar)
     xx, yy = np.array(xx), np.array(yy)
     other_keys = [i for i in labels if i not in [xvar, yvar]]
     if other_keys:
         pass
     else:
         results = np.array(gs.cv_results_["mean_test_score"]).reshape(xx.size, yy.size)
-    fig, ax = plt.subplots(1)
+    _fig, ax = plt.subplots(1)
     ax.imshow(results.T, cmap=plt.cm.Blues)
 
     ax.set(
@@ -186,8 +187,8 @@ def plot_gs_results(gs, xvar=None, yvar=None):
         ylabel=yvar,
         xticks=np.arange(len(xx)),
         yticks=np.arange(len(yy)),
-        xticklabels=["{:01.2g}".format(i) for i in xx],
-        yticklabels=["{:01.2g}".format(i) for i in yy],
+        xticklabels=[f"{i:01.2g}" for i in xx],
+        yticklabels=[f"{i:01.2g}" for i in yy],
     )
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     ax.invert_yaxis()
@@ -296,15 +297,15 @@ def plot_mapping(
     elif isinstance(mapping, str):
         if mapping.lower() == "mds":
             cls = sklearn.manifold.MDS
-            kw = dict(n_components=2, metric=True)
+            kw = {"n_components": 2, "metric": True}
         elif mapping.lower() == "isomap":
             # not necessarily consistent orientation, but consistent shape
             cls = sklearn.manifold.Isomap
-            kw = dict(n_components=2)
+            kw = {"n_components": 2}
         elif mapping.lower() == "tsne":
             # likely need to optimise!
             cls = sklearn.manifold.TSNE
-            kw = dict(n_components=2)
+            kw = {"n_components": 2}
         else:
             raise NotImplementedError
         tfm = cls(**{**kw, **subkwargs(kwargs, cls)})
@@ -320,7 +321,7 @@ def plot_mapping(
     assert mapped.shape[0] == X_.shape[0]
 
     if ax is None:
-        fig, ax = plt.subplots(1, **kwargs)
+        _fig, ax = plt.subplots(1, **kwargs)
 
     if isinstance(Y, (np.ndarray, list)):
         c = Y  # need to encode alpha here

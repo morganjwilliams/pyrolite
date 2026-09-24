@@ -7,11 +7,10 @@ from pandas.testing import assert_frame_equal
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.util.lambdas import calc_lambdas
-from pyrolite.util.lambdas.eval import get_lambda_poly_function, lambda_poly
+from pyrolite.util.lambdas.eval import get_lambda_poly_function
 from pyrolite.util.lambdas.oneill import lambdas_ONeill2016
 from pyrolite.util.lambdas.opt import lambdas_optimize
 from pyrolite.util.lambdas.params import _get_params, orthogonal_polynomial_constants
-from pyrolite.util.synthetic import random_cov_matrix
 
 
 class TestOPConstants(unittest.TestCase):
@@ -189,7 +188,7 @@ class TestCalcLambdas(unittest.TestCase):
                         self.assertTrue(
                             all(
                                 [
-                                    "{}/{}*".format(a, a) in ret.columns
+                                    f"{a}/{a}*" in ret.columns
                                     for a in anomalies
                                 ]
                             )

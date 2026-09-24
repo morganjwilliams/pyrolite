@@ -2,14 +2,8 @@ import unittest
 from pathlib import Path
 
 from pyrolite.util.meta import (
-    inargs,
     pyrolite_datafolder,
-    sphinx_doi_link,
-    subkwargs,
-    take_me_to_the_docs,
-    update_docstring_references,
 )
-from pyrolite.util.synthetic import normal_frame
 
 
 class TestPyroliteDataFolder(unittest.TestCase):

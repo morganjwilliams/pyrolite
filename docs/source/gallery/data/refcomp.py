@@ -10,7 +10,7 @@ references.
 
 import matplotlib.pyplot as plt
 
-from pyrolite.geochem.norm import all_reference_compositions, get_reference_composition
+from pyrolite.geochem.norm import all_reference_compositions
 
 # sphinx_gallery_thumbnail_number = 11
 

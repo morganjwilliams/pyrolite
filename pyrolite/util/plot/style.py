@@ -88,11 +88,7 @@ def linekwargs(kwargs):
     )
     # could trim cmap and norm here, in case they get passed accidentally
     kw.update(
-        **dict(
-            alpha=kwargs.get("alpha"),
-            label=kwargs.get("label"),
-            clip_on=kwargs.get("clip_on", True),
-        )
+        alpha=kwargs.get("alpha"), label=kwargs.get("label"), clip_on=kwargs.get("clip_on", True)
     )  # issues with introspection for alpha
     return kw
 
@@ -117,11 +113,7 @@ def scatterkwargs(kwargs):
         matplotlib.collections.Collection,
     )
     kw.update(
-        **dict(
-            alpha=kwargs.get("alpha"),
-            label=kwargs.get("label"),
-            clip_on=kwargs.get("clip_on", True),
-        )
+        alpha=kwargs.get("alpha"), label=kwargs.get("label"), clip_on=kwargs.get("clip_on", True)
     )  # issues with introspection for alpha
     return kw
 
@@ -134,11 +126,7 @@ def patchkwargs(kwargs):
         matplotlib.patches.Patch,
     )
     kw.update(
-        **dict(
-            alpha=kwargs.get("alpha"),
-            label=kwargs.get("label"),
-            clip_on=kwargs.get("clip_on", True),
-        )
+        alpha=kwargs.get("alpha"), label=kwargs.get("label"), clip_on=kwargs.get("clip_on", True)
     )  # issues with introspection for alpha
     return kw
 
@@ -154,13 +142,13 @@ def _mpl_sp_kw_split(kwargs):
     sctr_kwargs = scatterkwargs(kwargs)
     # c kwarg is first priority, if it isn't present, use the color arg
     if sctr_kwargs.get("c") is None:
-        sctr_kwargs = {**sctr_kwargs, **{"c": kwargs.get("color")}}
+        sctr_kwargs = {**sctr_kwargs, "c": kwargs.get("color")}
 
     line_kwargs = linekwargs(kwargs)
     return sctr_kwargs, line_kwargs
 
 
-def marker_cycle(markers=["D", "s", "o", "+", "*"]):
+def marker_cycle(markers=None):
     """
     Cycle through a set of markers.
 
@@ -169,6 +157,8 @@ def marker_cycle(markers=["D", "s", "o", "+", "*"]):
     markers : :class:`list`
         List of markers to provide to matplotlib.
     """
+    if markers is None:
+        markers = ["D", "s", "o", "+", "*"]
     return itertools.cycle(markers)
 
 

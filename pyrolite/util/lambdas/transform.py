@@ -35,7 +35,7 @@ def REE_z_to_radii(z, fit=None, degree=7, **kwargs):
         radii = np.array(
             get_ionic_radii(REE(dropPm=False), charge=3, coordination=8, **kwargs)
         )
-        p, resids, rank, s, rcond = np.polyfit(
+        p, _resids, _rank, _s, _rcond = np.polyfit(
             np.arange(57, 72), radii, degree, full=True
         )
 
@@ -70,7 +70,7 @@ def REE_radii_to_z(r, fit=None, degree=7, **kwargs):
         radii = np.array(
             get_ionic_radii(REE(dropPm=False), charge=3, coordination=8, **kwargs)
         )
-        p, resids, rank, s, rcond = np.polyfit(
+        p, _resids, _rank, _s, _rcond = np.polyfit(
             radii, np.arange(57, 72), degree, full=True
         )
 

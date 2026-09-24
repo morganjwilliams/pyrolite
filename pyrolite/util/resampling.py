@@ -82,7 +82,7 @@ def get_spatiotemporal_resampling_weights(
     df,
     spatial_norm=1.8,
     temporal_norm=38,
-    latlong_names=["Latitude", "Longitude"],
+    latlong_names=None,
     age_name="Age",
     max_memory_fraction=0.25,
     normalized_weights=True,
@@ -128,6 +128,8 @@ def get_spatiotemporal_resampling_weights(
 
     """
 
+    if latlong_names is None:
+        latlong_names = ["Latitude", "Longitude"]
     weights = pd.Series(index=df.index, dtype="float")
     z = great_circle_distance(
         df[[*latlong_names]],
@@ -233,12 +235,12 @@ def spatiotemporal_bootstrap_resample(
     transform=None,
     bootstrap_method="smooth",
     add_gaussian_age_noise=True,
-    metrics=["mean", "var"],
+    metrics=None,
     default_uncertainty=0.02,
     relative_uncertainties=True,
     noise_level=1,
     age_name="Age",
-    latlong_names=["Latitude", "Longitude"],
+    latlong_names=None,
     **kwargs,
 ):
     """
@@ -293,6 +295,10 @@ def spatiotemporal_bootstrap_resample(
     """
 
     # uncertainty managment ############################################################
+    if latlong_names is None:
+        latlong_names = ["Latitude", "Longitude"]
+    if metrics is None:
+        metrics = ["mean", "var"]
     uncertainty_type = None
     if uncert is not None:
         if isinstance(uncert, float):
@@ -404,7 +410,7 @@ def spatiotemporal_bootstrap_resample(
                 msg = "Gaussian Process boostrapping not yet implemented."
                 raise NotImplementedError(msg)
             else:
-                msg = "Bootstrap method {} not recognised.".format(bootstrap_method)
+                msg = f"Bootstrap method {bootstrap_method} not recognised."
                 raise NotImplementedError(msg)
 
         # whether to independently estimate metric values for individual categories?

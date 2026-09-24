@@ -57,7 +57,7 @@ def close(X: np.ndarray, sumf=np.sum):
     return np.divide(X, C)
 
 
-def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
+def renormalise(df: pd.DataFrame, components: list | None = None, scale=100.0):
     """
     Renormalises compositional data to ensure closure.
 
@@ -78,6 +78,8 @@ def renormalise(df: pd.DataFrame, components: list = [], scale=100.0):
         Renormalized dataframe.
     """
 
+    if components is None:
+        components = []
     dfc = df.copy(deep=True)
     if components:
         if not all(col in dfc.columns for col in components):
@@ -639,7 +641,7 @@ def inverse_sphere(θ):
         Compositional (simplex) coordinates, normalised to 1.
     """
     p = θ.shape[1]
-    n = θ.shape[0]
+    θ.shape[0]
     y = np.ones((θ.shape[0], p + 1)) * np.pi / 2
 
     sinθ, cosθ = np.sin(θ), np.cos(θ)

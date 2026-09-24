@@ -14,24 +14,26 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-def save_figure(figure, name="fig", save_at="", save_fmts=["png"], **kwargs):
+def save_figure(figure, name="fig", save_at="", save_fmts=None, **kwargs):
     """
     Save a figure at a specified location in a number of formats.
     """
-    default_config = dict(bbox_inches="tight", transparent=True)
+    if save_fmts is None:
+        save_fmts = ["png"]
+    default_config = {"bbox_inches": "tight", "transparent": True}
     config = default_config.copy()
     config.update(kwargs)
     save_at = Path(save_at)
     if not save_at.exists():
-        logger.debug("Creating save directory at {}".format(save_at))
+        logger.debug(f"Creating save directory at {save_at}")
     save_at.mkdir(parents=True, exist_ok=True)
     for fmt in save_fmts:
         out_filename = (save_at / name).with_suffix("." + fmt)
-        logger.debug("Saving {}".format(out_filename))
+        logger.debug(f"Saving {out_filename}")
         figure.savefig(out_filename, format=fmt, **config)
 
 
-def save_axes(ax, name="fig", save_at="", save_fmts=["png"], pad=0.0, **kwargs):
+def save_axes(ax, name="fig", save_at="", save_fmts=None, pad=0.0, **kwargs):
     """
     Save either a single or multiple axes (from a single figure) based on their
     extent. Uses the save_figure procedure to save at a specific location using
@@ -43,6 +45,8 @@ def save_axes(ax, name="fig", save_at="", save_fmts=["png"], pad=0.0, **kwargs):
     """
     # Check if axes is a single axis or list of axes
 
+    if save_fmts is None:
+        save_fmts = ["png"]
     if isinstance(ax, matplotlib.axes.Axes):
         extent = get_full_extent(ax, pad=pad)
         figure = ax.figure

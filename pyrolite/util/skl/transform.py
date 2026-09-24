@@ -24,7 +24,7 @@ class DropBelowZero(BaseEstimator, TransformerMixin):
         self.label = "Feedthrough"
 
     def transform(self, X, *args, **kwargs):
-        if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+        if isinstance(X, (pd.DataFrame, pd.Series)):
             out = X.where(X > 0, np.nan)
         else:
             out = np.where(X > 0, X, np.nan)
@@ -244,9 +244,8 @@ class ILRTransform(BaseEstimator, TransformerMixin):
         return out
 
     def inverse_transform(self, Y, *args, **kwargs):
-        if "X" not in kwargs:
-            if self.X is not None:
-                kwargs.update(dict(X=self.X))
+        if "X" not in kwargs and self.X is not None:
+            kwargs.update({"X": self.X})
         if isinstance(Y, pd.DataFrame):
             out = Y.pyrocomp.inverse_ILR(**kwargs)
         elif isinstance(Y, pd.Series):
@@ -302,29 +301,31 @@ class BoxCoxTransform(BaseEstimator, TransformerMixin):
         self.X = np.array(X)
         if "lmbda" not in kwargs:
             if self.lmbda is not None:
-                kwargs.update(dict(lmbda=self.lmbda))
+                kwargs.update({"lmbda": self.lmbda})
                 data = self.forward(X, *args, **kwargs)
             else:
-                kwargs.update(dict(return_lmbda=True))
+                kwargs.update({"return_lmbda": True})
                 data, lmbda = self.forward(X, *args, **kwargs)
                 self.lmbda = lmbda
         return data
 
     def inverse_transform(self, Y, *args, **kwargs):
         if "lmbda" not in kwargs:
-            kwargs.update(dict(lmbda=self.lmbda))
+            kwargs.update({"lmbda": self.lmbda})
         return self.inverse(Y, *args, **kwargs)
 
     def fit(self, X, *args, **kwargs):
-        bc_data, lmbda = self.forward(X, *args, **kwargs)
+        _bc_data, lmbda = self.forward(X, *args, **kwargs)
         self.lmbda = lmbda
 
 
 class Devolatilizer(BaseEstimator, TransformerMixin):
     def __init__(
-        self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
+        self, exclude=None, renorm=True
     ):
         """Devolatilization transformer for scikit-learn like use."""
+        if exclude is None:
+            exclude = ["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"]
         self.exclude = [i.upper() for i in exclude]
         self.renorm = renorm
 
@@ -361,9 +362,11 @@ class ElementAggregator(BaseEstimator, TransformerMixin):
 
 class LambdaTransformer(BaseEstimator, TransformerMixin):
     def __init__(
-        self, norm_to="Chondrite_PON", exclude=["Pm", "Eu", "Ce"], params=None, degree=5
+        self, norm_to="Chondrite_PON", exclude=None, params=None, degree=5
     ):
         """Lambda coefficient transformer for scikit-learn like use."""
+        if exclude is None:
+            exclude = ["Pm", "Eu", "Ce"]
         self.norm_to = norm_to
         self.ree = [i for i in ind.REE() if i not in exclude]
         self.radii = np.array(ind.get_ionic_radii(self.ree, charge=3, coordination=8))

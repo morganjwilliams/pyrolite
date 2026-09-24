@@ -93,7 +93,7 @@ def ternary_grid(
     xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T  # in the cartesian xy space
     xbounds = np.hstack((xbounds, [xbounds[0]]))
     ybounds = np.hstack((ybounds, [ybounds[0]]))
-    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    tck, _u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
     # interpolated outer boundary
     xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
 

@@ -81,7 +81,7 @@ def open_db_connection(
         (error,) = err.args
         sys.stderr.write(error.message)
         rollback(cursor)
-        raise err
+        raise
     else:
         if commit:
             try:
