@@ -53,12 +53,12 @@ excel = ["xlrd", "openpyxl"]
 [dependency-groups]
 test = ["pytest",  "pytest-cov", "coverage"] # coveralls but only in CI
 docs = [
-    "sphinx_rtd_theme",
+    "sphinx_book_theme",
     # "docutils<0.17",
     "sphinx>=4",
     "sphinx-autodoc-annotation",
-    "sphinx_gallery>=0.6.0",
-    "recommonmark",
+    "myst-sphinx-gallery",
+    "myst-nb"
 ]
 dev = [
     "ruff",

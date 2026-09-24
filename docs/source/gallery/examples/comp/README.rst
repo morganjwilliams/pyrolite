@@ -1,2 +1,0 @@
-Compositional Data Examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
