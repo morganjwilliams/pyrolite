@@ -173,7 +173,7 @@ def endmember_decompose(
 
     if isinstance(endmembers, str):  # mineral group
         Y = get_mineral_group(endmembers).set_index("name")
-    elif isinstance(endmembers, (list, set, dict, tuple)):
+    elif isinstance(endmembers, (list, set, dict, tuple, pd.arrays.StringArray)):
         if isinstance(endmembers, dict):
             aliases, endmembers = list(endmembers.keys()), list(endmembers.values())
         Y = pd.DataFrame(
@@ -635,9 +635,7 @@ def CIPW_norm(
     elif Fe_correction.lower().startswith("middle"):
         df.loc[fltr, ["FeO", "Fe2O3"]] = Middlemost_Fe_correction(df.loc[fltr, :])
     else:
-        raise NotImplementedError(
-            f"Iron correction {Fe_correction} not recognised."
-        )
+        raise NotImplementedError(f"Iron correction {Fe_correction} not recognised.")
 
     # select just the columns we'll use; remove e.g. FeOT, Fe2O3T which have been recalcuated
     df = df.reindex(columns=columns).fillna(0)
