@@ -18,6 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Framework :: Matplotlib",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -52,7 +53,7 @@ docs = [
     "recommonmark",
 ]
 db = ["pyodbc", "psycopg2"]
-test = ["pytest", "pytest-cov", "coverage", "coveralls"]
+test = ["pytest", "pytest-cov", "coverage"] # coveralls but only in CI
 notebook = ["ipykernel", "ipywidgets"]
 skl = ["scikit-learn", "joblib"]
 spatial = ["owslib", "geojson", "psutil"]
