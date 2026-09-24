@@ -4,8 +4,8 @@ Taken from https://github.com/Twista/python-polylabel,
 Originally released under an MIT licence.
 """
 
-from math import sqrt, inf
 import time
+from math import inf, sqrt
 from queue import PriorityQueue
 
 

@@ -7,11 +7,12 @@ Compositional Data?
 # pyrolite comes with a few datasets from Aitchison (1984) built in which we can use
 # as examples:
 #
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from pyrolite.plot import pyroplot
+
 from pyrolite.data.Aitchison import load_kongite
+from pyrolite.plot import pyroplot
 
 df = load_kongite()
 ########################################################################################
@@ -62,7 +63,7 @@ np.exp(logA_on_B.mean())  # 2.4213410747400514
 # failure, in that it has non-zero probability density below 0, and we know that you can't
 # have negative atoms!
 #
-from scipy.stats import norm, poisson, lognorm
+from scipy.stats import lognorm, norm, poisson
 
 means = [[10, 10], [10, 20], [20, 100], [1000, 50]]
 fig, ax = plt.subplots(len(means), 4, figsize=(11, 8))
@@ -130,8 +131,8 @@ plt.tight_layout()
 # ratio is well approximated by a lognormal distribution (note this doesn't consider
 # inherent covariance):
 #
-from pyrolite.util.plot.axes import share_axes, subaxes
 from pyrolite.util.distributions import lognorm_to_norm, norm_to_lognorm
+from pyrolite.util.plot.axes import share_axes, subaxes
 
 # starting from a normal distribution, then creating similar non-normal distributions
 mean, sd = 2.5, 1.5  #
@@ -195,8 +196,9 @@ plt.tight_layout()
 # :func:`~pyrolite.comp.codata.ilr`). In this case, the logratio-mean is implemented for
 # you:
 #
-from pyrolite.comp.codata import logratiomean
 import itertools
+
+from pyrolite.comp.codata import logratiomean
 
 fig, ax = plt.subplots(2, 2, figsize=(12, 12), subplot_kw=dict(projection="ternary"))
 ax = ax.flat

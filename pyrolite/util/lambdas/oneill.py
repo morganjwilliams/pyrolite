@@ -4,7 +4,6 @@ REE patterns.
 """
 
 import numpy as np
-import pandas as pd
 
 from ..log import Handle
 from ..meta import update_docstring_references

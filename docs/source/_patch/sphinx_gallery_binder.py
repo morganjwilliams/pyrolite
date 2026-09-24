@@ -30,9 +30,9 @@ def alt_gen_binder_rst(
     """
     binder_conf = interactive_example.check_binder_conf(binder_conf)
     binder_url = interactive_example.gen_binder_url(fpath, binder_conf, gallery_conf)
-    rst = (
-        "\n" ".. image:: {0}\n" "    :target: {1}\n" "    :alt: Launch Binder\n"
-    ).format(img, binder_url)
+    rst = ("\n.. image:: {0}\n    :target: {1}\n    :alt: Launch Binder\n").format(
+        img, binder_url
+    )
     return rst
 
 

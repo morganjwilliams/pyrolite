@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 # sphinx_gallery_thumbnail_number = 4
-
 ########################################################################################
 # Here we'll set up an example which uses EMORB as a starting point. Typically we'll
 # normalise trace element compositions to a reference composition

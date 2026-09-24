@@ -186,7 +186,7 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
     elif grid is None:
         _dims = C.size, T.size, P.size
         maxdim = max(_dims)
-        assert all([x == maxdim or x == 1 for x in _dims])
+        assert all(x == maxdim or x == 1 for x in _dims)
         cc, tt, pp = C, T, P
 
     comp = list(set(df.columns) & (_common_elements | _common_oxides))

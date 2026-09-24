@@ -132,11 +132,11 @@ def ALR(X: np.ndarray, ind: int = -1, null_col=False):
     if Y.ndim == 2:
         Y = np.divide(Y, Y[:, ind][:, np.newaxis])
         if not null_col:
-            Y = Y[:, [i for i in range(dimensions) if not i == ind]]
+            Y = Y[:, [i for i in range(dimensions) if i != ind]]
     else:
         Y = np.divide(X, X[ind])
         if not null_col:
-            Y = Y[[i for i in range(dimensions) if not i == ind]]
+            Y = Y[[i for i in range(dimensions) if i != ind]]
 
     return np.log(Y)
 
@@ -354,14 +354,7 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
     """
 
     names = [
-        r"{} / {}".format(
-            (
-                c
-                if c not in __sympy_protected_variables__
-                else __sympy_protected_variables__[c]
-            ),
-            df.columns[ind],
-        )
+        rf"{__sympy_protected_variables__.get(c, c)} / {df.columns[ind]}"
         for c in df.columns
     ]
 
@@ -369,7 +362,7 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
         # edited to avoid issues with clashes between element names and latex (e.g. Ge)
         D = df.columns.size
         # encode symbolic variables
-        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        vars = [sympy.var(f"c_{ix}") for ix in range(D)]
         expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
         named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
@@ -377,9 +370,9 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
             for l in named_expr
         ]
     elif mode.lower() == "simple":
-        labels = ["ALR({})".format(n) for n in names]
+        labels = [f"ALR({n})" for n in names]
     else:
-        msg = "Label mode {} not recognised.".format(mode)
+        msg = f"Label mode {mode} not recognised."
         raise NotImplementedError(msg)
     return labels
 
@@ -407,23 +400,14 @@ def get_CLR_labels(df, mode="simple", **kwargs):
     duplicated version of itself (e.g. 'S' will be replaced by 'Ss').
     """
 
-    names = [
-        r"{} / γ".format(
-            (
-                c
-                if c not in __sympy_protected_variables__
-                else __sympy_protected_variables__[c]
-            ),
-        )
-        for c in df.columns
-    ]
+    names = [rf"{__sympy_protected_variables__.get(c, c)} / γ" for c in df.columns]
     D = df.columns.size
 
     if mode.lower() == "latex":
         # edited to avoid issues with clashes between element names and latex (e.g. Ge)
         D = df.columns.size
         # encode symbolic variables
-        vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+        vars = [sympy.var(f"c_{ix}") for ix in range(D)]
         expr = sympy.Matrix([[sympy.ln(v) for v in vars]])
         named_expr = expr.subs({k: v for (k, v) in zip(vars, names)})
         labels = [
@@ -431,9 +415,9 @@ def get_CLR_labels(df, mode="simple", **kwargs):
             for l in named_expr
         ]
     elif mode.lower() == "simple":
-        labels = ["CLR({}/G)".format(c) for c in df.columns]
+        labels = [f"CLR({c}/G)" for c in df.columns]
     else:
-        msg = "Label mode {} not recognised.".format(mode)
+        msg = f"Label mode {mode} not recognised."
         raise NotImplementedError(msg)
     return labels
 
@@ -462,7 +446,7 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     """
     D = df.columns.size
     # encode symbolic variables
-    sym_vars = [sympy.var("c_{}".format(ix)) for ix in range(D)]
+    sym_vars = [sympy.var(f"c_{ix}") for ix in range(D)]
     arr = sympy.Matrix([[sympy.ln(v) for v in sym_vars]])
 
     # this is the CLR --> ILR transform
@@ -472,16 +456,7 @@ def get_ILR_labels(df, mode="latex", **kwargs):
     )
     expr = expr.applyfunc(_aggregate_sympy_constants)
     # sub in Phi (the CLR normalisation variable)
-    names = [
-        r"{} / γ".format(
-            (
-                c
-                if c not in __sympy_protected_variables__
-                else __sympy_protected_variables__[c]
-            ),
-        )
-        for c in df.columns
-    ]
+    names = [rf"{__sympy_protected_variables__.get(c, c)} / γ" for c in df.columns]
     named_expr = expr.subs({k: v for (k, v) in zip(sym_vars, names)})
     # format latex labels
     if mode.lower() == "latex":
@@ -496,7 +471,7 @@ def get_ILR_labels(df, mode="latex", **kwargs):
         )
         labels = [str(l).replace("log", "ILR") for l in unscaled_components]
     else:
-        msg = "Label mode {} not recognised.".format(mode)
+        msg = f"Label mode {mode} not recognised."
         raise NotImplementedError(msg)
     return labels
 
@@ -536,7 +511,7 @@ def boxcox(
         Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
         lambda value.
     """
-    if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+    if isinstance(X, (pd.DataFrame, pd.Series)):
         _X = X.values
     else:
         _X = X.copy()
@@ -560,7 +535,7 @@ def boxcox(
     else:
         out = np.apply_along_axis(scipy.stats.boxcox, 0, _X, lmbda)
 
-    if isinstance(_X, pd.DataFrame) or isinstance(_X, pd.Series):
+    if isinstance(_X, (pd.DataFrame, pd.Series)):
         _out = X.copy()
         _out.loc[:, :] = out
         out = _out
@@ -750,9 +725,9 @@ def _load_transforms():
     :class:`dict`
     """
     return {
-        f: (globals().get(f), globals().get("inverse_{}".format(f)))
-        for f in globals().keys()
-        if "inverse_{}".format(f) in globals().keys()
+        f: (globals().get(f), globals().get(f"inverse_{f}"))
+        for f in globals()
+        if f"inverse_{f}" in globals()
     }
 
 

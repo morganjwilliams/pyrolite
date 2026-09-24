@@ -4,7 +4,6 @@ import joblib
 import pandas as pd
 
 from ..log import Handle
-from ..meta import get_additional_params
 from ..plot import save_figure
 
 logger = Handle(__name__)
@@ -253,7 +252,7 @@ class PdUnion(BaseEstimator, TransformerMixin):
         columns = []
         idxs = []
         for p in parts:
-            columns += [i for i in p.columns if not i in columns]
+            columns += [i for i in p.columns if i not in columns]
             idxs.append(p.index.size)
 
         # check the indexes are all the same length

@@ -47,7 +47,7 @@ def weights_from_array(X: np.ndarray):
     :class:`numpy.ndarray`
         Array of weights.
     """
-    wts = np.ones((X.shape[0]))
+    wts = np.ones(X.shape[0])
     return wts / np.sum(wts)
 
 

@@ -21,7 +21,6 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.legend_handler import HandlerTuple
 
 from ...comp.codata import close
 from ..general import copy_file

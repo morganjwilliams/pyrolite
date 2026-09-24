@@ -6,13 +6,13 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial
-from .center import visual_center
 
 from ..log import Handle
 from ..math import eigsorted, nancov
 from ..missing import cooccurence_pattern
 from ..text import int_to_alpha
 from .axes import add_colorbar, init_axes, subaxes
+from .center import visual_center
 from .interpolation import interpolated_patch_path
 
 logger = Handle(__name__)

@@ -61,6 +61,7 @@ def tempdir(**kwargs):
     finally:
         remove_tempdir(tmp_dir)
 
+
 def flatten_dict(d, climb=False, safemode=False):
     """
     Flattens a nested dictionary containing only string keys.

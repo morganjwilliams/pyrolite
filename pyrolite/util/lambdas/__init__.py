@@ -102,7 +102,7 @@ def calc_lambdas(
         raise IndexError(msg)
 
     # also filter the sigmas we pass to subsequent functions, if needed
-    if not (sigmas is None):
+    if sigmas is not None:
         logger.debug("Sigmas provided.")
         if not isinstance(sigmas, (int, float)):
             sigmas = sigmas[column_fltr]

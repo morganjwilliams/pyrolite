@@ -132,8 +132,8 @@ def timescale_reference_frame(
         pd.to_numeric, errors="coerce"
     )
     _df = df.copy(deep=True)
-    grps = [i for i in _df.columns if not i in info_cols]
-    condensed = _df.loc[:, [i for i in _df.columns if not i in info_cols]].fillna(
+    grps = [i for i in _df.columns if i not in info_cols]
+    condensed = _df.loc[:, [i for i in _df.columns if i not in info_cols]].fillna(
         value=""
     )
     _df["Level"] = condensed.apply(

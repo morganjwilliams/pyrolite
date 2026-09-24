@@ -78,7 +78,7 @@ def to_weight(df: pd.DataFrame, renorm=True):
 
 def devolatilise(
     df: pd.DataFrame,
-    exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"],
+    exclude: list | None = None,
     renorm=True,
 ):
     """
@@ -98,6 +98,8 @@ def devolatilise(
     :class:`pandas.DataFrame`
         Transformed dataframe.
     """
+    if exclude is None:
+        exclude = ["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"]
     keep = [i for i in df.columns if i not in exclude]
     if renorm:
         return renormalise(df.loc[:, keep])
@@ -129,18 +131,18 @@ def oxide_conversion(oxin, oxout, molecular=False):
     if not isinstance(oxout, pt.formulas.Formula):
         oxout = pt.formula(oxout)
 
-    inatoms = {k: v for (k, v) in oxin.atoms.items() if not str(k) == "O"}
+    inatoms = {k: v for (k, v) in oxin.atoms.items() if str(k) != "O"}
     in_els = inatoms.keys()
-    outatoms = {k: v for (k, v) in oxout.atoms.items() if not str(k) == "O"}
+    outatoms = {k: v for (k, v) in oxout.atoms.items() if str(k) != "O"}
     out_els = outatoms.keys()
     try:
         # Assertion of simple oxide
         assert (len(in_els) == len(out_els)) & (len(in_els) == 1)
         assert in_els == out_els  # Need to be dealing with the same element!
     except AssertionError:
-        raise ValueError("Incompatible compounds: {} --> {}".format(in_els, out_els))
+        raise ValueError(f"Incompatible compounds: {in_els} --> {out_els}")
     # Moles of product vs. moles of reactant
-    cation_coefficient = list(inatoms.values())[0] / list(outatoms.values())[0]
+    cation_coefficient = next(iter(inatoms.values())) / next(iter(outatoms.values()))
 
     def convert_series(dfser: pd.Series, molecular=molecular):
         if molecular:
@@ -188,21 +190,19 @@ def elemental_sum(
     assert component is not None
     if isinstance(component, (list, tuple, dict)):
         cations = [get_cations(t, total_suffix=total_suffix)[0] for t in component]
-        assert all([c == cations[0] for c in cations])
+        assert all(c == cations[0] for c in cations)
         cation = cations[0]
     else:
         cation = get_cations(component, total_suffix=total_suffix)[0]
 
     cationname = str(cation)
-    logger.debug("Agregating {} Data.".format(cationname))
+    logger.debug(f"Agregating {cationname} Data.")
     # different species
     poss_specs = [cationname] + simple_oxides(cation)
     poss_specs += [i + total_suffix for i in poss_specs]
     species = [i for i in set(poss_specs) if i in df.columns]
     if not species:
-        logger.warning(
-            "No relevant species ({}) found to aggregate.".format(poss_specs)
-        )
+        logger.warning(f"No relevant species ({poss_specs}) found to aggregate.")
         # return nulls
         subsum = pd.Series(
             np.ones(df.index.size, dtype="float32") * np.nan, index=df.index
@@ -210,7 +210,7 @@ def elemental_sum(
     else:
         subset = np.array(df.loc[:, species])
         if logdata:
-            logger.debug("Inverse-log-transforming {} data.".format(cationname))
+            logger.debug(f"Inverse-log-transforming {cationname} data.")
             subset = np.exp(subset)
 
         logger.debug(
@@ -229,7 +229,7 @@ def elemental_sum(
             ]
         )
         subset *= conversion_coeff
-        logger.debug("Zeroing non-finite and negative {} values.".format(cationname))
+        logger.debug(f"Zeroing non-finite and negative {cationname} values.")
         subset[(~np.isfinite(subset)) | (subset < 0.0)] = 0.0
         subsum = subset.sum(axis=1)
         subsum[subsum <= 0.0] = np.nan
@@ -291,14 +291,14 @@ def aggregate_element(
     species = [i for i in species if i in df.columns]
     _df = df.copy()
     if isinstance(to, str):
-        logger.debug("Aggregating string-specified component {}.".format(to))
+        logger.debug(f"Aggregating string-specified component {to}.")
         toform = remove_suffix(to, suffix=total_suffix)
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
         props = [1.0]  # 100%
         coeff = [oxide_conversion(cation, toform, molecular=molecular)(1)]
     elif isinstance(to, (pt.core.Element, pt.formulas.Formula)):
-        logger.debug("Aggregating object-specified component {}.".format(to))
+        logger.debug(f"Aggregating object-specified component {to}.")
         to = str(to)
         drop = [i for i in species if str(i) != to]
         targetnames = [to]
@@ -329,7 +329,7 @@ def aggregate_element(
             cation,
             {
                 k: (
-                    "{:2.1f}%".format(v * 100)
+                    f"{v * 100:2.1f}%"
                     if not isinstance(v, np.ndarray)
                     else ",".join(list((v * 100).astype(str)))
                 )
@@ -349,7 +349,7 @@ def aggregate_element(
         _df.loc[:, targetnames] = subsum.values[:, np.newaxis] @ coeff[np.newaxis, :]
 
     if logdata:
-        logger.debug("Log-transforming {} Data.".format(cation))
+        logger.debug(f"Log-transforming {cation} Data.")
         _df.loc[:, targetnames] = np.log(_df.loc[:, targetnames])
     if drop:
         logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
@@ -363,7 +363,11 @@ def aggregate_element(
 
 
 def get_ratio(
-    df: pd.DataFrame, ratio: str, alias: str = None, norm_to=None, molecular=False
+    df: pd.DataFrame,
+    ratio: str,
+    alias: str | None = None,
+    norm_to=None,
+    molecular=False,
 ):
     """
     Get a ratio of components A and B, given in the form of string 'A/B'.

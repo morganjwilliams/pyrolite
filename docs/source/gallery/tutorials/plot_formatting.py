@@ -66,8 +66,9 @@ plt.show()
 # :math:`Al_2O_3`) and isotopes (e.g. d11B, which should be :math:`\delta^{11}B`).
 # At the moment, pyrolite won't do this for you, so you may want to adjust the labelling
 # after you've made them. For example:
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 fig, ax = plt.subplots(2, 1)
 df[["Al2O3", "TiO2"]].pyroplot.scatter(ax=ax[0])
@@ -100,6 +101,7 @@ plt.show()
 # first three y-axes, you could use:
 #
 import matplotlib.pyplot as plt
+
 from pyrolite.util.plot.axes import share_axes
 
 fig, ax = plt.subplots(2, 2)
@@ -118,8 +120,9 @@ plt.show()
 # :func:`matplotlib.axes.Axes.legend`), often you'll want to customise
 # your legends to fit nicely within your figures. Here we'll create a few
 # synthetic datasets, add them to a figure and create the default legend:
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 fig, ax = plt.subplots(1)
 for i in range(3):
@@ -163,8 +166,9 @@ plt.show()
 # Labelling ternary axes is done similarly to in :mod:`matplotlib`, but using the
 # axes prefixes `t`, `l` and `r` for top, left and right axes, respectively:
 #
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_tlabel("Top")
@@ -178,8 +182,9 @@ plt.show()
 # To add a simple grid to your ternary plot, you can use
 # :func:`~mpltern.TernaryAxis.grid`:
 #
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.grid()
@@ -188,8 +193,9 @@ plt.show()
 # With this method, you can also specify an `axis`, `which` tickmarks you want to use
 # for the grid ('major', 'minor' or 'both') and a `linestyle`:
 #
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.grid(axis="r", which="both", linestyle="--")
@@ -205,8 +211,9 @@ plt.show()
 # `inset axes example <https://mpltern.readthedocs.io/en/latest/gallery/advanced/05.inset.html>`__
 # if you're after ways to focus on specific regions.
 #
-import pyrolite.plot
 import matplotlib.pyplot as plt
+
+import pyrolite.plot
 
 ax = df[["CaO", "MgO", "Al2O3"]].pyroplot.scatter()
 ax.set_ternary_lim(

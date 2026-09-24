@@ -44,8 +44,8 @@ ts.text2age("Holocene")
 #########################################################################################
 # We can use this to create a simple template to visualise the geological timescale:
 #
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 fig, ax = plt.subplots(1, figsize=(5, 10))
 

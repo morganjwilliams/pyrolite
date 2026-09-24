@@ -111,7 +111,7 @@ class pyrocomp(object):
             index_col_no += len(components)
 
         if label_mode.lower().startswith("num"):
-            colnames = ["ALR{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = [f"ALR{ix}" for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_ALR_labels(
                 self._obj, mode=label_mode, ind=index_col_no
@@ -179,7 +179,7 @@ class pyrocomp(object):
             CLR-transformed array, of shape :code:`(N, D)`.
         """
         if label_mode.lower().startswith("num"):
-            colnames = ["CLR{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = [f"CLR{ix}" for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
 
@@ -232,7 +232,7 @@ class pyrocomp(object):
             ILR-transformed array, of shape :code:`(N, D-1)`.
         """
         if label_mode.lower().startswith("num"):
-            colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
+            colnames = [f"ILR{ix}" for ix in range(self._obj.columns.size - 1)]
         else:
             colnames = codata.get_ILR_labels(self._obj, mode=label_mode)
 
@@ -323,9 +323,9 @@ class pyrocomp(object):
         """
         if lmbda is None:
             lmbda = self._obj.attrs.get("boxcox_lmbda")
-            assert (
-                lmbda is not None
-            ), "Can't invert a box-cox transform without a lambda parameter."
+            assert lmbda is not None, (
+                "Can't invert a box-cox transform without a lambda parameter."
+            )
 
         itfm_df = pd.DataFrame(
             codata.inverse_boxcox(self._obj.values, lmbda=lmbda),
@@ -403,7 +403,7 @@ class pyrocomp(object):
         """
         Try to inverse-transform a transformed dataframe.
         """
-        colnames = self._obj.attrs.get("inverts_to")
+        _colnames = self._obj.attrs.get("inverts_to")
 
         tfm = self._obj.attrs.get("transform")
         try:

@@ -272,7 +272,7 @@ def density(
                 )
             ax.set_aspect("equal")
         else:
-            if not arr.ndim in [0, 1, 2]:
+            if arr.ndim not in [0, 1, 2]:
                 raise NotImplementedError
 
         if colorbar:

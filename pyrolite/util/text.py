@@ -67,7 +67,7 @@ def titlecase(
     words = re.split(split_on, s)
     out = []
     first = words[0]
-    if capitalize_first and not (first in abbrv):
+    if capitalize_first and first not in abbrv:
         first = first.capitalize()
 
     out.append(first)

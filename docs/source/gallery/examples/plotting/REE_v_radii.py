@@ -10,7 +10,6 @@ import pandas as pd
 from pyrolite.plot import pyroplot
 
 # sphinx_gallery_thumbnail_number = 3
-
 ########################################################################################
 # Here we generate some example data, using the
 # :func:`~pyrolite.util.synthetic.example_spider_data` function (based on EMORB,

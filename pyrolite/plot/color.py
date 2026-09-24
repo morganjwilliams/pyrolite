@@ -291,8 +291,8 @@ def process_color(
     else:
         # for each of the facecolor modes specified return an edge variant
         for face, edge in _face_edge_equivalents.items():
-            if (face in d) and not (edge in d):
+            if (face in d) and edge not in d:
                 d[edge] = _c
-            if (edge in d) and not (face in d):
+            if (edge in d) and face not in d:
                 d[face] = _c
     return d

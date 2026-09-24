@@ -71,7 +71,7 @@ def repr_isotope_ratio(text):
         elmatch = r"([a-zA-Z][a-zA-Z]?)"
         num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
         den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
-    return "{}{}/{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
+    return f"{num_iso}{titlecase(num_el)}/{den_iso}{titlecase(den_el)}"
 
 
 def ischem(s):
@@ -100,7 +100,7 @@ def ischem(s):
         return str(s).upper() in chems
 
 
-def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+def tochem(strings: list, abbrv: list | None = None, split_on=r"[\s_]+"):
     r"""
     Converts a list of strings containing come chemical compounds to
     appropriate case.
@@ -120,6 +120,8 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     """
     # listify single string passed
+    if abbrv is None:
+        abbrv = ["ID", "IGSN"]
     listified = False
     if not isinstance(strings, (list, pd.core.indexes.base.Index)):
         strings = [strings]
@@ -130,7 +132,7 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     chems = _common_oxides | _common_elements
     trans = {str(e).upper(): str(e) for e in chems}
-    strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
+    strings = [trans.get(str(h).upper(), h) for h in strings]
 
     # translate potential isotope ratios
     split_pattern = re.compile(split_on)
@@ -145,7 +147,7 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
     return strings
 
 
-def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
+def check_multiple_cation_inclusion(df, exclude: list | None = None):
     """
     Returns cations which are present in both oxide and elemental form.
 
@@ -166,11 +168,13 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
         * Options for output (string/formula).
 
     """
+    if exclude is None:
+        exclude = ["LOI", "FeOT", "Fe2O3T"]
     major_components = [i for i in _common_oxides if i in df.columns]
     elements_as_majors = [
-        get_cations(oxide)[0] for oxide in major_components if not oxide in exclude
+        get_cations(oxide)[0] for oxide in major_components if oxide not in exclude
     ]
     elements_as_traces = [
         c for c in common_elements(output="formula") if str(c) in df.columns
     ]
-    return set([el for el in elements_as_majors if el in elements_as_traces])
+    return {el for el in elements_as_majors if el in elements_as_traces}

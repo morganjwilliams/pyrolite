@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.stats as stats
+from scipy import stats
 
 from pyrolite.comp.codata import ALR, close, inverse_ALR
 from pyrolite.util.math import augmented_covariance_matrix, nancov
@@ -127,9 +127,9 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
         assert (np.abs(M) < error_threshold).all()  # avoid runaway expansion
     dimension = M.size  # p > 0
     nvarobs = varobs.size  # q > 0 # number of observed variables
-    dep = np.array([i for i in np.arange(dimension) if not i in varobs])
+    dep = np.array([i for i in np.arange(dimension) if i not in varobs])
     # Shift the non-zero element to the end for pivoting
-    reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)  #
+    reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)
     A = augmented_covariance_matrix(M, C)
     A = A[reor, :][:, reor]
     # Astart = A.copy(deep=True)
@@ -229,7 +229,7 @@ def EMCOMP(
         - np.spacing(1.0)  # Machine epsilon
     )
     assert np.isfinite(cpoints).all()
-    cpoints = cpoints[:, [i for i in range(D) if not i == pos]]  # censure points
+    cpoints = cpoints[:, [i for i in range(D) if i != pos]]  # censure points
     prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
     Y = ALR(X, pos)
     # ---------------Log Space--------------------------------
@@ -245,9 +245,7 @@ def EMCOMP(
     # -------------------------------------------
     # Stage 3: Regression against other variables
     # -------------------------------------------
-    logger.debug(
-        "Starting Iterative Regression for Matrix : ({}, {})".format(n_obs, LD)
-    )
+    logger.debug(f"Starting Iterative Regression for Matrix : ({n_obs}, {LD})")
     another_iter = True
     niters = 0
     while another_iter:
@@ -263,7 +261,7 @@ def EMCOMP(
                 np.arange(D - 1)[~pD[p_no]["pattern"]],
                 np.arange(D - 1)[pD[p_no]["pattern"]],
             )
-            sigmas = np.zeros((LD))
+            sigmas = np.zeros(LD)
             assert np.isfinite(Y[np.ix_(rows, varobs)]).all()
             assert (~np.isfinite(Y[np.ix_(rows, varmiss)])).all()
             if varobs.size and varmiss.size:  # Non-completely missing, but missing some
@@ -280,7 +278,7 @@ def EMCOMP(
                 assert np.isfinite(B).all()
                 logger.debug(
                     "Current Estimator (1, {})".format(
-                        ", ".join(["β{}".format(i) for i in range(B.shape[0] - 1)])
+                        ", ".join([f"β{i}" for i in range(B.shape[0] - 1)])
                     )
                 )
 
@@ -316,10 +314,10 @@ def EMCOMP(
         Ydevs = Ystar - np.ones((n_obs, 1)) * M
         Ydevs[~np.isfinite(Ydevs)] = 0.0  # remove nonfinite components
         PC = np.dot(Ydevs.T, Ydevs)
-        logger.debug("Correlation:\n{}".format(PC / (n_obs - 1)))
+        logger.debug(f"Correlation:\n{PC / (n_obs - 1)}")
         C = (PC + V) / (n_obs - 1)
 
-        logger.debug("Average diff: {}".format(np.mean(Ydevs, axis=0)))
+        logger.debug(f"Average diff: {np.mean(Ydevs, axis=0)}")
         assert np.isfinite(C).all()
         # --------------------
         # Convergence checking
@@ -329,7 +327,7 @@ def EMCOMP(
             logger.debug("Convergence achieved.")
 
         another_iter = another_iter & (niters < max_iter)
-        logger.debug("Iterations Continuing: {}".format(another_iter))
+        logger.debug(f"Iterations Continuing: {another_iter}")
     # ----------------------------
     # Back to compositional space
     # ---------------------------

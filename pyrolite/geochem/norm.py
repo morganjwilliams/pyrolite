@@ -108,7 +108,7 @@ def update_database(path=None, encoding="cp1252", **kwargs):
         db.close()
 
 
-class Composition(object):
+class Composition:
     def __init__(
         self, src, name=None, reference=None, reservoir=None, source=None, **kwargs
     ):
@@ -162,11 +162,11 @@ class Composition(object):
             self._process_imported_frame()
         else:
             raise NotImplementedError(
-                "Import of compostions as {} not yet implemented.".format(type(src))
+                f"Import of compostions as {type(src)} not yet implemented."
             )
 
         if (self.name is not None) and (self.filename is None):
-            self.filename = "{}.csv".format(self.name)  # default naming
+            self.filename = f"{self.name}.csv"  # default naming
 
     def _import_file(self, filename, **kwargs):
         if filename.endswith(".csv"):
@@ -300,13 +300,13 @@ class Composition(object):
         """Get a string signature of the composition."""
         r = self.__class__.__name__ + "("
         if self.filename is not None:
-            r += "'{}'".format(Path(self.filename).name)
+            r += f"'{Path(self.filename).name}'"
         for par in ["name", "reference", "reservoir"]:
             if getattr(self, par) is not None:
                 r += (
                     ",\n"
                     + " " * (len(self.__class__.__name__) + 1)
-                    + "{}='{}'".format(par, getattr(self, par))
+                    + f"{par}='{getattr(self, par)}'"
                 )
         r += ")"
         return r

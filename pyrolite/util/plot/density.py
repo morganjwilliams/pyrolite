@@ -60,7 +60,7 @@ def get_axis_density_methods(ax):
 
 
 def percentile_contour_values_from_meshz(
-    z, percentiles=[0.95, 0.66, 0.33], resolution=1000
+    z, percentiles: list | None = None, resolution=1000
 ):
     """
     Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
@@ -91,6 +91,8 @@ def percentile_contour_values_from_meshz(
     the minimum.
     """
     # Integral approach from https://stackoverflow.com/a/37932566
+    if percentiles is None:
+        percentiles = [0.95, 0.66, 0.33]
     t = np.linspace(0.0, z.max(), resolution)
     integral = ((z >= t[:, None, None]) * z).sum(axis=(1, 2))
     f = scipy.interpolate.interp1d(integral, t)
@@ -102,8 +104,7 @@ def percentile_contour_values_from_meshz(
         # maximum positions of distributions are limited by the resolution
         # at some point there's a step down to zero
         logger.debug(
-            "Percentile contour below minimum for given resolution"
-            "Returning Minimium."
+            "Percentile contour below minimum for given resolution. Returning Minimium."
         )
         non_one = integral[~np.isclose(integral, np.ones_like(integral))]
         return ["min"], f(np.array([np.nanmax(non_one)]))
@@ -112,12 +113,12 @@ def percentile_contour_values_from_meshz(
 def plot_Z_percentiles(
     *coords,
     zi=None,
-    percentiles=[0.95, 0.66, 0.33],
+    percentiles=None,
     ax=None,
     extent=None,
     fontsize=8,
     cmap=None,
-    colors=None,
+    colors: str | list | None = None,
     linewidths=None,
     linestyles=None,
     contour_labels=None,
@@ -169,18 +170,20 @@ def plot_Z_percentiles(
     an adaption for non-string colours which post-hoc modifies the contour lines
     based on the specified colours?
     """
+    if percentiles is None:
+        percentiles = [0.95, 0.66, 0.33]
     if ax is None:
-        fig, ax = plt.subplots(1, figsize=(6, 6))
+        _fig, ax = plt.subplots(1, figsize=(6, 6))
 
     if extent is None:
         # if len(coords) == 2:  # currently won't work for ternary
         extent = np.array([[np.min(c), np.max(c)] for c in coords[:2]]).flatten()
 
-    clabels, contour_values = percentile_contour_values_from_meshz(
+    _clabels, contour_values = percentile_contour_values_from_meshz(
         zi, percentiles=percentiles
     )
 
-    pcolor, contour, contourf = get_axis_density_methods(ax)
+    _pcolor, contour, _contourf = get_axis_density_methods(ax)
     if colors is not None:  # colors are explicitly specified
         cmap = None
 
@@ -210,7 +213,7 @@ def plot_Z_percentiles(
     if label_contours:
         fs = kwargs.pop("fontsize", None) or 8
         lbls = ax.clabel(cs, fontsize=fs, inline_spacing=0)
-        z_contours = sorted(list(set([float(l.get_text()) for l in lbls])))
+        z_contours = sorted({float(l.get_text()) for l in lbls})
         trans = {
             float(t): str(p)
             for t, p in zip(z_contours, sorted(percentiles, reverse=True))
@@ -294,15 +297,13 @@ def conditional_prob_density(
     if resolution:  # this is where REE previously broke down
         x, y = interpolate_line(x, y, n=resolution, logy=logy)
 
-    if not x.shape == y.shape:
+    if x.shape != y.shape:
         try:  # x is an index to be tiled
             assert y.shape[1] == x.shape[0]
             x = np.tile(x, y.shape[0]).reshape(*y.shape)
         except AssertionError:
             # shape mismatch
-            msg = "Mismatched shapes: x: {}, y: {}. Needs either ".format(
-                x.shape, y.shape
-            )
+            msg = f"Mismatched shapes: x: {x.shape}, y: {y.shape}. Needs either "
             raise AssertionError(msg)
 
     xx = x[0]
@@ -350,7 +351,7 @@ def conditional_prob_density(
         try:
             zi = sample_kde(src, sample_at, **kde_kw)
         except LinAlgError:  # singular matrix, try adding miniscule noise on x?
-            logger.warn("Singular Matrix")
+            logger.warning("Singular Matrix")
             src[:, 0] += np.random.randn(*x.shape) * np.finfo(np.float64).eps
         zi = sample_kde(src, sample_at, **kde_kw)
         zi.reshape(xi.shape)

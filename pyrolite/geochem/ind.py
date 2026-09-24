@@ -30,7 +30,7 @@ __radii__ = {}
 def _load_radii():
     """Import radii tables to a module-level dictionary indexed by reference."""
     for name in ["shannon", "whittaker_muntus"]:
-        pth = (pyrolite_datafolder(subfolder="radii") / "{}.csv".format(name)).resolve()
+        pth = (pyrolite_datafolder(subfolder="radii") / f"{name}.csv").resolve()
         assert pth.exists() and pth.is_file()
         df = pd.read_csv(pth).set_index("index", drop=True)
         assert hasattr(df, "element")
@@ -79,7 +79,7 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
     if as_set:
         return set(map(str, elements))
     else:
-        if not output == "formula":
+        if output != "formula":
             elements = list(map(str, elements))
 
         if order is not None:
@@ -124,7 +124,7 @@ def REE(output="string", dropPm=True):
         "Lu",
     ]
     if dropPm:
-        elements = [i for i in elements if not i == "Pm"]
+        elements = [i for i in elements if i != "Pm"]
     if output == "formula":
         elements = [getattr(pt, el) for el in elements]
     return elements
@@ -168,7 +168,7 @@ def REY(output="string", dropPm=True):
         "Lu",
     ]
     if dropPm:
-        elements = [i for i in elements if not i == "Pm"]
+        elements = [i for i in elements if i != "Pm"]
     if output == "formula":
         elements = [getattr(pt, el) for el in elements]
     return elements
@@ -176,10 +176,10 @@ def REY(output="string", dropPm=True):
 
 # this uses unhashable objects in the call, cannot be optimised using LRU cache
 def common_oxides(
-    elements: list = [],
+    elements: list | None = None,
     output="string",
-    addition: list = ["FeOT", "Fe2O3T", "LOI"],
-    exclude=["O", "He", "Ne", "Ar", "Kr", "Xe"],
+    addition: list | None = None,
+    exclude=None,
     as_set=False,
 ):
     """
@@ -213,6 +213,12 @@ def common_oxides(
     * Element verification
     * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
+    if elements is None:
+        elements = []
+    if exclude is None:
+        exclude = ["O", "He", "Ne", "Ar", "Kr", "Xe"]
+    if addition is None:
+        addition = ["FeOT", "Fe2O3T", "LOI"]
     if not elements:
         elements = _common_elements - set(exclude)
     else:
@@ -250,7 +256,7 @@ def simple_oxides(cation, output="string"):
             catstr = titlecase(cation)  # edge case of lowercase str such as 'cs'
             cation = getattr(pt, catstr)
     except AttributeError:
-        raise Exception("You must select a cation to obtain oxides.")
+        raise KeyError("You must select a cation to obtain oxides.")
     ions = [c for c in cation.ions if c > 0]  # Use only positive charges
 
     # for 3.6+, could use f'{cation}{1}O{c//2}',  f'{cation}{2}O{c}'
@@ -264,12 +270,12 @@ def simple_oxides(cation, output="string"):
     ]
     oxides = [pt.formula(ox) for ox in oxides]
 
-    if not output == "formula":
+    if output != "formula":
         oxides = [str(ox) for ox in oxides]
     return oxides
 
 
-def get_cations(component: str, exclude=[], total_suffix="T"):
+def get_cations(component: str, exclude: list | None = None, total_suffix="T"):
     """
     Returns the principal cations in an oxide component.
 
@@ -289,12 +295,14 @@ def get_cations(component: str, exclude=[], total_suffix="T"):
     -----
         * Consider implementing :class:`periodictable.core.Element` return.
     """
+    if exclude is None:
+        exclude = []
     if isinstance(component, str):
         component = remove_suffix(component, suffix=total_suffix)
 
     exclude += ["O"]
     atms = pt.formula(component).atoms
-    cations = [el for el in atms.keys() if el.__str__() not in exclude]
+    cations = [el for el in atms if str(el) not in exclude]
     return cations
 
 
@@ -483,7 +491,7 @@ def get_ionic_radii(
     else:
         raise AssertionError(
             "Invalid `source` argument. Options: {}".format(
-                " ,".join("'{}'".format(src) for src in __radii__.keys())
+                " ,".join(f"'{src}'" for src in __radii__)
             )
         )
 
@@ -493,7 +501,7 @@ def get_ionic_radii(
         if charge in df.loc[elfltr, "charge"].unique():
             fltrs *= df.charge == charge
         else:
-            logger.warning("Charge {:d} not in table.".format(int(charge)))
+            logger.warning(f"Charge {int(charge):d} not in table.")
             # try to interpolate over charge?..
             # interpolate_charge=True
     else:
@@ -504,7 +512,7 @@ def get_ionic_radii(
         if coordination in df.loc[elfltr, "coordination"].unique():
             fltrs *= df.coordination == coordination
         else:
-            logger.warning("Coordination {:d} not in table.".format(int(coordination)))
+            logger.warning(f"Coordination {int(coordination):d} not in table.")
             # try to interpolate over coordination
             # interpolate_coordination=True
 

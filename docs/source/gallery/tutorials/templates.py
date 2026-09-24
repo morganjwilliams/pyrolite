@@ -96,9 +96,9 @@ clf.add_to_axes(add_labels=True).figure
 # ~~~~~~~~~~~~~~~~~
 #
 # While it's slightly more work, you can also generate ternary templates using a very
-# simliar pattern to the bivariate ones above. The principal differences are that you'll 
+# simliar pattern to the bivariate ones above. The principal differences are that you'll
 # need to specify three axes (t, l, r), specify a 'ternary' transform, and have coordinates
-# for polygons in the ternary space - each with three values. For example, 
+# for polygons in the ternary space - each with three values. For example,
 # here are two fields from the UDSA soil texture triangle:
 #
 cfg = {

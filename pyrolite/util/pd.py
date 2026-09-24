@@ -70,7 +70,7 @@ def column_ordered_append(df1, df2, **kwargs):
     --------
     :class:`pandas.DataFrame`
     """
-    outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
+    outcols = list(df1.columns) + [i for i in df2.columns if i not in df1.columns]
     return pd.concat([df1, df2], axis=0, **kwargs).reindex(columns=outcols)
 
 

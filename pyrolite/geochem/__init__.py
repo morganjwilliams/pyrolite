@@ -20,7 +20,7 @@ set_default_ionic_charges()
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrochem")
 @pd.api.extensions.register_dataframe_accessor("pyrochem")
-class pyrochem(object):
+class pyrochem:
     def __init__(self, obj):
         """Custom dataframe accessor for pyrolite geochemistry."""
         self._validate(obj)
@@ -230,17 +230,19 @@ class pyrochem(object):
 
     # pyrolite.geochem.parse functions
 
-    def parse_chem(self, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+    def parse_chem(self, abbrv=None, split_on=r"[\s_]+"):
         """
         Convert column names to pyrolite-recognised elemental, oxide and isotope
         ratio column names where valid names are found.
         """
+        if abbrv is None:
+            abbrv = ["ID", "IGSN"]
         self._obj.columns = parse.tochem(
             self._obj.columns, abbrv=abbrv, split_on=split_on
         )
         return self._obj
 
-    def check_multiple_cation_inclusion(self, exclude=["LOI", "FeOT", "Fe2O3T"]):
+    def check_multiple_cation_inclusion(self, exclude=None):
         """
         Returns cations which are present in both oxide and elemental form.
 
@@ -254,6 +256,8 @@ class pyrochem(object):
         :class:`set`
             Set of elements for which multiple components exist in the dataframe.
         """
+        if exclude is None:
+            exclude = ["LOI", "FeOT", "Fe2O3T"]
         return parse.check_multiple_cation_inclusion(self._obj, exclude=exclude)
 
     # pyrolite.geochem.transform functions
@@ -298,9 +302,7 @@ class pyrochem(object):
         """
         return transform.to_weight(self._obj, renorm=renorm)
 
-    def devolatilise(
-        self, exclude=["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"], renorm=True
-    ):
+    def devolatilise(self, exclude=None, renorm=True):
         """
         Recalculates components after exclusion of volatile phases (e.g. H2O, CO2).
 
@@ -316,6 +318,8 @@ class pyrochem(object):
         :class:`pandas.DataFrame`
             Transformed dataframe.
         """
+        if exclude is None:
+            exclude = ["H2O", "H2O_PLUS", "H2O_MINUS", "CO2", "LOI"]
         return transform.devolatilise(self._obj, exclude=exclude, renorm=renorm)
 
     def elemental_sum(
@@ -434,7 +438,9 @@ class pyrochem(object):
             molecular=molecular,
         )
 
-    def get_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
+    def get_ratio(
+        self, ratio: str, alias: str | None = None, norm_to=None, molecular=False
+    ):
         """
         Add a ratio of components A and B, given in the form of string 'A/B'.
         Returned series be assigned an alias name.
@@ -463,7 +469,9 @@ class pyrochem(object):
             self._obj, ratio, alias, norm_to=norm_to, molecular=molecular
         )
 
-    def add_ratio(self, ratio: str, alias: str = None, norm_to=None, molecular=False):
+    def add_ratio(
+        self, ratio: str, alias: str | None = None, norm_to=None, molecular=False
+    ):
         """
         Add a ratio of components A and B, given in the form of string 'A/B'.
         Returned series be assigned an alias name.
@@ -530,7 +538,7 @@ class pyrochem(object):
     def lambda_lnREE(
         self,
         norm_to="ChondriteREE_ON",
-        exclude=["Pm", "Eu"],
+        exclude=None,
         params=None,
         degree=4,
         scale="ppm",
@@ -576,6 +584,8 @@ class pyrochem(object):
         :func:`~pyrolite.util.lambdas.orthogonal_polynomial_constants`
         :func:`~pyrolite.plot.REE_radii_plot`
         """
+        if exclude is None:
+            exclude = ["Pm", "Eu"]
         return transform.lambda_lnREE(
             self._obj,
             norm_to=norm_to,

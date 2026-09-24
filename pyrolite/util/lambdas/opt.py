@@ -4,7 +4,6 @@ estimation.
 """
 
 import numpy as np
-import pandas as pd
 import scipy.linalg
 import scipy.optimize
 

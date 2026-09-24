@@ -8,7 +8,7 @@ from ...util.plot.grid import bin_centres_to_edges
 logger = Handle(__name__)
 
 
-class DensityGrid(object):
+class DensityGrid:
     def __init__(
         self, x, y, extent=None, bins=50, logx=False, logy=False, coverage_scale=1.2
     ):
@@ -147,7 +147,7 @@ class DensityGrid(object):
             yex = [np.log(self.ymin / self.ystep), np.log(self.ymax * self.ystep)]
         else:
             yex = [self.ymin - self.ystep, self.ymax + self.ystep]
-        return sorted(list(xex)) + sorted(list(yex))
+        return sorted(xex) + sorted(yex)
 
     def kdefrom(
         self,

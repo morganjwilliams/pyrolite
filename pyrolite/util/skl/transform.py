@@ -301,7 +301,7 @@ class BoxCoxTransform(BaseEstimator, TransformerMixin):
     def transform(self, X, *args, **kwargs):
         self.X = np.array(X)
         if "lmbda" not in kwargs:
-            if not (self.lmbda is None):
+            if self.lmbda is not None:
                 kwargs.update(dict(lmbda=self.lmbda))
                 data = self.forward(X, *args, **kwargs)
             else:
