@@ -188,14 +188,16 @@ def SVC_pipeline(
     cache_size  : :class:`float`
         Specify the size of the kernel cache (in MB).
 
-    {otherparams}
-
     Returns
     -------
     gs : :class:`sklearn.model_selection.GridSearchCV`
         Gridsearch object containing the results of the SVC training across the
         parameter grid. Access the best estimator with :code:`gs.best_estimator_`
         and its parameters with :code:`gs.best_params_`.
+
+    Notes
+    -----
+    See also: :class:`sklearn.svm.SVC`
     """
     classifier_kwargs = {
         "kernel": kernel,
@@ -207,7 +209,7 @@ def SVC_pipeline(
     }
 
     if balance:
-        classifier_kwargs.update(dict(class_weight="balanced"))
+        classifier_kwargs.update({"class_weight": "balanced"})
 
     stages = []
     if sampler is not None:
@@ -240,7 +242,7 @@ class PdUnion(BaseEstimator, TransformerMixin):
         for est in self.estimators:
             if isinstance(est, pd.DataFrame):
                 parts.append(est)
-            elif isinstance(est, TransformerMixin) or isinstance(est, BaseEstimator):
+            elif isinstance(est, (TransformerMixin, BaseEstimator)):
                 if hasattr(est, "fit"):
                     parts.append(est.fit_transform(X))
                 else:
@@ -255,25 +257,10 @@ class PdUnion(BaseEstimator, TransformerMixin):
             idxs.append(p.index.size)
 
         # check the indexes are all the same length
-        assert all([idx == idxs[0] for idx in idxs])
+        assert all(idx == idxs[0] for idx in idxs)
 
         out = pd.DataFrame(columns=columns)
         for p in parts:
             out[p.columns] = p
 
         return out
-
-
-_add_additional_parameters = True
-SVC_pipeline.__doc__ = SVC_pipeline.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            SVC_pipeline,
-            sklearn.svm.SVC,
-            indent=4,
-            header="Other Parameters",
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)

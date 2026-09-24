@@ -10,7 +10,7 @@ from matplotlib.ticker import MaxNLocator
 
 from ...comp.codata import close
 from ...util.log import Handle
-from ...util.meta import get_additional_params, subkwargs
+from ...util.meta import subkwargs
 from ...util.plot.axes import add_colorbar, init_axes
 from ...util.plot.density import (
     get_axis_density_methods,
@@ -32,7 +32,7 @@ def density(
     bins=25,
     mode="density",
     extent=None,
-    contours=[],
+    contours=None,
     percentiles=True,
     relim=True,
     cmap=DEFAULT_CONT_COLORMAP,
@@ -50,7 +50,7 @@ def density(
     :func:`~matplotlib.pyplot.hist2d`,
     :func:`~matplotlib.pyplot.hexbin`,
     :func:`~matplotlib.pyplot.contour`, and
-    :func:`~matplotlib.pyplot.contourf` (see Other Parameters, below).
+    :func:`~matplotlib.pyplot.contourf`.
 
     Parameters
     ----------
@@ -84,21 +84,10 @@ def density(
     colorbar : :class:`bool`, False
         Whether to append a linked colorbar to the generated mappable image.
 
-    {otherparams}
-
     Returns
     -------
     :class:`matplotlib.axes.Axes`
         Axes on which the densityplot is plotted.
-
-
-    .. seealso::
-
-        Functions:
-
-            :func:`matplotlib.pyplot.pcolormesh`
-            :func:`matplotlib.pyplot.hist2d`
-            :func:`matplotlib.pyplot.contourf`
 
     Notes
     -----
@@ -110,13 +99,23 @@ def density(
     `mode="density"`; future updates may allow the use of a histogram
     basis, which would give results closer to 95% data percentiles.
 
+    See also:
+    * :func:`matplotlib.pyplot.pcolormesh`
+    * :func:`matplotlib.pyplot.hist2d`
+    * :func:`matplotlib.pyplot.contourf`
+    * :func:`matplotlib.pyplot.hexbin`
+    * :func:`matplotlib.pyplot.contour`
+    * :func:`matplotlib.pyplot.contourf`
+
     Todo
     ----
     * Allow generation of contours from histogram data, rather than just
-        the kernel density estimate.
+      the kernel density estimate.
     * Implement an option and filter to 'scatter' points below the minimum threshold
-        or maximum percentile contours.
+      or maximum percentile contours.
     """
+    if contours is None:
+        contours = []
     if (mode == "density") & np.isclose(vmin, 0.0):  # if vmin is not specified
         vmin = 0.02  # 2% max height | 98th percentile
 
@@ -127,7 +126,7 @@ def density(
 
     ax = init_axes(ax=ax, projection=projection, **kwargs)
 
-    pcolor, contour, contourf = get_axis_density_methods(ax)
+    pcolor, _contour, _contourf = get_axis_density_methods(ax)
     background_color = (*ax.patch.get_facecolor()[:-1], 0.0)
 
     if cmap is not None:
@@ -199,9 +198,7 @@ def density(
 
                 if percentiles:  # 98th percentile
                     vmin = percentile_contour_values_from_meshz(zei, [1.0 - vmin])[1][0]
-                    logger.debug(
-                        "Updating `vmin` to percentile equiv: {:.2f}".format(vmin)
-                    )
+                    logger.debug(f"Updating `vmin` to percentile equiv: {vmin:.2f}")
 
                 if not contours:
                     # pcolormesh using bin edges
@@ -244,7 +241,7 @@ def density(
 
             if percentiles:  # 98th percentile
                 vmin = percentile_contour_values_from_meshz(zi, [1.0 - vmin])[1][0]
-                logger.debug("Updating `vmin` to percentile equiv: {:.2f}".format(vmin))
+                logger.debug(f"Updating `vmin` to percentile equiv: {vmin:.2f}")
 
             # remove coords where H==0, as ax.tripcolor can't deal with variable alpha :'(
             fltr = (zi != 0) & (zi >= vmin)
@@ -302,7 +299,7 @@ def _add_contours(
     # get the contour levels
     percentiles = kwargs.pop("percentiles", True)
     levels = contours or kwargs.get("levels", None)
-    pcolor, contour, contourf = get_axis_density_methods(ax)
+    _pcolor, contour, contourf = get_axis_density_methods(ax)
     if percentiles and not isinstance(levels, int):
         # plot individual percentile contours
         _cs = plot_Z_percentiles(
@@ -332,23 +329,3 @@ def _add_contours(
             *coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
         )
     return mappable
-
-
-_add_additional_parameters = True
-
-density.__doc__ = density.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            density,
-            plt.pcolormesh,
-            plt.hist2d,
-            plt.hexbin,
-            plt.contour,
-            plt.contourf,
-            header="Other Parameters",
-            indent=4,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)

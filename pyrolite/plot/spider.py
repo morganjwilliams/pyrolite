@@ -1,7 +1,6 @@
 import matplotlib.collections
 import matplotlib.lines
 import matplotlib.patches
-import matplotlib.pyplot as plt
 import numpy as np
 
 from ..util.log import Handle
@@ -10,7 +9,7 @@ logger = Handle(__name__)
 
 
 from ..geochem.ind import REE, get_ionic_radii
-from ..util.meta import get_additional_params, subkwargs
+from ..util.meta import subkwargs
 from ..util.plot.axes import get_twins, init_axes
 from ..util.plot.density import (
     conditional_prob_density,
@@ -25,8 +24,8 @@ from ..util.plot.style import (
 )
 from .color import process_color
 
-_scatter_defaults = dict(cmap=DEFAULT_CONT_COLORMAP, marker="D", s=25)
-_line_defaults = dict(cmap=DEFAULT_CONT_COLORMAP)
+_scatter_defaults = {"cmap": DEFAULT_CONT_COLORMAP, "marker": "D", "s": 25}
+_line_defaults = {"cmap": DEFAULT_CONT_COLORMAP}
 
 
 # could create a spidercollection?
@@ -78,7 +77,6 @@ def spider(
         Whether to set the x-axis ticks according to the specified index.
     autoscale : :class:`bool`
         Whether to autoscale the y-axis limits for standard spider plots.
-    {otherparams}
 
     Returns
     -------
@@ -87,21 +85,18 @@ def spider(
 
     Notes
     -----
-        By using separate lines and scatterplots, values between two missing
-        items are still presented.
+    By using separate lines and scatterplots, values between two missing
+    items are still presented.
+
+    See also:
+    * :func:`matplotlib.pyplot.plot`
+    * :func:`matplotlib.pyplot.scatter`
+    * :func:`~pyrolite.plot.spider.REE_v_radii`.
 
     Todo
     ----
-        * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
-        * Legend entries
-
-    .. seealso::
-
-        Functions:
-
-            :func:`matplotlib.pyplot.plot`
-            :func:`matplotlib.pyplot.scatter`
-            :func:`REE_v_radii`
+    * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
+    * Legend entries
     """
 
     # ---------------------------------------------------------------------
@@ -152,9 +147,8 @@ def spider(
         l_kw = {**kwargs, **l_kw}
 
         # if a line color hasn't been specified, perhaps we can use the scatter 'c'
-        if l_kw.get("color") is None:
-            if l_kw.get("c") is not None:
-                l_kw["color"] = kwargs.get("c")
+        if l_kw.get("color") is None and l_kw.get("c") is not None:
+            l_kw["color"] = kwargs.get("c")
         if "c" in l_kw:
             l_kw.pop("c")  # remove c if it's been specified globally
         # if a color option is not specified, get the next cycled color
@@ -181,7 +175,7 @@ def spider(
         if s_kw["marker"] is not None:
             # will need to process colours for scatter markers here
 
-            s_kw.update(dict(label=label))
+            s_kw.update({"label": label})
 
             scattercolor = None
             if s_kw.get("c") is not None:
@@ -218,7 +212,7 @@ def spider(
         # should create a custom legend handle here
 
         # could modify legend here.
-    elif any([i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]]):
+    elif any(i in mode.lower() for i in ["binkde", "ckde", "kde", "hist"]):
         cmap = kwargs.pop("cmap", None)
         if "contours" in kwargs and "vmin" in kwargs:
             msg = "Combining `contours` and `vmin` arguments for density plots should be avoided."
@@ -238,7 +232,7 @@ def spider(
         if "contours" in kwargs:
             pzpkwargs = {  # keyword arguments to forward to plot_Z_percentiles
                 **subkwargs(kwargs, plot_Z_percentiles),
-                **{"percentiles": kwargs["contours"]},
+                "percentiles": kwargs["contours"],
             }
             plot_Z_percentiles(  # pass all relevant kwargs including contours
                 xi, yi, zi=zi, ax=ax, cmap=cmap, vmin=vmin, **pzpkwargs
@@ -268,7 +262,7 @@ def spider(
             logy_rng = logmax - logmin
 
             low, high = 10 ** np.floor(logmin), 10 ** np.floor(logmax)
-           
+
             _ymin, _ymax = (
                 np.floor(10 ** (logmin - 0.05 * logy_rng) / low) * low
                 if (logmin - 0.05 * logy_rng) > 0
@@ -287,7 +281,7 @@ def spider(
 def REE_v_radii(
     arr=None,
     ax=None,
-    ree=REE(),
+    ree: list | None = None,
     index="elements",
     mode="plot",
     logy=True,
@@ -329,7 +323,6 @@ def REE_v_radii(
         Whether to set the x-axis ticklabels for the REE.
     set_ticks : :class:`bool`
         Whether to set the x-axis ticks according to the specified index.
-    {otherparams}
 
     Returns
     -------
@@ -338,23 +331,24 @@ def REE_v_radii(
 
     Todo
     ----
-        * Turn this into a plot template within pyrolite.plot.templates submodule
+    * Turn this into a plot template within pyrolite.plot.templates submodule
 
-    .. seealso::
+    Notes
+    -----
+    See also:
 
-        Functions:
-
-            :func:`matplotlib.pyplot.plot`
-            :func:`matplotlib.pyplot.scatter`
-            :func:`spider`
-            :func:`pyrolite.geochem.transform.lambda_lnREE`
-
+    * :func:`matplotlib.pyplot.plot`
+    * :func:`matplotlib.pyplot.scatter`
+    * :func:`~pyrolite.plot.spider.spider`
+    * :func:`pyrolite.geochem.transform.lambda_lnREE`
     """
+    if ree is None:
+        ree = REE()
     ax = init_axes(ax=ax, **kwargs)
 
     radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
 
-    xlabels, _xlabels = ["{:1.3f}".format(i) for i in radii], ree
+    xlabels, _xlabels = [f"{i:1.3f}" for i in radii], ree
     xticks, _xticks = radii, radii
     xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))
     xlabelrotation, _xlabelrotation = tl_rotation, 0
@@ -407,29 +401,3 @@ def REE_v_radii(
         _ax.set_xticklabels(_xlabels, rotation=_xlabelrotation)
         _ax.set_xlim(ax.get_xlim())
     return ax
-
-
-_add_additional_parameters = True
-spider.__doc__ = spider.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            spider,
-            plt.scatter,
-            plt.plot,
-            matplotlib.lines.Line2D,
-            indent=4,
-            header="Other Parameters",
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-REE_v_radii.__doc__ = REE_v_radii.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            REE_v_radii, spider, indent=4, header="Other Parameters", subsections=True
-        ),
-    ][_add_additional_parameters]
-)

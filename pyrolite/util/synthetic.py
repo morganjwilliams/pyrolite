@@ -10,7 +10,6 @@ from ..geochem.ind import REE, get_ionic_radii
 from ..geochem.norm import get_reference_composition
 from ..util.lambdas.eval import get_function_components
 from .log import Handle
-from .meta import get_additional_params
 
 logger = Handle(__name__)
 
@@ -212,17 +211,13 @@ def random_composition(
                 data[:, nancols],
             )
         else:
-            msg = "Provide a value for missing in {}".format(
-                set(["MCAR", "MAR", "MNAR"])
-            )
+            msg = "Provide a value for missing in {}".format({"MCAR", "MAR", "MNAR"})
             raise NotImplementedError(msg)
 
     return data
 
 
-def normal_frame(
-    columns=["SiO2", "CaO", "MgO", "FeO", "TiO2"], size=10, mean=None, **kwargs
-):
+def normal_frame(columns=None, size=10, mean=None, **kwargs):
     r"""
     Creates a :class:`pandas.DataFrame` with samples from a single multivariate-normal
     distributed composition.
@@ -236,19 +231,24 @@ def normal_frame(
         Index length for the dataframe.
     mean : :class:`numpy.ndarray`, :code:`None`
         Optional specification of mean composition.
-    {otherparams}
 
     Returns
     --------
     :class:`pandas.DataFrame`
+
+    Notes
+    -----
+    See also: :func:`~pyrolite.util.synthetic.random_composition`.
     """
+    if columns is None:
+        columns = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
     return pd.DataFrame(
         columns=columns,
         data=random_composition(size=size, D=len(columns), mean=mean, **kwargs),
     )
 
 
-def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
+def normal_series(index=None, mean=None, **kwargs):
     """
     Creates a :class:`pandas.Series` with a single sample from a single multivariate-normal
     distributed composition.
@@ -260,12 +260,17 @@ def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwar
         on the data returned, and are only for labelling.
     mean : :class:`numpy.ndarray`, :code:`None`
         Optional specification of mean composition.
-    {otherparams}
 
     Returns
     --------
     :class:`pandas.Series`
+
+    Notes
+    ------
+    See also: :func:`~pyrolite.util.synthetic.random_composition`.
     """
+    if index is None:
+        index = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
     return pd.Series(
         random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,
@@ -349,31 +354,10 @@ def example_patterns_from_parameters(
     sz = len(radii)
     cov = np.zeros((sz, sz))
     for offset in np.arange(-sz + 1, sz):
-        vals = np.ones(sz - np.abs(offset)) * np.abs((sz - np.abs(offset))) / sz
+        vals = np.ones(sz - np.abs(offset)) * np.abs(sz - np.abs(offset)) / sz
         cov += np.diag(vals**2, offset)
     noise = 1 + proportional_noise * np.random.multivariate_normal(
         np.zeros(sz), cov, size=pattern_df.shape[0]
     )
     pattern_df *= noise
     return pattern_df
-
-
-_add_additional_parameters = True
-
-normal_frame.__doc__ = normal_frame.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            random_composition, header="Other Parameters", indent=8, subsections=True
-        ),
-    ][_add_additional_parameters]
-)
-
-normal_series.__doc__ = normal_series.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            random_composition, header="Other Parameters", indent=8, subsections=True
-        ),
-    ][_add_additional_parameters]
-)
