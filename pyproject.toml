@@ -43,6 +43,15 @@ Repository = "https://github.com/morganjwilliams/pyrolite"
 Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
+db = ["pyodbc", "psycopg2"]
+notebook = ["ipykernel", "ipywidgets"]
+skl = ["scikit-learn", "joblib"]
+spatial = ["owslib", "geojson", "psutil"]
+stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
+excel = ["xlrd", "openpyxl"]
+
+[dependency-groups]
+test = ["pytest",  "pytest-cov", "coverage"] # coveralls but only in CI
 docs = [
     "sphinx_rtd_theme",
     # "docutils<0.17",
@@ -51,19 +60,13 @@ docs = [
     "sphinx_gallery>=0.6.0",
     "recommonmark",
 ]
-db = ["pyodbc", "psycopg2"]
-test = ["pytest", "pytest-cov", "coverage"] # coveralls but only in CI
-notebook = ["ipykernel", "ipywidgets"]
-skl = ["scikit-learn", "joblib"]
-spatial = ["owslib", "geojson", "psutil"]
-stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
-excel = ["xlrd", "openpyxl"]
 dev = [
-    "pytest",
     "ruff",
     "twine",
-    "pyrolite[test,docs,skl,notebook]",
     "build",
+     "pyrolite[test,docs,skl,notebook]",
+    { include-group = "test" },
+    { include-group = "docs" },
 ]
 
 [tool.setuptools.packages]

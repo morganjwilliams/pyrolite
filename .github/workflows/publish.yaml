@@ -1,0 +1,36 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4
+        with:
+            version: "latest"
+            activate-environment: true
+            python-version: 3.13
+            enable-cache: true
+            cache-dependency-glob: |
+              **/pyproject.toml
+
+      - name: Sync (no dev deps)
+        run: uv sync --no-default-groups
+
+      - name: Build wheel and sdist
+        run: uv build --no-sources
+
+      - name: Publish to pypi
+        run: uv publish
