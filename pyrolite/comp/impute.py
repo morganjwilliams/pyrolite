@@ -132,7 +132,7 @@ def _reg_sweep(
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
             A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
-            Computers & Geosciences 34, 902–917.
+            Computers & Geosciences 34, 902-917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
 
     """
@@ -219,7 +219,7 @@ def EMCOMP(
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
             A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
-            Computers & Geosciences 34, 902–917.
+            Computers & Geosciences 34, 902-917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
     """
     X = X.copy()

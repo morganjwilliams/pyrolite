@@ -6,7 +6,7 @@ parameters "A" to "E".
 References
 -----------
 .. [#ref_1] Aitchison J. (1984) The statistical analysis of geochemical compositions.
-       Journal of the International Association for Mathematical Geology 16, 531–564.
+       Journal of the International Association for Mathematical Geology 16, 531-564.
        doi: {aitchison1984}
 """
 
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 __folder__ = pyrolite_datafolder(subfolder="Aitchison")
 
 
-def _load_frame(filename):
+def _load_frame(filename: str) -> pd.DataFrame:
     path = __folder__ / filename
     df = pd.read_csv(path)
     df.loc[:, ["A", "B", "C", "D", "E"]] = renormalise(

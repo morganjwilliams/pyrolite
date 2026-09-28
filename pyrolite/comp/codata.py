@@ -76,9 +76,13 @@ def close(
 
 
 @overload
-def renormalise(df: pd.DataFrame, components: list, scale: float) -> pd.DataFrame: ...
+def renormalise(
+    df: pd.DataFrame, components: list[str] | None, scale: float = 100.0
+) -> pd.DataFrame: ...
 @overload
-def renormalise(df: pd.Series, components: list, scale: float) -> pd.Series: ...
+def renormalise(
+    df: pd.Series, components: list[str] | None, scale: float = 100.0
+) -> pd.Series: ...
 def renormalise(
     df: pd.DataFrame | pd.Series,
     components: list[str] | None = None,
