@@ -170,7 +170,7 @@ def great_circle_distance(
     dtype : numpy.dtype
         Data type for distance arrays, to constrain memory management.
     max_memory_fraction : float
-        Constraint to switch to calculating mean distances where :code:`matrix=True`
+        Constraint to switch to calculating mean distances where `matrix=True`
         and the distance matrix requires greater than a specified fraction of total
         avaialbe physical memory.
     """
@@ -263,9 +263,9 @@ def piecewise(
 
     Parameters
     ----------
-    segment_ranges : `list`
+    segment_ranges : list
         List of segment ranges to create a grid from.
-    segments : `int`
+    segments : int
         Number of segments.
     output_fmt
         Function to call on the output.

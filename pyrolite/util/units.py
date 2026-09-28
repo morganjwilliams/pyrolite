@@ -31,7 +31,7 @@ def scale(in_unit, target_unit="ppm"):
 
     Todo
     -------
-        * Implement different inputs: `str`, `list`, `pandas.Series`
+        * Implement different inputs: str, list, pandas.Series
 
     Returns
     --------

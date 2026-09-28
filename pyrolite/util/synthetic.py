@@ -227,7 +227,7 @@ def normal_frame(
     **kwargs,
 ) -> pd.DataFrame:
     r"""
-    Creates a `pandas.DataFrame` with samples from a single multivariate-normal
+    Creates a pandas.DataFrame with samples from a single multivariate-normal
     distributed composition.
 
     Parameters
@@ -262,20 +262,20 @@ def normal_series(
     **kwargs,
 ) -> pd.Series:
     """
-    Creates a `pandas.Series` with a single sample from a single multivariate-normal
+    Creates a pandas.Series with a single sample from a single multivariate-normal
     distributed composition.
 
     Parameters
     ------------
-    index : `list`
+    index : list
         List of indexes for the series. These won't have any direct impact
         on the data returned, and are only for labelling.
-    mean : `numpy.ndarray`, `None`
+    mean : numpy.ndarray, `None`
         Optional specification of mean composition.
 
     Returns
     --------
-    `pandas.Series`
+    pandas.Series
 
     Notes
     ------

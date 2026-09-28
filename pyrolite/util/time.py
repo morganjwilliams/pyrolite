@@ -196,7 +196,7 @@ class Timescale:
 
         Parameters
         -----------
-        filename : `str` | `pathlib.Path`
+        filename : str | pathlib.Path
             Path to the timescale data file.
 
         Attributes

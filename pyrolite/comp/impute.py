@@ -1,3 +1,4 @@
+from typing import Callable
 import numpy as np
 from scipy import stats
 
@@ -10,20 +11,23 @@ from ..util.log import Handle
 logger = Handle(__name__)
 
 
-def _little_sweep(G, k: int = 0, verify=False):
+def _little_sweep(
+    G: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    k: int = 0,
+    verify: bool = False,
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Parameters
     ---------------
-    G : :class:`numpy.ndarray`
+    G : numpy.ndarray
         Input array to sweep.
-    k : :class:`int`
-        Index to sweep on.
-    verify : :class:`bool`
+    k : int
+    verify : bool
         Whether to verify valid matrix input.
 
     Returns
     --------
-    H : :class:`numpy.ndarray`
+    H : numpy.ndarray
         Swept array.
 
     References
@@ -63,20 +67,23 @@ def _little_sweep(G, k: int = 0, verify=False):
     return H
 
 
-def _multisweep(G, ks):
+def _multisweep(
+    G: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    ks: np.ndarray[tuple[int], np.dtype[np.integer]] | list[int] | range,
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Sweep G along all indexes ks.
 
     Parameters
     -----------
-    G : :class:`numpy.ndarray`
+    G : numpy.ndarray
         Augmented covariance matrix to sweep.
-    ks : :class:`numpy.ndarray`
+    ks : numpy.ndarray
         Indicies to sweep.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     H = G.copy()
     for k in ks:
@@ -84,7 +91,15 @@ def _multisweep(G, ks):
     return H
 
 
-def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
+def _reg_sweep(
+    M: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    C: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    varobs: np.ndarray[tuple[int], np.dtype[np.bool]],
+    error_threshold: float | None = None,
+) -> tuple[
+    np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    np.ndarray[tuple[int, int], np.dtype[np.floating]],
+]:
     r"""
     Performs multiple sweeps of the augmented covariance matrix and extracts the
     regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
@@ -95,22 +110,22 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
 
     Parameters
     -----------
-    M : :class:`numpy.ndarray`
-        Array of means of shape :code:`(D, )`.
-    C : :class:`numpy.ndarray`
-        Covariance of shape :code:`(D, D)`.
-    varobs : :class:`numpy.ndarray`
+    M : numpy.ndarray
+        Array of means of shape `(D, )`.
+    C : numpy.ndarray
+        Covariance of shape `(D, D)`.
+    varobs : numpy.ndarray
         Boolean array indicating which variables are included in the regression model,
-        of shape :code:`(D, )`
-    error_threshold : :class:`float`
-        Low-pass threshold at which an error will result, of shape :code:`(D, )`.
+        of shape `(D, )`
+    error_threshold : float
+        Low-pass threshold at which an error will result, of shape `(D, )`.
         Effectively limiting mean values to :math:`e^{threshold}`.
 
     Returns
     --------
-    β : :class:`numpy.ndarray`
+    β : numpy.ndarray
         Array of estimated regression coefficients.
-    σ2_res : :class:`numpy.ndarray`
+    σ2_res : numpy.ndarray
         Residuals.
 
     References
@@ -149,12 +164,12 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
 
 
 def EMCOMP(
-    X,
-    threshold=None,
-    tol=0.0001,
-    convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
-    max_iter=30,
-):
+    X: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    threshold: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    tol: float = 0.0001,
+    convergence_metric: Callable = lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
+    max_iter: int = 30,
+) -> tuple[np.ndarray[tuple[int, int], np.dtype[np.floating]], float, int]:
     r"""
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
     thresholds. After Palarea-Albaladejo and Martín-Fernández (2008) [#ref_1]_.
@@ -162,43 +177,43 @@ def EMCOMP(
 
     Parameters
     ----------
-    X  : :class:`numpy.ndarray`
+    X  : numpy.ndarray
         Dataset with rounded zeros
-    threshold : :class:`numpy.ndarray`
+    threshold : numpy.ndarray
         Array of threshold values for each component as a proprotion.
-    tol : :class:`float`
+    tol : float
         Tolerance to check for convergence.
-    convergence_metric : :class:`callable`
+    convergence_metric : Callable
         Callable function to check for convergence. Here we use a compositional distance
         rather than a maximum absolute difference, with very similar performance.
-        Function needs to accept two :class:`numpy.ndarray` arguments and third
+        Function needs to accept two numpy.ndarray arguments and third
         tolerance argument.
-    max_iter : :class:`int`
+    max_iter : int
         Maximum number of iterations before an error is thrown.
 
     Returns
     --------
-    X_est : :class:`numpy.ndarray`
+    X_est : numpy.ndarray
         Dataset with rounded zeros replaced.
-    prop_zeros : :class:`float`
+    prop_zeros : float
        Proportion of zeros in the original data set.
-    n_iters : :class:`int`
+    n_iters : int
         Number of iterations needed for convergence.
 
     Notes
     -----
 
-        * At least one component without missing values is needed for the divisor.
-          Rounded zeros/missing values are replaced by values below their respective
-          detection limits.
+    * At least one component without missing values is needed for the divisor.
+      Rounded zeros/missing values are replaced by values below their respective
+      detection limits.
 
-        * This routine is not completely numerically stable as written.
+    * This routine is not completely numerically stable as written.
 
     Todo
     -------
-        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code:`(N, D)`)
-        * Conisder non-normal models for data distributions.
-        * Improve numerical stability to reduce the chance of :code:`np.inf` appearing.
+    * Implement methods to deal with variable decection limits (i.e thresholds are array shape `(N, D)`)
+    * Conisder non-normal models for data distributions.
+    * Improve numerical stability to reduce the chance of `np.inf` appearing.
 
     References
     ----------
@@ -206,7 +221,6 @@ def EMCOMP(
             A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
             Computers & Geosciences 34, 902–917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
-
     """
     X = X.copy()
     n_obs, D = X.shape
@@ -230,7 +244,7 @@ def EMCOMP(
     )
     assert np.isfinite(cpoints).all()
     cpoints = cpoints[:, [i for i in range(D) if i != pos]]  # censure points
-    prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
+    prop_zeroes: float = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
     Y = ALR(X, pos)
     # ---------------Log Space--------------------------------
     LD = Y.shape[1]

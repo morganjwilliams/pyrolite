@@ -20,16 +20,16 @@ logger = Handle(__name__)
 __all__ = ["Handle", "__version__", "load_extensions"]
 
 
-def load_extensions(base="pyrolite_", replace=None):
+def load_extensions(base: str = "pyrolite_", replace: list[str] | None = None):
     """
     Automatically load any extensions associated with pyrolite
     to be importable from :mod:`pyrolite.extensions`.
 
     Parameters
     ----------
-    base : :class:`str`
+    base : str
         Module base string pattern for recognising extensions.
-    replace : :class:`list`
+    replace : list
         List of strings to replace from extension modules to shorten call signatures.
     """
     from . import extensions

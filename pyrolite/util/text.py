@@ -205,7 +205,7 @@ def parse_entry(
             return [entry]
 
 
-def split_records(data: str, delimiterLstr=r"\r\n") -> list[str]:
+def split_records(data: str, delimiter: str = r"\r\n") -> list[str]:
     """
     Splits records in a csv where quotation marks are used.
     Splits on a delimiter followed by an even number of quotation marks.
