@@ -7,7 +7,7 @@ All notable changes to this project will be documented here.
 :::{note}
 Changes noted in this subsection are to be released in the next version.
 If you're keen to check something out before its released, you can use a
-[development install](development.md#development-installation) .
+[development install](./development.md#development-installation) .
 :::
 
 ## [0.3.7]

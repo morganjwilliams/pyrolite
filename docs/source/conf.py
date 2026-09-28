@@ -18,6 +18,7 @@
 
 
 import re
+import warnings
 from datetime import date
 from pathlib import Path
 
@@ -48,9 +49,8 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
-    # "myst_parser", # already included in myst_nb
-    "myst_sphinx_gallery",
-    "myst_nb",
+    "myst_parser",
+    "sphinx_gallery.gen_gallery",
 ]
 autosummary_generate = True
 
@@ -64,8 +64,8 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 source_suffix = {
     ".rst": "restructuredtext",
-    ".md": "myst-nb",
-    ".myst": "myst-nb",
+    ".txt": "markdown",
+    ".md": "markdown",
 }
 # The master toctree document.
 master_doc = "index"
@@ -95,7 +95,7 @@ pygments_style = "sphinx"
 todo_include_todos = True
 
 autodoc_member_order = "bysource"
-
+autodoc_typehints = "signature"
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -114,7 +114,7 @@ myst_enable_extensions = [
     "dollarmath",
     "amsmath",
 ]
-
+myst_heading_anchors = 2
 html_theme_options = {
     "repository_url": "https://github.com/morganjwilliams/pyrolite",
     "use_repository_button": True,
@@ -140,6 +140,67 @@ html_context = {
     "github_version": "develop",  # Version
     "conf_py_path": "/docs/source/",  # Path in the checkout to the docs root
 }
+
+# sphinx_gallery config
+
+
+# def reset_mpl(gallery_conf, fname):
+#     import matplotlib.style
+
+#     # this should already be exported, so can be used
+#     matplotlib.style.use("pyrolite")
+
+
+sphinx_gallery_conf = {
+    "examples_dirs": [
+        "gallery/examples/",
+        "gallery/tutorials/",
+        "gallery/data/",
+    ],  # path to sources
+    "gallery_dirs": ["examples", "tutorials", "data"],  # output paths
+    "subsection_order": [
+        "gallery/examples/plotting",
+        "gallery/examples/geochem",
+        "gallery/examples/comp",
+        "gallery/examples/util",
+        "gallery/tutorials/",
+        "gallery/data",
+    ],
+    "show_signature": False,
+    "capture_repr": ("_repr_html_", "__repr__", "__str__"),
+    "backreferences_dir": "_backreferences",
+    "doc_module": ("pyrolite"),
+    "filename_pattern": r"\.py",
+    "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
+    "remove_config_comments": True,
+    "download_all_examples": False,
+    "reference_url": {"pyrolite": None},
+    # "image_scrapers": ("altmatplot"),
+    "binder": {
+        # Required keys
+        "org": "morganjwilliams",
+        "repo": "pyrolite",
+        "branch": "develop",  # Can be any branch, tag, or commit hash. Use a branch that hosts your docs.
+        "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
+        "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
+        # Optional keys
+        # "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
+        "notebooks_dir": "docs/source/",
+        "use_jupyter_lab": True,
+    },
+    # "jupyterlite": {"use_jupyter_lab": True},
+    "first_notebook_cell": "%matplotlib inline\n",
+    "nested_sections": False,
+    "pypandoc": True,  # run `pypandoc download`` to make sure it's available
+}
+
+# Remove matplotlib agg warnings from generated doc when using plt.show
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="Matplotlib is currently using agg, which is a"
+    " non-GUI backend, so cannot show the figure.",
+)
 
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -200,10 +261,10 @@ texinfo_documents = [
 # -- intersphinx
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
-    "matplotlib": ("https://matplotlib.org/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
     "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("https://scikit-learn.org/stable", None),

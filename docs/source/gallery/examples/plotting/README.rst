@@ -1,4 +1,5 @@
-# Plotting Examples
+Plotting Examples
+==================
 
 pyrolite provides some functionality for basic plotting of geochemical data in the form
 of spidergrams (pyrolite.plot.spider), ternary diagrams (pyrolite.plot.tern) and

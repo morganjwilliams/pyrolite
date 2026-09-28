@@ -1,4 +1,5 @@
-# Utility Examples
+Utility Examples
+================
 
 pyrolite includes a range of utilities for everything from dealing with
 the web to plotting, synthetic data and machine learning. While most of these

@@ -12,8 +12,8 @@ tasks (e.g. spiderplots, ternary diagrams, bivariate and ternary density diagram
 and numerous auxiliary utilities.
 
 - On this site you can browse the [API](./api/API.md), or look
-  through some of the [usage examples](./examples/index.md).
-- There's also a quick [installation guide](./installation.md), a list of
+  through some of the [usage examples](./examples/index.rst).
+- There's also a quick [installation guide](./installation.rst), a list of
   [recent changes](./dev/changelog.md) and some notes on
   where the project is heading in the [roadmap](./dev/roadmap.md).
 - If you're interested in [contributing to the project](./dev/contributing.md), there are
@@ -55,8 +55,8 @@ make use of your geochemical data to build and test geological models.
 
 installation
 gettingstarted
-gallery/examples
-gallery/tutorials
+examples/index
+tutorials/index
 cite
 ```
 
@@ -85,7 +85,7 @@ dev/release
 ```{toctree}
 :caption: Reference
 :hidden: true
-:maxdepth: 1
+:maxdepth: 0
 
 api/API
 data/index

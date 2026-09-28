@@ -54,17 +54,17 @@ excel = ["xlrd", "openpyxl"]
 test = ["pytest",  "pytest-cov", "coverage"] # coveralls but only in CI
 docs = [
     "sphinx_book_theme",
-    # "docutils<0.17",
     "sphinx>=4",
     "sphinx-autodoc-annotation",
-    "myst-sphinx-gallery",
-    "myst-nb"
+    "sphinx-gallery>0.6.0",
+    "myst-parser",
+    "pypandoc"
 ]
 dev = [
     "ruff",
     "twine",
     "build",
-     "pyrolite[skl,notebook]",
+    "pyrolite[skl,notebook]",
     { include-group = "test" },
     { include-group = "docs" },
 ]
@@ -77,6 +77,9 @@ readme = { file = "README.md", content-type = "text/markdown" }
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0"
+
+[tool.uv]
+default-groups = ["dev"]
 
 [tool.coverage.run]
 relative_files = true
