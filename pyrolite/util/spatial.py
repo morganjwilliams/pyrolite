@@ -71,7 +71,7 @@ def _vicenty_GC_distance(
     Vicenty formula for an ellipsoid with equal major and minor axes.
 
     Vincenty T (1975) Direct and Inverse Solutions of Geodesics on the Ellipsoid with
-    Application of Nested Equations. Survey Review 23:88–93.
+    Application of Nested Equations. Survey Review 23:88-93.
     doi: 10.1179/SRE.1975.23.176.88
 
     Parameters
