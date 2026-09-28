@@ -3,15 +3,20 @@ Functions for dealing with kernel density estimation.
 
 Attributes
 ----------
-USE_PCOLOR : :class:`bool`
-    Option to use the :func:`matplotlib.pyplot.pcolor` function in place
-    of :func:`matplotlib.pyplot.pcolormesh`.
+USE_PCOLOR : bool
+    Option to use the `matplotlib.pyplot.pcolor` function in place
+    of `matplotlib.pyplot.pcolormesh`.
 """
 
+from collections.abc import Callable
+
+import matplotlib.axes
+import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.interpolate
 from numpy.linalg import LinAlgError
+import matplotlib.contour
 
 from ..distributions import sample_kde
 from ..log import Handle
@@ -31,13 +36,15 @@ except ImportError:
 USE_PCOLOR = False
 
 
-def get_axis_density_methods(ax):
+def get_axis_density_methods(
+    ax: matplotlib.axes.Axes,
+) -> tuple[Callable, Callable, Callable]:
     """
     Get the relevant density and contouring methods for a given axis.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes` | :class:`mpltern.ternary.TernaryAxes`
+    ax : matplotlib.axes.Axes | `mpltern.ternary.TernaryAxes`
         Axis to check.
 
     Returns
@@ -60,8 +67,10 @@ def get_axis_density_methods(ax):
 
 
 def percentile_contour_values_from_meshz(
-    z, percentiles: list | None = None, resolution=1000
-):
+    z: np.ndarray[tuple[int, int], np.dtype[np.number]],
+    percentiles: list[float] | None = None,
+    resolution: int = 1000,
+) -> tuple[list[float | str], list[float]]:
     """
     Integrate a probability density distribution Z(X,Y) to obtain contours in Z which
     correspond to specified percentile contours. Contour values will be returned
@@ -69,18 +78,18 @@ def percentile_contour_values_from_meshz(
 
     Parameters
     ----------
-    z : :class:`numpy.ndarray`
+    z : numpy.ndarray
         Probability density function over x, y.
-    percentiles : :class:`numpy.ndarray`
+    percentiles : numpy.ndarray
         Percentile values for which to create contours.
-    resolution : :class:`int`
+    resolution : int
         Number of bins for thresholds between 0. and max(Z)
 
     Returns
     -------
-    labels : :class:`list`
+    labels : list
         Labels for contours (percentiles, if above minimum z value).
-    contours : :class:`list`
+    contours : list
         Contour height values.
 
     Todo
@@ -111,54 +120,54 @@ def percentile_contour_values_from_meshz(
 
 
 def plot_Z_percentiles(
-    *coords,
-    zi=None,
-    percentiles=None,
-    ax=None,
-    extent=None,
-    fontsize=8,
-    cmap=None,
-    colors: str | list | None = None,
-    linewidths=None,
-    linestyles=None,
-    contour_labels=None,
-    label_contours=True,
+    *coords: np.ndarray[tuple[int]],
+    zi: np.ndarray[tuple[int, int]],
+    percentiles: list[float] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    extent: list[float] | None = None,
+    fontsize: float = 8,
+    cmap: matplotlib.colors.Colormap | str | None = None,
+    colors: str | list[str] | list[tuple[float, float, float, float]] | None = None,
+    linewidths: float | list[float] | None = None,
+    linestyles: list[str] | None = None,
+    contour_labels: list[str] | None = None,
+    label_contours: bool = True,
     **kwargs,
-):
+) -> matplotlib.contour.QuadContourSet:
     """
     Plot percentile contours onto a 2D  (scaled or unscaled) probability density
     distribution Z over X,Y.
 
     Parameters
     ------------
-    coords : :class:`numpy.ndarray`
+    coords : numpy.ndarray
         Arrays of (x, y) or (a, b, c) coordinates.
-    z : :class:`numpy.ndarray`
+    z : numpy.ndarray
         Probability density function over x, y.
-    percentiles : :class:`list`
+    percentiles : list
         Percentile values for which to create contours.
-    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+    ax : matplotlib.axes.Axes, `None`
         Axes on which to plot. If none given, will create a new Axes instance.
-    extent : :class:`list`, :code:`None`
+    extent : list, `None`
         List or np.ndarray in the form [-x, +x, -y, +y] over which the image extends.
-    fontsize : :class:`float`
+    fontsize : float
         Fontsize for the contour labels.
-    cmap : :class:`matplotlib.colors.ListedColormap`
+    cmap : `matplotlib.colors.ListedColormap`
         Color map for the contours and contour labels.
-    colors : :class:`str` | :class:`list`
+    colors : str | list
         Colors for the contours, can optionally be specified *in place of* `cmap.`
-    linewidths : :class:`str` | :class:`list`
+    linewidths : str | list
         Widths of contour lines.
-    linestyles : :class:`str` | :class:`list`
+    linestyles : str | list
         Styles for contour lines.
-    contour_labels : :class:`dict` | :class:`list`
+    contour_labels : dict | list
         Labels to assign to contours, organised by level.
-    label_contours :class:`bool`
+    label_contours bool
         Whether to add text labels to individual contours.
 
     Returns
     -------
-    :class:`matplotlib.contour.QuadContourSet`
+    matplotlib.contour.QuadContourSet
         Plotted and formatted contour set.
 
     Notes
@@ -234,55 +243,64 @@ def plot_Z_percentiles(
 
 
 def conditional_prob_density(
-    y,
-    x=None,
-    logy=False,
-    resolution=5,
-    bins=50,
-    yextent=None,
-    rescale=True,
-    mode="binkde",
-    ret_centres=False,
+    y: np.ndarray[tuple[int, int]],
+    x: np.ndarray[tuple[int]] | None = None,
+    logy: bool = False,
+    resolution: int = 5,
+    bins: int = 50,
+    yextent: tuple[float, float] | None = None,
+    rescale: bool = True,
+    mode: str = "binkde",
+    ret_centres: bool = False,
     **kwargs,
+) -> (
+    tuple[np.ndarray[tuple[int]], np.ndarray[tuple[int]], np.ndarray[tuple[int, int]]]
+    | tuple[
+        np.ndarray[tuple[int]],
+        np.ndarray[tuple[int]],
+        np.ndarray[tuple[int]],
+        np.ndarray[tuple[int]],
+        np.ndarray[tuple[int, int]],
+    ]
 ):
     """
     Estimate the conditional probability density of one dependent variable.
 
     Parameters
     -----------
-    y : :class:`numpy.ndarray`
+    y : numpy.ndarray
         Dependent variable for which to calculate conditional probability P(y | X=x)
-    x : :class:`numpy.ndarray`, :code:`None`
+    x : numpy.ndarray, `None`
         Optionally-specified independent index.
-    logy : :class:`bool`
+    logy : bool
         Whether to use a logarithmic bin spacing on the y axis.
-    resolution : :class:`int`
+    resolution : int
         Points added per segment via interpolation along the x axis.
-    bins : :class:`int`
+    bins : int
         Bins for histograms and grids along the independent axis.
-    yextent : :class:`tuple`
+    yextent : tuple
         Extent in the y direction.
-    rescale : :class:`bool`
+    rescale : bool
         Whether to rescale bins to give the same max Z across x.
-    mode : :class:`str`
+    mode : str
         Mode of computation.
 
-            If mode is :code:`"ckde"`, use
-            :func:`statsmodels.nonparametric.KDEMultivariateConditional` to compute a
-            conditional kernel density estimate. If mode is :code:`"kde"`, use a normal
-            gaussian kernel density estimate. If mode is :code:`"binkde"`, use a gaussian
-            kernel density estimate over y for each bin. If mode is :code:`"hist"`,
+            If mode is `"ckde"`, use
+            `statsmodels.nonparametric.KDEMultivariateConditional` to compute a
+            conditional kernel density estimate. If mode is `"kde"`, use a normal
+            gaussian kernel density estimate. If mode is `"binkde"`, use a gaussian
+            kernel density estimate over y for each bin. If mode is `"hist"`,
             compute a histogram.
-    ret_centres : :class:`bool`
+    ret_centres : bool
         Whether to return bin centres in addtion to histogram edges,
         e.g. for later contouring.
 
     Returns
     -------
-    :class:`tuple` of :class:`numpy.ndarray`
-        :code:`x` bin edges :code:`xe`, :code:`y` bin edges :code:`ye`, histogram/density
-        estimates :code:`Z`. If :code:`ret_centres` is :code:`True`, the last two return
-        values will contain the bin centres :code:`xi`, :code:`yi`.
+    tuple of numpy.ndarray
+        `x` bin edges `xe`, `y` bin edges `ye`, histogram/density
+        estimates `Z`. If `ret_centres` is `True`, the last two return
+        values will contain the bin centres `xi`, `yi`.
     """
     # check for shapes
     assert not ((x is None) and (y is None))

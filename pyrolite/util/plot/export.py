@@ -5,6 +5,8 @@ Functions for export of figures and figure elements from matplolib.
 import os
 from pathlib import Path
 
+import matplotlib.axes
+import matplotlib.figure
 import matplotlib.path
 import matplotlib.transforms
 import numpy as np
@@ -14,7 +16,13 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-def save_figure(figure, name="fig", save_at="", save_fmts=None, **kwargs):
+def save_figure(
+    figure: matplotlib.figure.Figure,
+    name: str = "fig",
+    save_at: str | Path = "",
+    save_fmts: list[str] | None = None,
+    **kwargs,
+):
     """
     Save a figure at a specified location in a number of formats.
     """
@@ -33,7 +41,14 @@ def save_figure(figure, name="fig", save_at="", save_fmts=None, **kwargs):
         figure.savefig(out_filename, format=fmt, **config)
 
 
-def save_axes(ax, name="fig", save_at="", save_fmts=None, pad=0.0, **kwargs):
+def save_axes(
+    ax: matplotlib.axes.Axes,
+    name: str = "fig",
+    save_at: str | Path = "",
+    save_fmts: list[str] | None = None,
+    pad: float = 0.0,
+    **kwargs,
+):
     """
     Save either a single or multiple axes (from a single figure) based on their
     extent. Uses the save_figure procedure to save at a specific location using
@@ -41,7 +56,7 @@ def save_axes(ax, name="fig", save_at="", save_fmts=None, pad=0.0, **kwargs):
 
     Todo
     -----
-        * Add legend to items
+    * Add legend to items
     """
     # Check if axes is a single axis or list of axes
 
@@ -66,22 +81,24 @@ def save_axes(ax, name="fig", save_at="", save_fmts=None, pad=0.0, **kwargs):
     )
 
 
-def get_full_extent(ax, pad=0.0):
+def get_full_extent(
+    ax: matplotlib.axes.Axes, pad: float = 0.0
+) -> matplotlib.transforms.Bbox:
     """
     Get the full extent of an axes, including axes labels, tick labels, and
     titles. Text objects are first drawn to define the extents.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes of which to check items to get full extent.
-    pad : :class:`float` | :class:`tuple`
+    pad : float | tuple
         Amount of padding to add to the full extent prior to returning. If a tuple is
         passed, the padding will be as above, but for x and y directions, respectively.
 
     Returns
     -------
-    :class:`matplotlib.transforms.Bbox`
+    matplotlib.transforms.Bbox
         Bbox of the axes with optional additional padding.
 
     """
@@ -114,26 +131,32 @@ def get_full_extent(ax, pad=0.0):
     return full_extent.transformed(ax.figure.dpi_scale_trans.inverted())
 
 
-def path_to_csv(path, xname="x", yname="y", delim=",", linesep=os.linesep):
+def path_to_csv(
+    path: matplotlib.path.Path | tuple,
+    xname: str = "x",
+    yname: str = "y",
+    delim: str = ",",
+    linesep: str = os.linesep,
+) -> str:
     """
     Extract the verticies from a path and write them to csv.
 
     Parameters
     ------------
-    path : :class:`matplotlib.path.Path` | :class:`tuple`
+    path : matplotlib.path.Path | tuple
         Path or x-y tuple to use for coordinates.
-    xname : :class:`str`
+    xname : str
         Name of the x variable.
-    yname : :class:`str`
+    yname : str
         Name of the y variable.
-    delim : :class:`str`
+    delim : str
         Delimiter for the csv file.
-    linesep : :class:`str`
+    linesep : str
         Line separator character.
 
     Returns
     -------
-    :class:`str`
+    str
         String-representation of csv file, ready to be written to disk.
     """
     if isinstance(path, matplotlib.path.Path):

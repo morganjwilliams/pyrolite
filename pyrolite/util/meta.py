@@ -1,4 +1,6 @@
-import importlib
+from ast import Call
+from typing import Callable
+import importlib.util
 import inspect
 import webbrowser
 from pathlib import Path
@@ -8,18 +10,20 @@ from .log import Handle
 logger = Handle(__name__)
 
 
-def get_module_datafolder(module="pyrolite", subfolder=None):
+def get_module_datafolder(
+    module: str = "pyrolite", subfolder: str | None = None
+) -> Path:
     """
     Returns the path of a module data folder.
 
     Parameters
     -----------
-    subfolder : :class:`str`
+    subfolder : str
         Subfolder within the module data folder.
 
     Returns
     -------
-    :class:`pathlib.Path`
+    pathlib.Path
     """
     pth = Path(importlib.util.find_spec(module).origin).parent / "data"
     if subfolder:
@@ -27,18 +31,18 @@ def get_module_datafolder(module="pyrolite", subfolder=None):
     return pth
 
 
-def pyrolite_datafolder(subfolder=None):
+def pyrolite_datafolder(subfolder: str | None = None) -> Path:
     """
     Returns the path of the pyrolite data folder.
 
     Parameters
     -----------
-    subfolder : :class:`str`
+    subfolder : str
         Subfolder within the pyrolite data folder.
 
     Returns
     -------
-    :class:`pathlib.Path`
+    pathlib.Path
     """
     return get_module_datafolder(module="pyrolite", subfolder=subfolder)
 
@@ -48,55 +52,55 @@ def take_me_to_the_docs():
     webbrowser.open("https://pyrolite.rtfd.io")
 
 
-def sphinx_doi_link(doi):
+def sphinx_doi_link(doi: str) -> str:
     """
     Generate a string with a restructured text link to a given DOI.
 
     Parameters
     ----------
-    doi : :class:`str`
+    doi : str
 
     Returns
     --------
-    :class:`str`
+    str
         String with doi link.
     """
     return f"`{doi} <https://dx.doi.org/{doi}>`__"
 
 
-def subkwargs(kwargs, *f):
+def subkwargs(kwargs: dict, *f: Callable) -> dict:
     """
     Get a subset of keyword arguments which are accepted by a function.
 
     Parameters
     ----------
-    kwargs : :class:`dict`
+    kwargs : dict
         Dictionary of keyword arguments.
-    f : :class:`callable`
+    f : Callable
         Function(s) to check.
 
     Returns
     --------
-    :class:`dict`
+    dict
         Dictionary containing only relevant keyword arguments.
     """
     return {k: v for k, v in kwargs.items() if inargs(k, *f)}
 
 
-def inargs(name, *funcs):
+def inargs(name: str, *funcs: Callable) -> bool:
     """
     Check if an argument is a possible input for a specific function.
 
     Parameters
     ----------
-    name : :class:`str`
+    name : str
         Argument name.
-    f : :class:`callable`
+    f : Callable
         Function(s) to check.
 
     Returns
     --------
-    :class:`bool`
+    bool
     """
     args = []
     for f in funcs:
@@ -104,7 +108,7 @@ def inargs(name, *funcs):
     return name in set(args)
 
 
-def update_docstring_references(obj, ref="ref"):
+def update_docstring_references(obj, ref: str = "ref"):
     """
     Updates docstring reference names to strings including the function name.
     Decorator will return the same function with a modified docstring. Sphinx
@@ -112,14 +116,14 @@ def update_docstring_references(obj, ref="ref"):
 
     Parameters
     -----------
-    obj : :class:`func` | :class:`class`
+    obj : `func` | `class`
         Class or function for which to update documentation references.
-    ref : :class:`str`
+    ref : str
         String to replace with the object name.
 
     Returns
     -------
-    :class:`func` | :class:`class`
+    `func` | `class`
         Object with modified docstring.
     """
     name = obj.__name__

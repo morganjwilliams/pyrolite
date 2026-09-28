@@ -4,6 +4,7 @@ Kernel desnity estimation plots for geochemical data.
 
 import copy
 
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MaxNLocator
@@ -26,7 +27,7 @@ logger = Handle(__name__)
 
 def density(
     arr,
-    ax=None,
+    ax: matplotlib.axes.Axes | None = None,
     logx=False,
     logy=False,
     bins=25,
@@ -54,7 +55,7 @@ def density(
 
     Parameters
     ----------
-    arr : :class:`numpy.ndarray`
+    arr : numpy.ndarray
         Dataframe from which to draw data.
     ax : :class:`matplotlib.axes.Axes`, `None`
         The subplot to draw on.
@@ -86,7 +87,7 @@ def density(
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which the densityplot is plotted.
 
     Notes
@@ -286,7 +287,7 @@ def density(
 def _add_contours(
     *coords,
     zi=None,
-    ax=None,
+    ax: matplotlib.axes.Axes | None = None,
     contours=None,
     cmap=DEFAULT_CONT_COLORMAP,
     vmin=0.0,
