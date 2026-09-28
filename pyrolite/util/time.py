@@ -1,4 +1,5 @@
 from collections import ChainMap, defaultdict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -11,58 +12,69 @@ logger = Handle(__name__)
 
 
 # get the latest geotimescale data
-__data__ = max(pyrolite_datafolder(subfolder="timescale").glob("geotimescale_*.csv"))
-__colors__ = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
+__data__: Path = max(
+    pyrolite_datafolder(subfolder="timescale").glob("geotimescale_*.csv")
+)
+__colors__: Path = pyrolite_datafolder(subfolder="timescale") / "timecolors.csv"
 
 
-def listify(df, axis=1):
+def listify(df: pd.DataFrame, axis: int = 1) -> pd.DataFrame:
     """
     Consdense text information across columns into a single list.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe (or slice of dataframe) to condense along axis.
-    axis : :class:`int`
+    axis : int
         Axis to condense along.
     """
     return df.copy(deep=True).apply(list, axis=axis)
 
 
 def age_name(
-    agenamelist, prefixes=None, suffixes=None
-):
+    agenamelist: list[str],
+    prefixes: list[str] | None = None,
+    suffixes: list | None = None,
+) -> str:
     """
     Condenses an agename list to a specific agename, given a subset of
     ambiguous_names.
 
     Parameters
     ----------
-    agenamelist : :class:`list`
-        List of name components (i.e. :code:`[Eon, Era, Period, Epoch]`)
-    prefixes : :class:`list`
+    agenamelist : list
+        List of name components (i.e. `[Eon, Era, Period, Epoch]`)
+    prefixes : list | None
         Name components which occur prior to the higher order classification
-        (e.g. :code:`"Upper Triassic"`).
-    suffixes : :class:`list`
+        (e.g. `"Upper Triassic"`).
+    suffixes : list
         Name components which occur after the higher order classification
-        (e.g. :code:`"Cambrian Series 2"`).
+        (e.g. `"Cambrian Series 2"`).
     """
     if suffixes is None:
-        suffixes = ["Stage", "Series"]
+        suffixes: list[str] = ["Stage", "Series"]
     if prefixes is None:
-        prefixes = ["Lower", "Middle", "Upper"]
-    ambiguous_names = prefixes + suffixes
-    ambig_vars = [s.lower().strip() for s in ambiguous_names]
-    nameguess = agenamelist[-1]
+        prefixes: list[str] = ["Lower", "Middle", "Upper"]
+    ambiguous_names: list[str] = prefixes + suffixes
+    ambig_vars: list[str] = [s.lower().strip() for s in ambiguous_names]
+    nameguess: str = agenamelist[-1]
     # Process e.g. Stage 1 => Stage
-    nn_nameguess = "".join([i for i in nameguess if not i.isdigit()]).strip()
+    nn_nameguess: str = "".join([i for i in nameguess if not i.isdigit()]).strip()
 
     # check if the name guess corresponds to any of the ambiguous names
-    hit = [
-        ambiguous_names[ix]
-        for ix, vars in enumerate(ambig_vars)
-        if nn_nameguess.lower().strip() in vars
-    ][0:1]
+    try:
+        hit: str | None = next(
+            iter(
+                [
+                    ambiguous_names[ix]
+                    for ix, vars in enumerate(ambig_vars)
+                    if nn_nameguess.lower().strip() in vars
+                ]
+            )
+        )
+    except StopIteration:
+        hit = None
 
     if hit:
         indexstart = len(agenamelist) - 1
@@ -70,7 +82,7 @@ def age_name(
         out_index_previous = 0
         ambiguous_name = True
         while ambiguous_name:
-            hitphrase = hit[0]
+            hitphrase = hit
             indexstart -= 1
             nextup = agenamelist[indexstart]
             if hitphrase in prefixes:
@@ -83,11 +95,18 @@ def age_name(
                 out_index_previous -= 1
 
             _nn_nextupguess = "".join([i for i in nextup if not i.isdigit()]).strip()
-            hit = [
-                ambiguous_names[ix]
-                for ix, vars in enumerate(ambig_vars)
-                if _nn_nextupguess.lower().strip() in vars
-            ][0:1]
+            try:
+                hit: str | None = next(
+                    iter(
+                        [
+                            ambiguous_names[ix]
+                            for ix, vars in enumerate(ambig_vars)
+                            if _nn_nextupguess.lower().strip() in vars
+                        ]
+                    )
+                )
+            except StopIteration:
+                hit = None
             if not hit:
                 ambiguous_name = False
         return " ".join(outname)
@@ -95,7 +114,9 @@ def age_name(
         return nameguess
 
 
-def import_colors(filename=__colors__, delim="/"):
+def import_colors(
+    filename: Path | str = __colors__, delim: str = "/"
+) -> dict[str, tuple[float, float, float, float]]:
     """
     Import a list of timescale names with associated colors.
     """
@@ -110,27 +131,30 @@ def import_colors(filename=__colors__, delim="/"):
 
 
 def timescale_reference_frame(
-    filename=__data__, info_cols=None, color_info=None
-):
+    filename: str | Path | None = None,
+    info_cols: list[str] | None = None,
+    color_info: dict[str, tuple[float, float, float, float] | str] | None = None,
+) -> pd.DataFrame:
     """
     Rearrange the text-based timescale dataframe. Utility function for
     timescale class.
 
     Parameters
     ----------
-    filename : :class:`str` | :class:`pathlib.Path`
+    filename : str | pathlib.Path
         File from which to generate the timescale information.
-    info_cols : :class:`list`
+    info_cols : list
         List of columns beyond hierarchial group labels (e.g. Eon, Era..).
 
     Returns
     -------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Dataframe containing timescale information.
     """
-
+    if filename is None:
+        filename = __data__
     if info_cols is None:
-        info_cols = ["Start", "End", "Aliases"]
+        info_cols: list[str] = ["Start", "End", "Aliases"]
     df = pd.read_csv(filename)
     df[["Start", "End"]] = df.loc[:, ["Start", "End"]].apply(
         pd.to_numeric, errors="coerce"
@@ -166,33 +190,31 @@ def timescale_reference_frame(
 
 
 class Timescale:
-    def __init__(self, filename=None):
+    def __init__(self, filename: str | Path | None = None):
         """
         Geological Timescale class to provide time-focused utility functions.
 
         Parameters
         -----------
-        filename : :class:`str` | :class:`pathlib.Path`
+        filename : `str` | `pathlib.Path`
             Path to the timescale data file.
 
         Attributes
         ----------
-        data : :class:`pandas.DataFrame`
+        data : pandas.DataFrame
             Timescale dataframe.
-        levels : :class:`list`
+        levels : list
             Hierarchial levels within the timescale.
         """
-        if filename is None:
-            self.data = timescale_reference_frame()
-        else:
-            self.data = timescale_reference_frame(filename)
+
+        self.data: pd.DataFrame = timescale_reference_frame(filename)
         self.levels = [i for i in self.data.Level.unique() if not pd.isnull(i)]
-        self.levels = [i for i in self.data.columns if i in self.levels]
+        self.levels: list[str] = [i for i in self.data.columns if i in self.levels]
 
         def getnan():
             return np.nan, np.nan
 
-        self.locate = defaultdict(getnan)
+        self.locate: defaultdict[str, tuple[float, float]] = defaultdict(getnan)
         self.build()
 
     def build(self):
@@ -212,9 +234,11 @@ class Timescale:
         )
         # should check that the keys are unique across all of these
         self.locate.update(dict(ChainMap(*dicts)))
-        self.data = self.data.set_index("Ident")
+        self.data: pd.DataFrame = self.data.set_index("Ident")
 
-    def text2age(self, entry, nulls=None):
+    def text2age(
+        self, entry: str, nulls: list[str | float | None] | None = None
+    ) -> tuple[float, float] | list[tuple[float, float]]:
         """
         Converts a text-based age to the corresponding age range (in Ma).
 
@@ -223,36 +247,36 @@ class Timescale:
 
         Parameters
         ------------
-        entry : :class:`str`
+        entry : str
             String name, or series of string names, for geological age range.
 
         Returns
         -------
-        :class:`tuple` | :class:`list` (:class:`tuple`)
+        tuple | list[tuple]
             Tuple or list of tuples.
         """
         if nulls is None:
-            nulls = [None, "None", "none", np.nan, "NaN"]
+            nulls: list[None | str | float] = [None, "None", "none", np.nan, "NaN"]
         try:
             entry = float(entry)
             return (entry, entry)
         except ValueError:
             return self.locate[entry.lower().strip()]
 
-    def named_age(self, age, level="Specific", **kwargs):
+    def named_age(self, age: float, level: str = "Specific", **kwargs) -> str | None:
         """
         Converts a numeric age (in Ma) to named age at a specific level.
 
         Parameters
         ----------
-        age : :class:`float`
+        age : float
             Numeric age in Ma.
-        level : :class:`str`, :code:`{'Supereon', 'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
+        level : str, `{'Supereon', 'Eon', 'Era', 'Period', 'Superepoch', 'Epoch', 'Age', 'Specific'}`
             Level of specificity.
 
         Returns
         -------
-        :class:`str`
+        str
             String representation for the entry.
         """
 
@@ -279,6 +303,4 @@ class Timescale:
                 return unique_values[~pd.isnull(unique_values)][0]
             except IndexError:
                 # likely no relevant level name.
-                logger.debug(
-                    f"No name found at level {level} for age {age} Ma."
-                )
+                logger.debug(f"No name found at level {level} for age {age} Ma.")

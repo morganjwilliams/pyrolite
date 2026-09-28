@@ -2,23 +2,18 @@ import numpy as np
 import pandas as pd
 
 
-def iscollection(obj):
+def iscollection(obj) -> bool:
     """
     Checks whether an object is an iterable collection.
 
     Parameters
     ----------
-    obj : :class:`object`
+    obj
         Object to check.
 
     Returns
     -------
-    :class:`bool`
+    bool
         Boolean indication of whether the object is a collection.
     """
-
-    for ty in [list, np.ndarray, set, tuple, dict, pd.Series]:
-        if isinstance(obj, ty):
-            return True
-
-    return False
+    return isinstance(obj, (list, np.ndarray, set, tuple, dict, pd.Series))
