@@ -96,7 +96,7 @@ def ABC_to_xy(ABC: np.ndarray, xscale: float = 1.0, yscale: float = 1.0) -> np.n
     return xy.T
 
 
-def xy_to_ABC(xy: np.ndarray, xscale: float = 1.0, yscalel: float = 1.0) -> np.ndarray:
+def xy_to_ABC(xy: np.ndarray, xscale: float = 1.0, yscale: float = 1.0) -> np.ndarray:
     """
     Convert x-y coordinates within a triangle to compositional ternary coordinates.
 
