@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from pandas.core.frame import DataFrame
 
 from ..util.log import Handle
 from ..util.meta import pyrolite_datafolder
@@ -17,6 +18,8 @@ logger = Handle(__name__)
 
 __dbfile__ = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
 
+
+NORMDB: pd.DataFrame  = pd.DataFrame()
 
 def set_DB(path):
     """
@@ -145,10 +148,10 @@ class Composition:
         self.units = None
         self.unc_2sigma = None
 
-        self.name = name
-        self.reference = reference
-        self.reservoir = reservoir
-        self.source = source
+        self.name: str | None = name
+        self.reference: str | None = reference
+        self.reservoir: str | None = reservoir
+        self.source: str | None = source
 
         self.filename = None
         self._df = None
@@ -158,12 +161,12 @@ class Composition:
             self._import_file(self.filename)
             self._process_imported_frame()
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
-            self.comp = pd.DataFrame(
+            self.comp = pd.Series(
                 src.loc[src.index[0], src.pyrochem.list_compositional].astype(float),
-                index=["value"],
+            
             )
         elif isinstance(src, dict):
-            self._df = pd.DataFrame.from_dict(src)
+            self._df: DataFrame = pd.DataFrame.from_dict(src)
             self._process_imported_frame()
         else:
             raise NotImplementedError(
@@ -181,7 +184,7 @@ class Composition:
 
     def _process_imported_frame(self):
         assert self._df is not None
-        metadata = self._df.reindex(
+        metadata: pd.Series = self._df.reindex(
             index=[
                 "ModelName",
                 "Reservoir",
@@ -216,16 +219,12 @@ class Composition:
         ):
             setattr(self, dest, metadata.get(src, None))
 
-        self.comp = self._df.loc[
-            self._df.pyrochem.list_compositional,
-            "value",
-        ].astype(float)
-        self.comp = self.comp.dropna()
-        if "units" in self._df.index:
-            self.units = self._df.loc[self.comp.index, "units"]
+        self.comp: pd.Series = self._df["value"].pyrochem.compositional.astype(float).dropna()
+        if "units" in self._df.columns:
+            self.units: pd.Series = self._df.loc[self.comp.index, "units"]
 
-        if "unc_2sigma" in self._df.index:
-            self.unc_2sigma = self._df.loc[self.comp.index, "unc_2sigma"].astype(float)
+        if "unc_2sigma" in self._df.columns:
+            self.unc_2sigma: pd.Series = self._df.loc[self.comp.index, "unc_2sigma"].astype(float)
 
     def set_units(self, to="wt%"):
         """
@@ -235,9 +234,9 @@ class Composition:
         ------------
         to : :class:`str`, :code:`"wt%"`
         """
-        scales = self.units.apply(scale, target_unit=to).astype(float)
+        scales: pd.Series = self.units.apply(scale, target_unit=to).astype(float)
         self.comp *= scales
-        self.units[:] = to
+        self.units= pd.Series([to]*len(self.units))
         return self
 
     def describe(self, verbose=True, **kwargs):
@@ -280,7 +279,7 @@ class Composition:
             variables = [v if isinstance(v, str) else str(v) for v in variables]
         else:
             variables = [str(variables)]
-        qry = self.comp.reindex(columns=variables).values.flatten()
+        qry: np.ndarray= self.comp.reindex(index=variables).values.flatten()
         if len(qry) == 1:
             qry = qry[0]
         return qry

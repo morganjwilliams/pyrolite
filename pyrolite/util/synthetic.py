@@ -1,7 +1,6 @@
 """
 Utility functions for creating synthetic (geochemical) data.
 """
-
 import numpy as np
 import pandas as pd
 
@@ -313,19 +312,20 @@ def example_spider_data(
         Dataframe of example synthetic data.
     """
 
-    ref = get_reference_composition(start)
+    ref: pd.Series = get_reference_composition(start)
     ref.set_units(units)
-    df = ref.comp.pyrochem.compositional
+    df: pd.Series | pd.DataFrame = ref.comp.pyrochem.compositional
     if norm_to is not None:
         df = df.pyrochem.normalize_to(norm_to, units=units)
-    start = np.log(df)
-    nindex = df.columns.size
+    start: pd.Series | pd.DataFrame = np.log(df)
+    nindex = df.columns.size if isinstance(df, pd.DataFrame) else df.index.size
 
-    y = np.tile(start.values, size).reshape(size, nindex)
+    y: np.ndarray[tuple[int, int], np.dtype[Unknown]] = np.tile(start.values, size).reshape(size, nindex)
+    
     y += np.random.normal(0, noise_level / 2.0, size=(size, nindex))  # noise
     y += np.random.normal(0, noise_level, size=(1, size)).T  # random pattern offset
 
-    syn_df = pd.DataFrame(y, columns=df.columns)
+    syn_df = pd.DataFrame(y, columns=df.columns if isinstance(df, pd.DataFrame) else df.index)
     if offsets is not None:
         for element, offset in offsets.items():
             syn_df[element] += offset  # significant offset for e.g. Eu anomaly
