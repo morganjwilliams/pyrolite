@@ -311,7 +311,7 @@ def _add_contours(
             percentiles=levels,
             extent=extent,
             cmap=cmap,
-            **kwargs,
+            **subkwargs(kwargs, plot_Z_percentiles),
         )
         mappable = _cs
     else:
@@ -324,10 +324,22 @@ def _add_contours(
             raise NotImplementedError
         # filled contours
         mappable = contourf(
-            *coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+            *coords,
+            zi,
+            extent=extent,
+            levels=levels,
+            cmap=cmap,
+            vmin=vmin,
+            **subkwargs(kwargs, contourf),
         )
         # contours
         contour(
-            *coords, zi, extent=extent, levels=levels, cmap=cmap, vmin=vmin, **kwargs
+            *coords,
+            zi,
+            extent=extent,
+            levels=levels,
+            cmap=cmap,
+            vmin=vmin,
+            **subkwargs(kwargs, contour),
         )
     return mappable
