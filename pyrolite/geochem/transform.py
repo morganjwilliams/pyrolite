@@ -2,16 +2,14 @@
 Functions for converting, transforming and parameterizing geochemical data.
 """
 
-from ast import For
-
-from periodictable.formulas import Formula
-
 from collections import Counter
-from typing import overload, Callable
+from collections.abc import Callable
+from typing import overload
 
 import numpy as np
 import pandas as pd
 import periodictable as pt
+from periodictable.formulas import Formula
 
 from ..comp.codata import close, renormalise
 from ..util import lambdas
@@ -222,15 +220,21 @@ def elemental_sum(
     # different species
     poss_specs = [cationname] + simple_oxides(cation)
     poss_specs += [i + total_suffix for i in poss_specs]
-    species = [i for i in set(poss_specs) if i in df.columns]
+    species = [
+        i
+        for i in set(poss_specs)
+        if i in (df.columns if isinstance(df, pd.DataFrame) else df.index)
+    ]
     if not species:
         logger.warning(f"No relevant species ({poss_specs}) found to aggregate.")
         # return nulls
-        subsum = pd.Series(
-            np.ones(df.index.size, dtype="float32") * np.nan, index=df.index
+        subsum = (
+            pd.Series(np.ones(df.index.size, dtype="float32") * np.nan, index=df.index)
+            if isinstance(df, pd.DataFrame)
+            else pd.Series([np.nan])
         )
     else:
-        subset = np.array(df.loc[:, species])
+        subset = np.array(df[species])
         if logdata:
             logger.debug(f"Inverse-log-transforming {cationname} data.")
             subset = np.exp(subset)
@@ -253,21 +257,36 @@ def elemental_sum(
         subset *= conversion_coeff
         logger.debug(f"Zeroing non-finite and negative {cationname} values.")
         subset[(~np.isfinite(subset)) | (subset < 0.0)] = 0.0
-        subsum = subset.sum(axis=1)
-        subsum[subsum <= 0.0] = np.nan
+        if isinstance(subset, pd.DataFrame):
+            subsum = subset.sum(axis=1)
+            subsum[subsum <= 0.0] = np.nan
+        else:
+            subsum = subset.sum()
+            if subsum <= 0:
+                subsum = np.nan
 
     if to is None:
-        return pd.Series(subsum, index=df.index, name=cationname)
-    else:
         return pd.Series(
-            oxide_conversion(cationname, to, molecular=molecular)(subsum),
-            index=df.index,
-            name=to,
+            subsum if isinstance(df, pd.DataFrame) else [subsum],
+            index=df.index if isinstance(df, pd.DataFrame) else None,
+            name=cationname,
+        )
+    else:
+        return (
+            pd.Series(
+                oxide_conversion(cationname, to, molecular=molecular)(subsum),
+                index=df.index,
+                name=to,
+            )
+            if isinstance(df, pd.DataFrame)
+            else pd.Series(
+                [oxide_conversion(cationname, to, molecular=molecular)(subsum)], name=to
+            )
         )
 
 
 def aggregate_element(
-    df: pd.DataFrame,
+    df: pd.DataFrame | pd.Series,
     to: str | pt.core.Element | Formula | dict,
     total_suffix: str = "T",
     logdata: bool = False,
@@ -315,7 +334,11 @@ def aggregate_element(
     cation: str = subsum.name
     species = simple_oxides(cation)
     species += [str(i) + total_suffix for i in species]
-    species = [i for i in species if i in df.columns]
+    species = [
+        i
+        for i in species
+        if i in (df.columns if isinstance(df, pd.DataFrame) else df.index)
+    ]
     _df = df.copy()
     if isinstance(to, str):
         logger.debug(f"Aggregating string-specified component {to}.")
@@ -335,7 +358,7 @@ def aggregate_element(
         logger.debug(
             "Aggregating dict-specified components {}.".format(",".join(to.keys()))
         )
-        targets = list(to.items())
+        targets: list[tuple[str, str | dict]] = list(to.items())
         targetnames = [str(t[0]) for t in targets]
         _props = np.array([t[1] for t in targets]).astype(float)
         if _props.ndim == 2:
@@ -370,19 +393,37 @@ def aggregate_element(
             _df[t] = 0.0  # avoid missing column errors
 
     coeff = np.array(coeff)
-    if coeff.ndim == 2:
-        _df.loc[:, targetnames] = subsum.values[:, np.newaxis] * coeff.T
+    if isinstance(_df, pd.DataFrame):
+        if coeff.ndim == 2:
+            _df.loc[:, targetnames] = subsum.values[:, np.newaxis] * coeff.T
+        else:
+            _df.loc[:, targetnames] = (
+                subsum.values[:, np.newaxis] @ coeff[np.newaxis, :]
+            )
     else:
-        _df.loc[:, targetnames] = subsum.values[:, np.newaxis] @ coeff[np.newaxis, :]
+        _df.loc[targetnames] = subsum.values * coeff
+
+    _df = _df.replace(0, np.nan)
 
     if logdata:
         logger.debug(f"Log-transforming {cation} Data.")
-        _df.loc[:, targetnames] = np.log(_df.loc[:, targetnames])
-    if drop:
-        logger.debug("Dropping redundant columns: {}".format(", ".join(drop)))
-        df = df.drop(columns=drop)
+        _df[targetnames] = np.log(_df[targetnames])
 
-    df.loc[:, targetnames] = _df.loc[:, targetnames].replace(0, np.nan)
+    if drop:
+        logger.debug(
+            "Dropping redundant columns: {}".format(", ".join([str(d) for d in drop]))
+        )
+        df = (
+            df.drop(columns=drop)
+            if isinstance(df, pd.DataFrame)
+            else df.drop(index=drop)
+        )
+    if isinstance(_df, pd.DataFrame):
+        df.loc[:, targetnames] = _df[targetnames]
+    else:
+        for t in targetnames:
+            df[t] = _df[t]
+
     if renorm:
         return renormalise(df)
     else:
@@ -835,10 +876,8 @@ def convert_chemistry(
     ]
     if renorm:
         logger.debug("Recalculation Done, Renormalising compositional components.")
-        df.loc[:, present_comp] = renormalise(df.loc[:, present_comp])
-        return df.loc[:, output_columns]
+        df[present_comp] = renormalise(df[present_comp])
+        return df[output_columns]
     else:
         logger.debug("Recalculation Done. Data not renormalised.")
-        return df.loc[:, output_columns]
-        logger.debug("Recalculation Done. Data not renormalised.")
-        return df.loc[:, output_columns]
+        return df[output_columns]
