@@ -257,7 +257,7 @@ def elemental_sum(
         subset *= conversion_coeff
         logger.debug(f"Zeroing non-finite and negative {cationname} values.")
         subset[(~np.isfinite(subset)) | (subset < 0.0)] = 0.0
-        if isinstance(subset, pd.DataFrame):
+        if isinstance(df, pd.DataFrame):
             subsum = subset.sum(axis=1)
             subsum[subsum <= 0.0] = np.nan
         else:
@@ -358,9 +358,11 @@ def aggregate_element(
         logger.debug(
             "Aggregating dict-specified components {}.".format(",".join(to.keys()))
         )
-        targets: list[tuple[str, str | dict]] = list(to.items())
+        targets: list[tuple[str, float]] = list(to.items())
         targetnames = [str(t[0]) for t in targets]
-        _props = np.array([t[1] for t in targets]).astype(float)
+        _props: np.ndarray[tuple[int], np.dtype[np.floating]] = np.array(
+            [t[1] for t in targets]
+        ).astype(float)
         if _props.ndim == 2:
             # proportions are a n-dimensional array (i.e. one array for each component)
             props = close(_props.T).T
@@ -393,6 +395,7 @@ def aggregate_element(
             _df[t] = 0.0  # avoid missing column errors
 
     coeff = np.array(coeff)
+
     if isinstance(_df, pd.DataFrame):
         if coeff.ndim == 2:
             _df.loc[:, targetnames] = subsum.values[:, np.newaxis] * coeff.T
@@ -419,7 +422,7 @@ def aggregate_element(
             else df.drop(index=drop)
         )
     if isinstance(_df, pd.DataFrame):
-        df.loc[:, targetnames] = _df[targetnames]
+        df[targetnames] = _df[targetnames].values
     else:
         for t in targetnames:
             df[t] = _df[t]
