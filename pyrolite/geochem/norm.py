@@ -19,9 +19,10 @@ logger = Handle(__name__)
 __dbfile__ = pyrolite_datafolder(subfolder="geochem") / "refdb.json"
 
 
-NORMDB: pd.DataFrame  = pd.DataFrame()
+NORMDB: pd.DataFrame = pd.DataFrame()
 
-def set_DB(path):
+
+def set_DB(path: str | Path):
     """
     Assign the database used for reference compositions, as per a given path.
     """
@@ -34,90 +35,14 @@ def set_DB(path):
 set_DB(__dbfile__)
 
 
-def all_reference_compositions():
-    """
-    Get a dictionary of all reference compositions indexed by name.
-
-    Returns
-    --------
-    :class:`dict`
-    """
-    return {r["name"]: Composition(r["composition"]) for ix, r in NORMDB.iterrows()}
-
-
-def get_reference_composition(name):
-    """
-    Retrieve a particular composition from the reference database.
-
-    Parameters
-    ------------
-    name : :class:`str`
-        Name of the reference composition model.
-
-    Returns
-    --------
-    :class:`pyrolite.geochem.norm.Composition`
-    """
-    res = NORMDB.query(f"name=='{name}'")
-    assert len(res) == 1
-    res = res.iloc[0]
-    name, composition = res["name"], res["composition"]
-    return Composition(composition, name=name)
-
-
-def get_reference_files(directory=None, formats=None):
-    """
-    Get a list of the reference composition files.
-
-    Parameters
-    -----------
-    directory : :class:`str`, :code:`None`
-        Location of reference data files.
-    formats : :class:`list`, :code:`["csv"]`
-        List of potential data formats to draw from. Currently only csv will work.
-
-    Returns
-    --------
-    :class:`list`
-    """
-    if formats is None:
-        formats = ["csv"]
-    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
-    assert directory.exists() and directory.is_dir()
-    files = []
-    for fmt in formats:
-        files.extend(directory.glob("./*." + fmt))
-    return files
-
-
-def update_database(encoding="cp1252", **kwargs):
-    """
-    Update the reference composition database.
-
-    Notes
-    ------
-    This will take all csv files from the geochem/refcomp pyrolite data folder
-    and construct a document-based JSON database.
-    """
-    pd.DataFrame(
-        [
-            {
-                "name": C.name,
-                "composition": json.dumps(C._df.query("~value.isnull()").to_dict()),
-            }
-            for C in [Composition(f, encoding=encoding) for f in get_reference_files()]
-        ]
-    ).to_json(__dbfile__, indent=4)
-
-
 class Composition:
     def __init__(
         self,
-        src,
-        name=None,
-        reference=None,
-        reservoir=None,
-        source=None,
+        src: str | Path | pd.DataFrame | pd.Series | dict,
+        name: str | None = None,
+        reference: str | None = None,
+        reservoir: str | None = None,
+        source: str | None = None,
         **kwargs,
     ):
         """A composition with units and uncertainties for each compositional
@@ -125,23 +50,23 @@ class Composition:
 
         Attributes
         -----------
-        name : :class:`str`
+        name : str
             Name of the composition.
-        reference : :class:`str`
+        reference : str
             Reference for the composition.
-        reservoir : :class:`str`
+        reservoir : str
             Optionally-specified reservoir for the specific compositoin (e.g. Primitive
             Mantle).
-        source : :class:`str
+        source : `str
             Source of the composition (typically method of derivation,
             e.g. 'calculated').
-        filename : :class:`str` | :class:`pathlib.Path`
+        filename : str | pathlib.Path
             File which the composition is derived from.
-        comp : :class:`pandas.DataFrame`
+        comp : pandas.DataFrame
             A 1-row dataframe
-        units : :class:`pandas.Series`
+        units : pandas.Series
             Units of the compositional variables.
-        unc_2sigma : :class:`pandas.Series`
+        unc_2sigma : pandas.Series
             Uncertainties for the compositional variables.
         """
         self.comp = None
@@ -163,7 +88,6 @@ class Composition:
         elif isinstance(src, (pd.DataFrame, pd.Series)):  # composition dataframe
             self.comp = pd.Series(
                 src.loc[src.index[0], src.pyrochem.list_compositional].astype(float),
-            
             )
         elif isinstance(src, dict):
             self._df: DataFrame = pd.DataFrame.from_dict(src)
@@ -176,10 +100,11 @@ class Composition:
         if (self.name is not None) and (self.filename is None):
             self.filename = f"{self.name}.csv"  # default naming
 
-    def _import_file(self, filename, **kwargs):
-        if filename.endswith(".csv"):
+    def _import_file(self, filename: str | Path, **kwargs):
+        filename = Path(filename)
+        if filename.suffix == ".csv":
             self._df = pd.read_csv(filename, **kwargs).set_index("var")
-        elif filename.endswith("json"):
+        elif filename.suffix == ".json":
             self._df = pd.read_json(filename, **kwargs).set_index("var")
 
     def _process_imported_frame(self):
@@ -219,27 +144,31 @@ class Composition:
         ):
             setattr(self, dest, metadata.get(src, None))
 
-        self.comp: pd.Series = self._df["value"].pyrochem.compositional.astype(float).dropna()
+        self.comp: pd.Series = (
+            self._df["value"].pyrochem.compositional.astype(float).dropna()
+        )
         if "units" in self._df.columns:
             self.units: pd.Series = self._df.loc[self.comp.index, "units"]
 
         if "unc_2sigma" in self._df.columns:
-            self.unc_2sigma: pd.Series = self._df.loc[self.comp.index, "unc_2sigma"].astype(float)
+            self.unc_2sigma: pd.Series = self._df.loc[
+                self.comp.index, "unc_2sigma"
+            ].astype(float)
 
-    def set_units(self, to="wt%"):
+    def set_units(self, to: str = "wt%"):
         """
         Set the units of the dataframe.
 
         Parameters
         ------------
-        to : :class:`str`, :code:`"wt%"`
+        to : str, `"wt%"`
         """
         scales: pd.Series = self.units.apply(scale, target_unit=to).astype(float)
         self.comp *= scales
-        self.units= pd.Series([to]*len(self.units))
+        self.units = pd.Series([to] * len(self.units))
         return self
 
-    def describe(self, verbose=True, **kwargs):
+    def describe(self, verbose: bool = True, **kwargs) -> str:
         metadata = self._df.reindex(
             index=[
                 "ModelName",
@@ -266,20 +195,20 @@ class Composition:
                 desc += "doi: {}".format(metadata["DOI"])
         return to_width(desc, **kwargs)
 
-    def __getitem__(self, variables):
+    def __getitem__(self, variables: list | np.ndarray | pd.Index):
         """
         Allow access to model values via [] indexing e.g. Composition['Si', 'Cr'].
 
         Parameters
         ----------
-        variables : :class:`str` | :class:`list`
+        variables : str | list
             Variable(s) to get.
         """
         if isinstance(variables, (list, np.ndarray, pd.Index)):  # if iterable
             variables = [v if isinstance(v, str) else str(v) for v in variables]
         else:
             variables = [str(variables)]
-        qry: np.ndarray= self.comp.reindex(index=variables).values.flatten()
+        qry: np.ndarray = self.comp.reindex(index=variables).values.flatten()
         if len(qry) == 1:
             qry = qry[0]
         return qry
@@ -310,3 +239,82 @@ class Composition:
                 )
         r += ")"
         return r
+
+
+def all_reference_compositions() -> dict[str, Composition]:
+    """
+    Get a dictionary of all reference compositions indexed by name.
+
+    Returns
+    --------
+    dict
+    """
+    return {r["name"]: Composition(r["composition"]) for ix, r in NORMDB.iterrows()}
+
+
+def get_reference_composition(name: str) -> Composition:
+    """
+    Retrieve a particular composition from the reference database.
+
+    Parameters
+    ------------
+    name : str
+        Name of the reference composition model.
+
+    Returns
+    --------
+    `pyrolite.geochem.norm.Composition`
+    """
+    res = NORMDB.query(f"name=='{name}'")
+    assert len(res) == 1
+    res = res.iloc[0]
+    name, composition = res["name"], res["composition"]
+    return Composition(composition, name=name)
+
+
+def get_reference_files(
+    directory: str | Path | None = None, formats: list[str] | None = None
+) -> list[Path]:
+    """
+    Get a list of the reference composition files.
+
+    Parameters
+    -----------
+    directory : str, `None`
+        Location of reference data files.
+    formats : list, `["csv"]`
+        List of potential data formats to draw from. Currently only csv will work.
+
+    Returns
+    --------
+    list
+    """
+    if formats is None:
+        formats = ["csv"]
+    directory = directory or (pyrolite_datafolder(subfolder="geochem") / "refcomp")
+    directory = Path(directory)
+    assert directory.exists() and directory.is_dir()
+    files = []
+    for fmt in formats:
+        files.extend(directory.glob("./*." + fmt))
+    return files
+
+
+def update_database(encoding: str = "cp1252", **kwargs):
+    """
+    Update the reference composition database.
+
+    Notes
+    ------
+    This will take all csv files from the geochem/refcomp pyrolite data folder
+    and construct a document-based JSON database.
+    """
+    pd.DataFrame(
+        [
+            {
+                "name": C.name,
+                "composition": json.dumps(C._df.query("~value.isnull()").to_dict()),
+            }
+            for C in [Composition(f, encoding=encoding) for f in get_reference_files()]
+        ]
+    ).to_json(__dbfile__, indent=4)

@@ -1,3 +1,4 @@
+from typing import Callable
 from copy import copy
 
 import numpy as np
@@ -9,20 +10,20 @@ from .log import Handle
 logger = Handle(__name__)
 
 
-def eigsorted(cov):
+def eigsorted(cov: np.ndarray[tuple[int, int], np.dtype[np.floating]]):
     """
     Returns arrays of eigenvalues and eigenvectors sorted by magnitude.
 
     Parameters
     -----------
-    cov : :class:`numpy.ndarray`
+    cov : numpy.ndarray
         Covariance matrix to extract eigenvalues and eigenvectors from.
 
     Returns
     --------
-    vals : :class:`numpy.ndarray`
+    vals : numpy.ndarray
         Sorted eigenvalues.
-    vecs : :class:`numpy.ndarray`
+    vecs : numpy.ndarray
         Sorted eigenvectors.
     """
     vals, vecs = np.linalg.eigh(cov)
@@ -30,20 +31,23 @@ def eigsorted(cov):
     return vals[order], vecs[:, order]
 
 
-def augmented_covariance_matrix(M, C):
+def augmented_covariance_matrix(
+    M: np.ndarray[tuple[int, int], np.dtype[np.number]],
+    C: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+):
     r"""
     Constructs an augmented covariance matrix from means M and covariance matrix C.
 
     Parameters
     ----------
-    M : :class:`numpy.ndarray`
+    M : numpy.ndarray
         Array of means.
-    C : :class:`numpy.ndarray`
+    C : numpy.ndarray
         Covariance matrix.
 
     Returns
     ---------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Augmented covariance matrix A.
 
     Notes
@@ -67,17 +71,22 @@ def augmented_covariance_matrix(M, C):
     return A
 
 
-def interpolate_line(x, y, n=0, logy=False):
+def interpolate_line(
+    x: np.ndarray[tuple[int]], y: np.ndarray[tuple[int]], n: int = 0, logy: bool = False
+) -> tuple[
+    np.ndarray[tuple[int], np.dtype[np.floating]],
+    np.ndarray[tuple[int], np.dtype[np.floating]],
+]:
     """
     Add intermediate evenly spaced points interpolated between given x-y coordinates,
     assuming the x points are the same.
 
     Parameters
     -----------
-    x : :class:`numpy.ndarray`
+    x : numpy.ndarray
         1D array of x values.
 
-    y : :class:`numpy.ndarray`
+    y : numpy.ndarray
         ND array of y values.
     """
     if logy:  # perform interpolation against logy, then revert with exp
@@ -103,21 +112,23 @@ def interpolate_line(x, y, n=0, logy=False):
     return _x, _y
 
 
-def grid_from_ranges(X, bins=100, **kwargs):
+def grid_from_ranges(
+    X: np.ndarray, bins: int | list[int] = 100, **kwargs
+) -> tuple[np.ndarray, ...]:
     """
     Create a meshgrid based on the ranges along columns of array X.
 
     Parameters
     -----------
-    X : :class:`numpy.ndarray`
-        Array of shape :code:`(samples, dimensions)` to create a meshgrid from.
-    bins : :class:`int` | :class:`tuple`
+    X : numpy.ndarray
+        Array of shape `(samples, dimensions)` to create a meshgrid from.
+    bins : int | tuple
         Shape of the meshgrid. If an integer, provides a square mesh. If a tuple,
         values for each column are required.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
 
     Notes
     -------
@@ -131,43 +142,44 @@ def grid_from_ranges(X, bins=100, **kwargs):
     return grid
 
 
-def flattengrid(grid):
+def flattengrid(grid: tuple[np.ndarray, ...]) -> np.ndarray[tuple[int, int]]:
     """
     Convert a collection of arrays to a concatenated array of flattened components.
     Useful for passing meshgrid values to a function which accepts argumnets of shape
-    :code:`(samples, dimensions)`.
+    `(samples, dimensions)`.
 
     Parameters
     -----------
-    grid : :class:`list`
+    grid : list
         Collection of arrays (e.g. a meshgrid) to flatten and concatenate.
-
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     return np.vstack([g.flatten() for g in grid]).T
 
 
-def linspc_(_min, _max, step=0.0, bins=20):
+def linspc_(
+    _min: float, _max: float, step: float = 0.0, bins: int = 20
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]:
     """
     Linear spaced array, with optional step for grid margins.
 
     Parameters
     -----------
-    _min : :class:`float`
+    _min : float
         Minimum value for spaced range.
-    _max : :class:`float`
+    _max : float
         Maximum value for spaced range.
-    step : :class:`float`, 0.0
+    step : float, 0.0
         Step for expanding at grid edges. Default of 0.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Linearly-spaced array.
     """
     if step < 0:
@@ -175,24 +187,26 @@ def linspc_(_min, _max, step=0.0, bins=20):
     return np.linspace(_min - step, _max + step, bins + 1)
 
 
-def logspc_(_min, _max, step=1.0, bins=20):
+def logspc_(
+    _min: float, _max: float, step: float = 1.0, bins: int = 20
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]:
     """
     Log spaced array, with optional step for grid margins.
 
     Parameters
     -----------
-    _min : :class:`float`
+    _min : float
         Minimum value for spaced range.
-    _max : :class:`float`
+    _max : float
         Maximum value for spaced range.
-    step : :class:`float`, 1.0
+    step : float, 1.0
         Step for expanding at grid edges. Default of 1.0 results in no expansion.
     bins : int
         Number of bins to divide the range (adds one by default).
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Log-spaced array.
     """
     if step < 1.0:
@@ -200,58 +214,62 @@ def logspc_(_min, _max, step=1.0, bins=20):
     return np.logspace(np.log(_min / step), np.log(_max * step), bins, base=np.e)
 
 
-def logrng_(v, exp=0.0):
+def logrng_(v: list[float] | np.ndarray, exp: float = 0.0) -> tuple[float, float]:
     """
     Range of a sample, where values <0 are excluded.
 
     Parameters
     -----------
-    v : :class:`list`; list-like
+    v : list; list-like
         Array of values to obtain a range from.
-    exp : :class:`float`, (0, 1)
+    exp : float, (0, 1)
         Fractional expansion of the range.
 
     Returns
     -------
-    :class:`tuple`
+    tuple
         Min, max tuple.
     """
+    v = np.array(v)
     u = v[(v > 0)]  # make sure the range_values are >0
     return linrng_(u, exp=exp)
 
 
-def linrng_(v, exp=0.0):
+def linrng_(v: list[float] | np.ndarray, exp: float = 0.0) -> tuple[float, float]:
     """
     Range of a sample, where values <0 are included.
 
     Parameters
     -----------
-    v : :class:`list`; list-like
+    v : list; list-like
         Array of values to obtain a range from.
-    exp : :class:`float`, (0, 1)
+    exp : float, (0, 1)
         Fractional expansion of the range.
 
     Returns
     -------
-    :class:`tuple`
+    tuple
         Min, max tuple.
     """
+    v = np.array(v)
     u = v[np.isfinite(v)]
     return (np.nanmin(u) * (1.0 - exp), np.nanmax(u) * (1.0 + exp))
 
 
-def isclose(a, b):
+def isclose(
+    a: float | np.ndarray, b: float | np.ndarray
+) -> bool | np.ndarray[tuple[int, ...], np.dtype[np.bool]]:
     """
     Implementation of np.isclose with equal nan.
 
 
     Parameters
     ------------
-    a,b : :class:`float` | :class:`numpy.ndarray`
+    a,b : float | numpy.ndarray
         Numbers or arrays to compare.
     Returns
     -------
-    :class:`bool`
+    bool
     """
     hasnan = np.isnan(a) | np.isnan(b)
     if np.array(a).ndim > 1:
@@ -270,7 +288,7 @@ def isclose(a, b):
             return np.isclose(a, b)
 
 
-def is_numeric(obj):
+def is_numeric(obj) -> bool:
     """
     Check for numerical behaviour.
 
@@ -281,7 +299,7 @@ def is_numeric(obj):
 
     Returns
     --------
-    :class:`bool`
+    bool
     """
 
     attrs = ["__add__", "__sub__", "__mul__", "__truediv__", "__pow__"]
@@ -289,20 +307,20 @@ def is_numeric(obj):
 
 
 @np.vectorize
-def round_sig(x, sig=2):
+def round_sig(x: float | np.ndarray, sig: int = 2) -> float | np.ndarray:
     """
     Round a number to a certain number of significant figures.
 
     Parameters
     ----------
-    x : :class:`float`
+    x : float
         Number to round.
-    sig : :class:`int`
+    sig : int
         Number of significant digits to round to.
 
     Returns
     -------
-    :class:`float`
+    float
     """
     where_nan = ~np.isfinite(x)
     x = copy(x)
@@ -318,26 +336,31 @@ def round_sig(x, sig=2):
             return x
 
 
-def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
+def significant_figures(
+    n: float | np.ndarray,
+    unc: float | np.ndarray | None = None,
+    max_sf: int = 20,
+    rtol: float = 1e-20,
+) -> int | np.ndarray:
     """
     Iterative method to determine the number of significant digits for a given float,
     optionally providing an uncertainty.
 
     Parameters
     ----------
-    n : :class:`float`
+    n : float
         Number from which to ascertain the significance level.
-    unc : :class:`float`, :code:`None`
+    unc : float, `None`
         Uncertainty, which if provided is used to derive the number of significant
         digits.
-    max_sf : :class:`int`
+    max_sf : int
         An upper limit to the number of significant digits suggested.
-    rtol : :class:`float`
+    rtol : float
         Relative tolerance to determine similarity of numbers, used in calculations.
 
     Returns
     -------
-    :class:`int`
+    int
         Number of significant digits.
     """
     if not hasattr(n, "__len__"):
@@ -380,27 +403,32 @@ def significant_figures(n, unc=None, max_sf=20, rtol=1e-20):
         return sfs
 
 
-def signify_digit(n, unc=None, leeway=0, low_filter=True):
+def signify_digit(
+    n: float | np.ndarray,
+    unc: float | np.ndarray | None = None,
+    leeway: int = 0,
+    low_filter: bool = True,
+):
     """
     Reformats numbers to contain only significant_digits. Uncertainty can be provided to
     digits with relevant precision.
 
     Parameters
     ----------
-    n : :class:`float`
+    n : float
         Number to reformat
-    unc : :class:`float`, :code:`None`
+    unc : float, `None`
         Absolute uncertainty on the number, optional.
-    leeway : :class:`int`, 0
+    leeway : int, 0
         Manual override for significant figures. Positive values will force extra
         significant figures; negative values will remove significant figures.
-    low_filter : :class:`bool`, :code:`True`
-        Whether to return :class:`np.nan` in place of values which are within precision
+    low_filter : bool, `True`
+        Whether to return `np.nan` in place of values which are within precision
         equal to zero.
 
     Returns
     -------
-    :class:`float`
+    float
         Reformatted number.
 
     Notes
@@ -437,18 +465,18 @@ def signify_digit(n, unc=None, leeway=0, low_filter=True):
         return np.nan
 
 
-def most_precise(arr):
+def most_precise(arr: np.ndarray) -> float | np.ndarray:
     """
     Get the most precise element from an array.
 
     Parameters
     -----------
-    arr : :class:`numpy.ndarray`
+    arr : numpy.ndarray
         Array to obtain the most precise element/subarray from.
 
     Returns
     -----------
-    :class:`float` | :class:`numpy.ndarray`
+    float | numpy.ndarray
         Returns the most precise array element (for ndim=1), or most precise subarray
         (for ndim > 1).
     """
@@ -463,23 +491,25 @@ def most_precise(arr):
         return np.nan
 
 
-def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
+def equal_within_significance(
+    arr: np.ndarray, equal_nan: bool = False, rtol: float = 1e-15
+) -> bool | np.ndarray:
     """
     Test whether elements of an array are equal within the precision of the
     least precise.
 
     Parameters
     ------------
-    arr : :class:`numpy.ndarray`
+    arr : numpy.ndarray
         Array to test.
-    equal_nan : :class:`bool`, :code:`False`
-        Whether to consider :class:`np.nan` elements equal to one another.
-    rtol : :class:`float`
+    equal_nan : bool, `False`
+        Whether to consider `np.nan` elements equal to one another.
+    rtol : float
         Relative tolerance for comparison.
 
     Returns
     ---------
-    :class:`bool` | :class:`numpy.ndarray`(:class:`bool`)
+    bool | numpy.ndarray(bool)
     """
     arr = np.array(arr)
 
@@ -511,40 +541,42 @@ def equal_within_significance(arr, equal_nan=False, rtol=1e-15):
         return equal
 
 
-def helmert_basis(D: int, full=False, **kwargs):
+def helmert_basis(D: int, full: bool = False, **kwargs) -> np.ndarray[tuple[int, int]]:
     """
     Generate a set of orthogonal basis vectors in the form of a helmert matrix.
 
     Parameters
     ---------------
-    D : :class:`int`
+    D : int
         Dimension of compositional vectors.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         (D-1, D) helmert matrix corresponding to default orthogonal basis.
     """
     H = scipy.linalg.helmert(D, full=full, **kwargs)
     return H
 
 
-def symbolic_helmert_basis(D, full=False):
+def symbolic_helmert_basis(
+    D: int, full: bool = False
+) -> sympy.matrices.dense.DenseMatrix:
     """
     Get a symbolic representation of a Helmert Matrix.
 
     Parameters
     ----------
-    D : :class:`int`
+    D : int
         Order of the matrix. Equivalent to dimensionality for compositional data
         analysis.
-    full : :class:`bool`
+    full : bool
         Whether to return the full matrix, or alternatively exclude the first row.
-        Analogous to the option for :func:`scipy.linalg.helmert`.
+        Analogous to the option for `scipy.linalg.helmert`.
 
     Returns
     --------
-    :class:`sympy.matrices.dense.DenseMatrix`
+    sympy.matrices.dense.DenseMatrix
     """
 
     rows = []
@@ -555,45 +587,45 @@ def symbolic_helmert_basis(D, full=False):
         rows += [
             [1 / sympy.sqrt((r + 1) * r)] * r  # 1/sqrt(n(*n+1))
             + [-r / sympy.sqrt((r + 1) * r)]  # -n/sqrt(n(*n+1))
-            + [0] * (D - r - 1)
+            + [0] * int(D - r - 1)
         ]
     # could check summations here
 
     return sympy.Matrix(rows)
 
 
-def on_finite(X, f):
+def on_finite(X: np.ndarray, f: Callable) -> np.ndarray:
     """
     Calls a function on an array ignoring np.nan and +/- np.inf. Note that the
     shape of the output may be different to that of the input.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array on which to perform the function.
-    f : :class:`Callable`
+    f : Callable
         Function to call on the array.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     ma = np.isfinite(X)
     return f(X[ma])
 
 
-def nancov(X):
+def nancov(X: np.ndarray[tuple[int, int]]) -> np.ndarray[tuple[int, int]]:
     """
     Generates a covariance matrix excluding nan-components.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Input array for which to derive a covariance matrix.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     # tried and true - simply excludes samples
     Xnanfree = X[np.all(np.isfinite(X), axis=1), :].T
@@ -602,7 +634,7 @@ def nancov(X):
     return np.cov(Xnanfree)
 
 
-def solve_ratios(*eqs, evaluate=True):
+def solve_ratios(*eqs, evaluate: bool = True) -> list[float]:
     """
     Solve a ternary system (top-left-right) given two constraints on
     two ratios, which together describe intersecting lines/a point.

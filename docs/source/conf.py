@@ -202,6 +202,7 @@ warnings.filterwarnings(
     " non-GUI backend, so cannot show the figure.",
 )
 
+# def reset_mpl(gallery_conf, fname):
 
 # -- Options for HTMLHelp output ------------------------------------------
 

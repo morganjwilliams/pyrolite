@@ -35,35 +35,35 @@ def calc_lambdas(
 
     Parameters
     ----------
-    df : :class:`pd.DataFrame`
+    df : `pd.DataFrame`
         Dataframe containing REE Data.
-    params : :class:`list` | :class:`str`
+    params : list | str
         Pre-computed parameters for the orthogonal polynomials (a list of tuples).
         Optionally specified, otherwise defaults the parameterisation as in
-        O'Neill (2016). [#ref_1]_ If a string is supplied, :code:`"O'Neill (2016)"` or
-        similar will give the original defaults, while :code:`"full"` will use all
+        O'Neill (2016). [#ref_1]_ If a string is supplied, `"O'Neill (2016)"` or
+        similar will give the original defaults, while `"full"` will use all
         of the REE (including Eu) as a basis for the orthogonal polynomials.
-    degree : :class:`int`
+    degree : int
         Degree of orthogonal polynomial fit.
-    exclude : :class:`list`
+    exclude : list
         REE to exclude from the *fit*.
-    algorithm : :class:`str`
+    algorithm : str
         Algorithm to use for fitting the orthogonal polynomials.
-    anomalies : :class:`list`
+    anomalies : list
         List of relative anomalies to append to the dataframe.
-    fit_tetrads : :class:`bool`
+    fit_tetrads : bool
         Whether to fit tetrad functions in addition to orthogonal polynomial functions.
         This will force the use of the optimization algorithm.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         Single value or 1D array of observed value uncertainties.
-    add_uncertainties : :class:`bool`
+    add_uncertainties : bool
         Whether to append estimated parameter uncertainties to the dataframe.
-    add_X2 : :class:`bool`
+    add_X2 : bool
         Whether to append the chi-squared values (χ2) to the dataframe.
 
     Returns
     --------
-    :class:`pd.DataFrame`
+    `pd.DataFrame`
 
     See Also
     ---------
@@ -74,7 +74,7 @@ def calc_lambdas(
     References
     ----------
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
 

@@ -3,23 +3,22 @@ Utility functions for working with matplotlib.
 
 Parameters
 ----------
-DEFAULT_CONT_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+DEFAULT_CONT_COLORMAP : matplotlib.colors.ScalarMappable
     Default continuous colormap.
-DEFAULT_DICS_COLORMAP : :class:`matplotlib.colors.ScalarMappable`
+DEFAULT_DICS_COLORMAP : matplotlib.colors.ScalarMappable
     Default discrete colormap.
-USE_PCOLOR : :class:`bool`
+USE_PCOLOR : bool
     Option to use the :func:`matplotlib.pyplot.pcolor` function in place
     of :func:`matplotlib.pyplot.pcolormesh`.
 """
 
 from ..log import Handle
+from .export import save_axes, save_figure
+from .style import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
+
+__all__ = ["DEFAULT_CONT_COLORMAP", "DEFAULT_DISC_COLORMAP", "save_axes", "save_figure"]
 
 logger = Handle(__name__)
 
-from .style import DEFAULT_CONT_COLORMAP, DEFAULT_DISC_COLORMAP
 
 FONTSIZE = 12
-
-from .export import save_axes, save_figure
-
-__all__ = ["DEFAULT_CONT_COLORMAP", "DEFAULT_DISC_COLORMAP", "save_axes", "save_figure"]

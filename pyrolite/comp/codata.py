@@ -1,3 +1,4 @@
+from traitlets import Float
 from periodictable import Ca
 import warnings
 from collections.abc import Callable
@@ -77,11 +78,11 @@ def close(
 
 @overload
 def renormalise(
-    df: pd.DataFrame, components: list[str] | None, scale: float = 100.0
+    df: pd.DataFrame, components: list[str] | None, scale: float
 ) -> pd.DataFrame: ...
 @overload
 def renormalise(
-    df: pd.Series, components: list[str] | None, scale: float = 100.0
+    df: pd.Series, components: list[str] | None, scale: float
 ) -> pd.Series: ...
 def renormalise(
     df: pd.DataFrame | pd.Series,

@@ -8,7 +8,7 @@ from ..util.log import Handle
 
 logger = Handle(__name__)
 
-__default_charges__ = defaultdict(lambda: None)
+__default_charges__: defaultdict[str, int | None] = defaultdict(lambda: None)
 __default_charges__.update(
     {
         "H": 1,
@@ -69,13 +69,13 @@ __default_charges__.update(
 
 
 # Monkey patching for default charges
-def set_default_ionic_charges(charges=None):
+def set_default_ionic_charges(charges: dict | None = None):
     """
     Set the default ionic charges for each element.
 
     Parameters
     ----------
-    charges : :class:`dict`
+    charges : dict
         Dictionary of elements : charges.
     """
     charges = charges or __default_charges__  # default to internal if None passed

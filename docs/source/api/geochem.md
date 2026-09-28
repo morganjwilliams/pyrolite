@@ -14,7 +14,7 @@ geochem/transform
 geochem/norm
 geochem/parse
 geochem/magma
-geochem/alterationa
+geochem/alteration
 geochem/ions
 geochem/isotope
 ```

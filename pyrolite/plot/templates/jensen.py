@@ -1,3 +1,5 @@
+import matplotlib.axes
+
 from ...util.classification import JensenPlot as _JensenPlot
 from ...util.log import Handle
 from ...util.meta import update_docstring_references
@@ -7,22 +9,27 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def JensenPlot(ax=None, add_labels=False, color="k", **kwargs):
+def JensenPlot(
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    color: str = "k",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Jensen Plot for classification of sub-alkaline volcanic rocks [#ref_1]_.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the template on to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to include the labels for the diagram.
-    color : :class:`str`
+    color : str
         Line color for the diagram.
 
     Returns
     -------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     References
     ----------
@@ -41,5 +48,5 @@ def JensenPlot(ax=None, add_labels=False, color="k", **kwargs):
     ax = init_axes(ax=ax, projection="ternary", **kwargs)
 
     clf = _JensenPlot()
-    clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
+    ax = clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
     return ax

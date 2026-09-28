@@ -10,7 +10,9 @@ Todo
 """
 
 import json
+from collections.abc import Callable
 
+import matplotlib.axes
 import matplotlib.lines
 import matplotlib.patches
 import matplotlib.text
@@ -33,7 +35,7 @@ from .plot.transform import tlr_to_xy
 logger = Handle(__name__)
 
 
-def _read_poly(poly):
+def _read_poly(poly: list | tuple):
     """
     Read points from a polygon, allowing ratio values to be specified.
     """
@@ -57,29 +59,29 @@ class PolygonClassifier:
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`dict`
+    axes : dict
         Mapping from plot axes to variables to be used for labels.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
-    scale : :class:`float`
+    scale : float
         Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
-    xlim : :class:`tuple`
+    xlim : tuple
         Default x-limits for this classifier for plotting.
-    ylim : :class:`tuple`
+    ylim : tuple
         Default y-limits for this classifier for plotting.
     """
 
     def __init__(
         self,
-        name=None,
-        axes=None,
-        fields=None,
-        scale=1.0,
-        transform=None,
-        mode=None,
+        name: str | None = None,
+        axes: dict | None = None,
+        fields: dict | None = None,
+        scale: float = 1.0,
+        transform: Callable | str | None = None,
+        mode: str | None = None,
         **kwargs,
     ):
         self.default_scale = scale
@@ -126,20 +128,24 @@ class PolygonClassifier:
             self.fields = self.fields[mode]
         self.classes = list(self.fields.keys())
 
-    def predict(self, X, data_scale=None):
+    def predict(
+        self,
+        X: np.ndarray[tuple[int, int], np.dtype[np.number]] | pd.DataFrame,
+        data_scale=None,
+    ) -> pd.Series:
         """
         Predict the classification of samples using the polygon-based classifier.
 
         Parameters
         -----------
-        X : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+        X : numpy.ndarray | pandas.DataFrame
             Data to classify.
-        data_scale : :class:`float`
+        data_scale : float
             Maximum scale for the data. Typically 100 (wt%) or 1 (fractional).
 
         Returns
         -------
-        :class:`pandas.Series`
+        pandas.Series
             Series containing classifer predictions. If a dataframe was input,
             it inherit the index.
         """
@@ -162,9 +168,8 @@ class PolygonClassifier:
         out = pd.Series(index=idx, dtype="object")
 
         rescale_by = 1.0  # rescaling the data to fit the classifier scale
-        if data_scale is not None:
-            if not np.isclose(self.default_scale, data_scale):
-                rescale_by = self.default_scale / data_scale
+        if data_scale is not None and not np.isclose(self.default_scale, data_scale):
+            rescale_by = self.default_scale / data_scale
 
         X = self.transform(X) * rescale_by  # transformed X
         indexes = np.array([p.contains_points(X) for p in polys]).T
@@ -177,50 +182,50 @@ class PolygonClassifier:
         return out
 
     @property
-    def axis_components(self):
+    def axis_components(self) -> list[str]:
         """
         Get the axis components used by the classifier.
 
         Returns
         -------
-        :class:`tuple`
+        tuple
             Ordered names for axes used by the classifier.
         """
         return list(self.axes.values())
 
     def _add_polygons_to_axes(
         self,
-        ax=None,
-        fill=False,
-        axes_scale=100.0,
-        add_labels=False,
-        which_labels="ID",
-        which_ids=None,
+        ax: matplotlib.axes.Axes | None = None,
+        fill: bool = False,
+        axes_scale: float = 100.0,
+        add_labels: bool = False,
+        which_labels: str = "ID",
+        which_ids: list[str] | None = None,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         """
         Add the polygonal fields from the classifier to an axis.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             Axis to add the polygons to.
-        fill : :class:`bool`
+        fill : bool
             Whether to fill the polygons.
-        axes_scale : :class:`float`
+        axes_scale : float
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
-        add_labels : :class:`bool`
+        add_labels : bool
             Whether to add labels at polygon centroids.
-        which_labels : :class:`str`
+        which_labels : str
             Which data to use for field labels - field 'name' or 'ID'.
-        which_ids : :class:`list`
+        which_ids : list
             List of field IDs corresponding to the polygons to add to the axes object.
             (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
             An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
 
         Notes
         -----
@@ -228,17 +233,19 @@ class PolygonClassifier:
         * Will use IDs/keys for fields as labels if names not specified.
         """
         if ax is None:
-            ax = init_axes(projection=self.projection, **kwargs)
+            ax: matplotlib.axes.Axes = init_axes(projection=self.projection, **kwargs)
         else:
-            if self.projection:
-                if not isinstance(ax, get_projection_class(self.projection)):
-                    logger.warning(
-                        f"Projection of axis for {self.name or self.__class.__name__} should be {self.projection}."
-                    )
+            if self.projection and not isinstance(
+                ax, get_projection_class(self.projection)
+            ):
+                logger.warning(
+                    f"Projection of axis for {self.name or self.__class.__name__} should be {self.projection}."
+                )
         rescale_by = 1.0
-        if axes_scale is not None:  # rescale polygons to fit ax
-            if not np.isclose(self.default_scale, axes_scale):
-                rescale_by = axes_scale / self.default_scale
+        if axes_scale is not None and not np.isclose(  # rescale polygons to fit ax
+            self.default_scale, axes_scale
+        ):
+            rescale_by = axes_scale / self.default_scale
 
         pgns = []
         poly_config = patchkwargs(kwargs)
@@ -287,56 +294,57 @@ class PolygonClassifier:
         # for the moment we're only doing this for standard projections
         # todo: automatically find the relevant lim function,
         # such that e.g. ternary limits might be able to be specified?
-        if self.projection is None:
-            if np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(ax.get_ylim(), [0, 1]):
-                # collect verts from polygons
-                _verts = np.vstack([p.get_path().vertices for p in pgns])
-                ax.set(
-                    xlim=np.array(self.lims["xlim"]) * rescale_by
-                    if "xlim" in self.lims
-                    else (np.nanmin(_verts[:, 0]), np.nanmax(_verts[:, 0])),
-                    ylim=np.array(self.lims["ylim"]) * rescale_by
-                    if "ylim" in self.lims
-                    else (np.nanmin(_verts[:, 1]), np.nanmax(_verts[:, 1])),
-                )
+        if self.projection is None and np.allclose(ax.get_xlim(), [0, 1]) & np.allclose(
+            ax.get_ylim(), [0, 1]
+        ):
+            # collect verts from polygons
+            _verts = np.vstack([p.get_path().vertices for p in pgns])
+            ax.set(
+                xlim=np.array(self.lims["xlim"]) * rescale_by
+                if "xlim" in self.lims
+                else (np.nanmin(_verts[:, 0]), np.nanmax(_verts[:, 0])),
+                ylim=np.array(self.lims["ylim"]) * rescale_by
+                if "ylim" in self.lims
+                else (np.nanmin(_verts[:, 1]), np.nanmax(_verts[:, 1])),
+            )
 
         return ax
 
     def add_to_axes(
         self,
-        ax=None,
-        fill=False,
-        axes_scale=1.0,
-        add_labels=False,
-        which_labels="ID",
-        which_ids=None,
+        ax: matplotlib.axes.Axes | None = None,
+        fill: bool = False,
+        axes_scale: float = 1.0,
+        add_labels: bool = False,
+        which_labels: str = "ID",
+        which_ids: list[str] | None = None,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         """
         Add the fields from the classifier to an axis.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             Axis to add the polygons to.
-        fill : :class:`bool`
+        fill : bool
             Whether to fill the polygons.
-        axes_scale : :class:`float`
+        axes_scale : float
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
-        add_labels : :class:`bool`
+        add_labels : bool
             Whether to add labels for the polygons.
-        which_labels : :class:`str`
+        which_labels : str
             Which data to use for field labels - field 'name' or 'ID'.
-        which_ids : :class:`list`
+        which_ids : list
             List of field IDs corresponding to the polygons to add to the axes object.
             (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
             An empty list corresponds to plotting all the polygons.
 
         Returns
         --------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
         """
-        ax = init_axes(ax=ax, projection=self.projection)
+        ax: matplotlib.axes.Axes = init_axes(ax=ax, projection=self.projection)
 
         ax = self._add_polygons_to_axes(
             ax=ax,
@@ -360,32 +368,32 @@ class TAS(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
-    scale : :class:`float`
+    scale : float
         Default maximum scale for the axes. Typically 100 (wt%) or 1 (fractional).
-    xlim : :class:`tuple`
+    xlim : tuple
         Default x-limits for this classifier for plotting.
-    ylim : :class:`tuple`
+    ylim : tuple
         Default y-limits for this classifier for plotting.
-    which_model : :class:`str`
+    which_model : str
         The name of the model variant to use, if not Middlemost.
 
     References
     -----------
     .. [#ref_1] Middlemost, E. A. K. (1994).
                 Naming materials in the magma/igneous rock system.
-                Earth-Science Reviews, 37(3), 215–224.
+                Earth-Science Reviews, 37(3), 215-224.
                 doi: {Middlemost1994}
     .. [#ref_2] Le Bas, M.J., Le Maitre, R.W., Woolley, A.R. (1992).
                 The construction of the Total Alkali-Silica chemical
                 classification of volcanic rocks.
-                Mineralogy and Petrology 46, 1–22.
+                Mineralogy and Petrology 46, 1-22.
                 doi: {LeBas1992}
     .. [#ref_3] Le Maitre, R.W. (2002). Igneous Rocks: A Classification and Glossary
                 of Terms : Recommendations of International Union of Geological
@@ -394,7 +402,7 @@ class TAS(PolygonClassifier):
                 doi: {LeMaitre2002}
     """
 
-    def __init__(self, which_model=None, **kwargs):
+    def __init__(self, which_model: str | None = None, **kwargs):
         if which_model == "LeMaitre":
             src = (
                 pyrolite_datafolder(subfolder="models") / "TAS" / "config_lemaitre.json"
@@ -418,42 +426,42 @@ class TAS(PolygonClassifier):
 
     def add_to_axes(
         self,
-        ax=None,
-        fill=False,
-        axes_scale=100.0,
-        add_labels=False,
-        which_labels="ID",
-        which_ids=None,
-        label_at_centroid=True,
+        ax: matplotlib.axes.Axes | None = None,
+        fill: bool = False,
+        axes_scale: float = 100.0,
+        add_labels: bool = False,
+        which_labels: str = "ID",
+        which_ids: list[str] | None = None,
+        label_at_centroid: bool = True,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         """
         Add the TAS fields from the classifier to an axis.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             Axis to add the polygons to.
-        fill : :class:`bool`
+        fill : bool
             Whether to fill the polygons.
-        axes_scale : :class:`float`
+        axes_scale : float
             Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
-        add_labels : :class:`bool`
+        add_labels : bool
             Whether to add labels for the polygons.
-        which_labels : :class:`str`
+        which_labels : str
             Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
             or the field 'ID').
-        which_ids : :class:`list`
+        which_ids : list
             List of field IDs corresponding to the polygons to add to the axes object.
             (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
             An empty list corresponds to plotting all the polygons.
-        label_at_centroid : :class:`bool`
+        label_at_centroid : bool
             Whether to label the fields at the centroid (True) or at the visual
             center of the field (False).
 
         Returns
         --------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
         """
         # use and override the default add_to_axes
         # here we don't want to add the labels in the normal way, because there
@@ -479,9 +487,10 @@ class TAS(PolygonClassifier):
             yx_scaling = (p[1][1] - p[0][1]) / (p[1][0] - p[0][0]) * scale_factor
 
         rescale_by = 1.0
-        if axes_scale is not None:  # rescale polygons to fit ax
-            if not np.isclose(self.default_scale, axes_scale):
-                rescale_by = axes_scale / self.default_scale
+        if (axes_scale is not None) and (  # rescale polygons to fit ax
+            not np.isclose(self.default_scale, axes_scale)
+        ):
+            rescale_by = axes_scale / self.default_scale
 
         if which_ids is None:
             which_ids = list(self.fields.keys())
@@ -532,11 +541,11 @@ class USDASoilTexture(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
@@ -546,7 +555,7 @@ class USDASoilTexture(PolygonClassifier):
                 C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
                 USDA Handbook 18. Government Printing Office, Washington, D.C.
     .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
-                Texture-by-Feel Analysis. Journal of Agronomic Education 8:54–55.
+                Texture-by-Feel Analysis. Journal of Agronomic Education 8:54-55.
                 doi: {Thien1979}
     """
 
@@ -570,11 +579,11 @@ class QAP(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
@@ -582,7 +591,7 @@ class QAP(PolygonClassifier):
     -----------
     .. [#ref_1] Streckeisen, A. (1974). Classification and nomenclature of plutonic
                 rocks: recommendations of the IUGS subcommission on the systematics
-                of Igneous Rocks. Geol Rundsch 63, 773–786.
+                of Igneous Rocks. Geol Rundsch 63, 773-786.
                 doi: {Streckeisen1974}
     .. [#ref_2] Le Maitre,R.W. (2002). Igneous Rocks: A Classification and Glossary
                 of Terms : Recommendations of International Union of Geological
@@ -610,14 +619,14 @@ class FeldsparTernary(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
-    mode : :class:`str`
+    mode : str
         Mode of the diagram to use; two are currently available - 'default',
         which fills the entire ternary space, and 'miscibility-gap' which gives
         a simplified approximation of the miscibility gap.
@@ -645,7 +654,7 @@ class PeralkalinityClassifier:
     def __init__(self):
         self.fields = None
 
-    def predict(self, df: pd.DataFrame):
+    def predict(self, df: pd.DataFrame) -> pd.Series:
         TotalAlkali = df.Na2O + df.K2O
         perkalkaline_where = (df.Al2O3 < (TotalAlkali + df.CaO)) & (
             TotalAlkali > df.Al2O3
@@ -670,11 +679,11 @@ class JensenPlot(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
@@ -709,11 +718,11 @@ class SpinelTrivalentTernary(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
     """
@@ -738,11 +747,11 @@ class SpinelFeBivariate(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
     """
@@ -769,11 +778,11 @@ class Pettijohn(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 
@@ -806,11 +815,11 @@ class Herron(PolygonClassifier):
 
     Parameters
     -----------
-    name : :class:`str`
+    name : str
         A name for the classifier model.
-    axes : :class:`list` | :class:`tuple`
+    axes : list | tuple
         Names of the axes corresponding to the polygon coordinates.
-    fields : :class:`dict`
+    fields : dict
         Dictionary describing indiviudal polygons, with identifiers as keys and
         dictionaries containing 'name' and 'fields' items.
 

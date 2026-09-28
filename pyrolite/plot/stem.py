@@ -1,4 +1,6 @@
+import matplotlib.axes
 import numpy as np
+import pandas as pd
 
 from ..util.log import Handle
 from ..util.plot.axes import init_axes
@@ -7,22 +9,28 @@ from ..util.plot.style import linekwargs, scatterkwargs
 logger = Handle(__name__)
 
 
-def stem(x, y, ax=None, orientation="horizontal", **kwargs):
+def stem(
+    x: np.ndarray[tuple[int], np.dtype[np.number]] | pd.Series,
+    y: np.ndarray[tuple[int], np.dtype[np.number]] | pd.Series,
+    ax: matplotlib.axes.Axes | None = None,
+    orientation: str = "horizontal",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Create a stem (or 'lollipop') plot, with optional orientation.
 
     Parameters
     -----------
-    x, y : :class:`numpy.ndarray`
+    x, y : numpy.ndarray
         1D arrays for independent and dependent axes.
-    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+    ax : matplotlib.axes.Axes
         The subplot to draw on.
-    orientation : :class:`str`
+    orientation : str
         Orientation of the plot (horizontal or vertical).
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which the stem diagram is plotted.
     """
     ax = init_axes(ax=ax, **kwargs)

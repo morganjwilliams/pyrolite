@@ -325,7 +325,7 @@ if HAVE_SKL:
             return self
 
     class ILRTransform(BaseEstimator, TransformerMixin):
-        def __init__(self, label_mode: sstr = "numeric", **kwargs):
+        def __init__(self, label_mode: str = "numeric", **kwargs):
             """Isometric Log Ratio Transformer for scikit-learn like use."""
             self.kpairs = kwargs
             self.label_mode = label_mode

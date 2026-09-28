@@ -5,29 +5,29 @@ import logging
 
 
 def Handle(
-    logger,
-    handler_class=logging.StreamHandler,
-    formatter="%(asctime)s %(name)s - %(levelname)s: %(message)s",
-    level=None,
-):
+    logger: logging.Logger | str,
+    handler_class: str = logging.StreamHandler,
+    formatter: str = "%(asctime)s %(name)s - %(levelname)s: %(message)s",
+    level: str | int | None = None,
+) -> logging.Logger:
     """
     Handle a logger with a standardised formatting.
 
     Parameters
     -----------
-    logger : :class:`logging.Logger` | :class:`str`
+    logger : logging.Logger | str
         Logger or module name to source a logger from.
-    handler_class : :class:`logging.Handler`
+    handler_class : `logging.Handler`
         Handler class for the logging messages.
-    formatter : :class:`str` | :class:`logging.Formatter`
+    formatter : str | `logging.Formatter`
         Formatter for the logging handler. Strings will be passed to
-        the :class:`logging.Formatter` constructor.
-    level : :class:`str`
+        the `logging.Formatter` constructor.
+    level : str
         Logging level for the handler.
 
     Returns
     ----------
-    :class:`logging.Logger`
+    logging.Logger
         Configured logger.
     """
     if isinstance(logger, str):

@@ -19,14 +19,14 @@ def lambda_poly(x, ps):
 
     Parameters
     -----------
-    x : :class:`numpy.ndarray`
+    x : numpy.ndarray
         X values to calculate the function at.
-    ps: :class:`tuple`
+    ps: tuple
         Parameter set tuple. E.g. parameters `(a, b)` from :math:`f(x) = (x-a)(x-b)`.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     if not isinstance(x, np.ndarray):
         x = np.array(x)
@@ -43,9 +43,9 @@ def tetrad(x, centre, width):
     Parameters
     ----------
     x
-    centre : :class:`float`
+    centre : float
 
-    width : :class:`float`
+    width : float
 
     Returns
     --------
@@ -77,13 +77,13 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
     Parameters
     ------------
-    lambdas: :class:`numpy.ndarray`
+    lambdas: numpy.ndarray
         Lambda values to weight combination of polynomials.
     params: :class:`list` ( :class:`tuple` )
         Parameters for the orthogonal polynomial decomposition.
-    radii: :class:`numpy.ndarray`
+    radii: numpy.ndarray
         Radii values used to construct the lambda values. [#note_1]_
-    degree: :class:`int`
+    degree: int
         Degree of the orthogonal polynomial decomposition. [#note_1]_
 
     See Also
@@ -110,7 +110,7 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
         Parameters
         -----------
-        xarr: :class:`numpy.ndarray`
+        xarr: numpy.ndarray
             X values at which to evaluate the function.
         """
         func_components = np.array([lambda_poly(xarr, pset) for pset in params])

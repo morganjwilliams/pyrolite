@@ -7,6 +7,7 @@ from typing import overload
 import numpy as np
 import pandas as pd
 import periodictable as pt
+from periodictable.formulas import Formula
 
 from pyrolite.geochem.norm import Composition
 
@@ -388,7 +389,7 @@ class pyrochem:
 
     def aggregate_element(
         self,
-        to: str | pt.core.Element | pt.formulas.Formula | dict,
+        to: str | pt.core.Element | Formula | dict,
         total_suffix: str = "T",
         logdata: bool = False,
         renorm: bool = False,
@@ -436,7 +437,7 @@ class pyrochem:
 
     def recalculate_Fe(
         self,
-        tol: str | pt.core.Element | pt.formulas.Formula | dict = "FeOT",
+        tol: str | pt.core.Element | Formula | dict = "FeOT",
         renorm: bool = False,
         total_suffix: str = "T",
         logdata: bool = False,
@@ -589,11 +590,11 @@ class pyrochem:
     def lambda_lnREE(
         self,
         norm_to: str | Composition | None = "ChondriteREE_ON",
-        excludel: list[str] | None = None,
+        exclude: list[str] | None = None,
         params: list | str | None = None,
         degree: int = 4,
-        scalel: str = "ppm",
-        sigmas: np.ndarray[tuple[int], np.dtype[np.floating]] = None,
+        scale: str = "ppm",
+        sigmas: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
         **kwargs,
     ) -> pd.DataFrame | pd.Series:
         r"""

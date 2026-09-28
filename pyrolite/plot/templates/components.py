@@ -1,3 +1,7 @@
+from collections.abc import Callable
+
+import matplotlib.axes
+import matplotlib.lines
 import numpy as np
 from matplotlib.collections import PathCollection
 from matplotlib.lines import Line2D
@@ -9,57 +13,16 @@ from ...util.log import Handle
 logger = Handle(__name__)
 
 
-class GeometryCollection:
-    def __init__(self, *objects, **kwargs):
-        """Container for geometry objects."""
-        self.objects = []
-        self.objects += list(objects)
-        self.update_dict()
-
-    def update_dict(self):
-        """Generate the dictionary for referencing objects by name."""
-        self._objects = {o.name: o for o in self.objects}
-
-    @property
-    def lines(self):
-        return (i for i in self.objects if isinstance(i, (Linear2D, LogLinear2D)))
-
-    @property
-    def points(self):
-        return (i for i in self.objects if isinstance(i, (Point)))
-
-    def add_to_axes(self, ax, **kwargs):
-        for line in self.lines:
-            line.add_to_axes(ax, **kwargs)
-
-        for p in self.points:
-            p.add_to_axes(ax, **kwargs)
-
-    def __add__(self, obj):
-        """Add a component to the collection."""
-        self.objects.append(obj)
-        self.update_dict()
-        return self
-
-    def __getitem__(self, name):
-        """Get a component referenced by name."""
-        return self._objects[name]
-
-    def __iter__(self):
-        """Iterate through components."""
-        return (i for i in self.objects)
-
-
 class Point:
-    def __init__(self, point, name=None, **kwargs):
+    def __init__(self, point: tuple[float, float], name: str | None = None, **kwargs):
         """
         Simple container for a 2D point object with basic utility functions.
 
         Parameters
         ----------
-        point : :class:`tuple`
+        point : tuple
             x-y point.
-        name : :class:`str`
+        name : str
             Name of the specific x-y point.
 
         """
@@ -67,18 +30,20 @@ class Point:
         self.x, self.y = point
         self.kwargs = kwargs
 
-    def add_to_axes(self, ax, label=False, **kwargs):
+    def add_to_axes(
+        self, ax: matplotlib.axes.Axes, label: bool = False, **kwargs
+    ) -> PathCollection:
         """
-        Plot this point on an :class:`~matplotlib.axes.Axes`.
+        Plot this point on an matplotlib.axes.Axes.
 
         Parameters
         ----------
-        ax : :class:`~matplotlib.axes.Axes`.
+        ax : matplotlib.axes.Axes.
             Axes to plot the line on.
 
         Returns
         --------
-        :class:`matplotlib.collections.PathCollection`
+        matplotlib.collections.PathCollection
             PathCollection as plotted on the axes.
 
         """
@@ -91,20 +56,20 @@ class Point:
 
 
 class Linear2D:
-    def in_tfm(self, x):
+    def in_tfm(self, x: float | np.ndarray) -> float | np.ndarray:
         return np.array(x)
 
-    def out_tfm(self, x):
+    def out_tfm(self, x: float | np.ndarray) -> float | np.ndarray:
         return np.array(x)
 
     def __init__(
         self,
-        p0=np.array([0, 0]),
-        p1=None,
-        slope=None,
-        name=None,
-        xlim=None,
-        ylim=None,
+        p0: tuple[float, float] | None = None,
+        p1: tuple[float, float] | None = None,
+        slope: float | None = None,
+        name: str | None = None,
+        xlim: tuple[float, float] | None = None,
+        ylim: tuple[float, float] | None = None,
         **kwargs,
     ):
         r"""
@@ -113,24 +78,24 @@ class Linear2D:
 
         Parameters
         ----------
-        p0 : :class:`numpy.ndarray` | :class:`tuple`
+        p0 : numpy.ndarray | tuple
             An x-y point which the line passes through.
-        p1 : :class:`numpy.ndarray` | :class:`tuple`
+        p1 : numpy.ndarray | tuple
             Optionally specified x-y second point.
-        slope : :class:`float`
+        slope : float
             Optionally-specified slope of the line.
-        name : :class:`str`
+        name : str
             Name of the specific line.
-        xlim : :class:`tuple`
+        xlim : tuple
             Optionally-specified limits of extent in `x`.
-        ylim : :class:`tuple`
+        ylim : tuple
             Optionally-specified limits of extent in `y`.
 
         Attributes
         ----------
-        slope : :class:`float`
+        slope : float
             Slope of the line.
-        intercept : :class:`float`
+        intercept : float
             Y-intercept of the line.
         func
             Callable function to evaluate :math:`y = m \cdot x + c`.
@@ -138,6 +103,7 @@ class Linear2D:
             Callable function to evaluate :math:`x = (y - c) / m`.
 
         """
+
         self.name = name or None
         self.xlim = None
         self.ylim = None
@@ -146,7 +112,14 @@ class Linear2D:
         self.set_ylim(ylim)
         self.kwargs = kwargs
 
-    def set_params(self, p0=np.array([0, 0]), p1=None, slope=None):
+    def set_params(
+        self,
+        p0: tuple[float, float] | np.ndarray[tuple[int]] | None = None,
+        p1: tuple[float, float] | np.ndarray[tuple[int]] | None = None,
+        slope: float | None = None,
+    ):
+        if p0 is None:
+            p0 = np.array([0.0, 0.0], dtype=np.float32)
         self.p0 = self.in_tfm(np.array(p0))
         assert not ((p1 is None) and (slope is None))
         if p1 is not None:
@@ -158,12 +131,12 @@ class Linear2D:
             self.p1 = None
 
     @property
-    def intercept(self):
+    def intercept(self) -> float:
         """Intercept of the line on the y axis."""
         return self.p0[1] - self.slope * self.p0[0]
 
     @property
-    def func(self):
+    def func(self) -> Callable:
         """Get the function corresponding to the line."""
 
         def line(xs):
@@ -172,7 +145,7 @@ class Linear2D:
         return line
 
     @property
-    def invfunc(self):
+    def invfunc(self) -> Callable:
         """
         Get the function corresponding to the line parameterised as
         :math:`x = (y-c) /m`.
@@ -184,7 +157,7 @@ class Linear2D:
         return line
 
     @property
-    def equation(self):
+    def equation(self) -> str:
         return f" y = {self.slope} x + {self.intercept}"
 
     def invert_axes(self):
@@ -199,12 +172,12 @@ class Linear2D:
         if self.ylim is not None:
             self.xlim = self.ylim
 
-    def intersect(self, line):
+    def intersect(self, line) -> tuple[float, float]:
         x = (line.intercept - self.intercept) / (self.slope - line.slope)
         y = self.func(x)
         return self.out_tfm(np.array([x, y]))
 
-    def set_xlim(self, xlim):
+    def set_xlim(self, xlim: tuple[float, float]):
         # get the x value of the line intersection if a line is passed
         if xlim is not None:
             points = [
@@ -212,7 +185,7 @@ class Linear2D:
             ]
             self.xlim = np.min(points), np.max(points)
 
-    def set_ylim(self, ylim):
+    def set_ylim(self, ylim: tuple[float, float]):
         # get the x value of the line intersection if a line is passed
         if ylim is not None:
             points = [
@@ -220,42 +193,50 @@ class Linear2D:
             ]
             self.ylim = np.min(points), np.max(points)
 
-    def perpendicular_line(self, centre, **kwargs):
+    def perpendicular_line(
+        self, centre: tuple[float, float] | np.ndarray[tuple[int]], **kwargs
+    ) -> "Linear2D":
         """
         Get a line perpendicular to this one which passes through a specified centre.
 
         Parameters
         -----------
-        centre : :class:`numpy.ndarray`
+        centre : numpy.ndarray
             Array containing the point which the perpendicular line passes through.
 
         Returns
         --------
-        :class:`Linear2D`
+        `Linear2D`
             Line instance.
         """
         return self.__class__(np.array(centre), slope=-1 / self.slope, **kwargs)
 
-    def __call__(self, x):
+    def __call__(self, x: np.ndarray[tuple[int]]) -> np.ndarray[tuple[int]]:
         """
         Call the line function on a sequence of x values.
         """
         return self.out_tfm(self.func(self.in_tfm(x)))
 
-    def add_to_axes(self, ax, xs=None, label=False, **kwargs):
+    def add_to_axes(
+        self,
+        ax: matplotlib.axes.Axes,
+        xs: np.ndarray[tuple[int]] = None,
+        label: bool = False,
+        **kwargs,
+    ) -> matplotlib.lines.Line2D | None:
         """
-        Plot this line on an :class:`~matplotlib.axes.Axes`.
+        Plot this line on an matplotlib.axes.Axes.
 
         Parameters
         ----------
-        ax : :class:`~matplotlib.axes.Axes`.
+        ax : matplotlib.axes.Axes.
             Axes to plot the line on.
-        xs : :class:`numpy.ndarray`
+        xs : numpy.ndarray
             X values at which to evaluate the line function.
 
         Returns
         --------
-        :class:`matplotlib.lines.Line2D`
+        matplotlib.lines.Line2D
             Lines as plotted on the axes.
 
         Todo
@@ -304,7 +285,7 @@ class Linear2D:
             )
 
     def __add__(self, obj):
-        """Add this object to another and get a :class:`GeometryCollection`."""
+        """Add this object to another and get a `GeometryCollection`."""
         return GeometryCollection(self, obj)
 
 
@@ -318,8 +299,51 @@ class LogLinear2D(Linear2D):
     func
     """
 
-    def in_tfm(self, x):
+    def in_tfm(self, x: float | np.ndarray) -> float | np.ndarray:
         return np.log(x)
 
-    def out_tfm(self, x):
+    def out_tfm(self, x: float | np.ndarray) -> float | np.ndarray:
         return np.exp(x)
+
+
+class GeometryCollection:
+    def __init__(self, *objects, **kwargs):
+        """Container for geometry objects."""
+        self.objects: list[Unknown] = []
+        self.objects += list(objects)
+        self.update_dict()
+
+    def update_dict(self):
+        """Generate the dictionary for referencing objects by name."""
+        self._objects = {o.name: o for o in self.objects}
+
+    @property
+    def lines(self) -> list[Linear2D | LogLinear2D]:
+        return [i for i in self.objects if isinstance(i, (Linear2D, LogLinear2D))]
+
+    @property
+    def points(self) -> list[Point]:
+        return [i for i in self.objects if isinstance(i, (Point))]
+
+    def add_to_axes(self, ax: matplotlib.axes.Axes, **kwargs) -> matplotlib.axes.Axes:
+        for line in self.lines:
+            line.add_to_axes(ax, **kwargs)
+
+        for p in self.points:
+            p.add_to_axes(ax, **kwargs)
+
+        return ax
+
+    def __add__(self, obj: Point | Line2D):
+        """Add a component to the collection."""
+        self.objects.append(obj)
+        self.update_dict()
+        return self
+
+    def __getitem__(self, name):
+        """Get a component referenced by name."""
+        return self._objects[name]
+
+    def __iter__(self):
+        """Iterate through components."""
+        return (i for i in self.objects)
