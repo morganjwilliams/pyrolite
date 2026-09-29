@@ -1,18 +1,14 @@
 # Getting Started
 
-:::{note}
-This page is under construction. Feel free to send through suggestions or
-questions.
-:::
-
 ## Getting Set Up
 
 Before you can get up and running with pyrolite, you'll need to have a distribution of
 Python installed. If you're joining the scientific Python world, chances are that the
 [Anaconda distributions](https://www.anaconda.com/distribution/#download-section)
-are a good match for you [^footnote-1]. Check PyPI for the most up to date information regarding
+are a good match for you [^footnote-1]. Alternatively, the recommendation from our 
+side would be to use [`uv`](https://docs.astral.sh/uv/). Check PyPI for the most up to date information regarding
 {mod}`pyrolite` compatibility, but as of writing this guide, {mod}`pyrolite` is
-known to work well with Python 3.5, 3.6 and 3.7.
+known to work well with Python 3.10 and up.
 
 When it comes to how you edit files and interact with Python, there are now many
 different choices (especially for editors), and choosing something which allows
@@ -22,29 +18,26 @@ makes life easier. Choosing one is subjective - know that many exist, and perhap
 few. Integrated Development Environments (IDEs) often allow you to
 quickly edit and run code within the same window (e.g.
 [Spyder](https://www.spyder-ide.org/), which is typically included in the default
-Anaconda distribution). Through notebooks and related ideas the
-[Jupyter](https://jupyter.org/) ecosystem has broadened how people are interacting
-with code across multiple languages, including Python. For reference,
-{mod}`pyrolite` has been developed principally in [Atom](https://atom.io),
-leveraging the [Hydrogen](https://atom.io/packages/hydrogen) package to provide
-an interactive coding environment using Jupyter.
+Anaconda distribution), or the commonly used [Visual Studio Code](https://code.visualstudio.com/). 
+Through notebooks and related ideas the [Jupyter](https://jupyter.org/) ecosystem has broadened 
+how people are interacting with code across multiple languages, including Python; you can edit
+and run Jupyter notebooks in both VS Code and Python.
 
 Finally, consider getting up to speed with simple Git practises for your projects
 and code such that you can keep versioned histories of your analyses, and have a look
 at hosted repository services (e.g. [GitHub](https://github.com/),
-[GitLab](https://gitlab.com)). These hosted repositories together with integrated
+[GitLab](https://gitlab.com), [Codeberg](https://codeberg.org)). These hosted repositories together with integrated
 services are often worth taking advantage of (e.g. hosting
 material and analyses from papers, posters or presentation, and linking this through
 to [Zenodo](https://jupyter.org/) to get an archived version with a DOI).
 
-[^footnote-1]: If you're strapped for space, or are bloat-averse, you could also consider using
+[^footnote-1]: If you're strapped for space, need to avoid licenscing restrictions, or are bloat-averse, you could also consider using
     [Anaconda's miniconda distributions](https://docs.conda.io/en/latest/miniconda.html).
 
 ## Installing pyrolite
 
 There's a separate page dedicated to [pyrolite installations](installation.md),
-but for most purposes, the best way to install pyrolite is through opening a terminal
-(an Anaconda terminal, if that's the distribution you're using) and type:
+but for most purposes, the best way to install pyrolite is through opening a terminal and type:
 
 ```bash
 pip install pyrolite
@@ -70,8 +63,7 @@ adapt them to your own purposes.
 
 [^footnote-2]: If you're completely new to Python, check out some of the many free online
     courses to get up to scratch with basic Python concepts, data structures
-    and get in a bit of practice writing code (e.g. the basic Python course on
-    [Codecademy](https://www.codecademy.com/)). Knowing your way around some
+    and get in a bit of practice writing code. Knowing your way around some
     of these things before you dive into applying them can help make it a much
     more surmountable challenge. Remember that the pyrolite community is also
     around to help out if you get stuck, and we all started from a similar place!
