@@ -10,7 +10,20 @@ If you're keen to check something out before its released, you can use a
 [development install](./development.md#development-installation) .
 :::
 
-## [0.3.7]
+
+## [v0.3.8]
+
+- **Bugfix**: Some fixes for using {class}`pandas.arrays.StringArray` in e.g. {mod}`pyrolite.mineral.normative`.
+- **Bugfix**: Some fixes for passing kwargs through density plot methods have been added; generally this has just subset the arguments passed to downstream functions to the obviously relevant ones.
+- Updated some internal mechanics of {mod}`pyrolite.geochem.norm` and reference conditions, and associated transformation functions (e.g., where passing {class}`pandas.Series` instead of {class}`pandas.DataFrame`). 
+- Removed the unused function {func}`pyrolite.util.log.stream_log`.
+- Removed {mod}`tinydb` dependency; files used in pyrolite are small and are instead simply stored as plaintext JSON in package data.
+- Removed 'legend.bbox_to_anchor : (1, 1)` from the pyrolite {mod}`matplotlib` style file; this was throwing warnings on import, inclusion of this to configure default legend location has been deprecated.
+- Removed {mod}`numpydoc` dependency; some of the docstrings which had used this to dynamically present parameter options will now just point to where additional parameters are able to be used.
+- Added dependabot config, added publishing GitHub action, updated binder config, updated GitHub action, and ReadTheDocs config.
+- Added type hinting throughout.
+
+## [v0.3.7]
 
 - **New Contributor**: [Jiawei Yun](https://github.com/louisyuncc).
 - **PR Merged**: [Jiawei Yun](https://github.com/louisyuncc) contributed a PR to
@@ -40,7 +53,7 @@ If you're keen to check something out before its released, you can use a
 - Switched formatter to `ruff` from `black`.
 - Moved to using `uv` as an environment management tool.
 
-## [0.3.6]
+## [v0.3.6]
 
 - **PR Merged**: [Sarah Shi](https://github.com/sarashi) contributed a PR to
   better handle values below zero during compositional renormalisation (to 1 or 100%;
@@ -1341,6 +1354,7 @@ but were {code}`alpha` versions which were never considered stable.
 [0.3.3]: https://github.com/morganjwilliams/pyrolite/compare/0.3.2...0.3.3
 [0.3.4]: https://github.com/morganjwilliams/pyrolite/compare/0.3.3...0.3.4
 [0.3.5]: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5.post0
-[0.3.6]: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...v0.3.6
-[0.3.7]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.7
-[development]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.7...develop
+[v0.3.6]: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...v0.3.6
+[v0.3.7]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.7
+[v0.3.8]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.8
+[development]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.8...develop

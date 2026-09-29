@@ -1,6 +1,8 @@
 # Citation
 
+```{eval-rst}
 {{ doibadages }}
+```
 
 If you use {mod}`pyrolite` extensively for your research, citation of the software
 would be particularly appreciated. It helps quantify the impact of the project
