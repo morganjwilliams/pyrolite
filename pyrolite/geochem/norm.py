@@ -297,7 +297,7 @@ def get_reference_files(
     files = []
     for fmt in formats:
         files.extend(directory.glob("./*." + fmt))
-    return files
+    return sorted(files, key=lambda x: x.stem)
 
 
 def update_database(encoding: str = "cp1252", **kwargs):
