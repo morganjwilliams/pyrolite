@@ -2,7 +2,10 @@
 Baisc spatial utility functions.
 """
 
+from typing import Generator, Any, Any
+
 import itertools
+from collections.abc import Callable
 
 import numpy as np
 
@@ -16,20 +19,20 @@ from .log import Handle
 logger = Handle(__name__)
 
 
-def _get_sqare_grid_segment_indicies(size, segments):
+def _get_sqare_grid_segment_indicies(size: int, segments: int):
     """
     Get the indexes for segment boundaries for iterating over a grid within an array.
 
     Parameters
     ----------
-    size : :class:`int`
+    size : int
         Shape of the square array.
-    segments : :class:`int`
+    segments : int
         Number of segments for the grid.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     seg_size = size // segments
     segx = [(seg_size * ix, seg_size * (ix + 1)) for ix in range(segments)]
@@ -37,15 +40,20 @@ def _get_sqare_grid_segment_indicies(size, segments):
     return [[*a, *b] for a, b in itertools.product(segx, segx)]
 
 
-def _spherical_law_cosinse_GC_distance(φ1, φ2, λ1, λ2):
+def _spherical_law_cosinse_GC_distance(
+    φ1: float | np.ndarray,
+    φ2: float | np.ndarray,
+    λ1: float | np.ndarray,
+    λ2: float | np.ndarray,
+) -> float | np.ndarray:
     """
     Spherical law of cosines calculation of distance between two points. Suffers from
     rounding errors for closer points.
 
     Parameters
     ----------
-    φ1, φ2, λ1, λ2
-        Numpy array wih latitudes and longitudes [x1, x2, y1, y2]
+    φ1, φ2, λ1, λ2 : float | numpy.ndarray
+        Latitudes and longitudes [x1, x2, y1, y2]
     """
 
     Δλ = np.abs(λ1 - λ2)
@@ -53,19 +61,24 @@ def _spherical_law_cosinse_GC_distance(φ1, φ2, λ1, λ2):
     return np.arccos(np.sin(φ1) * np.sin(φ2) + np.cos(φ1) * np.cos(φ2) * np.cos(Δλ))
 
 
-def _vicenty_GC_distance(φ1, φ2, λ1, λ2):
+def _vicenty_GC_distance(
+    φ1: float | np.ndarray,
+    φ2: float | np.ndarray,
+    λ1: float | np.ndarray,
+    λ2: float | np.ndarray,
+) -> float | np.ndarray:
     """
     Vicenty formula for an ellipsoid with equal major and minor axes.
 
     Vincenty T (1975) Direct and Inverse Solutions of Geodesics on the Ellipsoid with
-    Application of Nested Equations. Survey Review 23:88–93.
+    Application of Nested Equations. Survey Review 23:88-93.
     doi: 10.1179/SRE.1975.23.176.88
 
     Parameters
     ----------
-    φ1, φ2 : :class:`numpy.ndarray`
+    φ1, φ2 : float | numpy.ndarray
         Numpy arrays wih latitudes.
-    λ1, λ2 : :class:`numpy.ndarray`
+    λ1, λ2 : float
         Numpy arrays wih longitude.
     """
     Δλ = np.abs(λ1 - λ2)
@@ -79,16 +92,21 @@ def _vicenty_GC_distance(φ1, φ2, λ1, λ2):
     return np.abs(np.arctan2(_S, _C))
 
 
-def _haversine_GC_distance(φ1, φ2, λ1, λ2):
+def _haversine_GC_distance(
+    φ1: float | np.ndarray,
+    φ2: float | np.ndarray,
+    λ1: float | np.ndarray,
+    λ2: float | np.ndarray,
+) -> float | np.ndarray:
     """
     Haversine formula for great circle distance. Suffers from rounding errors for
     antipodal points.
 
     Parameters
     ----------
-    φ1, φ2 : :class:`numpy.ndarray`
+    φ1, φ2 : float | numpy.ndarray
         Numpy arrays wih latitudes.
-    λ1, λ2 : :class:`numpy.ndarray`
+    λ1, λ2 : float | numpy.ndarray
         Numpy arrays wih longitude.
 
     """
@@ -100,9 +118,15 @@ def _haversine_GC_distance(φ1, φ2, λ1, λ2):
 
 
 def _segmented_spatial_distance_matrix(
-    φ1, φ2, λ1, λ2, metric, dtype="float32", segs=10
+    φ1: np.ndarray,
+    φ2: np.ndarray,
+    λ1: np.ndarray,
+    λ2: np.ndarray,
+    metric: Callable,
+    dtype: str | np.dtype = "float32",
+    segs: int = 10,
 ):
-    size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
+    size: int = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
     angle = np.zeros((size, size), dtype=dtype)  # full matrix
     for ix_s, ix_e, iy_s, iy_e in _get_sqare_grid_segment_indicies(size, segs):
         angle[ix_s:ix_e, iy_s:iy_e] = metric(
@@ -115,38 +139,38 @@ def _segmented_spatial_distance_matrix(
 
 
 def great_circle_distance(
-    a,
-    b=None,
-    absolute=False,
-    degrees=True,
-    r=6371.0088,
-    method=None,
-    dtype="float32",
-    max_memory_fraction=0.25,
-):
+    a: np.ndarray[tuple[int]] | np.ndarray[tuple[int, int]],
+    b: np.ndarray[tuple[int]] | np.ndarray[tuple[int, int]] | None = None,
+    absolute: bool = False,
+    degrees: bool = True,
+    r: float = 6371.0088,
+    method: str | None = None,
+    dtype: str | np.dtype = "float32",
+    max_memory_fraction: float = 0.25,
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]:
     """
     Calculate the great circle distance between two lat, long points.
 
     Parameters
     ----------
-    a, b : :class:`float` | :class:`numpy.ndarray`
+    a, b : numpy.ndarray
         Lat-Long points or arrays to calculate distance between. If only one array is
         specified, a full distance matrix (i.e. calculate a point-to-point distance
         for every combination of points) will be returned.
-    absolute : :class:`bool`, :code:`False`
+    absolute : bool
         Whether to return estimates of on-sphere distances [True], or simply return the
         central angle between the points.
-    degrees : :class:`bool`, :code:`True`
+    degrees : bool
         Whether lat-long coordinates are in degrees [True] or radians [False].
-    r : :class:`float`
+    r : float
         Earth radii for estimating absolute distances.
-    method : :class:`str`, :code:`{'vicenty', 'cosines', 'haversine'}`
+    method : str
         Which method to use for great circle distance calculation. Defaults to the
         Vicenty formula.
-    dtype : :class:`numpy.dtype`
+    dtype : numpy.dtype
         Data type for distance arrays, to constrain memory management.
-    max_memory_fraction : :class:`float`
-        Constraint to switch to calculating mean distances where :code:`matrix=True`
+    max_memory_fraction : float
+        Constraint to switch to calculating mean distances where `matrix=True`
         and the distance matrix requires greater than a specified fraction of total
         avaialbe physical memory.
     """
@@ -183,9 +207,7 @@ def great_circle_distance(
         size = np.max([a.shape[0] for a in [φ1, φ2, λ1, λ2]])
         estimated_matrix_size = np.array([[1.0]], dtype=dtype).nbytes * size**2
         logger.debug(
-            "Attempting to build {}x{} array of size {:.2f} Gb.".format(
-                size, size, estimated_matrix_size / 1024**3
-            )
+            f"Attempting to build {size}x{size} array of size {estimated_matrix_size / 1024**3:.2f} Gb."
         )
 
         infeasible = (
@@ -195,7 +217,7 @@ def great_circle_distance(
         )
 
         if infeasible:
-            logger.warn(
+            logger.warning(
                 "Angle array for segmented distance matrix larger than maximum memory "
                 "fraction, computing mean global distances instead."
             )
@@ -209,7 +231,7 @@ def great_circle_distance(
                     f(φ1[:, None], φ2[None, :], λ1[:, None], λ2[None, :])
                 )
             except (MemoryError, ValueError):
-                logger.warn(
+                logger.warning(
                     "Cannot directly compute distance matrix, attempting segmented distance"
                     " matrix instead."
                 )
@@ -230,23 +252,27 @@ def great_circle_distance(
         return np.rad2deg(angle)
 
 
-def piecewise(segment_ranges: list, segments=2, output_fmt=np.float64):
+def piecewise(
+    segment_ranges: list[tuple[float, float]],
+    segments: int = 2,
+    output_fmt: np.dtype | Callable = np.float64,
+) -> Generator[np.ndarray, None, None]:
     """
     Generator to provide values of quantizable paramaters which define a grid,
     here used to split up queries from databases to reduce load.
 
     Parameters
     ----------
-    segment_ranges : :class:`list`
+    segment_ranges : list
         List of segment ranges to create a grid from.
-    segments : :class:`int`
+    segments : int
         Number of segments.
     output_fmt
         Function to call on the output.
     """
     outf = np.vectorize(output_fmt)
     if isinstance(segments, int):
-        segments = list(np.ones(len(segment_ranges), dtype=int) * segments)
+        segments: list[int] = list(np.ones(len(segment_ranges), dtype=int) * segments)
     else:
         pass
     seg_width = [
@@ -265,12 +291,12 @@ def piecewise(segment_ranges: list, segments=2, output_fmt=np.float64):
 
 
 def spatiotemporal_split(
-    segments=4,
-    nan_lims=[np.nan, np.nan],
+    segments: int = 4,
+    nan_lims: tuple[float, float] | None = None,
     # usebounds=False,
     # order=['minx', 'miny', 'maxx', 'maxy'],
     **kwargs,
-):
+) -> Generator[dict, None, None]:
     """
     Creates spatiotemporal grid using piecewise function and arbitrary
     ranges for individial kw-parameters (e.g. age=(0., 450.)), and
@@ -278,18 +304,20 @@ def spatiotemporal_split(
 
     Parameters
     ----------
-    segments : :class:`int`
+    segments : int
         Number of segments.
-    nan_lims : :class:`list` | :class:`tuple`
+    nan_lims :  tuple[float,float]
         Specificaiton of NaN indexes for missing boundaries.
 
     Yields
     -------
-    :class:`dict`
+    dict
         Iteration through parameter sets for each cell of the grid.
     """
+    if nan_lims is None:
+        nan_lims = (np.nan, np.nan)
     part = 0
-    for item in piecewise(kwargs.values(), segments=segments):
+    for item in piecewise(list(kwargs.values()), segments=segments):
         x1s, x2s = item
         part += 1
         params = {}
@@ -297,18 +325,18 @@ def spatiotemporal_split(
             vx1, vx2 = x1s[vix], x2s[vix]
             params[var] = (vx1, vx2)
 
-        items = dict(
-            south=params.get("lat", nan_lims)[0],
-            north=params.get("lat", nan_lims)[1],
-            west=params.get("long", nan_lims)[0],
-            east=params.get("long", nan_lims)[1],
-        )
+        items = {
+            "south": params.get("lat", nan_lims)[0],
+            "north": params.get("lat", nan_lims)[1],
+            "west": params.get("long", nan_lims)[0],
+            "east": params.get("long", nan_lims)[1],
+        }
         if "age" in params:
             items.update(
-                dict(
-                    minage=params.get("age", nan_lims)[0],
-                    maxage=params.get("age", nan_lims)[1],
-                )
+                {
+                    "minage": params.get("age", nan_lims)[0],
+                    "maxage": params.get("age", nan_lims)[1],
+                }
             )
 
         items = {k: v for (k, v) in items.items() if not np.isnan(v)}
@@ -319,7 +347,7 @@ def spatiotemporal_split(
         yield items
 
 
-def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
+def NSEW_2_bounds(cardinal: dict, order: list | None = None) -> list:
     """
     Translates cardinal points to xy points in the form of bounds.
     Useful for converting to the format required for WFS from REST
@@ -327,17 +355,19 @@ def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
 
     Parameters
     ----------
-    cardinal : :class:`dict`
+    cardinal : dict
         Cardinally-indexed point bounds.
-    order : :class:`list`
+    order : list
         List indicating order of returned x-y bound coordinates.
 
     Returns
     -------
-    :class:`list`
+    list
         x-y indexed extent values in the specified order.
 
     """
+    if order is None:
+        order = ["minx", "miny", "maxx", "maxy"]
     tnsltr = {
         xy: c
         for xy, c in zip(
@@ -348,19 +378,19 @@ def NSEW_2_bounds(cardinal, order=["minx", "miny", "maxx", "maxy"]):
     return bnds
 
 
-def levenshtein_distance(seq_one, seq_two):
+def levenshtein_distance(seq_one: str | list[str], seq_two: str | list[str]) -> int:
     """
     Compute the Levenshtein Distance between two sequences with comparable items.
     Adapted from Wiki pseudocode.
 
     Parameters
     ----------
-    seq_one, seq_two : :class:`str` | :class:`list`
+    seq_one, seq_two : str | list[str]
         Sequences to compare.
 
     Returns
     --------
-    :class:`int`
+    int
     """
     m, n = len(seq_one), len(seq_two)
     D = np.zeros((m + 1, n + 1), dtype=int)

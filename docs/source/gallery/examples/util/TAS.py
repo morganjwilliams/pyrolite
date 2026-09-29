@@ -8,10 +8,9 @@ including the Total Alkali-Silica (TAS) classification.
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from pyrolite.util.classification import TAS
-from pyrolite.util.synthetic import normal_frame, random_cov_matrix
+from pyrolite.util.synthetic import normal_frame
 
 # sphinx_gallery_thumbnail_number = 2
 ########################################################################################

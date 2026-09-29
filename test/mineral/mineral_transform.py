@@ -44,9 +44,7 @@ class TestRecalcCations(unittest.TestCase):
         self.ol = pd.Series({"MgO": 42.06, "SiO2": 39.19, "FeO": 18.75})
         self.pyx = pd.Series(
             data=[57.10, 0.17, 0.70, 0.27, 0.60, 5.21, 0.17, 34.52, 0.62, 0.07],
-            index="SiO2, TiO2, Al2O3, Cr2O3, Fe2O3, FeO, MnO, MgO, CaO, Na2O".split(
-                ", "
-            ),
+            index=["SiO2", "TiO2", "Al2O3", "Cr2O3", "Fe2O3", "FeO", "MnO", "MgO", "CaO", "Na2O"],
         )
 
     def test_default(self):

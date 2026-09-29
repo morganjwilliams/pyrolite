@@ -5,29 +5,29 @@ import logging
 
 
 def Handle(
-    logger,
-    handler_class=logging.StreamHandler,
-    formatter="%(asctime)s %(name)s - %(levelname)s: %(message)s",
-    level=None,
-):
+    logger: logging.Logger | str,
+    handler_class: str = logging.StreamHandler,
+    formatter: str = "%(asctime)s %(name)s - %(levelname)s: %(message)s",
+    level: str | int | None = None,
+) -> logging.Logger:
     """
     Handle a logger with a standardised formatting.
 
     Parameters
     -----------
-    logger : :class:`logging.Logger` | :class:`str`
+    logger : logging.Logger | str
         Logger or module name to source a logger from.
-    handler_class : :class:`logging.Handler`
+    handler_class : `logging.Handler`
         Handler class for the logging messages.
-    formatter : :class:`str` | :class:`logging.Formatter`
+    formatter : str | `logging.Formatter`
         Formatter for the logging handler. Strings will be passed to
-        the :class:`logging.Formatter` constructor.
-    level : :class:`str`
+        the `logging.Formatter` constructor.
+    level : str
         Logging level for the handler.
 
     Returns
     ----------
-    :class:`logging.Logger`
+    logging.Logger
         Configured logger.
     """
     if isinstance(logger, str):
@@ -67,7 +67,7 @@ class ToLogger(io.StringIO):
     buf = ""
 
     def __init__(self, logger, level=None):
-        super(ToLogger, self).__init__()
+        super().__init__()
         self.logger = logger
         if isinstance(level, str):
             level = getattr(logging, level.upper())
@@ -78,61 +78,3 @@ class ToLogger(io.StringIO):
 
     def flush(self):
         self.logger.log(self.level, self.buf)
-
-
-def stream_log(logger=None, level="INFO"):
-    """
-    Stream the log from a specific package or subpackage.
-
-    Parameters
-    ----------
-    logger : :class:`str` | :class:`logging.Logger`
-        Name of the logger or module to monitor logging from.
-    level : :class:`str`, :code:`'INFO'`
-        Logging level at which to set the handler output.
-
-    Returns
-    -------
-    :class:`logging.Logger`
-        Logger for the specified package with stream handler added.
-    """
-    # remove ipython active stream handler if present
-
-    if logger is None:
-        logger = logging.getLogger()  # root logger
-        propagate = True
-    else:
-        propagate = False
-
-    if isinstance(logger, str):
-        logger = logging.getLogger(logger)  # module logger
-    elif isinstance(logger, logging.Logger):
-        pass  # enable passing a logger instance
-    else:
-        raise NotImplementedError
-
-    logger.propagate = propagate  # don't duplicate by propagating to root
-    int_level = getattr(logging, level)
-    # check there are no handlers other than Null
-    active_handlers = [
-        i
-        for i in logger.handlers
-        if isinstance(i, (logging.StreamHandler))  # not a null handler
-    ]
-
-    if active_handlers:
-        handler = active_handlers[0]  # use the existing stream handler
-    else:
-        handler = logging.StreamHandler()  # make a new one
-
-    if handler.level <= int_level:
-        handler.setLevel(int_level)
-
-    fmt = logging.Formatter("%(name)s - %(levelname)s: %(message)s")
-    handler.setFormatter(fmt)
-    logger.addHandler(handler)
-
-    if (logger.level == 0) or (logger.level > int_level):
-        logger.setLevel(int_level)
-
-    return logger

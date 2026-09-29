@@ -109,3 +109,5 @@ venv.bak/
 
 # local alphamelts install folder
 pyrolite/data/alphamelts/localinstall/*
+
+pandoc*.deb

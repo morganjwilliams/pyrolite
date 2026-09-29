@@ -5,6 +5,7 @@ Functions for parsing, formatting and validating chemical names and formulae.
 import re
 
 import pandas as pd
+import periodictable as pt
 
 from ..util.log import Handle
 from ..util.text import titlecase
@@ -19,18 +20,20 @@ from .ind import (
 logger = Handle(__name__)
 
 
-def is_isotoperatio(s, require_split=False, split_on=r"[\s_]+"):
+def is_isotoperatio(
+    s: str, require_split: bool = False, split_on: str = r"[\s_]+"
+) -> bool:
     """
     Check if text is plausibly an isotope ratio.
 
     Parameters
     -----------
-    s : :class:`str`
+    s : str
         String to validate.
 
     Returns
     --------
-    :class:`bool`
+    bool
 
     Todo
     -----
@@ -43,55 +46,57 @@ def is_isotoperatio(s, require_split=False, split_on=r"[\s_]+"):
         return False
 
 
-def repr_isotope_ratio(text):
+def repr_isotope_ratio(isos: str | tuple[str]) -> str | None:
     """
     Format an isotope ratio pair as a string.
 
     Parameters
     -----------
-    isotope_ratio : :class:`tuple`
+    isotope_ratio : tuple
         Numerator, denominator pair.
 
     Returns
     --------
-    :class:`str`
+    str
 
     Todo
     -----
     Consider returning additional text outside of the match (e.g. 87Sr/86Sri should
     include the 'i').
     """
-    if not is_isotoperatio(text):
-        return text
+    isomatch = r"([0-9][0-9]?[0-9]?)"
+    elmatch = r"([a-zA-Z][a-zA-Z]?)"
+    if not is_isotoperatio(isos):
+        return isos
     else:
-        if isinstance(text, str):
-            text = get_isotopes(text)
-        num, den = text
-        isomatch = r"([0-9][0-9]?[0-9]?)"
-        elmatch = r"([a-zA-Z][a-zA-Z]?)"
-        num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
-        den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
-    return "{}{}/{}{}".format(num_iso, titlecase(num_el), den_iso, titlecase(den_el))
+        if isinstance(isos, str):
+            isos: tuple | None = get_isotopes(isos)
+
+        if isos:
+            num, den = isos
+
+            num_iso, num_el = re.findall(isomatch, num)[0], re.findall(elmatch, num)[0]
+            den_iso, den_el = re.findall(isomatch, den)[0], re.findall(elmatch, den)[0]
+            return f"{num_iso}{titlecase(num_el)}/{den_iso}{titlecase(den_el)}"
 
 
-def ischem(s):
+def ischem(s: str | list[str]) -> bool | list[bool]:
     """
     Checks if a string corresponds to chemical component (compositional).
     Here simply checking whether it is a common element or oxide.
 
     Parameters
     ----------
-    s : :class:`str`
+    s : str
         String to validate.
 
     Returns
     -------
-    :class:`bool`
+    bool
 
     Todo
     -----
-        * Implement checking for other compounds, e.g. carbonates.
-
+    * Implement checking for other compounds, e.g. carbonates.
     """
     chems = set(map(str.upper, (_common_elements | _common_oxides)))
     if isinstance(s, list):
@@ -100,28 +105,34 @@ def ischem(s):
         return str(s).upper() in chems
 
 
-def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
+def tochem(
+    strings: str | list[str] | pd.Index,
+    abbrv: list[str] | None = None,
+    split_on: str = r"[\s_]+",
+) -> list[str] | str:
     r"""
     Converts a list of strings containing come chemical compounds to
     appropriate case.
 
     Parameters
     ----------
-    strings : :class:`list`
+    strings : list
         Strings to convert to 'chemical case'.
-    abbr : :class:`list`, :code:`["ID", "IGSN"]`
+    abbr : list, `["ID", "IGSN"]`
         Abbreivated phrases to ignore in capitalisation.
-    split_on : :class:`str`, "[\s_]+"
+    split_on : str, "[\s_]+"
         Regex for character or phrases to split the strings on.
 
     Returns
     -------
-    :class:`list` | :class:`str`
+    list | str
 
     """
     # listify single string passed
+    if abbrv is None:
+        abbrv = ["ID", "IGSN"]
     listified = False
-    if not isinstance(strings, (list, pd.core.indexes.base.Index)):
+    if not isinstance(strings, (list, pd.Index)):
         strings = [strings]
         listified = True
 
@@ -130,7 +141,7 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
 
     chems = _common_oxides | _common_elements
     trans = {str(e).upper(): str(e) for e in chems}
-    strings = [trans[str(h).upper()] if str(h).upper() in trans else h for h in strings]
+    strings = [trans.get(str(h).upper(), h) for h in strings]
 
     # translate potential isotope ratios
     split_pattern = re.compile(split_on)
@@ -145,20 +156,22 @@ def tochem(strings: list, abbrv=["ID", "IGSN"], split_on=r"[\s_]+"):
     return strings
 
 
-def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
+def check_multiple_cation_inclusion(
+    df: pd.DataFrame | pd.Series, exclude: list[str] | None = None
+) -> set[pt.core.Element]:
     """
     Returns cations which are present in both oxide and elemental form.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to check duplication within.
-    exclude : :class:`list`, :code:`["LOI", "FeOT", "Fe2O3T"]`
+    exclude : list, `["LOI", "FeOT", "Fe2O3T"]`
         List of components to exclude from the duplication check.
 
     Returns
     -------
-    :class:`set`
+    set
         Set of elements for which multiple components exist in the dataframe.
 
     Todo
@@ -166,11 +179,13 @@ def check_multiple_cation_inclusion(df, exclude=["LOI", "FeOT", "Fe2O3T"]):
         * Options for output (string/formula).
 
     """
+    if exclude is None:
+        exclude = ["LOI", "FeOT", "Fe2O3T"]
     major_components = [i for i in _common_oxides if i in df.columns]
     elements_as_majors = [
-        get_cations(oxide)[0] for oxide in major_components if not oxide in exclude
+        get_cations(oxide)[0] for oxide in major_components if oxide not in exclude
     ]
     elements_as_traces = [
         c for c in common_elements(output="formula") if str(c) in df.columns
     ]
-    return set([el for el in elements_as_majors if el in elements_as_traces])
+    return {el for el in elements_as_majors if el in elements_as_traces}

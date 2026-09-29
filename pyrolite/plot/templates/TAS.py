@@ -1,3 +1,4 @@
+import matplotlib.axes
 import numpy as np
 
 from ...util.classification import TAS as TASclassifier
@@ -10,37 +11,37 @@ logger = Handle(__name__)
 
 @update_docstring_references
 def TAS(
-    ax=None,
-    add_labels=False,
-    which_labels="ID",
-    relim=True,
-    color="k",
-    which_model=None,
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    which_labels: str = "ID",
+    relim: bool = True,
+    color: str = "k",
+    which_model: str | None = None,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     """
     Adds the TAS diagram to an axes. Diagram from Middlemost (1994) [#ref_1]_,
     a closed-polygon variant after Le Bas et al (1992) [#ref_2]_.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the template on to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to add labels at polygon centroids.
-    which_labels : :class:`str`
+    which_labels : str
         Which labels to add to the polygons (e.g. for TAS, 'volcanic', 'intrusive'
         or the field 'ID').
-    relim : :class:`bool`
+    relim : bool
         Whether to relimit axes to fit the built in ranges for this diagram.
-    color : :class:`str`
+    color : str
         Line color for the diagram.
-    which_model : :class:`str`
+    which_model : str
         The name of the model variant to use, if not Middlemost.
 
     Returns
     -------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     References
     -----------
@@ -70,7 +71,9 @@ def TAS(
     ax = init_axes(ax=ax, **kwargs)
 
     tas = TASclassifier(which_model=which_model)
-    tas.add_to_axes(ax=ax, add_labels=add_labels, which_labels=which_labels, **kwargs)
+    ax = tas.add_to_axes(
+        ax=ax, add_labels=add_labels, which_labels=which_labels, color=color, **kwargs
+    )
     if relim:
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)

@@ -11,25 +11,25 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def CIA(df: pd.DataFrame):
+def CIA(df: pd.DataFrame) -> pd.Series:
     """
     Chemical Index of Alteration (molecular) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
     ----------
     .. [#ref_1] Nesbitt HW, Young GM (1984). Prediction of some weathering trends of plutonic
            and volcanic rocks based on thermodynamic and kinetic considerations.
-           Geochimica et Cosmochimica Acta 48:1523–1534.
+           Geochimica et Cosmochimica Acta 48:1523-1534.
            doi: `10.1016/0016-7037(84)90408-3 <https://dx.doi.org/10.1016/0016-7037(84)90408-3>`__
 
     """
@@ -37,42 +37,42 @@ def CIA(df: pd.DataFrame):
 
 
 @update_docstring_references
-def CIW(df: pd.DataFrame):
+def CIW(df: pd.DataFrame) -> pd.Series:
     """
     Chemical Index of Weathering (molecular) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
     ----------
     .. [#ref_1] Harnois L (1988). The CIW index: A new chemical index of weathering.
-           Sedimentary Geology 55:319–322. doi:
+           Sedimentary Geology 55:319-322. doi:
            `10.1016/0037-0738(88)90137-6 <https://dx.doi.org/10.1016/0037-0738(88)90137-6>`__
     """
     return 100.0 * df.Al2O3 / (df.Al2O3 + df.CaO + df.Na2O)
 
 
 @update_docstring_references
-def PIA(df: pd.DataFrame):
+def PIA(df: pd.DataFrame) -> pd.Series:
     """
     Plagioclase Index of Alteration (molecular) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
@@ -80,7 +80,7 @@ def PIA(df: pd.DataFrame):
     .. [#ref_1] Fedo CM, Nesbitt HW, Young GM (1995).
            Unraveling the effects of potassium metasomatism
            in sedimentary rocks and paleosols, with implications for paleoweathering
-           conditions and provenance. Geology 23:921–924.
+           conditions and provenance. Geology 23:921-924.
            doi: `10.1130/0091-7613(1995)023<0921:UTEOPM>2.3.CO;2 <https://dx.doi.org/10.1130/0091-7613(1995)023<0921:UTEOPM>2.3.CO;2>`__
 
     """
@@ -88,36 +88,36 @@ def PIA(df: pd.DataFrame):
 
 
 @update_docstring_references
-def SAR(df: pd.DataFrame):
+def SAR(df: pd.DataFrame) -> pd.Series:
     """
     Silica-Alumina Ratio (molecular)
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
     """
     return df.SiO2 / df.Al2O3
 
 
 @update_docstring_references
-def SiTiIndex(df: pd.DataFrame):
+def SiTiIndex(df: pd.DataFrame) -> pd.Series:
     """
     Silica-Titania Index (molecular) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
@@ -125,7 +125,7 @@ def SiTiIndex(df: pd.DataFrame):
     .. [#ref_1] Jayawardena U de S, Izawa E (1994).
             A new chemical index of weathering for metamorphic silicate rocks in
             tropical regions: A study from Sri Lanka.
-            Engineering Geology 36:303–310.
+            Engineering Geology 36:303-310.
             doi: `10.1016/0013-7952(94)90011-6 <https://dx.doi.org/10.1016/0013-7952(94)90011-6>`__
     """
     # may need to recalculate titania from titanium ppm
@@ -136,24 +136,24 @@ def SiTiIndex(df: pd.DataFrame):
 
 
 @update_docstring_references
-def WIP(df: pd.DataFrame):
+def WIP(df: pd.DataFrame) -> pd.Series:
     """
     Weathering Index of Parker (molecular) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
     ----------
     .. [#ref_1] Parker A (1970). An Index of Weathering for Silicate Rocks.
-           Geological Magazine 107:501–504.
+           Geological Magazine 107:501-504.
            doi: `10.1017/S0016756800058581 <https://dx.doi.org/10.1017/S0016756800058581>`__
 
     """
@@ -161,18 +161,18 @@ def WIP(df: pd.DataFrame):
 
 
 @update_docstring_references
-def IshikawaAltIndex(df: pd.DataFrame):
+def IshikawaAltIndex(df: pd.DataFrame) -> pd.Series:
     """
     Alteration Index of Ishikawa (wt%) [#ref_1]_
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     References
@@ -187,19 +187,19 @@ def IshikawaAltIndex(df: pd.DataFrame):
 
 
 @update_docstring_references
-def CCPI(df: pd.DataFrame):
+def CCPI(df: pd.DataFrame) -> pd.Series:
     """
     Chlorite-carbonate-pyrite index of Large et al. (wt%) [#ref_1]_.
 
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to calculate index from.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Alteration index series.
 
     Notes

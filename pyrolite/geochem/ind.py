@@ -8,11 +8,12 @@ Todo
 """
 
 import re
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
 import periodictable as pt
-from tinydb import Query, TinyDB
+from periodictable.formulas import Formula
 
 from ..util.log import Handle
 from ..util.meta import (
@@ -24,13 +25,13 @@ from ..util.text import remove_suffix, titlecase
 
 logger = Handle(__name__)
 
-__radii__ = {}
+__radii__: dict[str, pd.DataFrame] = {}
 
 
 def _load_radii():
     """Import radii tables to a module-level dictionary indexed by reference."""
     for name in ["shannon", "whittaker_muntus"]:
-        pth = (pyrolite_datafolder(subfolder="radii") / "{}.csv".format(name)).resolve()
+        pth = (pyrolite_datafolder(subfolder="radii") / f"{name}.csv").resolve()
         assert pth.exists() and pth.is_file()
         df = pd.read_csv(pth).set_index("index", drop=True)
         assert hasattr(df, "element")
@@ -41,26 +42,31 @@ _load_radii()
 ########################################################################################
 
 
-def common_elements(cutoff=92, output="string", order=None, as_set=False):
+def common_elements(
+    cutoff: int = 92,
+    output: str = "string",
+    order: Callable | None = None,
+    as_set: bool = False,
+) -> list[str] | list[pt.core.Element] | set[str] | set[pt.core.Element]:
     """
     Provides a list of elements up to a particular cutoff (by default including U).
 
     Parameters
     -----------
-    cutoff : :class:`int`
+    cutoff : int
         Upper cutoff on atomic number for the output list. Defaults to stopping at
         uranium (92).
-    output : :class:`str`
+    output : str
         Whether to return output list as formulae ('formula') or strings (anthing else).
-    order : :class:`callable`
+    order : Callable
         Sorting function for elements.
-    as_set : :class:`bool`, :code:`False`
-        Whether to return a :class:`set` (:code:`True`) or :class:`list` (:code:`False`).
+    as_set : bool, `False`
+        Whether to return a set (`True`) or list (`False`).
 
 
     Returns
     -------
-    :class:`list` | :class:`set`
+    list | set
         List of elements.
 
     Notes
@@ -79,34 +85,36 @@ def common_elements(cutoff=92, output="string", order=None, as_set=False):
     if as_set:
         return set(map(str, elements))
     else:
-        if not output == "formula":
+        if output != "formula":
             elements = list(map(str, elements))
 
         if order is not None:
             sort_function = order
-            elements = list(elements).sort(key=sort_function)
+            elements = sorted(elements, key=sort_function)
 
         return elements
 
 
-def REE(output="string", dropPm=True):
+def REE(
+    output: str = "string", dropPm: bool = True
+) -> list[str] | list[pt.core.Element]:
     """
     Provides a list of Rare Earth Elements.
 
     Parameters
     -----------
-    output : :class:`str`
+    output : str
         Whether to return output list as formulae ('formula') or strings (anthing else).
-    dropPm : :class:`bool`
+    dropPm : bool
         Whether to exclude the (almost) non-existent element Promethium from the REE
         list.
 
     Returns
     -------
-    :class:`list` | :class:`set`
+    list | set
         List of REE.
     """
-    elements = [
+    elements: list[str] = [
         "La",
         "Ce",
         "Pr",
@@ -124,32 +132,37 @@ def REE(output="string", dropPm=True):
         "Lu",
     ]
     if dropPm:
-        elements = [i for i in elements if not i == "Pm"]
+        elements: list[str] = [i for i in elements if i != "Pm"]
     if output == "formula":
-        elements = [getattr(pt, el) for el in elements]
+        elements: list[pt.core.Element] = [getattr(pt, el) for el in elements]
     return elements
 
 
-def REY(output="string", dropPm=True):
+def REY(
+    output: str = "string", dropPm: bool = True
+) -> list[str] | list[pt.core.Element]:
     """
-    Provides a list of Rare Earth Elements, with the addition of Yttrium.
+    Provides a list of Rare Earth Elements, with the additiona of Yttrium.
 
     Parameters
     -----------
-    output : :class:`str`
+    output : str
         Whether to return output list as formulae ('formula') or strings (anthing else).
+    dropPm : bool
+            Whether to exclude the (almost) non-existent element Promethium from the REE
+            list.
 
     Returns
     -------
-    :class:`list` | :class:`set`
+    list | set
         List of REE+Y.
 
     Notes
     ------
-    This currently modifies the hardcoded list of :func:`REE`, but could be adapated
+    This currently modifies the hardcoded list of `REE`, but could be adapated
     for different element ordering.
     """
-    elements = [
+    elements: list[str] = [
         "La",
         "Ce",
         "Pr",
@@ -168,39 +181,39 @@ def REY(output="string", dropPm=True):
         "Lu",
     ]
     if dropPm:
-        elements = [i for i in elements if not i == "Pm"]
+        elements: list[str] = [i for i in elements if i != "Pm"]
     if output == "formula":
-        elements = [getattr(pt, el) for el in elements]
+        elements: list[pt.core.Element] = [getattr(pt, el) for el in elements]
     return elements
 
 
 # this uses unhashable objects in the call, cannot be optimised using LRU cache
 def common_oxides(
-    elements: list = [],
+    elements: list | None = None,
     output="string",
-    addition: list = ["FeOT", "Fe2O3T", "LOI"],
-    exclude=["O", "He", "Ne", "Ar", "Kr", "Xe"],
+    addition: list | None = None,
+    exclude=None,
     as_set=False,
-):
+) -> list[str] | list[Formula] | set[str] | set[Formula]:
     """
     Creates a list of oxides based on a list of elements.
 
     Parameters
     -----------
-    elements : :class:`list`, []
+    elements : list
         List of elements to obtain oxide forms for.
-    output : :class:`str`
+    output : str
         Whether to return output list as formulae ('formula') or strings (anthing else).
-    addition : :class:`list`, []
+    addition : list
         Additional components to append to the list.
-    exclude : :class:`list`
+    exclude : list
         Elements to not produce oxide forms for (e.g. oxygen, noble gases).
-    as_set : :class:`bool`
-        Whether to return a :class:`set` (:code:`True`) or :class:`list` (:code:`False`).
+    as_set : bool
+        Whether to return a set (`True`) or list (`False`).
 
     Returns
     -------
-    :class:`list` | :class:`set`
+    list | set
         List of oxides.
 
     Notes
@@ -213,8 +226,14 @@ def common_oxides(
     * Element verification
     * Conditional additional components on the presence of others (e.g. Fe - FeOT)
     """
+    if elements is None:
+        elements = []
+    if exclude is None:
+        exclude = ["O", "He", "Ne", "Ar", "Kr", "Xe"]
+    if addition is None:
+        addition = ["FeOT", "Fe2O3T", "LOI"]
     if not elements:
-        elements = _common_elements - set(exclude)
+        elements: set[str] = _common_elements - set(exclude)
     else:
         # Check that all elements input are indeed elements..
         pass
@@ -225,24 +244,26 @@ def common_oxides(
         return set(map(str, oxides + addition))
     else:
         if output != "formula":
-            oxides = list(map(str, oxides + addition))
+            oxides: list[str] = list(map(str, oxides + addition))
         return oxides
 
 
-def simple_oxides(cation, output="string"):
+def simple_oxides(
+    cation: str | pt.core.Element, output="string"
+) -> list[str] | list[Formula]:
     """
     Creates a list of oxides for a cationic element (oxide of ions with c=1+ and above).
 
     Parameters
     -----------
-    cation : :class:`str` | :class:`periodictable.core.Element`
+    cation : str | periodictable.core.Element
         Cation to obtain oxide forms for.
-    output : :class:`str`
+    output : str
         Whether to return output list as formulae ('formula') or strings (anthing else).
 
     Returns
     -------
-    :class:`list` | :class:`set`
+    list | set
         List of oxides.
     """
     try:
@@ -250,7 +271,7 @@ def simple_oxides(cation, output="string"):
             catstr = titlecase(cation)  # edge case of lowercase str such as 'cs'
             cation = getattr(pt, catstr)
     except AttributeError:
-        raise Exception("You must select a cation to obtain oxides.")
+        raise KeyError("You must select a cation to obtain oxides.")
     ions = [c for c in cation.ions if c > 0]  # Use only positive charges
 
     # for 3.6+, could use f'{cation}{1}O{c//2}',  f'{cation}{2}O{c}'
@@ -262,54 +283,58 @@ def simple_oxides(cation, output="string"):
         )
         for c in ions
     ]
-    oxides = [pt.formula(ox) for ox in oxides]
+    oxides: list[Formula] = [pt.formula(ox) for ox in oxides]
 
-    if not output == "formula":
-        oxides = [str(ox) for ox in oxides]
+    if output != "formula":
+        oxides: list[str] = [str(ox) for ox in oxides]
     return oxides
 
 
-def get_cations(component: str, exclude=[], total_suffix="T"):
+def get_cations(
+    component: str, exclude: list[str] | None = None, total_suffix: str = "T"
+) -> list[pt.core.Element]:
     """
     Returns the principal cations in an oxide component.
 
     Parameters
     -----------
-    component : :class:`str` | :class:`periodictable.formulas.Formula`
+    component : str | `periodictable.formulas.Formula`
         Component to obtain cations for.
-    exclude : :class:`list`
+    exclude : list
         Components to exclude, i.e. anions (e.g. O, Cl, F).
 
     Returns
     -------
-    :class:`list`
+    list
         List of cations.
 
     Todo
     -----
-        * Consider implementing :class:`periodictable.core.Element` return.
+        * Consider implementing `periodictable.core.Element` return.
     """
+    if exclude is None:
+        exclude = []
     if isinstance(component, str):
         component = remove_suffix(component, suffix=total_suffix)
 
     exclude += ["O"]
     atms = pt.formula(component).atoms
-    cations = [el for el in atms.keys() if el.__str__() not in exclude]
+    cations = [el for el in atms if str(el) not in exclude]
     return cations
 
 
-def get_isotopes(ratio_text):
+def get_isotopes(ratio_text: str) -> list[str]:
     """
     Regex for isotope ratios.
 
     Parameters
     -----------
-    ratio_text : :class:`str`
+    ratio_text : str
         Text to extract isotope ratio components from.
 
     Returns
     -----------
-    :class:`list`
+    list
         Isotope ration numerator and denominator.
     """
     forward_isotope = r"([a-zA-Z][a-zA-Z]?[0-9][0-9]?[0-9]?)"
@@ -323,9 +348,10 @@ def get_isotopes(ratio_text):
         return fw
     elif lbw == 2:
         return bw
+    return []
 
 
-def by_incompatibility(els, reverse=False):
+def by_incompatibility(els: list[str], reverse: bool = False) -> list[str]:
     """
     Order a list of elements by their relative 'incompatibility' given by
     a proxy of the relative abundances in Bulk Continental Crust over
@@ -333,14 +359,14 @@ def by_incompatibility(els, reverse=False):
 
     Parameters
     ------------
-    els : :class:`list`
+    els : list
         List of element names to be reodered.
-    reverse : :class:`bool`
+    reverse : bool
         Whether to reverse the ordering.
 
     Returns
     ---------
-    :class:`list`
+    list
         Reordered list of elements.
 
     Notes
@@ -370,20 +396,20 @@ def by_incompatibility(els, reverse=False):
         return [i for i in incomp if i in els]
 
 
-def by_number(els, reverse=False):
+def by_number(els: list[str], reverse: bool = False) -> list[str]:
     """
     Order a list of elements by their atomic number.
 
     Parameters
     ------------
-    els : :class:`list`
+    els : list
         List of element names to be reodered.
-    reverse : :class:`bool`
+    reverse : bool
         Whether to reverse the ordering.
 
     Returns
     ---------
-    :class:`list`
+    list
         Reordered list of elements.
     """
     ordered = np.array(els)[np.argsort([getattr(pt, el).number for el in els])]
@@ -395,41 +421,41 @@ def by_number(els, reverse=False):
 # RADII ################################################################################
 @update_docstring_references
 def get_ionic_radii(
-    element,
-    charge=None,
-    coordination=None,
-    variant=[],
-    source="shannon",
-    pauling=True,
+    element: str | list[str],
+    charge: int | None = None,
+    coordination: int | None = None,
+    variant: list[str] | None = None,
+    source: str = "shannon",
+    pauling: bool = True,
     **kwargs,
-):
+) -> np.ndarray | pd.Series | float:
     """
     Function to obtain ionic radii for a given ion and coordination [#ref_1]_
     [#ref_2]_.
 
     Parameters
     -----------
-    element : :class:`str` | :class:`list`
+    element : str | list
         Element to obtain a radii for. If a list is passed, the function will be applied
         over each of the items.
-    charge : :class:`int`
+    charge : int
         Charge of the ion to obtain a radii for. If unspecified will use the default
         charge from :mod:`pyrolite.mineral.ions`.
-    coordination : :class:`int`
+    coordination : int
         Coordination of the ion to obtain a radii for.
-    variant : :class:`list`
+    variant : list
         List of strings specifying particular variants (here 'squareplanar' or
         'pyramidal', 'highspin' or 'lowspin').
-    source : :class:`str`
+    source : str
         Name of the data source for ionic radii ('shannon' [#ref_1]_ or
         'whittaker' [#ref_2]_).
-    pauling : :class:`bool`
+    pauling : bool
         Whether to use the radii consistent with Pauling (1960) [#ref_3]_ from the
         Shannon (1976) radii dataset [#ref_1]_.
 
     Returns
     --------
-    :class:`pandas.Series` | :class:`numpy.ndarray` | :class:`float`
+    pandas.Series | numpy.ndarray | float
         Series with viable ion charge and coordination, with associated radii in
         angstroms. If the ion charge and coordiation are completely specified and
         found in the table, a single value will be returned instead.
@@ -445,11 +471,11 @@ def get_ionic_radii(
     ----------
     .. [#ref_1] Shannon RD (1976). Revised effective ionic radii and systematic
             studies of interatomic distances in halides and chalcogenides.
-            Acta Crystallographica Section A 32:751–767.
+            Acta Crystallographica Section A 32:751-767.
             doi: shannon1976
     .. [#ref_2] Whittaker, E.J.W., Muntus, R., 1970.
            Ionic radii for use in geochemistry.
-           Geochimica et Cosmochimica Acta 34, 945–956.
+           Geochimica et Cosmochimica Acta 34, 945-956.
            doi: whittaker_muntus1970
     .. [#ref_3] Pauling, L., 1960. The Nature of the Chemical Bond.
             Cornell University Press, Ithaca, NY.
@@ -458,6 +484,8 @@ def get_ionic_radii(
     -----
     * Implement interpolation for coordination +/- charge.
     """
+    if variant is None:
+        variant = []
     if isinstance(element, list):
         return np.array(
             [
@@ -483,7 +511,7 @@ def get_ionic_radii(
     else:
         raise AssertionError(
             "Invalid `source` argument. Options: {}".format(
-                " ,".join("'{}'".format(src) for src in __radii__.keys())
+                " ,".join(f"'{src}'" for src in __radii__)
             )
         )
 
@@ -493,7 +521,7 @@ def get_ionic_radii(
         if charge in df.loc[elfltr, "charge"].unique():
             fltrs *= df.charge == charge
         else:
-            logger.warning("Charge {:d} not in table.".format(int(charge)))
+            logger.warning(f"Charge {int(charge):d} not in table.")
             # try to interpolate over charge?..
             # interpolate_charge=True
     else:
@@ -504,7 +532,7 @@ def get_ionic_radii(
         if coordination in df.loc[elfltr, "coordination"].unique():
             fltrs *= df.coordination == coordination
         else:
-            logger.warning("Coordination {:d} not in table.".format(int(coordination)))
+            logger.warning(f"Coordination {int(coordination):d} not in table.")
             # try to interpolate over coordination
             # interpolate_coordination=True
 
@@ -533,9 +561,431 @@ get_ionic_radii.__doc__ = get_ionic_radii.__doc__.replace(
     "whittaker_muntus1970", sphinx_doi_link("10.1016/0016-7037(70)90077-3")
 )
 # generate sets
-__db__ = TinyDB(
-    str(pyrolite_datafolder(subfolder="geochem") / "geochemdb.json"), access_mode="r"
-)
-_common_elements = set(__db__.search(Query().name == "elements")[0]["collection"])
-_common_oxides = set(__db__.search(Query().name == "oxides")[0]["collection"])
-__db__.close()
+
+
+_common_elements = {
+    "H",
+    "He",
+    "Li",
+    "Be",
+    "B",
+    "C",
+    "N",
+    "O",
+    "F",
+    "Ne",
+    "Na",
+    "Mg",
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cl",
+    "Ar",
+    "K",
+    "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
+    "Rb",
+    "Sr",
+    "Y",
+    "Zr",
+    "Nb",
+    "Mo",
+    "Tc",
+    "Ru",
+    "Rh",
+    "Pd",
+    "Ag",
+    "Cd",
+    "In",
+    "Sn",
+    "Sb",
+    "Te",
+    "I",
+    "Xe",
+    "Cs",
+    "Ba",
+    "La",
+    "Ce",
+    "Pr",
+    "Nd",
+    "Pm",
+    "Sm",
+    "Eu",
+    "Gd",
+    "Tb",
+    "Dy",
+    "Ho",
+    "Er",
+    "Tm",
+    "Yb",
+    "Lu",
+    "Hf",
+    "Ta",
+    "W",
+    "Re",
+    "Os",
+    "Ir",
+    "Pt",
+    "Au",
+    "Hg",
+    "Tl",
+    "Pb",
+    "Bi",
+    "Po",
+    "At",
+    "Rn",
+    "Fr",
+    "Ra",
+    "Ac",
+    "Th",
+    "Pa",
+    "U",
+}
+_common_oxides = {
+    "Sn2O",
+    "SnO",
+    "Sn2O3",
+    "SnO2",
+    "RaO",
+    "Ca2O",
+    "CaO",
+    "Tc2O",
+    "TcO",
+    "Tc2O3",
+    "TcO2",
+    "Tc2O5",
+    "TcO3",
+    "Tc2O7",
+    "Cr2O",
+    "CrO",
+    "Cr2O3",
+    "CrO2",
+    "Cr2O5",
+    "CrO3",
+    "La2O",
+    "LaO",
+    "La2O3",
+    "Hf2O",
+    "HfO",
+    "Hf2O3",
+    "HfO2",
+    "Ac2O3",
+    "Tb2O",
+    "TbO",
+    "Tb2O3",
+    "TbO2",
+    "Fe2O",
+    "FeO",
+    "Fe2O3",
+    "FeO2",
+    "Fe2O5",
+    "FeO3",
+    "Fe2O7",
+    "In2O",
+    "InO",
+    "In2O3",
+    "Ru2O",
+    "RuO",
+    "Ru2O3",
+    "RuO2",
+    "Ru2O5",
+    "RuO3",
+    "Ru2O7",
+    "RuO4",
+    "NdO",
+    "Nd2O3",
+    "NdO2",
+    "Bi2O",
+    "BiO",
+    "Bi2O3",
+    "BiO2",
+    "Bi2O5",
+    "Th2O",
+    "ThO",
+    "Th2O3",
+    "ThO2",
+    "Sb2O",
+    "SbO",
+    "Sb2O3",
+    "SbO2",
+    "Sb2O5",
+    "Mo2O",
+    "MoO",
+    "Mo2O3",
+    "MoO2",
+    "Mo2O5",
+    "MoO3",
+    "Cl2O",
+    "ClO",
+    "Cl2O3",
+    "ClO2",
+    "Cl2O5",
+    "ClO3",
+    "Cl2O7",
+    "Nb2O",
+    "NbO",
+    "Nb2O3",
+    "NbO2",
+    "Nb2O5",
+    "Si2O",
+    "SiO",
+    "Si2O3",
+    "SiO2",
+    "EuO",
+    "Eu2O3",
+    "Hg2O",
+    "HgO",
+    "HgO2",
+    "YbO",
+    "Yb2O3",
+    "Pt2O",
+    "PtO",
+    "Pt2O3",
+    "PtO2",
+    "Pt2O5",
+    "PtO3",
+    "V2O",
+    "VO",
+    "V2O3",
+    "VO2",
+    "V2O5",
+    "Re2O",
+    "ReO",
+    "Re2O3",
+    "ReO2",
+    "Re2O5",
+    "ReO3",
+    "Re2O7",
+    "Cu2O",
+    "CuO",
+    "Cu2O3",
+    "CuO2",
+    "Au2O",
+    "AuO",
+    "Au2O3",
+    "Au2O5",
+    "Ge2O",
+    "GeO",
+    "Ge2O3",
+    "GeO2",
+    "H2O",
+    "Mg2O",
+    "MgO",
+    "Rb2O",
+    "I2O",
+    "I2O3",
+    "IO2",
+    "I2O5",
+    "IO3",
+    "I2O7",
+    "Be2O",
+    "BeO",
+    "Tl2O",
+    "TlO",
+    "Tl2O3",
+    "Li2O",
+    "K2O",
+    "As2O",
+    "AsO",
+    "As2O3",
+    "AsO2",
+    "As2O5",
+    "Br2O",
+    "Br2O3",
+    "BrO2",
+    "Br2O5",
+    "Br2O7",
+    "Zr2O",
+    "ZrO",
+    "Zr2O3",
+    "ZrO2",
+    "Al2O",
+    "AlO",
+    "Al2O3",
+    "CeO",
+    "Ce2O3",
+    "CeO2",
+    "N2O",
+    "NO",
+    "N2O3",
+    "NO2",
+    "N2O5",
+    "Ag2O",
+    "AgO",
+    "Ag2O3",
+    "AgO2",
+    "At2O",
+    "At2O3",
+    "At2O5",
+    "At2O7",
+    "Gd2O",
+    "GdO",
+    "Gd2O3",
+    "RnO",
+    "RnO3",
+    "Ga2O",
+    "GaO",
+    "Ga2O3",
+    "Te2O",
+    "TeO",
+    "Te2O3",
+    "TeO2",
+    "Te2O5",
+    "TeO3",
+    "S2O",
+    "SO",
+    "S2O3",
+    "SO2",
+    "S2O5",
+    "SO3",
+    "Co2O",
+    "CoO",
+    "Co2O3",
+    "CoO2",
+    "Co2O5",
+    "Sr2O",
+    "SrO",
+    "HoO",
+    "Ho2O3",
+    "Fr2O",
+    "Pa2O3",
+    "PaO2",
+    "Pa2O5",
+    "Pd2O",
+    "PdO",
+    "Pd2O3",
+    "PdO2",
+    "Pd2O5",
+    "PdO3",
+    "Zn2O",
+    "ZnO",
+    "PmO",
+    "Pm2O3",
+    "SmO",
+    "Sm2O3",
+    "Ti2O",
+    "TiO",
+    "Ti2O3",
+    "TiO2",
+    "Cd2O",
+    "CdO",
+    "TmO",
+    "Tm2O3",
+    "Ta2O",
+    "TaO",
+    "Ta2O3",
+    "TaO2",
+    "Ta2O5",
+    "C2O",
+    "CO",
+    "C2O3",
+    "CO2",
+    "W2O",
+    "WO",
+    "W2O3",
+    "WO2",
+    "W2O5",
+    "WO3",
+    "Ba2O",
+    "BaO",
+    "DyO",
+    "Dy2O3",
+    "DyO2",
+    "PrO",
+    "Pr2O3",
+    "PrO2",
+    "Pr2O5",
+    "ErO",
+    "Er2O3",
+    "Rh2O",
+    "RhO",
+    "Rh2O3",
+    "RhO2",
+    "Rh2O5",
+    "RhO3",
+    "Os2O",
+    "OsO",
+    "Os2O3",
+    "OsO2",
+    "Os2O5",
+    "OsO3",
+    "Os2O7",
+    "OsO4",
+    "PoO",
+    "PoO2",
+    "Po2O5",
+    "PoO3",
+    "Ni2O",
+    "NiO",
+    "Ni2O3",
+    "NiO2",
+    "B2O",
+    "BO",
+    "B2O3",
+    "U2O",
+    "UO",
+    "U2O3",
+    "UO2",
+    "U2O5",
+    "UO3",
+    "Mn2O",
+    "MnO",
+    "Mn2O3",
+    "MnO2",
+    "Mn2O5",
+    "MnO3",
+    "Mn2O7",
+    "Cs2O",
+    "Se2O",
+    "SeO",
+    "Se2O3",
+    "SeO2",
+    "Se2O5",
+    "SeO3",
+    "Ir2O",
+    "IrO",
+    "Ir2O3",
+    "IrO2",
+    "Ir2O5",
+    "IrO3",
+    "Ir2O7",
+    "IrO4",
+    "Ir2O9",
+    "LuO",
+    "Lu2O3",
+    "P2O",
+    "PO",
+    "P2O3",
+    "PO2",
+    "P2O5",
+    "Sc2O",
+    "ScO",
+    "Sc2O3",
+    "Na2O",
+    "Y2O",
+    "YO",
+    "Y2O3",
+    "Pb2O",
+    "PbO",
+    "Pb2O3",
+    "PbO2",
+    "FeOT",
+    "Fe2O3T",
+    "LOI",
+}

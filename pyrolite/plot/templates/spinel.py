@@ -1,3 +1,5 @@
+import matplotlib.axes
+
 from ...util.classification import SpinelFeBivariate as SpinelBivariate
 from ...util.classification import SpinelTrivalentTernary as SpinelTrivalent
 from ...util.log import Handle
@@ -7,26 +9,30 @@ logger = Handle(__name__)
 
 
 def SpinelFeBivariate(
-    ax=None, add_labels=False, which_labels="ID", color="k", **kwargs
-):
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    which_labels: str = "ID",
+    color: str = "k",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Fe-Spinel classification, designed for data in atoms per formula unit.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the diagram to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to add labels at polygon centroids.
-    which_labels : :class:`str`
+    which_labels : str
         Which data to use for field labels - field 'name' or 'ID'.
-    color : :class:`str`
+    color : str
         Color for the polygon edges in the diagram.
     """
     ax = init_axes(ax=ax, **kwargs)
 
     clf = SpinelBivariate()
-    clf.add_to_axes(
+    ax = clf.add_to_axes(
         ax=ax,
         color=color,
         add_labels=add_labels,
@@ -37,27 +43,31 @@ def SpinelFeBivariate(
 
 
 def SpinelTrivalentTernary(
-    ax=None, add_labels=False, which_labels="ID", color="k", **kwargs
-):
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    which_labels: str = "ID",
+    color: str = "k",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Spinel Trivalent Ternary classification  - designed for data in atoms per
     formula unit.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Ternary axes to add the diagram to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to add labels at polygon centroids.
-    which_labels : :class:`str`
+    which_labels : str
         Which data to use for field labels - field 'name' or 'ID'.
-    color : :class:`str`
+    color : str
         Color for the polygon edges in the diagram.
     """
     ax = init_axes(ax=ax, projection="ternary", **kwargs)
 
     clf = SpinelTrivalent()
-    clf.add_to_axes(
+    ax = clf.add_to_axes(
         ax=ax,
         color=color,
         add_labels=add_labels,

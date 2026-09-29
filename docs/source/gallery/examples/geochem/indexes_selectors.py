@@ -6,8 +6,6 @@ Geochemical Indexes and Selectors
 
 import pandas as pd
 
-import pyrolite.geochem
-
 pd.set_option("display.precision", 3)  # smaller outputs
 ########################################################################################
 from pyrolite.util.synthetic import normal_frame

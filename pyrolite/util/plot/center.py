@@ -4,14 +4,21 @@ Taken from https://github.com/Twista/python-polylabel,
 Originally released under an MIT licence.
 """
 
-from math import sqrt, inf
 import time
 from queue import PriorityQueue
 
+import numpy as np
 
-def _point_to_polygon_distance(x, y, polygon):
+from ..log import Handle
+
+logger = Handle(__name__)
+
+
+def _point_to_polygon_distance(
+    x: float, y: float, polygon: list[list[tuple[float, float]]]
+) -> float:
     inside = False
-    min_dist_sq = inf
+    min_dist_sq = np.inf
 
     for ring in polygon:
         b = ring[-1]
@@ -24,13 +31,15 @@ def _point_to_polygon_distance(x, y, polygon):
             min_dist_sq = min(min_dist_sq, _get_seg_dist_sq(x, y, a, b))
             b = a
 
-    result = sqrt(min_dist_sq)
+    result = min_dist_sq**0.5
     if not inside:
         return -result
     return result
 
 
-def _get_seg_dist_sq(px, py, a, b):
+def _get_seg_dist_sq(
+    px: float, py: float, a: tuple[float, float], b: tuple[float, float]
+) -> float:
     x = a[0]
     y = a[1]
     dx = b[0] - x
@@ -53,13 +62,15 @@ def _get_seg_dist_sq(px, py, a, b):
     return dx * dx + dy * dy
 
 
-class Cell(object):
-    def __init__(self, x, y, h, polygon):
+class Cell:
+    def __init__(
+        self, x: float, y: float, h: float, polygon: list[list[tuple[float, float]]]
+    ):
         self.h = h
         self.y = y
         self.x = x
         self.d = _point_to_polygon_distance(x, y, polygon)
-        self.max = self.d + self.h * sqrt(2)
+        self.max = self.d + self.h * 2**0.5
 
     def __lt__(self, other):
         return self.max < other.max
@@ -77,7 +88,7 @@ class Cell(object):
         return self.max == other.max
 
 
-def _get_centroid_cell(polygon):
+def _get_centroid_cell(polygon: list[list[tuple[float, float]]]) -> Cell:
     area = 0
     x = 0
     y = 0
@@ -93,10 +104,13 @@ def _get_centroid_cell(polygon):
         return Cell(points[0][0], points[0][1], 0, polygon)
     return Cell(x / area, y / area, 0, polygon)
 
-    pass
 
-
-def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
+def visual_center(
+    polygon: list[list[tuple[float, float]]],
+    precision: float = 1.0,
+    debug: bool = False,
+    with_distance: bool = False,
+) -> tuple[list[float], float] | list[float]:
     # find bounding box
     first_item = polygon[0][0]
     min_x = first_item[0]
@@ -104,14 +118,10 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
     max_x = first_item[0]
     max_y = first_item[1]
     for p in polygon[0]:
-        if p[0] < min_x:
-            min_x = p[0]
-        if p[1] < min_y:
-            min_y = p[1]
-        if p[0] > max_x:
-            max_x = p[0]
-        if p[1] > max_y:
-            max_y = p[1]
+        min_x = min(min_x, p[0])
+        min_y = min(min_y, p[1])
+        max_x = max(max_x, p[0])
+        max_y = max(max_y, p[1])
 
     width = max_x - min_x
     height = max_y - min_y
@@ -150,10 +160,8 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
             best_cell = cell
 
             if debug:
-                print(
-                    "found best {} after {} probes".format(
-                        round(1e4 * cell.d) / 1e4, num_of_probes
-                    )
+                logger.debug(
+                    f"found best {round(1e4 * cell.d) / 1e4} after {num_of_probes} probes"
                 )
 
         if cell.max - best_cell.d <= precision:
@@ -171,8 +179,8 @@ def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
         num_of_probes += 4
 
     if debug:
-        print("num probes: {}".format(num_of_probes))
-        print("best distance: {}".format(best_cell.d))
+        logger.debug(f"num probes: {num_of_probes}")
+        logger.debug(f"best distance: {best_cell.d}")
     if with_distance:
         return [best_cell.x, best_cell.y], best_cell.d
     else:

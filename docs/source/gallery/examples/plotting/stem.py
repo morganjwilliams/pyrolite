@@ -9,12 +9,8 @@ so (such that the sampling frequency along this axis is important, which is not
 emphasised by a scatter plot).
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-from pyrolite.plot import pyroplot
-from pyrolite.plot.stem import stem
 
 # sphinx_gallery_thumbnail_number = 2
 

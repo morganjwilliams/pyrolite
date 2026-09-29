@@ -1,13 +1,14 @@
 import unittest
+from pathlib import Path
 
 from pyrolite.geochem.norm import (
     Composition,
+    __dbfile__,
     all_reference_compositions,
     get_reference_composition,
     get_reference_files,
     update_database,
 )
-from pyrolite.util.general import remove_tempdir, temp_path
 
 
 class TestComposition(unittest.TestCase):
@@ -63,19 +64,9 @@ class TestGetReferenceComposition(unittest.TestCase):
 
 
 class TestUpdateReferenceDataBase(unittest.TestCase):
-    def setUp(self):
-        self.tmppath = temp_path(suffix="refdbtest")
-        self.name = "refdb.json"
-        self.path = self.tmppath / self.name
-        if not self.tmppath.exists():
-            self.tmppath.mkdir(parents=True)
-
     def test_default(self):
-        update_database(path=self.path)
-        self.assertTrue(self.path.exists())
-
-    def tearDown(self):
-        remove_tempdir(self.tmppath)
+        update_database()
+        self.assertTrue(Path(__dbfile__).exists())
 
 
 if __name__ == "__main__":

@@ -9,11 +9,10 @@ well with some of the plot templates (:mod:`pyrolite.plot.templates`) and
 associated classifiers (:mod:`pyrolite.util.classification`).
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # sphinx_gallery_thumbnail_number = 5
-
 ########################################################################################
 # Colors by Ternary Position
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

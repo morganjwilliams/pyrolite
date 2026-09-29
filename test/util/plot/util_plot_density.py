@@ -10,7 +10,6 @@ from pyrolite.util.plot.density import (
     percentile_contour_values_from_meshz,
     plot_Z_percentiles,
 )
-from pyrolite.util.plot.legend import proxy_line
 
 
 class TestPercentileContourValuesFromMeshZ(unittest.TestCase):

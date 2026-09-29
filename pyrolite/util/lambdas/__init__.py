@@ -7,27 +7,25 @@ from ..meta import update_docstring_references
 from .eval import get_function_components
 from .oneill import lambdas_ONeill2016
 from .opt import lambdas_optimize
-from .params import _get_params, orthogonal_polynomial_constants
-from .plot import plot_lambdas_components, plot_profiles
-from .transform import REE_z_to_radii
+from .params import _get_params
 
 logger = Handle(__name__)
 
 
 @update_docstring_references
 def calc_lambdas(
-    df,
-    params=None,
-    degree=4,
-    exclude=[],
-    algorithm="ONeill",
-    anomalies=[],
-    fit_tetrads=False,
-    sigmas=None,
-    add_uncertainties=False,
-    add_X2=False,
+    df: pd.DataFrame,
+    params: list | str | None = None,
+    degree: int = 4,
+    exclude: list[str] | None = None,
+    algorithm: str = "ONeill",
+    anomalies: list[str] | None = None,
+    fit_tetrads: bool = False,
+    sigmas: float | list[float] | np.ndarray | None = None,
+    add_uncertainties: bool = False,
+    add_X2: bool = False,
     **kwargs,
-):
+) -> pd.DataFrame:
     """
     Parameterises values based on linear combination of orthogonal polynomials
     over a given set of values for independent variable `x` [#ref_1]_ .
@@ -35,35 +33,35 @@ def calc_lambdas(
 
     Parameters
     ----------
-    df : :class:`pd.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing REE Data.
-    params : :class:`list` | :class:`str`
+    params : list | str
         Pre-computed parameters for the orthogonal polynomials (a list of tuples).
         Optionally specified, otherwise defaults the parameterisation as in
-        O'Neill (2016). [#ref_1]_ If a string is supplied, :code:`"O'Neill (2016)"` or
-        similar will give the original defaults, while :code:`"full"` will use all
+        O'Neill (2016). [#ref_1]_ If a string is supplied, `"O'Neill (2016)"` or
+        similar will give the original defaults, while `"full"` will use all
         of the REE (including Eu) as a basis for the orthogonal polynomials.
-    degree : :class:`int`
+    degree : int
         Degree of orthogonal polynomial fit.
-    exclude : :class:`list`
+    exclude : list
         REE to exclude from the *fit*.
-    algorithm : :class:`str`
+    algorithm : str
         Algorithm to use for fitting the orthogonal polynomials.
-    anomalies : :class:`list`
+    anomalies : list
         List of relative anomalies to append to the dataframe.
-    fit_tetrads : :class:`bool`
+    fit_tetrads : bool
         Whether to fit tetrad functions in addition to orthogonal polynomial functions.
         This will force the use of the optimization algorithm.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         Single value or 1D array of observed value uncertainties.
-    add_uncertainties : :class:`bool`
+    add_uncertainties : bool
         Whether to append estimated parameter uncertainties to the dataframe.
-    add_X2 : :class:`bool`
+    add_X2 : bool
         Whether to append the chi-squared values (χ2) to the dataframe.
 
     Returns
     --------
-    :class:`pd.DataFrame`
+    pandas.DataFrame
 
     See Also
     ---------
@@ -73,13 +71,17 @@ def calc_lambdas(
 
     References
     ----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+    .. [#ref_1] O'Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
 
     # parameters should be set here, and only once; these define the inividual
     # orthogonal polynomial functions which are combined to compose the REE pattern
+    if anomalies is None:
+        anomalies = []
+    if exclude is None:
+        exclude = []
     params = _get_params(params=params, degree=degree)
     if fit_tetrads and ("oneill" in algorithm.lower()):
         logger.warning(
@@ -102,7 +104,7 @@ def calc_lambdas(
         raise IndexError(msg)
 
     # also filter the sigmas we pass to subsequent functions, if needed
-    if not (sigmas is None):
+    if sigmas is not None:
         logger.debug("Sigmas provided.")
         if not isinstance(sigmas, (int, float)):
             sigmas = sigmas[column_fltr]
@@ -138,7 +140,7 @@ def calc_lambdas(
         logger.debug("Calculating anomalies.")
         # radii here use all the REE columns in df, including those excluded
         ree = df.pyrochem.list_REE
-        names, x0, func_components = get_function_components(
+        _names, _x0, func_components = get_function_components(
             get_ionic_radii(ree, charge=3, coordination=8),
             params=params,
             fit_tetrads=fit_tetrads,
@@ -158,5 +160,5 @@ def calc_lambdas(
         for anomaly in anomalies:  # add anomalies in linear (not log) space
             assert anomaly in rdiff.columns
             # log residuals are linear ratios, can back-transform
-            ls["{}/{}*".format(anomaly, anomaly)] = np.exp(rdiff[anomaly])
+            ls[f"{anomaly}/{anomaly}*"] = np.exp(rdiff[anomaly])
     return ls

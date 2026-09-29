@@ -7,7 +7,8 @@ build-backend = "setuptools.build_meta"
 name = "pyrolite"
 authors = [{ name = "Morgan Williams", email = "morgan.williams@csiro.au" }]
 description = "Tools for geochemical data analysis."
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -18,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Framework :: Matplotlib",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -26,8 +28,6 @@ keywords = ["geochemistry", "compositional data", "visualisation", "petrology"]
 dynamic = ["version", "readme"]
 dependencies = [
     "numpy",
-    "numpydoc",
-    "tinydb>4.1",     # >4.1 required for read-only access mode for JSON storage
     "periodictable",
     "matplotlib>=3.9",
     "mpltern>=0.4.0",
@@ -44,37 +44,59 @@ Repository = "https://github.com/morganjwilliams/pyrolite"
 Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
-docs = [
-    "sphinx_rtd_theme",
-    # "docutils<0.17",
-    "sphinx>=4",
-    "sphinx-autodoc-annotation",
-    "sphinx_gallery>=0.6.0",
-    "recommonmark",
-]
 db = ["pyodbc", "psycopg2"]
-test = ["pytest", "pytest-runner", "pytest-cov", "coverage", "coveralls"]
 notebook = ["ipykernel", "ipywidgets"]
 skl = ["scikit-learn", "joblib"]
 spatial = ["owslib", "geojson", "psutil"]
 stats = ["statsmodels", "scikit-learn"] # statsmodels for conditional ke
 excel = ["xlrd", "openpyxl"]
+
+[dependency-groups]
+test = ["pytest",  "pytest-cov", "coverage"] # coveralls but only in CI
+docs = [
+    "sphinx_book_theme",
+    "sphinx>=4",
+    "sphinx-autodoc-annotation",
+    "sphinx-gallery>0.6.0",
+    "myst-parser",
+    "pypandoc"
+]
 dev = [
-    "pytest",
     "ruff",
     "twine",
-    "pyrolite[test,docs,skl,notebook]",
     "build",
+    "pyrolite[skl,notebook]",
+    { include-group = "test" },
+    { include-group = "docs" },
 ]
 
-[tool.setuptools.packages]
-find = { exclude = ['test*', "docs*"] }
+[tool.setuptools.packages.find]
+include = ["pyrolite*"]
+
+[tool.setuptools.package-data] # https://setuptools.pypa.io/en/stable/userguide/datafiles.html
+pyrolite = [
+    "LICENSE",
+    "pyrolite/data/Aitchison*",
+    "pyrolite/data/geochem/*",
+    "pyrolite/data/mineral/*",
+    "pyrolite/data/models/*",
+    "pyrolite/data/radii/*",
+    "pyrolite/data/timescale/*",
+    "pyrolite/data/testing/*",
+    "pyrolite/data/_config/*",
+]
+
+[tool.setuptools.exclude-package-data]
+pyrolite = ["test/*", "docs/*", "paper/*", "binder/*", "build/*", "dist/*"]
 
 [tool.setuptools.dynamic]
 readme = { file = "README.md", content-type = "text/markdown" }
 
 [tool.setuptools_scm]
 fallback_version = "0.0.0"
+
+[tool.uv]
+default-groups = ["dev"]
 
 [tool.coverage.run]
 relative_files = true

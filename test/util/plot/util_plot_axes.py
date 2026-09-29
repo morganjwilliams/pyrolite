@@ -9,7 +9,6 @@ from pyrolite.util.plot.axes import (
     add_colorbar,
     axes_to_ternary,
     get_axes_index,
-    get_ordered_axes,
     get_twins,
     replace_with_ternary_axis,
     share_axes,

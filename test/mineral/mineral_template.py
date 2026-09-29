@@ -62,9 +62,7 @@ class TestMineral(unittest.TestCase):
             PYROXENE,
             pd.Series(
                 data=[57.10, 0.17, 0.70, 0.27, 0.60, 5.21, 0.17, 34.52, 0.62, 0.07],
-                index="SiO2, TiO2, Al2O3, Cr2O3, Fe2O3, FeO, MnO, MgO, CaO, Na2O".split(
-                    ", "
-                ),
+                index=["SiO2", "TiO2", "Al2O3", "Cr2O3", "Fe2O3", "FeO", "MnO", "MgO", "CaO", "Na2O"],
             ),
             endmembers={
                 "En": "enstatite",
@@ -147,7 +145,6 @@ class TestMineral(unittest.TestCase):
         a warning. This is controlled by the sum of the cost function relative to
         the detection limit.
         """
-        pass
 
     def test_get_site_occupancy(self):
         out = self.pyx.get_site_occupancy()

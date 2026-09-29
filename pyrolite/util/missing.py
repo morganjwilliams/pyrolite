@@ -5,20 +5,22 @@ import pandas as pd
 import scipy.special
 
 
-def md_pattern(Y):
+def md_pattern(
+    Y: np.ndarray[tuple[int, int]],
+) -> tuple[np.ndarray[tuple[int]], dict[int, dict[str, np.ndarray | int]]]:
     """
     Get the missing data patterns from an array.
 
     Parameters
     ------------
-    Y : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+    Y : numpy.ndarray | pandas.DataFrame
         Input dataset.
 
     Returns
     ---------
-    pattern_ids : :class:`numpy.ndarray`
+    pattern_ids : numpy.ndarray
         Pattern ID array.
-    pattern_dict : :class:`dict`
+    pattern_dict : dict
         Dictionary of patterns indexed by pattern IDs. Contains a pattern and count
         for each pattern ID.
     """
@@ -34,7 +36,7 @@ def md_pattern(Y):
     pD = defaultdict(dict)
 
     pindex = 0  # 0 = no missing data
-    pD[int(0)] = {"pattern": np.zeros(D).astype(bool), "freq": np.sum(pID == 0)}
+    pD[0] = {"pattern": np.zeros(D).astype(bool), "freq": np.sum(pID == 0)}
     indexes = np.arange(N)
     indexes = indexes[pID[indexes] > pindex]  # only look at md rows
     for idx in indexes:
@@ -53,22 +55,24 @@ def md_pattern(Y):
     return pID, pD
 
 
-def cooccurence_pattern(Y, normalize=False, log=False):
+def cooccurence_pattern(
+    Y: np.ndarray[tuple[int, int]], normalize: bool = False, log: bool = False
+) -> np.ndarray[tuple[int, int]]:
     """
     Get the co-occurence patterns from an array.
 
     Parameters
     ------------
-    Y : :class:`numpy.ndarray` | :class:`pandas.DataFrame`
+    Y : numpy.ndarray | pandas.DataFrame
         Input dataset.
-    normalize : :class:`bool`
+    normalize : bool
         Whether to normalize the cooccurence to compare disparate variables.
-    log : :class:`bool`
+    log : bool
         Whether to take the log of the cooccurence.
 
     Returns
     ---------
-    co_occur : :class:`numpy.ndarray`
+    co_occur : numpy.ndarray
         Cooccurence frequency array.
     """
     if isinstance(Y, pd.DataFrame):

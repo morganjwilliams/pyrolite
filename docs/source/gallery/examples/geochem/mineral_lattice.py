@@ -1,4 +1,4 @@
-"""
+r"""
 Lattice Strain Calculations
 ------------------------------
 
@@ -53,7 +53,7 @@ rLa = get_ionic_radii("La", charge=3, coordination=8)
 #
 fontsize = 8
 fig, ax = plt.subplots(1)
-ax.set(ylabel="$D_X$", xlabel="Radii ($\AA$)", yscale="log")
+ax.set(ylabel="$D_X$", xlabel=r"Radii ($\AA$)", yscale="log")
 site2labels = ["Na", "Ca", "Eu", "Sr"]
 # get the Shannon ionic radii for the elements in the 2+ site
 site2radii = [
@@ -161,7 +161,7 @@ pd.DataFrame(
 from pyrolite.plot.spider import REE_v_radii
 
 ax = REE_v_radii(index="radii")
-ax.set(ylabel="$D_X$", xlabel="Radii ($\AA$)")
+ax.set(ylabel="$D_X$", xlabel=r"Radii ($\AA$)")
 
 ax.plot(site3radii, site3Ds, label="True", color="k")
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # pyrolite documentation build configuration file, created by
 # sphinx-quickstart on Tue Sep 18 13:48:13 2018.
@@ -18,37 +17,17 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 
-import os
 import re
-import sys
 import warnings
 from datetime import date
 from pathlib import Path
 
-warnings.filterwarnings("ignore", "Unknown section")
-
-sys.path.insert(0, os.path.abspath("."))
-sys.path.insert(0, os.path.abspath("../."))
-sys.path.insert(0, os.path.abspath("../.."))
-# pip install git+https://github.com/rtfd/recommonmark.git@master
-import recommonmark
-from recommonmark.transform import AutoStructify
-
 import pyrolite
+from pyrolite.geochem.norm import all_reference_compositions
 
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
 release = pyrolite.__version__.replace(".dirty", "")
 
-"""
-from mock import Mock as MagicMock
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-        return MagicMock()
-
-MOCK_MODULES = ['numpy', 'scipy', 'scipy.linalg', 'scipy.stats']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-"""
 
 # -- General configuration ------------------------------------------------
 
@@ -59,22 +38,20 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = [
-    "sphinx_rtd_theme",
+    "sphinx_book_theme",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
-    "recommonmark",
     "sphinx.ext.viewcode",  # generates sourcecode on docs site, with reverse links to docs
-    "sphinx_gallery.gen_gallery",  # sphinx gallery
-    # "jupyterlite_sphinx",
+    "myst_parser",
+    "sphinx_gallery.gen_gallery",
 ]
-
 autosummary_generate = True
 
 napoleon_google_docstring = False
@@ -85,14 +62,17 @@ napoleon_use_ivar = True
 templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-source_suffix = [".rst", ".md"]
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
+}
 # The master toctree document.
 master_doc = "index"
 
 # General information about the project.
 project = "pyrolite"
-copyright = "2018-%s, Morgan Williams" % date.today().year
+copyright = f"2018-{date.today().year}, Morgan Williams"
 
 author = "Morgan Williams"
 
@@ -115,24 +95,35 @@ pygments_style = "sphinx"
 todo_include_todos = True
 
 autodoc_member_order = "bysource"
-
+autodoc_typehints = "signature"
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+myst_enable_extensions = [
+    "colon_fence",
+    "html_image",
+    "attrs_inline",
+    "dollarmath",
+    "amsmath",
+]
+myst_heading_anchors = 2
 html_theme_options = {
-    "logo_only": True,
-    "prev_next_buttons_location": None,
-    "vcs_pageview_mode": "edit",
+    "repository_url": "https://github.com/morganjwilliams/pyrolite",
+    "use_repository_button": True,
+    "use_edit_page_button": True,
+    "use_issues_button": True,
+    "use_fullscreen_button": False,
+    "toc_title": "Sections",
+    "show_navbar_depth": 1,
 }
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -141,14 +132,6 @@ html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
-html_sidebars = {
-    "**": [
-        "globaltoc.html",
-        "sourcelink.html",
-        # "relations.html",  # needs 'show_related': True theme option to display
-        "searchbox.html",
-    ]
-}
 html_logo = "./_static/icon_small.png"
 html_context = {
     "display_github": True,  # Integrate GitHub
@@ -158,6 +141,68 @@ html_context = {
     "conf_py_path": "/docs/source/",  # Path in the checkout to the docs root
 }
 
+# sphinx_gallery config
+
+
+# def reset_mpl(gallery_conf, fname):
+#     import matplotlib.style
+
+#     # this should already be exported, so can be used
+#     matplotlib.style.use("pyrolite")
+
+
+sphinx_gallery_conf = {
+    "examples_dirs": [
+        "gallery/examples/",
+        "gallery/tutorials/",
+        "gallery/data/",
+    ],  # path to sources
+    "gallery_dirs": ["examples", "tutorials", "data"],  # output paths
+    "subsection_order": [
+        "gallery/examples/plotting",
+        "gallery/examples/geochem",
+        "gallery/examples/comp",
+        "gallery/examples/util",
+        "gallery/tutorials/",
+        "gallery/data",
+    ],
+    "show_signature": False,
+    "capture_repr": ("_repr_html_", "__repr__", "__str__"),
+    "backreferences_dir": "_backreferences",
+    "doc_module": ("pyrolite"),
+    "filename_pattern": r"\.py",
+    "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
+    "remove_config_comments": True,
+    "download_all_examples": False,
+    "reference_url": {"pyrolite": None},
+    # "image_scrapers": ("altmatplot"),
+    "binder": {
+        # Required keys
+        "org": "morganjwilliams",
+        "repo": "pyrolite",
+        "branch": "develop",  # Can be any branch, tag, or commit hash. Use a branch that hosts your docs.
+        "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
+        "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
+        # Optional keys
+        # "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
+        "notebooks_dir": "docs/source/",
+        "use_jupyter_lab": True,
+    },
+    # "jupyterlite": {"use_jupyter_lab": True},
+    "first_notebook_cell": "%matplotlib inline\n",
+    "nested_sections": False,
+    "pypandoc": True,  # run `pypandoc download`` to make sure it's available
+}
+
+# Remove matplotlib agg warnings from generated doc when using plt.show
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="Matplotlib is currently using agg, which is a"
+    " non-GUI backend, so cannot show the figure.",
+)
+
+# def reset_mpl(gallery_conf, fname):
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -217,10 +262,10 @@ texinfo_documents = [
 # -- intersphinx
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
-    "matplotlib": ("https://matplotlib.org/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
     "pathlib": ("https://pathlib.readthedocs.io/en/pep428/", None),
     "sympy": ("https://docs.sympy.org/latest/", None),
     "sklearn": ("https://scikit-learn.org/stable", None),
@@ -235,81 +280,16 @@ intersphinx_mapping = {
     ),
 }
 
-# sphinx_gallery config
-from sphinx_gallery.sorting import ExplicitOrder
-
-
-def reset_mpl(gallery_conf, fname):
-    import matplotlib.style
-
-    # this should already be exported, so can be used
-    matplotlib.style.use("pyrolite")
-
-
-sphinx_gallery_conf = {
-    "examples_dirs": [
-        "gallery/examples/",
-        "gallery/tutorials/",
-        "gallery/data/",
-    ],  # path to sources
-    "gallery_dirs": ["examples", "tutorials", "data"],  # output paths
-    "subsection_order": ExplicitOrder(
-        [
-            "gallery/examples/plotting",
-            "gallery/examples/geochem",
-            "gallery/examples/comp",
-            "gallery/examples/util",
-            "gallery/tutorials/",
-            "gallery/data",
-        ]
-    ),
-    "show_signature": False,
-    "capture_repr": ("_repr_html_", "__repr__", "__str__"),
-    "backreferences_dir": "_backreferences",
-    "doc_module": ("pyrolite"),
-    "filename_pattern": r"\.py",
-    "default_thumb_file": str(Path("./_static/icon_small.png").resolve()),
-    "remove_config_comments": True,
-    "download_all_examples": False,
-    "reference_url": {"pyrolite": None},
-    "image_scrapers": ("altmatplot"),
-    "binder": {
-        # Required keys
-        "org": "morganjwilliams",
-        "repo": "pyrolite",
-        "branch": "develop",  # Can be any branch, tag, or commit hash. Use a branch that hosts your docs.
-        "binderhub_url": "https://mybinder.org",  # Any URL of a binderhub deployment. Must be full URL (e.g. https://mybinder.org).
-        "dependencies": ["../../binder/environment.yml", "../../binder/postBuild"],
-        # Optional keys
-        # "filepath_prefix": "/docs/notebooks/",  # A prefix to prepend to any filepaths in Binder links.
-        "notebooks_dir": "docs/source/",
-        "use_jupyter_lab": True,
-    },
-    # "jupyterlite": {"use_jupyter_lab": True},
-    "first_notebook_cell": "%matplotlib inline\n",
-    "reset_modules": (reset_mpl),
-    "nested_sections": False,
-}
-# Remove matplotlib agg warnings from generated doc when using plt.show
-warnings.filterwarnings(
-    "ignore",
-    category=UserWarning,
-    message="Matplotlib is currently using agg, which is a"
-    " non-GUI backend, so cannot show the figure.",
-)
-
-from _patch._sphinx_gallery_patch import *  # patch for sphinx_gallery pages
-
 github_doc_root = "https://github.com/morganjwilliams/pyrolite/tree/develop/docs/"
+
 
 # metadata
 # ordered reference composition list
-from pyrolite.geochem.norm import all_reference_compositions
+
 
 refs = all_reference_compositions()
-reservoirs = set(
-    [refs[n].reservoir for n in refs.keys() if refs[n].reservoir is not None]
-)
+
+reservoirs = {refs[n].reservoir for n in refs if refs[n].reservoir is not None}
 comps = []
 for r in reservoirs:
     comps += [n for n in refs if refs[n].reservoir == r]
@@ -329,9 +309,7 @@ refcomps = (
                     )
                     + (
                         [
-                            "<br><b>doi</b>: <a href='https://dx.doi.org/{}'>{}</a>".format(
-                                refs[n].doi, refs[n].doi
-                            )
+                            f"<br><b>doi</b>: <a href='https://dx.doi.org/{refs[n].doi}'>{refs[n].doi}</a>"
                         ]
                         if refs[n].doi
                         else []
@@ -343,14 +321,14 @@ refcomps = (
     )
     + "</dl>"
 )
-rst_prolog = """
+rst_prolog = f"""
 .. |br| raw:: html
 
    <br />
 
 .. |year| raw:: html
 
-    {year}
+    {date.today().year!s}
 
 .. |version| raw:: html
 
@@ -358,7 +336,7 @@ rst_prolog = """
 
 .. |refcomps| raw:: html
 
-    {rc}
+    {refcomps}
 
 .. |doibadages| raw:: html
 
@@ -370,7 +348,7 @@ rst_prolog = """
     <img src="https://zenodo.org/badge/137172322.svg" alt="Archive">
     </a>
 
-""".format(rc=refcomps, year=str(date.today().year), version=version)
+"""
 
 rst_prolog += """
 
@@ -424,22 +402,15 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     """
     Role for matplotlib's rcparams, which are referred to in the documentation via links.
     """
-    rendered = nodes.Text('rcParams["{}"]'.format(text))
+    rendered = nodes.Text(f'rcParams["{text}"]')
     refuri = "https://matplotlib.org/api/matplotlib_configuration_api.html#matplotlib.rcParams"
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
     return [nodes.literal("", "", ref)], []
 
 
 def setup(app):
-    app.add_role("rc", rcparam_role)
-    app.add_config_value(
-        "recommonmark_config",
-        {
-            "url_resolver": lambda url: github_doc_root + url,
-            "auto_toc_tree_section": "Contents",
-        },
-        True,
-    )
-    app.add_transform(AutoStructify)
+    import shutil
+    from pathlib import Path
 
-    return {"parallel_read_safe": True, "parallel_write_safe": True}
+    if Path(app.doctreedir).exists():
+        shutil.rmtree(app.doctreedir)

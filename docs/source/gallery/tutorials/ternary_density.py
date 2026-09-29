@@ -17,7 +17,7 @@ potential issues of the methods mentioned above.
 #
 import numpy as np
 import pandas as pd
-from mpltern.ternary.datasets import get_scatter_points
+from mpltern.datasets import get_scatter_points
 
 np.random.seed(43)
 df = pd.DataFrame(np.array([*get_scatter_points(n=80)]).T, columns=["A", "B", "C"])
@@ -49,7 +49,6 @@ coords, H, data = ternary_heatmap(
 #
 import matplotlib.pyplot as plt
 
-import pyrolite.plot
 from pyrolite.util.math import flattengrid
 from pyrolite.util.plot.axes import axes_to_ternary, share_axes
 

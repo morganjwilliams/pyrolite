@@ -23,17 +23,17 @@ class TestDBLists(unittest.TestCase):
 
     def test_list_minerals(self):
         out = list_minerals()
-        self.assertIsInstance(out, list)
+        self.assertIsInstance(out, (list, pd.arrays.StringArray))
         self.assertIn("forsterite", out)
 
     def test_list_groups(self):
         out = list_groups()
-        self.assertIsInstance(out, list)
+        self.assertIsInstance(out, (list, pd.arrays.StringArray))
         self.assertIn("olivine", out)
 
     def test_list_formulae(self):
         out = list_formulae()
-        self.assertIsInstance(out, list)
+        self.assertIsInstance(out, (list, pd.arrays.StringArray))
         self.assertIn("Mg2SiO4", out)
 
 

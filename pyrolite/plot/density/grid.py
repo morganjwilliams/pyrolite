@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import numpy as np
 
 from ...util.distributions import sample_kde
@@ -8,27 +10,34 @@ from ...util.plot.grid import bin_centres_to_edges
 logger = Handle(__name__)
 
 
-class DensityGrid(object):
+class DensityGrid:
     def __init__(
-        self, x, y, extent=None, bins=50, logx=False, logy=False, coverage_scale=1.2
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        extent: tuple[float] | None = None,
+        bins: int = 50,
+        logx: bool = False,
+        logy: bool = False,
+        coverage_scale: float = 1.2,
     ):
         """
         Build a grid of x-y coordinates for use in evaluating KDE functions.
 
         Parameters
         -----------
-        x : :class:`np.ndarray`
-        y : :class:`np.ndarray`
-        extent : :class:`list`
+        x : numpy.ndarray
+        y : numpy.ndarray
+        extent : list
             Optionally-specified extent for the grid in the form (xmin, xmax, ymin, ymax).
-        bins : :class:`int` | :class:`tuple`
+        bins : int | tuple
             Number of bins for the grid. Can optionally specify
             a tuple with (xbins, ybins).
-        logx : :class:`bool`
+        logx : bool
             Whether to use a log-spaced index for the x dimension of the grid.
-        logy: :class:`bool`
+        logy: bool
             Whether to use a log-spaced index for the y dimension of the grid.
-        coverage_scale : :class:`float`
+        coverage_scale : float
             Multiplier for the range of the grid relative to the data. If >1, the grid
             will extend beyond the data.
         """
@@ -72,21 +81,23 @@ class DensityGrid(object):
         self.get_centre_grid()
         self.get_edge_grid()
 
-    def get_ystep(self):
+    def get_ystep(self) -> float:
         if self.logy:
             step = (self.ymax / self.ymin) / self.ybins
         else:
             step = (self.ymax - self.ymin) / self.ybins
         return step
 
-    def get_xstep(self):
+    def get_xstep(self) -> float:
         if self.logx:
             step = (self.xmax / self.xmin) / self.xbins
         else:
             step = (self.xmax - self.xmin) / self.xbins
         return step
 
-    def extent_from_xy(self, x, y, coverage_scale=None):
+    def extent_from_xy(
+        self, x: np.ndarray, y: np.ndarray, coverage_scale: float | None = None
+    ) -> list[tuple[float, float]]:
         cov = coverage_scale or self.coverage_scale
         expand_grid = (cov - 1.0) / 2
         return [
@@ -94,16 +105,16 @@ class DensityGrid(object):
             *[linrng_, logrng_][self.logy](y, exp=expand_grid),
         ]
 
-    def get_xrange(self):
+    def get_xrange(self) -> tuple[float, float]:
         return self.xmin, self.xmax
 
-    def get_yrange(self):
+    def get_yrange(self) -> tuple[float, float]:
         return self.ymin, self.ymax
 
-    def get_extent(self):
-        return [*self.get_xrange(), *self.get_yrange()]
+    def get_extent(self) -> tuple[float, float, float, float]:
+        return (*self.get_xrange(), *self.get_yrange())
 
-    def get_range(self):
+    def get_range(self) -> list[list[float]]:
         return [[*self.get_xrange()], [*self.get_yrange()]]
 
     def update_grid_centre_ticks(self):
@@ -137,7 +148,7 @@ class DensityGrid(object):
         self.update_grid_edge_ticks()
         self.grid_xei, self.grid_yei = np.meshgrid(self.grid_xe, self.grid_ye)
 
-    def get_hex_extent(self):
+    def get_hex_extent(self) -> list[float]:
         if self.logx:
             xex = [np.log(self.xmin / self.xstep), np.log(self.xmax * self.xstep)]
         else:
@@ -147,15 +158,15 @@ class DensityGrid(object):
             yex = [np.log(self.ymin / self.ystep), np.log(self.ymax * self.ystep)]
         else:
             yex = [self.ymin - self.ystep, self.ymax + self.ystep]
-        return sorted(list(xex)) + sorted(list(yex))
+        return sorted(xex) + sorted(yex)
 
     def kdefrom(
         self,
-        xy,
-        xtransform=lambda x: x,
-        ytransform=lambda x: x,
-        mode="centres",
-        bw_method=None,
+        xy: np.ndarray,
+        xtransform: Callable = lambda x: x,
+        ytransform: Callable = lambda x: x,
+        mode: str = "centres",
+        bw_method: str | float | Callable | None = None,
     ):
         """
         Take an x-y array and sample a KDE on the grid.

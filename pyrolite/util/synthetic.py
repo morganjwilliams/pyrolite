@@ -10,32 +10,36 @@ from ..geochem.ind import REE, get_ionic_radii
 from ..geochem.norm import get_reference_composition
 from ..util.lambdas.eval import get_function_components
 from .log import Handle
-from .meta import get_additional_params
 
 logger = Handle(__name__)
 
 
-def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
+def random_cov_matrix(
+    dim: int,
+    sigmas: list[float] | np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    validate: bool = False,
+    seed: int | None = None,
+) -> np.ndarray[tuple[int, int]]:
     """
     Generate a random covariance matrix which is symmetric positive-semidefinite.
 
     Parameters
     -----------
-    dim : :class:`int`
+    dim : int
         Dimensionality of the covariance matrix.
-    sigmas : :class:`numpy.ndarray`
-        Optionally specified sigmas for the variables.
-    validate : :class:`bool`
+    sigmas : numpy.ndarray
+        Optionally specified sigmas for the variables, 1D.
+    validate : bool
         Whether to validate output.
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        Covariance matrix of shape :code:`(dim, dim)`.
+    numpy.ndarray
+        Covariance matrix of shape `(dim, dim)`.
 
     Todo
     -----
-        * Implement a characteristic scale for the covariance matrix.
+    * Implement a characteristic scale for the covariance matrix.
     """
     if seed is not None:
         np.random.seed(seed)
@@ -44,11 +48,9 @@ def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
     corr[np.tril_indices(dim)] = corr.T[np.tril_indices(dim)]  # lower=upper
     corr[np.arange(dim), np.arange(dim)] = 1.0
 
-    if sigmas is None:
-        sigmas = np.ones(dim).reshape(1, dim)
-    else:
-        sigmas = np.array(sigmas)
-        sigmas = sigmas.reshape(1, dim)
+    sigmas: np.ndarray[tuple[int, int], np.dtype[np.floating]] = (
+        np.ones(dim, dtype=np.float32) if sigmas is None else np.array(sigmas)
+    ).reshape(1, dim)
 
     cov = sigmas.T @ sigmas  # multiply by ~ variance
     cov *= corr
@@ -67,62 +69,62 @@ def random_cov_matrix(dim, sigmas=None, validate=False, seed=None):
 
 
 def random_composition(
-    size=1000,
-    D=4,
-    mean=None,
-    cov=None,
-    propnan=0.1,
-    missing_columns=None,
-    missing=None,
-    seed=None,
-):
+    size: int = 1000,
+    D: int = 4,
+    mean: list | np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    cov: np.ndarray[tuple[int, int], np.dtype[np.floating]] | None = None,
+    propnan: float = 0.1,
+    missing_columns: int | tuple | None = None,
+    missing: str | None = None,
+    seed: int | None = None,
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Generate a simulated random unimodal compositional dataset,
     optionally with missing data.
 
     Parameters
     -----------
-    size : :class:`int`
+    size : int
         Size of the dataset.
-    D : :class:`int`
+    D : int
         Dimensionality of the dataset.
-    mean : :class:`numpy.ndarray`, :code:`None`
+    mean : numpy.ndarray
         Optional specification of mean composition.
-    cov : :class:`numpy.ndarray`, :code:`None`
+    cov : numpy.ndarray
         Optional specification of covariance matrix (in log space).
-    propnan : :class:`float`, [0, 1)
+    propnan : float
         Proportion of missing values in the output dataset.
-    missing_columns : :class:`int` | :class:`tuple`
+    missing_columns : int | tuple
         Specification of columns to be missing. If an integer is specified,
         interpreted to be the number of columns containin missing data (at a proportion
         defined by `propnan`). If a tuple or list, the specific columns to contain
         missing data.
-    missing : :class:`str`, :code:`None`
+    missing : str
         Missingness pattern.
-        If not :code:`None`, one of :code:`"MCAR", "MAR", "MNAR"`.
+        If not `None`, one of `"MCAR", "MAR", "MNAR"`.
 
-            * If :code:`missing = "MCAR"`, data will be missing at random.
-            * If :code:`missing = "MAR"`, data will be missing with some relationship to other parameters.
-            * If :code:`missing = "MNAR"`, data will be thresholded at some lower bound.
+        * If `missing = "MCAR"`, data will be missing at random.
+        * If `missing = "MAR"`, data will be missing with some relationship to other parameters.
+        * If `missing = "MNAR"`, data will be thresholded at some lower bound.
 
-    seed : :class:`int`, :code:`None`
+    seed : int
         Random seed to use, optionally specified.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Simulated dataset with missing values.
 
     Todo
     ------
-        * Add feature to translate rough covariance in D to logcovariance in D-1
-        * Update the `:code:`missing = "MAR"`` example to be more realistic/variable.
+    * Add feature to translate rough covariance in D to logcovariance in D-1
+    * Update the ``missing = "MAR"`` example to be more realistic/variable.
     """
     data = None
     # dimensions
     if mean is None and cov is None:
         pass
-    elif mean is None:
+    elif mean is None and cov is not None:
         D = cov.shape[0] + 1
     elif cov is None:
         mean = np.array(mean)
@@ -212,60 +214,75 @@ def random_composition(
                 data[:, nancols],
             )
         else:
-            msg = "Provide a value for missing in {}".format(
-                set(["MCAR", "MAR", "MNAR"])
-            )
+            msg = "Provide a value for missing in {}".format({"MCAR", "MAR", "MNAR"})
             raise NotImplementedError(msg)
 
     return data
 
 
 def normal_frame(
-    columns=["SiO2", "CaO", "MgO", "FeO", "TiO2"], size=10, mean=None, **kwargs
-):
+    columns: list | None = None,
+    size: int = 10,
+    mean: list | np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    **kwargs,
+) -> pd.DataFrame:
     r"""
-    Creates a :class:`pandas.DataFrame` with samples from a single multivariate-normal
+    Creates a pandas.DataFrame with samples from a single multivariate-normal
     distributed composition.
 
     Parameters
     ----------
-    columns : :class:`list`
+    columns : list
         List of columns to use for the dataframe. These won't have any direct impact
         on the data returned, and are only for labelling.
-    size : :class:`int`
+    size : int
         Index length for the dataframe.
-    mean : :class:`numpy.ndarray`, :code:`None`
+    mean : numpy.ndarray | list
         Optional specification of mean composition.
-    {otherparams}
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
+
+    Notes
+    -----
+    See also: :func:`~pyrolite.util.synthetic.random_composition`.
     """
+    if columns is None:
+        columns = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
     return pd.DataFrame(
         columns=columns,
         data=random_composition(size=size, D=len(columns), mean=mean, **kwargs),
     )
 
 
-def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwargs):
+def normal_series(
+    index: list | pd.Index | None = None,
+    mean: list | np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    **kwargs,
+) -> pd.Series:
     """
-    Creates a :class:`pandas.Series` with a single sample from a single multivariate-normal
+    Creates a pandas.Series with a single sample from a single multivariate-normal
     distributed composition.
 
     Parameters
     ------------
-    index : :class:`list`
+    index : list
         List of indexes for the series. These won't have any direct impact
         on the data returned, and are only for labelling.
-    mean : :class:`numpy.ndarray`, :code:`None`
+    mean : numpy.ndarray, `None`
         Optional specification of mean composition.
-    {otherparams}
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
+
+    Notes
+    ------
+    See also: :func:`~pyrolite.util.synthetic.random_composition`.
     """
+    if index is None:
+        index = ["SiO2", "CaO", "MgO", "FeO", "TiO2"]
     return pd.Series(
         random_composition(size=1, D=len(index), mean=mean, **kwargs).flatten(),
         index=index,
@@ -273,13 +290,13 @@ def normal_series(index=["SiO2", "CaO", "MgO", "FeO", "TiO2"], mean=None, **kwar
 
 
 def example_spider_data(
-    start="EMORB_SM89",
-    norm_to="PM_PON",
-    size=120,
-    noise_level=0.5,
-    offsets=None,
-    units="ppm",
-):
+    start: str = "EMORB_SM89",
+    norm_to: str | None = "PM_PON",
+    size: int = 120,
+    noise_level: float = 0.5,
+    offsets: dict[str, float] | None = None,
+    units: str = "ppm",
+) -> pd.DataFrame:
     """
     Generate some random data for demonstrating spider plots.
 
@@ -288,39 +305,44 @@ def example_spider_data(
 
     Parameters
     -----------
-    start : :class:`str`
+    start : str
         Composition to start with.
-    norm_to : :class:`str`
-        Composition to normalise to. Can optionally specify :code:`None`.
-    size : :class:`int`
+    norm_to : str
+        Composition to normalise to. Can optionally specify `None`.
+    size : int
         Number of observations to include (index length).
-    noise_level : :class:`float`
+    noise_level : float
         Log-units of noise (1sigma).
-    offsets : :class:`dict`
+    offsets : dict
         Dictionary of offsets in log-units (in log units).
-    units : :class:`str`
+    units : str
         Units to use before conversion. Should have no effect other than reducing
-        calculation times if `norm_to` is :code:`None`.
+        calculation times if `norm_to` is `None`.
 
     Returns
     --------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe of example synthetic data.
     """
 
-    ref = get_reference_composition(start)
+    ref: pd.Series = get_reference_composition(start)
     ref.set_units(units)
-    df = ref.comp.pyrochem.compositional
+    df: pd.Series | pd.DataFrame = ref.comp.pyrochem.compositional
     if norm_to is not None:
         df = df.pyrochem.normalize_to(norm_to, units=units)
-    start = np.log(df)
-    nindex = df.columns.size
+    start: pd.Series | pd.DataFrame = np.log(df)
+    nindex = df.columns.size if isinstance(df, pd.DataFrame) else df.index.size
 
-    y = np.tile(start.values, size).reshape(size, nindex)
+    y: np.ndarray[tuple[int, int], np.dtype] = np.tile(start.values, size).reshape(
+        size, nindex
+    )
+
     y += np.random.normal(0, noise_level / 2.0, size=(size, nindex))  # noise
     y += np.random.normal(0, noise_level, size=(1, size)).T  # random pattern offset
 
-    syn_df = pd.DataFrame(y, columns=df.columns)
+    syn_df = pd.DataFrame(
+        y, columns=df.columns if isinstance(df, pd.DataFrame) else df.index
+    )
     if offsets is not None:
         for element, offset in offsets.items():
             syn_df[element] += offset  # significant offset for e.g. Eu anomaly
@@ -329,13 +351,13 @@ def example_spider_data(
 
 
 def example_patterns_from_parameters(
-    fit_parameters,
-    radii=None,
-    n=100,
-    proportional_noise=0.15,
-    includes_tetrads=False,
-    columns=None,
-):
+    fit_parameters: np.ndarray,
+    radii: np.ndarray | None = None,
+    n: int = 100,
+    proportional_noise: float = 0.15,
+    includes_tetrads: bool = False,
+    columns: list[str] | None = None,
+) -> pd.DataFrame:
     """ """
     fit_parameters = np.tile(fit_parameters, n).reshape(n, -1)
     if radii is None:
@@ -349,31 +371,10 @@ def example_patterns_from_parameters(
     sz = len(radii)
     cov = np.zeros((sz, sz))
     for offset in np.arange(-sz + 1, sz):
-        vals = np.ones(sz - np.abs(offset)) * np.abs((sz - np.abs(offset))) / sz
+        vals = np.ones(sz - np.abs(offset)) * np.abs(sz - np.abs(offset)) / sz
         cov += np.diag(vals**2, offset)
     noise = 1 + proportional_noise * np.random.multivariate_normal(
         np.zeros(sz), cov, size=pattern_df.shape[0]
     )
     pattern_df *= noise
     return pattern_df
-
-
-_add_additional_parameters = True
-
-normal_frame.__doc__ = normal_frame.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            random_composition, header="Other Parameters", indent=8, subsections=True
-        ),
-    ][_add_additional_parameters]
-)
-
-normal_series.__doc__ = normal_series.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            random_composition, header="Other Parameters", indent=8, subsections=True
-        ),
-    ][_add_additional_parameters]
-)

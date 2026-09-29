@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import pyrolite.comp
 from pyrolite.comp.codata import ILR, close, inverse_ILR
-from pyrolite.plot import pyroplot
 from pyrolite.util.synthetic import random_cov_matrix
 
 # sphinx_gallery_thumbnail_number = 3

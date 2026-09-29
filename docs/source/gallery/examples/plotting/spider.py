@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 # sphinx_gallery_thumbnail_number = 4
-
 ########################################################################################
 # Here we'll set up an example which uses EMORB as a starting point. Typically we'll
 # normalise trace element compositions to a reference composition
@@ -30,7 +29,6 @@ normdf = example_spider_data(start="EMORB_SM89", norm_to="PM_PON")
 ########################################################################################
 # Basic spider plots are straightforward to produce:
 #
-import pyrolite.plot
 
 ax = normdf.pyroplot.spider(color="0.5", alpha=0.5, unity_line=True, figsize=(10, 4))
 ax.set_ylabel("X / $X_{Primitive Mantle}$")
@@ -58,7 +56,6 @@ plt.show()
 ########################################################################################
 # Similarly, you can also rearrange elements to be in order of atomic number:
 #
-from pyrolite.geochem.ind import by_number
 
 ax = normdf.pyroplot.spider(
     color="k",
@@ -249,7 +246,7 @@ fig, ax = plt.subplots(
 [a.set_ylabel("X / $X_{Primitive Mantle}$") for a in ax]
 for a, (m, name, args, kwargs) in zip(ax, modes):
     a.annotate(  # label the axes rows
-        "Mode: {}".format(name),
+        f"Mode: {name}",
         xy=(0.1, 1.05),
         xycoords=a.transAxes,
         fontsize=8,

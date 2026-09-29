@@ -4,10 +4,9 @@ import unittest
 import matplotlib.axes
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from numpy.random import multivariate_normal
 
-from pyrolite.comp.codata import ALR, ILR, close, inverse_ALR, inverse_ILR
+from pyrolite.comp.codata import ALR, ILR, inverse_ALR, inverse_ILR
 from pyrolite.plot.density import density
 from pyrolite.plot.density.ternary import ternary_heatmap
 from pyrolite.util.skl.transform import ALRTransform, ILRTransform
@@ -54,7 +53,7 @@ class TestDensityplot(unittest.TestCase):
                 self.assertTrue(isinstance(out, matplotlib.axes.Axes))
                 plt.close("all")
 
-    def test_modes(self):  #
+    def test_modes(self):
         """Tests different ploting modes."""
         for arr in [self.biarr, self.triarr]:
             with self.subTest(arr=arr):
@@ -67,7 +66,7 @@ class TestDensityplot(unittest.TestCase):
                         except NotImplementedError:  # some are not implemented for 3D
                             pass
 
-    def test_bivariate_logscale(self):  #
+    def test_bivariate_logscale(self):
         """Tests logscale for different ploting modes using bivariate data."""
         arr = self.biarr
         with np.errstate(invalid="ignore"):  # ignore for tests

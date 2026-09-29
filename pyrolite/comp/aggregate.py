@@ -1,3 +1,4 @@
+from numpy.f2py.crackfortran import n
 import warnings
 
 import numpy as np
@@ -9,19 +10,19 @@ from .codata import ALR, inverse_ALR
 logger = Handle(__name__)
 
 
-def get_full_column(X: np.ndarray):
+def get_full_column(X: np.ndarray) -> int:
     """
     Returns the index of the first array column which contains only finite
     numbers (i.e. no missing data, nan, inf).
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array for which to find the first full column within.
 
     Returns
     --------
-    :class:`int`
+    int
         Index of the first full column.
     """
     if len(X.shape) == 1:
@@ -32,40 +33,43 @@ def get_full_column(X: np.ndarray):
     return ind
 
 
-def weights_from_array(X: np.ndarray):
+def weights_from_array(X: np.ndarray) -> np.ndarray[tuple[int], np.dtype[np.float32]]:
     """
     Returns a set of equal weights with size equal to that of the first axis of
     an array.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array of compositions to produce weights for.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Array of weights.
     """
-    wts = np.ones((X.shape[0]))
+    wts = np.ones(X.shape[0], dtype=np.float32)
     return wts / np.sum(wts)
 
 
-def nan_weighted_mean(X: np.ndarray, weights=None):
+def nan_weighted_mean(
+    X: np.ndarray[tuple[int, int], np.dtype[np.number]],
+    weights: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+) -> np.ndarray[tuple[int, int]]:
     """
     Returns a weighted mean of compositions, where weights are renormalised
     to account for missing data.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array of compositions to take a weighted mean of.
-    weights : :class:`numpy.ndarray`
+    weights : numpy.ndarray
         Array of weights.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Array mean.
     """
     if weights is None:
@@ -79,22 +83,28 @@ def nan_weighted_mean(X: np.ndarray, weights=None):
         return np.ma.average(np.ma.array(X, mask=mask), weights=weights, axis=0)
 
 
-def compositional_mean(df, weights=[], **kwargs):
+def compositional_mean(
+    df: pd.DataFrame,
+    weights: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    **kwargs,
+) -> pd.Series:
     """
     Implements an aggregation using a compositional weighted mean.
 
     Parameters
     ---------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe of compositions to aggregate.
-    weights : :class:`numpy.ndarray`
+    weights : numpy.ndarray
         Array of weights.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
         Mean values along index of dataframe.
     """
+    if weights is None:
+        weights = []
     non_nan_cols = df.dropna(axis=1, how="all").columns
     assert not df.loc[:, non_nan_cols].isna().values.any()
     mean = df.iloc[0, :].copy()
@@ -109,8 +119,12 @@ def compositional_mean(df, weights=[], **kwargs):
 
 
 def nan_weighted_compositional_mean(
-    X: np.ndarray, weights=None, ind=None, renorm=True, **kwargs
-):
+    X: np.ndarray[tuple[int] | tuple[int, int], np.dtype[np.number]],
+    weights: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    ind: int | None = None,
+    renorm: bool = True,
+    **kwargs,
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]:
     """
     Implements an aggregation using a weighted mean, but accounts
     for nans. Requires at least one non-nan column for ALR mean.
@@ -122,18 +136,18 @@ def nan_weighted_compositional_mean(
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array of compositions to aggregate.
-    weights : :class:`numpy.ndarray`
+    weights : numpy.ndarray
         Array of weights.
-    ind : :class:`int`
+    ind : int
         Index of the column to use as the ALR divisor.
-    renorm : :class:`bool`, :code:`True`
+    renorm : bool
         Whether to renormalise the output compositional mean to unity.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         An array with the mean composition.
     """
     if X.ndim == 1:  # if it's a single row
@@ -170,7 +184,9 @@ def nan_weighted_compositional_mean(
         return mean
 
 
-def cross_ratios(df: pd.DataFrame):
+def cross_ratios(
+    df: pd.DataFrame,
+) -> np.ndarray[tuple[int, int, int], np.dtype[np.floating]]:
     """
     Takes ratios of values across a dataframe, such that columns are
     denominators and the row indexes the numerators, to create a square array.
@@ -178,12 +194,12 @@ def cross_ratios(df: pd.DataFrame):
 
     Parameters
     ---------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe of compositions to create ratios of.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         A 3D array of ratios.
     """
     ratios = np.ones((len(df.index), len(df.columns), len(df.columns)))
@@ -194,7 +210,9 @@ def cross_ratios(df: pd.DataFrame):
     return ratios
 
 
-def np_cross_ratios(X: np.ndarray, debug=False):
+def np_cross_ratios(
+    X: np.ndarray, debug: bool = False
+) -> np.ndarray[tuple[int, int, int], np.dtype[np.floating]]:
     """
     Takes ratios of values across an array, such that columns are
     denominators and the row indexes the numerators, to create a square array.
@@ -202,12 +220,12 @@ def np_cross_ratios(X: np.ndarray, debug=False):
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array of compositions to create ratios of.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         A 3D array of ratios.
     """
     X = X.copy()
@@ -241,8 +259,12 @@ def np_cross_ratios(X: np.ndarray, debug=False):
 
 
 def standardise_aggregate(
-    df: pd.DataFrame, int_std=None, fixed_record_idx=0, renorm=True, **kwargs
-):
+    df: pd.DataFrame,
+    int_std: str | None = None,
+    fixed_record_idx: int = 0,
+    renorm: bool = True,
+    **kwargs,
+) -> pd.Series:
     """
     Performs internal standardisation and aggregates dissimilar geochemical
     records. Note: this changes the closure parameter, and is generally
@@ -250,23 +272,23 @@ def standardise_aggregate(
 
     Parameters
     ---------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe of compositions to aggregate of.
-    int_std : :class:`str`
+    int_std : str
         Name of the internal standard column.
-    fixed_record_idx : :class:`int`
+    fixed_record_idx : int
         Numeric index of a specific record's for which to retain the internal
         standard value (e.g for standardising trace element data).
-    renorm : :class:`bool`, :code:`True`
+    renorm : bool
         Whether to renormalise to unity.
 
     Returns
     -------
-    :class:`pandas.Series`
+    pandas.Series
         A series representing the internally standardised record.
     """
     if df.index.size == 1:  # catch single records
-        return df
+        return df.iloc[0]
     else:
         if int_std is None:
             # Get the 'internal standard column'

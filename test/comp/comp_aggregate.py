@@ -59,7 +59,6 @@ class TestCompositionalMean(unittest.TestCase):
 
     def test_mean(self):
         """Checks whether the mean is accurate."""
-        pass
 
 
 class TestWeightsFromArray(unittest.TestCase):
@@ -204,7 +203,6 @@ class TestNANWeightedCompositionalMean(unittest.TestCase):
 
     def test_mean(self):
         """Checks whether the mean is accurate."""
-        pass
 
 
 class TestCrossRatios(unittest.TestCase):

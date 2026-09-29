@@ -29,7 +29,6 @@ df.describe()
 # :mod:`pyrolite.comp`. Note that the transformations will return *new* dataframes,
 # rather than modify their inputs. For example:
 #
-import pyrolite.comp
 
 lr_df = df.pyrocomp.CLR()  # using a centred log-ratio transformation
 ########################################################################################

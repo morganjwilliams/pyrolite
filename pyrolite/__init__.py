@@ -2,38 +2,40 @@
 pyrolite: A set of tools for getting the most from your geochemical data.
 """
 
-from ._version import __version__
-
-
 import importlib
 import pkgutil
 
 import matplotlib.style
 
+from ._version import __version__
+
 # initialise pandas accessors
-from .comp import pyrocomp  # noqa: E402
-from .geochem import pyrochem  # noqa: E402
-from .plot import pyroplot  # noqa: E402
+from .comp import pyrocomp  # noqa: F401
+from .geochem import pyrochem  # noqa: F401
+from .plot import pyroplot  # noqa: F401
 from .util.log import Handle
-from .util.plot.style import _export_mplstyle  # this import adds the style used below
 
 logger = Handle(__name__)
 
+__all__ = ["Handle", "__version__", "load_extensions"]
 
-def load_extensions(base="pyrolite_", replace=["util"]):
+
+def load_extensions(base: str = "pyrolite_", replace: list[str] | None = None):
     """
     Automatically load any extensions associated with pyrolite
     to be importable from :mod:`pyrolite.extensions`.
 
     Parameters
     ----------
-    base : :class:`str`
+    base : str
         Module base string pattern for recognising extensions.
-    replace : :class:`list`
+    replace : list
         List of strings to replace from extension modules to shorten call signatures.
     """
     from . import extensions
 
+    if replace is None:
+        replace = ["util"]
     modules = {
         name.replace(base, ""): importlib.import_module(name)
         for finder, name, ispkg in pkgutil.iter_modules()

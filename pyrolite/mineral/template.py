@@ -13,7 +13,7 @@ from .transform import recalc_cations
 logger = Handle(__name__)
 
 
-class MineralTemplate(object):
+class MineralTemplate:
     def __init__(self, name, *components):
         """
         Generic mineral stucture template. Formatted collection of crystallographic sites.
@@ -59,13 +59,11 @@ class MineralTemplate(object):
     def __repr__(self):
         if self.structure != {}:
             component_string = ", ".join(
-                ["{}".format(c.__repr__()) for c in list(self.structure)]
+                [f"{c.__repr__()}" for c in list(self.structure)]
             )
-            return """{}("{}", {})""".format(
-                self.__class__.__name__, self.name, component_string
-            )
+            return f"""{self.__class__.__name__}("{self.name}", {component_string})"""
         else:
-            return """{}("{}")""".format(self.__class__.__name__, self.name)
+            return f"""{self.__class__.__name__}("{self.name}")"""
 
     def __str__(self):
         if self.structure != {}:
@@ -74,20 +72,20 @@ class MineralTemplate(object):
             for site in list(structure):
                 n, c = site.name, structure[site]
                 if c > 1:
-                    c_str = "[{}]$_{}$".format(n, c)
+                    c_str = f"[{n}]$_{c}$"
                 else:
-                    c_str = "[{}]".format(n)
+                    c_str = f"[{n}]"
                 c_list.append(c_str)
             component_string = "".join(c_list)
-            return """`{}` {}""".format(self.name, component_string)
+            return f"""`{self.name}` {component_string}"""
         else:
-            return """`{}`""".format(self.name)
+            return f"""`{self.name}`"""
 
     def __hash__(self):
         return hash(self.__repr__().encode("UTF-8"))
 
 
-class Mineral(object):
+class Mineral:
     def __init__(self, name=None, template=None, composition=None, endmembers=None):
         """Mineral, with structure and composition."""
         self.name = name
@@ -142,7 +140,7 @@ class Mineral(object):
         else:
             template = MineralTemplate("")
         if template is not None:
-            logger.debug("Setting Template: {}".format(template))
+            logger.debug(f"Setting Template: {template}")
         else:
             logger.debug("Clearing Template")
         self.template = template
@@ -164,9 +162,7 @@ class Mineral(object):
         composition = parse_composition(composition)
         if composition is not None:
             logger.debug(
-                "Setting Composition: {}".format(
-                    {k: np.round(v, 4) for k, v in composition.to_dict().items()}
-                )
+                f"Setting Composition: {({k: np.round(v, 4) for k, v in composition.to_dict().items()})}"
             )
         else:
             logger.debug("Clearing Composition")
@@ -179,7 +175,7 @@ class Mineral(object):
         composition=None,
         ideal_cations=None,
         ideal_oxygens=None,
-        Fe_species=["FeO", "Fe", "Fe2O3"],
+        Fe_species=None,
         oxygen_constrained=False,
     ):
         """
@@ -203,6 +199,8 @@ class Mineral(object):
         oxygen_constrained : bool, False
             Whether the oxygen is a closed or open system for the specific composition.
         """
+        if Fe_species is None:
+            Fe_species = ["FeO", "Fe", "Fe2O3"]
         composition = composition or self.composition
 
         if composition is not None:
@@ -255,7 +253,7 @@ class Mineral(object):
             [c.composition for em, c in potential_components], axis=1, sort=False
         ).fillna(0)
         compositions.columns = [em for em, c in potential_components]
-        weights = np.ones((compositions.columns.size))
+        weights = np.ones(compositions.columns.size)
         weights /= weights.sum()
 
         x = compositions.values.T
@@ -272,7 +270,7 @@ class Mineral(object):
         )
         abundances, cost = res.x, res.cost
         if cost > det_lim:
-            logger.warn("Residuals are higher than detection limits.")
+            logger.warning("Residuals are higher than detection limits.")
 
         # convert abundances to molecular
         abundances = pd.Series(
@@ -290,7 +288,7 @@ class Mineral(object):
         return self.endmember_decomposition
 
     def calculate_occupancy(
-        self, composition=None, error=10e-6, balances=[["Fe{2+}", "Mg{2+}"]]
+        self, composition=None, error=10e-6, balances=None
     ):
         """
         Calculate the estimated site occupancy for a given composition.
@@ -309,6 +307,8 @@ class Mineral(object):
             and that ions are only balanced between sites which have defined affinities
             for all of the particular ions defined in the 'balance'.
         """
+        if balances is None:
+            balances = [["Fe{2+}", "Mg{2+}"]]
         if self.template is not None:
             if composition is None:
                 self.recalculate_cations()
@@ -317,7 +317,7 @@ class Mineral(object):
                 composition = parse_composition(composition)
 
             if composition is None:
-                logger.warn("Composition not set. Cannot calculate occupancy.")
+                logger.warning("Composition not set. Cannot calculate occupancy.")
 
             affinities = pd.DataFrame(
                 [site.affinities for site in self.template.structure]
@@ -331,7 +331,7 @@ class Mineral(object):
             ].index.values
 
             if len(unknown_site_ions):
-                logger.warn("Unknown site for: {}".format(unknown_site_ions))
+                logger.warning(f"Unknown site for: {unknown_site_ions}")
 
             occupancy.loc[:, :] = 0.0
 
@@ -348,9 +348,9 @@ class Mineral(object):
                     if i in inventory.index
                 ]
                 capacity = float(self.template.structure[site])
-                site_balances = [b for b in balances if all([i in accepts for i in b])]
+                site_balances = [b for b in balances if all(i in accepts for i in b)]
                 direct_assign = [
-                    i for i in accepts if not any([i in b for b in site_balances])
+                    i for i in accepts if not any(i in b for b in site_balances)
                 ]
 
                 for ion in direct_assign:
@@ -359,18 +359,14 @@ class Mineral(object):
                         assigning = np.nanmin([capacity - current, inventory[ion]])
                         if not assigning + current - (capacity + error) > 0.0:
                             logger.debug(
-                                "Assigning {:.3f} {} to Site {}".format(
-                                    assigning, ion, site
-                                )
+                                f"Assigning {assigning:.3f} {ion} to Site {site}"
                             )
                             occupancy.loc[ion, site] += assigning
                             site.occupancy[ion] += occupancy.loc[ion, site]
                             inventory[ion] -= assigning
                         else:
-                            logger.warn(
-                                "{} capacity encountered: {} / {}".format(
-                                    site, assigning + current, capacity
-                                )
+                            logger.warning(
+                                f"{site} capacity encountered: {assigning + current} / {capacity}"
                             )
 
                 for group in site_balances:
@@ -381,26 +377,22 @@ class Mineral(object):
                         assigning = np.nanmin([capacity - current, invent])
                         if not assigning + current - (capacity + error) > 0.0:
                             logger.debug(
-                                "Assigning {:.3f} {} to Site {}".format(
-                                    assigning, ion, site
-                                )
+                                f"Assigning {assigning:.3f} {ion} to Site {site}"
                             )
                             assigning *= fractions
                             occupancy.loc[group, site] += assigning
                             site.occupancy[group] += occupancy.loc[group, site]
                             inventory.loc[group] -= assigning
                         else:
-                            logger.warn(
-                                "{} capacity encountered: {} / {}".format(
-                                    site, assigning + current, capacity
-                                )
+                            logger.warning(
+                                f"{site} capacity encountered: {assigning + current} / {capacity}"
                             )
 
             # check sums across all sites equal the full composition
             self.template.site_occupancy = occupancy
             return occupancy
         else:
-            logger.warn("Template not yet set. Cannot calculate occupancy.")
+            logger.warning("Template not yet set. Cannot calculate occupancy.")
 
     def get_site_occupancy(self):
         """Get the site occupancy for the mineral."""
@@ -416,9 +408,9 @@ class Mineral(object):
                 D[kwarg] = val
         callstrings = []
         for v in D.values():
-            callstrings.append("""{}""".format(v.__str__()))
+            callstrings.append(f"""{v.__str__()}""")
 
-        strstring = r"""{}: """.format(self.__class__.__name__) + ", ".join(callstrings)
+        strstring = rf"""{self.__class__.__name__}: """ + ", ".join(callstrings)
         return strstring
 
     def __repr__(self):
@@ -431,10 +423,10 @@ class Mineral(object):
 
         callstrings = []
         for k, v in D.items():
-            callstrings.append("""{}={},""".format(k, v.__repr__()))
+            callstrings.append(f"""{k}={v.__repr__()},""")
 
         reprstring = (
-            r"""{}(""".format(self.__class__.__name__) + "".join(callstrings) + r""")"""
+            rf"""{self.__class__.__name__}(""" + "".join(callstrings) + r""")"""
         )
         return reprstring
 

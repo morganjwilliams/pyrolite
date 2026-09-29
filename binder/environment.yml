@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.10
+  - python=3.12
   - pip
   - pip:
       - -e git+https://github.com/morganjwilliams/pyrolite.git@develop#egg=pyrolite[dev,skl,excel]

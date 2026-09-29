@@ -1,3 +1,5 @@
+from ast import Call
+from typing import Callable
 import hashlib
 from pathlib import Path
 
@@ -10,13 +12,13 @@ from .meta import subkwargs
 logger = Handle(__name__)
 
 
-def drop_where_all_empty(df):
+def drop_where_all_empty(df: pd.DataFrame) -> pd.DataFrame:
     """
     Drop rows and columns which are completely empty.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+    df : pandas.DataFrame | pandas.Series
         Pandas object to ensure is in the form of a series.
     """
     for ix in range(len(df.axes)):
@@ -24,24 +26,24 @@ def drop_where_all_empty(df):
     return df
 
 
-def read_table(filepath, index_col=0, **kwargs):
+def read_table(filepath: str | Path, index_col: int = 0, **kwargs) -> pd.DataFrame:
     """
     Read tabluar data from an excel or csv text-based file.
 
     Parameters
     ------------
-    filepath : :class:`str` | :class:`pathlib.Path`
+    filepath : str | pathlib.Path
         Path to file.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
     """
     filepath = Path(filepath)
     ext = filepath.suffix.replace(".", "")
     assert ext in ["xls", "xlsx", "csv"]
     if ext in ["xls", "xlsx"]:
-        reader, kw = pd.read_excel, dict(engine="openpyxl")
+        reader, kw = pd.read_excel, {"engine": "openpyxl"}
     elif ext in ["csv"]:
         reader, kw = pd.read_csv, {}
     else:
@@ -53,7 +55,9 @@ def read_table(filepath, index_col=0, **kwargs):
     return df
 
 
-def column_ordered_append(df1, df2, **kwargs):
+def column_ordered_append(
+    df1: pd.DataFrame, df2: pd.DataFrame, **kwargs
+) -> pd.DataFrame:
     """
     Appends one dataframe to another, preserving the column order of the
     first and adding new columns on the right. Also accepts and passes on
@@ -61,40 +65,47 @@ def column_ordered_append(df1, df2, **kwargs):
 
     Parameters
     ------------
-    df1 : :class:`pandas.DataFrame`
+    df1 : pandas.DataFrame
         The dataframe for which columns order is preserved in the output.
-    df2 : :class:`pandas.DataFrame`
+    df2 : pandas.DataFrame
         The dataframe for which new columns are appended to the output.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
     """
-    outcols = list(df1.columns) + [i for i in df2.columns if not i in df1.columns]
+    outcols = list(df1.columns) + [i for i in df2.columns if i not in df1.columns]
     return pd.concat([df1, df2], axis=0, **kwargs).reindex(columns=outcols)
 
 
-def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
+def accumulate(
+    dfs: list[pd.DataFrame],
+    ignore_index: bool = False,
+    trace_source: bool = False,
+    names: list[str] | None = None,
+):
     """
-    Accumulate an iterable containing multiple :class:`pandas.DataFrame` to a single
+    Accumulate an iterable containing multiple pandas.DataFrame to a single
     frame.
 
     Parameters
     -----------
-    dfs : :class:`list`
+    dfs : list
         Sequence of dataframes.
-    ignore_index : :class:`bool`
+    ignore_index : bool
         Whether to ignore the indexes upon joining.
-    trace_source : :class:`bool`
+    trace_source : bool
         Whether to retain a reference to the source of the data rows.
-    names : :class:`list`
+    names : list
         Names to use in place of indexes for source names.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Accumulated dataframe.
     """
+    if names is None:
+        names = []
     acc = None
     for ix, df in enumerate(dfs):
         if trace_source:
@@ -109,18 +120,18 @@ def accumulate(dfs, ignore_index=False, trace_source=False, names=[]):
     return acc
 
 
-def to_frame(ser):
+def to_frame(ser: pd.Series | pd.DataFrame) -> pd.DataFrame:
     """
-    Simple utility for converting to :class:`pandas.DataFrame`.
+    Simple utility for converting to pandas.DataFrame.
 
     Parameters
     ----------
-    ser : :class:`pandas.Series` | :class:`pandas.DataFrame`
+    ser : pandas.Series | pandas.DataFrame
         Pandas object to ensure is in the form of a dataframe.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
     """
 
     if isinstance(ser, pd.Series):  # using series instead of dataframe
@@ -131,25 +142,25 @@ def to_frame(ser):
         else:
             df = ser
     else:
-        msg = "Conversion from {} to dataframe not yet implemented".format(type(ser))
+        msg = f"Conversion from {type(ser)} to dataframe not yet implemented"
         raise NotImplementedError(msg)
 
     return df
 
 
-def to_ser(df):
+def to_ser(df: pd.DataFrame | pd.Series) -> pd.Series:
     """
-    Simple utility for converting single column :class:`pandas.DataFrame`
-    to :class:`pandas.Series`.
+    Simple utility for converting single column pandas.DataFrame
+    to pandas.Series.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+    df : pandas.DataFrame | pandas.Series
         Pandas object to ensure is in the form of a series.
 
     Returns
     --------
-    :class:`pandas.Series`
+    pandas.Series
     """
     if isinstance(df, pd.Series):  # passed series instead of dataframe
         ser = df
@@ -163,13 +174,17 @@ def to_ser(df):
         else:
             ser = df.iloc[0, :]
     else:
-        msg = "Conversion from {} to series not yet implemented".format(type(df))
+        msg = f"Conversion from {type(df)} to series not yet implemented"
         raise NotImplementedError(msg)
 
     return ser
 
 
-def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
+def to_numeric(
+    df: pd.DataFrame | pd.Series,
+    errors: str = "coerce",
+    exclude: list[str] | None = None,
+) -> pd.DataFrame | pd.Series:
     """
     Converts non-numeric columns to numeric type where possible.
 
@@ -179,27 +194,31 @@ def to_numeric(df, errors: str = "coerce", exclude=["float", "int"]):
     Avoid using .loc or .iloc on the LHS to make sure that data dtypes
     are propagated.
     """
+    if exclude is None:
+        exclude = ["float", "int"]
     cols = df.select_dtypes(exclude=exclude).columns
-    df[cols] = df.loc[:, cols].apply(pd.to_numeric, errors=errors)
+    df[cols] = df[cols].apply(pd.to_numeric, errors=errors).values
     return df
 
 
-def zero_to_nan(df, rtol=1e-5, atol=1e-8):
+def zero_to_nan(
+    df: pd.DataFrame, rtol: float = 1e-5, atol: float = 1e-8
+) -> pd.DataFrame:
     """
     Replace floats close, less or equal to zero with np.nan in a dataframe.
 
     Parameters
     ------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to censor.
-    rtol : :class:`float`
+    rtol : float
         The relative tolerance parameter.
-    atol : :class:`float`
+    atol : float
         The absolute  tolerance parameter.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Censored DataFrame.
     """
     cols = [
@@ -213,16 +232,18 @@ def zero_to_nan(df, rtol=1e-5, atol=1e-8):
 
 
 def outliers(
-    df,
-    cols=[],
-    detect=lambda x, quantile, qntls: (
+    df: pd.DataFrame,
+    cols: list[str] | pd.Index | None = None,
+    detect: Callable = lambda x, quantile, qntls: (
         (x > quantile.loc[qntls[0], x.name]) & (x < quantile.loc[qntls[1], x.name])
     ),
-    quantile_select=(0.02, 0.98),
-    logquantile=False,
-    exclude=False,
-):
+    quantile_select: tuple[float, float] = (0.02, 0.98),
+    logquantile: bool = False,
+    exclude: bool = False,
+) -> pd.DataFrame:
     """ """
+    if cols is None:
+        cols = []
     if not cols:
         cols = df.columns
     _df = df.select_dtypes(include=[np.number])
@@ -240,26 +261,31 @@ def outliers(
     return _df.loc[whereout, :]
 
 
-def concat_columns(df, columns=None, astype=str, **kwargs):
+def concat_columns(
+    df: pd.DataFrame,
+    columns: list[str] | None = None,
+    astype: type | np.dtype = str,
+    **kwargs,
+) -> pd.Series:
     """
     Concatenate strings across columns.
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to concatenate.
-    columns : :class:`list`
+    columns : list
         List of columns to concatenate.
-    astype : :class:`type`
+    astype : `type`
         Type to convert final concatenation to.
 
     Returns
     -------
-    :class:`pandas.Series`
+    pandas.Series
     """
     if columns is None:
         columns = df.columns
-    kwargs = {**dict(dtype="object"), **kwargs}
+    kwargs = {"dtype": "object", **kwargs}
     out = pd.Series(index=df.index, **kwargs)
     for ix, c in enumerate(columns):
         if ix == 0:
@@ -269,24 +295,26 @@ def concat_columns(df, columns=None, astype=str, **kwargs):
     return out
 
 
-def uniques_from_concat(df, columns=None, hashit=True):
+def uniques_from_concat(
+    df: pd.DataFrame, columns: list[str] | None = None, hashit: bool = True
+) -> pd.Series:
     """
     Creates ideally unique keys from multiple columns.
     Optionally hashes string to standardise length of identifier.
 
     Parameters
     ------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         DataFrame to create indexes for.
-    columns : :class:`list`
+    columns : list
         Columns to use in the string concatenatation.
-    hashit : :class:`bool`, :code:`True`
+    hashit : bool, `True`
         Whether to use a hashing algorithm to create the key from a typically
         longer string.
 
     Returns
     ---------
-    :class:`pandas.Series`
+    pandas.Series
     """
     if columns is None:
         columns = df.columns
@@ -304,7 +332,9 @@ def uniques_from_concat(df, columns=None, hashit=True):
     return fmt(concat_columns(df, columns, dtype="category"))
 
 
-def df_from_csvs(csvs, dropna=True, ignore_index=False, **kwargs):
+def df_from_csvs(
+    csvs: list[str | Path], dropna: bool = True, ignore_index: bool = False, **kwargs
+):
     """
     Takes a list of .csv filenames and converts to a single DataFrame.
     Combines columns across dataframes, preserving order of the first entered.

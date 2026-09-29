@@ -10,8 +10,6 @@ pyrolite assumes that data are in the same units.
 
 import pandas as pd
 
-import pyrolite.geochem
-
 pd.set_option("display.precision", 3)  # smaller outputs
 ########################################################################################
 # Here we create some synthetic data to work with, which has some variables in Wt% and

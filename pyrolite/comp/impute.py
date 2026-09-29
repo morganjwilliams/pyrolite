@@ -1,5 +1,6 @@
+from typing import Callable
 import numpy as np
-import scipy.stats as stats
+from scipy import stats
 
 from pyrolite.comp.codata import ALR, close, inverse_ALR
 from pyrolite.util.math import augmented_covariance_matrix, nancov
@@ -10,20 +11,23 @@ from ..util.log import Handle
 logger = Handle(__name__)
 
 
-def _little_sweep(G, k: int = 0, verify=False):
+def _little_sweep(
+    G: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    k: int = 0,
+    verify: bool = False,
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Parameters
     ---------------
-    G : :class:`numpy.ndarray`
+    G : numpy.ndarray
         Input array to sweep.
-    k : :class:`int`
-        Index to sweep on.
-    verify : :class:`bool`
+    k : int
+    verify : bool
         Whether to verify valid matrix input.
 
     Returns
     --------
-    H : :class:`numpy.ndarray`
+    H : numpy.ndarray
         Swept array.
 
     References
@@ -63,20 +67,23 @@ def _little_sweep(G, k: int = 0, verify=False):
     return H
 
 
-def _multisweep(G, ks):
+def _multisweep(
+    G: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    ks: np.ndarray[tuple[int], np.dtype[np.integer]] | list[int] | range,
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Sweep G along all indexes ks.
 
     Parameters
     -----------
-    G : :class:`numpy.ndarray`
+    G : numpy.ndarray
         Augmented covariance matrix to sweep.
-    ks : :class:`numpy.ndarray`
+    ks : numpy.ndarray
         Indicies to sweep.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     H = G.copy()
     for k in ks:
@@ -84,7 +91,15 @@ def _multisweep(G, ks):
     return H
 
 
-def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold=None):
+def _reg_sweep(
+    M: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    C: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    varobs: np.ndarray[tuple[int], np.dtype[np.bool]],
+    error_threshold: float | None = None,
+) -> tuple[
+    np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    np.ndarray[tuple[int, int], np.dtype[np.floating]],
+]:
     r"""
     Performs multiple sweeps of the augmented covariance matrix and extracts the
     regression coefficients :math:`\beta_{0} \cdots \beta_(d)` and residial covariance
@@ -95,29 +110,29 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
 
     Parameters
     -----------
-    M : :class:`numpy.ndarray`
-        Array of means of shape :code:`(D, )`.
-    C : :class:`numpy.ndarray`
-        Covariance of shape :code:`(D, D)`.
-    varobs : :class:`numpy.ndarray`
+    M : numpy.ndarray
+        Array of means of shape `(D, )`.
+    C : numpy.ndarray
+        Covariance of shape `(D, D)`.
+    varobs : numpy.ndarray
         Boolean array indicating which variables are included in the regression model,
-        of shape :code:`(D, )`
-    error_threshold : :class:`float`
-        Low-pass threshold at which an error will result, of shape :code:`(D, )`.
+        of shape `(D, )`
+    error_threshold : float
+        Low-pass threshold at which an error will result, of shape `(D, )`.
         Effectively limiting mean values to :math:`e^{threshold}`.
 
     Returns
     --------
-    β : :class:`numpy.ndarray`
+    β : numpy.ndarray
         Array of estimated regression coefficients.
-    σ2_res : :class:`numpy.ndarray`
+    σ2_res : numpy.ndarray
         Residuals.
 
     References
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
             A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
-            Computers & Geosciences 34, 902–917.
+            Computers & Geosciences 34, 902-917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
 
     """
@@ -127,9 +142,9 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
         assert (np.abs(M) < error_threshold).all()  # avoid runaway expansion
     dimension = M.size  # p > 0
     nvarobs = varobs.size  # q > 0 # number of observed variables
-    dep = np.array([i for i in np.arange(dimension) if not i in varobs])
+    dep = np.array([i for i in np.arange(dimension) if i not in varobs])
     # Shift the non-zero element to the end for pivoting
-    reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)  #
+    reor = np.concatenate(([0], varobs + 1, dep + 1), axis=0)
     A = augmented_covariance_matrix(M, C)
     A = A[reor, :][:, reor]
     # Astart = A.copy(deep=True)
@@ -149,12 +164,12 @@ def _reg_sweep(M: np.ndarray, C: np.ndarray, varobs: np.ndarray, error_threshold
 
 
 def EMCOMP(
-    X,
-    threshold=None,
-    tol=0.0001,
-    convergence_metric=lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
-    max_iter=30,
-):
+    X: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+    threshold: np.ndarray[tuple[int], np.dtype[np.floating]] | None = None,
+    tol: float = 0.0001,
+    convergence_metric: Callable = lambda A, B, t: np.linalg.norm(np.abs(A - B)) < t,
+    max_iter: int = 30,
+) -> tuple[np.ndarray[tuple[int, int], np.dtype[np.floating]], float, int]:
     r"""
     EMCOMP replaces rounded zeros in a compositional data set based on a set of
     thresholds. After Palarea-Albaladejo and Martín-Fernández (2008) [#ref_1]_.
@@ -162,51 +177,50 @@ def EMCOMP(
 
     Parameters
     ----------
-    X  : :class:`numpy.ndarray`
+    X  : numpy.ndarray
         Dataset with rounded zeros
-    threshold : :class:`numpy.ndarray`
+    threshold : numpy.ndarray
         Array of threshold values for each component as a proprotion.
-    tol : :class:`float`
+    tol : float
         Tolerance to check for convergence.
-    convergence_metric : :class:`callable`
+    convergence_metric : Callable
         Callable function to check for convergence. Here we use a compositional distance
         rather than a maximum absolute difference, with very similar performance.
-        Function needs to accept two :class:`numpy.ndarray` arguments and third
+        Function needs to accept two numpy.ndarray arguments and third
         tolerance argument.
-    max_iter : :class:`int`
+    max_iter : int
         Maximum number of iterations before an error is thrown.
 
     Returns
     --------
-    X_est : :class:`numpy.ndarray`
+    X_est : numpy.ndarray
         Dataset with rounded zeros replaced.
-    prop_zeros : :class:`float`
+    prop_zeros : float
        Proportion of zeros in the original data set.
-    n_iters : :class:`int`
+    n_iters : int
         Number of iterations needed for convergence.
 
     Notes
     -----
 
-        * At least one component without missing values is needed for the divisor.
-          Rounded zeros/missing values are replaced by values below their respective
-          detection limits.
+    * At least one component without missing values is needed for the divisor.
+      Rounded zeros/missing values are replaced by values below their respective
+      detection limits.
 
-        * This routine is not completely numerically stable as written.
+    * This routine is not completely numerically stable as written.
 
     Todo
     -------
-        * Implement methods to deal with variable decection limits (i.e thresholds are array shape :code:`(N, D)`)
-        * Conisder non-normal models for data distributions.
-        * Improve numerical stability to reduce the chance of :code:`np.inf` appearing.
+    * Implement methods to deal with variable decection limits (i.e thresholds are array shape `(N, D)`)
+    * Conisder non-normal models for data distributions.
+    * Improve numerical stability to reduce the chance of `np.inf` appearing.
 
     References
     ----------
     .. [#ref_1] Palarea-Albaladejo J. and Martín-Fernández J. A. (2008)
             A modified EM ALR-algorithm for replacing rounded zeros in compositional data sets.
-            Computers & Geosciences 34, 902–917.
+            Computers & Geosciences 34, 902-917.
             doi: `10.1016/j.cageo.2007.09.015 <https://dx.doi.org/10.1016/j.cageo.2007.09.015>`__
-
     """
     X = X.copy()
     n_obs, D = X.shape
@@ -229,8 +243,8 @@ def EMCOMP(
         - np.spacing(1.0)  # Machine epsilon
     )
     assert np.isfinite(cpoints).all()
-    cpoints = cpoints[:, [i for i in range(D) if not i == pos]]  # censure points
-    prop_zeroes = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
+    cpoints = cpoints[:, [i for i in range(D) if i != pos]]  # censure points
+    prop_zeroes: float = np.count_nonzero(~np.isfinite(X)) / (n_obs * D)
     Y = ALR(X, pos)
     # ---------------Log Space--------------------------------
     LD = Y.shape[1]
@@ -245,9 +259,7 @@ def EMCOMP(
     # -------------------------------------------
     # Stage 3: Regression against other variables
     # -------------------------------------------
-    logger.debug(
-        "Starting Iterative Regression for Matrix : ({}, {})".format(n_obs, LD)
-    )
+    logger.debug(f"Starting Iterative Regression for Matrix : ({n_obs}, {LD})")
     another_iter = True
     niters = 0
     while another_iter:
@@ -263,7 +275,7 @@ def EMCOMP(
                 np.arange(D - 1)[~pD[p_no]["pattern"]],
                 np.arange(D - 1)[pD[p_no]["pattern"]],
             )
-            sigmas = np.zeros((LD))
+            sigmas = np.zeros(LD)
             assert np.isfinite(Y[np.ix_(rows, varobs)]).all()
             assert (~np.isfinite(Y[np.ix_(rows, varmiss)])).all()
             if varobs.size and varmiss.size:  # Non-completely missing, but missing some
@@ -280,7 +292,7 @@ def EMCOMP(
                 assert np.isfinite(B).all()
                 logger.debug(
                     "Current Estimator (1, {})".format(
-                        ", ".join(["β{}".format(i) for i in range(B.shape[0] - 1)])
+                        ", ".join([f"β{i}" for i in range(B.shape[0] - 1)])
                     )
                 )
 
@@ -316,10 +328,10 @@ def EMCOMP(
         Ydevs = Ystar - np.ones((n_obs, 1)) * M
         Ydevs[~np.isfinite(Ydevs)] = 0.0  # remove nonfinite components
         PC = np.dot(Ydevs.T, Ydevs)
-        logger.debug("Correlation:\n{}".format(PC / (n_obs - 1)))
+        logger.debug(f"Correlation:\n{PC / (n_obs - 1)}")
         C = (PC + V) / (n_obs - 1)
 
-        logger.debug("Average diff: {}".format(np.mean(Ydevs, axis=0)))
+        logger.debug(f"Average diff: {np.mean(Ydevs, axis=0)}")
         assert np.isfinite(C).all()
         # --------------------
         # Convergence checking
@@ -329,7 +341,7 @@ def EMCOMP(
             logger.debug("Convergence achieved.")
 
         another_iter = another_iter & (niters < max_iter)
-        logger.debug("Iterations Continuing: {}".format(another_iter))
+        logger.debug(f"Iterations Continuing: {another_iter}")
     # ----------------------------
     # Back to compositional space
     # ---------------------------

@@ -1,4 +1,6 @@
 import os
+from collections.abc import Callable
+from typing import Any
 
 from .log import Handle
 from .types import iscollection
@@ -6,29 +8,34 @@ from .types import iscollection
 logger = Handle(__name__)
 
 
-def validate_value(value, validator):
+def validate_value(value: Any, validator: Callable):
     """Validates a value based on one or a series of validator functions."""
     if iscollection(validator):
-        return all([f(value) for f in validator if callable(f)])
+        return all(f(value) for f in validator if callable(f))
     else:
         return validator(value)
 
 
 def validate_update_envvar(
-    key, value=None, prefix="", force_active=False, variable_model=None, formatter=str
+    key: str,
+    value: str | None = None,
+    prefix: str = "",
+    force_active: bool = False,
+    variable_model: dict | None = None,
+    formatter: Callable = str,
 ):
     """
     Updates an environment variable after validation.
 
     Parameters
     -----------
-    key : :class:`str`
+    key : str
         Environment variable name.
-    value : :class:`str`
+    value : str
         Value for the environemnt variable.
-    force_active : :class:`bool`
+    force_active : bool
         Enforce the schema overriding parameters.
-    variable_model : :class:`dict`
+    variable_model : dict
         Model of variables indexed by name.
     formatter
         Function for formatting environment variable values.
@@ -40,16 +47,19 @@ def validate_update_envvar(
         if value is not None:
             if schema.get("validator", None) is not None:
                 valid = validate_value(value, schema["validator"])
-                assert valid, "Invalid value for parameter {}: {}".format(key, value)
+                assert valid, f"Invalid value for parameter {key}: {value}"
 
             if schema.get("overridden_by", None) is not None:
                 # check for overriders
                 overriders = [prefix + k for k in schema.get("overridden_by")]
 
-                if any([over in os.environ for over in overriders]):
+                if (
+                    any(over in os.environ for over in overriders)
+                    and force_active
+                    and any(key in os.environ for key in overriders)
+                ):
                     # if there are over-riding parameters, remove this one
-                    if force_active and any([key in os.environ for key in overriders]):
-                        del os.environ[key]
+                    del os.environ[key]
         else:
             # try to set to default
             if schema.get("default", None) is not None:
@@ -65,9 +75,9 @@ def validate_update_envvar(
                 value = default
 
     if value is not None:
-        logger.debug("EnvVar {} set to {}.".format(prefix + key, value))
+        logger.debug(f"EnvVar {prefix + key} set to {value}.")
         os.environ[prefix + key] = formatter(value)
     else:  # Remove the environment variable if it exists
         if prefix + key in os.environ:
-            logger.debug("EnvVar {} removed.".format(prefix + key))
+            logger.debug(f"EnvVar {prefix + key} removed.")
             del os.environ[prefix + key]

@@ -1,3 +1,5 @@
+from ast import Call
+from collections.abc import Callable
 from functools import partial
 
 import numpy as np
@@ -10,11 +12,11 @@ from .log import Handle
 logger = Handle(__name__)
 
 
-def get_scaler(*fs):
+def get_scaler(*fs: Callable) -> Callable:
     """
     Generate a function which will transform columns of an array
-    based on input functions (e.g. :code:`np.log` will log-transform the x values,
-    :code:`None, np.log` will log-transform the y values but not the x).
+    based on input functions (e.g. `np.log` will log-transform the x values,
+    `None, np.log` will log-transform the y values but not the x).
 
     Parameters
     ------------
@@ -22,7 +24,7 @@ def get_scaler(*fs):
         A series of functions to apply to subsequent axes of an array.
     """
 
-    def scaler(arr, fs=fs):
+    def scaler(arr: np.ndarray, fs: tuple[Callable] = fs) -> np.ndarray:
         A = arr.copy()
         for ix, f in enumerate(fs):
             if f is not None:
@@ -32,26 +34,32 @@ def get_scaler(*fs):
     return partial(scaler, fs=fs)
 
 
-def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=None):
+def sample_kde(
+    data: np.ndarray[tuple[int, int]],
+    samples: np.ndarray[tuple[int, int]],
+    renorm: bool = False,
+    transform: Callable = lambda x: x,
+    bw_method: str | float | Callable | None = None,
+) -> np.ndarray[tuple[int, int]]:
     """
     Sample a Kernel Density Estimate at points or a grid defined.
 
     Parameters
     ------------
-    data : :class:`numpy.ndarray`
+    data : numpy.ndarray
         Source data to estimate the kernel density estimate; observations should be
-        in rows (:code:`npoints, ndim`).
-    samples : :class:`numpy.ndarray`
-        Coordinates to sample the KDE estimate at (:code:`npoints, ndim`).
+        in rows (`npoints, ndim`).
+    samples : numpy.ndarray
+        Coordinates to sample the KDE estimate at (`npoints, ndim`).
     transform
         Transformation used prior to kernel density estimate.
-    bw_method : :class:`str`, :class:`float`, callable
+    bw_method : str, float, callable
         Method used to calculate the estimator bandwidth.
-        See :func:`scipy.stats.gaussian_kde`.
+        See `scipy.stats.gaussian_kde`.
 
     Returns
     ----------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     # check shape info first
     data = np.atleast_2d(data)
@@ -77,8 +85,8 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     # ensures shape is fine even if row is passed
     ksamples = ksamples.reshape(-1, tdata.shape[1])
 
-    if not tdata.shape[1] == ksamples.shape[1]:
-        logger.warn("Dimensions of data and samples do not match.")
+    if tdata.shape[1] != ksamples.shape[1]:
+        logger.warning("Dimensions of data and samples do not match.")
 
     kfltr = np.isfinite(ksamples).all(axis=1)
     zi = np.ones(zshape, dtype=float) * np.nan
@@ -90,44 +98,50 @@ def sample_kde(data, samples, renorm=False, transform=lambda x: x, bw_method=Non
     return zi
 
 
-def sample_ternary_kde(data, samples, transform=ILR):
+def sample_ternary_kde(
+    data: np.ndarray[tuple[int, int]],
+    samples: np.ndarray[tuple[int, int]],
+    transform: Callable = ILR,
+) -> np.ndarray[tuple[int, int]]:
     """
     Sample a Kernel Density Estimate in ternary space points or a grid defined by
     samples.
 
     Parameters
     ------------
-    data : :class:`numpy.ndarray`
-        Source data to estimate the kernel density estimate (:code:`npoints, ndim`).
-    samples : :class:`numpy.ndarray`
-        Coordinates to sample the KDE estimate at  (:code:`npoints, ndim`)..
+    data : numpy.ndarray
+        Source data to estimate the kernel density estimate (`npoints, ndim`).
+    samples : numpy.ndarray
+        Coordinates to sample the KDE estimate at  (`npoints, ndim`)..
     transform
         Log-transformation used prior to kernel density estimate.
 
     Returns
     ----------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     return sample_kde(data, samples, transform=lambda x: transform(close(x)))
 
 
-def lognorm_to_norm(mu, s):
+def lognorm_to_norm(
+    mu: float | np.ndarray, s: float | np.ndarray
+) -> tuple[float | np.ndarray, float | np.ndarray]:
     """
     Calculate mean and variance for a normal random variable from the lognormal
-    parameters :code:`mu` and :code:`s`.
+    parameters `mu` and `s`.
 
     Parameters
     -----------
-    mu : :class:`float`
-        Parameter :code:`mu` for the lognormal distribution.
-    s : :class:`float`
-        :code:`sigma` for the lognormal distribution.
+    mu : float
+        Parameter `mu` for the lognormal distribution.
+    s : float
+        `sigma` for the lognormal distribution.
 
     Returns
     --------
-    mean : :class:`float`
+    mean : float
         Mean of the normal distribution.
-    sigma : :class:`float`
+    sigma : float
         Variance of the normal distribution.
     """
     mean = np.exp(mu + 0.5 * s**2)
@@ -135,28 +149,30 @@ def lognorm_to_norm(mu, s):
     return mean, np.sqrt(variance)
 
 
-def norm_to_lognorm(mean, sigma, exp=True):
+def norm_to_lognorm(
+    mean: float | np.ndarray, sigma: float | np.ndarray, exp: bool = True
+) -> tuple[float | np.ndarray, float | np.ndarray]:
     """
-    Calculate :code:`mu` and :code:`sigma` parameters for a lognormal random variable
+    Calculate `mu` and `sigma` parameters for a lognormal random variable
     with a given mean and variance. Lognormal with parameters
-    :code:`mean` and :code:`sigma`.
+    `mean` and `sigma`.
 
     Parameters
     -----------
-    mean : :class:`float`
+    mean : float
         Mean of the normal distribution.
-    sigma : :class:`float`
-        :code:`sigma` of the normal distribution.
-    exp : :class:`bool`
+    sigma : float
+        `sigma` of the normal distribution.
+    exp : bool
         If using the :mod:`scipy.stats` parameterisation; this uses
-        :code:`scale = np.exp(mu)`.
+        `scale = np.exp(mu)`.
 
     Returns
     --------
-    mu : :class:`float`
-        Parameter :code:`mu` for the lognormal distribution.
-    s : :class:`float`
-        :code:`sigma` of the lognormal distribution.
+    mu : float
+        Parameter `mu` for the lognormal distribution.
+    s : float
+        `sigma` of the lognormal distribution.
     """
     mu = np.log(mean / np.sqrt(1 + sigma**2 / (mean**2)))
     v = np.log(1 + sigma**2 / (mean**2))

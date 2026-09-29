@@ -1,3 +1,5 @@
+import matplotlib.axes
+
 from ...util.classification import USDASoilTexture as USDAclassifier
 from ...util.log import Handle
 from ...util.meta import sphinx_doi_link, update_docstring_references
@@ -7,23 +9,28 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def USDASoilTexture(ax=None, add_labels=False, color="k", **kwargs):
+def USDASoilTexture(
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    color: str = "k",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     United States Department of Agriculture Soil Texture classification model
     [#ref_1]_ [#ref_2]_.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the template on to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to include the labels for the diagram.
-    color : :class:`str`
+    color : str
         Line color for the diagram.
 
     Returns
     -------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     References
     -----------
@@ -31,13 +38,13 @@ def USDASoilTexture(ax=None, add_labels=False, color="k", **kwargs):
                 C. Ditzler, K. Scheffe, and H.C. Monger (eds.).
                 USDA Handbook 18. Government Printing Office, Washington, D.C.
     .. [#ref_2] Thien, Steve J. (1979). A Flow Diagram for Teaching
-                Texture-by-Feel Analysis. Journal of Agronomic Education 8:54–55.
+                Texture-by-Feel Analysis. Journal of Agronomic Education 8:54-55.
                 doi: {Thien1979}
     """
     ax = init_axes(ax=ax, projection="ternary", **kwargs)
 
     clf = USDAclassifier()
-    clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
+    ax = clf.add_to_axes(ax=ax, color=color, add_labels=add_labels, **kwargs)
     return ax
 
 

@@ -1,0 +1,35 @@
+# Release Guide
+
+:::{note}
+There is now a 'publish' action in the repository which handles releases.
+:::
+
+Before releasing, ensure that the changelog is up to date,
+consider preloading the next release link, and ensure the `uv`
+lock is up to date:
+
+```bash
+uv sync --extra dev
+git add uv.lock
+git commit "Update uv Lock"
+```
+
+The project can be built into distributable artefacts (note that `build`, `dist` and `pyrolite.egg-info`
+directories should be removed first) with:
+
+```bash
+uv run python -m build --sdist --wheel
+```
+
+We can check this distribution with `twine`:
+
+```bash
+uv run twine check ./dist/*
+```
+
+And, assuming credentials exsit, uploaded to PyPI with:
+
+```bash
+uv run twine upload ./dist/*
+```
+

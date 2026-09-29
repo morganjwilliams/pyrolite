@@ -16,21 +16,23 @@ from .params import parse_sigmas
 logger = Handle(__name__)
 
 
-def get_polynomial_matrix(radii, params=None):
+def get_polynomial_matrix(
+    radii: np.ndarray | list[float], params: list[tuple[float, ...]] | None = None
+) -> np.ndarray:
     """
     Create the matrix `A` with polynomial components across the columns,
     and increasing order down the rows.
 
     Parameters
     -----------
-    radii : :class:`list`, :class:`numpy.ndarray`
+    radii : list, numpy.ndarray
         Radii at which to evaluate the orthogonal polynomial.
-    params : :class:`tuple`
+    params : tuple
         Tuple of constants for the orthogonal polynomial.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
 
     See Also
     ---------
@@ -47,30 +49,36 @@ def get_polynomial_matrix(radii, params=None):
 
 @update_docstring_references
 def lambdas_ONeill2016(
-    df, radii, params=None, sigmas=None, add_X2=False, add_uncertainties=False, **kwargs
+    df: pd.DataFrame,
+    radii: np.ndarray,
+    params: list[tuple[float, ...]] | None = None,
+    sigmas: float | np.ndarray | None = None,
+    add_X2: bool = False,
+    add_uncertainties: bool = False,
+    **kwargs,
 ):
     r"""
     Implementation of the original algorithm. [#ref_1]_
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame` | :class:`pandas.Series`
+    df : pandas.DataFrame | pandas.Series
         Dataframe of REE data, with sample analyses organised by row.
-    radii : :class:`list`, :class:`numpy.ndarray`
+    radii : list, numpy.ndarray
         Radii at which to evaluate the orthogonal polynomial.
-    params : :class:`tuple`
+    params : tuple
         Tuple of constants for the orthogonal polynomial.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         Single value or 1D array of normalised observed value uncertainties
         (:math:`\sigma_{REE} / REE`).
-    add_X2 : :class:`bool`
+    add_X2 : bool
         Whether to append the chi-squared values (χ2) to the dataframe/series.
-    add_uncertainties : :class:`bool`
+    add_uncertainties : bool
         Append parameter standard errors to the dataframe/series.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
 
     See Also
     ---------
@@ -80,12 +88,12 @@ def lambdas_ONeill2016(
     References
     -----------
     .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
 
     """
     assert params is not None
-    names, x0, func_components = get_function_components(radii, params=params)
+    names, _x0, func_components = get_function_components(radii, params=params)
     X = np.array(func_components).T
     y = np.array(df)  # make sure it's an array
 

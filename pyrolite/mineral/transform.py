@@ -43,12 +43,14 @@ def recalc_cations(
     df,
     ideal_cations=4,
     ideal_oxygens=6,
-    Fe_species=["FeO", "Fe", "Fe2O3"],
+    Fe_species=None,
     oxygen_constrained=False,
 ):
     """
     Recalculate a composition to a.p.f.u.
     """
+    if Fe_species is None:
+        Fe_species = ["FeO", "Fe", "Fe2O3"]
     assert ideal_cations is not None or ideal_oxygens is not None
     # if Fe2O3 and FeO are specified, calculate based on oxygen
     moles = to_frame(df)
@@ -79,7 +81,7 @@ def recalc_cations(
         parts = [pt.formula(c).atoms for c in components]
         for p in parts:
             oxygens = p[pt.O]
-            other_components = [i for i in list(p) if not i == pt.O]
+            other_components = [i for i in list(p) if i != pt.O]
             assert len(other_components) == 1  # need to be simple oxides
             other = other_components[0]
             charge = oxygens * 2 / p[other]
@@ -89,7 +91,7 @@ def recalc_cations(
         # elemental composition
         parts = components
         for part in parts:
-            p = list(pt.formula(part).atoms)[0]
+            p = next(iter(pt.formula(part).atoms))
             if p.charge != 0:
                 charge = p.charge
             else:
@@ -101,8 +103,8 @@ def recalc_cations(
     ref.index = components
 
     # cation_masses = {c: pt.formula(c).mass for c in ref.columns}
-    oxygen_index = [i for i in ref.columns if "O" in i][0]
-    ref = ref.loc[:, [i for i in ref.columns if not i == oxygen_index] + [oxygen_index]]
+    oxygen_index = next(i for i in ref.columns if "O" in i)
+    ref = ref.loc[:, [i for i in ref.columns if i != oxygen_index] + [oxygen_index]]
     moles_ref = pd.DataFrame(
         ref.values * moles.T.values,
         columns=ref.columns,
@@ -111,7 +113,7 @@ def recalc_cations(
 
     moles_O = moles_ref[oxygen_index].sum()
     moles_cations = (
-        moles_ref.loc[:, [i for i in moles_ref.columns if not i == oxygen_index]]
+        moles_ref.loc[:, [i for i in moles_ref.columns if i != oxygen_index]]
         .sum()
         .sum()
     )

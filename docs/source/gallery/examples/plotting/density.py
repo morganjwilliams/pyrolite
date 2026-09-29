@@ -15,8 +15,6 @@ import numpy as np
 import pandas as pd
 
 from pyrolite.comp.codata import close
-from pyrolite.plot import pyroplot
-from pyrolite.plot.density import density
 
 # sphinx_gallery_thumbnail_number = 4
 
@@ -60,7 +58,7 @@ plt.show()
 fig, ax = plt.subplots(1, 3, sharex=True, sharey=True, figsize=(14, 5))
 for a, mode in zip(ax, ["density", "hexbin", "hist2d"]):
     df.loc[:, ["SiO2", "CaO"]].pyroplot.density(ax=a, mode=mode)
-    a.set_title("Mode: {}".format(mode))
+    a.set_title(f"Mode: {mode}")
 plt.show()
 ########################################################################################
 # For the ``density`` mode, a ``vmin`` parameter is used to choose the lower
@@ -90,7 +88,7 @@ fig, ax = plt.subplots(
 df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.scatter(ax=ax[0], alpha=0.05, c="k")
 for a, mode in zip(ax[1:], ["hist", "density"]):
     df.loc[:, ["SiO2", "CaO", "MgO"]].pyroplot.density(ax=a, mode=mode)
-    a.set_title("Mode: {}".format(mode), y=1.2)
+    a.set_title(f"Mode: {mode}", y=1.2)
 
 plt.tight_layout()
 plt.show()
@@ -168,7 +166,7 @@ asym_df = pd.DataFrame(np.exp(np.append(xs, ys, axis=1) / 25.0))
 asym_df.columns = ["A", "B"]
 grids = ["linxy", "logxy"] * 2 + ["logx", "logy"]
 scales = ["linscale"] * 2 + ["logscale"] * 2 + ["semilogx", "semilogy"]
-labels = ["{}-{}".format(ls, ps) for (ls, ps) in zip(grids, scales)]
+labels = [f"{ls}-{ps}" for (ls, ps) in zip(grids, scales)]
 params = list(
     zip(
         [
@@ -201,7 +199,7 @@ for a, (ls, grid, scale) in zip(ax, params):
     )
     asym_df.pyroplot.scatter(ax=a, s=10, alpha=0.3, c="k", zorder=2)
 
-    a.set_title("{}-{}".format(grid, scale), fontsize=10)
+    a.set_title(f"{grid}-{scale}", fontsize=10)
     if scale in ["logscale", "semilogx"]:
         a.set_xscale("log")
     if scale in ["logscale", "semilogy"]:

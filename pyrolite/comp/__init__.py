@@ -2,8 +2,13 @@
 Submodule for working with compositional data.
 """
 
+from sympy.liealgebras.type_e import TypeE
+
+from matplotlib.pylab import isin
+
 import functools
 import inspect
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -14,19 +19,19 @@ from . import codata
 logger = Handle(__name__)
 
 
-def attribute_transform(f, *args, **kwargs):
+def attribute_transform(f: Callable, *args, **kwargs) -> Callable:
     """
     Decorator to add transform function as a dataframe attribute after
     transformation, for traceability.
 
     Parameters
     -----------
-    f : :class:`func` | :class:`class`
+    f : Callable
         Transform function.
 
     Returns
     -------
-    :class:`func` | :class:`class`
+    Callable
         Object with modified docstring.
     """
 
@@ -44,8 +49,8 @@ def attribute_transform(f, *args, **kwargs):
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyrocomp")
 @pd.api.extensions.register_dataframe_accessor("pyrocomp")
-class pyrocomp(object):
-    def __init__(self, obj):
+class pyrocomp:
+    def __init__(self, obj: pd.DataFrame | pd.Series):
         """
         Custom dataframe accessor for pyrolite compositional transforms.
         """
@@ -56,22 +61,24 @@ class pyrocomp(object):
     def _validate(obj):
         pass
 
-    def renormalise(self, components: list = [], scale=100.0):
+    def renormalise(
+        self, components: list[str] | None = None, scale: float = 100.0
+    ) -> pd.DataFrame | pd.Series:
         """
         Renormalises compositional data to ensure closure.
 
         Parameters
         ----------
-        components : :class:`list`
+        components : list
             Option subcompositon to renormalise to 100. Useful for the use case
             where compostional data and non-compositional data are stored in the
             same dataframe.
-        scale : :class:`float`, :code:`100.`
+        scale : float
             Closure parameter. Typically either 100 or 1.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
+        pandas.DataFrame
             Renormalized dataframe.
 
         Notes
@@ -80,26 +87,36 @@ class pyrocomp(object):
         If you specify components, those components will be summed to 100%,
         and others remain unchanged.
         """
+        if components is None:
+            components = []
         obj = self._obj
         return codata.renormalise(obj, components=components, scale=scale)
 
     @attribute_transform
-    def ALR(self, components=[], ind=-1, null_col=False, label_mode="simple"):
+    def ALR(
+        self,
+        components: list[str] | None = None,
+        ind: int | str = -1,
+        null_col: bool = False,
+        label_mode: str = "simple",
+    ) -> pd.DataFrame | pd.Series:
         """
         Additive Log Ratio transformation.
 
         Parameters
         ----------
-        ind: :class:`int`, :class:`str`
+        ind: int | str
             Index or name of column used as denominator.
-        null_col : :class:`bool`
+        null_col : bool
             Whether to keep the redundant column.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
-            ALR-transformed array, of shape :code:`(N, D-1)`.
+        pandas.DataFrame
+            ALR-transformed array, of shape `(N, D-1)`.
         """
+        if components is None:
+            components = []
         components = self._obj.columns.values.tolist()
 
         if isinstance(ind, int):
@@ -111,7 +128,7 @@ class pyrocomp(object):
             index_col_no += len(components)
 
         if label_mode.lower().startswith("num"):
-            colnames = ["ALR{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = [f"ALR{ix}" for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_ALR_labels(
                 self._obj, mode=label_mode, ind=index_col_no
@@ -130,22 +147,24 @@ class pyrocomp(object):
         tfm_df.attrs["inverts_to"] = self._obj.columns.to_list()
         return tfm_df
 
-    def inverse_ALR(self, ind=None, null_col=False):
+    def inverse_ALR(
+        self, ind: int | str | None = None, null_col: bool = False
+    ) -> pd.DataFrame | pd.Series:
         """
         Inverse Additive Log Ratio transformation.
 
         Parameters
         ----------
-        ind: :class:`int`, :class:`str`
+        ind: int | str
             Index or name of column used as denominator.
-        null_col : :class:`bool`, :code:`False`
+        null_col : bool
             Whether the array contains an extra redundant column
-            (i.e. shape is :code:`(N, D)`).
+            (i.e. shape is `(N, D)`).
 
         Returns
         -------
-        :class:`pandas.DataFrame`
-            Inverse-ALR transformed array, of shape :code:`(N, D)`.
+        pandas.DataFrame
+            Inverse-ALR transformed array, of shape `(N, D)`.
         """
 
         colnames = self._obj.attrs.get("inverts_to")
@@ -161,25 +180,25 @@ class pyrocomp(object):
         return itfm_df
 
     @attribute_transform
-    def CLR(self, label_mode="simple"):
+    def CLR(self, label_mode: str = "simple") -> pd.DataFrame | pd.Series:
         """
         Centred Log Ratio transformation.
 
         Parameters
         ----------
-        label_mode : :class:`str`
-            Labelling mode for the output dataframe (:code:`numeric`, :code:`simple`,
-            :code:`LaTeX`). If you plan to use the outputs for automated visualisation
-            and want to know which components contribute, use :code:`simple` or
-            :code:`LaTeX`.
+        label_mode : str
+            Labelling mode for the output dataframe (`numeric`, `simple`,
+            `LaTeX`). If you plan to use the outputs for automated visualisation
+            and want to know which components contribute, use `simple` or
+            `LaTeX`.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
-            CLR-transformed array, of shape :code:`(N, D)`.
+        pandas.DataFrame
+            CLR-transformed array, of shape `(N, D)`.
         """
         if label_mode.lower().startswith("num"):
-            colnames = ["CLR{}".format(ix) for ix in range(self._obj.columns.size)]
+            colnames = [f"CLR{ix}" for ix in range(self._obj.columns.size)]
         else:
             colnames = codata.get_CLR_labels(self._obj, mode=label_mode)
 
@@ -193,7 +212,7 @@ class pyrocomp(object):
         )  # save parameter for inverse_transform
         return tfm_df
 
-    def inverse_CLR(self):
+    def inverse_CLR(self) -> pd.DataFrame | pd.Series:
         """
         Inverse Centred Log Ratio transformation.
 
@@ -202,8 +221,8 @@ class pyrocomp(object):
 
         Returns
         -------
-        :class:`pandas.DataFrame`
-            Inverse-CLR transformed array, of shape :code:`(N, D)`.
+        pandas.DataFrame
+            Inverse-CLR transformed array, of shape `(N, D)`.
         """
         colnames = self._obj.attrs.get("inverts_to")
         itfm_df = pd.DataFrame(
@@ -214,25 +233,25 @@ class pyrocomp(object):
         return itfm_df
 
     @attribute_transform
-    def ILR(self, label_mode="simple"):
+    def ILR(self, label_mode: str = "simple") -> pd.DataFrame | pd.Series:
         """
         Isometric Log Ratio transformation.
 
         Parameters
         ----------
-        label_mode : :class:`str`
-            Labelling mode for the output dataframe (:code:`numeric`, :code:`simple`,
-            :code:`LaTeX`). If you plan to use the outputs for automated visualisation
-            and want to know which components contribute, use :code:`simple` or
-            :code:`LaTeX`.
+        label_mode : str
+            Labelling mode for the output dataframe (`numeric`, `simple`,
+            `LaTeX`). If you plan to use the outputs for automated visualisation
+            and want to know which components contribute, use `simple` or
+            `LaTeX`.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
-            ILR-transformed array, of shape :code:`(N, D-1)`.
+        pandas.DataFrame
+            ILR-transformed array, of shape `(N, D-1)`
         """
         if label_mode.lower().startswith("num"):
-            colnames = ["ILR{}".format(ix) for ix in range(self._obj.columns.size - 1)]
+            colnames = [f"ILR{ix}" for ix in range(self._obj.columns.size - 1)]
         else:
             colnames = codata.get_ILR_labels(self._obj, mode=label_mode)
 
@@ -246,20 +265,20 @@ class pyrocomp(object):
         )  # save parameter for inverse_transform
         return tfm_df
 
-    def inverse_ILR(self, X=None):
+    def inverse_ILR(self, X: np.ndarray | None = None) -> pd.DataFrame | pd.Series:
         """
         Inverse Isometric Log Ratio transformation.
 
         Parameters
         ----------
-        X : :class:`numpy.ndarray`, :code:`None`
+        X : numpy.ndarray
             Optional specification for an array from which to derive the orthonormal basis,
-            with shape :code:`(N, D)`.
+            with shape `(N, D)`.
 
         Returns
         --------
-        :class:`pandas.DataFrame`
-            Inverse-ILR transformed array, of shape :code:`(N, D)`.
+        pandas.DataFrame
+            Inverse-ILR transformed array, of shape `(N, D)`.
         """
         colnames = self._obj.attrs.get("inverts_to")
 
@@ -273,27 +292,27 @@ class pyrocomp(object):
     @attribute_transform
     def boxcox(
         self,
-        lmbda=None,
-        lmbda_search_space=(-1, 5),
-        search_steps=100,
-        return_lmbda=False,
-    ):
+        lmbda: np.number | None = None,
+        lmbda_search_space: tuple[float, float] = (-1, 5),
+        search_steps: int = 100,
+        return_lmbda: bool = False,
+    ) -> pd.DataFrame | pd.Series:
         """
         Box-Cox transformation.
 
         Parameters
         ---------------
-        lmbda : :class:`numpy.number`, :code:`None`
+        lmbda : numpy.number
             Lambda value used to forward-transform values. If none, it will be calculated
             using the mean
-        lmbda_search_space : :class:`tuple`
+        lmbda_search_space : tuple
             Range tuple (min, max).
-        search_steps : :class:`int`
+        search_steps : int
             Steps for lambda search range.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
+        pandas.DataFrame
             Box-Cox transformed array.
         """
         arr, lmbda = codata.boxcox(
@@ -307,25 +326,25 @@ class pyrocomp(object):
         tfm_df.attrs["boxcox_lmbda"] = lmbda  # save parameter for inverse_transform
         return tfm_df
 
-    def inverse_boxcox(self, lmbda=None):
+    def inverse_boxcox(self, lmbda: float | None = None) -> pd.DataFrame | pd.Series:
         """
         Inverse Box-Cox transformation.
 
         Parameters
         ---------------
-        lmbda : :class:`float`
+        lmbda : float
             Lambda value used to forward-transform values.
 
         Returns
         -------
-        :class:`pandas.DataFrame`
+        pandas.DataFrame
             Inverse Box-Cox transformed array.
         """
         if lmbda is None:
-            lmbda = self._obj.attrs.get("boxcox_lmbda")
-            assert (
-                lmbda is not None
-            ), "Can't invert a box-cox transform without a lambda parameter."
+            lmbda: float | None = self._obj.attrs.get("boxcox_lmbda")
+            assert lmbda is not None, (
+                "Can't invert a box-cox transform without a lambda parameter."
+            )
 
         itfm_df = pd.DataFrame(
             codata.inverse_boxcox(self._obj.values, lmbda=lmbda),
@@ -335,13 +354,13 @@ class pyrocomp(object):
         return itfm_df
 
     @attribute_transform
-    def sphere(self):
+    def sphere(self) -> pd.DataFrame | pd.Series:
         r"""
         Spherical coordinate transformation for compositional data.
 
         Returns
         -------
-        θ : :class:`pandas.DataFrame`
+        θ : pandas.DataFrame
             Array of angles in radians (:math:`(0, \pi / 2]`)
         """
         arr = codata.sphere(self._obj.values)
@@ -354,21 +373,21 @@ class pyrocomp(object):
         tfm_df.attrs["variables"] = self._obj.columns
         return tfm_df
 
-    def inverse_sphere(self, variables=None):
+    def inverse_sphere(self, variables=None) -> pd.DataFrame | pd.Series:
         """
         Inverse spherical coordinate transformation to revert back to compositional data
         in the simplex.
 
         Parameters
         ----------
-        variables : :class:`list`
+        variables : list
             List of names for the compositional data variables, optionally specified
             (for when they may not be stored in the dataframe attributes through
-            the :class:`~pyrolite.comp.pyrocomp` functions).
+            the :func:`~pyrolite.comp.pyrocomp` functions).
 
         Returns
         -------
-        df : :class:`pandas.DataFrame`
+        df : pandas.DataFrame
             Dataframe of original compositional (simplex) coordinates, normalised to 1.
         """
         if variables is None:
@@ -383,27 +402,39 @@ class pyrocomp(object):
         )
         return itfm_df
 
-    def logratiomean(self, transform=codata.CLR, inverse_transform=codata.inverse_CLR):
+    def logratiomean(
+        self,
+        transform: Callable = codata.CLR,
+        inverse_transform: Callable = codata.inverse_CLR,
+    ) -> pd.Series:
         """
         Take a mean of log-ratios along the index of a dataframe.
 
         Parameters
         ----------
-        transform : :class:`callable` : :class:`str`
+        transform : Callable
             Log transform to use.
+        inverse_transform : Callable
+            Inverse transform to use.
 
         Returns
         -------
-        :class:`pandas.Series`
+        pandas.Series
             Mean values as a pandas series.
+
+        Notes
+        -----
+        Only makes sense for a dataframe.
         """
+        if not isinstance(self._obj, pd.DataFrame):
+            raise TypeError("Can't take a compositional mean of a series.")
         return codata.logratiomean(self._obj, transform=transform)
 
-    def invert_transform(self, **kwargs):
+    def invert_transform(self, **kwargs) -> pd.Series | pd.DataFrame:
         """
         Try to inverse-transform a transformed dataframe.
         """
-        colnames = self._obj.attrs.get("inverts_to")
+        _colnames = self._obj.attrs.get("inverts_to")
 
         tfm = self._obj.attrs.get("transform")
         try:

@@ -2,16 +2,8 @@ import unittest
 from pathlib import Path
 
 from pyrolite.util.meta import (
-    get_additional_params,
-    inargs,
-    numpydoc_str_param_list,
     pyrolite_datafolder,
-    sphinx_doi_link,
-    subkwargs,
-    take_me_to_the_docs,
-    update_docstring_references,
 )
-from pyrolite.util.synthetic import normal_frame
 
 
 class TestPyroliteDataFolder(unittest.TestCase):
@@ -39,8 +31,6 @@ class TestPyroliteDataFolder(unittest.TestCase):
 # subkwargs
 
 # inargs
-
-# numpydoc_str_param_list
 
 # get_additional_params
 

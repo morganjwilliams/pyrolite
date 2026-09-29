@@ -5,8 +5,9 @@ Submodule with various plotting and visualisation functions.
 import warnings
 
 import matplotlib
+import matplotlib.axes
 import matplotlib.pyplot as plt
-import mpltern
+import mpltern  # noqa: F401
 import numpy as np
 import pandas as pd
 
@@ -16,7 +17,7 @@ from .. import geochem
 from ..comp.codata import ILR, close
 from ..util.distributions import get_scaler, sample_kde
 from ..util.log import Handle
-from ..util.meta import get_additional_params, subkwargs
+from ..util.meta import subkwargs
 from ..util.pd import to_frame
 from ..util.plot.axes import init_axes, label_axes
 from ..util.plot.helpers import plot_cooccurence
@@ -27,30 +28,37 @@ from .color import process_color
 logger = Handle(__name__)
 
 # pyroplot added to __all__ for docs
-__all__ = ["density", "spider", "pyroplot"]
+__all__ = ["density", "pyroplot", "spider"]
 
 
-def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3]):
+def _check_components(
+    obj: pd.DataFrame | pd.Series,
+    components: list[str] | None = None,
+    check_size: bool = True,
+    valid_sizes: list[int] | None = None,
+):
     """
     Check that the components provided within a dataframe are consistent with the
     form of plot being used.
 
     Parameters
     ----------
-    obj : :class:`pandas.DataFrame`
+    obj : pandas.DataFrame
         Object to check.
-    components : :class:`list`
+    components : list
         List of components, optionally specified.
-    check_size : :class:`bool`
+    check_size : bool
         Whether to verify the size of the column index.
-    valid_sizes : :class:`list`
+    valid_sizes : list
         Component list lengths which are valid for the plot type.
 
     Returns
     -------
-    :class:`list`
+    list
         Components for the plot.
     """
+    if valid_sizes is None:
+        valid_sizes = [2, 3]
     try:
         if check_size and (obj.columns.size not in valid_sizes):
             assert len(components) in valid_sizes
@@ -66,7 +74,7 @@ def _check_components(obj, components=None, check_size=True, valid_sizes=[2, 3])
 # note that only some of these methods will be valid for series
 @pd.api.extensions.register_series_accessor("pyroplot")
 @pd.api.extensions.register_dataframe_accessor("pyroplot")
-class pyroplot(object):
+class pyroplot:
     def __init__(self, obj):
         """
         Custom dataframe accessor for pyrolite plotting.
@@ -83,24 +91,31 @@ class pyroplot(object):
     def _validate(obj):
         pass
 
-    def cooccurence(self, ax=None, normalize=True, log=False, colorbar=False, **kwargs):
+    def cooccurence(
+        self,
+        ax: matplotlib.axes.Axes | None = None,
+        normalize: bool = True,
+        log: bool = False,
+        colorbar: bool = False,
+        **kwargs,
+    ) -> matplotlib.axes.Axes:
         """
         Plot the co-occurence frequency matrix for a given input.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        normalize : :class:`bool`
+        normalize : bool
             Whether to normalize the cooccurence to compare disparate variables.
-        log : :class:`bool`
+        log : bool
             Whether to take the log of the cooccurence.
-        colorbar : :class:`bool`
+        colorbar : bool
             Whether to append a colorbar.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the cooccurence plot is added.
 
         """
@@ -112,29 +127,36 @@ class pyroplot(object):
         ax.set_yticklabels(obj.columns, minor=False)
         return ax
 
-    def density(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def density(
+        self,
+        components: list[str] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        axlabels: bool = True,
+        **kwargs,
+    ) -> matplotlib.axes.Axes:
         r"""
         Method for plotting histograms (mode='hist2d'|'hexbin') or kernel density
         esitimates from point data. Convenience access function to
-        :func:`~pyrolite.plot.density.density` (see `Other Parameters`, below), where
+        `~pyrolite.plot.density.density`, where
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        axlabels : :class:`bool`, True
+        axlabels : bool
             Whether to add x-y axis labels.
-
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the density diagram is plotted.
 
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.density`, :func:`pyrolite.plot.density.density`.
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -149,37 +171,38 @@ class pyroplot(object):
 
     def heatscatter(
         self,
-        components: list = None,
-        ax=None,
-        axlabels=True,
-        logx=False,
-        logy=False,
+        components: list[str] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        axlabels: bool = True,
+        logx: bool = False,
+        logy: bool = False,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         r"""
         Heatmapped scatter plots using the pyroplot API. See further parameters
         for `matplotlib.pyplot.scatter` function below.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        axlabels : :class:`bool`, :code:`True`
+        axlabels : bool
             Whether to add x-y axis labels.
-        logx : :class:`bool`, `False`
+        logx : bool
             Whether to log-transform x values before the KDE for bivariate plots.
-        logy : :class:`bool`, `False`
+        logy : bool
             Whether to log-transform y values before the KDE for bivariate plots.
-
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the heatmapped scatterplot is added.
 
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.scatter`.
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -202,37 +225,39 @@ class pyroplot(object):
 
     def parallel(
         self,
-        components=None,
-        rescale=False,
-        legend=False,
-        ax=None,
+        components: list[str] | None = None,
+        rescale: bool = False,
+        legend: bool = False,
+        ax: matplotlib.axes.Axes | None = None,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         """
-        Create a :func:`pyrolite.plot.parallel.parallel`. coordinate plot from
-        the columns of the :class:`~pandas.DataFrame`.
+        Create a `pyrolite.plot.parallel.parallel`. coordinate plot from
+        the columns of the pandas.DataFrame.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Components to use as axes for the plot.
-        rescale : :class:`bool`
+        rescale : bool
             Whether to rescale values to [-1, 1].
-        legend : :class:`bool`, :code:`False`
+        legend : bool
             Whether to include or suppress the legend.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the parallel coordinates plot is added.
 
         Todo
         ----
         * Adapt figure size based on number of columns.
 
+        Notes
+        -----
+        See also: `pyrolite.plot.pyroplot.parallel`, `pyrolite.plot.parallel.parallel`.
         """
 
         obj = to_frame(self._obj)
@@ -246,26 +271,33 @@ class pyroplot(object):
         )
         return ax
 
-    def plot(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def plot(
+        self,
+        components: list[str] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        axlabels: bool = True,
+        **kwargs,
+    ) -> matplotlib.axes.Axes:
         r"""
         Convenience method for line plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        axlabels : :class:`bool`, :code:`True`
+        axlabels : bool
             Whether to add x-y axis labels.
-        {otherparams}
-
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the plot is added.
 
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.plot`, :func:`matplotlib.pyplot.plot`
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -284,41 +316,47 @@ class pyroplot(object):
 
     def REE(
         self,
-        index="elements",
-        ax=None,
-        mode="plot",
-        dropPm=True,
-        scatter_kw={},
-        line_kw={},
+        index: str = "elements",
+        ax: matplotlib.axes.Axes | None = None,
+        mode: str = "plot",
+        dropPm: bool = True,
+        scatter_kw: dict | None = None,
+        line_kw: dict | None = None,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         """Pass the pandas object to :func:`pyrolite.plot.spider.REE_v_radii`.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        index : :class:`str`
+        index : str
             Whether to plot radii ('radii') on the principal x-axis, or elements
             ('elements').
-        mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+        mode : str
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-        dropPm : :class:`bool`
+        dropPm : bool
             Whether to exclude the (almost) non-existent element Promethium from the REE
             list.
-        scatter_kw : :class:`dict`
+        scatter_kw : dict
             Keyword parameters to be passed to the scatter plotting function.
-        line_kw : :class:`dict`
+        line_kw : dict
             Keyword parameters to be passed to the line plotting function.
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the REE plot is added.
 
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.REE`, :func:`pyrolite.plot.spider.REE_v_radii`.
         """
+        if scatter_kw is None:
+            scatter_kw = {}
+        if line_kw is None:
+            line_kw = {}
         obj = to_frame(self._obj)
         ree = [i for i in geochem.ind.REE(dropPm=dropPm) if i in obj.columns]
 
@@ -335,26 +373,34 @@ class pyroplot(object):
         ax.set_ylabel(r"$\mathrm{X / X_{Reference}}$")
         return ax
 
-    def scatter(self, components: list = None, ax=None, axlabels=True, **kwargs):
+    def scatter(
+        self,
+        components: list[str] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        axlabels: bool = True,
+        **kwargs,
+    ) -> matplotlib.axes.Axes:
         r"""
         Convenience method for scatter plots using the pyroplot API. See
         further parameters for `matplotlib.pyplot.scatter` function below.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        axlabels : :class:`bool`, :code:`True`
+        axlabels : bool
             Whether to add x-y axis labels.
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the scatterplot is added.
 
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.scatter`, :func:`matplotlib.pyplot.scatter`
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
@@ -381,52 +427,54 @@ class pyroplot(object):
 
     def spider(
         self,
-        components: list = None,
-        indexes: list = None,
-        ax=None,
-        mode="plot",
-        index_order=None,
-        autoscale=True,
-        scatter_kw={},
-        line_kw={},
+        components: list[str] | None = None,
+        indexes: list[float] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        mode: str = "plot",
+        index_order: str | list[str] | None = None,
+        autoscale: bool = True,
+        scatter_kw: dict | None = None,
+        line_kw: dict | None = None,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         r"""
         Method for spider plots. Convenience access function to
-        :func:`~pyrolite.plot.spider.spider` (see `Other Parameters`, below), where
+        :func"`~pyrolite.plot.spider.spider`, where
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
         ----------
-        components : :class:`list`, `None`
+        components : list
             Elements or compositional components to plot.
-        indexes :  :class:`list`, `None`
-            Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        indexes :  list
+            Positions of the elements along the xaxis.
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
         index_order
             Function to order spider plot indexes (e.g. by incompatibility).
-        autoscale : :class:`bool`
+        autoscale : bool
             Whether to autoscale the y-axis limits for standard spider plots.
-        mode : :class:`str`, :code`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+        mode : str
             Mode for plot. Plot will produce a line-scatter diagram. Fill will return
             a filled range. Density will return a conditional density diagram.
-        scatter_kw : :class:`dict`
+        scatter_kw : dict
             Keyword parameters to be passed to the scatter plotting function.
-        line_kw : :class:`dict`
+        line_kw : dict
             Keyword parameters to be passed to the line plotting function.
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the spider diagram is plotted.
 
-        Todo
-        ----
-            * Add 'compositional data' filter for default components if None is given
-
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.spider`, :meth:`pyrolite.plot.spider.spider`.
         """
+        if line_kw is None:
+            line_kw = {}
+        if scatter_kw is None:
+            scatter_kw = {}
         obj = to_frame(self._obj)
 
         if components is None:  # default to plotting elemental data
@@ -472,33 +520,36 @@ class pyroplot(object):
 
     def stem(
         self,
-        components: list = None,
-        ax=None,
-        orientation="horizontal",
-        axlabels=True,
+        components: list[str] | None = None,
+        ax: matplotlib.axes.Axes | None = None,
+        orientation: str = "horizontal",
+        axlabels: bool = True,
         **kwargs,
-    ):
+    ) -> matplotlib.axes.Axes:
         r"""
         Method for creating stem plots. Convenience access function to
-        :func:`~pyrolite.plot.stem.stem` (see `Other Parameters`, below), where
+        :func:`~pyrolite.plot.stem.stem`, where
         further parameters for relevant `matplotlib` functions are also listed.
 
         Parameters
         ----------
-        components : :class:`list`, :code:`None`
+        components : list
             Elements or compositional components to plot.
-        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+        ax : matplotlib.axes.Axes
             The subplot to draw on.
-        orientation : :class:`str`
+        orientation : str
             Orientation of the plot (horizontal or vertical).
-        axlabels : :class:`bool`, True
+        axlabels : bool
             Whether to add x-y axis labels.
-        {otherparams}
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes on which the stem diagram is plotted.
+
+        Notes
+        -----
+        See also: :meth:`pyrolite.plot.pyroplot.stem`,:func:`pyrolite.plot.stem.stem`.
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components, valid_sizes=[2])
@@ -516,111 +567,3 @@ class pyroplot(object):
             label_axes(ax, labels=components)
 
         return ax
-
-
-# ideally we would i) check for the same params and ii) aggregate all others across
-# inherited or chained functions. This simply imports the params from another docstring
-_add_additional_parameters = True
-
-pyroplot.density.__doc__ = pyroplot.density.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.density,
-            density.density,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-pyroplot.parallel.__doc__ = pyroplot.parallel.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.parallel,
-            parallel.parallel,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-
-pyroplot.REE.__doc__ = pyroplot.REE.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.REE,
-            spider.REE_v_radii,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-
-pyroplot.scatter.__doc__ = pyroplot.scatter.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.scatter,
-            plt.scatter,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-pyroplot.plot.__doc__ = pyroplot.plot.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.plot,
-            plt.plot,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-pyroplot.spider.__doc__ = pyroplot.spider.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.spider,
-            spider.spider,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-
-pyroplot.stem.__doc__ = pyroplot.stem.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.stem,
-            stem.stem,
-            header="Other Parameters",
-            indent=8,
-            subsections=True,
-        ),
-    ][_add_additional_parameters]
-)
-
-pyroplot.heatscatter.__doc__ = pyroplot.heatscatter.__doc__.format(
-    otherparams=[
-        "",
-        get_additional_params(
-            pyroplot.scatter, header="Other Parameters", indent=8, subsections=True
-        ),
-    ][_add_additional_parameters]
-)

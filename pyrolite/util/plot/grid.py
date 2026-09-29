@@ -2,6 +2,8 @@
 Gridding and binning functions.
 """
 
+from collections.abc import Callable
+
 import numpy as np
 import scipy.interpolate
 
@@ -12,7 +14,7 @@ from .transform import ABC_to_xy, xy_to_ABC
 logger = Handle(__name__)
 
 
-def bin_centres_to_edges(centres, sort=True):
+def bin_centres_to_edges(centres: np.ndarray, sort: bool = True) -> np.ndarray:
     """
     Translates point estimates at the centres of bins to equivalent edges,
     for the case of evenly spaced bins.
@@ -31,7 +33,7 @@ def bin_centres_to_edges(centres, sort=True):
     return np.hstack([before, internal_means, after])
 
 
-def bin_edges_to_centres(edges):
+def bin_edges_to_centres(edges: np.ndarray) -> np.ndarray:
     """
     Translates edges of histogram bins to bin centres.
     """
@@ -45,35 +47,42 @@ def bin_edges_to_centres(edges):
 
 
 def ternary_grid(
-    data=None, nbins=10, margin=0.001, force_margin=False, yscale=1.0, tfm=lambda x: x
-):
+    data: np.ndarray | None = None,
+    nbins: int = 10,
+    margin: float = 0.001,
+    force_margin: bool = False,
+    yscale: float = 1.0,
+    tfm: Callable = lambda x: x,
+) -> tuple[
+    np.ndarray, np.ndarray, tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]
+]:
     """
     Construct a graphical linearly-spaced grid within a ternary space.
 
     Parameters
     ------------
-    data : :class:`numpy.ndarray`
-        Data to construct the grid around (:code:`(samples, 3)`).
-    nbins : :class:`int`
+    data : numpy.ndarray
+        Data to construct the grid around (`(samples, 3)`).
+    nbins : int
         Number of bins for grid.
-    margin : :class:`float`
+    margin : float
         Proportional value for the position of the outer boundary of the grid.
-    forge_margin : :class:`bool`
+    forge_margin : bool
         Whether to enforce the grid margin.
-    yscale : :class:`float`
+    yscale : float
         Y scale for the specific ternary diagram.
     tfm :
         Log transform to use for the grid creation.
 
     Returns
     --------
-    bins : :class:`numpy.ndarray`
-        Bin centres along each of the ternary axes (:code:`(samples, 3)`)
-    binedges : :class:`numpy.ndarray`
+    bins : numpy.ndarray
+        Bin centres along each of the ternary axes (`(samples, 3)`)
+    binedges : numpy.ndarray
         Position of bin edges.
-    centregrid : :class:`list` of :class:`numpy.ndarray`
+    centregrid : list of numpy.ndarray
         Meshgrid of bin centres.
-    edgegrid : :class:`list` of :class:`numpy.ndarray`
+    edgegrid : list of numpy.ndarray
         Meshgrid of bin edges.
     """
     if data is not None:
@@ -93,7 +102,7 @@ def ternary_grid(
     xbounds, ybounds = ABC_to_xy(bounds, yscale=yscale).T  # in the cartesian xy space
     xbounds = np.hstack((xbounds, [xbounds[0]]))
     ybounds = np.hstack((ybounds, [ybounds[0]]))
-    tck, u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
+    tck, _u = scipy.interpolate.splprep([xbounds, ybounds], per=True, s=0, k=1)
     # interpolated outer boundary
     xi, yi = scipy.interpolate.splev(np.linspace(0, 1.0, 10000), tck)
 
