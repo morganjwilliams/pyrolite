@@ -1,0 +1,7 @@
+recursive-exclude test/ *
+recursive-exclude docs/ *
+recursive-exclude paper/ *
+recursive-exclude binder/ *
+recursive-exclude .github/ *
+
+exclude .*
