@@ -1,5 +1,3 @@
-from traitlets import Float
-from periodictable import Ca
 import warnings
 from collections.abc import Callable
 from typing import overload
