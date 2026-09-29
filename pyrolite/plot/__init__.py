@@ -467,10 +467,6 @@ class pyroplot:
         matplotlib.axes.Axes
             Axes on which the spider diagram is plotted.
 
-        Todo
-        ----
-        * Add 'compositional data' filter for default components if None is given
-
         Notes
         -----
         See also: :meth:`pyrolite.plot.pyroplot.spider`, :meth:`pyrolite.plot.spider.spider`.
