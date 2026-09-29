@@ -22,6 +22,8 @@ If you're keen to check something out before its released, you can use a
 - Removed {mod}`numpydoc` dependency; some of the docstrings which had used this to dynamically present parameter options will now just point to where additional parameters are able to be used.
 - Added dependabot config, added publishing GitHub action, updated binder config, updated GitHub action, and ReadTheDocs config.
 - Added type hinting throughout.
+- Migrated to the simpler MIT license.
+- Updated package configuration; removed `MANIFEST.in` in favour of incorporation in `pyproject.toml`.
 
 ## [v0.3.7]
 
