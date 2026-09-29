@@ -3,6 +3,8 @@ Functions for transforming ionic radii to and from atomic number for the visuali
 of REE patterns.
 """
 
+from collections.abc import Callable
+
 import numpy as np
 
 from ...geochem.ind import REE, get_ionic_radii
@@ -11,24 +13,29 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-def REE_z_to_radii(z, fit=None, degree=7, **kwargs):
+def REE_z_to_radii(
+    z: float | list[float] | np.ndarray,
+    fit: Callable | None = None,
+    degree: int = 7,
+    **kwargs,
+) -> float | np.ndarray:
     """
     Estimate the ionic radii which would be approximated by a given atomic number
     based on a provided (or calcuated) fit for the Rare Earth Elements.
 
     Parameters
     ----------
-    z : :class:`float` | :class:`list` | :class:`numpy.ndarray`
+    z : float | list | numpy.ndarray
         Atomic nubmers to be converted.
     fit : callable
         Callable function optionally specified; if not specified it will be calculated
         from Shannon Radii.
-    degree : :class:`int`
+    degree : int
         Degree of the polynomial fit between atomic number and radii.
 
     Returns
     -------
-    r : :class:`float` | :class:`numpy.ndarray`
+    r : float | numpy.ndarray
         Approximate atomic nubmers for given radii.
     """
     if fit is None:
@@ -46,24 +53,29 @@ def REE_z_to_radii(z, fit=None, degree=7, **kwargs):
     return r
 
 
-def REE_radii_to_z(r, fit=None, degree=7, **kwargs):
+def REE_radii_to_z(
+    r: float | list[float] | np.ndarray,
+    fit: Callable | None = None,
+    degree: int = 7,
+    **kwargs,
+) -> float | np.ndarray:
     """
     Estimate the atomic number which would be approximated by a given ionic radii
     based on a provided (or calcuated) fit for the Rare Earth Elements.
 
     Parameters
     ----------
-    r : :class:`float` | :class:`list` | :class:`numpy.ndarray`
+    r : float | list | numpy.ndarray
         Radii to be converted.
     fit : callable
         Callable function optionally specified; if not specified it will be calculated
         from Shannon Radii.
-    degree : :class:`int`
+    degree : int
         Degree of the polynomial fit between radii and atomic number.
 
     Returns
     -------
-    z : :class:`float` | :class:`numpy.ndarray`
+    z : float | numpy.ndarray
         Approximate atomic numbers for given radii.
     """
     if fit is None:

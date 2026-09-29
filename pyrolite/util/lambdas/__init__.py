@@ -7,27 +7,25 @@ from ..meta import update_docstring_references
 from .eval import get_function_components
 from .oneill import lambdas_ONeill2016
 from .opt import lambdas_optimize
-from .params import _get_params, orthogonal_polynomial_constants
-from .plot import plot_lambdas_components, plot_profiles
-from .transform import REE_z_to_radii
+from .params import _get_params
 
 logger = Handle(__name__)
 
 
 @update_docstring_references
 def calc_lambdas(
-    df,
-    params=None,
-    degree=4,
-    exclude=None,
-    algorithm="ONeill",
-    anomalies=None,
-    fit_tetrads=False,
-    sigmas=None,
-    add_uncertainties=False,
-    add_X2=False,
+    df: pd.DataFrame,
+    params: list | str | None = None,
+    degree: int = 4,
+    exclude: list[str] | None = None,
+    algorithm: str = "ONeill",
+    anomalies: list[str] | None = None,
+    fit_tetrads: bool = False,
+    sigmas: float | list[float] | np.ndarray | None = None,
+    add_uncertainties: bool = False,
+    add_X2: bool = False,
     **kwargs,
-):
+) -> pd.DataFrame:
     """
     Parameterises values based on linear combination of orthogonal polynomials
     over a given set of values for independent variable `x` [#ref_1]_ .
@@ -35,7 +33,7 @@ def calc_lambdas(
 
     Parameters
     ----------
-    df : `pd.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing REE Data.
     params : list | str
         Pre-computed parameters for the orthogonal polynomials (a list of tuples).
@@ -63,7 +61,7 @@ def calc_lambdas(
 
     Returns
     --------
-    `pd.DataFrame`
+    pandas.DataFrame
 
     See Also
     ---------
@@ -73,7 +71,7 @@ def calc_lambdas(
 
     References
     ----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+    .. [#ref_1] O'Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
            Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """

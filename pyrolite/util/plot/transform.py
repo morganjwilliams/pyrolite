@@ -12,9 +12,7 @@ from ..log import Handle
 logger = Handle(__name__)
 
 
-def affine_transform(
-    mtx: np.ndarray = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-) -> Callable:
+def affine_transform(mtx: np.ndarray | None = None) -> Callable:
     """
     Construct a function which will perform a 2D affine transform based on
     a 3x3 affine matrix.
@@ -23,6 +21,8 @@ def affine_transform(
     -----------
     mtx : numpy.ndarray
     """
+    if mtx is None:
+        mtx = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     def tfm(data):
         xy = data[:, :2]

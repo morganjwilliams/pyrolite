@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import periodictable as pt
 import scipy
+from periodictable.formulas import Formula
 
 from ..comp.codata import close, renormalise
 from ..geochem.transform import convert_chemistry, to_molecular
@@ -70,26 +71,28 @@ for mineral in NORM_MINERALS:
     NORM_MINERALS[mineral]["mass"] = pt.formula(NORM_MINERALS[mineral]["formulae"]).mass
 
 
-def unmix(comp, parts, order=1, det_lim=0.0001):
+def unmix(
+    comp: np.ndarray, parts: np.ndarray, order: int = 1, det_lim: float = 0.0001
+) -> np.ndarray:
     """
     From a composition and endmember components, find a set of weights which best
     approximate the composition as a weighted sum of components.
 
     Parameters
     --------------
-    comp : :class:`numpy.ndarray`
-        Array of compositions (shape :math:`n_S, n_C`).
-    parts : :class:`numpy.ndarray`
-        Array of endmembers (shape :math:`n_E, n_C`).
-    order : :class:`int`
+    comp : numpy.ndarray
+        Array of compositions (shape `n_S, n_C`).
+    parts : numpy.ndarray
+        Array of endmembers (shape `n_E, n_C`).
+    order : int
         Order of regularization, defaults to L1 for sparsity.
-    det_lim : :class:`float`
+    det_lim : float
         Detection limit, below which minor components will be omitted for sparsity.
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        Array of endmember modal abundances (shape :math:`n_S, n_E`)
+    numpy.ndarray
+        Array of endmember modal abundances (shape `n_S, n_E`)
     """
     nsamples, nscomponents = comp.shape
     nparts, ncomponents = parts.shape
@@ -117,35 +120,35 @@ def unmix(comp, parts, order=1, det_lim=0.0001):
 
 
 def endmember_decompose(
-    composition,
-    endmembers=None,
-    drop_zeros=True,
-    molecular=True,
-    order=1,
-    det_lim=0.0001,
-):
+    composition: pd.DataFrame | pd.Series | Formula | str,
+    endmembers: str | list | dict | None = None,
+    drop_zeros: bool = True,
+    molecular: bool = True,
+    order: int = 1,
+    det_lim: float = 0.0001,
+) -> pd.DataFrame:
     """
     Decompose a given mineral composition to given endmembers.
 
     Parameters
     -----------
-    composition : :class:`~pandas.DataFrame` | :class:`~pandas.Series` | :class:`~periodictable.formulas.Formula` | :class:`str`
+    composition : pandas.DataFrame | pandas.Series | periodictable.formulas.Formula | str
         Composition to decompose into endmember components.
-    endmembers : :class:`str` | :class:`list` | :class:`dict`
+    endmembers : str | list | dict
         List of endmembers to use for the decomposition.
-    drop_zeros : :class:`bool`, :code:`True`
+    drop_zeros : bool
         Whether to omit components with zero estimated abundance.
-    molecular : :class:`bool`, :code:`True`
+    molecular : bool
         Whether to *convert* the chemistry to molecular before calculating the
         decomposition.
-    order : :class:`int`
-        Order of regularization passed to :func:`unmix`, defaults to L1 for sparsity.
-    det_lim : :class:`float`
+    order : int
+        Order of regularization passed to `unmix`, defaults to L1 for sparsity.
+    det_lim : float
         Detection limit, below which minor components will be omitted for sparsity.
 
     Returns
     ---------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
     """
     # parse composition ----------------------------------------------------------------
     if endmembers is None:
@@ -236,26 +239,26 @@ _MiddlemostTASRatios = {
 }
 
 
-def MiddlemostOxRatio(df):
+def MiddlemostOxRatio(df: pd.DataFrame) -> pd.Series:
     """
     Apply a TAS classification to a dataframe, and get estimated Fe2O3/FeO ratios
     from Middlemost (1989).
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to get Fe2O3/FeO ratios for, containing the required oxides
         to calculate TAS diagrams from (i.e. SiO2, Na2O, K2O).
 
     Returns
     -------
-    ratios : :class:`pandas.Series`
+    ratios : pandas.Series
         Series of estimated Fe2O3/FeO ratios, based on TAS classification.
 
     References
     ----------
     Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
-    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19-26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
     to_sum = [
@@ -310,18 +313,18 @@ def MiddlemostOxRatio(df):
     return ratios
 
 
-def LeMaitreOxRatio(df, mode=None):
+def LeMaitreOxRatio(df: pd.DataFrame, mode: str | None = None) -> pd.Series:
     r"""
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing compositions to calibrate against.
-    mode : :class:`str`
+    mode : str
         Mode for the correction - 'volcanic' or 'plutonic'.
 
     Returns
     -------
-    :class:`pandas.Series`
+    pandas.Series
         Series with oxidation ratios.
 
     Notes
@@ -335,7 +338,7 @@ def LeMaitreOxRatio(df, mode=None):
     ----------
     Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
     into Mineralogical Classifications.
-    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181-89.
     https://doi.org/10.1007/BF00399603.
     """
     if mode is None:  # defualt to volcanic
@@ -367,23 +370,23 @@ def LeMaitreOxRatio(df, mode=None):
     return ratio
 
 
-def Middlemost_Fe_correction(df):
+def Middlemost_Fe_correction(df: pd.DataFrame) -> pd.DataFrame:
     r"""
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing compositions to calibrate against.
 
     Returns
     -------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Series with two corrected iron components
         (:math:`\mathrm{FeO, Fe_2O_3}`).
 
     References
     ----------
     Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
-    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19-26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
     mass_ratios = MiddlemostOxRatio(df)  # mass ratios
@@ -398,18 +401,18 @@ def Middlemost_Fe_correction(df):
     ).pyrochem.convert_chemistry(to=[to])
 
 
-def LeMaitre_Fe_correction(df, mode="volcanic"):
+def LeMaitre_Fe_correction(df: pd.DataFrame, mode: str = "volcanic") -> pd.DataFrame:
     r"""
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing compositions to correct iron for.
-    mode : :class:`str`
+    mode : str
         Mode for the correction - 'volcanic' or 'plutonic'.
 
     Returns
     -------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Series with two corrected iron components
         (:math:`\mathrm{FeO, Fe_2O_3}`).
 
@@ -417,11 +420,11 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     ----------
     Le Maitre, R. W (1976). Some Problems of the Projection of Chemical Data
     into Mineralogical Classifications.
-    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181–89.
+    Contributions to Mineralogy and Petrology 56, no. 2 (1 January 1976): 181-89.
     https://doi.org/10.1007/BF00399603.
 
     Middlemost, Eric A. K. (1989). Iron Oxidation Ratios, Norms and the
-    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19–26.
+    Classification of Volcanic Rocks. Chemical Geology 77, 1: 19-26.
     https://doi.org/10.1016/0009-2541(89)90011-9.
     """
     mass_ratios = LeMaitreOxRatio(df, mode=mode)  # mass ratios
@@ -437,16 +440,18 @@ def LeMaitre_Fe_correction(df, mode="volcanic"):
     ).pyrochem.convert_chemistry(to=[to])
 
 
-def _update_molecular_masses(mineral_dict, corrected_mass_df):
+def _update_molecular_masses(
+    mineral_dict: dict[str, dict], corrected_mass_df: pd.DataFrame
+):
     """
     Update a dictionary of mineral molecular masses based on their oxide
     components. Note that this modifies in place and has no return value.
 
     Parameters
     ----------
-    mineral_dict : :class:`dict`
+    mineral_dict : dict
         Dictionary of minerals containing compositions and molecular masses.
-    corrected_mass_df : :class:`dict`
+    corrected_mass_df : dict
         Dataframe containing columns which include corrected molecular masses
         for specific oxide components.
     """
@@ -471,7 +476,12 @@ def _update_molecular_masses(mineral_dict, corrected_mass_df):
         data["mass"] = masses
 
 
-def _aggregate_components(df, to_component, from_components, corrected_mass):
+def _aggregate_components(
+    df: pd.DataFrame,
+    to_component: str,
+    from_components: str,
+    corrected_mass: pd.DataFrame,
+):
     """
     Aggregate minor components into major oxides and cacluate associated
     minor component fractions and a corrected molecular weight for the major
@@ -479,13 +489,13 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to aggregate molar components from.
-    to_component : :class:`str`
+    to_component : str
         Major oxide component to aggreagte to.
-    from_components : :class:`list`
+    from_components : list
         Minor oxide components to aggregate from.
-    corrected_mass : :class:`pandas.DataFrame`
+    corrected_mass : pandas.DataFrame
         Dataframe to put corrected masses.
     """
     target = f"n_{to_component}_corr"
@@ -502,14 +512,14 @@ def _aggregate_components(df, to_component, from_components, corrected_mass):
 
 
 def CIPW_norm(
-    df,
-    Fe_correction=None,
-    Fe_correction_mode=None,
-    adjust_all_Fe=False,
-    return_adjusted_input=False,
-    return_free_components=False,
-    rounding=3,
-):
+    df: pd.DataFrame,
+    Fe_correction: str | None = None,
+    Fe_correction_mode: str | None = None,
+    adjust_all_Fe: bool = False,
+    return_adjusted_input: bool = False,
+    return_free_components: bool = False,
+    rounding: int = 3,
+) -> pd.DataFrame:
     """
     Standardised calcuation of estimated mineralogy from bulk rock chemistry.
     Takes a dataframe of chemistry & creates a dataframe of estimated mineralogy.
@@ -518,32 +528,32 @@ def CIPW_norm(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe containing compositions to transform.
-    Fe_correction : :class:`str`
+    Fe_correction : str
         Iron correction to apply, if any. Will default to 'LeMaitre'.
-    Fe_correction_mode : :class:`str`
+    Fe_correction_mode : str
         Mode for the iron correction, where applicable.
-    adjust_all_Fe : :class:`bool`
+    adjust_all_Fe : bool
         Where correcting iron compositions, whether to adjust all iron
         compositions, or only those where singular components are specified.
-    return_adjusted_input  : :class:`bool`
+    return_adjusted_input  : bool
         Whether to return the adjusted input chemistry with the output.
-    return_free_components  : :class:`bool`
+    return_free_components  : bool
         Whether to return the free components in the output.
-    rounding : :class:`int`
+    rounding : int
         Rounding to be applied to input and output data.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
 
     References
     ----------
     Verma, Surendra P., Ignacio S. Torres-Alvarado, and Fernando Velasco-Tapia (2003).
-    A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197–216.
+    A Revised CIPW Norm. Swiss Bulletin of Mineralogy and Petrology 83, 2: 197-216.
     Verma, S. P., & Rivera-Gomez, M. A. (2013). Computer Programs for the
-    Classification and Nomenclature of Igneous Rocks. Episodes, 36(2), 115–124.
+    Classification and Nomenclature of Igneous Rocks. Episodes, 36(2), 115-124.
 
     Todo
     ----
@@ -819,7 +829,7 @@ def CIPW_norm(
     # Calculate normative components
     ############################################################################
     _index = df.index
-    df = {c: df[c] for c in df.columns}
+    df: dict[str, pd.Series] = {c: df[c] for c in df.columns}
     # Normative Zircon
     df["Z"] = df["ZrO2"]
     df["Y"] = df["Z"]
@@ -1182,7 +1192,7 @@ def CIPW_norm(
     df["Mg-Di"] = df["Di"] * df["MgO_ratio"]
     df["Mg-Ol"] = df["Ol"] * df["MgO_ratio"]
 
-    df = pd.DataFrame(df, index=_index)  # reconstruct df as a dataframe
+    df: pd.DataFrame = pd.DataFrame(df, index=_index)  # reconstruct df as a dataframe
     ############################################################################
     # calculate free component molecular abundances
     ############################################################################

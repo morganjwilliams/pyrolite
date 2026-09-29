@@ -7,6 +7,8 @@ Accessing and modifying the database across multiple with multiple threads/proce
 *could* result in database corruption (e.g. through repeated truncation etc).
 """
 
+from periodictable.formulas import Formula
+
 import functools
 import json
 from pathlib import Path
@@ -28,53 +30,53 @@ with open(__dbpath__, "r") as f:
 
 
 @functools.cache  # cache outputs for speed
-def list_groups():
+def list_groups() -> list[str]:
     """
     List the mineral groups present in the mineral database.
 
     Returns
-    ----------
-    :class:`list`
+    -------
+    list
     """
-    return MINDB.group.unique()
+    return list(MINDB.group.unique())
 
 
 @functools.cache  # cache outputs for speed
-def list_minerals():
+def list_minerals() -> list[str]:
     """
     List the minerals present in the mineral database.
 
     Returns
-    ----------
-    :class:`list`
+    -------
+    list
     """
-    return MINDB.name.unique()
+    return list(MINDB.name.unique())
 
 
 @functools.cache  # cache outputs for speed
-def list_formulae():
+def list_formulae() -> list[str]:
     """
     List the mineral formulae present in the mineral database.
 
     Returns
-    ----------
-    :class:`list`
+    --------
+    list
     """
-    return MINDB.formula.unique()
+    return list(MINDB.formula.unique())
 
 
-def get_mineral(name=""):
+def get_mineral(name: str = "") -> pd.Series:
     """
     Get a specific mineral from the database.
 
     Parameters
-    ------------
-    name : :class:`str`
+    ----------
+    name : str
         Name of the desired mineral.
 
     Returns
     --------
-    :class:`pd.Series`
+    pd.Series
     """
     assert name in list_minerals()
     res = MINDB.query(f"name=='{name}'")
@@ -83,24 +85,26 @@ def get_mineral(name=""):
     return res
 
 
-def parse_composition(composition, drop_zeros=True):
+def parse_composition(
+    composition: str | Formula | pd.Series, drop_zeros: bool = True
+) -> pd.Series:
     """
     Parse a composition reference to provide an ionic elemental version in the form of a
-    :class:`~pandas.Series`. Currently accepts :class:`pandas.Series`,
-    :class:`periodictable.formulas.Formula`
-    and structures which will directly convert to :class:`pandas.Series`
+    pandas.Series. Currently accepts pandas.Series,
+    `periodictable.formulas.Formula`
+    and structures which will directly convert to pandas.Series
     (list of tuples, dict).
 
     Parameters
     -----------
-    composition : :class:`str` | :class:`periodictable.formulas.Formula` | :class:`pandas.Series`
+    composition : str | `periodictable.formulas.Formula` | pandas.Series
         Name of a mineral, a formula or composition as a series
-    drop_zeros : :class:`bool`
+    drop_zeros : bool
         Whether to drop compositional zeros.
 
     Returns
     --------
-    mineral : :class:`pandas.Series`
+    mineral : pandas.Series
         Composition formatted as a series.
     """
     mineral = None
@@ -129,22 +133,22 @@ def parse_composition(composition, drop_zeros=True):
             mineral = parse_composition(pd.Series(composition))
 
     if drop_zeros and mineral is not None:
-        mineral = mineral[mineral != 0]
+        mineral: pd.Series = mineral[mineral != 0]
     return mineral
 
 
-def get_mineral_group(group=""):
+def get_mineral_group(group: str = "") -> pd.DataFrame:
     """
     Extract a mineral group from the database.
 
     Parameters
     -----------
-    group : :class:`str`
+    group : str
         Group to extract from the mineral database.
 
     Returns
     ---------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Dataframe of group members and compositions.
     """
     assert group in list_groups()
@@ -159,13 +163,13 @@ def get_mineral_group(group=""):
     return df
 
 
-def update_database(path=None, **kwargs):
+def update_database(path: str | Path | None = None, **kwargs):
     """
-    Update the mineral composition database.
+    Update the mineral composition database from the CSV.`
 
     Parameters
     -----------
-    path : :class:`str` | :class:`pathlib.Path`
+    path : str | pathlib.Path
         The desired filepath for the JSON database.
 
     Notes
@@ -187,7 +191,7 @@ def update_database(path=None, **kwargs):
     if path is None:
         path = __dbpath__
 
-    path = Path(path).with_suffix(".json")
+    path: Path = Path(path).with_suffix(".json")
 
     # name group formula composition
     # needs write access

@@ -5,7 +5,7 @@ import numpy as np
 from pyrolite.geochem.ind import REE, get_ionic_radii
 from pyrolite.geochem.norm import get_reference_composition
 from pyrolite.geochem.transform import *
-from pyrolite.util.lambdas import orthogonal_polynomial_constants
+from pyrolite.util.lambdas.params import orthogonal_polynomial_constants
 from pyrolite.util.synthetic import normal_frame
 
 

@@ -1,28 +1,35 @@
+import numpy as np
 import pandas as pd
 
 
 def _collect_lambda_outputs(
-    B, s, X2, src, names, add_uncertainties=False, add_X2=False
-):
+    B: np.ndarray,
+    s: np.ndarray,
+    X2: np.ndarray,
+    src: pd.DataFrame | pd.Series,
+    names: list[str],
+    add_uncertainties: bool = False,
+    add_X2: bool = False,
+) -> pd.DataFrame | pd.Series:
     """
     Collect estimates, uncertainties and Chi-squared values for lambda
     and tetrad parameter estimates.
 
     Parameters
     ----------
-    B : :class:`numpy.ndarray`
+    B : numpy.ndarray
         Parameter estimates.
-    s : :class:`numpy.ndarray`
+    s : numpy.ndarray
         Parameter uncertainty estimates.
-    X2 : :class:`numpy.ndarray`
+    X2 : numpy.ndarray
         Chi-squared values.
-    src : :class:`pandas.DataFrame` | :class:`pandas.Series
+    src : pandas.DataFrame | pandas.Series
         The original source data.
-    names : :class:`list`
+    names : list
         Names for the parameters.
-    add_uncertainties : :class:`bool`
+    add_uncertainties : bool
         Whether to append Chi-squared values.
-    add_X2 : :class:`bool`
+    add_X2 : bool
         Whether to append Chi-squared values.
     """
     if src.ndim > 1:

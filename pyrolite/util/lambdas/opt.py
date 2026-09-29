@@ -3,9 +3,12 @@ Functions for optimization-based REE profile fitting and parameter uncertainty
 estimation.
 """
 
+from collections.abc import Callable
+
 import numpy as np
 import scipy.linalg
 import scipy.optimize
+import pandas as pd
 
 from ..log import Handle
 from ..meta import update_docstring_references
@@ -17,25 +20,27 @@ from .params import parse_sigmas
 logger = Handle(__name__)
 
 
-def _cost_func(ls, ys, func_components, power=1.0):
+def _cost_func(
+    ls: np.ndarray, ys: np.ndarray, func_components: np.ndarray, power: float = 1.0
+) -> np.ndarray:
     """
     Cost function for lambda optimization.
 
     Parameters
     ------------
-    ls : :class:`numpy.ndarray`
+    ls : numpy.ndarray
         Lambda values, effectively weights for the polynomial components.
-    ys : :class:`numpy.ndarray`
+    ys : numpy.ndarray
         Target y values.
-    func_components : :class:`numpy.ndarray`
+    func_components : numpy.ndarray
         Arrays representing the individual unweighted function components.
-        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
-    power : :class:`float`
+        E.g. `[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
+    power : float
         Power for the cost function.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Cost at the given set of `ls`.
     """
     cost = np.abs(ls @ func_components - ys) ** power
@@ -43,23 +48,25 @@ def _cost_func(ls, ys, func_components, power=1.0):
     return cost
 
 
-def _residuals_func(ls, ys, func_components):
+def _residuals_func(
+    ls: np.ndarray, ys: np.ndarray, func_components: list[np.ndarray]
+) -> np.ndarray:
     """
     Residuals function for lambda optimization.
 
     Parameters
     ------------
-    ls : :class:`numpy.ndarray`
+    ls : numpy.ndarray
         Lambda values, effectively weights for the polynomial components.
-    ys : :class:`numpy.ndarray`
+    ys : numpy.ndarray
         Target y values.
-    func_components : :class:`numpy.ndarray`
+    func_components : numpy.ndarray
         Arrays representing the individual unweighted function components.
-        E.g. :code:`[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
+        E.g. `[[a, a, ...], [x - b, x - b, ...], ...]` for lambdas.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Residuals at the given set of `ls`.
     """
     res = ls @ func_components - ys
@@ -67,19 +74,19 @@ def _residuals_func(ls, ys, func_components):
     return res
 
 
-def pcov_from_jac(jac):
+def pcov_from_jac(jac: np.ndarray) -> np.ndarray:
     """
     Extract a covariance matrix from a Jacobian matrix returned from
     :mod:`scipy.optimize` functions.
 
     Parameters
     ----------
-    jac : :class:`numpy.ndarray`
+    jac : numpy.ndarray
         Jacobian array.
 
     Returns
     -------
-    pcov : :class:`numpy.ndarray`
+    pcov : numpy.ndarray
         Square covariance array; this hasn't yet been scaled by residuals.
     """
     # from scipy.opt minpack
@@ -92,25 +99,30 @@ def pcov_from_jac(jac):
     return pcov
 
 
-def linear_fit_components(y, x0, func_components, sigmas=None):
+def linear_fit_components(
+    y: np.ndarray,
+    x0: np.ndarray | list[float],
+    func_components: list[np.ndarray],
+    sigmas: float | np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     r"""
     Fit a weighted sum of function components using linear algebra.
 
     Parameters
     -----------
-    y : :class:`numpy.ndarray`
+    y : numpy.ndarrayndarray
         Array of target values to fit.
-    x0 : :class:`numpy.ndarray`
+    x0 : numpy.ndarray
         Starting guess for the function weights.
-    func_components : :class:`list` ( :class:`numpy.ndarray` )
+    func_components : list[numpy.ndarray]
         List of arrays representing static/evaluated function components.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         Single value or 1D array of normalised observed value uncertainties
         (:math:`\sigma_{REE} / REE`).
 
     Returns
     -------
-    B, s, χ2 : :class:`numpy.ndarray`
+    B, s, χ2 : numpy.ndarray
         Arrays for the optimized parameter values (B; (n, d)), parameter
         uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
@@ -166,34 +178,38 @@ def linear_fit_components(y, x0, func_components, sigmas=None):
 
 
 def optimize_fit_components(
-    y, x0, func_components, residuals_function=_residuals_func, sigmas=None
-):
+    y: np.ndarray,
+    x0: np.ndarray | list[float],
+    func_components: list[np.ndarray],
+    residuals_function: Callable = _residuals_func,
+    sigmas: float | np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     r"""
     Fit a weighted sum of function components using
     :func:`scipy.optimize.least_squares`.
 
     Parameters
     -----------
-    y : :class:`numpy.ndarray`
+    y : numpy.ndarray
         Array of target values to fit.
-    x0 : :class:`numpy.ndarray`
+    x0 : numpy.ndarray
         Starting guess for the function weights.
-    func_components : :class:`list` ( :class:`numpy.ndarray` )
+    func_components : list ( numpy.ndarray )
         List of arrays representing static/evaluated function components.
     redsiduals_function : callable
         Callable funciton to compute residuals which accepts ordered arguments for
         weights, target values and function components.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         Single value or 1D array of normalised observed value uncertainties
         (:math:`\sigma_{REE} / REE`).
 
     Returns
     -------
-    B, s, χ2 : :class:`numpy.ndarray`
+    B, s, χ2 : numpy.ndarray
         Arrays for the optimized parameter values (B; (n, d)), parameter
         uncertaintes (s, 1σ; (n, d)) and chi-chi_squared (χ2; (n, 1)).
     """
-    m, _ = y.shape[0], x0.size  # shape of output
+    m, xd = y.shape[0], len(x0)  # shape of output
     sigmas = parse_sigmas(y.shape[1], sigmas=sigmas)
     B = np.ones((y.shape[0], len(func_components))) * np.nan
     s = np.ones((y.shape[0], len(func_components))) * np.nan
@@ -209,7 +225,7 @@ def optimize_fit_components(
         )
         # get the covariance matrix of the parameters from the jacobian
         pcov = pcov_from_jac(res.jac)
-        yd, xd = y.shape[1], x0.size
+        yd = y.shape[1]
         if yd > xd:  # check samples in y vs parameter dimension
             s_sq = res.cost / (yd - xd)
             pcov = pcov * s_sq
@@ -226,58 +242,58 @@ def optimize_fit_components(
 
 @update_docstring_references
 def lambdas_optimize(
-    df,
-    radii,
-    params=None,
-    fit_tetrads=False,
-    tetrad_params=None,
-    fit_method="opt",
-    sigmas=None,
-    add_uncertainties=False,
-    add_X2=False,
+    df: pd.DataFrame | pd.Series,
+    radii: np.ndarray,
+    params: list[tuple[float, ...]] | None = None,
+    fit_tetrads: bool = False,
+    tetrad_params: list[tuple[float, ...]] | None = None,
+    fit_method: str = "opt",
+    sigmas: float | np.ndarray | None = None,
+    add_uncertainties: bool = False,
+    add_X2: bool = False,
     **kwargs,
-):
+) -> pd.DataFrame | pd.Series:
     """
     Parameterises values based on linear combination of orthogonal polynomials
     over a given set of values for independent variable `x`. [#ref_1]_
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame` | :class:`pandas.Series
+    df : pandas.DataFrame | pandas.Series
         Target data to fit. For geochemical data, this is typically normalised
         so we can fit a smooth function.
-    radii : :class:`list`, :class:`numpy.ndarray`
+    radii : list, numpy.ndarray
         Radii at which to evaluate the orthogonal polynomial.
-    params : :class:`list`, :code:`None`
+    params : list
         Orthogonal polynomial coefficients (see
-        :func:`orthogonal_polynomial_constants`).
-    fit_tetrads : :class:`bool`
+        `orthogonal_polynomial_constants`).
+    fit_tetrads : bool
         Whether to also fit the patterns for tetrads.
-    tetrad_params : :class:`list`
+    tetrad_params : list
         List of parameter sets for tetrad functions.
-    fit_method : :class:`str`
-        Which fit method to use: :code:`"optimization"` or :code:`"linear"`.
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    fit_method : str
+        Which fit method to use: `"optimization"` or `"linear"`.
+    sigmas : float | numpy.ndarray
         Single value or 1D array of observed value uncertainties.
-    add_uncertainties : :class:`bool`
+    add_uncertainties : bool
         Whether to append estimated parameter uncertainties to the dataframe/series.
-    add_X2 : :class:`bool`
+    add_X2 : bool
         Whether to append the chi-squared values (χ2) to the dataframe/series.
 
     Returns
     --------
-    :class:`numpy.ndarray` | (:class:`numpy.ndarray`, :class:`numpy.ndarray`)
+    pandas.DataFrame | pandas.Series
         Optimial results for weights of orthogonal polymomial regression (`lambdas`).
 
     See Also
     ---------
     :func:`~pyrolite.util.lambdas.params.orthogonal_polynomial_constants`
-    :func:`~pyrolite.geochem.transform.lambda_lnREE`
+    `~pyrolite.geochem.transform.lambda_lnREE`
 
     References
     ----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+    .. [#ref_1] O'Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
     assert params is not None  # degree = len(params)

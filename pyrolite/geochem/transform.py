@@ -134,9 +134,9 @@ def oxide_conversion(
 
     Parameters
     ----------
-    oxin : str | `~periodictable.formulas.Formula`
+    oxin : str | periodictable.formulas.Formula
         Input component.
-    oxout : str | `~periodictable.formulas.Formula`
+    oxout : str | periodictable.formulas.Formula
         Output component.
     molecular : bool, `False`
         Whether to apply the conversion for molecular data.
@@ -301,7 +301,7 @@ def aggregate_element(
     ----------
     df : pandas.DataFrame
         DataFrame for which to aggregate cation data.
-    to : str | `~periodictable.core.Element` | `~periodictable.formulas.Formula`  | dict
+    to : str | `~periodictable.core.Element` | periodictable.formulas.Formula  | dict
         Component(s) to convert to. If one component is specified, the element will be
         converted to the target species.
 

@@ -2,7 +2,8 @@
 Line interpolation for matplotlib lines and paths.
 """
 
-import matplotlib.collections
+import matplotlib.axes
+import matplotlib.contour
 import matplotlib.path
 import numpy as np
 import scipy.interpolate
@@ -13,8 +14,13 @@ logger = Handle(__name__)
 
 
 def interpolate_path(
-    path, resolution=100, periodic=False, aspath=True, closefirst=False, **kwargs
-):
+    path: matplotlib.path.Path,
+    resolution: int = 100,
+    periodic: bool = False,
+    aspath: bool = True,
+    closefirst: bool = False,
+    **kwargs,
+) -> matplotlib.path.Path | np.ndarray:
     """
     Obtain the interpolation of an existing path at a given
     resolution. Keyword arguments are forwarded to
@@ -22,24 +28,23 @@ def interpolate_path(
 
     Parameters
     -----------
-    path : :class:`matplotlib.path.Path`
+    path : matplotlib.path.Path
         Path to interpolate.
-    resolution :class:`int`
+    resolution int
         Resolution at which to obtain the new path. The verticies of
         the new path will have shape (`resolution`, 2).
-    periodic : :class:`bool`
+    periodic : bool
         Whether to use a periodic spline.
-    periodic : :class:`bool`
-        Whether to return a :code:`matplotlib.path.Path`, or simply
+    periodic : bool
+        Whether to return a matplotlib.path.Path, or simply
         a tuple of x-y arrays.
-    closefirst : :class:`bool`
+    closefirst : bool
         Whether to first close the path by appending the first point again.
 
     Returns
     --------
-    :class:`matplotlib.path.Path` | :class:`tuple`
-        Interpolated :class:`~matplotlib.path.Path` object, if
-        `aspath` is :code:`True`, else a tuple of x-y arrays.
+    matplotlib.path.Path | tuple
+        Interpolated path object, if `aspath` is `True`, else a tuple of x-y arrays.
     """
     x, y = path.vertices.T
     if x.size > 4:
@@ -63,23 +68,25 @@ def interpolate_path(
         return path.vertices.T
 
 
-def interpolated_patch_path(patch, resolution=100, **kwargs):
+def interpolated_patch_path(
+    patch: matplotlib.patches.Patch, resolution: int = 100, **kwargs
+) -> matplotlib.path.Path | np.ndarray:
     """
     Obtain the periodic interpolation of the existing path of a patch at a
     given resolution.
 
     Parameters
     -----------
-    patch : :class:`matplotlib.patches.Patch`
+    patch : matplotlib.patches.Patch
         Patch to obtain the original path from.
-    resolution :class:`int`
+    resolution int
         Resolution at which to obtain the new path. The verticies of the new path
         will have shape (`resolution`, 2).
 
     Returns
     --------
-    :class:`matplotlib.path.Path`
-        Interpolated :class:`~matplotlib.path.Path` object.
+    matplotlib.path.Path
+        Interpolated path object.`
     """
     pth = patch.get_path()
     tfm = patch.get_transform()
@@ -89,29 +96,34 @@ def interpolated_patch_path(patch, resolution=100, **kwargs):
     )
 
 
-def get_contour_paths(src, resolution=100, minsize=3, filter=True):
+def get_contour_paths(
+    src: matplotlib.axes.Axes | matplotlib.contour.QuadContourSet,
+    resolution: int = 100,
+    minsize: int = 3,
+    filter: bool = True,
+) -> tuple[list[np.ndarray], list[str], list[dict]]:
     """
     Extract the paths of contours from a contour plot.
 
     Parameters
     ------------
-    ax : :class:`matplotlib.axes.Axes` | `matplotlib.contour.QuadContourSet`
+    ax : matplotlib.axes.Axes | `matplotlib.contour.QuadContourSet`
         Axes to extract contours from.
-    resolution : :class:`int`
+    resolution : int
         Resolution of interpolated splines to return.
     filter : bool
         Whether to filter out paths which have no length.
 
     Returns
     --------
-    contourspaths : :class:`list` (:class:`list`)
+    contourspaths : list (list)
         List of lists, each represnting one line collection (a single contour). In the
         case where this contour is multimodal, there will be multiple paths for each
         contour.
-    contournames : :class:`list`
+    contournames : list
         List of names for contours, where they have been labelled, and there are no
         other text artists on the figure.
-    contourstyles : :class:`list`
+    contourstyles : list
         List of styles for contours.
 
     """
@@ -145,7 +157,7 @@ def get_contour_paths(src, resolution=100, minsize=3, filter=True):
         for p in paths
     ]
     edgecolors = [{"color": c} for c in src.get_edgecolor()]
-    names
+
     if not filter:
         return interp_paths, names, edgecolors
     else:
