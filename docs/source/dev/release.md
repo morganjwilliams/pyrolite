@@ -14,7 +14,8 @@ git add uv.lock
 git commit "Update uv Lock"
 ```
 
-The project can be build into distributable artefacts with:
+The project can be built into distributable artefacts (note that `build`, `dist` and `pyrolite.egg-info`
+directories should be removed first) with:
 
 ```bash
 uv run python -m build --sdist --wheel

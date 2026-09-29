@@ -70,8 +70,24 @@ dev = [
     { include-group = "docs" },
 ]
 
-[tool.setuptools.packages]
-find = { exclude = ['test*', "docs*"] }
+[tool.setuptools.packages.find]
+include = ["pyrolite*"]
+
+[tool.setuptools.package-data] # https://setuptools.pypa.io/en/stable/userguide/datafiles.html
+pyrolite = [
+    "LICENSE",
+    "pyrolite/data/Aitchison*",
+    "pyrolite/data/geochem/*",
+    "pyrolite/data/mineral/*",
+    "pyrolite/data/models/*",
+    "pyrolite/data/radii/*",
+    "pyrolite/data/timescale/*",
+    "pyrolite/data/testing/*",
+    "pyrolite/data/_config/*",
+]
+
+[tool.setuptools.exclude-package-data]
+pyrolite = ["test/*", "docs/*", "paper/*", "binder/*", "build/*", "dist/*"]
 
 [tool.setuptools.dynamic]
 readme = { file = "README.md", content-type = "text/markdown" }
