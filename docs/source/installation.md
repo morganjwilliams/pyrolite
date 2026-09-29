@@ -32,11 +32,11 @@ pip install --upgrade pyrolite
 
 ## Optional Dependencies
 
-Optional dependencies (`dev`, `skl`, `spatial`, `db`, `stats`, `docs`) can be specified
+Optional dependencies (`skl`, `spatial`, `db`, `stats`, `notebook`, `excel`) can be specified
 during `pip` installation. For example:
 
 ```bash
 pip install --user pyrolite[stats]
 
-pip install --user pyrolite[dev,docs]
+pip install --user pyrolite[skl,stats,notebook]
 ```

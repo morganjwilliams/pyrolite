@@ -13,12 +13,23 @@ and numerous auxiliary utilities.
 
 - On this site you can browse the [API](./api/API.md), or look
   through some of the [usage examples](./examples/index.rst).
-- There's also a quick [installation guide](./installation.rst), a list of
+- There's also a quick [installation guide](./installation.md), a list of
   [recent changes](./dev/changelog.md) and some notes on
   where the project is heading in the [roadmap](./dev/roadmap.md).
 - If you're interested in [contributing to the project](./dev/contributing.md), there are
   many potential avenues, whether you're experienced with python or not.
 
+## Publication 
+
+An overview of an early version of pyrolite was
+[published in the Journal of Open Source Software](https://joss.theoj.org/papers/10.21105/joss.02314),
+and a publication focusing on using `lambdas` and tetrads to parameterise
+Rare Earth Element patterns has been
+[published in Mathematical Geosciences](https://doi.org/10.1007/s11004-021-09959-5).
+
+:::{seealso}
+[Citation](cite.md)
+:::
 
 ## Why *pyrolite*?
 
@@ -38,17 +49,6 @@ make use of your geochemical data to build and test geological models.
     [doi: 10.1080/01621459.1976.10480949](https://doi.org/10.1080/01621459.1976.10480949)
 
 
-## Publication 
-
-An overview of an early version of pyrolite was
-[published in the Journal of Open Source Software](https://joss.theoj.org/papers/10.21105/joss.02314),
-and a publication focusing on using `lambdas` and tetrads to parameterise
-Rare Earth Element patterns has been
-[published in Mathematical Geosciences](https://doi.org/10.1007/s11004-021-09959-5).
-
-:::{seealso}
-[Citation](cite.md)
-:::
 
 
 ```{raw} latex
