@@ -2,6 +2,10 @@
 Kernel desnity estimation plots for geochemical data.
 """
 
+from matplotlib.tri import TriContourSet
+from matplotlib.collections import QuadMesh
+from matplotlib.contour import QuadContourSet
+
 import copy
 
 import matplotlib.axes
@@ -26,22 +30,22 @@ logger = Handle(__name__)
 
 
 def density(
-    arr,
+    arr: np.ndarray,
     ax: matplotlib.axes.Axes | None = None,
-    logx=False,
-    logy=False,
-    bins=25,
-    mode="density",
-    extent=None,
-    contours=None,
-    percentiles=True,
-    relim=True,
-    cmap=DEFAULT_CONT_COLORMAP,
-    shading="auto",
-    vmin=0.0,
-    colorbar=False,
+    logx: bool = False,
+    logy: bool = False,
+    bins: int = 25,
+    mode: str = "density",
+    extent: tuple[float] | None = None,
+    contours: list[float] | None = None,
+    percentiles: bool = True,
+    relim: bool = True,
+    cmap: str | matplotlib.colors.Colormap | None = DEFAULT_CONT_COLORMAP,
+    shading: str = "auto",
+    vmin: float = 0.0,
+    colorbar: bool = False,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     """
     Creates diagramatic representation of data density and/or frequency for either
     binary diagrams (X-Y) or ternary plots.
@@ -57,32 +61,32 @@ def density(
     ----------
     arr : numpy.ndarray
         Dataframe from which to draw data.
-    ax : :class:`matplotlib.axes.Axes`, `None`
+    ax : matplotlib.axes.Axes
         The subplot to draw on.
-    logx : :class:`bool`, `False`
+    logx : bool
         Whether to use a logspaced *grid* on the x axis. Values strictly >0 required.
-    logy : :class:`bool`, `False`
+    logy : bool
         Whether to use a logspaced *grid* on the y axis. Values strictly >0 required.
-    bins : :class:`int`, 20
+    bins : int, 20
         Number of bins used in the gridded functions (histograms, KDE evaluation grid).
-    mode : :class:`str`, 'density'
+    mode : str
         Different modes used here: ['density', 'hexbin', 'hist2d']
-    extent : :class:`list`
+    extent : list
         Predetermined extent of the grid for which to from the histogram/KDE. In the
         general form (xmin, xmax, ymin, ymax).
-    contours : :class:`list`
-        Contours to add to the plot, where :code:`mode='density'` is used.
-    percentiles :  :class:`bool`, `True`
+    contours : list
+        Contours to add to the plot, where `mode='density'` is used.
+    percentiles :  bool
         Whether contours specified are to be converted to percentiles.
-    relim : :class:`bool`, :code:`True`
+    relim : bool
         Whether to relimit the plot based on xmin, xmax values.
-    cmap : :class:`matplotlib.colors.Colormap`
+    cmap : `matplotlib.colors.Colormap`
         Colormap for mapping surfaces.
-    vmin : :class:`float`, 0.
+    vmin : float
         Minimum value for colormap.
-    shading : :class:`str`, 'auto'
+    shading : str
         Shading to apply to pcolormesh.
-    colorbar : :class:`bool`, False
+    colorbar : bool
         Whether to append a linked colorbar to the generated mappable image.
 
     Returns
@@ -285,15 +289,15 @@ def density(
 
 
 def _add_contours(
-    *coords,
-    zi=None,
+    *coords: np.ndarray,
+    zi: np.ndarray | None = None,
     ax: matplotlib.axes.Axes | None = None,
-    contours=None,
-    cmap=DEFAULT_CONT_COLORMAP,
-    vmin=0.0,
-    extent=None,
+    contours: list[float] | None = None,
+    cmap: str | matplotlib.colors.Colormap | None = DEFAULT_CONT_COLORMAP,
+    vmin: float = 0.0,
+    extent: tuple[float] | None = None,
     **kwargs,
-):
+) -> QuadContourSet | QuadMesh | TriContourSet:
     """
     Add density-based contours to a plot.
     """

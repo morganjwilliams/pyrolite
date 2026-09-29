@@ -1,4 +1,5 @@
 import inspect
+from collections.abc import Callable
 
 import numpy as np
 
@@ -12,49 +13,51 @@ logger = Handle(__name__)
 
 
 def ternary_heatmap(
-    data,
-    bins=20,
-    mode="density",
-    transform=ILR,
-    inverse_transform=inverse_ILR,
-    ternary_min_value=0.0001,  # 0.01%
-    grid_border_frac=0.1,  # 110% range for grid
-    grid=None,
+    data: np.ndarray,
+    bins: int = 20,
+    mode: str = "density",
+    transform: Callable = ILR,
+    inverse_transform: Callable = inverse_ILR,
+    ternary_min_value: float = 0.0001,  # 0.01%
+    grid_border_frac: float = 0.1,  # 110% range for grid
+    grid: np.ndarray | None = None,
     **kwargs,
-):
+) -> tuple[
+    np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, np.ndarray | Callable]
+]:
     """
     Heatmap for ternary diagrams. This invokes a 3D to 2D transform such as a
     log transform prior to creating a grid.
 
     Parameters
     -----------
-    data : :class:`numpy.ndarray`
+    data : numpy.ndarray
         Ternary data to obtain heatmap coords from.
-    bins : :class:`int`
+    bins : int
         Number of bins for the grid.
-    mode : :class:`str`, :code:`{'histogram', 'density'}`
+    mode : str, `{'histogram', 'density'}`
         Which mode to render the histogram/KDE in.
-    transform : :class:`callable` | :class:`sklearn.base.TransformerMixin`
+    transform : Callable | sklearn.base.TransformerMixin
         Callable function or Transformer class.
-    inverse_transform : :class:`callable`
+    inverse_transform : Callable
         Inverse function for `transform`, necessary if transformer class not specified.
-    ternary_min_value : :class:`float`
+    ternary_min_value : float
         Optional specification of minimum values within a ternary diagram to draw the
         transformed grid.
-    grid_border_frac : :class:`float`
+    grid_border_frac : float
         Size of border around the grid, expressed as a fraction of the total grid range.
-    grid : :class:`numpy.ndarray`
+    grid : numpy.ndarray
         Grid coordinates to sample at, if already calculated. For the density mode,
         this is a (nsamples, 2) array. For histograms, this is a two-member list of
         bin edges.
 
     Returns
     -------
-    t, l, r : :class:`tuple` of :class:`numpy.ndarray`
+    t, l, r : tuple of numpy.ndarray
         Ternary coordinates for the heatmap.
-    H : :class:`numpy.ndarray`
+    H : numpy.ndarray
         Histogram/density estimates for the coordinates.
-    data : :class:`dict`
+    data : dict
         Data dictonary with grid arrays and relevant information.
 
     Notes

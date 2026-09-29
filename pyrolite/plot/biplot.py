@@ -1,3 +1,4 @@
+import matplotlib.axes
 import numpy as np
 
 from ..comp import codata
@@ -7,19 +8,19 @@ from ..util.plot.axes import init_axes
 logger = Handle(__name__)
 
 
-def compositional_SVD(X: np.ndarray):
+def compositional_SVD(X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Breakdown a set of compositions to vertexes and cases for adding to a
     compositional biplot.
 
     Parameters
     ----------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Compositional array.
 
     Returns
     ---------
-    vertexes, cases : :class:`numpy.ndarray`, :class:`numpy.ndarray`
+    vertexes, cases : numpy.ndarray, numpy.ndarray
     """
     U, K, V = np.linalg.svd(codata.CLR(X))
     N = X.shape[1]  # dimensionality
@@ -29,40 +30,40 @@ def compositional_SVD(X: np.ndarray):
 
 
 def plot_origin_to_points(
-    xs,
-    ys,
-    labels=None,
-    ax=None,
-    origin=(0, 0),
-    color="k",
-    marker="o",
-    pad=0.05,
+    xs: np.ndarray,
+    ys: np.ndarray,
+    labels: list[str] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    origin: tuple[float, float] = (0.0, 0.0),
+    color: str = "k",
+    marker: str = "o",
+    pad: float = 0.05,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     """
     Plot lines radiating from a specific origin. Fornulated for creation of
-    biplots (:func:`covariance_biplot`, :func:`compositional_biplot`).
+    biplots (`covariance_biplot`, `compositional_biplot`).
 
     Parameters
     -----------
-    xs, ys : :class:`numpy.ndarray`
+    xs, ys : numpy.ndarray
         Coordinates for points to add.
-    labels : :class:`list`
+    labels : list
         Labels for verticies.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to plot on.
-    origin : :class:`tuple`
+    origin : tuple
         Origin to plot from.
-    color : :class:`str`
+    color : str
         Line color to use.
-    marker : :class:`str`
+    marker : str
         Marker to use for ends of vectors and origin.
-    pad : :class:`float`
+    pad : float
         Fraction of vector to pad text label.
 
     Returns
     --------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which radial plot is added.
     """
     x0, y0 = origin
@@ -96,22 +97,27 @@ def plot_origin_to_points(
     return ax
 
 
-def compositional_biplot(data, labels=None, ax=None, **kwargs):
+def compositional_biplot(
+    data: np.ndarray,
+    labels: list[str] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Create a compositional biplot.
 
     Parameters
     -----------
-    data : :class:`numpy.ndarray`
+    data : numpy.ndarray
         Coordinates for points to add.
-    labels : :class:`list`
+    labels : list
         Labels for verticies.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to plot on.
 
     Returns
     --------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which biplot is added.
     """
 
