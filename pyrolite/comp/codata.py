@@ -1,4 +1,8 @@
+from traitlets import Float
+from periodictable import Ca
 import warnings
+from collections.abc import Callable
+from typing import overload
 
 import numpy as np
 import pandas as pd
@@ -13,25 +17,36 @@ from ..util.math import helmert_basis, symbolic_helmert_basis
 
 logger = Handle(__name__)
 
-__TRANSFORMS__ = {}
+__TRANSFORMS__: dict[str, tuple[Callable, Callable]] = {}
 
-__sympy_protected_variables__ = {"S": "Ss"}
+__sympy_protected_variables__: dict[str, str] = {"S": "Ss"}
 
 
-def close(X: np.ndarray, sumf=np.sum):
+@overload
+def close(
+    X: np.ndarray[tuple[int, int], np.dtype[np.number]], sumf: Callable
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]: ...
+@overload
+def close(
+    X: np.ndarray[tuple[int], np.dtype[np.number]], sumf: Callable
+) -> np.ndarray[tuple[int], np.dtype[np.floating]]: ...
+def close(
+    X: np.ndarray[tuple[int, int] | tuple[int], np.dtype[np.number]],
+    sumf: Callable = np.sum,
+) -> np.ndarray[tuple[int, int] | tuple[int], np.dtype[np.floating]]:
     """
     Closure operator for compositional data.
 
     Parameters
     -----------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array to close.
-    sumf : :class:`callable`, :func:`numpy.sum`
+    sumf : Callable, `numpy.sum`
         Sum function to use for closure.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Closed array.
 
     Notes
@@ -46,9 +61,13 @@ def close(X: np.ndarray, sumf=np.sum):
         )
 
     if X.ndim == 2:
-        C = np.array(sumf(X, axis=1), dtype=float)[:, np.newaxis]
+        C: np.ndarray[tuple[int, int], np.dtype[np.floating]] = np.array(
+            sumf(X, axis=1), dtype=float
+        )[:, np.newaxis]
     else:
-        C = np.array(sumf(X), dtype=float)
+        C: np.ndarray[tuple[int], np.dtype[np.floating]] = np.array(
+            sumf(X), dtype=float
+        )
 
     # Replace zero sums with NaN to prevent division by zero
     C[np.isclose(C, 0)] = np.nan
@@ -57,34 +76,49 @@ def close(X: np.ndarray, sumf=np.sum):
     return np.divide(X, C)
 
 
-def renormalise(df: pd.DataFrame, components: list | None = None, scale=100.0):
+@overload
+def renormalise(
+    df: pd.DataFrame, components: list[str] | None, scale: float
+) -> pd.DataFrame: ...
+@overload
+def renormalise(
+    df: pd.Series, components: list[str] | None, scale: float
+) -> pd.Series: ...
+def renormalise(
+    df: pd.DataFrame | pd.Series,
+    components: list[str] | None = None,
+    scale: float = 100.0,
+) -> pd.DataFrame | pd.Series:
     """
     Renormalises compositional data to ensure closure.
 
     Parameters
     ------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to renomalise.
-    components : :class:`list`
+    components : list
         Option subcompositon to renormalise to 100. Useful for the use case
         where compostional data and non-compositional data are stored in the
         same dataframe.
-    scale : :class:`float`, :code:`100.`
+    scale : float
         Closure parameter. Typically either 100 or 1.
 
     Returns
     --------
-    :class:`pandas.DataFrame`
+    pandas.DataFrame
         Renormalized dataframe.
     """
-
     if components is None:
         components = []
-    dfc = df.copy(deep=True)
+    dfc: pd.DataFrame | pd.Series = df.copy(deep=True)
+    # Renormalise all columns if no components are specified
     if components:
-        if not all(col in dfc.columns for col in components):
+        if not all(
+            col in (dfc.columns if isinstance(dfc, pd.DataFrame) else dfc.index)
+            for col in components
+        ):
             raise ValueError("Not all specified components exist in the DataFrame.")
-        dfc = dfc[components]
+        dfc: pd.DataFrame | pd.Series = dfc[components]
 
     if (dfc <= 0).any().any():
         warnings.warn(
@@ -96,33 +130,35 @@ def renormalise(df: pd.DataFrame, components: list | None = None, scale=100.0):
 
     # Replace negative values with NaN
     dfc[dfc < 0] = np.nan
-
-    # Renormalise all columns if no components are specified
-    sum_rows = dfc.sum(axis=1)
     # Handle division by zero by replacing zeros with NaN
-    sum_rows.replace(0, np.nan, inplace=True)
-    dfc = dfc.divide(sum_rows, axis=0) * scale
+    if isinstance(dfc, pd.DataFrame):
+        return dfc.divide(dfc.sum(axis=1).replace(0, np.nan), axis=0) * scale
+    else:
+        sum_series: float = dfc.sum()
+        if np.isclose(sum_series, 0):
+            sum_series: float = np.nan
+        return dfc.divide(sum_series)
 
-    return dfc
 
-
-def ALR(X: np.ndarray, ind: int = -1, null_col=False):
+def ALR(
+    X: np.ndarray[tuple[int, int], np.dtype[np.number]], ind: int = -1, null_col=False
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Additive Log Ratio transformation.
 
     Parameters
     ---------------
-    X: :class:`numpy.ndarray`
-        Array on which to perform the transformation, of shape :code:`(N, D)`.
-    ind: :class:`int`
+    X: numpy.ndarray
+        Array on which to perform the transformation, of shape `(N, D)`.
+    ind: int
         Index of column used as denominator.
-    null_col : :class:`bool`
+    null_col : bool
         Whether to keep the redundant column.
 
     Returns
     ---------
-    :class:`numpy.ndarray`
-        ALR-transformed array, of shape :code:`(N, D-1)`.
+    numpy.ndarray
+        ALR-transformed array, of shape `(N, D-1)`.
     """
 
     Y = X.copy()
@@ -143,24 +179,26 @@ def ALR(X: np.ndarray, ind: int = -1, null_col=False):
     return np.log(Y)
 
 
-def inverse_ALR(Y: np.ndarray, ind=-1, null_col=False):
+def inverse_ALR(
+    Y: np.ndarray, ind=-1, null_col=False
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Inverse Centred Log Ratio transformation.
 
     Parameters
     ---------------
-    Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
-    ind : :class:`int`
+    Y : numpy.ndarray
+        Array on which to perform the inverse transformation, of shape `(N, D-1)`.
+    ind : int
         Index of column used as denominator.
-    null_col : :class:`bool`, :code:`False`
+    null_col : bool, `False`
         Whether the array contains an extra redundant column
-        (i.e. shape is :code:`(N, D)`).
+        (i.e. shape is `(N, D)`).
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        Inverse-ALR transformed array, of shape :code:`(N, D)`.
+    numpy.ndarray
+        Inverse-ALR transformed array, of shape `(N, D)`.
     """
     assert Y.ndim in [1, 2]
 
@@ -186,19 +224,19 @@ def inverse_ALR(Y: np.ndarray, ind=-1, null_col=False):
     return X
 
 
-def CLR(X: np.ndarray):
+def CLR(X: np.ndarray) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Centred Log Ratio transformation.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
-        2D array on which to perform the transformation, of shape :code:`(N, D)`.
+    X : numpy.ndarray
+        2D array on which to perform the transformation, of shape `(N, D)`.
 
     Returns
     ---------
-    :class:`numpy.ndarray`
-        CLR-transformed array, of shape :code:`(N, D)`.
+    numpy.ndarray
+        CLR-transformed array, of shape `(N, D)`.
     """
     X = np.array(X)
     X = np.divide(X, np.sum(X, axis=1).reshape(-1, 1))  # Closure operation
@@ -209,19 +247,19 @@ def CLR(X: np.ndarray):
     return Y
 
 
-def inverse_CLR(Y: np.ndarray):
+def inverse_CLR(Y: np.ndarray) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Inverse Centred Log Ratio transformation.
 
     Parameters
     ---------------
-    Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation, of shape :code:`(N, D)`.
+    Y : numpy.ndarray
+        Array on which to perform the inverse transformation, of shape `(N, D)`.
 
     Returns
     ---------
-    :class:`numpy.ndarray`
-        Inverse-CLR transformed array, of shape :code:`(N, D)`.
+    numpy.ndarray
+        Inverse-CLR transformed array, of shape `(N, D)`.
     """
     # Inverse of log operation
     X = np.exp(Y)
@@ -230,21 +268,23 @@ def inverse_CLR(Y: np.ndarray):
     return X
 
 
-def ILR(X: np.ndarray, psi=None, **kwargs):
+def ILR(
+    X: np.ndarray, psi: np.ndarray | None = None, **kwargs
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Isometric Log Ratio transformation.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
-        Array on which to perform the transformation, of shape :code:`(N, D)`.
-    psi : :class:`numpy.ndarray`
+    X : numpy.ndarray
+        Array on which to perform the transformation, of shape `(N, D)`.
+    psi : numpy.ndarray
         Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        ILR-transformed array, of shape :code:`(N, D-1)`.
+    numpy.ndarray
+        ILR-transformed array, of shape `(N, D-1)`.
     """
     d = X.shape[1]
     Y = CLR(X)
@@ -254,24 +294,26 @@ def ILR(X: np.ndarray, psi=None, **kwargs):
     return Y @ psi.T
 
 
-def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, psi=None, **kwargs):
+def inverse_ILR(
+    Y: np.ndarray, X: np.ndarray | None = None, psi: np.ndarray | None = None, **kwargs
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Inverse Isometric Log Ratio transformation.
 
     Parameters
     ---------------
-    Y : :class:`numpy.ndarray`
-        Array on which to perform the inverse transformation, of shape :code:`(N, D-1)`.
-    X : :class:`numpy.ndarray`, :code:`None`
+    Y : numpy.ndarray
+        Array on which to perform the inverse transformation, of shape `(N, D-1)`.
+    X : numpy.ndarray, `None`
         Optional specification for an array from which to derive the orthonormal basis,
-        with shape :code:`(N, D)`.
-    psi : :class:`numpy.ndarray`
+        with shape `(N, D)`.
+    psi : numpy.ndarray
         Array or matrix representing the ILR basis; optionally specified.
 
     Returns
     --------
-    :class:`numpy.ndarray`
-        Inverse-ILR transformed array, of shape :code:`(N, D)`.
+    numpy.ndarray
+        Inverse-ILR transformed array, of shape `(N, D)`.
     """
     if psi is None:
         psi = helmert_basis(D=Y.shape[1] + 1, **kwargs)
@@ -280,22 +322,22 @@ def inverse_ILR(Y: np.ndarray, X: np.ndarray = None, psi=None, **kwargs):
     return X
 
 
-def logratiomean(df, transform=CLR):
+def logratiomean(df: pd.DataFrame, transform: Callable = CLR) -> pd.Series:
     """
     Take a mean of log-ratios along the index of a dataframe.
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe from which to compute a mean along the index.
-    transform : :class:`callable`
+    transform : Callable
         Log transform to use.
-    inverse_transform : :class:`callable`
+    inverse_transform : Callable
         Inverse of log transform.
 
     Returns
     ---------
-    :class:`pandas.Series`
+    pandas.Series
         Mean values as a pandas series.
     """
     tfm, inv_tfm = get_transforms(transform)
@@ -310,19 +352,19 @@ def logratiomean(df, transform=CLR):
 ########################################################################################
 
 
-def _aggregate_sympy_constants(expr):
+def _aggregate_sympy_constants(expr: sympy.core.expr.Expr) -> sympy.core.expr.Expr:
     """
     Aggregate constants and symbolic components within a sympy expression to separate
     sub-expressions.
 
     Parameters
     -----------
-    expr : :class:`sympy.core.expr.Expr`
+    expr : sympy.core.expr.Expr
         Expression to aggregate. For matricies, use :func:`~sympy.Matrix.applyfunc`.
 
     Returns
     -------
-    :class:`sympy.core.expr.Expr`
+    sympy.core.expr.Expr
     """
     const = expr.func(*[term for term in expr.args if not term.free_symbols])
     vars = expr.func(*[term for term in expr.args if term.free_symbols])
@@ -332,20 +374,22 @@ def _aggregate_sympy_constants(expr):
         return sympy.UnevaluatedExpr(vars)
 
 
-def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
+def get_ALR_labels(
+    df: pd.DataFrame, mode: str = "simple", ind: int = -1, **kwargs
+) -> list[str]:
     """
     Get symbolic labels for ALR coordinates based on dataframe columns.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to generate ALR labels for.
-    mode : :class:`str`
-        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+    mode : str
+        Mode of label to return (`LaTeX`, `simple`).
 
     Returns
     -------
-    :class:`list`
+    list
         List of ALR coordinates corresponding to dataframe columns.
 
     Notes
@@ -379,20 +423,20 @@ def get_ALR_labels(df, mode="simple", ind=-1, **kwargs):
     return labels
 
 
-def get_CLR_labels(df, mode="simple", **kwargs):
+def get_CLR_labels(df: pd.DataFrame, mode: str = "simple", **kwargs) -> list[str]:
     """
     Get symbolic labels for CLR coordinates based on dataframe columns.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to generate CLR labels for.
-    mode : :class:`str`
-        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+    mode : str
+        Mode of label to return (`LaTeX`, `simple`).
 
     Returns
     -------
-    :class:`list`
+    list
         List of CLR coordinates corresponding to dataframe columns.
 
     Notes
@@ -424,20 +468,20 @@ def get_CLR_labels(df, mode="simple", **kwargs):
     return labels
 
 
-def get_ILR_labels(df, mode="latex", **kwargs):
+def get_ILR_labels(df: pd.DataFrame, mode: str = "latex", **kwargs) -> list[str]:
     """
     Get symbolic labels for ILR coordinates based on dataframe columns.
 
     Parameters
     ----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to generate ILR labels for.
-    mode : :class:`str`
-        Mode of label to return (:code:`LaTeX`, :code:`simple`).
+    mode : str
+        Mode of label to return (`LaTeX`, `simple`).
 
     Returns
     -------
-    :class:`list`
+    list
         List of ILR coordinates corresponding to dataframe columns.
 
     Notes
@@ -484,36 +528,40 @@ def get_ILR_labels(df, mode="latex", **kwargs):
 
 
 def boxcox(
-    X: np.ndarray,
-    lmbda=None,
-    lmbda_search_space=(-1, 5),
-    search_steps=100,
-    return_lmbda=False,
+    X: np.ndarray[tuple[int, int], np.dtype[np.number]] | pd.DataFrame,
+    lmbda: float | None = None,
+    lmbda_search_space: tuple[float, float] = (-1, 5),
+    search_steps: int = 100,
+    return_lmbda: bool = False,
+) -> (
+    np.ndarray[tuple[int, int], np.dtype[np.floating]]
+    | pd.DataFrame
+    | tuple[np.ndarray[tuple[int, int], np.dtype[np.floating]] | pd.DataFrame, float]
 ):
     """
     Box-Cox transformation.
 
     Parameters
     ---------------
-    X : :class:`numpy.ndarray`
+    X : numpy.ndarray
         Array on which to perform the transformation.
-    lmbda : :class:`numpy.number`, :code:`None`
+    lmbda : flaot
         Lambda value used to forward-transform values. If none, it will be calculated
         using the mean.
-    lmbda_search_space : :class:`tuple`
+    lmbda_search_space : tuple
         Range tuple (min, max).
-    search_steps : :class:`int`
+    search_steps : int
         Steps for lambda search range.
-    return_lmbda : :class:`bool`
+    return_lmbda : bool
         Whether to also return the lambda value.
 
     Returns
     -------
-    :class:`numpy.ndarray` | :class:`numpy.ndarray`(:class:`float`)
+    numpy.ndarray | pandas.DataFrame | tuple[np.ndarray | pandas.DataFrame,float]
         Box-Cox transformed array. If `return_lmbda` is true, tuple contains data and
         lambda value.
     """
-    if isinstance(X, (pd.DataFrame, pd.Series)):
+    if isinstance(X, pd.DataFrame):
         _X = X.values
     else:
         _X = X.copy()
@@ -537,7 +585,7 @@ def boxcox(
     else:
         out = np.apply_along_axis(scipy.stats.boxcox, 0, _X, lmbda)
 
-    if isinstance(_X, (pd.DataFrame, pd.Series)):
+    if isinstance(_X, pd.DataFrame):
         _out = X.copy()
         _out.loc[:, :] = out
         out = _out
@@ -548,20 +596,22 @@ def boxcox(
         return out
 
 
-def inverse_boxcox(Y: np.ndarray, lmbda):
+def inverse_boxcox(
+    Y: np.ndarray[tuple[int, int], np.dtype[np.floating]], lmbda: float
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Inverse Box-Cox transformation.
 
     Parameters
     ---------------
-    Y : :class:`numpy.ndarray`
+    Y : numpy.ndarray
         Array on which to perform the transformation.
-    lmbda : :class:`float`
+    lmbda : float
         Lambda value used to forward-transform values.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Inverse Box-Cox transformed array.
     """
     return scipy.special.inv_boxcox(Y, lmbda)
@@ -576,26 +626,26 @@ with the work which preceeded them.
 
 Neocleous, T., Aitken, C., Zadora, G., 2011. Transformations for compositional data
 with zeros with an application to forensic evidence evaluation. Chemometrics and
-Intelligent Laboratory Systems 109, 77–85. https://doi.org/10.1016/j.chemolab.2011.08.003
+Intelligent Laboratory Systems 109, 77-85. https://doi.org/10.1016/j.chemolab.2011.08.003
 
 Wang, H., Liu, Q., Mok, H.M.K., Fu, L., Tse, W.M., 2007. A hyperspherical transformation
 forecasting model for compositional data. European Journal of Operational Research 179,
-459–468. https://doi.org/10.1016/j.ejor.2006.03.039
+459-468. https://doi.org/10.1016/j.ejor.2006.03.039
 """
 
 
-def sphere(ys):
+def sphere(ys: np.ndarray[tuple[int, int], np.dtype[np.number]]):
     r"""
     Spherical coordinate transformation for compositional data.
 
     Parameters
     ----------
-    ys : :class:`numpy.ndarray`
+    ys : numpy.ndarray
         Compositional data to transform (shape (n, D)).
 
     Returns
     -------
-    θ : :class:`numpy.ndarray`
+    θ : numpy.ndarray
         Array of angles in radians (:math:`(0, \pi / 2]`)
 
     Notes
@@ -625,28 +675,30 @@ def sphere(ys):
     return θ
 
 
-def inverse_sphere(θ):
+def inverse_sphere(θ: np.ndarray[tuple[int, int], np.dtype[np.floating]]):
     """
     Inverse spherical coordinate transformation to revert back to compositional data
     in the simplex.
 
     Parameters
     ----------
-    θ : :class:`numpy.ndarray`
+    θ : numpy.ndarray
         Angular coordinates to revert.
 
     Returns
     -------
-    ys : :class:`numpy.ndarray`
+    ys : numpy.ndarray
         Compositional (simplex) coordinates, normalised to 1.
     """
     p = θ.shape[1]
     θ.shape[0]
     y = np.ones((θ.shape[0], p + 1)) * np.pi / 2
 
-    sinθ, cosθ = np.sin(θ), np.cos(θ)
+    sinθ: np.ndarray[tuple[int, int], np.dtype[np.floating]] = np.sin(θ)
+    cosθ: np.ndarray[tuple[int, int], np.dtype[np.floating]] = np.cos(θ)
 
     indicies = np.arange(0, p + 1)
+    C: float
     for ix in indicies:
         if ix == 0:
             C = 1.0
@@ -659,26 +711,27 @@ def inverse_sphere(θ):
             S = np.prod(sinθ[:, ix:], axis=1)
         y[:, ix] = C * S
 
-    ys = y**2
-    return ys
+    return y**2
 
 
 ################################################################################
 
 
-def compositional_cosine_distances(arr):
+def compositional_cosine_distances(
+    arr: np.ndarray[tuple[int, int], np.dtype[np.floating]],
+) -> np.ndarray[tuple[int, int], np.dtype[np.floating]]:
     """
     Calculate a distance matrix corresponding to the angles between a number
     of compositional vectors.
 
     Parameters
     ----------
-    arr: :class:`numpy.ndarray`
+    arr: numpy.ndarray
         Array of n-dimensional compositions of shape (n_samples, n).
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Array of angular distances of shape (n_samples, n_samples).
     """
     # all vectors are unit vectors where we start with closed compositions
@@ -697,18 +750,18 @@ def compositional_cosine_distances(arr):
 ########################################################################################
 
 
-def get_transforms(name):
+def get_transforms(name: str | Callable) -> tuple[Callable, Callable]:
     """
     Lookup a transform-inverse transform pair by name.
 
     Parameters
     ----------
-    name : :class:`str`
-        Name of of the transform pairs (e.g. :code:``'CLR'``).
+    name : str
+        Name of of the transform pairs (e.g. 'CLR').
 
     Returns
     -------
-    tfm, inv_tfm : :class:`callable`
+    tfm, inv_tfm : tuple[Callable,Callable]
         Transform and inverse transform functions.
     """
     if callable(name):  #  callable
@@ -724,7 +777,7 @@ def _load_transforms():
 
     Returns
     -------
-    :class:`dict`
+    dict
     """
     return {
         f: (globals().get(f), globals().get(f"inverse_{f}"))

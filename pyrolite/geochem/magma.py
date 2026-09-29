@@ -4,6 +4,7 @@ functions for predicting and accounting for melt evolution.
 """
 
 import numpy as np
+import pandas as pd
 import periodictable as pt
 
 from ..util.log import Handle
@@ -16,16 +17,16 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def FeAt8MgO(FeOT: float, MgO: float) -> float:
+def FeAt8MgO(FeOT: float | np.ndarray, MgO: float | np.ndarray) -> float | np.ndarray:
     """
     To account for differences in the slopes and curvature of liquid lines of descent
     as a function of parental magma composition [#ref_1]_ [#ref_2]_ (after [#ref_3]_).
 
     Parameters
     -------------
-    FeOT : :class:`float`
+    FeOT : float
         Iron oxide content.
-    MgO : :class:`float`
+    MgO : float
         Magnesium oxide content.
 
     References
@@ -40,13 +41,13 @@ def FeAt8MgO(FeOT: float, MgO: float) -> float:
     .. [#ref_2] Klein EM, Langmuir CH (1987).
         Global correlations of ocean ridge basalt chemistry with
         axial depth and crustal thickness.
-        Journal of Geophysical Research: Solid Earth 92:8089–8115.
+        Journal of Geophysical Research: Solid Earth 92:8089-8115.
         doi: `10.1029/JB092iB08p08089 <https://dx.doi.org/10.1029/JB092iB08p08089>`__
 
     .. [#ref_3] Langmuir CH, Bender JF (1984).
         The geochemistry of oceanic basalts in the vicinity
         of transform faults: Observations and implications.
-        Earth and Planetary Science Letters 69:107–127.
+        Earth and Planetary Science Letters 69:107-127.
         doi: `10.1016/0012-821X(84)90077-3 <https://dx.doi.org/10.1016/0012-821X(84)90077-3>`__
     """
     Fe8 = 1.825 - 1.529 * (FeOT - 0.03261 * MgO**2 + 0.2619) / (
@@ -56,16 +57,16 @@ def FeAt8MgO(FeOT: float, MgO: float) -> float:
 
 
 @update_docstring_references
-def NaAt8MgO(Na2O: float, MgO: float) -> float:
+def NaAt8MgO(Na2O: float | np.ndarray, MgO: float | np.ndarray) -> float | np.ndarray:
     """
     To account for differences in the slopes and curvature of liquid lines of descent
     as a function of parental magma composition [#ref_1]_ [#ref_2]_ (after [#ref_3]_).
 
     Parameters
     -------------
-    Na2O : :class:`float`
+    Na2O : float
         Iron oxide content.
-    MgO : :class:`float`
+    MgO : float
         Magnesium oxide content.
 
     References
@@ -80,13 +81,13 @@ def NaAt8MgO(Na2O: float, MgO: float) -> float:
     .. [#ref_2] Klein EM, Langmuir CH (1987).
         Global correlations of ocean ridge basalt chemistry with
         axial depth and crustal thickness.
-        Journal of Geophysical Research: Solid Earth 92:8089–8115.
+        Journal of Geophysical Research: Solid Earth 92:8089-8115.
         doi: `10.1029/JB092iB08p08089 <https://dx.doi.org/10.1029/JB092iB08p08089>`__
 
     .. [#ref_3] Langmuir CH, Bender JF (1984).
         The geochemistry of oceanic basalts in the vicinity
         of transform faults: Observations and implications.
-        Earth and Planetary Science Letters 69:107–127.
+        Earth and Planetary Science Letters 69:107-127.
         doi: `10.1016/0012-821X(84)90077-3 <https://dx.doi.org/10.1016/0012-821X(84)90077-3>`__
     """
     Na8 = 0.6074 - 3.523 * (Na2O + 0.00529 * MgO**2 - 0.9495) / (
@@ -96,27 +97,34 @@ def NaAt8MgO(Na2O: float, MgO: float) -> float:
 
 
 @update_docstring_references
-def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
+def SCSS(
+    df: pd.DataFrame,
+    T: float | np.ndarray,
+    P: float | np.ndarray,
+    kelvin: bool = False,
+    grid: str | None = None,
+    outunit: str = "wt%",
+) -> tuple[np.ndarray, np.ndarray]:
     r"""
     Obtain the sulfur content at sulfate and sulfide saturation [#ref_1]_ [#ref_2]_.
 
     Parameters
     -------------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe of compositions.
-    T : :class:`float` | :class:`numpy.ndarray`
+    T : float | numpy.ndarray
         Temperature
-    P : :class:`float` | :class:`numpy.ndarray`
+    P : float | numpy.ndarray
         Pressure (kbar)
-    kelvin : :class:`bool`
-        Whether temperature values are in kelvin (:code:`True`) or celsuis (:code:`False`)
-    grid : :code:`None`, :code:`'geotherm'`, :code:`'grid'`
-        Whether to consider temperature and pressure as a geotherm (:code:`geotherm`),
-        or independently (as a grid, :code:`grid`).
+    kelvin : bool
+        Whether temperature values are in kelvin (`True`) or celsuis (`False`)
+    grid : str |none
+        Whether to consider temperature and pressure as a geotherm (`geotherm`),
+        or independently (as a grid, `grid`).
 
     Returns
     -------
-    sulfate, sulfide : :class:`numpy.ndarray`, :class:`numpy.ndarray`
+    sulfate, sulfide : numpy.ndarray, numpy.ndarray
         Arrays of mass fraction sulfate and sulfide abundances at saturation.
 
     Notes
@@ -156,13 +164,13 @@ def SCSS(df, T, P, kelvin=False, grid=None, outunit="wt%"):
     -----------
     .. [#ref_1] Li, C., and Ripley, E.M. (2009).
         Sulfur Contents at Sulfide-Liquid or Anhydrite Saturation in Silicate Melts:
-        Empirical Equations and Example Applications. Economic Geology 104, 405–412.
+        Empirical Equations and Example Applications. Economic Geology 104, 405-412.
         doi: `gsecongeo.104.3.405 <https://doi.org/10.2113/gsecongeo.104.3.405>`__
 
     .. [#ref_2] Smythe, D.J., Wood, B.J., and Kiseeva, E.S. (2017).
         The S content of silicate melts at sulfide saturation:
         New experiments and a model incorporating the effects of sulfide composition.
-        American Mineralogist 102, 795–803.
+        American Mineralogist 102, 795-803.
         doi: `10.2138/am-2017-5800CCBY <https://doi.org/10.2138/am-2017-5800CCBY>`__
 
     Todo

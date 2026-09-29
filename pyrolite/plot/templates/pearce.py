@@ -1,3 +1,4 @@
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -10,29 +11,34 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
+def pearceThNbYb(
+    ax: matplotlib.axes.Axes | None = None,
+    relim: bool = True,
+    color: str = "k",
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Adds the Th-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the template onto.
-    relim : :class:`bool`
+    relim : bool
         Whether to relimit axes to fit the built in ranges for this diagram.
-    color : :class:`str`
+    color : str
         Line color for the diagram.
 
     References
     -----------
     .. [#ref_1] Pearce J. A. (2008) Geochemical fingerprinting of oceanic basalts
                 with applications to ophiolite classification and the search for
-                Archean oceanic crust. Lithos 100, 14–48.
+                Archean oceanic crust. Lithos 100, 14-48.
                 doi: {pearce2008}
 
     Returns
     -------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     """
     xlim, ylim = (0.1, 100), (0.01, 10)
@@ -56,7 +62,7 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
         Linear2D(slope=CH_ThNb / 3, name="Lower MORB-OIB Array"),
     )
     xs = np.logspace(*np.log([*xlim]), 1000, base=np.e)
-    geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
+    ax = geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
 
     ax.set_ylabel("Th/Yb")
     ax.set_xlabel("Nb/Yb")
@@ -69,29 +75,35 @@ def pearceThNbYb(ax=None, relim=True, color="k", **kwargs):
 
 
 @update_docstring_references
-def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
+def pearceTiNbYb(
+    ax: matplotlib.axes.Axes | None = None,
+    relim: bool = True,
+    color: str = "k",
+    annotate: bool = True,
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Adds the Ti-Nb-Yb delimiter lines from Pearce (2008) [#ref_1]_ to an axes.
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to add the template onto.
-    relim : :class:`bool`
+    relim : bool
         Whether to relimit axes to fit the built in ranges for this diagram.
-    color : :class:`str`
+    color : str
         Line color for the diagram.
 
     References
     -----------
     .. [#ref_1] Pearce J. A. (2008) Geochemical fingerprinting of oceanic basalts
         with applications to ophiolite classification and the search for
-        Archean oceanic crust. Lithos 100, 14–48.
+        Archean oceanic crust. Lithos 100, 14-48.
         doi: {pearce2008}
 
     Returns
     -------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     """
 
@@ -130,7 +142,7 @@ def pearceTiNbYb(ax=None, relim=True, color="k", annotate=True, **kwargs):
         ls="--",
     )
 
-    geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
+    ax = geom.add_to_axes(ax, xs=xs, color=color, **kwargs)
     ax.set_ylabel("TiO$_2$/Yb")
     ax.set_xlabel("Nb/Yb")
     if relim:

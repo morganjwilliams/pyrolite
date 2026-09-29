@@ -4,7 +4,9 @@ profiles based on parameterisations using 'lambdas' (and tetrad-equivalent weigh
 'taus').
 """
 
+import matplotlib.axes
 import numpy as np
+import pandas as pd
 
 from ... import plot
 from ...geochem.ind import REE, get_ionic_radii
@@ -20,7 +22,12 @@ from .transform import REE_radii_to_z, REE_z_to_radii
 logger = Handle(__name__)
 
 
-def plot_lambdas_components(lambdas, params=None, ax=None, **kwargs):
+def plot_lambdas_components(
+    lambdas: pd.Series | np.ndarray,
+    params: list[tuple[float, ...]] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Plot a decomposed orthogonal polynomial from a single set of lambda coefficients.
 
@@ -28,16 +35,16 @@ def plot_lambdas_components(lambdas, params=None, ax=None, **kwargs):
     ----------
     lambdas
         1D array of lambdas.
-    params : :class:`list`
+    params : list
         List of orthongonal polynomial parameters, if defaults are not used.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Optionally specified axes to plot on.
-    index : :class:`str`
-        Index to use for the plot (one of :code:`"index", "radii", "z"`).
+    index : str
+        Index to use for the plot (one of `"index", "radii", "z"`).
 
     Returns
     --------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
     """
     degree = lambdas.size
     params = _get_params(params=params, degree=degree)
@@ -63,24 +70,30 @@ def plot_lambdas_components(lambdas, params=None, ax=None, **kwargs):
 
 
 def plot_tetrads_components(
-    taus, tetrad_params=None, ax=None, index="radii", logy=True, drop0=True, **kwargs
-):
+    taus: pd.Series | np.ndarray,
+    tetrad_params: list[tuple[float, ...]] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    index: str = "radii",
+    logy: bool = True,
+    drop0: bool = True,
+    **kwargs,
+) -> matplotlib.axes.Axes:
     """
     Individually plot the four tetrad components for one set of $\tau$s.
 
     Parameters
     ----------
-    taus : :class:`numpy.ndarray`
+    taus : numpy.ndarray
         1D array of $\tau$ tetrad function coefficients.
-    tetrad_params : :class:`list`
+    tetrad_params : list
         List of tetrad parameters, if defaults are not used.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Optionally specified axes to plot on.
-    index : :class:`str`
-        Index to use for the plot (one of :code:`"index", "radii", "z"`).
-    logy : :class:`bool`
+    index : str
+        Index to use for the plot (one of `"index", "radii", "z"`).
+    logy : bool
         Whether to log-scale the y-axis.
-    drop0 : :class:`bool`
+    drop0 : bool
         Whether to remove zeroes from the outputs such that individual tetrad
         functions are shown only within their respective bounds (and not across the
         entire REE, where their effective values are zero).
@@ -121,41 +134,41 @@ def plot_tetrads_components(
 
 
 def plot_profiles(
-    coefficients,
-    tetrads=False,
-    params=None,
-    tetrad_params=None,
-    ax=None,
-    index="radii",
-    logy=False,
+    coefficients: pd.Series | np.ndarray,
+    tetrads: bool = False,
+    params: list[tuple[float, ...]] | None = None,
+    tetrad_params: list[tuple[float, ...]] | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    index: str = "radii",
+    logy: bool = False,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     r"""
     Plot the reconstructed REE profiles of a 2D dataset of coefficients ($\lambda$s,
     and optionally $\tau$s).
 
     Parameters
     ----------
-    coefficients : :class:`numpy.ndarray`
+    coefficients : numpy.ndarray
         2D array of $\lambda$ orthogonal polynomial coefficients, and optionally
         including $\tau$ tetrad function coefficients in the last four columns
-        (where :code:`tetrads=True`).
-    tetrads : :class:`bool`
+        (where `tetrads=True`).
+    tetrads : bool
         Whether the coefficient array contains tetrad coefficients ($\tau$s).
-    params : :class:`list`
+    params : list
         List of orthongonal polynomial parameters, if defaults are not used.
-    tetrad_params : :class:`list`
+    tetrad_params : list
         List of tetrad parameters, if defaults are not used.
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Optionally specified axes to plot on.
-    index : :class:`str`
-        Index to use for the plot (one of :code:`"index", "radii", "z"`).
-    logy : :class:`bool`
+    index : str
+        Index to use for the plot (one of `"index", "radii", "z"`).
+    logy : bool
         Whether to log-scale the y-axis.
 
     Returns
     --------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
     """
     radii = get_ionic_radii(REE(), charge=3, coordination=8)
     # check the degree required for the lambda coefficients and get the OP parameters

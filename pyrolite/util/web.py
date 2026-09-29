@@ -1,33 +1,32 @@
-import requests
+import http.client as httplib
+from collections.abc import Callable
 
-try:
-    import httplib
-except:
-    import http.client as httplib
+import requests
+from requests.models import Response
 
 from .log import Handle
 
 logger = Handle(__name__)
 
 
-def urlify(url):
+def urlify(url: str):
     """Strip a string to return a valid URL."""
     return url.strip().replace(" ", "_")
 
 
-def internet_connection(target="pypi.org", secure=True):
+def have_internet_connection(target: str = "pypi.org", secure: bool = True) -> bool:
     """
     Tests for an active internet connection, based on an optionally specified
     target.
 
     Parameters
     ----------
-    target : :class:`str`
+    target : str
         URL to check connectivity, defaults to www.google.com
 
     Returns
     -------
-    :class:`bool`
+    bool
         Boolean indication of whether a HTTP connection can be established at the given
         url.
     """
@@ -42,30 +41,32 @@ def internet_connection(target="pypi.org", secure=True):
         return False
 
 
-def download_file(url: str, encoding="UTF-8", postprocess=None):
+def download_file(
+    url: str, encoding: str | None = "UTF-8", postprocess: Callable | None = None
+) -> str | bytes | None:
     """
     Downloads a specific file from a url.
 
     Parameters
     ----------
-    url : :class:`str`
+    url : str
         URL of specific file to download.
-    encoding : :class:`str`
+    encoding : str
         String encoding.
-    postprocess : :class:`callable`
+    postprocess : Callable
         Callable function to post-process the requested content.
     """
     with requests.Session() as s:
         try:
-            response = s.get(url)
+            response: Response = s.get(url)
             if response.status_code == requests.codes.ok:
                 logger.debug(f"Response recieved from {url}.")
-                out = response.content
+                out: bytes | None = response.content
 
                 if out is not None and encoding is not None:
-                    out = response.content.decode(encoding)
+                    out: str = response.content.decode(encoding)
                 if postprocess is not None:
-                    out = postprocess(out)
+                    out: str = postprocess(out)
             else:
                 msg = f"Failed download - bad status code at {url}"
                 logger.warning(msg)

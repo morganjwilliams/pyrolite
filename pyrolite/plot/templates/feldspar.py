@@ -1,3 +1,5 @@
+import matplotlib.axes
+
 from ...util.classification import FeldsparTernary as Feldspar
 from ...util.log import Handle
 from ...util.meta import update_docstring_references
@@ -8,13 +10,13 @@ logger = Handle(__name__)
 
 @update_docstring_references
 def FeldsparTernary(
-    ax=None,
-    add_labels=False,
-    which_labels="ID",
-    mode="miscibility-gap",
-    color="k",
+    ax: matplotlib.axes.Axes | None = None,
+    add_labels: bool = False,
+    which_labels: str = "ID",
+    mode: str = "miscibility-gap",
+    color: str = "k",
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     """
     Simplified feldspar classifcation diagram, based on a version printed in the
     second edition of 'An Introduction to the Rock Forming Minerals' (Deer,
@@ -22,18 +24,18 @@ def FeldsparTernary(
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Ternary axes to add the diagram to.
-    add_labels : :class:`bool`
+    add_labels : bool
         Whether to add labels at polygon centroids.
-    which_labels : :class:`str`
+    which_labels : str
         Which data to use for field labels - field 'name' or 'ID'.
-    mode : :class:`str`
+    mode : str
         Which mode of the diagram to use; the two implemented for the
         feldspar ternary diagram are 'default' and 'miscibility-gap', the second
         of which provides a simplified approximation of the miscibility gap
         between k-feldspar and plagioclase.
-    color : :class:`str`
+    color : str
         Color for the polygon edges in the diagram.
 
     References
@@ -45,7 +47,7 @@ def FeldsparTernary(
     ax = init_axes(ax=ax, projection="ternary", **kwargs)
 
     clf = Feldspar(mode=mode)
-    clf.add_to_axes(
+    ax = clf.add_to_axes(
         ax=ax, color=color, add_labels=add_labels, which_labels=which_labels, **kwargs
     )
     return ax

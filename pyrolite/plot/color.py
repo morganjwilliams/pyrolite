@@ -1,3 +1,4 @@
+from typing import Callable
 import copy
 
 import matplotlib.colors
@@ -17,15 +18,15 @@ _face_edge_equivalents = {
 }
 
 
-def get_cmode(c=None):
+def get_cmode(c: str | list | tuple | np.ndarray | None = None) -> str:
     """
     Find which mode a color is supplied as, such that it can be processed.
 
     Parameters
     -----------
-    c :  :class:`str` | :class:`list` | :class:`tuple` | :class:`numpy.ndarray`
-        Color arguments as typically passed to :func:`matplotlib.pyplot.scatter`
-        or :func:`matplotlib.pyplot.plot`.
+    c :  str | list | tuple | numpy.ndarray
+        Color arguments as typically passed to `matplotlib.pyplot.scatter`
+        or `matplotlib.pyplot.plot`.
     """
     cmode = None
     if c is not None:  # named | hex | rgb | rgba
@@ -110,47 +111,52 @@ def get_cmode(c=None):
 
 
 def process_color(
-    c=None,
-    color=None,
-    cmap=None,
-    alpha=None,
-    norm=None,
-    bad="0.5",
-    cmap_under=(1, 1, 1, 0.0),
-    color_converter=matplotlib.colors.to_rgba,
-    color_mappings=None,
-    size=None,
+    c: str | list | tuple | np.ndarray | None = None,
+    color: str
+    | tuple[float]
+    | list[str]
+    | list[tuple[float, ...]]
+    | np.ndarray
+    | None = None,
+    cmap: str | matplotlib.colors.Colormap | None = None,
+    alpha: float | None = None,
+    norm: matplotlib.colors.Norm | None = None,
+    bad: str | tuple[float] = "0.5",
+    cmap_under: str | tuple[float, ...] = (1.0, 1.0, 1.0, 0.0),
+    color_converter: Callable = matplotlib.colors.to_rgba,
+    color_mappings: dict | None = None,
+    size: int | None = None,
     **otherkwargs,
-):
+) -> dict[str, tuple | np.ndarray]:
     """
     Color argument processing for pyrolite plots, returning a standardised output.
 
     Parameters
     -----------
-    c : :class:`str` | :class:`list` | :class:`tuple` | :class:`numpy.ndarray`
-        Color arguments as typically passed to :func:`matplotlib.pyplot.scatter`.
-    color : :class:`str` | :class:`list` | :class:`tuple` | :class:`numpy.ndarray`
-        Color arguments as typically passed to :func:`matplotlib.pyplot.plot`
-    cmap : :class:`str` | :class:`~matplotlib.cm.ScalarMappable`
+    c : str | list | tuple | numpy.ndarray
+        Color arguments as typically passed to `matplotlib.pyplot.scatter`.
+    color : str | list | tuple | numpy.ndarray
+        Color arguments as typically passed to `matplotlib.pyplot.plot`
+    cmap : str | `~matplotlib.cm.ScalarMappable`
         Colormap for mapping unknown color values.
-    alpha : :class:`float`
+    alpha : float
         Alpha to modulate color opacity.
-    norm : :class:`~matplotlib.colors.Normalize`
+    norm : `~matplotlib.colors.Normalize`
         Normalization for the colormap.
-    cmap_under : :class:`str` | :class:`tuple`
+    cmap_under : str | tuple
         Color for values below the lower threshold for the cmap.
     color_converter
         Function to use to convert colors (from strings, hex, tuples etc).
-    color_mappings : :class:`dict`
+    color_mappings : dict
         Dictionary containing category-color mappings for individual color variables,
         with the default color mapping having the key 'color'. For use where
         categorical values are specified for a color variable.
-    size : :class:`int`
+    size : int
         Size of the data array along the first axis.
 
     Returns
     --------
-    C : :class:`tuple` | :class:`numpy.ndarray`
+    C : tuple | numpy.ndarray
         Color returned in standardised RGBA format.
 
     Notes
@@ -158,7 +164,7 @@ def process_color(
     As formulated here, the addition of unused styling parameters may cause some
     properties (associated with 'c') to be set to None - and hence revert to defaults.
     This might be mitigated if the context could be checked - e.g. via checking
-    keyword argument membership of :func:`~pyrolite.util.plot.style.scatterkwargs` etc.
+    keyword argument membership of `~pyrolite.util.plot.style.scatterkwargs` etc.
     """
     if color_mappings is None:
         color_mappings = {}
@@ -223,11 +229,16 @@ def process_color(
         if size is not None:
             _c = np.ones((size, 1)) * _c  # turn this into a full array as a fallback
     else:
-        if cmode in [
-            "hex_array",
-            "named_array",
-            "mixed_str_array",
-        ] or cmode in ["rgb_array", "rgba_array"] or cmode in ["mixed_fmt_color_array"]:
+        if (
+            cmode
+            in [
+                "hex_array",
+                "named_array",
+                "mixed_str_array",
+            ]
+            or cmode in ["rgb_array", "rgba_array"]
+            or cmode in ["mixed_fmt_color_array"]
+        ):
             C = np.array([matplotlib.colors.to_rgba(ic) for ic in C])
         elif cmode in ["value_array"]:
             _C = np.array(C)
@@ -236,7 +247,7 @@ def process_color(
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
-                cmap.set_under(color=cmap_under)
+                cmap.set_extremes(under=cmap_under)
             norm = norm or plt.Normalize(
                 vmin=otherkwargs.get("vmin") or np.nanmin(_C),
                 vmax=otherkwargs.get("vmax") or np.nanmax(_C),
@@ -281,7 +292,7 @@ def process_color(
     # the parameter 'c' will override 'facecolors' and related for markers
     if not any(
         k in d
-            for k in [item for args in _face_edge_equivalents.items() for item in args]
+        for k in [item for args in _face_edge_equivalents.items() for item in args]
     ):
         d["c"] = _c
     else:

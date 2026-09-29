@@ -1,14 +1,11 @@
+import matplotlib.axes
 import matplotlib.collections
 import matplotlib.lines
 import matplotlib.patches
 import numpy as np
 
-from ..util.log import Handle
-
-logger = Handle(__name__)
-
-
 from ..geochem.ind import REE, get_ionic_radii
+from ..util.log import Handle
 from ..util.meta import subkwargs
 from ..util.plot.axes import get_twins, init_axes
 from ..util.plot.density import (
@@ -24,63 +21,65 @@ from ..util.plot.style import (
 )
 from .color import process_color
 
+logger = Handle(__name__)
+
 _scatter_defaults = {"cmap": DEFAULT_CONT_COLORMAP, "marker": "D", "s": 25}
 _line_defaults = {"cmap": DEFAULT_CONT_COLORMAP}
 
 
 # could create a spidercollection?
 def spider(
-    arr,
+    arr: np.ndarray,
     indexes=None,
-    ax=None,
-    label=None,
-    logy=True,
-    yextent=None,
-    mode="plot",
-    unity_line=False,
-    scatter_kw=None,
-    line_kw=None,
-    set_ticks=True,
-    autoscale=True,
+    ax: matplotlib.axes.Axes | None = None,
+    label: str | None = None,
+    logy: bool = True,
+    yextent: tuple[float, float] | None = None,
+    mode: str = "plot",
+    unity_line: bool = False,
+    scatter_kw: dict | None = None,
+    line_kw: dict | None = None,
+    set_ticks: bool = True,
+    autoscale: bool = True,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     """
     Plots spidergrams for trace elements data. Additional arguments are typically forwarded
     to respective :mod:`matplotlib` functions :func:`~matplotlib.pyplot.plot` and
-    :func:`~matplotlib.pyplot.scatter` (see Other Parameters, below).
+    :func:`~matplotlib.pyplot.scatter`.
 
     Parameters
     ----------
-    arr : :class:`numpy.ndarray`
+    arr : numpy.ndarray
         Data array.
-    indexes : : :class:`numpy.ndarray`
+    indexes : : numpy.ndarray
         Numerical indexes of x-axis positions.
-    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+    ax : matplotlib.axes.Axes, `None`
         The subplot to draw on.
-    label : :class:`str`, :code:`None`
+    label : str, `None`
         Label for the individual series.
-    logy : :class:`bool`
+    logy : bool
         Whether to use a log y-axis.
-    yextent : :class:`tuple`
+    yextent : tuple
         Extent in the y direction for conditional probability plots, to limit
         the gridspace over which the kernel density estimates are evaluated.
-    mode : :class:`str`,  :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+    mode : str,  `["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
-    unity_line : :class:`bool`
+    unity_line : bool
         Add a line at y=1 for reference.
-    scatter_kw : :class:`dict`
+    scatter_kw : dict
         Keyword parameters to be passed to the scatter plotting function.
-    line_kw : :class:`dict`
+    line_kw : dict
         Keyword parameters to be passed to the line plotting function.
-    set_ticks : :class:`bool`
+    set_ticks : bool
         Whether to set the x-axis ticks according to the specified index.
-    autoscale : :class:`bool`
+    autoscale : bool
         Whether to autoscale the y-axis limits for standard spider plots.
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which the spiderplot is plotted.
 
     Notes
@@ -95,7 +94,7 @@ def spider(
 
     Todo
     ----
-    * Might be able to speed up lines with `~matplotlib.collections.LineCollection`.
+    * Might be able to speed up lines with :class:`~matplotlib.collections.LineCollection`.
     * Legend entries
     """
 
@@ -283,54 +282,54 @@ def spider(
 
 
 def REE_v_radii(
-    arr=None,
-    ax=None,
-    ree: list | None = None,
-    index="elements",
-    mode="plot",
-    logy=True,
-    tl_rotation=60,
-    unity_line=False,
-    scatter_kw=None,
-    line_kw=None,
-    set_labels=True,
-    set_ticks=True,
+    arr: np.ndarray | None = None,
+    ax: matplotlib.axes.Axes | None = None,
+    ree: list[str] | None = None,
+    index: str = "elements",
+    mode: str = "plot",
+    logy: bool = True,
+    tl_rotation: float = 60,
+    unity_line: bool = False,
+    scatter_kw: dict | None = None,
+    line_kw: dict | None = None,
+    set_labels: bool = True,
+    set_ticks: bool = True,
     **kwargs,
-):
+) -> matplotlib.axes.Axes:
     r"""
     Creates an axis for a REE diagram with ionic radii along the x axis.
 
     Parameters
     ----------
-    arr : :class:`numpy.ndarray`
+    arr : numpy.ndarray
         Data array.
-    ax : :class:`matplotlib.axes.Axes`, :code:`None`
+    ax : matplotlib.axes.Axes, `None`
         Optional designation of axes to reconfigure.
-    ree : :class:`list`
+    ree : list
         List of REE to use as an index.
-    index : :class:`str`
+    index : str
         Whether to plot using radii on the x-axis ('radii'), or elements ('elements').
-    mode : :class:`str`, :code:`["plot", "fill", "binkde", "ckde", "kde", "hist"]`
+    mode : str, `["plot", "fill", "binkde", "ckde", "kde", "hist"]`
         Mode for plot. Plot will produce a line-scatter diagram. Fill will return
         a filled range. Density will return a conditional density diagram.
-    logy : :class:`bool`
+    logy : bool
         Whether to use a log y-axis.
-    tl_rotation : :class:`float`
+    tl_rotation : float
         Rotation of the numerical index labels in degrees.
-    unity_line : :class:`bool`
+    unity_line : bool
         Add a line at y=1 for reference.
-    scatter_kw : :class:`dict`
+    scatter_kw : dict
         Keyword parameters to be passed to the scatter plotting function.
-    line_kw : :class:`dict`
+    line_kw : dict
         Keyword parameters to be passed to the line plotting function.
-    set_labels : :class:`bool`
+    set_labels : bool
         Whether to set the x-axis ticklabels for the REE.
-    set_ticks : :class:`bool`
+    set_ticks : bool
         Whether to set the x-axis ticks according to the specified index.
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Axes on which the REE_v_radii plot is added.
 
     Todo
@@ -341,10 +340,10 @@ def REE_v_radii(
     -----
     See also:
 
-    * :func:`matplotlib.pyplot.plot`
-    * :func:`matplotlib.pyplot.scatter`
-    * :func:`~pyrolite.plot.spider.spider`
-    * :func:`pyrolite.geochem.transform.lambda_lnREE`
+    * `matplotlib.pyplot.plot`
+    * `matplotlib.pyplot.scatter`
+    * `~pyrolite.plot.spider.spider`
+    * `pyrolite.geochem.transform.lambda_lnREE`
     """
     if line_kw is None:
         line_kw = {}
@@ -354,8 +353,7 @@ def REE_v_radii(
         ree = REE()
     ax = init_axes(ax=ax, **kwargs)
 
-    radii = np.array(get_ionic_radii(ree, charge=3, coordination=8))
-
+    radii: np.ndarray = np.array(get_ionic_radii(ree, charge=3, coordination=8))
     xlabels, _xlabels = [f"{i:1.3f}" for i in radii], ree
     xticks, _xticks = radii, radii
     xlim = (0.99 * np.min(radii), 1.01 * np.max(radii))

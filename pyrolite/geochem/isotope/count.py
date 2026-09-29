@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 from ...util.log import Handle
@@ -5,20 +7,22 @@ from ...util.log import Handle
 logger = Handle(__name__)
 
 
-def deadtime_correction(data, deadtime):
+def deadtime_correction(
+    data: np.ndarray[Any, np.dtype[np.number]], deadtime: float
+) -> np.ndarray[Any, np.dtype[np.floating]]:
     """
     Apply a deadtime correction to count data.
 
     Parameters
     -------------
-    data : :class:`numpy.ndarray`
+    data : numpy.ndarray
         Array of count data.
-    deadtime : :class:`float`
+    deadtime : float
         Deadtime in nanoseconds.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         Corrected count data.
     """
     dt = deadtime / 10**9  # nanoseconds

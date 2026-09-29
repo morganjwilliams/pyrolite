@@ -3,6 +3,8 @@ Generation and evalutation of orthogonal polynomial and tetrad functions from se
 parameters (the sequence of polymomial roots and tetrad centres and widths).
 """
 
+from collections.abc import Callable
+
 import numpy as np
 
 from ..log import Handle
@@ -12,21 +14,21 @@ from .transform import REE_radii_to_z
 logger = Handle(__name__)
 
 
-def lambda_poly(x, ps):
+def lambda_poly(x: np.ndarray, ps: tuple[float]) -> np.ndarray:
     """
     Evaluate polynomial `lambda_n(x)` given a tuple of parameters `ps` with length
     equal to the polynomial degree.
 
     Parameters
     -----------
-    x : :class:`numpy.ndarray`
+    x : numpy.ndarray
         X values to calculate the function at.
-    ps: :class:`tuple`
+    ps: tuple
         Parameter set tuple. E.g. parameters `(a, b)` from :math:`f(x) = (x-a)(x-b)`.
 
     Returns
     --------
-    :class:`numpy.ndarray`
+    numpy.ndarray
     """
     if not isinstance(x, np.ndarray):
         x = np.array(x)
@@ -36,19 +38,22 @@ def lambda_poly(x, ps):
     return result.astype(float)
 
 
-def tetrad(x, centre, width):
+def tetrad(x: np.ndarray, centre: float, width: float) -> np.ndarray:
     """
     Evaluate :math:`f(z)` describing a tetrad with specified centre and width.
 
     Parameters
     ----------
-    x
-    centre : :class:`float`
-
-    width : :class:`float`
+    x: numpy.ndarray
+        Radii.
+    centre : float
+        Centre of the tetrad.
+    width : float
+        Width of the tetrad.
 
     Returns
     --------
+    numpy.ndarray
     """
     g = (x - centre) / (width / 2)
     x0 = 1 - g**2
@@ -57,7 +62,7 @@ def tetrad(x, centre, width):
     return tet
 
 
-def get_tetrads_function(params=None):
+def get_tetrads_function(params: list[tuple[float, ...]] | None = None) -> Callable:
     params = _get_tetrad_params(params=params)
 
     def tetrads(x, sum_tetrads=True):
@@ -69,7 +74,12 @@ def get_tetrads_function(params=None):
     return tetrads
 
 
-def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degree=5):
+def get_lambda_poly_function(
+    lambdas: np.ndarray,
+    params: list[tuple[float, ...]] | None = None,
+    radii: np.ndarray | None = None,
+    degree: int = 5,
+) -> Callable:
     """
     Expansion of lambda parameters back to the original space. Returns a
     function which evaluates the sum of the orthogonal polynomials at given
@@ -77,13 +87,13 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
     Parameters
     ------------
-    lambdas: :class:`numpy.ndarray`
+    lambdas: numpy.ndarray
         Lambda values to weight combination of polynomials.
-    params: :class:`list` ( :class:`tuple` )
+    params: list[tuple]
         Parameters for the orthogonal polynomial decomposition.
-    radii: :class:`numpy.ndarray`
+    radii: numpy.ndarray
         Radii values used to construct the lambda values. [#note_1]_
-    degree: :class:`int`
+    degree: int
         Degree of the orthogonal polynomial decomposition. [#note_1]_
 
     See Also
@@ -94,7 +104,7 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
     Notes
     -----
-        .. [#note_1] Only needed if parameters are not supplied
+    .. [#note_1] Only needed if parameters are not supplied
     """
     if params is None and radii is not None:
         params = orthogonal_polynomial_constants(radii, degree=degree)
@@ -110,7 +120,7 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
         Parameters
         -----------
-        xarr: :class:`numpy.ndarray`
+        xarr: numpy.ndarray
             X values at which to evaluate the function.
         """
         func_components = np.array([lambda_poly(xarr, pset) for pset in params])
@@ -120,8 +130,13 @@ def get_lambda_poly_function(lambdas: np.ndarray, params=None, radii=None, degre
 
 
 def get_function_components(
-    radii, params=None, fit_tetrads=False, tetrad_params=None, degree=5, **kwargs
-):
+    radii: np.ndarray,
+    params: list[tuple[float, ...]] | None = None,
+    fit_tetrads: bool = False,
+    tetrad_params: list[tuple[float, ...]] | None = None,
+    degree: int = 5,
+    **kwargs,
+) -> tuple[list[str], list[float], list[np.ndarray]]:
     lambda_params = _get_params(params=params, degree=degree)
     degree = len(lambda_params)
     names = [chr(955) + str(d) for d in range(degree)]

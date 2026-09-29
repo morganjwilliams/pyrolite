@@ -4,7 +4,11 @@ Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 
 import warnings
 
+import matplotlib.axes
+import matplotlib.colorbar
+import matplotlib.figure
 import matplotlib.pyplot as plt
+import mpltern.ternary
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -14,7 +18,9 @@ from ..meta import subkwargs
 logger = Handle(__name__)
 
 
-def get_ordered_axes(fig):
+def get_ordered_axes(
+    fig: matplotlib.figure.Figure,
+) -> list[matplotlib.axes.Axes] | np.ndarray:
     """
     Get the axes from a figure, which may or may not have been modified by
     pyrolite functions. This ensures that ordering is preserved.
@@ -26,18 +32,18 @@ def get_ordered_axes(fig):
     return axes
 
 
-def get_axes_index(ax):
+def get_axes_index(ax: matplotlib.axes.Axes) -> tuple[int, int, int]:
     """
     Get the three-digit integer index of a subplot in a regular grid.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axis to to get the gridspec index for.
 
     Returns
     -----------
-    :class:`tuple`
+    tuple
         Rows, columns and axis index for the gridspec.
     """
     nrow, ncol = ax.get_gridspec()._nrows, ax.get_gridspec()._ncols
@@ -46,28 +52,25 @@ def get_axes_index(ax):
     return triple
 
 
-def replace_with_ternary_axis(ax):
+def replace_with_ternary_axis(ax: matplotlib.axes.Axes) -> mpltern.ternary.TernaryAxes:
     """
     Replace a specified axis with a ternary equivalent.
 
     Parameters
     ------------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
 
     Returns
     ------------
-    tax : :class:`~mpltern.ternary.TernaryAxes`
+    tax : mpltern.ternary.TernaryAxes
     """
-    if ax.name != "ternary":
-        if not check_default_axes(ax):
-            if not check_empty(ax):
-                warnings.warn(
-                    "Non-empty, non-default bivariate axes being replaced with ternary axes."
-                )
-            else:
-                logger.info(
-                    "Non-default bivraite axes being replaced with ternary axes."
-                )
+    if ax.name != "ternary" and not check_default_axes(ax):
+        if not check_empty(ax):
+            warnings.warn(
+                "Non-empty, non-default bivariate axes being replaced with ternary axes."
+            )
+        else:
+            logger.info("Non-default bivraite axes being replaced with ternary axes.")
     fig = ax.figure
     axes = get_ordered_axes(fig)
     idx = axes.index(ax)
@@ -79,15 +82,15 @@ def replace_with_ternary_axis(ax):
     return tax
 
 
-def label_axes(ax, labels=None, **kwargs):
+def label_axes(ax: matplotlib.axes.Axes, labels: list[str] | None = None, **kwargs):
     """
     Convenience function for labelling rectilinear and ternary axes.
 
     Parameters
     -----------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to label.
-    labels : :class:`list`
+    labels : list
         List of labels: [x, y] | or [t, l, r]
     """
     if labels is None:
@@ -105,7 +108,7 @@ def label_axes(ax, labels=None, **kwargs):
         raise NotImplementedError
 
 
-def axes_to_ternary(ax):
+def axes_to_ternary(ax: matplotlib.axes.Axes) -> list[matplotlib.axes.Axes]:
     """
     Set axes to ternary projection after axis creation. As currently implemented,
     note that this will replace and reorder axes as acecessed from the figure (the
@@ -114,12 +117,12 @@ def axes_to_ternary(ax):
 
     Parameters
     -----------
-    ax : :class:`~matplotlib.axes.Axes` | :class:`list` (:class:`~matplotlib.axes.Axes`)
+    ax : matplotlib.axes.Axes | list (matplotlib.axes.Axes)
         Axis (or axes) to convert projection for.
 
     Returns
     ---------
-    axes : :class:`list' (:class:`~matplotlib.axes.Axes`, class:`~mpltern.ternary.TernaryAxes`)
+    axes : `list' (matplotlib.axes.Axes, class:`~mpltern.ternary.TernaryAxes`)
     """
 
     if isinstance(ax, (list, np.ndarray, tuple)):  # multiple Axes specified
@@ -132,19 +135,19 @@ def axes_to_ternary(ax):
     return fig.orderedaxes
 
 
-def check_default_axes(ax):
+def check_default_axes(ax: matplotlib.axes.Axes) -> bool:
     """
     Simple test to check whether an axis is empty of artists and hasn't been
     rescaled from the default extent.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to check for artists and scaling.
 
     Returns
     -------
-    :class:`bool`
+    bool
     """
 
     if np.allclose(ax.axis(), np.array([0, 1, 0, 1])):
@@ -153,38 +156,45 @@ def check_default_axes(ax):
         return False
 
 
-def check_empty(ax):
+def check_empty(ax: matplotlib.axes.Axes) -> bool:
     """
     Simple test to check whether an axis is empty of artists.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to check for artists.
 
     Returns
     -------
-    :class:`bool`
+    bool
     """
-    return bool(not ax.lines + ax.collections + ax.patches + ax.artists + ax.texts + ax.images)
+    return bool(
+        not ax.lines + ax.collections + ax.patches + ax.artists + ax.texts + ax.images
+    )
 
 
-def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
+def init_axes(
+    ax: matplotlib.axes.Axes | None = None,
+    projection: str | None = None,
+    minsize: float = 1.0,
+    **kwargs,
+) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
     Get or create an Axes from an optionally-specified starting Axes.
 
     Parameters
     -----------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Specified starting axes, optional.
-    projection : :class:`str`
+    projection : str
         Whether to create a projected (e.g. ternary) axes.
-    minsize : :class:`float`
+    minsize : float
         Minimum figure dimension (inches).
 
     Returns
     --------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
     """
     if "figsize" in kwargs:
         fs = kwargs["figsize"]
@@ -220,16 +230,19 @@ def init_axes(ax=None, projection=None, minsize=1.0, **kwargs):
     return ax
 
 
-def share_axes(axes, which="xy"):
+def share_axes(
+    axes: list[matplotlib.axes.Axes] | np.ndarray,
+    which: list | str = "xy",
+):
     """
-    Link the x, y or both axes across a group of :class:`~matplotlib.axes.Axes`.
+    Link the x, y or both axes across a group of matplotlib.axes.Axes.
 
     Parameters
     -----------
-    axes : :class:`list`
+    axes : list
         List of axes to link.
-    which : :class:`str`
-        Which axes to link. If :code:`x`, link the x-axes; if :code:`y` link the y-axes,
+    which : str
+        Which axes to link. If `x`, link the x-axes; if `y` link the y-axes,
         otherwise link both.
     """
     if which == "both":
@@ -240,21 +253,21 @@ def share_axes(axes, which="xy"):
         [a.sharey(axes[0]) for a in axes[1:]]
 
 
-def get_twins(ax, which="y"):
+def get_twins(ax: matplotlib.axes.Axes, which: str = "y") -> list[matplotlib.axes.Axes]:
     """
     Get twin axes of a specified axis.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to get twins for.
-    which : :class:`str`
-        Which twins to get (shared :code:`'x'`, shared :code:`'y'` or the concatenatation
-        of both, :code:`'xy'`).
+    which : str
+        Which twins to get (shared `'x'`, shared `'y'` or the concatenatation
+        of both, `'xy'`).
 
     Returns
     --------
-    :class:`list`
+    list
 
     Notes
     ------
@@ -267,29 +280,32 @@ def get_twins(ax, which="y"):
         s += ax.get_shared_y_axes().get_siblings(ax)
     if "x" in which:
         s += ax.get_shared_x_axes().get_siblings(ax)
-    return list(
-        {a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)}
-    )
+    return list({a for a in s if (a is not ax) & (a.bbox.bounds == ax.bbox.bounds)})
 
 
-def subaxes(ax, side="bottom", width=0.2, moveticks=True):
+def subaxes(
+    ax: matplotlib.axes.Axes,
+    side: str = "bottom",
+    width: float = 0.2,
+    moveticks: bool = True,
+) -> matplotlib.axes.Axes:
     """
     Append a sub-axes to one side of an axes.
 
     Parameters
     -----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to append a sub-axes to.
-    side : :class:`str`
+    side : str
         Which side to append the axes on.
-    width : :class:`float`
+    width : float
         Fraction of width to give to the subaxes.
-    moveticks : :class:`bool`
+    moveticks : bool
         Whether to move ticks to the outer axes.
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
         Subaxes instance.
     """
     div = make_axes_locatable(ax)
@@ -319,7 +335,7 @@ def subaxes(ax, side="bottom", width=0.2, moveticks=True):
     return subax
 
 
-def add_colorbar(mappable, **kwargs):
+def add_colorbar(mappable, **kwargs) -> matplotlib.colorbar.Colorbar:
     """
     Adds a colorbar to a given mappable object.
 
@@ -332,7 +348,7 @@ def add_colorbar(mappable, **kwargs):
 
     Returns
     -------
-    :class:`matplotlib.colorbar.Colorbar`
+    matplotlib.colorbar.Colorbar
 
     Todo
     ----

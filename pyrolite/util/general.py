@@ -7,6 +7,7 @@ import time
 from collections.abc import Mapping
 from pathlib import Path
 from tempfile import mkdtemp
+from typing import Any
 
 from .log import Handle
 
@@ -16,17 +17,17 @@ _FLAG_FIRST = object()
 
 
 class Timewith:
-    def __init__(self, name=""):
+    def __init__(self, name: str = ""):
         """Timewith context manager."""
         self.name = name
         self.start = time.time()
         self.checkpoints = []
 
     @property
-    def elapsed(self):
+    def elapsed(self) -> float:
         return time.time() - self.start
 
-    def checkpoint(self, name=""):
+    def checkpoint(self, name: str = ""):
         elapsed = self.elapsed
         msg = "{time} {timer}: {checkpoint} in {elapsed:.3f} s.".format(
             timer=self.name,
@@ -47,7 +48,7 @@ class Timewith:
         self.checkpoints.append(("Finished", self.elapsed))
 
 
-def temp_path(suffix=""):
+def temp_path(suffix: str = "") -> Path:
     """Return the path of a temporary directory."""
     directory = mkdtemp(suffix=suffix)
     return Path(directory)
@@ -62,7 +63,7 @@ def tempdir(**kwargs):
         remove_tempdir(tmp_dir)
 
 
-def flatten_dict(d, climb=False, safemode=False):
+def flatten_dict(d: dict, climb: bool = False, safemode: bool = False) -> dict:
     """
     Flattens a nested dictionary containing only string keys.
 
@@ -73,15 +74,15 @@ def flatten_dict(d, climb=False, safemode=False):
 
     Parameters
     ----------
-    climb: :class:`bool`, :code:`False`
+    climb: bool, `False`
         Whether to keep trunk or leaf-values, for items with the same key.
-    safemode: :class:`bool`, :code:`True`
+    safemode: bool, `True`
         Whether to keep all keys as a tuple index, to avoid issues with
         conflicts.
 
     Returns
     -------
-    :class:`dict`
+    dict
         Flattened dictionary.
     """
     lift = lambda x: (x,)
@@ -106,7 +107,12 @@ def flatten_dict(d, climb=False, safemode=False):
     else:
         pick_key = lambda keys: keys[-1]
 
-    sort = (x[:2] for x in sorted([(pick_key(k), v, len(k)) for k, v in results], key=lambda x: x[-1]))  # sorted by depth
+    sort = (
+        x[:2]
+        for x in sorted(
+            [(pick_key(k), v, len(k)) for k, v in results], key=lambda x: x[-1]
+        )
+    )  # sorted by depth
 
     if not climb:
         # We go down the tree, and prioritise the trunk values
@@ -117,13 +123,13 @@ def flatten_dict(d, climb=False, safemode=False):
     return dict(items)
 
 
-def swap_item(startlist: list, pull: object, push: object):
+def swap_item(startlist: list, pull: Any, push: Any) -> list:
     """
     Swap a specified item in a list for another.
 
     Parameters
     ----------
-    startlist : :class:`list`
+    startlist : list
         List to replace item within.
     pull
         Item to replace in the list.
@@ -137,18 +143,23 @@ def swap_item(startlist: list, pull: object, push: object):
     return [[i, push][i == pull] for i in startlist]
 
 
-def copy_file(src, dst, ext=None, permissions=None):
+def copy_file(
+    src: str | Path,
+    dst: str | Path,
+    ext: str | None = None,
+    permissions: str | None = None,
+):
     """
     Copy a file from one place to another.
     Uses the full filepath including name.
 
     Parameters
     ----------
-    src : :class:`str` | :class:`pathlib.Path`
+    src : str | pathlib.Path
         Source filepath.
-    dst : :class:`str` | :class:`pathlib.Path`
+    dst : str | pathlib.Path
         Destination filepath or directory.
-    ext : :class:`str`, :code:`None`
+    ext : str, `None`
         Optional file extension specification.
     """
     src = Path(src)
@@ -169,7 +180,7 @@ def copy_file(src, dst, ext=None, permissions=None):
         os.chmod(str(dst), permissions)
 
 
-def remove_tempdir(directory):
+def remove_tempdir(directory: Path):
     """
     Remove a specific directory, contained files and sub-directories.
 

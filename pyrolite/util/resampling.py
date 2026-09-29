@@ -2,6 +2,8 @@
 Utilities for (weighted) bootstrap resampling applied to geoscientific point-data.
 """
 
+from typing import Callable
+
 import numpy as np
 import pandas as pd
 
@@ -21,19 +23,19 @@ def _segmented_univariate_distance_matrix(
 
     Parameters
     -----------
-    A, B : :class:`numpy.ndarray`
+    A, B : numpy.ndarray
         Numpy arrays with positions of points.
     distance_metric
         Callable function f(a, b) from which to derive a distance metric.
-    dtype : :class:`str` | :class:`numpy.dtype`
+    dtype : str | `numpy.dtype`
         Data type to use for the matrix.
-    segs : :class:`int`
+    segs : int
         Number of segments to split the matrix into (note that this will effectively
         squared - i.e. 10 -> 100 individual segments).
 
     Returns
     -------
-    dist : :class:`numpy.ndarray`
+    dist : numpy.ndarray
         2D point-to-point distance matrix.
     """
     max_size = np.max([a.shape[0] for a in [A, B]])
@@ -53,7 +55,7 @@ def univariate_distance_matrix(a, b=None, distance_metric=None):
 
     Parameters
     -----------
-    a, b : :class:`numpy.ndarray`
+    a, b : numpy.ndarray
         Points or arrays to calculate distance between. If only one array is
         specified, a full distance matrix (i.e. calculate a point-to-point distance
         for every combination of points) will be returned.
@@ -62,7 +64,7 @@ def univariate_distance_matrix(a, b=None, distance_metric=None):
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    numpy.ndarray
         2D distance matrix.
     """
     if distance_metric is None:
@@ -94,27 +96,27 @@ def get_spatiotemporal_resampling_weights(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to calculate weights for.
-    spatial_norm : :class:`float`
+    spatial_norm : float
         Normalising constant for spatial measures (1.8 arc degrees).
-    temporal_norm : :class:`float`
+    temporal_norm : float
         Normalising constant for temporal measures (38 Mya).
-    latlong_names : :class:`list`
+    latlong_names : list
         List of column names referring to latitude and longitude.
-    age_name : :class:`str`
+    age_name : str
         Column name corresponding to geological age or time.
-    max_memory_fraction : :class:`float`
-        Constraint to switch to calculating mean distances where :code:`matrix=True`
+    max_memory_fraction : float
+        Constraint to switch to calculating mean distances where `matrix=True`
         and the distance matrix requires greater than a specified fraction of total
         avaialbe physical memory. This is passed on to
-        :func:`~pyrolite.util.spatial.great_circle_distance`.
-    normalized_weights : :class:`bool`
+        `~pyrolite.util.spatial.great_circle_distance`.
+    normalized_weights : bool
         Whether to renormalise weights to unity.
 
     Returns
     --------
-    weights : :class:`numpy.ndarray`
+    weights : numpy.ndarray
         Sampling weights.
 
     Notes
@@ -176,28 +178,28 @@ def add_age_noise(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe with age data within which to look up the age name and add noise.
-    min_sigma : :class:`float`
+    min_sigma : float
         Minimum uncertainty to be considered for adding age noise.
-    noise_level : :class:`float`
+    noise_level : float
         Scaling of the noise added to the ages. By default the uncertaines are unscaled,
         but where age uncertaines are specified and are the one standard deviation level
         this can be used to expand the range of noise added (e.g. to 2SD).
-    age_name : :class:`str`
+    age_name : str
         Column name for absolute ages.
-    age_uncertainty_name : :class:`str`
+    age_uncertainty_name : str
         Name of the column specifiying absolute age uncertainties.
-    min_age_name : :class:`str`
+    min_age_name : str
         Name of the column specifying minimum absolute ages (used where uncertainties
         are otherwise unspecified).
-    max_age_name : :class:`str`
+    max_age_name : str
         Name of the column specifying maximum absolute ages (used where uncertainties
         are otherwise unspecified).
 
     Returns
     --------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe with noise-modified ages.
 
     Notes
@@ -226,23 +228,23 @@ def add_age_noise(
 
 
 def spatiotemporal_bootstrap_resample(
-    df,
-    columns=None,
-    uncert=None,
-    weights=None,
-    niter=100,
-    categories=None,
-    transform=None,
-    bootstrap_method="smooth",
-    add_gaussian_age_noise=True,
-    metrics=None,
-    default_uncertainty=0.02,
-    relative_uncertainties=True,
-    noise_level=1,
-    age_name="Age",
-    latlong_names=None,
+    df: pd.DataFrame,
+    columns: list[str] | None = None,
+    uncert: float | np.ndarray | pd.Series | pd.DataFrame | None = None,
+    weights: np.ndarray | pd.Series | None = None,
+    niter: int = 100,
+    categories: list | np.ndarray | pd.Series | None = None,
+    transform: Callable | None = None,
+    bootstrap_method: str = "smooth",
+    add_gaussian_age_noise: bool = True,
+    metrics: tuple[Callable | str] | None = None,
+    default_uncertainty: float = 0.02,
+    relative_uncertainties: bool = True,
+    noise_level: float = 1,
+    age_name: str = "Age",
+    latlong_names: tuple[str, str] | None = None,
     **kwargs,
-):
+) -> dict[str, pd.DataFrame]:
     """
     Resample and aggregate metrics from a dataframe, optionally aggregating by a given
     set of categories. Formulated specifically for dealing with resampling to address
@@ -250,55 +252,55 @@ def spatiotemporal_bootstrap_resample(
 
     Parameters
     -----------
-    df : :class:`pandas.DataFrame`
+    df : pandas.DataFrame
         Dataframe to resample.
-    columns : :class:`list`
+    columns : list
         Columns to provide bootstrap resampled estimates for.
-    uncert : :class:`float` | :class:`numpy.ndarray` | :class:`pandas.Series` | :class:`pandas.DataFrame`
+    uncert : float | numpy.ndarray | pandas.Series | pandas.DataFrame
         Fractional uncertainties for the dataset.
-    weights : :class:`numpy.ndarray` | :class:`pandas.Series`
+    weights : numpy.ndarray | pandas.Series
         Array of weights for resampling, if precomputed.
-    niter : :class:`int`
+    niter : int
         Number of resampling iterations. This will be the minimum index size of the output
         metric dataframes.
-    categories : :class:`list` | :class:`numpy.ndarray` | :class:`pandas.Series`
+    categories : list | numpy.ndarray | pandas.Series
         List of sample categories to group the ouputs by, which has the same size as the
         dataframe index.
     transform
         Callable function to transform input data prior to aggregation functions. Note
         that the outputs will need to be inverse-transformed.
-    bootstrap_method : :class:`str`
+    bootstrap_method : str
         Which method to use to add gaussian noise to the input dataset parameters.
-    add_gaussian_age_noise : :class:`bool`
+    add_gaussian_age_noise : bool
         Whether to add gassian noise to the input dataset ages, where present.
-    metrics : :class:`list`
+    metrics : list
         List of metrics to use for dataframe aggregation.
-    default_uncertainty : :class:`float`
+    default_uncertainty : float
         Default (fractional) uncertainty where uncertainties are not given.
-    relative_uncertainties : :class:`bool`
-        Whether uncertainties are relative (:code:`True`, i.e. fractional proportions
-        of parameter values), or absolute (:code:`False`)
-    noise_level : :class:`float`
+    relative_uncertainties : bool
+        Whether uncertainties are relative (`True`, i.e. fractional proportions
+        of parameter values), or absolute (`False`)
+    noise_level : float
         Multiplier for the random gaussian noise added to the dataset and ages.
-    age_name : :class:`str`
+    age_name : str
         Column name for geological age.
-    latlong_names : :class:`list`
+    latlong_names : list
         Column names for latitude and longitude, or equvalent orthogonal spherical
         spatial measures.
 
     Returns
     --------
-    :class:`dict`
+    dict
         Dictionary of aggregated Dataframe(s) indexed by statistical metrics. If
         categories are specified, the dataframe(s) will have a hierarchical index of
-        :code:`categories, iteration`.
+        `categories, iteration`.
     """
 
     # uncertainty managment ############################################################
     if latlong_names is None:
-        latlong_names = ["Latitude", "Longitude"]
+        latlong_names = ("Latitude", "Longitude")
     if metrics is None:
-        metrics = ["mean", "var"]
+        metrics = ("mean", "var")
     uncertainty_type = None
     if uncert is not None:
         if isinstance(uncert, float):

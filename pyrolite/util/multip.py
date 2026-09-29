@@ -1,33 +1,29 @@
-import numpy as np
+from collections.abc import Callable
+from multiprocessing import Pool
+from typing import Any
 
-try:
-    from pathos.multiprocessing import ProcessingPool as Pool
-except ImportError:
-    from multiprocessing import Pool
+import numpy as np
 
 from .log import Handle
 
 logger = Handle(__name__)
 
-# Note : Using pathos multiprocessing which leverages dill over standard
-# pickle, which has a hard time serializing even simple objects
 
-
-def combine_choices(choices, include_none=False):
+def combine_choices(choices: dict[str, list], include_none: bool = False) -> list[dict]:
     """
     Explode a set of choices into possible combinations.
 
     Parameters
     ------------
-    choices : :class:`dict`
+    choices : dict
         Dictionary where keys are names, and values are list of potential
         choices.
-    include_none : :class:`bool`
+    include_none : bool
         Whether to include 'None' values, or otherwise omit them.
 
     Returns
     ---------
-    :class:`list`
+    list
         List of dictionaries containing each set of choice combinations.
 
     Notes
@@ -65,12 +61,12 @@ def combine_choices(choices, include_none=False):
         return [{}]
 
 
-def func_wrapper(arg):
+def func_wrapper(arg: tuple[Any, dict]):
     func, kwargs = arg
     return func(**kwargs)
 
 
-def multiprocess(func, param_sets):
+def multiprocess(func: Callable, param_sets: list[tuple[Any, dict]]):
     """
     Multiprocessing utility function, targeted towards large requests.
     Note that async is commonly slower for this use case.

@@ -4,27 +4,28 @@ Submodule for calcuating relative ion paritioning based on the lattice strain mo
 Todo
 ------
 
-    * Bulk modulus and Youngs modulus approximations [#ref_3]_ [#ref_4]_  [#ref_5]_.
+* Bulk modulus and Youngs modulus approximations [#ref_3]_ [#ref_4]_  [#ref_5]_.
 
 References
 ------------
-    .. [#ref_1] Brice, J.C., 1975. Some thermodynamic aspects of the growth of strained crystals.
-            Journal of Crystal Growth 28, 249–253.
-            doi: {brice1975}
-    .. [#ref_2] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients from elastic moduli.
-            Nature 372, 452.
-            doi: {blundy1994}
-    .. [#ref_3] Wood, B.J., Blundy, J.D., 2014. Trace Element Partitioning: The Influences of Ionic
-            Radius, Cation Charge, Pressure, and Temperature. Treatise on Geochemistry
-            (Second Edition) 3, 421–448.
-            doi: {wood2014}
-    .. [#ref_4] Anderson, D.L., Anderson, O.L., 1970.
-            Brief report: The bulk modulus-volume relationship for oxides.
-            Journal of Geophysical Research (1896-1977) 75, 3494–3500.
-            doi: {anderson1970}
-    .. [#ref_5] Hazen, R.M., Finger, L.W., 1979. Bulk modulus—volume relationship for cation-anion polyhedra.
-            Journal of Geophysical Research: Solid Earth 84, 6723–6728.
-            doi: {hazen1979}
+
+.. [#ref_1] Brice, J.C., 1975. Some thermodynamic aspects of the growth of strained crystals.
+        Journal of Crystal Growth 28, 249-253.
+        doi: {brice1975}
+.. [#ref_2] Blundy, J., Wood, B., 1994. Prediction of crystal-melt partition coefficients from elastic moduli.
+        Nature 372, 452.
+        doi: {blundy1994}
+.. [#ref_3] Wood, B.J., Blundy, J.D., 2014. Trace Element Partitioning: The Influences of Ionic
+        Radius, Cation Charge, Pressure, and Temperature. Treatise on Geochemistry
+        (Second Edition) 3, 421-448.
+        doi: {wood2014}
+.. [#ref_4] Anderson, D.L., Anderson, O.L., 1970.
+        Brief report: The bulk modulus-volume relationship for oxides.
+        Journal of Geophysical Research (1896-1977) 75, 3494-3500.
+        doi: {anderson1970}
+.. [#ref_5] Hazen, R.M., Finger, L.W., 1979. Bulk modulus—volume relationship for cation-anion polyhedra.
+        Journal of Geophysical Research: Solid Earth 84, 6723-6728.
+        doi: {hazen1979}
 
 """
 
@@ -41,69 +42,77 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
+def strain_coefficient(
+    ri: float,
+    rx: float | np.ndarray,
+    r0: float | None = None,
+    E: float | None = None,
+    T: float = 298.15,
+    z: int | None = None,
+    **kwargs,
+) -> float:
     r"""
     Calculate the lattice strain associated with an ionic substitution [#ref_1]_ [#ref_2]_.
 
     Parameters
     -----------
-    ri : :class:`float`
+    ri : float
         Ionic radius to calculate strain relative to, in angstroms (Å).
-    rj : :class:`float`
+    rj : float | numpy.ndarray
         Ionic radius to calculate strain for, in angstroms (Å).
-    r0 : :class:`float`, :code:`None`
-        Fictive ideal ionic radii for the site. The value for :code:`ri` will be used in its place
+    r0 : float
+        Fictive ideal ionic radii for the site. The value for `ri` will be used in its place
         if none is given, and a warning issued.
-    E : :class:`float`, :code:`None`
+    E : float
         Young's modulus (stiffness) for the site, in pascals (Pa). Will be estimated using
-        :func:`youngs_modulus_approximation` if none is given.
-    T : :class:`float`
+        `youngs_modulus_approximation` if none is given.
+    T : float
         Temperature, in Kelvin (K).
-    z : :class:`int`
+    z : int
         Optional specification of cationic valence, for calcuation of approximate
-        Young's modulus using :func:`youngs_modulus_approximation`,
+        Young's modulus using `youngs_modulus_approximation`,
         where the modulus is not specified.
 
     Returns
     --------
-    :class:`float`
+    float
         The strain coefficent :math:`e^{\frac{-\Delta G_{strain}}{RT}}`.
 
     Notes
     ------
 
-        The lattice strain model relates changes in paritioning to differences in
-        ionic radii for ions of a given cationic charge, and for a for a specific site
-        (with Young's modulus :math:`E`). This is calcuated using the work
-        done to expand a spherical shell centred on the lattice site,
-        which alters the :math:`\Delta G` for the formation of the mineral.
-        This can be related to changes in partition coefficients using the following
-        [#ref_2]_:
+    The lattice strain model relates changes in paritioning to differences in
+    ionic radii for ions of a given cationic charge, and for a for a specific site
+    (with Young's modulus :math:`E`). This is calcuated using the work
+    done to expand a spherical shell centred on the lattice site,
+    which alters the :math:`\Delta G` for the formation of the mineral.
+    This can be related to changes in partition coefficients using the following
+    [#ref_2]_:
 
-        .. math::
+    .. math::
 
-            D_{j^{n+}} = D_{A^{n+}} \cdot e^{\frac{-4\pi E N \Big(\frac{r_{0}}{2}(r_j - r_0)^2 + \frac{1}{3}(r_j - r_0)^3\Big)}{RT}}
+        D_{j^{n+}} = D_{A^{n+}} \cdot e^{\frac{-4\pi E N \Big(\frac{r_{0}}{2}(r_j - r_0)^2 + \frac{1}{3}(r_j - r_0)^3\Big)}{RT}}
 
-        Where :math:`D_{A^{n+}}` is the partition coefficient for the ideal ion A, and
-        N is Avagadro's number (6.023e23 atoms/mol). This can also
-        be calcuated relative to an 'ideal' fictive ion which has a maximum :math:`D`
-        where this data are available. This relationship arises via i) the integration
-        to calcuate the strain energy mentioned above
-        (:math:`4\pi E (\frac{r_{0}}{2}(r_j - r_0)^2 + \frac{1}{3}(r_j - r_0)^3)`),
-        and ii) the assumption that the changes in :math:`\Delta G` occur only to size
-        differences, and the difference is additive. The 'segregation coefficient'
-        :math:`K_j` can be expressed relative to the non-doped equilibirum constant
-        :math:`K_0` [#ref_1]_:
+    Where :math:`D_{A^{n+}}` is the partition coefficient for the ideal ion A, and
+    N is Avagadro's number (6.023e23 atoms/mol). This can also
+    be calcuated relative to an 'ideal' fictive ion which has a maximum :math:`D`
+    where this data are available. This relationship arises via i) the integration
+    to calcuate the strain energy mentioned above
+    (:math:`4\pi E (\frac{r_{0}}{2}(r_j - r_0)^2 + \frac{1}{3}(r_j - r_0)^3)`),
+    and ii) the assumption that the changes in :math:`\Delta G` occur only to size
+    differences, and the difference is additive. The 'segregation coefficient'
+    :math:`K_j` can be expressed relative to the non-doped equilibirum constant
+    :math:`K_0` [#ref_1]_:
 
-        .. math::
+    .. math::
 
-            \begin{align}
-            K_j &= e^{\frac{-\Delta G_0 -\Delta G_{strain}}{RT}}\\
-                &= e^{\frac{-\Delta G_0}{RT}} \cdot e^{\frac{-\Delta G_{strain}}{RT}}\\
-                &= K_0 \cdot e^{\frac{-\Delta G_{strain}}{RT}}\\
-            \end{align}
+        \begin{align}
+        K_j &= e^{\frac{-\Delta G_0 -\Delta G_{strain}}{RT}}\\
+            &= e^{\frac{-\Delta G_0}{RT}} \cdot e^{\frac{-\Delta G_{strain}}{RT}}\\
+            &= K_0 \cdot e^{\frac{-\Delta G_{strain}}{RT}}\\
+        \end{align}
 
-        The model assumes that the crystal is elastically isotropic.
+    The model assumes that the crystal is elastically isotropic.
 
     """
     n = 6.023 * 10**23
@@ -119,22 +128,23 @@ def strain_coefficient(ri, rx, r0=None, E=None, T=298.15, z=None, **kwargs):
 
 
 @update_docstring_references
-def youngs_modulus_approximation(z, r):
+def youngs_modulus_approximation(z: int, r: float) -> float:
     r"""
     Young's modulus approximation for cationic sites in silicates
-    and oxides [#ref_1]_ [#ref_2]_ [#ref_3]_.
+    and oxides [#ref_1]_ [#ref_2]_ [#ref_3]_.4
 
     Parameters
     ----------
-    z : :class:`integer`
+    z : int
         Cationic valence.
-    r : :class:`float`
+    r : float
         Ionic radius of the cation (Å).
 
     Returns
     --------
-    E : :class:`float`
-        Young's modulus for the cationic site, in Pascals (Pa)
+    E : float
+        Young's modulus for the cationic site, in Pascals (Pa).
+
     Notes
     ------
     The bulk modulus :math:`K` for an an ionic crystal is esimated using [#ref_1]_:
@@ -171,12 +181,6 @@ def youngs_modulus_approximation(z, r):
             E &\approx 1.5 K\\
             E &\approx 1025 Z_c d^{-3}
         \end{align}
-
-    Todo
-    -----
-
-        * Add links to docstring
-
     """
     assert (z is not None) and (r is not None), (
         "Need charge and radii to approximate Young's Modulus"
@@ -186,56 +190,62 @@ def youngs_modulus_approximation(z, r):
     return E
 
 
-def _lattice_opt_function(xs, ri, Tk, D, z=3, E=None):
+def _lattice_opt_function(
+    xs: np.ndarray, ri: float, Tk: float, D: float, z: int = 3, E: float | None = None
+) -> np.ndarray:
     return D * strain_coefficient(
         ri, xs, r0=ri, E=E or youngs_modulus_approximation(z, ri), T=Tk
     )
 
 
 def fit_lattice_strain(
-    radii,
-    ys,
-    E=None,
-    z=3,
-    bounds=None,
-    r0=None,
-    t0=273.15 + 500,
-    d0=1.0,
+    radii: np.ndarray,
+    ys: np.ndarray,
+    E: float | None = None,
+    z: int = 3,
+    bounds: list[tuple[float, float]] | None = None,
+    r0: float | None = None,
+    t0: float = 273.15 + 500,
+    d0: float = 1.0,
     **kwargs,
-):
+) -> tuple[float, float, float]:
     """
     Fit a lattice strain model to a given set of abundances.
 
     Parameters
     ----------
-    radii : :class:`numpy.ndarray`
+    radii : numpy.ndarray
         Radii to fit against.
-    ys : :class:`numpy.ndarray`
+    ys : numpy.ndarray
         Partition coefficients for given elemental data.
-    E : :class:`float`, :code:`None`
+    E : float
         Young's modulus (stiffness) for the site, in pascals (Pa). Will be estimated using
-        :func:`youngs_modulus_approximation` if none is given.
-    z : :class:`int`
+        `youngs_modulus_approximation` if none is given.
+    z : int
         Optional specification of cationic valence, for calcuation of approximate
-        Young's modulus using :func:`youngs_modulus_approximation`,
+        Young's modulus using `youngs_modulus_approximation`,
         where the modulus is not specified.
-    bounds : :class:`list`
+    bounds : list
         List of tuples specifying bounds on parameters `ri`, `T` and `D`.
 
     Returns
     -------
-    ri, tk, D : :class:`float`
+    ri, tk, D : float
         Radius, temperature and partition coefficeint describing the
         lattice strain fit.
 
     Notes
     -----
     * Uses the youngs modulus approximation where `E` not provided.
-    * Passes keyword arguments to :func:`scipy.optimize_curve_fit`.
+    * Passes keyword arguments to `scipy.optimize_curve_fit`.
     """
 
     if bounds is None:
-        bounds = [(0.1, 2.2), (273.15, 273.15 + 2700), (0, np.inf)]
+        bounds: list[tuple[float, float]] = [
+            (0.1, 2.2),
+            (273.15, 273.15 + 2700),
+            (0, np.inf),
+        ]
     popt, _pcov = curve_fit(
         partial(_lattice_opt_function, z=z, E=E),
         radii,
@@ -261,9 +271,9 @@ __doc__ = str(__doc__).replace("ref", __name__)
 sc_ref = r"""References
     ----------
     .. [#ref_1] Brice, J.C., 1975. Some thermodynamic aspects of the growth of strained crystals.
-            Journal of Crystal Growth 28, 249–253.
+            Journal of Crystal Growth 28, 249-253.
             doi: {brice1975}
-    .. [#ref_2] Blundy, J., Wood, B., 1994. Prediction of crystal–melt partition coefficients from elastic moduli.
+    .. [#ref_2] Blundy, J., Wood, B., 1994. Prediction of crystal-melt partition coefficients from elastic moduli.
             Nature 372, 452.
             doi: {blundy1994}
     """.format(
@@ -279,15 +289,15 @@ bm_ref = r"""References
     -----------
         .. [#ref_1] Anderson, D.L., Anderson, O.L., 1970.
                 Brief report: The bulk modulus-volume relationship for oxides.
-                Journal of Geophysical Research (1896-1977) 75, 3494–3500.
+                Journal of Geophysical Research (1896-1977) 75, 3494-3500.
                 doi: {anderson1970}
         .. [#ref_2] Hazen, R.M., Finger, L.W., 1979. Bulk modulus—volume relationship for
                 cation-anion polyhedra. Journal of Geophysical Research: Solid Earth 84,
-                6723–6728.
+                6723-6728.
                 doi: {hazen1979}
         .. [#ref_3] Wood, B.J., Blundy, J.D., 2014. Trace Element Partitioning: The Influences of Ionic
                 Radius, Cation Charge, Pressure, and Temperature. Treatise on Geochemistry
-                (Second Edition) 3, 421–448.
+                (Second Edition) 3, 421-448.
                 doi: {wood2014}
     """.format(
     anderson1970=sphinx_doi_link("10.1029/JB075i017p03494"),

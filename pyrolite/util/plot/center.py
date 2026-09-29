@@ -5,17 +5,20 @@ Originally released under an MIT licence.
 """
 
 import time
-from math import inf, sqrt
 from queue import PriorityQueue
+
+import numpy as np
 
 from ..log import Handle
 
 logger = Handle(__name__)
 
 
-def _point_to_polygon_distance(x, y, polygon):
+def _point_to_polygon_distance(
+    x: float, y: float, polygon: list[list[tuple[float, float]]]
+) -> float:
     inside = False
-    min_dist_sq = inf
+    min_dist_sq = np.inf
 
     for ring in polygon:
         b = ring[-1]
@@ -28,13 +31,15 @@ def _point_to_polygon_distance(x, y, polygon):
             min_dist_sq = min(min_dist_sq, _get_seg_dist_sq(x, y, a, b))
             b = a
 
-    result = sqrt(min_dist_sq)
+    result = min_dist_sq**0.5
     if not inside:
         return -result
     return result
 
 
-def _get_seg_dist_sq(px, py, a, b):
+def _get_seg_dist_sq(
+    px: float, py: float, a: tuple[float, float], b: tuple[float, float]
+) -> float:
     x = a[0]
     y = a[1]
     dx = b[0] - x
@@ -58,12 +63,14 @@ def _get_seg_dist_sq(px, py, a, b):
 
 
 class Cell:
-    def __init__(self, x, y, h, polygon):
+    def __init__(
+        self, x: float, y: float, h: float, polygon: list[list[tuple[float, float]]]
+    ):
         self.h = h
         self.y = y
         self.x = x
         self.d = _point_to_polygon_distance(x, y, polygon)
-        self.max = self.d + self.h * sqrt(2)
+        self.max = self.d + self.h * 2**0.5
 
     def __lt__(self, other):
         return self.max < other.max
@@ -81,7 +88,7 @@ class Cell:
         return self.max == other.max
 
 
-def _get_centroid_cell(polygon):
+def _get_centroid_cell(polygon: list[list[tuple[float, float]]]) -> Cell:
     area = 0
     x = 0
     y = 0
@@ -98,7 +105,12 @@ def _get_centroid_cell(polygon):
     return Cell(x / area, y / area, 0, polygon)
 
 
-def visual_center(polygon, precision=1.0, debug=False, with_distance=False):
+def visual_center(
+    polygon: list[list[tuple[float, float]]],
+    precision: float = 1.0,
+    debug: bool = False,
+    with_distance: bool = False,
+) -> tuple[list[float], float] | list[float]:
     # find bounding box
     first_item = polygon[0][0]
     min_x = first_item[0]

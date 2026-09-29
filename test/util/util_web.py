@@ -1,6 +1,6 @@
 import unittest
 
-from pyrolite.util.web import download_file, internet_connection, urlify
+from pyrolite.util.web import download_file, have_internet_connection, urlify
 
 
 class TestUrlify(unittest.TestCase):
@@ -28,10 +28,10 @@ class TestDownloadFile(unittest.TestCase):
 
 class TestInternetConnection(unittest.TestCase):
     def test_default(self):
-        internet_connection()
+        have_internet_connection()
 
     def test_insecure(self):
-        internet_connection(secure=False)
+        have_internet_connection(secure=False)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,9 @@ logger = Handle(__name__)
 
 
 @update_docstring_references
-def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
+def orthogonal_polynomial_constants(
+    xs: np.ndarray, degree: int = 3, rounding: int | None = None, tol: float = 10**-14
+) -> list[tuple[float, ...]]:
     r"""
     Finds the parameters
     :math:`(\beta_0), (\gamma_0, \gamma_1), (\delta_0, \delta_1, \delta_2)` etc.
@@ -25,33 +27,33 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
 
     Parameters
     ----------
-    xs : :class:`numpy.ndarray`
+    xs : numpy.ndarray
         Indexes over which to generate the orthogonal polynomials.
-    degree : :class:`int`
+    degree : int
         Maximum polynomial degree. E.g. 2 will generate constant, linear, and quadratic
         polynomial components.
-    tol : :class:`float`
-        Convergence tolerance for solver.
-    rounding : :class:`int`
+    rounding : int
         Precision for the orthogonal polynomial coefficents.
+    tol : float
+            Convergence tolerance for solver.
 
     Returns
     -------
-    :class:`list`
+    list
         List of tuples corresponding to coefficients for each of the polynomial
         components. I.e the first tuple will be empty, the second will contain a single
         coefficient etc.
 
     Notes
     -----
-        Parameters are used to construct orthogonal polymomials of the general form:
+    Parameters are used to construct orthogonal polymomials of the general form:
 
-        .. math::
+    .. math::
 
-            f(x) &= a_0 \\
-            &+ a_1 * (x - \beta) \\
-            &+ a_2 * (x - \gamma_0) * (x - \gamma_1) \\
-            &+ a_3 * (x - \delta_0) * (x - \delta_1) * (x - \delta_2) \\
+        f(x) &= a_0 \\
+        &+ a_1 * (x - \beta) \\
+        &+ a_2 * (x - \gamma_0) * (x - \gamma_1) \\
+        &+ a_3 * (x - \delta_0) * (x - \delta_1) * (x - \delta_2) \\
 
     See Also
     --------
@@ -60,8 +62,8 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
 
     References
     ----------
-    .. [#ref_1] O’Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
-           Rare Earth Element Patterns in Basalts. J Petrology 57:1463–1508.
+    .. [#ref_1] O'Neill HSC (2016) The Smoothness and Shapes of Chondrite-normalized
+           Rare Earth Element Patterns in Basalts. J Petrology 57:1463-1508.
            doi: `10.1093/petrology/egw047 <https://dx.doi.org/10.1093/petrology/egw047>`__
     """
     xs = np.array(xs)
@@ -96,30 +98,34 @@ def orthogonal_polynomial_constants(xs, degree=3, rounding=None, tol=10**-14):
     return params
 
 
-def _get_tetrad_params(params=None):
+def _get_tetrad_params(
+    params: list[tuple[float, ...]] | None = None,
+) -> list[tuple[float, ...]]:
     if params is None:
-        params = ((58.75, 3.5), (62.25, 3.5), (65.75, 3.5), (69.25, 3.5))
+        params = [(58.75, 3.5), (62.25, 3.5), (65.75, 3.5), (69.25, 3.5)]
     return params
 
 
-def _get_params(params=None, degree=4):
+def _get_params(
+    params: str | list[tuple[float, ...]] | None = None, degree: int = 4
+) -> list[tuple[float, ...]]:
     """
     Disambiguate parameter specification for orthogonal polynomials.
 
     Parameters
     ----------
-    params : :class:`list` | :class:`str`
+    params : list | str
         Pre-computed parameters for the orthogonal polynomials (a list of tuples).
         Optionally specified, otherwise defaults the parameterisation as in
-        O'Neill (2016). [#ref_1]_ If a string is supplied, :code:`"O'Neill (2016)"` or
-        similar will give the original defaults, while :code:`"full"` will use all
+        O'Neill (2016). [#ref_1]_ If a string is supplied, `"O'Neill (2016)"` or
+        similar will give the original defaults, while `"full"` will use all
         of the REE (including Eu) as a basis for the orthogonal polynomials.
-    degree : :class:`int`
+    degree : int
         Degree of orthogonal polynomial fit.
 
     Returns
     --------
-    params : :class:`list`
+    params : list
         List of tuples containing a parameterisation of the orthogonal polynomial
         functions.
     """
@@ -145,26 +151,28 @@ def _get_params(params=None, degree=4):
     else:
         # check that params is a tuple or list
         if not isinstance(params, (list, tuple)):
-            msg = f"Type {type(params)} parameter specification {params} not recognised."
+            msg = (
+                f"Type {type(params)} parameter specification {params} not recognised."
+            )
             raise NotImplementedError(msg)
 
     return params
 
 
-def parse_sigmas(size, sigmas=None):
+def parse_sigmas(size: int, sigmas: float | np.ndarray | None = None) -> np.ndarray:
     r"""
     Disambigaute a value or set of sigmas for a dataset for use in lambda-fitting
     algorithms.
 
     Parameters
     ----------
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         2D array of REE uncertainties. Values as fractional uncertaintes
         (i.e. :math:`\sigma_{REE} / REE`).
 
     Returns
     -------
-    sigmas : :class:`float` | :class:`numpy.ndarray`
+    sigmas : float | numpy.ndarray
         1D array of sigmas (:math:`\sigma_{REE} / REE`).
 
     Notes
