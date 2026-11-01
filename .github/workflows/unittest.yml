@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 
+        uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa 
         with:
             version: "latest"
             python-version: ${{ matrix.python-version }}
@@ -61,7 +61,7 @@ jobs:
         env:
           COVERALLS_SERVICE_NAME: github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: ${{ matrix.test-name }}
+          COVERALLS_FLAG_NAME: ${{ matrix.os }}-${{ matrix.python-version }}
           COVERALLS_PARALLEL: true
         run: |
           uv run coveralls
