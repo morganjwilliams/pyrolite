@@ -2,6 +2,7 @@ import unittest
 
 import matplotlib.colors
 import numpy as np
+import pandas as pd
 
 from pyrolite.plot.color import get_cmode, process_color
 
@@ -128,6 +129,12 @@ class TestProcessColor(unittest.TestCase):
     def test_array_with_alpha(self):
         alpha = 0.5
         for c in [np.array([0.1, 0.9])]:
+            out = process_color(c=c, alpha=alpha)
+            self.assertTrue(np.allclose(out["c"][:, -1], alpha))
+
+    def test_string_array(self):
+        alpha = 0.5
+        for c in [pd.Series(["A", "B"])]:
             out = process_color(c=c, alpha=alpha)
             self.assertTrue(np.allclose(out["c"][:, -1], alpha))
 

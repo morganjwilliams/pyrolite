@@ -1234,10 +1234,8 @@ def CIPW_norm(
         ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"]
     ].sum(axis=1)
 
-    FREE.drop(
-        ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"],
-        axis=1,
-        inplace=True,
+    FREE = FREE.drop(
+        ["FREEO_12b", "FREEO_12c", "FREEO_13", "FREEO_14", "FREEO_16"], axis=1
     )
 
     ############################################################################
@@ -1255,7 +1253,7 @@ def CIPW_norm(
     FREE["OXIDES"] = FREE[["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"]].sum(axis=1)
 
     FREE["DEFSIO2"] = df["DEFSIO2"] * pt.formula("SiO2").mass  # 60.0843
-    FREE.drop(["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"], axis=1, inplace=True)
+    FREE = FREE.drop(["P2O5", "F", "Cl", "SO3", "S", "Cr2O3"], axis=1)
 
     ############################################################################
     # populate tables of molecular proportions and masses
@@ -1301,7 +1299,7 @@ def CIPW_norm(
     mineral_pct_mm.columns = [
         minerals[mineral]["name"] for mineral in mineral_pct_mm.columns
     ]
-    mineral_pct_mm.fillna(0, inplace=True)
+    mineral_pct_mm = mineral_pct_mm.fillna(0)
 
     outputs = [mineral_pct_mm]
     if return_adjusted_input:

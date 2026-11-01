@@ -110,7 +110,7 @@ def calc_lambdas(
             sigmas = sigmas[column_fltr]
 
     fit_df = df.loc[:, columns]
-    fit_df.mask(~np.isfinite(fit_df), np.nan, inplace=True)  # deal with np.nan, np.inf
+    fit_df = fit_df.mask(~np.isfinite(fit_df), np.nan)  # deal with np.nan, np.inf
     fit_radii = get_ionic_radii(columns, charge=3, coordination=8)
 
     if "oneill" in algorithm.lower():

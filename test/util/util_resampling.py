@@ -128,7 +128,7 @@ class TestAddAgeNoise(unittest.TestCase):
 
     def test_minmax_only(self):
         _df = self.df.copy(deep=True)
-        _df.drop(columns=["AgeUncertainty"], inplace=True)
+        _df = _df.drop(columns=["AgeUncertainty"])
         output = add_age_noise(_df)
         self.assertTrue((_df.columns == output.columns).all())
         self.assertTrue((self.df["Age"] != output["Age"]).all())
@@ -136,7 +136,7 @@ class TestAddAgeNoise(unittest.TestCase):
     @unittest.expectedFailure
     def test_no_uncertainties_available(self):
         _df = self.df.copy(deep=True)
-        _df.drop(columns=["AgeUncertainty", "MaxAge"], inplace=True)
+        _df = _df.drop(columns=["AgeUncertainty", "MaxAge"])
         output = add_age_noise(_df)
         self.assertTrue((_df.columns == output.columns).all())
         self.assertTrue((self.df["Age"] != output["Age"]).all())

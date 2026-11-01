@@ -85,16 +85,16 @@ class TestPlotMapping(unittest.TestCase):
 
     def test_mapping_instance(self):
         for mapping in [
-            sklearn.manifold.MDS(n_components=2, metric=True),
+            sklearn.manifold.MDS(n_components=2, metric_mds=True, init="classical_mds"),
             sklearn.manifold.Isomap(n_components=2),
         ]:
             with self.subTest(mapping=mapping):
                 a, tfm, mapped = plot_mapping(self.data, self.clf, mapping=mapping)
 
     def test_mapping_array(self):
-        mapping = sklearn.manifold.MDS(n_components=2, metric=True).fit_transform(
-            self.data
-        )
+        mapping = sklearn.manifold.MDS(
+            n_components=2, metric_mds=True, init="classical_mds"
+        ).fit_transform(self.data)
         a, tfm, mapped = plot_mapping(self.data, self.clf, mapping=mapping)
 
     def test_Y_transformer_or_array(self):

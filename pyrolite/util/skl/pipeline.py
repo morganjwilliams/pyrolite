@@ -186,8 +186,7 @@ if HAVE_SKL:
             one-vs-rest classifier which will return classification estimation shape of
             `(samples, classes)`.
         probability : bool
-            Whether to implement Platt-scaling to enable probability estimates.
-            This must be enabled prior to calling fit, and will slow down that method.
+            Whether to use a calibrated classifier to estimate probablities.
         cv : int | sklearn.model_selection.BaseSearchCV
             Cross validation search. If an integer `k` is provided, results in
             default `k`-fold cross validation. Optionally, if a
@@ -221,7 +220,6 @@ if HAVE_SKL:
             param_grid = {}
         classifier_kwargs = {
             "kernel": kernel,
-            "probability": probability,
             "decision_function_shape": decision_function_shape,
             "cache_size": cache_size,
             "gamma": "scale",  # suppress warnings; 'auto' deprecated, likely changes with gs
@@ -241,7 +239,13 @@ if HAVE_SKL:
         if scaler is not None:  # scaler should be the second last item added
             stages.append(scaler)
 
-        stages.append(sklearn.svm.SVC(**classifier_kwargs))  # add the classifier itself
+        stages.append(
+            sklearn.calibration.CalibratedClassifierCV(
+                sklearn.svm.SVC(**classifier_kwargs), ensemble=False
+            )
+            if probability
+            else sklearn.svm.SVC(**classifier_kwargs)
+        )  # add the classifier itself
         pipe = make_pipeline(*stages)
 
         if cv is None:

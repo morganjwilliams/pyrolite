@@ -57,7 +57,10 @@ def get_cmode(c: str | list | tuple | np.ndarray | None = None) -> str:
                 ),
             ):
                 dtype = getattr(c, "dtype", np.dtype("O"))
-                if dtype.name == "category":  # convert categories to objects for numpy
+                if dtype.name in [
+                    "category",
+                    "str",
+                ]:  # convert categories to objects for numpy
                     dtype = np.dtype("O")
                 c = np.array(c, dtype=dtype)
                 convertible = False
@@ -247,7 +250,7 @@ def process_color(
                 cmap = plt.get_cmap(cmap)
             if cmap_under is not None:
                 cmap = copy.copy(cmap)  # without this, it would modify the global cmap
-                cmap.set_extremes(under=cmap_under)
+                cmap = cmap.with_extremes(under=cmap_under)
             norm = norm or plt.Normalize(
                 vmin=otherkwargs.get("vmin") or np.nanmin(_C),
                 vmax=otherkwargs.get("vmax") or np.nanmax(_C),
