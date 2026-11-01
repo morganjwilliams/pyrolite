@@ -57,7 +57,10 @@ def get_cmode(c: str | list | tuple | np.ndarray | None = None) -> str:
                 ),
             ):
                 dtype = getattr(c, "dtype", np.dtype("O"))
-                if dtype.name == "category":  # convert categories to objects for numpy
+                if dtype.name in [
+                    "category",
+                    "str",
+                ]:  # convert categories to objects for numpy
                     dtype = np.dtype("O")
                 c = np.array(c, dtype=dtype)
                 convertible = False
