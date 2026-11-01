@@ -297,13 +297,14 @@ if HAVE_SKL:
         X_ = X.copy()  # avoid modifying input array
         if mapping is None:
             tfm = sklearn.manifold.MDS
-            tfm_kwargs = {k: v for k, v in kwargs.items() if inargs(k, tfm)}
-            tfm = tfm(n_components=2, metric=True, **tfm_kwargs)
+            tfm_kwargs = {"init": "classical_mds"}
+            tfm_kwargs.update({k: v for k, v in kwargs.items() if inargs(k, tfm)})
+            tfm = tfm(n_components=2, metric_mds=True, **tfm_kwargs)
             mapped = tfm.fit_transform(X_)
         elif isinstance(mapping, str):
             if mapping.lower() == "mds":
                 cls = sklearn.manifold.MDS
-                kw = {"n_components": 2, "metric": True}
+                kw = {"n_components": 2, "metric_mds": True, "init": "classical_mds"}
             elif mapping.lower() == "isomap":
                 # not necessarily consistent orientation, but consistent shape
                 cls = sklearn.manifold.Isomap
