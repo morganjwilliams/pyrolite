@@ -26,7 +26,6 @@ import pyrolite
 from pyrolite.geochem.norm import all_reference_compositions
 
 version = re.findall(r"^[\d]*.[\d]*.[\d]*", pyrolite.__version__)[0]
-release = pyrolite.__version__.replace(".dirty", "")
 
 
 # -- General configuration ------------------------------------------------
