@@ -11,6 +11,13 @@ If you're keen to check something out before its released, you can use a
 :::
 
 
+## [v0.3.9]
+
+- **Bugfix**: Colormapping options in {py:mod}`pyrolite.plot.color` should now work with {py:class}`pandas.arrays.StringArray`.
+- Updates for some deprecations in {py:mod}`scikit-learn`, {py:mod}`matplotlib`, {py:mod}`pandas`.
+- Updated lock; released here more speedily than normal due to a wave of recent security updates.
+
+
 ## [v0.3.8]
 
 - **Bugfix**: Some fixes for using {class}`pandas.arrays.StringArray` in e.g. {mod}`pyrolite.mineral.normative`.
@@ -1358,5 +1365,6 @@ but were {code}`alpha` versions which were never considered stable.
 [0.3.5]: https://github.com/morganjwilliams/pyrolite/compare/0.3.4...0.3.5.post0
 [v0.3.6]: https://github.com/morganjwilliams/pyrolite/compare/0.3.5.post0...v0.3.6
 [v0.3.7]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.7
-[v0.3.8]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.6...v0.3.8
-[development]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.8...develop
+[v0.3.8]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.7...v0.3.8.post1
+[v0.3.9]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.8.post1...v0.3.9
+[development]: https://github.com/morganjwilliams/pyrolite/compare/v0.3.9...develop
