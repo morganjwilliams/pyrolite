@@ -25,7 +25,7 @@ If you're keen to check something out before its released, you can use a
 - Updated some internal mechanics of {mod}`pyrolite.geochem.norm` and reference conditions, and associated transformation functions (e.g., where passing {class}`pandas.Series` instead of {class}`pandas.DataFrame`). 
 - Removed the unused function {func}`pyrolite.util.log.stream_log`.
 - Removed {mod}`tinydb` dependency; files used in pyrolite are small and are instead simply stored as plaintext JSON in package data.
-- Removed 'legend.bbox_to_anchor : (1, 1)` from the pyrolite {mod}`matplotlib` style file; this was throwing warnings on import, inclusion of this to configure default legend location has been deprecated.
+- Removed `legend.bbox_to_anchor : (1, 1)` from the pyrolite {mod}`matplotlib` style file; this was throwing warnings on import, inclusion of this to configure default legend location has been deprecated.
 - Removed {mod}`numpydoc` dependency; some of the docstrings which had used this to dynamically present parameter options will now just point to where additional parameters are able to be used.
 - Added dependabot config, added publishing GitHub action, updated binder config, updated GitHub action, and ReadTheDocs config.
 - Added type hinting throughout.
