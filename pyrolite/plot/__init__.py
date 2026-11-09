@@ -425,6 +425,62 @@ class pyroplot:
         # ax.set_aspect("equal")
         return ax
 
+    def log_scatter(self, components: list = None, ax=None, axlabels=True, xmin=0.01, xmax=10, ymin=0.01, ymax=10, **kwargs):
+        r"""
+        Convenience method for log-log scatter plots using the pyroplot API.
+
+        Parameters
+        ----------
+        components : :class:`list`, :code:`None`
+            Elements or compositional components to plot. Must contain exactly
+            two components.
+        ax : :class:`matplotlib.axes.Axes`, :code:`None`
+            The subplot to draw on.
+        axlabels : :class:`bool`, :code:`True`
+            Whether to add x-y axis labels.
+        {otherparams}
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes on which the scatterplot is added.
+        """
+        obj = to_frame(self._obj)
+        components = _check_components(obj, components=components)
+
+        if len(components) != 2:
+            raise ValueError("log_scatter requires exactly two components.")
+
+        ax = init_axes(ax=ax, projection=None, **kwargs)
+
+
+        data = obj.reindex(columns=components).replace([np.inf, -np.inf], np.nan)
+
+        mask = (
+                np.isfinite(data[components[0]])
+                & np.isfinite(data[components[1]])
+                & (data[components[0]] >= xmin)
+                & (data[components[0]] <= xmax)
+                & (data[components[1]] >= ymin)
+                & (data[components[1]] <= ymax)
+        )
+        data = data.loc[mask]
+
+        size = data.index.size
+        kw = process_color(size=size, **kwargs)
+
+        ax.scatter(*data.values.T, **scatterkwargs(kw))
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
+
+        if axlabels:
+            label_axes(ax, labels=components)
+
+        ax.tick_params("both")
+        return ax
+
     def spider(
         self,
         components: list[str] | None = None,

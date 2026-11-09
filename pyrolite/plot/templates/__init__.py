@@ -15,6 +15,7 @@ from .sandstones import Herron, Pettijohn
 from .spinel import SpinelFeBivariate, SpinelTrivalentTernary
 from .TAS import TAS
 from .USDA_soil_texture import USDASoilTexture
+from .magnetite import Magnetite
 
 logger = Handle(__name__)
 
@@ -30,4 +31,5 @@ __all__ = [
     "USDASoilTexture",
     "pearceThNbYb",
     "pearceTiNbYb",
+    "Magnetite",
 ]

@@ -15,6 +15,7 @@ from collections.abc import Callable
 import matplotlib.axes
 import matplotlib.lines
 import matplotlib.patches
+import matplotlib.path
 import matplotlib.text
 import numpy as np
 import pandas as pd
@@ -845,6 +846,167 @@ class Herron(PolygonClassifier):
         poly_config = {**config, **kwargs}
         super().__init__(**poly_config)
 
+@update_docstring_references
+class Magnetite(PolygonClassifier):
+    """
+    Magnetite trace element discrimination diagrams for mineral deposit types
+    from Dupuis and Beaudoin (2011) [#ref_1]_. Fields are defined on log-log axes
+    for concentrations in wt%.
+
+    Parameters
+    -----------
+    which_model : str
+        Diagram to use: 'TiV_CaAlMn' (Ca+Al+Mn vs Ti+V; default) or
+        'TiV_NiCrMn' (Ni/(Cr+Mn) vs Ti+V).
+    name : str
+        A name for the classifier model.
+    axes : dict
+        Mapping from plot axes to variables to be used for labels.
+    fields : dict
+        Dictionary describing indiviudal polygons, with identifiers as keys and
+        dictionaries containing 'name' and 'fields' items.
+    xlim : tuple
+        Default x-limits for this classifier for plotting.
+    ylim : tuple
+        Default y-limits for this classifier for plotting.
+
+    References
+    -----------
+    .. [#ref_1] Dupuis, C., Beaudoin, G. (2011).
+                Discriminant diagrams for iron oxide trace element fingerprinting
+                of mineral deposit types. Mineralium Deposita 46, 319-335.
+                doi: {DupuisBeaudoin2011}
+    .. [#ref_2] Nadoll, P. (2011).
+                Geochemistry of magnetite from hydrothermal ore deposits and host rocks –
+                Case studies from the Proterozoic Belt Supergroup, Cu-Mo-porphyry + skarn
+                and Climax-Mo deposits in the western United States.
+                doi: {Nadoll2011}
+    .. [#ref_3] Nadoll, P., Angerer, T., Mauk, J. L., French, D., & Walshe, J. (2014).
+                The chemistry of hydrothermal magnetite: A review. Ore Geology Reviews, 61, 1–32.
+                doi: {Nadoll2014}
+    """
+
+    models = ("TiV_CaAlMn", "TiV_NiCrMn")
+
+    def __init__(self, which_model: str | None = None, **kwargs):
+        which_model = which_model or self.models[0]
+        if which_model not in self.models:
+            raise ValueError(
+                f"{which_model} is not a valid model; choose from {', '.join(self.models)}"
+            )
+        src = (
+            pyrolite_datafolder(subfolder="models")
+            / "Magnetite"
+            / f"config_{which_model}.json"
+        )
+        with open(src, "r") as f:
+            config = json.load(f)
+        super().__init__(**{**config, **kwargs})
+
+    def predict(
+        self,
+        X: np.ndarray[tuple[int, int], np.dtype[np.number]] | pd.DataFrame,
+        data_scale=None,
+    ) -> pd.Series:
+        """
+        Classify samples; point-in-polygon tests are done in log10 space, where
+        the field boundaries are straight lines.
+
+        Parameters
+        -----------
+        X : numpy.ndarray | pandas.DataFrame
+            Data to classify (wt%). Dataframes must contain the axis components.
+        data_scale : float
+            Maximum scale for the data. Typically 100 (wt%) or 1 (fractional).
+
+        Returns
+        -------
+        pandas.Series
+            Classifier predictions; 'none' for samples outside all fields.
+        """
+        if isinstance(X, pd.DataFrame):
+            idx, X = X.index, X.loc[:, self.axis_components].values
+        else:
+            idx = np.arange(X.shape[0])
+        rescale_by = 1.0
+        if data_scale is not None and not np.isclose(self.default_scale, data_scale):
+            rescale_by = self.default_scale / data_scale
+        with np.errstate(divide="ignore", invalid="ignore"):
+            X = np.log10(np.asarray(X, dtype=float) * rescale_by)
+
+        classes = [k for (k, cfg) in self.fields.items() if cfg["poly"]]
+        inside = np.array(
+            [
+                matplotlib.path.Path(np.log10(_read_poly(self.fields[k]["poly"]))).contains_points(X)
+                for k in classes
+            ]
+        ).T
+        out = pd.Series(np.array(classes, dtype=object)[inside.argmax(axis=1)], index=idx)
+        out[~inside.any(axis=1)] = "none"
+        return out
+
+    def add_to_axes(
+        self,
+        ax: matplotlib.axes.Axes | None = None,
+        fill: bool = False,
+        axes_scale: float = 1.0,
+        add_labels: bool = False,
+        which_labels: str = "ID",
+        which_ids: list[str] | None = None,
+        **kwargs,
+    ) -> matplotlib.axes.Axes:
+        """
+        Add the fields from the classifier to an axis, with log-scaled axes.
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            Axis to add the polygons to.
+        fill : bool
+            Whether to fill the polygons.
+        axes_scale : float
+            Maximum scale for the axes. Typically 100 (for wt%) or 1 (fractional).
+        add_labels : bool
+            Whether to add labels at the (log-space) polygon centroids.
+        which_labels : str
+            Which data to use for field labels - field 'name' or 'ID'.
+        which_ids : list
+            List of field IDs corresponding to the polygons to add to the axes object.
+
+        Returns
+        --------
+        ax : matplotlib.axes.Axes
+        """
+        ax = self._add_polygons_to_axes(
+            ax=ax,
+            fill=fill,
+            axes_scale=axes_scale,
+            add_labels=False,
+            which_ids=which_ids,
+            **kwargs,
+        )
+        ax.set(
+            xscale="log",
+            yscale="log",
+            **{f"{a}label": var for a, var in self.axes.items()},
+        )
+        if add_labels:
+            rescale_by = axes_scale / self.default_scale
+            use_keys = not which_labels.lower().startswith("name")
+            for k, cfg in self.fields.items():
+                if cfg["poly"] and (which_ids is None or k in which_ids):
+                    label = k if use_keys else cfg["name"][0]
+                    verts = np.log10(np.array(_read_poly(cfg["poly"])) * rescale_by)
+                    x, y = 10 ** np.array(get_centroid(matplotlib.patches.Polygon(verts)))
+                    ax.annotate(
+                        "\n".join(label.split()),
+                        xy=(x, y),
+                        ha="center",
+                        va="center",
+                        fontsize=kwargs.get("fontsize", 8),
+                        **subkwargs(kwargs, ax.annotate),
+                    )
+        return ax
 
 TAS.__doc__ = TAS.__doc__.format(
     LeBas1992=sphinx_doi_link("10.1007/BF01160698"),
@@ -863,4 +1025,9 @@ Pettijohn.__doc__ = Pettijohn.__doc__.format(
 )
 Herron.__doc__ = Herron.__doc__.format(
     Herron1988=sphinx_doi_link("10.1306/212F8E77-2B24-11D7-8648000102C1865D"),
+)
+Magnetite.__doc__ = Magnetite.__doc__.format(
+    DupuisBeaudoin2011=sphinx_doi_link("10.1007/s00126-011-0334-y"),
+    Nadoll2011=sphinx_doi_link("https://hdl.handle.net/2292/7512"),
+    Nadoll2014=sphinx_doi_link("10.1016/j.oregeorev.2013.12.013")
 )
