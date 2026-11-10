@@ -60,7 +60,7 @@ def tempdir(**kwargs):
     try:
         yield tmp_dir
     finally:
-        remove_tempdir(tmp_dir)
+        remove_directory(tmp_dir)
 
 
 def flatten_dict(d: dict, climb: bool = False, safemode: bool = False) -> dict:
@@ -180,7 +180,7 @@ def copy_file(
         os.chmod(str(dst), permissions)
 
 
-def remove_tempdir(directory: Path):
+def remove_directory(directory: Path):
     """
     Remove a specific directory, contained files and sub-directories.
 
