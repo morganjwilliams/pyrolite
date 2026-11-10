@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from pyrolite.util.general import remove_tempdir, temp_path
+from pyrolite.util.general import remove_directory, temp_path
 from pyrolite.util.synthetic import normal_frame
 
 try:
@@ -41,7 +41,7 @@ class TestFitSaveClassifier(unittest.TestCase):
         )
 
     def tearDown(self):
-        remove_tempdir(self.dir)
+        remove_directory(self.dir)
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")
@@ -58,7 +58,7 @@ class TestClassifierPerformanceReport(unittest.TestCase):
         )
 
     def tearDown(self):
-        remove_tempdir(self.dir)
+        remove_directory(self.dir)
 
 
 @unittest.skipUnless(HAVE_SKLEARN, "Requires Scikit-learn")

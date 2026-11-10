@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from pyrolite.util.general import remove_tempdir, temp_path
+from pyrolite.util.general import remove_directory, temp_path
 from pyrolite.util.meta import subkwargs
 from pyrolite.util.pd import (
     accumulate,
@@ -230,7 +230,7 @@ class TestDFFromCSVs(unittest.TestCase):
         self.assertTrue((df.columns == np.array(expect_cols)).all())
 
     def tearDown(self):
-        remove_tempdir(self.dir)
+        remove_directory(self.dir)
 
 
 if __name__ == "__main__":

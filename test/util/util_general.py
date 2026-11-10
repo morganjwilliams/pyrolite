@@ -1,6 +1,6 @@
 import unittest
 
-from pyrolite.util.general import (  # copy_file, remove_tempdir
+from pyrolite.util.general import (  # copy_file, remove_directory
     Timewith,
     flatten_dict,
     swap_item,
@@ -74,7 +74,7 @@ class TestCopyFile(unittest.TestCase):
 
 
 class TestRemoveTempdir(unittest.TestCase):
-    """Tests remove_tempdir utility function."""
+    """Tests remove_directory utility function."""
 
     def setUp(self):
         pass

@@ -5,7 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from pyrolite.util.general import remove_tempdir
+from pyrolite.util.general import remove_directory
 from pyrolite.util.plot.export import (
     get_full_extent,
     path_to_csv,
@@ -52,7 +52,7 @@ class TestSaveFunctions(unittest.TestCase):
                     save_axes(ax, name="test_ax", save_at=str(self.tempdir), pad=pad)
 
     def tearDown(self):
-        remove_tempdir(str(self.tempdir))
+        remove_directory(str(self.tempdir))
         plt.close("all")
 
 

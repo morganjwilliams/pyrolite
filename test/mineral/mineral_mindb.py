@@ -12,7 +12,7 @@ from pyrolite.mineral.mindb import (
     parse_composition,
     update_database,
 )
-from pyrolite.util.general import remove_tempdir, temp_path
+from pyrolite.util.general import remove_directory, temp_path
 
 update_database()
 
@@ -100,7 +100,7 @@ class TestUpdateDB(unittest.TestCase):
         update_database(path=self.alternatepath)
 
     def tearDown(self):
-        remove_tempdir(self.dir)
+        remove_directory(self.dir)
 
 
 if __name__ == "__main__":
