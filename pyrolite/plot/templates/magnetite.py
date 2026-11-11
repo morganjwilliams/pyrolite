@@ -48,7 +48,7 @@ def Magnetite(
                 Geochemistry of magnetite from hydrothermal ore deposits and host rocks –
                 Case studies from the Proterozoic Belt Supergroup, Cu-Mo-porphyry + skarn
                 and Climax-Mo deposits in the western United States.
-                doi: {Nadoll2011}
+                hdl: {Nadoll2011}
     .. [#ref_3] Nadoll, P., Angerer, T., Mauk, J. L., French, D., & Walshe, J. (2014).
                 The chemistry of hydrothermal magnetite: A review. Ore Geology Reviews, 61, 1–32.
                 doi: {Nadoll2014}
@@ -66,6 +66,6 @@ def Magnetite(
 
 Magnetite.__doc__ = Magnetite.__doc__.format(
     DupuisBeaudoin2011=sphinx_doi_link("10.1007/s00126-011-0334-y"),
-    Nadoll2011=sphinx_doi_link("https://hdl.handle.net/2292/7512"),
+    Nadoll2011="{hdl} <https://hdl.handle.net/2292/7512>__",
     Nadoll2014=sphinx_doi_link("10.1016/j.oregeorev.2013.12.013")
 )

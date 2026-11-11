@@ -98,7 +98,7 @@ plt.show()
 #   Nadoll, P. (2011). Geochemistry of magnetite from hydrothermal ore deposits and host rocks –
 #   Case studies from the Proterozoic Belt Supergroup, Cu-Mo-porphyry + skarn and Climax-Mo deposits
 #   in the western United States.
-#   `doi: hdl.handle.net/2292/7512 <https://hdl.handle.net/2292/7512>`__.
+#   `hdl: hdl.handle.net/2292/7512 <https://hdl.handle.net/2292/7512>`__.
 #
 #   Nadoll, P., Angerer, T., Mauk, J. L., French, D., & Walshe, J. (2014). The chemistry of hydrothermal
 #   magnetite: A review. Ore Geology Reviews, 61, 1–32.
