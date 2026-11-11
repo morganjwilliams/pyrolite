@@ -53,12 +53,13 @@ def Magnetite(
                 The chemistry of hydrothermal magnetite: A review. Ore Geology Reviews, 61, 1–32.
                 doi: {Nadoll2014}
     """
-    ax = init_axes(ax=ax, **kwargs)
+    ax = init_axes(ax=ax, logx=True, logy=True, **kwargs)
 
     clf = MagnetiteClassifier(which_model=which_model)
     ax = clf.add_to_axes(
         ax=ax, color=color, add_labels=add_labels, which_labels=which_labels, **kwargs
     )
+
     if relim:
         ax.set(xlim=clf.lims["xlim"], ylim=clf.lims["ylim"])
     return ax

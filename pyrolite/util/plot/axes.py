@@ -178,6 +178,8 @@ def init_axes(
     ax: matplotlib.axes.Axes | None = None,
     projection: str | None = None,
     minsize: float = 1.0,
+    logx: bool = False,
+    logy: bool = False,
     **kwargs,
 ) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
@@ -191,6 +193,10 @@ def init_axes(
         Whether to create a projected (e.g. ternary) axes.
     minsize : float
         Minimum figure dimension (inches).
+    logx : bool
+        Whether to set the x-axis to a logarithmic scale.
+    logy : bool
+        Whether to set the y-axis to a logarithmic scale.
 
     Returns
     --------
@@ -224,6 +230,11 @@ def init_axes(
                     ax = next(a for a in current_axes if a.name == "ternary")
             else:
                 pass
+    elif logx or logy:
+        if ax is None:
+            _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+        ax.set_xscale("log") if logx else ax.set_xscale("linear")
+        ax.set_yscale("log") if logy else ax.set_yscale("linear")
     else:
         if ax is None:
             _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
