@@ -19,6 +19,7 @@ import matplotlib.path
 import matplotlib.text
 import numpy as np
 import pandas as pd
+from jinja2.nodes import Literal
 from matplotlib.projections import get_projection_class
 
 from .log import Handle
@@ -202,6 +203,8 @@ class PolygonClassifier:
         add_labels: bool = False,
         which_labels: str = "ID",
         which_ids: list[str] | None = None,
+        xscale: str = "linear",
+        yscale: str = "linear",
         **kwargs,
     ) -> matplotlib.axes.Axes:
         """
@@ -223,6 +226,10 @@ class PolygonClassifier:
             List of field IDs corresponding to the polygons to add to the axes object.
             (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
             An empty list corresponds to plotting all the polygons.
+        xscale : str
+            Scale for the x-axis - 'linear' or 'log'.
+        yscale : str
+            Scale for the y-axis - 'linear' or 'log'.
 
         Returns
         --------
@@ -233,8 +240,18 @@ class PolygonClassifier:
         * Will rescale to the extent of the fields if limits not specified.
         * Will use IDs/keys for fields as labels if names not specified.
         """
+        if xscale not in ["linear", "log"]:
+            raise ValueError(f"xscale must be 'linear' or 'log', not {xscale}.")
+        if yscale not in ["linear", "log"]:
+            raise ValueError(f"yscale must be 'linear' or 'log', not {yscale}.")
+
         if ax is None:
-            ax: matplotlib.axes.Axes = init_axes(projection=self.projection, **kwargs)
+            ax: matplotlib.axes.Axes = init_axes(
+                projection=self.projection,
+                xscale=xscale,
+                yscale=yscale,
+                **kwargs
+            )
         else:
             if self.projection and not isinstance(
                 ax, get_projection_class(self.projection)

@@ -3,6 +3,7 @@ Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
 
 import warnings
+from typing import Literal
 
 import matplotlib.axes
 import matplotlib.colorbar
@@ -178,8 +179,8 @@ def init_axes(
     ax: matplotlib.axes.Axes | None = None,
     projection: str | None = None,
     minsize: float = 1.0,
-    logx: bool = False,
-    logy: bool = False,
+    xscale: str = "linear",
+    yscale: str = "linear",
     **kwargs,
 ) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
@@ -193,15 +194,20 @@ def init_axes(
         Whether to create a projected (e.g. ternary) axes.
     minsize : float
         Minimum figure dimension (inches).
-    logx : bool
-        Whether to set the x-axis to a logarithmic scale.
-    logy : bool
-        Whether to set the y-axis to a logarithmic scale.
+    xscale : str
+        Scale for the x-axis - 'linear' or 'log'.
+    yscale : str
+        Scale for the y-axis - 'linear' or 'log'.
 
     Returns
     --------
     ax : matplotlib.axes.Axes
     """
+    if xscale not in ["linear", "log"]:
+        raise ValueError(f"xscale must be 'linear' or 'log', not {xscale}.")
+    if yscale not in ["linear", "log"]:
+        raise ValueError(f"yscale must be 'linear' or 'log', not {yscale}.")
+    
     if "figsize" in kwargs:
         fs = kwargs["figsize"]
         kwargs["figsize"] = (
@@ -230,14 +236,11 @@ def init_axes(
                     ax = next(a for a in current_axes if a.name == "ternary")
             else:
                 pass
-    elif logx or logy:
-        if ax is None:
-            _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
-        ax.set_xscale("log") if logx else ax.set_xscale("linear")
-        ax.set_yscale("log") if logy else ax.set_yscale("linear")
     else:
         if ax is None:
             _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+            ax.set_xscale("log") if xscale == "log" else ax.set_xscale("linear")
+            ax.set_yscale("log") if yscale == "log" else ax.set_yscale("linear")
     return ax
 
 
