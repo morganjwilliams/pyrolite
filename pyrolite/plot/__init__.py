@@ -400,7 +400,7 @@ class pyroplot:
 
         Notes
         -----
-        See also: :meth:`pyrolite.plot.pyroplot.scatter`, :func:`matplotlib.pyplot.scatter`
+        See also: :meth:`pyrolite.plot.pyroplot.heatscatter`, :func:`matplotlib.pyplot.scatter`
         """
         obj = to_frame(self._obj)
         components = _check_components(obj, components=components)
