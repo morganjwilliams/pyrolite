@@ -11,6 +11,7 @@ Todo
 
 import json
 from collections.abc import Callable
+from typing import Literal
 
 import matplotlib.axes
 import matplotlib.lines
@@ -19,7 +20,6 @@ import matplotlib.path
 import matplotlib.text
 import numpy as np
 import pandas as pd
-from jinja2.nodes import Literal
 from matplotlib.projections import get_projection_class
 
 from .log import Handle
@@ -203,8 +203,8 @@ class PolygonClassifier:
         add_labels: bool = False,
         which_labels: str = "ID",
         which_ids: list[str] | None = None,
-        xscale: str = "linear",
-        yscale: str = "linear",
+        xscale: Literal["linear", "log"] = "linear",
+        yscale: Literal["linear", "log"] = "linear",
         **kwargs,
     ) -> matplotlib.axes.Axes:
         """
@@ -226,9 +226,9 @@ class PolygonClassifier:
             List of field IDs corresponding to the polygons to add to the axes object.
             (e.g. for TAS, ['F', 'T1'] to plot the Foidite and Trachyte fields).
             An empty list corresponds to plotting all the polygons.
-        xscale : str
+        xscale : Literal["linear", "log"]
             Scale for the x-axis - 'linear' or 'log'.
-        yscale : str
+        yscale : Literal["linear", "log"]
             Scale for the y-axis - 'linear' or 'log'.
 
         Returns
@@ -250,7 +250,7 @@ class PolygonClassifier:
                 projection=self.projection,
                 xscale=xscale,
                 yscale=yscale,
-                **kwargs
+                **kwargs,
             )
         else:
             if self.projection and not isinstance(

@@ -179,8 +179,8 @@ def init_axes(
     ax: matplotlib.axes.Axes | None = None,
     projection: str | None = None,
     minsize: float = 1.0,
-    xscale: str = "linear",
-    yscale: str = "linear",
+    xscale: Literal["linear", "log"] = "linear",
+    yscale: Literal["linear", "log"] = "linear",
     **kwargs,
 ) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
@@ -207,7 +207,7 @@ def init_axes(
         raise ValueError(f"xscale must be 'linear' or 'log', not {xscale}.")
     if yscale not in ["linear", "log"]:
         raise ValueError(f"yscale must be 'linear' or 'log', not {yscale}.")
-    
+
     if "figsize" in kwargs:
         fs = kwargs["figsize"]
         kwargs["figsize"] = (
@@ -216,7 +216,7 @@ def init_axes(
         )  # minimum figsize
     if projection is not None:  # e.g. ternary
         if ax is None:
-            fig, ax = plt.subplots(
+            _fig, ax = plt.subplots(
                 1,
                 subplot_kw={"projection": projection},
                 **subkwargs(kwargs, plt.subplots, plt.figure),
