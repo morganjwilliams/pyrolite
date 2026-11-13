@@ -236,17 +236,25 @@ def init_axes(
                     ax = next(a for a in current_axes if a.name == "ternary")
             else:
                 pass
+        if subkwargs(kwargs, ax.set):
+            ax.set(
+                **subkwargs(kwargs, ax.set),  # can set e.g. ternary lims
+            )
     else:
         if ax is None:
             _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
-            ax.set_xscale("log") if xscale == "log" else ax.set_xscale("linear")
-            ax.set_yscale("log") if yscale == "log" else ax.set_yscale("linear")
+
+        ax.set(  # set scales, other axes properties even if ax exists
+            xscale=xscale,
+            yscale=yscale,
+            **subkwargs(kwargs, ax.set),  # can set e.g. xlim, ylim here
+        )
     return ax
 
 
 def share_axes(
     axes: list[matplotlib.axes.Axes] | np.ndarray,
-    which: list | str = "xy",
+    which: tuple[Literal["x", "y"]] | Literal["x", "y", "xy", "yx", "both"] = "xy",
 ):
     """
     Link the x, y or both axes across a group of matplotlib.axes.Axes.
@@ -260,14 +268,17 @@ def share_axes(
         otherwise link both.
     """
     if which == "both":
-        which = "xy"
+        which = ("x", "y")
     if "x" in which:
         [a.sharex(axes[0]) for a in axes[1:]]
     if "y" in which:
         [a.sharey(axes[0]) for a in axes[1:]]
 
 
-def get_twins(ax: matplotlib.axes.Axes, which: str = "y") -> list[matplotlib.axes.Axes]:
+def get_twins(
+    ax: matplotlib.axes.Axes,
+    which: tuple[Literal["x", "y"]] | Literal["x", "y", "xy"] = "y",
+) -> list[matplotlib.axes.Axes]:
     """
     Get twin axes of a specified axis.
 
@@ -299,7 +310,7 @@ def get_twins(ax: matplotlib.axes.Axes, which: str = "y") -> list[matplotlib.axe
 
 def subaxes(
     ax: matplotlib.axes.Axes,
-    side: str = "bottom",
+    side: Literal["bottom", "top", "left", "right"] = "bottom",
     width: float = 0.2,
     moveticks: bool = True,
 ) -> matplotlib.axes.Axes:
