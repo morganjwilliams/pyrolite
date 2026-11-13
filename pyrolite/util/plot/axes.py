@@ -3,6 +3,7 @@ Functions for creating, ordering and modifying :class:`~matplolib.axes.Axes`.
 """
 
 import warnings
+from typing import Literal
 
 import matplotlib.axes
 import matplotlib.colorbar
@@ -178,6 +179,8 @@ def init_axes(
     ax: matplotlib.axes.Axes | None = None,
     projection: str | None = None,
     minsize: float = 1.0,
+    xscale: str = "linear",
+    yscale: str = "linear",
     **kwargs,
 ) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
@@ -191,11 +194,20 @@ def init_axes(
         Whether to create a projected (e.g. ternary) axes.
     minsize : float
         Minimum figure dimension (inches).
+    xscale : str
+        Scale for the x-axis - 'linear' or 'log'.
+    yscale : str
+        Scale for the y-axis - 'linear' or 'log'.
 
     Returns
     --------
     ax : matplotlib.axes.Axes
     """
+    if xscale not in ["linear", "log"]:
+        raise ValueError(f"xscale must be 'linear' or 'log', not {xscale}.")
+    if yscale not in ["linear", "log"]:
+        raise ValueError(f"yscale must be 'linear' or 'log', not {yscale}.")
+    
     if "figsize" in kwargs:
         fs = kwargs["figsize"]
         kwargs["figsize"] = (
@@ -227,6 +239,8 @@ def init_axes(
     else:
         if ax is None:
             _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+            ax.set_xscale("log") if xscale == "log" else ax.set_xscale("linear")
+            ax.set_yscale("log") if yscale == "log" else ax.set_yscale("linear")
     return ax
 
 

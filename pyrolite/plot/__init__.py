@@ -425,6 +425,7 @@ class pyroplot:
         # ax.set_aspect("equal")
         return ax
 
+
     def spider(
         self,
         components: list[str] | None = None,
