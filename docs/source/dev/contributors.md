@@ -23,3 +23,4 @@ comments, testing, bug reports, or feature requests.
 - [Bob Myhill](https://github.com/bobmyhill)
 - [Malte Mues](https://github.com/mmuesly)
 - [Jiawei Yun](https://github.com/louisyuncc)
+- [Jarrod Burges](https://github.com/jarrod-burges)

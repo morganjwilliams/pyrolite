@@ -10,6 +10,10 @@ If you're keen to check something out before its released, you can use a
 [development install](./development.md#development-installation) .
 :::
 
+- **New Contributor** / **PR Merged**: [Jarrod Burges](https://github.com/jarrod-burges)
+  contributed a PR to add magnetite trace element classification and discriminant diagrams;
+  [#129](https://github.com/morganjwilliams/pyrolite/pull/129).
+
 
 ## [v0.3.9]
 
