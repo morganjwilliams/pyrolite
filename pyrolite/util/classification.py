@@ -381,7 +381,7 @@ class AIOCG(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Montreuil J F, Corriveau L, and Grunsky E C (2015). Compositional data analysis of hydrothermal
+    .. [#ref_1] Montreuil J F, Corriveau L, and Grunsky E C (2013). Compositional data analysis of hydrothermal
     alteration in IOCG systems, Great Bear magmatic zone, Canada: to each alteration type its own geochemical signature.
             Geochemistry: Exploration, Environment, Analysis, 13 (4):229-247.
             doi:{Montreuil2013}

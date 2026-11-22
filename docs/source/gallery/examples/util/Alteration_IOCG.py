@@ -80,7 +80,7 @@ fig.show()
 # References & Citation
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-#   Montreuil J F, Corriveau L, and Grunsky E C (2015). Compositional data analysis of hydrothermal alteration in
+#   Montreuil J F, Corriveau L, and Grunsky E C (2013). Compositional data analysis of hydrothermal alteration in
 #   IOCG systems, Great Bear magmatic zone, Canada: to each alteration type its own geochemical signature.
 #   Geochemistry: Exploration, Environment, Analysis, 13 (4): 229 - 247.
 #   `doi: 10.1144/geochem2011-101 <https://doi.org/10.1144/geochem2011-101>`__.
