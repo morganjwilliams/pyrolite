@@ -381,10 +381,9 @@ class AIOCG(PolygonClassifier):
 
     References
     -----------
-    .. [#ref_1] Montreuil J F, Corriveau L, and Potter E G (2015). Formation of 
-            albitite-hosted uranium within IOCG systems: the Southern Breccia, 
-            Great Bear magmatic zone, Northwest Territories, Canada. 
-            Mineralium Deposita, 50:293-325.
+    .. [#ref_1] Montreuil J F, Corriveau L, and Grunsky E C (2015). Compositional data analysis of hydrothermal
+    alteration in IOCG systems, Great Bear magmatic zone, Canada: to each alteration type its own geochemical signature.
+            Geochemistry: Exploration, Environment, Analysis, 13 (4):229-247.
             doi:{Montreuil2013}
     """
 
@@ -397,6 +396,7 @@ class AIOCG(PolygonClassifier):
         )
         with open(src, "r") as f:
             config = json.load(f)
+        self.minerals = config.pop("minerals", {})
         super().__init__(**{**config, **kwargs})
 
     def predict(
@@ -444,6 +444,7 @@ class AIOCG(PolygonClassifier):
             axes_scale=1.0,
             add_labels=False,
             label_at_centroid=True,
+            add_minerals: bool = True,
             **kwargs
     ) -> matplotlib.axes.Axes:
         """
@@ -462,6 +463,8 @@ class AIOCG(PolygonClassifier):
         label_at_centroid : bool
             Whether to label the fields at the centroid (True) or at the visual
             center of the field (False).
+        add_minerals : bool
+            Whether to add stochastic reference minerals to the diagram.
 
         Returns
         --------
@@ -510,7 +513,34 @@ class AIOCG(PolygonClassifier):
                         fontsize=kwargs.get("fontsize", 8),
                         **subkwargs(kwargs, ax.annotate),
                     )
+        if add_minerals and self.minerals:
+            m = {k: np.array(v) * rescale_by for k, v in self.minerals.items()}
+            xy = np.array(list(m.values()))
+            ax.scatter(
+                xy[:, 0],
+                xy[:, 1],
+                marker="s",
+                c="0.5",
+                edgecolors="k",
+                s=kwargs.get("markersize", 20),
+                zorder=3,
+                clip_on=False,
+            )
 
+            akw = dict(
+                    textcoords="offset points",
+                    fontsize=kwargs.get("fontsize", 9) - 2,
+                    annotation_clip=False,
+                )
+            ax.annotate("Actinolite", m["Actinolite"], xytext=(-4, 0), ha="right", va="top", **akw)
+            ax.annotate("Albite", m["Albite"], xytext=(4, 0), ha="left", va="top", **akw)
+            ax.annotate("Almandine", m["Almandine"], xytext=(0, -2), ha="left", va="top", **akw)
+            ax.annotate("Biotite (annite)", m["Biotite (annite)"], xytext=(0, 6), ha="center", va="bottom", **akw)
+            ax.annotate("Diopside", m["Diopside"], xytext=(-4, 0), ha="right", va="top", **akw)
+            ax.annotate("Fe-actinolite", m["Fe-actinolite"], xytext=(-2, 0), ha="right", va="top", **akw)
+            ax.annotate("Fe-chlorite", m["Fe-chlorite (chamosite)"], xytext=(0, 6), ha="center", va="bottom", **akw)
+            ax.annotate("Magnetite\nHematite", m["Magnetite/Hematite"], xytext=(4, 0), ha="left", va="bottom", **akw)
+            ax.annotate("K-feldspar", m["K-feldspar"], xytext=(0, 6), ha="center", va="bottom", **akw)
 
         return ax
 
@@ -1020,5 +1050,5 @@ Herron.__doc__ = Herron.__doc__.format(
 )
 
 AIOCG.__doc__ = AIOCG.__doc__.format(
-    Montreuil2013=sphinx_doi_link("10.1007/s00126-014-0530-7")
+    Montreuil2013=sphinx_doi_link("10.1144/geochem2011-101")
 )

@@ -1,7 +1,7 @@
 import matplotlib
 
 from ...util.plot.axes import init_axes
-from ...util.classification import AIOCG
+from ...util.classification import AIOCG as AIOCGClassifier
 from ...util.meta import sphinx_doi_link, update_docstring_references, subkwargs
 from ...util.log import Handle
 
@@ -14,6 +14,7 @@ def AIOCG(
     add_labels: bool = False,
     relim: bool = True,
     color: str = "k",
+    add_minerals: bool = True,
     **kwargs,
 ) -> matplotlib.axes.Axes:
     """
@@ -30,18 +31,19 @@ def AIOCG(
         Whether to relimit axes to the default range for this diagram.
     color : str
         Color for the polygon edges in the diagram.
+    add_minerals : bool
+        Whether to add stochastic reference minerals to the diagram.
 
     References
     -----------
-    .. [#ref_1] Montreuil J F, Corriveau L, and Potter E G (2015). Formation of 
-            albitite-hosted uranium within IOCG systems: the Southern Breccia, 
-            Great Bear magmatic zone, Northwest Territories, Canada. 
-            Mineralium Deposita, 50:293-325.
+    .. [#ref_1] Montreuil J F, Corriveau L, and Grunsky E C (2015). Compositional data analysis of hydrothermal
+    alteration in IOCG systems, Great Bear magmatic zone, Canada: to each alteration type its own geochemical signature.
+            Geochemistry: Exploration, Environment, Analysis, 13 (4):229-247.
             doi:{Montreuil2013}
     """
     ax = init_axes(ax=ax, **kwargs)
 
-    clf = AIOCG()
+    clf = AIOCGClassifier()
 
     ax = clf.add_to_axes(
         ax=ax, color=color, add_labels=add_labels, **kwargs
@@ -52,6 +54,7 @@ def AIOCG(
     return ax
 
 
+
 AIOCG.__doc__ = AIOCG.__doc__.format(
-    Montreuil2013=sphinx_doi_link("10.1007/s00126-014-0530-7")
+    Montreuil2013=sphinx_doi_link("10.1144/geochem2011-101")
 )

@@ -33,18 +33,16 @@ for name, mu in centres.items():
     frames.append(pd.DataFrame(vals, columns=cols).assign(true=name))
 df = pd.concat(frames, ignore_index=True)
 
-df["(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar"] = (2*df.Ca + 5*df.Fe + 2*df.Mn) / (2*df.Ca + 5*df.Fe + 2*df.Mn + df.Mg + df.Si)
+df["(2Ca+5Fe+2Mn)/(2Ca+5Fe+2Mn+Mg+Si) molar"] = (2*df.Ca + 5*df.Fe + 2*df.Mn) / (2*df.Ca + 5*df.Fe + 2*df.Mn + df.Mg + df.Si)
 df["K/(K+Na+0.5Ca) molar"] = df.K / (df.K + df.Na + 0.5*df.Ca)
 ########################################################################################
 # We can visualise how this chemistry corresponds to the Alteration IOCG diagram:
-#
-
 
 cm = AIOCG()
 
 fig, ax = plt.subplots(1)
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
-df[["(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar", "K/(K+Na+0.5Ca) molar"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2, axlabels=False)
+df[["(2Ca+5Fe+2Mn)/(2Ca+5Fe+2Mn+Mg+Si) molar", "K/(K+Na+0.5Ca) molar"]].pyroplot.scatter(ax=ax, c="k", alpha=0.2, axlabels=False)
 fig.show()
 ########################################################################################
 # We can now classify this data according to the fields of the diagram, and
@@ -72,7 +70,7 @@ cm.add_to_axes(
     facecolor=[0.9, 0.8, 1.0],
 )
 cm.add_to_axes(ax, alpha=0.5, linewidth=0.5, zorder=-1, add_labels=True)
-df[["(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar", "K/(K+Na+0.5Ca) molar"]].pyroplot.scatter(
+df[["(2Ca+5Fe+2Mn)/(2Ca+5Fe+2Mn+Mg+Si) molar", "K/(K+Na+0.5Ca) molar"]].pyroplot.scatter(
     ax=ax, c=df["AlterationFacies"], alpha=0.7, axlabels=False
 )
 fig.show()
@@ -82,8 +80,8 @@ fig.show()
 # References & Citation
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-#   Montreuil J F, Corriveau L, and Potter E G (2015). Formation of albitite-hosted uranium within IOCG systems:
-#   the Southern Breccia, Great Bear magmatic zone, Northwest Territories, Canada.
-#   Mineralium Deposita, 50: 293 - 325.
-#   `doi: 10.1007/s00126-014-0530-7 <https://doi.org/10.1007/s00126-014-0530-7>`__.
+#   Montreuil J F, Corriveau L, and Grunsky E C (2015). Compositional data analysis of hydrothermal alteration in
+#   IOCG systems, Great Bear magmatic zone, Canada: to each alteration type its own geochemical signature.
+#   Geochemistry: Exploration, Environment, Analysis, 13 (4): 229 - 247.
+#   `doi: 10.1144/geochem2011-101 <https://doi.org/10.1144/geochem2011-101>`__.
 

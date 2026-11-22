@@ -1,7 +1,7 @@
 {
   "name": "AIOCG",
   "axes": {
-    "x": "(2Ca+5Fe+2Mn)+(2Ca+5Fe+2Mn+Mg+Si) molar",
+    "x": "(2Ca+5Fe+2Mn)/(2Ca+5Fe+2Mn+Mg+Si) molar",
     "y": "K/(K+Na+0.5Ca) molar"
   },
   "xlim": [
@@ -12,6 +12,17 @@
     0,
     1
   ],
+  "minerals": {
+    "Actinolite": [0.64, 0],
+    "Albite": [0, 0],
+    "Almandine": [0.81, 0],
+    "Biotite (annite)": [0.83, 1],
+    "Diopside": [0.40, 0],
+    "Fe-actinolite": [0.79, 0],
+    "Fe-chlorite (chamosite)": [0.90, 0],
+    "K-feldspar": [0, 1],
+    "Magnetite/Hematite": [1, 0]
+  },
   "scale": 1.0,
   "fields": {
     "K": {
