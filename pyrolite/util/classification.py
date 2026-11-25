@@ -399,43 +399,6 @@ class AIOCG(PolygonClassifier):
         self.minerals = config.pop("minerals", {})
         super().__init__(**{**config, **kwargs})
 
-    def predict(
-            self,
-            X: np.ndarray[tuple[int, int], np.dtype[np.number]] | pd.DataFrame,
-            data_scale= 1.0,
-    ) -> pd.Series:
-        """
-        Classify samples; point-in-polygon tests are done for each polygon field
-
-        Parameters
-        -----------
-        X : numpy.ndarray | pandas.DataFrame
-            Data to classify (wt%). Dataframes must contain the axis components.
-        data_scale : float
-            Maximum scale for the data. Typically, 100 (wt%) or 1 (fractional).
-
-        Returns
-        -------
-        pandas.Series
-            Classifier predictions; 'none' for samples outside all fields.
-        """
-        if isinstance(X, pd.DataFrame):
-            idx, X = X.index, X.loc[:, self.axis_components].to_numpy(dtype=float)
-        else:
-            X = np.asarray(X, dtype=float)
-            idx = pd.RangeIndex(X.shape[0])
-        X = X * (self.default_scale / data_scale)
-
-        classes = [k for (k, cfg) in self.fields.items() if cfg["poly"]]
-        inside = np.column_stack(
-            [
-                matplotlib.path.Path(_read_poly(self.fields[k]["poly"])).contains_points(X)
-                for k in classes
-            ]
-        )
-        out = pd.Series(np.array(classes, dtype=object)[inside.argmax(axis=1)], index=idx)
-        out[~inside.any(axis=1)] = "none"
-        return out
 
     def add_to_axes(
             self,
