@@ -244,11 +244,11 @@ def init_axes(
         if ax is None:
             _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
 
-        ax.set(  # set scales, other axes properties even if ax exists
-            xscale=xscale,
-            yscale=yscale,
-            **subkwargs(kwargs, ax.set),  # can set e.g. xlim, ylim here
-        )
+            ax.set(  # set scales, other axes properties even if ax exists
+                xscale=xscale,
+                yscale=yscale,
+                **subkwargs(kwargs, ax.set),  # can set e.g. xlim, ylim here
+            )
     return ax
 
 
