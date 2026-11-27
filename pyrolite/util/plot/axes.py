@@ -179,8 +179,6 @@ def init_axes(
     ax: matplotlib.axes.Axes | None = None,
     projection: str | None = None,
     minsize: float = 1.0,
-    xscale: Literal["linear", "log"] = "linear",
-    yscale: Literal["linear", "log"] = "linear",
     **kwargs,
 ) -> matplotlib.axes.Axes | list[matplotlib.axes.Axes] | np.ndarray:
     """
@@ -194,61 +192,52 @@ def init_axes(
         Whether to create a projected (e.g. ternary) axes.
     minsize : float
         Minimum figure dimension (inches).
-    xscale : str
-        Scale for the x-axis - 'linear' or 'log'.
-    yscale : str
-        Scale for the y-axis - 'linear' or 'log'.
 
     Returns
     --------
     ax : matplotlib.axes.Axes
+
+    Notes
+    -----
+    Extra keyword arguments are passed to subplot creation and axes
+    set function/methods.
     """
-    if xscale not in ["linear", "log"]:
-        raise ValueError(f"xscale must be 'linear' or 'log', not {xscale}.")
-    if yscale not in ["linear", "log"]:
-        raise ValueError(f"yscale must be 'linear' or 'log', not {yscale}.")
 
-    if "figsize" in kwargs:
-        fs = kwargs["figsize"]
-        kwargs["figsize"] = (
-            max(fs[0], minsize),
-            max(fs[1], minsize),
-        )  # minimum figsize
+    kw = {**kwargs}
+
+    if "figsize" in kw:
+        fs = kw["figsize"]
+        # minimum figsize
+        kw["figsize"] = (max(fs[0], minsize), max(fs[1], minsize))
+
     if projection is not None:  # e.g. ternary
-        if ax is None:
-            _fig, ax = plt.subplots(
-                1,
-                subplot_kw={"projection": projection},
-                **subkwargs(kwargs, plt.subplots, plt.figure),
-            )
-        else:  # axes passed
-            if ax.name != "ternary":
-                # if an axis is converted previously, but the original axes reference
-                # is used again, we'll end up with an error
-                current_axes = get_ordered_axes(ax.figure)
-                try:
-                    ix = current_axes.index(ax)
-                    axes = axes_to_ternary(ax)  # returns list of axes
-                    ax = axes[ix]
-                except ValueError:  # ax is not in list
-                    # ASSUMPTION due to mis-referencing:
-                    # take the first ternary one
-                    ax = next(a for a in current_axes if a.name == "ternary")
-            else:
-                pass
-        if subkwargs(kwargs, ax.set):
-            ax.set(
-                **subkwargs(kwargs, ax.set),  # can set e.g. ternary lims
-            )
-    else:
-        if ax is None:
-            _fig, ax = plt.subplots(1, **subkwargs(kwargs, plt.subplots, plt.figure))
+        kw["subplot_kw"] = {"projection": projection}
 
-        ax.set(  # set scales, other axes properties even if ax exists
-            xscale=xscale,
-            yscale=yscale,
-            **subkwargs(kwargs, ax.set),  # can set e.g. xlim, ylim here
-        )
+    if ax is None:
+        _fig, ax = plt.subplots(1, **subkwargs(kw, plt.subplots, plt.figure))
+
+    if (
+        ax is not None
+        and projection is not None
+        and projection == "ternary"
+        and ax.name != "ternary"
+    ):  # existing axes passed but doesn't match ternary, yet
+        # if an axis is converted previously, but the original axes reference
+        # is used again, we'll end up with an error
+        current_axes = get_ordered_axes(ax.figure)
+        try:
+            ix = current_axes.index(ax)
+            axes = axes_to_ternary(ax)  # returns list of axes
+            ax = axes[ix]
+        except ValueError:  # ax is not in list
+            # ASSUMPTION due to mis-referencing:
+            # take the first ternary one
+            ax = next(a for a in current_axes if a.name == "ternary")
+
+    # can set properties even if ax exists e.g. xlim, ylim, scales here
+    # can use kwargs directly, ax.set doesn't need subplot_kw!
+    if subkwargs(kwargs, ax.set):
+        ax.set(**subkwargs(kwargs, ax.set))
     return ax
 
 
